@@ -1,0 +1,75 @@
+Package: SCP
+Type: Package
+Title: Single Cell Pipeline
+Version: 0.1.2
+Author: Hao Zhang
+Maintainer: Hao Zhang <haozhang@njmu.edu.cn>
+Description: The SCP package provides a comprehensive set of tools for single cell data processing and downstream analysis.
+License: AGPL-3
+Encoding: UTF-8
+LazyData: true
+LazyDataCompression: xz
+biocViews:
+Depends:
+    R (>= 3.5.0)
+Imports:
+    R.cache,
+    Seurat,
+    SeuratObject,
+    batchelor,
+    slingshot,
+    DelayedMatrixStats,
+    RcppML,
+    intrinsicDimension,
+    reticulate,
+    clusterProfiler,
+    BiocParallel,
+    RcppParallel,
+    parallelDist,
+    parallel,
+    cowplot,
+    ggplot2,
+    sf,
+    metR,
+    ggnewscale,
+    ggrepel,
+    gtable,
+    grid,
+    grDevices,
+    plotly,
+    ComplexHeatmap,
+    circlize,
+    biomaRt,
+    Matrix,
+    proxyC,
+    plyr,
+    httr,
+    tidyr,
+    tibble,
+    stringr,
+    tidyselect,
+    methods,
+    rlang,
+    dplyr,
+    reshape2,
+    scales,
+    future,
+    symphony,
+    umap,
+    uwot,
+    harmony,
+    shiny,
+    rhdf5,
+    HDF5Array,
+    ggVennDiagram,
+    ggupset,
+    Mfuzz,
+    scDblFinder
+Remotes: 
+    satijalab/seurat-wrappers,
+    quadbiolab/simspec,
+    davidsjoberg/ggsankey
+Suggests:
+    renv,
+    covr
+RoxygenNote: 7.1.2
