@@ -1,0 +1,100 @@
+Package: SCP
+Type: Package
+Title: Single Cell Pipeline
+Version: 0.1.2
+Author: Hao Zhang
+Maintainer: Hao Zhang <haozhang@njmu.edu.cn>
+Description: The SCP package provides a comprehensive set of tools for single cell data processing and downstream analysis.
+License: AGPL-3
+Encoding: UTF-8
+LazyData: true
+LazyDataCompression: xz
+biocViews:
+Depends:
+    R (>= 3.5.0)
+Imports:
+    devtools,
+    R.cache,
+    Seurat,
+    SeuratObject,
+    batchelor,
+    slingshot,
+    DelayedMatrixStats,
+    intrinsicDimension,
+    reticulate,
+    clusterProfiler,
+    BiocParallel,
+    RcppParallel,
+    parallelDist,
+    cowplot,
+    ggplot2,
+    sf,
+    metR,
+    ggnewscale,
+    ggrepel,
+    gtable,
+    grid,
+    grDevices,
+    plotly,
+    ComplexHeatmap,
+    circlize,
+    biomaRt,
+    Matrix,
+    proxyC,
+    plyr,
+    httr,
+    tidyr,
+    tibble,
+    stringr,
+    tidyselect,
+    methods,
+    rlang,
+    dplyr,
+    reshape2,
+    scales,
+    future,
+    symphony,
+    umap,
+    uwot,
+    harmony,
+    shiny,
+    rhdf5,
+    HDF5Array,
+    scDblFinder,
+    AnnotationDbi,
+    GO.db,
+    GOSemSim,
+    org.Hs.eg.db,
+    org.Mm.eg.db,
+    mgcv,
+    RcppML,
+    harmony,
+    rliger,
+    png,
+    grDevices,
+    ggpubr,
+    ggVennDiagram,
+    ggupset,
+    circlize,
+    ggwordcloud,
+    MatrixGenerics,
+    symphony,
+    shiny,
+    shinycssloaders,
+    styler
+Remotes: 
+    satijalab/seurat-wrappers,
+    quadbiolab/simspec,
+    carmonalab/UCell,
+    davidsjoberg/ggsankey,
+    exaexa/scattermore
+Suggests:
+    renv,
+    covr,
+    scds,
+    NMF,
+    MASS,
+    Mfuzz,
+    AUCell,
+    htmlwidgets
+RoxygenNote: 7.2.0

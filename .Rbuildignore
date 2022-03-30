@@ -1,0 +1,11 @@
+^requirements\.txt$
+^renv$
+^renv\.lock$
+^.*\.Rproj$
+^\.Rproj\.user$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$
+^\.github$
+^codecov\.yml$
+^README\.Rmd$
