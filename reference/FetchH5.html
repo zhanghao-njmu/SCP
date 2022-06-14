@@ -59,24 +59,32 @@
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"pancreas1k"</span><span class="op">)</span></span>
 <span class="r-in"><span class="va">pancreas1k</span> <span class="op">&lt;-</span> <span class="fu"><a href="Standard_SCP.html">Standard_SCP</a></span><span class="op">(</span><span class="va">pancreas1k</span><span class="op">)</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-06-14 02:48:33] Start Standard_SCP</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-06-14 02:48:33] Checking srtList... ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-06-14 03:43:23] Start Standard_SCP</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-06-14 03:43:23] Checking srtList... ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Data 1/1 of the srtList is raw counts. Perform NormalizeData(logCPM) on the data ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform FindVariableFeatures on the data 1/1 of the srtList...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Use the separate HVF from the existed HVF in srtList...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-06-14 02:48:35] Finished checking.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-06-14 03:43:25] Finished checking.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform ScaleData on the data...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform linear dimension reduction (pca) on the data...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform FindClusters (louvain) on the data...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Reorder clusters...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform nonlinear dimension reduction (umap) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-06-14 02:48:51] Standard_SCP done</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 18.52 secs </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Found more than one class "dist" in cache; using the first, from namespace 'BiocGenerics'</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Also defined by ‘spam’</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Found more than one class "dist" in cache; using the first, from namespace 'BiocGenerics'</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Also defined by ‘spam’</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Found more than one class "dist" in cache; using the first, from namespace 'BiocGenerics'</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Also defined by ‘spam’</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Found more than one class "dist" in cache; using the first, from namespace 'BiocGenerics'</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Also defined by ‘spam’</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-06-14 03:43:41] Standard_SCP done</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 18.61 secs </span>
 <span class="r-in"><span class="fu"><a href="PrepareSCExplorer.html">PrepareSCExplorer</a></span><span class="op">(</span><span class="va">pancreas1k</span>, base_dir <span class="op">=</span> <span class="st">"./SCExplorer"</span><span class="op">)</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Create SCExplorer base directory: /tmp/Rtmp8d2Q1F/file4b3e4f909104/reference/SCExplorer</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Create SCExplorer base directory: /tmp/Rtmp6isiRd/file42205b34bd73/reference/SCExplorer</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Set the project name of each seurat object in the list to their dataset name</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Write the expression matrix to hdf5 file: /tmp/Rtmp8d2Q1F/file4b3e4f909104/reference/SCExplorer/Data.hdf5</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Write the meta information to hdf5 file: /tmp/Rtmp8d2Q1F/file4b3e4f909104/reference/SCExplorer/Meta.hdf5</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Write the expression matrix to hdf5 file: /tmp/Rtmp6isiRd/file42205b34bd73/reference/SCExplorer/Data.hdf5</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Write the meta information to hdf5 file: /tmp/Rtmp6isiRd/file42205b34bd73/reference/SCExplorer/Meta.hdf5</span>
 <span class="r-in"><span class="fu">FetchH5</span><span class="op">(</span><span class="st">"./SCExplorer/Data.hdf5"</span>, <span class="st">"./SCExplorer/Meta.hdf5"</span>, features <span class="op">=</span> <span class="st">"Isl1"</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span><span class="op">)</span></span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Cannot add objects with duplicate keys (offending key: StandardpcaUMAP2D_), setting key to 'standardpcaumap2d_'</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Cannot add objects with duplicate keys (offending key: StandardpcaUMAP3D_), setting key to 'standardpcaumap3d_'</span>

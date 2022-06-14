@@ -267,19 +267,19 @@
 <span class="r-plt img"><img src="ClassDimPlot-4.png" alt="" width="1000" height="600"></span>
 <span class="r-in"></span>
 <span class="r-in"><span class="va">pancreas1k</span> <span class="op">&lt;-</span> <span class="fu"><a href="Standard_SCP.html">Standard_SCP</a></span><span class="op">(</span><span class="va">pancreas1k</span><span class="op">)</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-06-14 02:35:22] Start Standard_SCP</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-06-14 02:35:22] Checking srtList... ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-06-14 03:29:22] Start Standard_SCP</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-06-14 03:29:22] Checking srtList... ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Data 1/1 of the srtList is raw counts. Perform NormalizeData(logCPM) on the data ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform FindVariableFeatures on the data 1/1 of the srtList...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Use the separate HVF from the existed HVF in srtList...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-06-14 02:35:24] Finished checking.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-06-14 03:29:23] Finished checking.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform ScaleData on the data...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform linear dimension reduction (pca) on the data...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform FindClusters (louvain) on the data...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Reorder clusters...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform nonlinear dimension reduction (umap) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-06-14 02:35:39] Standard_SCP done</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 17.09 secs </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-06-14 03:29:39] Standard_SCP done</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 17.03 secs </span>
 <span class="r-in"><span class="fu">ClassDimPlot</span><span class="op">(</span><span class="va">pancreas1k</span>, group.by <span class="op">=</span> <span class="st">"CellType"</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span>, graph <span class="op">=</span> <span class="st">"Standardpca_SNN"</span><span class="op">)</span></span>
 <span class="r-plt img"><img src="ClassDimPlot-5.png" alt="" width="1000" height="600"></span>
 <span class="r-in"></span>
@@ -338,9 +338,13 @@
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Removed 1 rows containing missing values (geom_segment).</span>
 <span class="r-plt img"><img src="ClassDimPlot-12.png" alt="" width="1000" height="600"></span>
 <span class="r-in"><span class="fu">ClassDimPlot</span><span class="op">(</span><span class="va">pancreas1k</span>, group.by <span class="op">=</span> <span class="st">"SubCellType"</span>, pt.size <span class="op">=</span> <span class="fl">5</span>, pt.alpha <span class="op">=</span> <span class="fl">0.2</span>, velocity <span class="op">=</span> <span class="st">"stochastic"</span>, velocity_plot_type <span class="op">=</span> <span class="st">"grid"</span><span class="op">)</span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in dnorm(dists, sd = mean(sapply(grs, function(g) g[2] - g[1])) *     smooth):</span> object 'dists' not found</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Removed 14 rows containing missing values (geom_segment).</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Removed 14 rows containing missing values (geom_segment).</span>
+<span class="r-plt img"><img src="ClassDimPlot-13.png" alt="" width="1000" height="600"></span>
 <span class="r-in"><span class="fu">ClassDimPlot</span><span class="op">(</span><span class="va">pancreas1k</span>, group.by <span class="op">=</span> <span class="st">"SubCellType"</span>, pt.size <span class="op">=</span> <span class="fl">5</span>, pt.alpha <span class="op">=</span> <span class="fl">0.2</span>, velocity <span class="op">=</span> <span class="st">"stochastic"</span>, velocity_plot_type <span class="op">=</span> <span class="st">"grid"</span>, velocity_scale <span class="op">=</span> <span class="fl">1.5</span><span class="op">)</span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in dnorm(dists, sd = mean(sapply(grs, function(g) g[2] - g[1])) *     smooth):</span> object 'dists' not found</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Removed 14 rows containing missing values (geom_segment).</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Removed 14 rows containing missing values (geom_segment).</span>
+<span class="r-plt img"><img src="ClassDimPlot-14.png" alt="" width="1000" height="600"></span>
 <span class="r-in"><span class="fu">ClassDimPlot</span><span class="op">(</span><span class="va">pancreas1k</span>, group.by <span class="op">=</span> <span class="st">"SubCellType"</span>, pt.size <span class="op">=</span> <span class="fl">5</span>, pt.alpha <span class="op">=</span> <span class="fl">0.2</span>, velocity <span class="op">=</span> <span class="st">"stochastic"</span>, velocity_plot_type <span class="op">=</span> <span class="st">"stream"</span><span class="op">)</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> No R package named 'metR'. Try to install...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> 'getOption("repos")' replaces Bioconductor standard repositories, see</span>
@@ -351,7 +355,7 @@
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Bioconductor version 3.15 (BiocManager 1.30.18), R 4.2.0 (2022-04-22)</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Installing package(s) 'BiocVersion', 'metR'</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> also installing the dependencies ‘dotCall64’, ‘spam’, ‘maps’, ‘operator.tools’, ‘fields’, ‘formula.tools’, ‘lubridate’</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in dnorm(dists, sd = mean(sapply(grs, function(g) g[2] - g[1])) *     smooth):</span> object 'dists' not found</span>
+<span class="r-plt img"><img src="ClassDimPlot-15.png" alt="" width="1000" height="600"></span>
 <span class="r-in"><span class="fu">ClassDimPlot</span><span class="op">(</span><span class="va">pancreas1k</span>,</span>
 <span class="r-in">  group.by <span class="op">=</span> <span class="st">"SubCellType"</span>, pt.size <span class="op">=</span> <span class="fl">5</span>, pt.alpha <span class="op">=</span> <span class="fl">0.2</span>,</span>
 <span class="r-in">  label <span class="op">=</span> <span class="cn">TRUE</span>, label_insitu <span class="op">=</span> <span class="cn">TRUE</span>,</span>
@@ -359,7 +363,7 @@
 <span class="r-in">  velocity_density <span class="op">=</span> <span class="fl">2</span>, velocity_smooth <span class="op">=</span> <span class="fl">1</span>, streamline_n <span class="op">=</span> <span class="fl">20</span>, streamline_color <span class="op">=</span> <span class="st">"black"</span>,</span>
 <span class="r-in">  show_stat <span class="op">=</span> <span class="cn">FALSE</span>, legend.position <span class="op">=</span> <span class="st">"none"</span>, theme_use <span class="op">=</span> <span class="st">"theme_blank"</span></span>
 <span class="r-in"><span class="op">)</span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in dnorm(dists, sd = mean(sapply(grs, function(g) g[2] - g[1])) *     smooth):</span> object 'dists' not found</span>
+<span class="r-plt img"><img src="ClassDimPlot-16.png" alt="" width="1000" height="600"></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
