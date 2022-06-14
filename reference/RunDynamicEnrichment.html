@@ -78,7 +78,7 @@
 <span class="r-in"><span class="va">pancreas1k</span> <span class="op">&lt;-</span> <span class="fu"><a href="RunSlingshot.html">RunSlingshot</a></span><span class="op">(</span><span class="va">pancreas1k</span>, group.by <span class="op">=</span> <span class="st">"SubCellType"</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span><span class="op">)</span></span>
 <span class="r-plt img"><img src="RunDynamicEnrichment-1.png" alt="" width="1000" height="600"></span>
 <span class="r-in"><span class="va">pancreas1k</span> <span class="op">&lt;-</span> <span class="fu"><a href="RunDynamicFeatures.html">RunDynamicFeatures</a></span><span class="op">(</span><span class="va">pancreas1k</span>, lineages <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Lineage1"</span>, <span class="st">"Lineage2"</span><span class="op">)</span>, n_candidates <span class="op">=</span> <span class="fl">200</span><span class="op">)</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-06-14 04:48:58] Start RunDynamicFeatures</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-06-14 06:52:50] Start RunDynamicFeatures</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Number of candidate features(union): 225</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Calculate dynamic features for Lineage1...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                    |                                                            |   0%  |                                                                    |============================================================| 100%</span>
@@ -86,8 +86,8 @@
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Calculate dynamic features for Lineage2...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                    |                                                            |   0%  |                                                                    |============================================================| 100%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-06-14 04:49:40] RunDynamicFeatures done</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 41.75 secs </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-06-14 06:53:22] RunDynamicFeatures done</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 32.03 secs </span>
 <span class="r-in"><span class="va">ht_result</span> <span class="op">&lt;-</span> <span class="fu"><a href="DynamicHeatmap.html">DynamicHeatmap</a></span><span class="op">(</span></span>
 <span class="r-in">  srt <span class="op">=</span> <span class="va">pancreas1k</span>,</span>
 <span class="r-in">  lineages <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Lineage1"</span>, <span class="st">"Lineage2"</span><span class="op">)</span>,</span>
@@ -105,39 +105,10 @@
 <span class="r-in">  species <span class="op">=</span> <span class="st">"Mus_musculus"</span></span>
 <span class="r-in"><span class="op">)</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Species: Mus_musculus</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Loaded cached db: GO_BP version:3.15.0 nterm:1483108 created:2022-06-14 04:30:25</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Loaded cached db: GO_BP version:3.15.0 nterm:1483108 created:2022-06-14 06:37:17</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Convert ID types for the database: GO_BP</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Connecting to the Ensembl archives...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Using the 103 version of biomart...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Connecting to the biomart...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Connecting to the dataset mmusculus_gene_ensembl ...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Match and convert the geneID...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 22313 genes mapped with entrez_id</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ==============================</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 22313 genes mapped</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 6501 genes unmapped</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ==============================</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>object is not log normalized</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> No R package named 'AUCell'. Try to install...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 'getOption("repos")' replaces Bioconductor standard repositories, see</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> '?repositories' for details</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> replacement repositories:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>     CRAN: https://cloud.r-project.org</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Bioconductor version 3.15 (BiocManager 1.30.18), R 4.2.0 (2022-04-22)</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Installing package(s) 'AUCell'</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> also installing the dependencies ‘annotate’, ‘graph’, ‘kernlab’, ‘segmented’, ‘GSEABase’, ‘mixtools’</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Keys should be one or more alphanumeric characters followed by an underscore, setting key from go_bp_ to gobp_</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-06-14 04:59:32] Start RunDynamicFeatures</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Number of candidate features(union): 2957</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Calculate dynamic features for Lineage1...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                    |                                                            |   0%  |                                                                    |============================================================| 100%</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Calculate dynamic features for Lineage2...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                    |                                                            |   0%  |                                                                    |============================================================| 100%</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-06-14 05:01:56] RunDynamicFeatures done</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 2.39 mins </span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in curl::curl_fetch_memory(url, handle = handle):</span> Timeout was reached: [www.ensembl.org] Connection timed out after 10001 milliseconds</span>
 <span class="r-in"><span class="va">ht_result</span> <span class="op">&lt;-</span> <span class="fu"><a href="DynamicHeatmap.html">DynamicHeatmap</a></span><span class="op">(</span></span>
 <span class="r-in">  srt <span class="op">=</span> <span class="va">pancreas1k</span>, assay <span class="op">=</span> <span class="st">"GO_BP"</span>, use_fitted <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span class="r-in">  lineages <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Lineage1_GO_BP"</span>, <span class="st">"Lineage2_GO_BP"</span><span class="op">)</span>,</span>
@@ -145,6 +116,7 @@
 <span class="r-in">  n_cluster <span class="op">=</span> <span class="fl">6</span>, reverse_ht <span class="op">=</span> <span class="fl">1</span>,</span>
 <span class="r-in">  height <span class="op">=</span> <span class="fl">5</span>, width <span class="op">=</span> <span class="fl">7</span>, use_raster <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span class="r-in"><span class="op">)</span></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in DynamicHeatmap(srt = pancreas1k, assay = "GO_BP", use_fitted = TRUE,     lineages = c("Lineage1_GO_BP", "Lineage2_GO_BP"), cell_annotation = "SubCellType",     n_cluster = 6, reverse_ht = 1, height = 5, width = 7, use_raster = FALSE):</span> Lineage1_GO_BP info not found in the srt object. Should perform RunDynamicFeatures first!</span>
 <span class="r-in"><span class="va">ht_result</span><span class="op">$</span><span class="va">plot</span></span>
 <span class="r-plt img"><img src="RunDynamicEnrichment-3.png" alt="" width="1000" height="600"></span>
 <span class="r-in"><span class="co"># }</span></span>
