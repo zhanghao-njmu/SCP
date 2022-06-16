@@ -100,7 +100,7 @@ patsy==0.5.2
 pexpect==4.8.0
 PhenoGraph==1.5.7
 pickleshare==0.7.5
-Pillow==8.4.0
+Pillow==9.0.1
 platformdirs==2.4.0
 plotnine==0.8.0
 POT==0.8.0
