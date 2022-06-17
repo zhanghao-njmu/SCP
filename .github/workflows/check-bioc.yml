@@ -52,9 +52,9 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - { os: ubuntu-latest, r: '4.1', bioc: '3.13', cont: "bioconductor/bioconductor_docker:RELEASE_3_13", rspm: "https://packagemanager.rstudio.com/cran/__linux__/focal/latest" }
-          - { os: macOS-latest, r: '4.1', bioc: '3.13'}
-          - { os: windows-latest, r: '4.1', bioc: '3.13'}
+          - { os: ubuntu-latest, r: '4.2', bioc: '3.15', cont: "bioconductor/bioconductor_docker:RELEASE_3_15", rspm: "https://packagemanager.rstudio.com/cran/__linux__/focal/latest" }
+          - { os: macOS-latest, r: '4.2', bioc: '3.15'}
+          - { os: windows-latest, r: '4.2', bioc: '3.15'}
           ## Check https://github.com/r-lib/actions/tree/master/examples
           ## for examples using the http-user-agent
     env:
@@ -105,16 +105,16 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ${{ env.R_LIBS_USER }}
-          key: ${{ env.cache-version }}-${{ runner.os }}-biocversion-RELEASE_3_13-r-4.1-${{ hashFiles('.github/depends.Rds') }}
-          restore-keys: ${{ env.cache-version }}-${{ runner.os }}-biocversion-RELEASE_3_13-r-4.1-
+          key: ${{ env.cache-version }}-${{ runner.os }}-biocversion-RELEASE_3_15-r-4.2-${{ hashFiles('.github/depends.Rds') }}
+          restore-keys: ${{ env.cache-version }}-${{ runner.os }}-biocversion-RELEASE_3_15-r-4.2-
 
       - name: Cache R packages on Linux
         if: "!contains(github.event.head_commit.message, '/nocache') && runner.os == 'Linux' "
         uses: actions/cache@v2
         with:
           path: /home/runner/work/_temp/Library
-          key: ${{ env.cache-version }}-${{ runner.os }}-biocversion-RELEASE_3_13-r-4.1-${{ hashFiles('.github/depends.Rds') }}
-          restore-keys: ${{ env.cache-version }}-${{ runner.os }}-biocversion-RELEASE_3_13-r-4.1-
+          key: ${{ env.cache-version }}-${{ runner.os }}-biocversion-RELEASE_3_15-r-4.2-${{ hashFiles('.github/depends.Rds') }}
+          restore-keys: ${{ env.cache-version }}-${{ runner.os }}-biocversion-RELEASE_3_15-r-4.2-
 
       - name: Install Linux system dependencies
         if: runner.os == 'Linux'
@@ -176,7 +176,7 @@ jobs:
           gha_repos <- if(
               .Platform$OS.type == "unix" && Sys.info()["sysname"] != "Darwin"
           ) c(
-              "AnVIL" = "https://bioconductordocker.blob.core.windows.net/packages/3.13/bioc",
+              "AnVIL" = "https://bioconductordocker.blob.core.windows.net/packages/3.15/bioc",
               BiocManager::repositories()
               ) else BiocManager::repositories()
 
@@ -291,7 +291,7 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@master
         with:
-          name: ${{ runner.os }}-biocversion-RELEASE_3_13-r-4.1-results
+          name: ${{ runner.os }}-biocversion-RELEASE_3_15-r-4.2-results
           path: check
 
         ## Note that DOCKER_PASSWORD is really a token for your dockerhub

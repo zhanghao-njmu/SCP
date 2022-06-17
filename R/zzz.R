@@ -52,6 +52,7 @@
   }
 
   if (!reticulate::virtualenv_exists("SCP")) {
+    packageStartupMessage("Create SCP virtual environment. The path is: ", reticulate:::virtualenv_path("SCP"))
     reticulate::virtualenv_create(envname = "SCP", python = python_path)
   }
   Sys.setenv(RETICULATE_PYTHON = reticulate::virtualenv_python("SCP"))
@@ -88,7 +89,7 @@
         run_Python(command = "matplotlib.use('pdf')", envir = .GlobalEnv)
       }
       run_Python(command = "import matplotlib.pyplot as plt", envir = .GlobalEnv)
-      # check_Python(pkgs = "versioned-hdf5", envname = "SCP")
+      check_Python(pkgs = "versioned-hdf5", envname = "SCP")
       check_Python(pkgs = c("numba==0.53.1", "scanpy"), envname = "SCP")
       run_Python(command = "import scanpy", envir = .GlobalEnv)
 

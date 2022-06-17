@@ -2551,7 +2551,7 @@ RunPalantir <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_la
                         max_iterations = 25, n_jobs = 8, point_size = 20,
                         show_plot = TRUE, dpi = 300, save = FALSE, dirpath = "./", fileprefix = "",
                         return_seurat = FALSE) {
-  check_Python(c("matplotlib", "scanpy", "python-igraph", "PhenoGraph", "palantir", "rpy2", "harmonyTS"))
+  check_Python(c("matplotlib", "scanpy", "python-igraph", "palantir"))
   if (all(is.null(srt), is.null(adata), is.null(h5ad))) {
     stop("One of 'srt', 'adata' or 'h5ad' must be provided.")
   }

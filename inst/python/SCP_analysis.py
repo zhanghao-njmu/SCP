@@ -697,7 +697,6 @@ def Dynamo(adata=None, h5ad=None,group_by=None,
   import numpy as np
   import pandas as pd
   import palantir
-  import harmony
   
   import warnings
   warnings.simplefilter("ignore", category=UserWarning)
