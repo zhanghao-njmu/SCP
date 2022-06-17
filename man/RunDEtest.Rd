@@ -50,7 +50,6 @@ RunDEtest(
 Differential gene test
 }
 \examples{
-\donttest{
 library(dplyr)
 data(pancreas1k)
 pancreas1k <- RunDEtest(pancreas1k, group_by = "SubCellType")
@@ -66,5 +65,4 @@ de_top <- de_filter \%>\%
   group_by(group1) \%>\%
   top_n(3, avg_log2FC)
 ExpDotPlot(pancreas1k, genes = de_top$gene, gene_groups = de_top$group1, cell_group_by = "SubCellType")
-}
 }

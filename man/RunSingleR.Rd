@@ -31,7 +31,7 @@ Annotate single cells using scmap.
 }
 \examples{
 if (!require("SeuratData", quietly = TRUE)) {
-  devtools::install_github("satijalab/seurat-data")
+  devtools::install_github("zhanghao-njmu/seurat-data")
 }
 library(SeuratData)
 library(stringr)

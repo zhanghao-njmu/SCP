@@ -5,7 +5,7 @@ NULL
 #'
 #' @examples
 #' if (!require("SeuratData", quietly = TRUE)) {
-#'   devtools::install_github("satijalab/seurat-data")
+#'   devtools::install_github("zhanghao-njmu/seurat-data")
 #' }
 #' library(SeuratData)
 #' library(stringr)
@@ -246,7 +246,7 @@ RunKNNMap <- function(srt_query, srt_ref, ref_umap = NULL, force = FALSE,
 #'
 #' @examples
 #' if (!require("SeuratData", quietly = TRUE)) {
-#'   devtools::install_github("satijalab/seurat-data")
+#'   devtools::install_github("zhanghao-njmu/seurat-data")
 #' }
 #' library(SeuratData)
 #' library(stringr)
@@ -384,7 +384,7 @@ RunPCAMap <- function(srt_query, srt_ref, ref_pca = NULL, ref_dims = 1:30, ref_u
 #'
 #' @examples
 #' if (!require("SeuratData", quietly = TRUE)) {
-#'   devtools::install_github("satijalab/seurat-data")
+#'   devtools::install_github("zhanghao-njmu/seurat-data")
 #' }
 #' library(SeuratData)
 #' library(stringr)
@@ -513,7 +513,7 @@ RunSeuratMap <- function(srt_query, srt_ref,
 #'
 #' @examples
 #' if (!require("SeuratData", quietly = TRUE)) {
-#'   devtools::install_github("satijalab/seurat-data")
+#'   devtools::install_github("zhanghao-njmu/seurat-data")
 #' }
 #' library(SeuratData)
 #' library(stringr)
@@ -643,7 +643,7 @@ RunCSSMap <- function(srt_query, srt_ref, ref_css = NULL, ref_umap = NULL, force
 #'
 #' @examples
 #' if (!require("SeuratData", quietly = TRUE)) {
-#'   devtools::install_github("satijalab/seurat-data")
+#'   devtools::install_github("zhanghao-njmu/seurat-data")
 #' }
 #' library(SeuratData)
 #' library(stringr)

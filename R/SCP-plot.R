@@ -435,7 +435,7 @@ panel_fix_single <- function(x, panel_index = NULL,
       child_list <- list()
       for (j in 1:length(g[["children"]])) {
         child <- g[["children"]][[j]]
-        if (!is.null(child$vp) || grepl("(text)|(label)", names(g[["children"]])[j])) {
+        if (!is.null(child$vp) || isTRUE(grepl("(text)|(label)", names(g[["children"]])[j]))) {
           g[["children"]][[j]] <- zeroGrob()
           child_list <- c(child_list, list(child))
         }
@@ -5328,17 +5328,17 @@ SummaryPlot <- function(srt,
 #' @param byrow byrow
 #'
 #' @examples
-#' \donttest{
-#' data("pancreas1k")
-#' library(dplyr)
-#' pancreas1k <- RunDEtest(pancreas1k, group_by = "CellType")
-#' de_filter <- filter(pancreas1k@tools$DEtest_CellType$AllMarkers_wilcox, p_val_adj < 0.05)
-#' res <- RunEnrichment(geneID = de_filter$gene, geneID_groups = de_filter$group1, enrichment = "GO_BP", species = "Mus_musculus")
-#' EnrichmentPlot(res$enrichment, plot_type = "bar")
-#' EnrichmentPlot(res$enrichment, plot_type = "bar", character_width = 30, text_size_scale = 0.8)
+#' if (interactive()) {
+#'   data("pancreas1k")
+#'   library(dplyr)
+#'   pancreas1k <- RunDEtest(pancreas1k, group_by = "CellType")
+#'   de_filter <- filter(pancreas1k@tools$DEtest_CellType$AllMarkers_wilcox, p_val_adj < 0.05)
+#'   res <- RunEnrichment(geneID = de_filter$gene, geneID_groups = de_filter$group1, enrichment = "GO_BP", species = "Mus_musculus")
+#'   EnrichmentPlot(res$enrichment, plot_type = "bar")
+#'   EnrichmentPlot(res$enrichment, plot_type = "bar", character_width = 30, text_size_scale = 0.8)
 #'
-#' EnrichmentPlot(filter(res$enrichment, Groups %in% c("Ductal", "Endocrine")), plot_type = "lollipop", ncol = 1)
-#' EnrichmentPlot(filter(res$enrichment, Groups %in% c("Ductal", "Endocrine")), plot_type = "wordcloud")
+#'   EnrichmentPlot(filter(res$enrichment, Groups %in% c("Ductal", "Endocrine")), plot_type = "lollipop", ncol = 1)
+#'   EnrichmentPlot(filter(res$enrichment, Groups %in% c("Ductal", "Endocrine")), plot_type = "wordcloud")
 #' }
 #' @importFrom ggplot2 ggplot geom_bar geom_text labs scale_fill_manual scale_y_continuous facet_grid coord_flip scale_color_gradientn scale_fill_gradientn scale_size guides geom_segment expansion guide_colorbar
 #' @importFrom scales breaks_extended
@@ -6542,13 +6542,13 @@ ProjectionPlot <- function(srt_query, srt_ref,
 #' GSEA Plot
 #'
 #' @examples
-#' \donttest{
-#' data("pancreas1k")
-#' library(dplyr)
-#' pancreas1k <- RunDEtest(pancreas1k, group_by = "CellType", only.pos = FALSE, fc.threshold = 1)
-#' de_filter <- filter(pancreas1k@tools$DEtest_CellType$AllMarkers_wilcox, p_val_adj < 0.05)
-#' res <- RunGSEA(geneID = de_filter$gene, geneScore = de_filter$avg_log2FC, geneID_groups = de_filter$group1, species = "Mus_musculus")
-#' GSEAPlot(x = res$results[[1]], geneSetID = res$results[[1]]@result$ID[1])
+#' if (interactive()) {
+#'   data("pancreas1k")
+#'   library(dplyr)
+#'   pancreas1k <- RunDEtest(pancreas1k, group_by = "CellType", only.pos = FALSE, fc.threshold = 1)
+#'   de_filter <- filter(pancreas1k@tools$DEtest_CellType$AllMarkers_wilcox, p_val_adj < 0.05)
+#'   res <- RunGSEA(geneID = de_filter$gene, geneScore = de_filter$avg_log2FC, geneID_groups = de_filter$group1, species = "Mus_musculus")
+#'   GSEAPlot(x = res$results[[1]], geneSetID = res$results[[1]]@result$ID[1])
 #' }
 #' @export
 GSEAPlot <- function(x, geneSetID,

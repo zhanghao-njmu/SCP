@@ -30,8 +30,8 @@ A list of S-phase and G2M-phase genes.
 Based on the human cell cycle genes, the cell cycle genes of the corresponding species were captured by homologous gene conversion.
 }
 \examples{
-\donttest{
-ccgenes <- CC_GenePrefetch("Mus_musculus")
-names(ccgenes)
+if (interactive()) {
+  ccgenes <- CC_GenePrefetch("Mus_musculus")
+  names(ccgenes)
 }
 }

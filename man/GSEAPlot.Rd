@@ -27,12 +27,12 @@ GSEAPlot(
 GSEA Plot
 }
 \examples{
-\donttest{
-data("pancreas1k")
-library(dplyr)
-pancreas1k <- RunDEtest(pancreas1k, group_by = "CellType", only.pos = FALSE, fc.threshold = 1)
-de_filter <- filter(pancreas1k@tools$DEtest_CellType$AllMarkers_wilcox, p_val_adj < 0.05)
-res <- RunGSEA(geneID = de_filter$gene, geneScore = de_filter$avg_log2FC, geneID_groups = de_filter$group1, species = "Mus_musculus")
-GSEAPlot(x = res$results[[1]], geneSetID = res$results[[1]]@result$ID[1])
+if (interactive()) {
+  data("pancreas1k")
+  library(dplyr)
+  pancreas1k <- RunDEtest(pancreas1k, group_by = "CellType", only.pos = FALSE, fc.threshold = 1)
+  de_filter <- filter(pancreas1k@tools$DEtest_CellType$AllMarkers_wilcox, p_val_adj < 0.05)
+  res <- RunGSEA(geneID = de_filter$gene, geneScore = de_filter$avg_log2FC, geneID_groups = de_filter$group1, species = "Mus_musculus")
+  GSEAPlot(x = res$results[[1]], geneSetID = res$results[[1]]@result$ID[1])
 }
 }

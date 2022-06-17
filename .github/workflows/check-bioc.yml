@@ -44,7 +44,7 @@ env:
 jobs:
   build-check:
     runs-on: ${{ matrix.config.os }}
-    name: ${{ matrix.config.os }} (${{ matrix.config.r }})
+    name: OS=${{ matrix.config.os }} R=${{ matrix.config.r }} py=${{ matrix.config.python }}
     container: ${{ matrix.config.cont }}
     ## Environment variables unique to this job.
 
@@ -52,9 +52,9 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - { os: ubuntu-latest, r: '4.2', bioc: '3.15', cont: "bioconductor/bioconductor_docker:RELEASE_3_15", rspm: "https://packagemanager.rstudio.com/cran/__linux__/focal/latest" }
-          - { os: macOS-latest, r: '4.2', bioc: '3.15'}
-          - { os: windows-latest, r: '4.2', bioc: '3.15'}
+          - { os: ubuntu-latest, r: '4.2', python: '3.8', bioc: '3.15', cont: "bioconductor/bioconductor_docker:RELEASE_3_15", rspm: "https://packagemanager.rstudio.com/cran/__linux__/focal/latest" }
+          - { os: macOS-latest, r: '4.2', python: '3.8', bioc: '3.15'}
+          - { os: windows-latest, r: '4.2', python: '3.8', bioc: '3.15'}
           ## Check https://github.com/r-lib/actions/tree/master/examples
           ## for examples using the http-user-agent
     env:
@@ -89,6 +89,19 @@ jobs:
           r-version: ${{ matrix.config.r }}
           http-user-agent: ${{ matrix.config.http-user-agent }}
 
+      - uses: actions/setup-python@v3
+        with:
+          python-version: ${{ matrix.config.python }}
+
+      - name: Install gdal on Linux
+        if: runner.os == 'Linux'
+        run: sudo apt-get update -y && sudo apt-get install -y python3-gdal
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: any::rcmdcheck
+          needs: check
+
       ## pandoc is already included in the Bioconductor docker images
       - name: Setup pandoc from r-lib
         if: runner.os != 'Linux'
@@ -122,6 +135,7 @@ jobs:
           sysreqs=$(Rscript -e 'cat("apt-get update -y && apt-get install -y", paste(gsub("apt-get install -y ", "", remotes::system_requirements("ubuntu", "20.04")), collapse = " "))')
           echo $sysreqs
           sudo -s eval "$sysreqs"
+          sudo apt-get install libcurl4-openssl-dev
 
       - name: Install macOS system dependencies
         if: matrix.config.os == 'macOS-latest'
@@ -142,6 +156,8 @@ jobs:
 
           ## Required for tcltk
           brew install xquartz --cask
+
+          brew install openssl
 
       - name: Install Windows system dependencies
         if: runner.os == 'Windows'
@@ -305,7 +321,7 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-          repository: zh542370159/scp
+          repository: zhanghao-njmu/SCP
           tag_with_ref: true
           tag_with_sha: true
           tags: latest

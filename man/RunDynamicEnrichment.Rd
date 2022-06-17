@@ -35,32 +35,32 @@ RunDynamicEnrichment(
 RunDynamicEnrichment
 }
 \examples{
-\donttest{
-data("pancreas1k")
-pancreas1k <- RunSlingshot(pancreas1k, group.by = "SubCellType", reduction = "UMAP")
-pancreas1k <- RunDynamicFeatures(pancreas1k, lineages = c("Lineage1", "Lineage2"), n_candidates = 200)
-ht_result <- DynamicHeatmap(
-  srt = pancreas1k,
-  lineages = c("Lineage1", "Lineage2"),
-  cell_annotation = "SubCellType",
-  n_cluster = 6, reverse_ht = 1, use_raster = FALSE
-)
-ht_result$plot
+if (interactive()) {
+  data("pancreas1k")
+  pancreas1k <- RunSlingshot(pancreas1k, group.by = "SubCellType", reduction = "UMAP")
+  pancreas1k <- RunDynamicFeatures(pancreas1k, lineages = c("Lineage1", "Lineage2"), n_candidates = 200)
+  ht_result <- DynamicHeatmap(
+    srt = pancreas1k,
+    lineages = c("Lineage1", "Lineage2"),
+    cell_annotation = "SubCellType",
+    n_cluster = 6, reverse_ht = 1, use_raster = FALSE
+  )
+  ht_result$plot
 
-pancreas1k <- RunDynamicEnrichment(
-  srt = pancreas1k,
-  lineages = c("Lineage1", "Lineage2"),
-  score_method = "AUCell",
-  enrichment = "GO_BP",
-  species = "Mus_musculus"
-)
-ht_result <- DynamicHeatmap(
-  srt = pancreas1k, assay = "GO_BP", use_fitted = TRUE,
-  lineages = c("Lineage1_GO_BP", "Lineage2_GO_BP"),
-  cell_annotation = "SubCellType",
-  n_cluster = 6, reverse_ht = 1,
-  height = 5, width = 7, use_raster = FALSE
-)
-ht_result$plot
+  pancreas1k <- RunDynamicEnrichment(
+    srt = pancreas1k,
+    lineages = c("Lineage1", "Lineage2"),
+    score_method = "AUCell",
+    enrichment = "GO_BP",
+    species = "Mus_musculus"
+  )
+  ht_result <- DynamicHeatmap(
+    srt = pancreas1k, assay = "GO_BP", use_fitted = TRUE,
+    lineages = c("Lineage1_GO_BP", "Lineage2_GO_BP"),
+    cell_annotation = "SubCellType",
+    n_cluster = 6, reverse_ht = 1,
+    height = 5, width = 7, use_raster = FALSE
+  )
+  ht_result$plot
 }
 }

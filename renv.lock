@@ -11,11 +11,6 @@
   "Bioconductor": {
     "Version": "3.15"
   },
-  "Python": {
-    "Version": "3.8.8",
-    "Type": "virtualenv",
-    "Name": "/home/zhanghao/.virtualenvs/SCP"
-  },
   "Packages": {
     "AUCell": {
       "Package": "AUCell",

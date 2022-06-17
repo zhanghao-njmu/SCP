@@ -39,11 +39,11 @@ A list.
 This function can convert different gene ID types within one species or bewteen two species using biomart service.
 }
 \examples{
-\donttest{
-res <- GeneConvert(
-  geneID = c("CDK1", "MKI67", "TOP2A", "AURKA", "CTCF"), geneID_from_IDtype = "symbol", geneID_to_IDtype = "entrez_id",
-  species_from = "Homo_sapiens", species_to = "Mus_musculus", Ensembl_version = 103
-)
-str(res)
+if (interactive()) {
+  res <- GeneConvert(
+    geneID = c("CDK1", "MKI67", "TOP2A", "AURKA", "CTCF"), geneID_from_IDtype = "symbol", geneID_to_IDtype = "entrez_id",
+    species_from = "Homo_sapiens", species_to = "Mus_musculus", Ensembl_version = 103
+  )
+  str(res)
 }
 }

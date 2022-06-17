@@ -34,7 +34,7 @@ Preprocess <- function() {
 #'
 #' # Annotate using single cell RNA-seq data
 #' if (!require("SeuratData", quietly = TRUE)) {
-#'   devtools::install_github("satijalab/seurat-data")
+#'   devtools::install_github("zhanghao-njmu/seurat-data")
 #' }
 #' library(stringr)
 #' library(SeuratData)
@@ -482,7 +482,7 @@ RunKNNPredict <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
 #' Annotate single cells using scmap.
 #' @examples
 #' if (!require("SeuratData", quietly = TRUE)) {
-#'   devtools::install_github("satijalab/seurat-data")
+#'   devtools::install_github("zhanghao-njmu/seurat-data")
 #' }
 #' library(SeuratData)
 #' library(stringr)
@@ -610,7 +610,7 @@ RunScmap <- function(srt_query, srt_ref, ref_group = NULL, method = "scmapCluste
 #' Annotate single cells using scmap.
 #' @examples
 #' if (!require("SeuratData", quietly = TRUE)) {
-#'   devtools::install_github("satijalab/seurat-data")
+#'   devtools::install_github("zhanghao-njmu/seurat-data")
 #' }
 #' library(SeuratData)
 #' library(stringr)

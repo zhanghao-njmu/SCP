@@ -14,12 +14,12 @@
 #' @return A list.
 #'
 #' @examples
-#' \donttest{
-#' res <- GeneConvert(
-#'   geneID = c("CDK1", "MKI67", "TOP2A", "AURKA", "CTCF"), geneID_from_IDtype = "symbol", geneID_to_IDtype = "entrez_id",
-#'   species_from = "Homo_sapiens", species_to = "Mus_musculus", Ensembl_version = 103
-#' )
-#' str(res)
+#' if (interactive()) {
+#'   res <- GeneConvert(
+#'     geneID = c("CDK1", "MKI67", "TOP2A", "AURKA", "CTCF"), geneID_from_IDtype = "symbol", geneID_to_IDtype = "entrez_id",
+#'     species_from = "Homo_sapiens", species_to = "Mus_musculus", Ensembl_version = 103
+#'   )
+#'   str(res)
 #' }
 #' @importFrom httr set_config config
 #' @importFrom dplyr "%>%" group_by mutate .data
@@ -379,9 +379,9 @@ GeneConvert <- function(geneID, geneID_from_IDtype = "symbol", geneID_to_IDtype 
 #' @return A list of S-phase and G2M-phase genes.
 #'
 #' @examples
-#' \donttest{
-#' ccgenes <- CC_GenePrefetch("Mus_musculus")
-#' names(ccgenes)
+#' if (interactive()) {
+#'   ccgenes <- CC_GenePrefetch("Mus_musculus")
+#'   names(ccgenes)
 #' }
 #' @importFrom R.cache loadCache saveCache
 #' @export
@@ -513,7 +513,6 @@ CellScoring <- function(srt, features, ncores = 1, method = "Seurat", classifica
 #' @importFrom stats p.adjust
 #'
 #' @examples
-#' \donttest{
 #' library(dplyr)
 #' data(pancreas1k)
 #' pancreas1k <- RunDEtest(pancreas1k, group_by = "SubCellType")
@@ -529,7 +528,6 @@ CellScoring <- function(srt, features, ncores = 1, method = "Seurat", classifica
 #'   group_by(group1) %>%
 #'   top_n(3, avg_log2FC)
 #' ExpDotPlot(pancreas1k, genes = de_top$gene, gene_groups = de_top$group1, cell_group_by = "SubCellType")
-#' }
 #' @export
 #'
 RunDEtest <- function(srt, group_by = NULL, cell_group1 = NULL, cell_group2 = NULL,
@@ -723,8 +721,8 @@ RunDEtest <- function(srt, group_by = NULL, cell_group1 = NULL, cell_group2 = NU
 #' @return A list containing the database.
 #'
 #' @examples
-#' \donttest{
-#' db_list <- PrepareEnrichmentDB(species = "Homo_sapiens")
+#' if (interactive()) {
+#'   db_list <- PrepareEnrichmentDB(species = "Homo_sapiens")
 #' }
 #' @importFrom R.cache loadCache saveCache readCacheHeader findCache
 #' @importFrom utils packageVersion read.table
@@ -1107,17 +1105,17 @@ PrepareEnrichmentDB <- function(species = "Homo_sapiens",
 #' @param cl cores
 #'
 #' @examples
-#' \donttest{
-#' data("pancreas1k")
-#' library(dplyr)
-#' pancreas1k <- RunDEtest(pancreas1k, group_by = "CellType")
-#' de_filter <- filter(pancreas1k@tools$DEtest_CellType$AllMarkers_wilcox, p_val_adj < 0.05)
-#' res <- RunEnrichment(geneID = de_filter$gene, geneID_groups = de_filter$group1, enrichment = "GO_BP", species = "Mus_musculus")
-#' EnrichmentPlot(res$enrichment, plot_type = "bar")
-#' EnrichmentPlot(res$enrichment, plot_type = "bar", character_width = 30, text_size_scale = 0.8)
+#' if (interactive()) {
+#'   data("pancreas1k")
+#'   library(dplyr)
+#'   pancreas1k <- RunDEtest(pancreas1k, group_by = "CellType")
+#'   de_filter <- filter(pancreas1k@tools$DEtest_CellType$AllMarkers_wilcox, p_val_adj < 0.05)
+#'   res <- RunEnrichment(geneID = de_filter$gene, geneID_groups = de_filter$group1, enrichment = "GO_BP", species = "Mus_musculus")
+#'   EnrichmentPlot(res$enrichment, plot_type = "bar")
+#'   EnrichmentPlot(res$enrichment, plot_type = "bar", character_width = 30, text_size_scale = 0.8)
 #'
-#' EnrichmentPlot(filter(res$enrichment, Groups %in% c("Ductal", "Endocrine")), plot_type = "lollipop", ncol = 1)
-#' EnrichmentPlot(filter(res$enrichment, Groups %in% c("Ductal", "Endocrine")), plot_type = "wordcloud")
+#'   EnrichmentPlot(filter(res$enrichment, Groups %in% c("Ductal", "Endocrine")), plot_type = "lollipop", ncol = 1)
+#'   EnrichmentPlot(filter(res$enrichment, Groups %in% c("Ductal", "Endocrine")), plot_type = "wordcloud")
 #' }
 #' @importFrom BiocParallel bplapply
 #' @export
@@ -1299,13 +1297,13 @@ RunEnrichment <- function(geneID = NULL, geneID_groups = NULL, IDtype = "symbol"
 #'
 #' @importFrom BiocParallel bplapply
 #' @examples
-#' \donttest{
-#' data("pancreas1k")
-#' library(dplyr)
-#' pancreas1k <- RunDEtest(pancreas1k, group_by = "CellType", only.pos = FALSE)
-#' de_filter <- filter(pancreas1k@tools$DEtest_CellType$AllMarkers_wilcox, p_val_adj < 0.05)
-#' res <- RunGSEA(geneID = de_filter$gene, geneScore = de_filter$avg_log2FC, geneID_groups = de_filter$group1, species = "Mus_musculus")
-#' GSEAPlot(x = res$results[[1]], geneSetID = res$results[[1]]@result$ID[1])
+#' if (interactive()) {
+#'   data("pancreas1k")
+#'   library(dplyr)
+#'   pancreas1k <- RunDEtest(pancreas1k, group_by = "CellType", only.pos = FALSE)
+#'   de_filter <- filter(pancreas1k@tools$DEtest_CellType$AllMarkers_wilcox, p_val_adj < 0.05)
+#'   res <- RunGSEA(geneID = de_filter$gene, geneScore = de_filter$avg_log2FC, geneID_groups = de_filter$group1, species = "Mus_musculus")
+#'   GSEAPlot(x = res$results[[1]], geneSetID = res$results[[1]]@result$ID[1])
 #' }
 #' @export
 #'
@@ -1951,33 +1949,33 @@ RunDynamicFeatures <- function(srt, lineages, features = NULL, suffix = lineages
 #' @importFrom ggplot2 ggplot aes geom_point geom_abline labs
 #'
 #' @examples
-#' \donttest{
-#' data("pancreas1k")
-#' pancreas1k <- RunSlingshot(pancreas1k, group.by = "SubCellType", reduction = "UMAP")
-#' pancreas1k <- RunDynamicFeatures(pancreas1k, lineages = c("Lineage1", "Lineage2"), n_candidates = 200)
-#' ht_result <- DynamicHeatmap(
-#'   srt = pancreas1k,
-#'   lineages = c("Lineage1", "Lineage2"),
-#'   cell_annotation = "SubCellType",
-#'   n_cluster = 6, reverse_ht = 1, use_raster = FALSE
-#' )
-#' ht_result$plot
+#' if (interactive()) {
+#'   data("pancreas1k")
+#'   pancreas1k <- RunSlingshot(pancreas1k, group.by = "SubCellType", reduction = "UMAP")
+#'   pancreas1k <- RunDynamicFeatures(pancreas1k, lineages = c("Lineage1", "Lineage2"), n_candidates = 200)
+#'   ht_result <- DynamicHeatmap(
+#'     srt = pancreas1k,
+#'     lineages = c("Lineage1", "Lineage2"),
+#'     cell_annotation = "SubCellType",
+#'     n_cluster = 6, reverse_ht = 1, use_raster = FALSE
+#'   )
+#'   ht_result$plot
 #'
-#' pancreas1k <- RunDynamicEnrichment(
-#'   srt = pancreas1k,
-#'   lineages = c("Lineage1", "Lineage2"),
-#'   score_method = "AUCell",
-#'   enrichment = "GO_BP",
-#'   species = "Mus_musculus"
-#' )
-#' ht_result <- DynamicHeatmap(
-#'   srt = pancreas1k, assay = "GO_BP", use_fitted = TRUE,
-#'   lineages = c("Lineage1_GO_BP", "Lineage2_GO_BP"),
-#'   cell_annotation = "SubCellType",
-#'   n_cluster = 6, reverse_ht = 1,
-#'   height = 5, width = 7, use_raster = FALSE
-#' )
-#' ht_result$plot
+#'   pancreas1k <- RunDynamicEnrichment(
+#'     srt = pancreas1k,
+#'     lineages = c("Lineage1", "Lineage2"),
+#'     score_method = "AUCell",
+#'     enrichment = "GO_BP",
+#'     species = "Mus_musculus"
+#'   )
+#'   ht_result <- DynamicHeatmap(
+#'     srt = pancreas1k, assay = "GO_BP", use_fitted = TRUE,
+#'     lineages = c("Lineage1_GO_BP", "Lineage2_GO_BP"),
+#'     cell_annotation = "SubCellType",
+#'     n_cluster = 6, reverse_ht = 1,
+#'     height = 5, width = 7, use_raster = FALSE
+#'   )
+#'   ht_result$plot
 #' }
 #' @export
 RunDynamicEnrichment <- function(srt, lineages,
@@ -2357,7 +2355,6 @@ RunPAGA <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_layers
                     embedded_with_PAGA = FALSE, paga_layout = "fr", threshold = 0.1, point_size = 20,
                     show_plot = TRUE, dpi = 300, save = FALSE, dirpath = "./", fileprefix = "",
                     return_seurat = FALSE) {
-  check_Python(c("matplotlib", "scanpy", "python-igraph"))
   if (all(is.null(srt), is.null(adata), is.null(h5ad))) {
     stop("One of 'srt', 'adata' or 'h5ad' must be provided.")
   }
@@ -2469,7 +2466,9 @@ RunSCVELO <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_laye
                       calculate_velocity_genes = FALSE, s_genes = NULL, g2m_genes = NULL,
                       show_plot = TRUE, dpi = 300, save = FALSE, dirpath = "./", fileprefix = "",
                       return_seurat = FALSE) {
-  check_Python(c("matplotlib", "python-igraph", "pandas", "numpy", "scvelo", "magic-impute"))
+  if (isTRUE(magic_impute)) {
+    check_Python("magic-impute")
+  }
   if (all(is.null(srt), is.null(adata), is.null(h5ad))) {
     stop("One of 'srt', 'adata' or 'h5ad' must be provided.")
   }
@@ -2551,7 +2550,6 @@ RunPalantir <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_la
                         max_iterations = 25, n_jobs = 8, point_size = 20,
                         show_plot = TRUE, dpi = 300, save = FALSE, dirpath = "./", fileprefix = "",
                         return_seurat = FALSE) {
-  check_Python(c("matplotlib", "scanpy", "python-igraph", "palantir"))
   if (all(is.null(srt), is.null(adata), is.null(h5ad))) {
     stop("One of 'srt', 'adata' or 'h5ad' must be provided.")
   }
@@ -2624,7 +2622,10 @@ RunCellRank <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_la
                         denoise = FALSE, kinetics = FALSE, axis = "equal",
                         show_plot = TRUE, dpi = 300, save = FALSE, dirpath = "./", fileprefix = "",
                         return_seurat = FALSE) {
-  check_Python(c("matplotlib", "python-igraph", "pandas", "numpy", "scvelo", "cellrank[external]", "cython", "wot", "statot", "POT", "magic-impute"))
+  check_Python(c("pandas", "numpy", "scvelo", "cellrank[external]", "cython", "wot", "statot", "POT"))
+  if (isTRUE(magic_impute)) {
+    check_Python("magic-impute")
+  }
   if (all(is.null(srt), is.null(adata), is.null(h5ad))) {
     stop("One of 'srt', 'adata' or 'h5ad' must be provided.")
   }

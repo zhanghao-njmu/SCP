@@ -58,16 +58,16 @@ EnrichmentPlot(
 EnrichmentPlot
 }
 \examples{
-\donttest{
-data("pancreas1k")
-library(dplyr)
-pancreas1k <- RunDEtest(pancreas1k, group_by = "CellType")
-de_filter <- filter(pancreas1k@tools$DEtest_CellType$AllMarkers_wilcox, p_val_adj < 0.05)
-res <- RunEnrichment(geneID = de_filter$gene, geneID_groups = de_filter$group1, enrichment = "GO_BP", species = "Mus_musculus")
-EnrichmentPlot(res$enrichment, plot_type = "bar")
-EnrichmentPlot(res$enrichment, plot_type = "bar", character_width = 30, text_size_scale = 0.8)
+if (interactive()) {
+  data("pancreas1k")
+  library(dplyr)
+  pancreas1k <- RunDEtest(pancreas1k, group_by = "CellType")
+  de_filter <- filter(pancreas1k@tools$DEtest_CellType$AllMarkers_wilcox, p_val_adj < 0.05)
+  res <- RunEnrichment(geneID = de_filter$gene, geneID_groups = de_filter$group1, enrichment = "GO_BP", species = "Mus_musculus")
+  EnrichmentPlot(res$enrichment, plot_type = "bar")
+  EnrichmentPlot(res$enrichment, plot_type = "bar", character_width = 30, text_size_scale = 0.8)
 
-EnrichmentPlot(filter(res$enrichment, Groups \%in\% c("Ductal", "Endocrine")), plot_type = "lollipop", ncol = 1)
-EnrichmentPlot(filter(res$enrichment, Groups \%in\% c("Ductal", "Endocrine")), plot_type = "wordcloud")
+  EnrichmentPlot(filter(res$enrichment, Groups \%in\% c("Ductal", "Endocrine")), plot_type = "lollipop", ncol = 1)
+  EnrichmentPlot(filter(res$enrichment, Groups \%in\% c("Ductal", "Endocrine")), plot_type = "wordcloud")
 }
 }

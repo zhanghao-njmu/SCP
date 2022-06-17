@@ -28,7 +28,7 @@ A list containing the database.
 Prepare the database for enrichment analysis
 }
 \examples{
-\donttest{
-db_list <- PrepareEnrichmentDB(species = "Homo_sapiens")
+if (interactive()) {
+  db_list <- PrepareEnrichmentDB(species = "Homo_sapiens")
 }
 }

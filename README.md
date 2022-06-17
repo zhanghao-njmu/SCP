@@ -4,7 +4,6 @@
 <!-- badges: start -->
 
 [![R-CMD-check](https://github.com/zhanghao-njmu/SCP/workflows/R-CMD-check/badge.svg)](https://github.com/zhanghao-njmu/SCP/actions)
-[![R-CMD-check](https://github.com/zh542370159/SCP/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/zh542370159/SCP/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
 The SCP package provides a comprehensive set of tools for single cell

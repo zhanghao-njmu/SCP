@@ -24,6 +24,10 @@ jobs:
         with:
           use-public-rspm: true
 
+      - uses: actions/setup-python@v3
+        with:
+          python-version: '3.8'
+
       - name: Install dependencies
         uses: r-lib/actions/setup-r-dependencies@v2
         with:

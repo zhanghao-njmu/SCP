@@ -96,7 +96,7 @@ Single cell pipeline for the integration of multiple datasets.
 \examples{
 \donttest{
 if (!require("SeuratData", quietly = TRUE)) {
-  devtools::install_github("satijalab/seurat-data")
+  devtools::install_github("zhanghao-njmu/seurat-data")
 }
 library(SeuratData)
 library(cowplot)

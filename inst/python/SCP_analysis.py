@@ -14,7 +14,6 @@ def SCVELO(adata=None, h5ad=None, group_by=None, n_jobs=8,
   random.seed(12)
   import scvelo as scv
   import scanpy as sc
-  import pandas as pd
   import numpy as np
   
   import warnings
@@ -548,7 +547,6 @@ def Palantir(adata=None, h5ad=None,group_by=None,
   import numpy as np
   import pandas as pd
   import palantir
-  import harmony
   
   import warnings
   warnings.simplefilter("ignore", category=UserWarning)

@@ -72,7 +72,7 @@ ClassDimPlot(pancreas1k, group.by = "knnpredict_classification", label = TRUE)
 
 # Annotate using single cell RNA-seq data
 if (!require("SeuratData", quietly = TRUE)) {
-  devtools::install_github("satijalab/seurat-data")
+  devtools::install_github("zhanghao-njmu/seurat-data")
 }
 library(stringr)
 library(SeuratData)

@@ -51,9 +51,11 @@
     python_path <- reticulate::install_python(version = ifelse(sys_bit == "64bit", "3.8.7", "3.8.7-win32"))
   }
 
+  new_SCP <- FALSE
   if (!reticulate::virtualenv_exists("SCP")) {
-    packageStartupMessage("Create SCP virtual environment. The path is: ", reticulate:::virtualenv_path("SCP"))
+    warning("Create SCP virtual environment. The path is: ", reticulate:::virtualenv_path("SCP"), immediate. = TRUE)
     reticulate::virtualenv_create(envname = "SCP", python = python_path)
+    new_SCP <- TRUE
   }
   Sys.setenv(RETICULATE_PYTHON = reticulate::virtualenv_python("SCP"))
 
@@ -77,20 +79,23 @@
         "==================================================================="
       )
       invisible(lapply(pyinfo_mesg, packageStartupMessage))
-      if (!exist_pkg("pip")) {
-        temp <- tempfile()
-        download.file("https://bootstrap.pypa.io/get-pip.py", temp)
-        suppressWarnings(system2(command = reticulate::virtualenv_python("SCP"), args = temp, stdout = TRUE))
-        unlink(temp)
+      if (isTRUE(new_SCP)) {
+        if (!exist_pkg("pip")) {
+          temp <- tempfile()
+          download.file("https://bootstrap.pypa.io/get-pip.py", temp)
+          suppressWarnings(system2(command = reticulate::virtualenv_python("SCP"), args = temp, stdout = TRUE))
+          unlink(temp)
+        }
+        check_Python(pkgs = "matplotlib", envname = "SCP")
+        check_Python(pkgs = "versioned-hdf5", envname = "SCP")
+        check_Python(pkgs = c("numba==0.53.1", "scanpy", "python-igraph", "pandas", "scvelo", "palantir"), envname = "SCP")
       }
-      check_Python(pkgs = "matplotlib", envname = "SCP")
+
       run_Python(command = "import matplotlib", envir = .GlobalEnv)
       if (!interactive()) {
         run_Python(command = "matplotlib.use('pdf')", envir = .GlobalEnv)
       }
       run_Python(command = "import matplotlib.pyplot as plt", envir = .GlobalEnv)
-      check_Python(pkgs = "versioned-hdf5", envname = "SCP")
-      check_Python(pkgs = c("numba==0.53.1", "scanpy"), envname = "SCP")
       run_Python(command = "import scanpy", envir = .GlobalEnv)
 
       SCP_analysis <- reticulate::import_from_path("SCP_analysis", system.file("python", package = utils::packageName(), mustWork = TRUE))
