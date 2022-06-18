@@ -5118,7 +5118,7 @@ SankeyPlot <- function(source, target) {
 #' p
 #' \donttest{
 #' # Save the plot with appropriate size
-#' ggsave(
+#' ggplot2::ggsave(
 #'   filename = "summaryplot.png", plot = p,
 #'   units = attr(p, "size")$units, width = attr(p, "size")$width, height = attr(p, "size")$height
 #' )

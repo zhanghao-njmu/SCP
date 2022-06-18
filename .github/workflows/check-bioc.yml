@@ -159,6 +159,8 @@ jobs:
 
           brew install openssl
 
+          brew install gcc
+
       - name: Install Windows system dependencies
         if: runner.os == 'Windows'
         run: |

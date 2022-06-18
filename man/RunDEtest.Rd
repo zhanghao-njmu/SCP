@@ -55,7 +55,7 @@ data(pancreas1k)
 pancreas1k <- RunDEtest(pancreas1k, group_by = "CellType")
 
 # Heatmap
-de_filter <- filter(pancreas1k@tools$CellType$AllMarkers_wilcox, p_val_adj < 0.05 & avg_log2FC > 1)
+de_filter <- filter(pancreas1k@tools$DEtest_CellType$AllMarkers_wilcox, p_val_adj < 0.05 & avg_log2FC > 1)
 ExpHeatmapPlot(pancreas1k, genes = de_filter$gene, gene_groups = de_filter$group1, cell_group_by = "CellType")
 
 # Dot plot

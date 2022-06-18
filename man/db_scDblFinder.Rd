@@ -10,8 +10,10 @@ db_scDblFinder(srt, assay = "RNA", db_rate = ncol(srt)/1000 * 0.01, ...)
 Run doublet-calling with scDblFinder
 }
 \examples{
-data("pancreas1k")
-pancreas1k <- db_scDblFinder(pancreas1k)
-ClassDimPlot(pancreas1k, reduction = "umap", group.by = "db.scDblFinder_class")
-ExpDimPlot(pancreas1k, reduction = "umap", features = "db.scDblFinder_score")
+if (interactive()) {
+  data("pancreas1k")
+  pancreas1k <- db_scDblFinder(pancreas1k)
+  ClassDimPlot(pancreas1k, reduction = "umap", group.by = "db.scDblFinder_class")
+  ExpDimPlot(pancreas1k, reduction = "umap", features = "db.scDblFinder_score")
+}
 }
