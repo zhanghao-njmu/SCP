@@ -25,7 +25,7 @@ DynamicHeatmap(
   cluster_title_size = 12,
   n_cluster = NULL,
   cluster_by = lineages,
-  cluster_method = "kmeans",
+  cluster_method = ifelse(require("Mfuzz", quietly = TRUE), "mfuzz", "kmeans"),
   fuzzification = NULL,
   show_fuzzification = FALSE,
   nlabel = 20,
@@ -51,6 +51,9 @@ DynamicHeatmap(
   units = "inch",
   seed = 11
 )
+}
+\arguments{
+\item{seed}{}
 }
 \description{
 Heatmap plot for dynamic genes along lineages

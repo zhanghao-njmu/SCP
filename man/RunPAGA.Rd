@@ -68,6 +68,8 @@ RunPAGA(
 \item{dirpath}{dirpath.}
 
 \item{fileprefix}{fileprefix.}
+
+\item{return_seurat}{}
 }
 \value{
 A \code{anndata} object.

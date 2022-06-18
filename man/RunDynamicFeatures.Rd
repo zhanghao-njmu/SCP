@@ -20,6 +20,9 @@ RunDynamicFeatures(
   seed = 11
 )
 }
+\arguments{
+\item{seed}{}
+}
 \description{
 RunDynamicFeatures
 }

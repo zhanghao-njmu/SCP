@@ -42,6 +42,9 @@ ClassStatPlot(
   force = FALSE
 )
 }
+\arguments{
+\item{force}{}
+}
 \description{
 Statistical plot of cell classification
 }

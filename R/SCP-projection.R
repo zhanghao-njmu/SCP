@@ -3,6 +3,23 @@ NULL
 
 #' Single-cell reference mapping with KNN method
 #'
+#' @param srt_query
+#' @param srt_ref
+#' @param ref_umap
+#' @param force
+#' @param ref_group
+#' @param features
+#' @param nfeatures
+#' @param query_reduction
+#' @param ref_reduction
+#' @param query_dims
+#' @param ref_dims
+#' @param projection_method
+#' @param nn_method
+#' @param k
+#' @param distance_metric
+#' @param vote_fun
+#'
 #' @examples
 #' if (interactive()) {
 #'   if (!require("SeuratData", quietly = TRUE)) {
@@ -246,6 +263,19 @@ RunKNNMap <- function(srt_query, srt_ref, ref_umap = NULL, force = FALSE,
 
 #' Single-cell reference mapping with PCA method
 #'
+#' @param srt_query
+#' @param srt_ref
+#' @param ref_pca
+#' @param ref_dims
+#' @param ref_umap
+#' @param force
+#' @param ref_group
+#' @param projection_method
+#' @param nn_method
+#' @param k
+#' @param distance_metric
+#' @param vote_fun
+#'
 #' @examples
 #' if (interactive()) {
 #'   if (!require("SeuratData", quietly = TRUE)) {
@@ -386,6 +416,25 @@ RunPCAMap <- function(srt_query, srt_ref, ref_pca = NULL, ref_dims = 1:30, ref_u
 
 #' Single-cell reference mapping with Seurat method
 #'
+#' @param srt_query
+#' @param srt_ref
+#' @param ref_pca
+#' @param ref_dims
+#' @param ref_umap
+#' @param force
+#' @param ref_group
+#' @param normalization.method
+#' @param reduction_project_method
+#' @param k.anchor
+#' @param k.filter
+#' @param k.score
+#' @param k.weight
+#' @param projection_method
+#' @param nn_method
+#' @param k
+#' @param distance_metric
+#' @param vote_fun
+#'
 #' @examples
 #' if (interactive()) {
 #'   if (!require("SeuratData", quietly = TRUE)) {
@@ -490,6 +539,18 @@ RunSeuratMap <- function(srt_query, srt_ref,
 
 #' Single-cell reference mapping with CSS method
 #'
+#' @param srt_query
+#' @param srt_ref
+#' @param ref_css
+#' @param ref_umap
+#' @param force
+#' @param ref_group
+#' @param projection_method
+#' @param nn_method
+#' @param k
+#' @param distance_metric
+#' @param vote_fun
+#'
 #' @examples
 #' if (interactive()) {
 #'   if (!require("SeuratData", quietly = TRUE)) {
@@ -590,6 +651,19 @@ RunCSSMap <- function(srt_query, srt_ref, ref_css = NULL, ref_umap = NULL, force
 }
 
 #' Single-cell reference mapping with Symphony method
+#'
+#' @param srt_query
+#' @param srt_ref
+#' @param ref_pca
+#' @param ref_harmony
+#' @param ref_umap
+#' @param force
+#' @param ref_group
+#' @param projection_method
+#' @param nn_method
+#' @param k
+#' @param distance_metric
+#' @param vote_fun
 #'
 #' @examples
 #' if (interactive()) {

@@ -43,6 +43,8 @@ ExpDotPlot(
 
 \item{cell_palette}{Column palette.}
 
+\item{add_reticle}{}
+
 \item{cluster_rows}{Whether to cluster rows.}
 
 \item{cluster_columns}{Whether to cluster columns.}

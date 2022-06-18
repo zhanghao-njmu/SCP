@@ -20,6 +20,7 @@ RunDynamicEnrichment(
   species = "Homo_sapiens",
   enrichment = "GO_BP",
   db_update = FALSE,
+  db_version = "latest",
   Ensembl_version = 103,
   mirror = NULL,
   TERM2GENE = NULL,
@@ -30,6 +31,9 @@ RunDynamicEnrichment(
   progressbar = TRUE,
   seed = 11
 )
+}
+\arguments{
+\item{seed}{}
 }
 \description{
 RunDynamicEnrichment

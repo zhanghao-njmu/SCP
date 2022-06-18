@@ -18,6 +18,9 @@ PrepareSCExplorer(
   overwrite = FALSE
 )
 }
+\arguments{
+\item{overwrite}{}
+}
 \description{
 Prepare Seurat object data for the SCExplorer into hdf5 file
 }

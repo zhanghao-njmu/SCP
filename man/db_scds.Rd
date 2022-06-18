@@ -12,6 +12,9 @@ db_scds(
   ...
 )
 }
+\arguments{
+\item{...}{}
+}
 \description{
 Run doublet-calling with scds
 }

@@ -44,7 +44,7 @@ RunDEtest(
 
 \item{force}{force}
 
-\item{cl}{cl}
+\item{...}{}
 }
 \description{
 Differential gene test

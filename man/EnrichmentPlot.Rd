@@ -50,9 +50,7 @@ EnrichmentPlot(
 
 \item{byrow}{byrow}
 
-\item{Enrichment}{Enrichment column name in \code{x}.}
-
-\item{Groups}{Groups column name in \code{x}.}
+\item{axis}{}
 }
 \description{
 EnrichmentPlot

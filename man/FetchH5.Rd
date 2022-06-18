@@ -15,6 +15,9 @@ FetchH5(
   reduction = NULL
 )
 }
+\arguments{
+\item{reduction}{}
+}
 \description{
 Fetch data from the hdf5 file
 }

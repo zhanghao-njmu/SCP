@@ -41,6 +41,9 @@ DynamicPlot(
   axis = "lr"
 )
 }
+\arguments{
+\item{axis}{}
+}
 \description{
 Plot for dynamic features along lineages.
 }

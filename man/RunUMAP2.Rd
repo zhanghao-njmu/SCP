@@ -114,6 +114,11 @@ RunUMAP2(object, ...)
   ...
 )
 }
+\arguments{
+\item{object}{}
+
+\item{...}{}
+}
 \description{
 Run UMAP
 }

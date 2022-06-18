@@ -17,6 +17,7 @@ RunNMF <- function(object, ...) {
 }
 
 #' @param assay Name of Assay nmf is being run on.
+#'
 #' @param slot Name of slot nmf is being run on.
 #' @param nbes Total Number of BEs("basis experiment", aka "metagene") to compute and store (50 by default).
 #' @param rev.nmf By default computes the nmf on the cell x gene matrix. Setting
@@ -29,6 +30,11 @@ RunNMF <- function(object, ...) {
 #' the number for the dimension names. "BE_" by default.
 #' @param seed.use Set a random seed. By default, sets the seed to 42. Setting
 #' NULL will not set a seed.
+#' @param object
+#' @param nmf.method
+#' @param tol
+#' @param maxit
+#' @param ...
 #'
 #' @importFrom RcppML nmf mse
 #' @importFrom utils capture.output
@@ -106,6 +112,21 @@ RunNMF.default <- function(object,
 #' @param features Features to compute nmf on. If features=NULL, nmf will be run
 #' using the variable features for the Assay.
 #'
+#' @param object
+#' @param assay
+#' @param slot
+#' @param nbes
+#' @param nmf.method
+#' @param tol
+#' @param maxit
+#' @param rev.nmf
+#' @param verbose
+#' @param ndims.print
+#' @param nfeatures.print
+#' @param reduction.key
+#' @param seed.use
+#' @param ...
+#'
 #' @rdname RunNMF
 #' @concept dimensional_reduction
 #' @importFrom stats var
@@ -156,6 +177,22 @@ RunNMF.Assay <- function(object,
 }
 
 #' @param reduction.name dimensional reduction name, 'nmf' by default
+#'
+#' @param object
+#' @param assay
+#' @param slot
+#' @param features
+#' @param nbes
+#' @param nmf.method
+#' @param tol
+#' @param maxit
+#' @param rev.nmf
+#' @param verbose
+#' @param ndims.print
+#' @param nfeatures.print
+#' @param reduction.key
+#' @param seed.use
+#' @param ...
 #'
 #' @rdname RunNMF
 #' @concept dimensional_reduction
@@ -209,6 +246,7 @@ RunNMF.Seurat <- function(object,
 #' Run a MDS dimensionality reduction.
 #'
 #' @param object An object
+#' @param ...
 #'
 #' @return Returns Seurat object with the MDS calculation stored in the reductions slot.
 #'
@@ -222,6 +260,7 @@ RunMDS <- function(object, ...) {
 }
 
 #' @param assay Name of Assay mds is being run on.
+#'
 #' @param slot Name of slot mds is being run on.
 #' @param nmds Total Number of MDS to compute and store (50 by default).
 #' @param rev.mds By default computes the mds on the cell x gene matrix. Setting
@@ -234,6 +273,10 @@ RunMDS <- function(object, ...) {
 #' the number for the dimension names. "MDS_" by default.
 #' @param seed.use Set a random seed. By default, sets the seed to 42. Setting
 #' NULL will not set a seed.
+#' @param object
+#' @param dist.method
+#' @param mds.method
+#' @param ...
 #'
 #' @importFrom parallelDist parDist
 #' @importFrom utils capture.output
@@ -312,6 +355,20 @@ RunMDS.default <- function(object,
 #' @param features Features to compute mds on. If features=NULL, mds will be run
 #' using the variable features for the Assay.
 #'
+#' @param object
+#' @param assay
+#' @param slot
+#' @param nmds
+#' @param dist.method
+#' @param mds.method
+#' @param rev.mds
+#' @param verbose
+#' @param ndims.print
+#' @param nfeatures.print
+#' @param reduction.key
+#' @param seed.use
+#' @param ...
+#'
 #' @rdname RunMDS
 #' @concept dimensional_reduction
 #' @importFrom stats var
@@ -360,6 +417,21 @@ RunMDS.Assay <- function(object,
 }
 
 #' @param reduction.name dimensional reduction name, 'mds' by default
+#'
+#' @param object
+#' @param assay
+#' @param slot
+#' @param features
+#' @param nmds
+#' @param dist.method
+#' @param mds.method
+#' @param rev.mds
+#' @param verbose
+#' @param ndims.print
+#' @param nfeatures.print
+#' @param reduction.key
+#' @param seed.use
+#' @param ...
 #'
 #' @rdname RunMDS
 #' @concept dimensional_reduction
@@ -425,6 +497,7 @@ RunDM <- function(object, ...) {
 }
 
 #' @param ndcs Total Number of DM to compute and store (2 by default).
+#'
 #' @param assay Name of Assay dm is being run on.
 #' @param slot Name of slot dm is being run on.
 #' @param reduction.key dimensional reduction key, specifies the string before
@@ -432,6 +505,11 @@ RunDM <- function(object, ...) {
 #' @param seed.use Set a random seed. By default, sets the seed to 42. Setting
 #' NULL will not set a seed.
 #' @param verbose Show a progressbar and other progress information
+#' @param object
+#' @param exprs
+#' @param sigma
+#' @param k
+#' @param ...
 #'
 #' @importFrom parallelDist parDist
 #' @importFrom utils capture.output
@@ -478,6 +556,20 @@ RunDM.dist <- function(object,
 }
 
 
+#' @param object
+#'
+#' @param ndcs
+#' @param sigma
+#' @param k
+#' @param knn_method
+#' @param dist.method
+#' @param assay
+#' @param slot
+#' @param reduction.key
+#' @param seed.use
+#' @param verbose
+#' @param ...
+#'
 #' @rdname RunDM
 #' @concept dimensional_reduction
 #' @importFrom parallelDist parDist
@@ -550,6 +642,22 @@ RunDM.matrix <- function(object,
 
 #' @param reduction.name dimensional reduction name, 'dm' by default
 #'
+#' @param object
+#' @param reduction
+#' @param dims
+#' @param assay
+#' @param slot
+#' @param features
+#' @param ndcs
+#' @param sigma
+#' @param k
+#' @param knn_method
+#' @param dist.method
+#' @param reduction.key
+#' @param seed.use
+#' @param verbose
+#' @param ...
+#'
 #' @rdname RunDM
 #' @concept dimensional_reduction
 #' @importFrom Seurat LogSeuratCommand DefaultAssay GetAssayData Embeddings
@@ -616,6 +724,9 @@ RunDM.Seurat <- function(object,
 
 #' Run UMAP
 #'
+#' @param object
+#' @param ...
+#'
 #' @export
 #'
 #' @rdname RunUMAP2
@@ -625,6 +736,44 @@ RunUMAP2 <- function(object, ...) {
   UseMethod(generic = "RunUMAP2", object = object)
 }
 
+#' @param object
+#'
+#' @param dims
+#' @param reduction
+#' @param features
+#' @param graph
+#' @param assay
+#' @param nn.name
+#' @param slot
+#' @param umap.method
+#' @param reduction.model
+#' @param return.model
+#' @param n.neighbors
+#' @param n.components
+#' @param metric
+#' @param n.epochs
+#' @param learning.rate
+#' @param min.dist
+#' @param spread
+#' @param set.op.mix.ratio
+#' @param local.connectivity
+#' @param repulsion.strength
+#' @param negative.sample.rate
+#' @param a
+#' @param b
+#' @param uwot.sgd
+#' @param seed.use
+#' @param metric.kwds
+#' @param angular.rp.forest
+#' @param densmap
+#' @param dens.lambda
+#' @param dens.frac
+#' @param dens.var.shift
+#' @param verbose
+#' @param reduction.name
+#' @param reduction.key
+#' @param ...
+#'
 #' @importFrom reticulate py_module_available py_set_seed import
 #' @importFrom uwot umap_transform
 #' @importFrom future nbrOfWorkers
@@ -843,6 +992,29 @@ RunUMAP2.default <- function(object, dims = NULL, reduction = "pca", features = 
   return(umap.reduction)
 }
 
+#' @param object
+#'
+#' @param assay
+#' @param umap.method
+#' @param n.components
+#' @param metric
+#' @param n.epochs
+#' @param learning.rate
+#' @param min.dist
+#' @param spread
+#' @param repulsion.strength
+#' @param negative.sample.rate
+#' @param a
+#' @param b
+#' @param uwot.sgd
+#' @param seed.use
+#' @param metric.kwds
+#' @param densmap
+#' @param densmap.kwds
+#' @param verbose
+#' @param reduction.key
+#' @param ...
+#'
 #' @importFrom reticulate py_module_available import
 #' @importFrom Seurat CreateDimReducObject
 #'
@@ -944,6 +1116,11 @@ RunUMAP2.Graph <- function(object, assay = NULL,
   return(umap)
 }
 
+#' @param object
+#'
+#' @param reduction.model
+#' @param ...
+#'
 #' @rdname RunUMAP2
 #' @concept dimensional_reduction
 #' @method RunUMAP2 Neighbor
@@ -963,6 +1140,44 @@ RunUMAP2.Neighbor <- function(object,
   )
 }
 
+#' @param object
+#'
+#' @param dims
+#' @param reduction
+#' @param features
+#' @param graph
+#' @param assay
+#' @param nn.name
+#' @param slot
+#' @param umap.method
+#' @param reduction.model
+#' @param return.model
+#' @param n.neighbors
+#' @param n.components
+#' @param metric
+#' @param n.epochs
+#' @param learning.rate
+#' @param min.dist
+#' @param spread
+#' @param set.op.mix.ratio
+#' @param local.connectivity
+#' @param repulsion.strength
+#' @param negative.sample.rate
+#' @param a
+#' @param b
+#' @param uwot.sgd
+#' @param seed.use
+#' @param metric.kwds
+#' @param angular.rp.forest
+#' @param densmap
+#' @param dens.lambda
+#' @param dens.frac
+#' @param dens.var.shift
+#' @param verbose
+#' @param reduction.name
+#' @param reduction.key
+#' @param ...
+#'
 #' @rdname RunUMAP2
 #' @concept dimensional_reduction
 #' @export
@@ -1084,6 +1299,29 @@ RunHarmony2 <- function(object, ...) {
   UseMethod(generic = "RunHarmony2", object = object)
 }
 
+#' @param object
+#'
+#' @param group.by.vars
+#' @param reduction
+#' @param dims.use
+#' @param theta
+#' @param lambda
+#' @param sigma
+#' @param nclust
+#' @param tau
+#' @param block.size
+#' @param max.iter.harmony
+#' @param max.iter.cluster
+#' @param epsilon.cluster
+#' @param epsilon.harmony
+#' @param plot_convergence
+#' @param verbose
+#' @param reference_values
+#' @param reduction.save
+#' @param assay.use
+#' @param project.dim
+#' @param ...
+#'
 #' @importFrom Seurat Embeddings RunPCA FetchData CreateDimReducObject ProjectDim LogSeuratCommand
 #' @importFrom harmony HarmonyMatrix
 RunHarmony2.Seurat <- function(object,

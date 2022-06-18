@@ -21,6 +21,8 @@ palette_scp(
 
 \item{palette}{palette name used.}
 
+\item{pal_color}{}
+
 \item{type}{Type of \code{x}.Can be one of "auto","discrete" or "continuous". The default is "auto", which automatically detects if \code{x} is a numeric value.
 If it is numeric, then \code{x} is interpolated to the palette color of length 100 in ascending order.
 Otherwise, the color is assigned to \code{x} according to its type number.}

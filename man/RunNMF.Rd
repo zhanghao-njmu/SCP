@@ -66,7 +66,7 @@ RunNMF(object, ...)
 \arguments{
 \item{object}{An object}
 
-\item{...}{Arguments passed to \link[RcppML]{nmf}.}
+\item{...}{}
 
 \item{assay}{Name of Assay nmf is being run on.}
 

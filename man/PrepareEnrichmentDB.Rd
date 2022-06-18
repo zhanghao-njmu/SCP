@@ -9,6 +9,7 @@ PrepareEnrichmentDB(
   enrichment = c("GO_BP", "GO_CC", "GO_MF", "KEGG", "WikiPathway", "Reactome",
     "ProteinComplex", "PFAM", "Chromosome"),
   db_IDtypes = c("symbol", "entrez_id", "ensembl_id"),
+  db_version = "latest",
   db_update = FALSE,
   Ensembl_version = 103,
   mirror = NULL
@@ -20,6 +21,8 @@ PrepareEnrichmentDB(
 \item{enrichment}{Enrichment database name.}
 
 \item{db_update}{Whether update the database.}
+
+\item{mirror}{}
 }
 \value{
 A list containing the database.

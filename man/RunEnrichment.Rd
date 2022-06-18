@@ -13,6 +13,7 @@ RunEnrichment(
   enrichment = "GO_BP",
   db_IDtype = "symbol",
   db_update = FALSE,
+  db_version = "latest",
   Ensembl_version = 103,
   mirror = NULL,
   TERM2GENE = NULL,
@@ -21,7 +22,7 @@ RunEnrichment(
   maxGSSize = 500,
   universe = NULL,
   GO_simplify = TRUE,
-  GO_simplify_padjustCutoff = 0.05,
+  GO_simplify_padjustCutoff = 0.2,
   simplify_method = "Rel",
   simplify_similarityCutoff = 0.7,
   BPPARAM = BiocParallel::bpparam(),
@@ -60,8 +61,6 @@ RunEnrichment(
 \item{simplify_method}{simplify_method}
 
 \item{simplify_similarityCutoff}{simplify_similarityCutoff}
-
-\item{cl}{cores}
 }
 \description{
 Perform the enrichment analysis(over-representation) on the genes

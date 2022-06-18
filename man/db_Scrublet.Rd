@@ -6,6 +6,9 @@
 \usage{
 db_Scrublet(srt, assay = "RNA", db_rate = ncol(srt)/1000 * 0.01, ...)
 }
+\arguments{
+\item{...}{}
+}
 \description{
 Run doublet-calling with Scrublet
 }

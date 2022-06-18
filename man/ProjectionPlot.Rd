@@ -19,6 +19,9 @@ ProjectionPlot(
   stroke.highlight = 0.5
 )
 }
+\arguments{
+\item{stroke.highlight}{}
+}
 \description{
 Projection Plot
 }

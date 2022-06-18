@@ -23,6 +23,9 @@ RunKNNMap(
   vote_fun = "mean"
 )
 }
+\arguments{
+\item{vote_fun}{}
+}
 \description{
 Single-cell reference mapping with KNN method
 }

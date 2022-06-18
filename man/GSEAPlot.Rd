@@ -23,6 +23,9 @@ GSEAPlot(
   label.size = 4
 )
 }
+\arguments{
+\item{label.size}{}
+}
 \description{
 GSEA Plot
 }

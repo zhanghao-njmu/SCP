@@ -47,6 +47,9 @@ VelocityPlot(
   return_layer = FALSE
 )
 }
+\arguments{
+\item{return_layer}{}
+}
 \description{
 Velocity Plot
 }

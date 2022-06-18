@@ -14,6 +14,7 @@ RunGSEA(
   enrichment = "GO_BP",
   db_IDtype = "symbol",
   db_update = FALSE,
+  db_version = "latest",
   Ensembl_version = 103,
   mirror = NULL,
   TERM2GENE = NULL,
@@ -59,10 +60,6 @@ RunGSEA(
 \item{simplify_method}{simplify_method}
 
 \item{simplify_similarityCutoff}{simplify_similarityCutoff}
-
-\item{universe}{universe}
-
-\item{cl}{cores}
 }
 \description{
 Perform the enrichment analysis(GSEA) on the genes

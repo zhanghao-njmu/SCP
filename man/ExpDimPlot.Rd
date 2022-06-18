@@ -47,12 +47,17 @@ ExpDimPlot(
   label_point_color = "black",
   label_segment_color = "black",
   lineages = NULL,
-  lineage_palette = "Dark2",
-  span = 0.75,
-  arrow_reverse = FALSE,
-  line_size = 1,
-  line_bg = "white",
-  line_bg_r = 0.5,
+  lineages_trim = c(0.01, 0.99),
+  lineages_span = 0.75,
+  lineages_palette = "Dark2",
+  lineages_pal_color = NULL,
+  lineages_arrow = arrow(length = unit(0.1, "inches")),
+  lineages_line_size = 1,
+  lineages_line_bg = "white",
+  lineages_line_bg_r = 0.5,
+  lineages_whiskers = FALSE,
+  lineages_whiskers_size = 0.5,
+  lineages_whiskers_alpha = 0.5,
   graph = NULL,
   edge_size = c(0.05, 0.5),
   edge_alpha = 0.1,
@@ -125,6 +130,8 @@ ExpDimPlot(
 \item{ncol}{Number of columns in the plot grid.}
 
 \item{byrow}{Logical value indicating if the plots should be arrange by row (default) or by column.}
+
+\item{force}{}
 }
 \value{
 A single ggplot object if combine = TRUE; otherwise, a list of ggplot objects

@@ -44,13 +44,9 @@ RunKNNPredict(
 
 \item{k}{Number of predictions to return.}
 
+\item{prefix}{}
+
 \item{force}{Whether to force to annotate when data type is different.}
-
-\item{method}{Method used to measure cell similarity. Can be one of similarity metrics: \code{cosine}, \code{correlation}, \code{jaccard}, \code{ejaccard}, \code{dice}, \code{edice}, \code{hamman},
-\code{simple matching}, \code{faith}, or distance metrics: \code{euclidean}, \code{chisquared}, \code{kullback}, \code{manhattan}, \code{maximum}, \code{canberra},
-\code{minkowski}, \code{hamming}.}
-
-\item{query_slot}{\code{slot} used in the srt_query}
 }
 \description{
 Annotate single cells using similarity.

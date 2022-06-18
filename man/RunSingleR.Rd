@@ -25,6 +25,9 @@ RunSingleR(
   force = FALSE
 )
 }
+\arguments{
+\item{force}{}
+}
 \description{
 Annotate single cells using scmap.
 }

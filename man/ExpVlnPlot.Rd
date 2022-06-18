@@ -65,6 +65,9 @@ ExpVlnPlot(
   force = FALSE
 )
 }
+\arguments{
+\item{force}{}
+}
 \description{
 Violin plot for cell expression.
 }

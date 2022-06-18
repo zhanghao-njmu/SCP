@@ -66,6 +66,9 @@ PAGAPlot(
   return_layer = FALSE
 )
 }
+\arguments{
+\item{return_layer}{}
+}
 \description{
 PAGA plot
 }

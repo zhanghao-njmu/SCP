@@ -39,12 +39,17 @@ ClassDimPlot(
   density_filled_palette = "Greys",
   density_filled_color = NULL,
   lineages = NULL,
-  lineage_palette = "Dark2",
-  span = 0.75,
-  arrow_reverse = FALSE,
-  line_size = 1,
-  line_bg = "white",
-  line_bg_r = 0.5,
+  lineages_trim = c(0.01, 0.99),
+  lineages_span = 0.75,
+  lineages_palette = "Dark2",
+  lineages_pal_color = NULL,
+  lineages_arrow = arrow(length = unit(0.1, "inches")),
+  lineages_line_size = 1,
+  lineages_line_bg = "white",
+  lineages_line_bg_r = 0.5,
+  lineages_whiskers = FALSE,
+  lineages_whiskers_size = 0.5,
+  lineages_whiskers_alpha = 0.5,
   stat.by = NULL,
   stat_type = "percent",
   stat_plot_type = "pie",
@@ -159,6 +164,8 @@ ClassDimPlot(
 \item{ncol}{Number of columns in the plot grid.}
 
 \item{byrow}{Logical value indicating if the plots should be arrange by row (default) or by column.}
+
+\item{force}{}
 }
 \value{
 A single ggplot object if combine = TRUE; otherwise, a list of ggplot objects
@@ -182,8 +189,10 @@ pancreas1k <- Standard_SCP(pancreas1k)
 ClassDimPlot(pancreas1k, group.by = "CellType", reduction = "UMAP", graph = "Standardpca_SNN")
 
 pancreas1k <- RunSlingshot(pancreas1k, group.by = "SubCellType", reduction = "UMAP", show_plot = FALSE)
+ExpDimPlot(pancreas1k, features = paste0("Lineage", 1:3), reduction = "UMAP")
 ClassDimPlot(pancreas1k, group.by = "SubCellType", reduction = "UMAP", lineages = paste0("Lineage", 1:3))
-ClassDimPlot(pancreas1k, group.by = "SubCellType", reduction = "UMAP", lineages = paste0("Lineage", 1:3), span = 0.1)
+ClassDimPlot(pancreas1k, group.by = "SubCellType", reduction = "UMAP", lineages = paste0("Lineage", 1:3), lineages_whiskers = TRUE)
+ClassDimPlot(pancreas1k, group.by = "SubCellType", reduction = "UMAP", lineages = paste0("Lineage", 1:3), lineages_span = 0.1)
 
 pancreas1k <- RunPAGA(srt = pancreas1k, group_by = "SubCellType", liner_reduction = "PCA", nonliner_reduction = "UMAP", return_seurat = TRUE)
 ClassDimPlot(pancreas1k, group.by = "SubCellType", reduction = "UMAP", paga = pancreas1k@misc$paga)
@@ -196,7 +205,7 @@ ClassDimPlot(pancreas1k,
 
 pancreas1k <- RunSCVELO(srt = pancreas1k, group_by = "SubCellType", liner_reduction = "PCA", nonliner_reduction = "UMAP", mode = "stochastic", return_seurat = TRUE)
 ClassDimPlot(pancreas1k, group.by = "SubCellType", reduction = "UMAP", paga = pancreas1k@misc$paga, paga_show_transition = TRUE)
-ClassDimPlot(pancreas1k, group.by = "SubCellType", reduction = "UMAP", pt.size = 5, pt.alpha = 0.2, velocity = "stochastic")
+ClassDimPlot(pancreas1k, group.by = "SubCellType", reduction = "UMAP", pt.size = NA, velocity = "stochastic")
 ClassDimPlot(pancreas1k, group.by = "SubCellType", reduction = "UMAP", pt.size = 5, pt.alpha = 0.2, velocity = "stochastic", velocity_plot_type = "grid")
 ClassDimPlot(pancreas1k, group.by = "SubCellType", reduction = "UMAP", pt.size = 5, pt.alpha = 0.2, velocity = "stochastic", velocity_plot_type = "grid", velocity_scale = 1.5)
 ClassDimPlot(pancreas1k, group.by = "SubCellType", reduction = "UMAP", pt.size = 5, pt.alpha = 0.2, velocity = "stochastic", velocity_plot_type = "stream")

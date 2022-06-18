@@ -25,6 +25,9 @@ RunSeuratMap(
   vote_fun = "mean"
 )
 }
+\arguments{
+\item{vote_fun}{}
+}
 \description{
 Single-cell reference mapping with Seurat method
 }

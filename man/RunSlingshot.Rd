@@ -19,6 +19,9 @@ RunSlingshot(
   ...
 )
 }
+\arguments{
+\item{...}{}
+}
 \description{
 RunSlingshot
 }

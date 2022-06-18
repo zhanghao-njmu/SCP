@@ -46,6 +46,9 @@ ExpCorPlot(
   force = FALSE
 )
 }
+\arguments{
+\item{force}{}
+}
 \description{
 Features correlation plot
 }

@@ -11,6 +11,9 @@ isOutlier(
   type = c("both", "lower", "higher")
 )
 }
+\arguments{
+\item{type}{}
+}
 \description{
 Detect outliers using MAD(Median and Median Absolute Deviation) method
 }

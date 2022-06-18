@@ -1,3 +1,12 @@
+#' Check and install R packages
+#'
+#' @param pkgs
+#'
+#' @param pkg_names
+#' @param install_methods
+#' @param lib
+#' @param force
+#'
 #' @importFrom rlang %||%
 #' @export
 check_R <- function(pkgs, pkg_names = NULL, install_methods = c("BiocManager::install", "install.packages", "devtools::install_github"), lib = .libPaths()[1], force = FALSE) {
@@ -79,6 +88,13 @@ exist_pkg <- function(pkg, envname = "SCP") {
   }
 }
 
+#' Check and install python packages
+#'
+#' @param pkgs
+#' @param pkg_names
+#' @param envname
+#' @param force
+#'
 #' @importFrom rlang %||%
 #' @export
 check_Python <- function(pkgs, pkg_names = NULL, envname = "SCP", force = FALSE) {

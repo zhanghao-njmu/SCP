@@ -8,6 +8,12 @@
 NULL
 
 
+#' @param srt
+#'
+#' @param data
+#' @param slot
+#' @param assay
+#'
 #' @importFrom Seurat DefaultAssay GetAssayData
 #' @export
 check_DataType <- function(srt, data = NULL, slot = "data", assay = DefaultAssay(srt)) {
@@ -34,6 +40,20 @@ check_DataType <- function(srt, data = NULL, slot = "data", assay = DefaultAssay
   }
 }
 
+#' @param srtList
+#'
+#' @param batch
+#' @param do_normalization
+#' @param normalization_method
+#' @param do_HVF_finding
+#' @param HVF_source
+#' @param HVF_method
+#' @param nHVF
+#' @param HVF
+#' @param vars_to_regress
+#' @param seed
+#' @param ...
+#'
 #' @importFrom Seurat SplitObject GetAssayData Assays NormalizeData FindVariableFeatures SCTransform SCTResults SelectIntegrationFeatures PrepSCTIntegration DefaultAssay DefaultAssay<- VariableFeatures VariableFeatures<-
 #' @importFrom Matrix rowSums
 #' @importFrom dplyr "%>%" arrange desc filter .data
@@ -218,6 +238,20 @@ check_srtList <- function(srtList, batch = "orig.ident",
   ))
 }
 
+#' @param srtMerge
+#'
+#' @param batch
+#' @param do_normalization
+#' @param normalization_method
+#' @param do_HVF_finding
+#' @param HVF_source
+#' @param HVF_method
+#' @param nHVF
+#' @param HVF
+#' @param vars_to_regress
+#' @param seed
+#' @param ...
+#'
 #' @importFrom Seurat GetAssayData SplitObject SetAssayData VariableFeatures VariableFeatures<-
 #' @export
 check_srtMerge <- function(srtMerge, batch = "orig.ident",
@@ -266,6 +300,11 @@ check_srtMerge <- function(srtMerge, batch = "orig.ident",
   ))
 }
 
+#' @param srt
+#'
+#' @param HVF
+#' @param do_normalization
+#'
 #' @importFrom Seurat DefaultAssay DefaultAssay<- GetAssayData NormalizeData VariableFeatures VariableFeatures<-
 check_final <- function(srt, HVF, do_normalization) {
   raw_DefaultAssay <- DefaultAssay(object = srt)
@@ -295,6 +334,12 @@ check_final <- function(srt, HVF, do_normalization) {
   return(srt)
 }
 
+#' @param srt
+#'
+#' @param newnames
+#' @param oldnames
+#' @param assays
+#'
 #' @importFrom Seurat Assays GetAssay
 #' @importFrom methods slot
 #' @export
@@ -323,6 +368,16 @@ RenameFeatures <- function(srt, newnames = NULL, oldnames = NULL, assays = NULL)
   return(srt)
 }
 
+#' @param srt
+#'
+#' @param features
+#' @param reorder_by
+#' @param slot
+#' @param assay
+#' @param log
+#' @param distance_metric
+#' @param reorder_FUN
+#'
 #' @importFrom Seurat VariableFeatures DefaultAssay DefaultAssay<- AverageExpression Idents<-
 #' @importFrom stats hclust reorder as.dendrogram as.dist
 #' @importFrom proxyC dist simil
@@ -389,6 +444,14 @@ SrtReorder <- function(srt, features = NULL, reorder_by = NULL, slot = "data", a
   return(srt)
 }
 
+#' @param srt_raw
+#'
+#' @param srt_append
+#' @param slots
+#' @param pattern
+#' @param overwrite
+#' @param verbose
+#'
 #' @importFrom methods slotNames slot slot<-
 #' @importFrom Seurat Cells
 #' @export
@@ -437,6 +500,23 @@ SrtAppend <- function(srt_raw, srt_append,
   return(srt_raw)
 }
 
+#' @param srt
+#'
+#' @param prefix
+#' @param features
+#' @param assay
+#' @param liner_reduction
+#' @param liner_reduction_dims
+#' @param liner_reduction_distance
+#' @param force_liner_reduction
+#' @param nonliner_reduction
+#' @param reduction_use
+#' @param dims_use
+#' @param nonliner_reduction_dims
+#' @param nonliner_reduction_distance
+#' @param verbose
+#' @param seed
+#'
 #' @importFrom Seurat Embeddings RunPCA RunICA RunTSNE Reductions DefaultAssay DefaultAssay<- Key Key<-
 #' @importFrom intrinsicDimension maxLikGlobalDimEst
 #' @export
@@ -614,6 +694,36 @@ RunDimReduction <- function(srt, prefix = NULL, features = NULL, assay = Default
   }
 }
 
+#' @param srtMerge
+#'
+#' @param batch
+#' @param append
+#' @param srtList
+#' @param do_normalization
+#' @param normalization_method
+#' @param do_HVF_finding
+#' @param HVF_source
+#' @param HVF_method
+#' @param nHVF
+#' @param HVF
+#' @param do_scaling
+#' @param vars_to_regress
+#' @param regression_model
+#' @param liner_reduction
+#' @param liner_reduction_dims
+#' @param liner_reduction_distance
+#' @param liner_reduction_dims_use
+#' @param force_liner_reduction
+#' @param nonliner_reduction
+#' @param nonliner_reduction_dims
+#' @param nonliner_reduction_distance
+#' @param do_cluster_finding
+#' @param cluster_algorithm
+#' @param cluster_resolution
+#' @param cluster_reorder
+#' @param seed
+#' @param ...
+#'
 #' @importFrom Seurat GetAssayData SetAssayData VariableFeatures VariableFeatures<-
 #' @importFrom dplyr "%>%"
 #' @export
@@ -731,6 +841,36 @@ Uncorrected_integrate <- function(srtMerge = NULL, batch = "orig.ident", append 
   }
 }
 
+#' @param srtMerge
+#'
+#' @param batch
+#' @param append
+#' @param srtList
+#' @param do_normalization
+#' @param normalization_method
+#' @param do_HVF_finding
+#' @param HVF_source
+#' @param HVF_method
+#' @param nHVF
+#' @param HVF
+#' @param do_scaling
+#' @param vars_to_regress
+#' @param regression_model
+#' @param liner_reduction
+#' @param liner_reduction_dims
+#' @param liner_reduction_dims_use
+#' @param liner_reduction_distance
+#' @param force_liner_reduction
+#' @param nonliner_reduction
+#' @param nonliner_reduction_dims
+#' @param nonliner_reduction_distance
+#' @param do_cluster_finding
+#' @param cluster_algorithm
+#' @param cluster_resolution
+#' @param cluster_reorder
+#' @param seed
+#' @param ...
+#'
 #' @importFrom Seurat GetAssayData ScaleData SetAssayData FindIntegrationAnchors IntegrateData DefaultAssay DefaultAssay<- FindNeighbors FindClusters Idents
 #' @importFrom dplyr "%>%"
 #' @export
@@ -894,6 +1034,29 @@ Seurat_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRU
   }
 }
 
+#' @param srtMerge
+#'
+#' @param batch
+#' @param append
+#' @param srtList
+#' @param do_normalization
+#' @param normalization_method
+#' @param do_HVF_finding
+#' @param HVF_source
+#' @param HVF_method
+#' @param nHVF
+#' @param HVF
+#' @param fastMNN_dims_use
+#' @param nonliner_reduction
+#' @param nonliner_reduction_dims
+#' @param nonliner_reduction_distance
+#' @param do_cluster_finding
+#' @param cluster_algorithm
+#' @param cluster_resolution
+#' @param cluster_reorder
+#' @param seed
+#' @param ...
+#'
 #' @importFrom Seurat CreateSeuratObject GetAssayData SetAssayData DefaultAssay DefaultAssay<- Embeddings FindNeighbors FindClusters Idents VariableFeatures VariableFeatures<-
 #' @importFrom dplyr "%>%"
 #' @importFrom intrinsicDimension maxLikGlobalDimEst
@@ -1057,6 +1220,37 @@ fastMNN_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TR
   }
 }
 
+#' @param srtMerge
+#'
+#' @param batch
+#' @param append
+#' @param srtList
+#' @param do_normalization
+#' @param normalization_method
+#' @param do_HVF_finding
+#' @param HVF_source
+#' @param HVF_method
+#' @param nHVF
+#' @param HVF
+#' @param do_scaling
+#' @param vars_to_regress
+#' @param regression_model
+#' @param liner_reduction
+#' @param liner_reduction_dims
+#' @param liner_reduction_dims_use
+#' @param liner_reduction_distance
+#' @param force_liner_reduction
+#' @param Harmony_dims_use
+#' @param nonliner_reduction
+#' @param nonliner_reduction_dims
+#' @param nonliner_reduction_distance
+#' @param do_cluster_finding
+#' @param cluster_algorithm
+#' @param cluster_resolution
+#' @param cluster_reorder
+#' @param seed
+#' @param ...
+#'
 #' @importFrom Seurat GetAssayData ScaleData SetAssayData DefaultAssay DefaultAssay<- Embeddings FindNeighbors FindClusters Idents VariableFeatures VariableFeatures<-
 #' @importFrom dplyr "%>%"
 #' @importFrom intrinsicDimension maxLikGlobalDimEst
@@ -1234,6 +1428,36 @@ Harmony_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TR
   }
 }
 
+#' @param srtMerge
+#'
+#' @param batch
+#' @param append
+#' @param srtList
+#' @param do_normalization
+#' @param normalization_method
+#' @param do_HVF_finding
+#' @param HVF_source
+#' @param HVF_method
+#' @param nHVF
+#' @param HVF
+#' @param do_scaling
+#' @param vars_to_regress
+#' @param regression_model
+#' @param liner_reduction
+#' @param liner_reduction_dims
+#' @param liner_reduction_dims_use
+#' @param liner_reduction_distance
+#' @param force_liner_reduction
+#' @param nonliner_reduction
+#' @param nonliner_reduction_dims
+#' @param nonliner_reduction_distance
+#' @param do_cluster_finding
+#' @param cluster_algorithm
+#' @param cluster_resolution
+#' @param cluster_reorder
+#' @param seed
+#' @param ...
+#'
 #' @importFrom Seurat GetAssayData ScaleData SetAssayData DefaultAssay DefaultAssay<- SplitObject CreateAssayObject CreateDimReducObject Embeddings FindNeighbors FindClusters Idents
 #' @importFrom Matrix t
 #' @importFrom dplyr "%>%"
@@ -1404,6 +1628,34 @@ Scanorama_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = 
   }
 }
 
+#' @param srtMerge
+#'
+#' @param batch
+#' @param append
+#' @param srtList
+#' @param do_normalization
+#' @param normalization_method
+#' @param do_HVF_finding
+#' @param HVF_source
+#' @param HVF_method
+#' @param nHVF
+#' @param HVF
+#' @param do_scaling
+#' @param vars_to_regress
+#' @param regression_model
+#' @param liner_reduction
+#' @param liner_reduction_dims
+#' @param liner_reduction_dims_use
+#' @param liner_reduction_distance
+#' @param force_liner_reduction
+#' @param nonliner_reduction_dims
+#' @param do_cluster_finding
+#' @param cluster_algorithm
+#' @param cluster_resolution
+#' @param cluster_reorder
+#' @param seed
+#' @param ...
+#'
 #' @importFrom Seurat GetAssayData ScaleData SetAssayData DefaultAssay DefaultAssay<- as.Graph Embeddings FindClusters Idents VariableFeatures VariableFeatures<-
 #' @importFrom Matrix t
 #' @importFrom dplyr "%>%"
@@ -1556,6 +1808,36 @@ BBKNN_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE
   }
 }
 
+#' @param srtMerge
+#'
+#' @param batch
+#' @param append
+#' @param srtList
+#' @param do_normalization
+#' @param normalization_method
+#' @param do_HVF_finding
+#' @param HVF_source
+#' @param HVF_method
+#' @param nHVF
+#' @param HVF
+#' @param do_scaling
+#' @param vars_to_regress
+#' @param regression_model
+#' @param liner_reduction
+#' @param liner_reduction_dims
+#' @param liner_reduction_dims_use
+#' @param liner_reduction_distance
+#' @param force_liner_reduction
+#' @param nonliner_reduction
+#' @param nonliner_reduction_dims
+#' @param nonliner_reduction_distance
+#' @param do_cluster_finding
+#' @param cluster_algorithm
+#' @param cluster_resolution
+#' @param cluster_reorder
+#' @param seed
+#' @param CSS_param
+#'
 #' @importFrom Seurat GetAssayData ScaleData SetAssayData DefaultAssay DefaultAssay<- Embeddings FindNeighbors FindClusters Idents VariableFeatures VariableFeatures<-
 #' @importFrom dplyr "%>%"
 #' @export
@@ -1717,6 +1999,31 @@ CSS_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE, 
   }
 }
 
+#' @param srtMerge
+#'
+#' @param batch
+#' @param append
+#' @param srtList
+#' @param do_normalization
+#' @param normalization_method
+#' @param do_HVF_finding
+#' @param HVF_source
+#' @param HVF_method
+#' @param nHVF
+#' @param HVF
+#' @param do_scaling
+#' @param vars_to_regress
+#' @param regression_model
+#' @param nonliner_reduction
+#' @param nonliner_reduction_dims
+#' @param nonliner_reduction_distance
+#' @param do_cluster_finding
+#' @param cluster_algorithm
+#' @param cluster_resolution
+#' @param cluster_reorder
+#' @param seed
+#' @param ...
+#'
 #' @importFrom Seurat GetAssayData ScaleData SetAssayData DefaultAssay DefaultAssay<- Embeddings FindNeighbors FindClusters Idents VariableFeatures VariableFeatures<-
 #' @importFrom dplyr "%>%"
 #' @export
@@ -2401,6 +2708,10 @@ Standard_SCP <- function(srt, prefix = "Standard",
 #' @param cluster_resolution Cluster resolution parameter.
 #' @param cluster_reorder Whether to reorder the cluster names using hierarchical clustering.
 #' @param seed Set a random seed.
+#' @param HVF_method
+#' @param force_liner_reduction
+#' @param do_cluster_finding
+#' @param ...
 #'
 #' @return A \code{Seurat} object containing the result.
 #'

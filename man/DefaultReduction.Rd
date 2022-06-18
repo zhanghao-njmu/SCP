@@ -12,6 +12,8 @@ DefaultReduction(srt, pattern = NULL, min_dim = 2, max_distance = 0.1)
 \item{pattern}{Name of the pattern to search for.}
 
 \item{min_dim}{Minimum dimension threshold.}
+
+\item{max_distance}{}
 }
 \value{
 Default reduction name.

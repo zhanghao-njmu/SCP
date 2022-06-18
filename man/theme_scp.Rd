@@ -9,6 +9,8 @@ theme_scp(aspect.ratio = 1, text_size_scale = 1, ...)
 \arguments{
 \item{aspect.ratio}{Aspect ratio of the panel.}
 
+\item{text_size_scale}{}
+
 \item{...}{Arguments passed to the \code{\link[ggplot2]{theme}}.}
 }
 \description{

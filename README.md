@@ -52,7 +52,10 @@ data](https://doi.org/10.1242/dev.173849).
 ``` r
 library(SCP)
 data("pancreas1k")
+ClassDimPlot(pancreas1k, c("CellType", "SubCellType"), reduction = "UMAP", ncol = 1)
 ```
+
+<img src="man/figures/README-library-1.png" width="100%" style="display: block; margin: auto;" />
 
 **CellQC**:
 
@@ -120,7 +123,8 @@ ProjectionPlot(srt_query = pancreas1k, srt_ref = panc8, query_group = "SubCellTy
 
 ``` r
 pancreas1k <- RunKNNPredict(srt_query = pancreas1k, bulk_ref = SCP::ref_scMCA, filter_lowfreq = 20)
-ClassDimPlot(pancreas1k, group.by = "knnpredict_classification", label = TRUE)
+ClassDimPlot(pancreas1k, group.by = "knnpredict_classification", reduction = "UMAP",
+    label = TRUE)
 ```
 
 <img src="man/figures/README-RunKNNPredict-bulk-1.png" width="100%" style="display: block; margin: auto;" />
@@ -130,7 +134,8 @@ ClassDimPlot(pancreas1k, group.by = "knnpredict_classification", label = TRUE)
 ``` r
 pancreas1k <- RunKNNPredict(srt_query = pancreas1k, srt_ref = panc8, ref_group = "celltype",
     filter_lowfreq = 20)
-ClassDimPlot(pancreas1k, group.by = "knnpredict_classification", label = TRUE)
+ClassDimPlot(pancreas1k, group.by = "knnpredict_classification", reduction = "UMAP",
+    label = TRUE)
 ```
 
 <img src="man/figures/README-RunKNNPredict-scrna-1.png" width="100%" style="display: block; margin: auto;" />
@@ -140,7 +145,7 @@ ClassDimPlot(pancreas1k, group.by = "knnpredict_classification", label = TRUE)
 ``` r
 pancreas1k <- RunPAGA(srt = pancreas1k, group_by = "SubCellType", liner_reduction = "PCA",
     nonliner_reduction = "UMAP", return_seurat = TRUE)
-PAGAPlot(pancreas1k, label = TRUE, label_insitu = TRUE, label_repel = TRUE)
+PAGAPlot(pancreas1k, reduction = "UMAP", label = TRUE, label_insitu = TRUE, label_repel = TRUE)
 ```
 
 <img src="man/figures/README-RunPAGA-1.png" width="100%" style="display: block; margin: auto;" />

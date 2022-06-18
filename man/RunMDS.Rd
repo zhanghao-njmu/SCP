@@ -63,6 +63,8 @@ RunMDS(object, ...)
 \arguments{
 \item{object}{An object}
 
+\item{...}{}
+
 \item{assay}{Name of Assay mds is being run on.}
 
 \item{slot}{Name of slot mds is being run on.}

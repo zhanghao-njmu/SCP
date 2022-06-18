@@ -1,4 +1,10 @@
 #' Run doublet-calling with scDblFinder
+#'
+#' @param srt
+#' @param assay
+#' @param db_rate
+#' @param ...
+#'
 #' @examples
 #' if (interactive()) {
 #'   data("pancreas1k")
@@ -25,6 +31,13 @@ db_scDblFinder <- function(srt, assay = "RNA", db_rate = ncol(srt) / 1000 * 0.01
 }
 
 #' Run doublet-calling with scds
+#'
+#' @param srt
+#' @param assay
+#' @param db_rate
+#' @param method
+#' @param ...
+#'
 #' @examples
 #' if (interactive()) {
 #'   data("pancreas1k")
@@ -56,6 +69,12 @@ db_scds <- function(srt, assay = "RNA", db_rate = ncol(srt) / 1000 * 0.01, metho
 }
 
 #' Run doublet-calling with Scrublet
+#'
+#' @param srt
+#' @param assay
+#' @param db_rate
+#' @param ...
+#'
 #' @examples
 #' if (interactive()) {
 #'   data("pancreas1k")
@@ -93,6 +112,12 @@ db_Scrublet <- function(srt, assay = "RNA", db_rate = ncol(srt) / 1000 * 0.01, .
 }
 
 #' Run doublet-calling with DoubletDetection
+#'
+#' @param srt
+#' @param assay
+#' @param db_rate
+#' @param ...
+#'
 #' @examples
 #' if (interactive()) {
 #'   data("pancreas1k")
@@ -192,6 +217,12 @@ RunDoubletCalling <- function(srt, assay = "RNA", db_method = "scDblFinder", db_
 }
 
 #' Detect outliers using MAD(Median and Median Absolute Deviation) method
+#'
+#' @param x
+#' @param nmads
+#' @param constant
+#' @param type
+#'
 #' @importFrom stats mad
 #' @export
 isOutlier <- function(x, nmads = 2.5, constant = 1.4826, type = c("both", "lower", "higher")) {

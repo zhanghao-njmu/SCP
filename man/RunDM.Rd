@@ -58,9 +58,9 @@ RunDM(object, ...)
 )
 }
 \arguments{
-\item{object}{An object}
+\item{object}{}
 
-\item{...}{Arguments passed to \link[destiny]{DiffusionMap}.}
+\item{...}{}
 
 \item{ndcs}{Total Number of DM to compute and store (2 by default).}
 

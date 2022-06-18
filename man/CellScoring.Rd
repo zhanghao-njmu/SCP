@@ -17,6 +17,9 @@ CellScoring(
   ...
 )
 }
+\arguments{
+\item{...}{}
+}
 \description{
 Cell classification
 }

@@ -62,6 +62,7 @@ The analysis is based on a subsetted version of [mouse pancreas data](https://do
 ```{r library}
 library(SCP)
 data("pancreas1k")
+ClassDimPlot(pancreas1k, c("CellType", "SubCellType"), reduction = "UMAP", ncol = 1)
 ```
 
 **CellQC**:
@@ -108,21 +109,21 @@ ProjectionPlot(srt_query = pancreas1k, srt_ref = panc8, query_group = "SubCellTy
 
 ```{r RunKNNPredict-bulk}
 pancreas1k <- RunKNNPredict(srt_query = pancreas1k, bulk_ref = SCP::ref_scMCA, filter_lowfreq = 20)
-ClassDimPlot(pancreas1k, group.by = "knnpredict_classification", label = TRUE)
+ClassDimPlot(pancreas1k, group.by = "knnpredict_classification", reduction = "UMAP", label = TRUE)
 ```
 
 **Cell annotation using single-cell datasets**:
 
 ```{r RunKNNPredict-scrna}
 pancreas1k <- RunKNNPredict(srt_query = pancreas1k, srt_ref = panc8, ref_group = "celltype", filter_lowfreq = 20)
-ClassDimPlot(pancreas1k, group.by = "knnpredict_classification", label = TRUE)
+ClassDimPlot(pancreas1k, group.by = "knnpredict_classification", reduction = "UMAP", label = TRUE)
 ```
 
 **PAGA analysis**:
 
 ```{r RunPAGA}
 pancreas1k <- RunPAGA(srt = pancreas1k, group_by = "SubCellType", liner_reduction = "PCA", nonliner_reduction = "UMAP", return_seurat = TRUE)
-PAGAPlot(pancreas1k, label = TRUE, label_insitu = TRUE, label_repel = TRUE)
+PAGAPlot(pancreas1k, reduction = "UMAP", label = TRUE, label_insitu = TRUE, label_repel = TRUE)
 ```
 
 **Velocity analysis**:

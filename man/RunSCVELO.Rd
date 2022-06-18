@@ -99,9 +99,7 @@ RunSCVELO(
 
 \item{fileprefix}{fileprefix.}
 
-\item{velocity_with_noise}{velocity_with_noise.}
-
-\item{diff_kinetics}{diff_kinetics.}
+\item{return_seurat}{}
 }
 \value{
 A \code{anndata} object.

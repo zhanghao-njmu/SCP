@@ -6,16 +6,33 @@ Preprocess <- function() {
 }
 
 #' Annotate single cells using similarity.
+#'
 #' @param srt_query A seurat object.
 #' @param bulk_ref A cell atlas matrix, e.g., SCP::ref_scHCL
-#' @param method Method used to measure cell similarity. Can be one of similarity metrics: \code{cosine}, \code{correlation}, \code{jaccard}, \code{ejaccard}, \code{dice}, \code{edice}, \code{hamman},
-#' \code{simple matching}, \code{faith}, or distance metrics: \code{euclidean}, \code{chisquared}, \code{kullback}, \code{manhattan}, \code{maximum}, \code{canberra},
-#' \code{minkowski}, \code{hamming}.
 #' @param k Number of predictions to return.
-#' @param query_slot \code{slot} used in the srt_query
 #' @param query_assay \code{assay} used in the srt_query
 #' @param force Whether to force to annotate when data type is different.
 #' @param DE_threshold Threshold used to filter the DE features. Default is "p_val < 0.05". If using "roc" test, \code{DE_threshold} should be needs to be reassigned. e.g. "power > 0.5"
+#' @param srt_ref
+#' @param query_group
+#' @param ref_group
+#' @param ref_assay
+#' @param query_reduction
+#' @param ref_reduction
+#' @param query_dims
+#' @param ref_dims
+#' @param query_collapsing
+#' @param ref_collapsing
+#' @param return_full_distance_matrix
+#' @param features
+#' @param features_type
+#' @param feature_source
+#' @param nfeatures
+#' @param DEtest_param
+#' @param nn_method
+#' @param distance_metric
+#' @param filter_lowfreq
+#' @param prefix
 #'
 #' @examples
 #' # Annotate cells using bulk RNA-seq data
@@ -482,6 +499,18 @@ RunKNNPredict <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
 }
 
 #' Annotate single cells using scmap.
+#'
+#' @param srt_query
+#' @param srt_ref
+#' @param ref_group
+#' @param method
+#' @param n_features
+#' @param threshold
+#' @param k
+#' @param query_assay
+#' @param ref_assay
+#' @param force
+#'
 #' @examples
 #' if (interactive()) {
 #'   if (!require("SeuratData", quietly = TRUE)) {
@@ -612,6 +641,26 @@ RunScmap <- function(srt_query, srt_ref, ref_group = NULL, method = "scmapCluste
 }
 
 #' Annotate single cells using scmap.
+#'
+#' @param srt_query
+#' @param srt_ref
+#' @param query_group
+#' @param ref_group
+#' @param genes
+#' @param de.method
+#' @param sd.thresh
+#' @param de.n
+#' @param aggr.ref
+#' @param aggr.args
+#' @param quantile
+#' @param fine.tune
+#' @param tune.thresh
+#' @param prune
+#' @param BPPARAM
+#' @param query_assay
+#' @param ref_assay
+#' @param force
+#'
 #' @examples
 #' if (interactive()) {
 #'   if (!require("SeuratData", quietly = TRUE)) {

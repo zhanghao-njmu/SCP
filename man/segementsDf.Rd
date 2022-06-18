@@ -6,6 +6,9 @@
 \usage{
 segementsDf(data, shorten_start, shorten_end, offset)
 }
+\arguments{
+\item{offset}{}
+}
 \description{
 Shorten and offset the segment
 }

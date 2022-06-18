@@ -17,6 +17,9 @@ compute_velocity_on_grid(
   cutoff_perc = NULL
 )
 }
+\arguments{
+\item{cutoff_perc}{}
+}
 \description{
 Compute velocity on grid
 The original python code is on https://github.com/theislab/scvelo/blob/master/scvelo/plotting/velocity_embedding_grid.py

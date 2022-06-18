@@ -74,6 +74,8 @@ Standard_SCP(
 \item{cluster_reorder}{Whether to reorder the cluster names using hierarchical clustering.}
 
 \item{seed}{Set a random seed.}
+
+\item{...}{}
 }
 \value{
 A \code{Seurat} object containing the result.

@@ -1,3 +1,14 @@
+#' CreateDataFile
+#'
+#' @param srt
+#'
+#' @param DataFile
+#' @param name
+#' @param assays
+#' @param slots
+#' @param compression_level
+#' @param overwrite
+#'
 #' @importFrom HDF5Array writeTENxMatrix
 #' @importFrom Seurat GetAssayData
 #' @export
@@ -63,6 +74,18 @@ CreateDataFile <- function(srt, DataFile, name = NULL, assays = "RNA", slots = "
   return(invisible(NULL))
 }
 
+#' CreateMetaFile
+#'
+#' @param srt
+#'
+#' @param MetaFile
+#' @param name
+#' @param write_tools
+#' @param write_misc
+#' @param ignore_nlevel
+#' @param compression_level
+#' @param overwrite
+#'
 #' @importFrom rhdf5 h5createFile h5createGroup h5write h5createDataset
 #' @importFrom Seurat Key Reductions Embeddings
 #' @importFrom Matrix sparseMatrix
@@ -188,6 +211,18 @@ CreateMetaFile <- function(srt, MetaFile, name = NULL, write_tools = FALSE, writ
 
 #' Prepare Seurat object data for the SCExplorer into hdf5 file
 #'
+#' @param object
+#' @param base_dir
+#' @param DataFile
+#' @param MetaFile
+#' @param assays
+#' @param slots
+#' @param ignore_nlevel
+#' @param write_tools
+#' @param write_misc
+#' @param compression_level
+#' @param overwrite
+#'
 #' @examples
 #' data("pancreas1k")
 #' pancreas1k <- Standard_SCP(pancreas1k)
@@ -247,6 +282,15 @@ PrepareSCExplorer <- function(object,
 }
 
 #' Fetch data from the hdf5 file
+#'
+#' @param DataFile
+#' @param MetaFile
+#' @param name
+#' @param features
+#' @param slot
+#' @param assay
+#' @param metanames
+#' @param reduction
 #'
 #' @examples
 #' data("pancreas1k")
@@ -358,6 +402,31 @@ FetchH5 <- function(DataFile, MetaFile, name = NULL,
 }
 
 #' RunSCExplorer
+#'
+#' @param base_dir
+#' @param DataFile
+#' @param MetaFile
+#' @param title
+#' @param initial_dataset
+#' @param initial_reduction
+#' @param initial_metaname
+#' @param initial_feature
+#' @param initial_assay
+#' @param initial_slot
+#' @param initial_label
+#' @param initial_palette1
+#' @param initial_palette2
+#' @param initial_theme1
+#' @param initial_theme2
+#' @param initial_coExp
+#' @param initial_size
+#' @param initial_ncol
+#' @param initial_arrange
+#' @param initial_panel_dpi
+#' @param initial_plot_dpi
+#' @param run_explorer
+#' @param create_script
+#' @param overwrite
 #'
 #' @examples
 #' data("pancreas1k")
