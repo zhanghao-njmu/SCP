@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">SCP</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.2.9003</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.2.9004</span>
       </span>
     </div>
 
@@ -114,7 +114,7 @@
 <span class="r-plt img"><img src="SummaryPlot-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span class="co"># \donttest{</span></span>
 <span class="r-in"><span class="co"># Save the plot with appropriate size</span></span>
-<span class="r-in"><span class="fu">ggsave</span><span class="op">(</span></span>
+<span class="r-in"><span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggsave.html" class="external-link">ggsave</a></span><span class="op">(</span></span>
 <span class="r-in">  filename <span class="op">=</span> <span class="st">"summaryplot.png"</span>, plot <span class="op">=</span> <span class="va">p</span>,</span>
 <span class="r-in">  units <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">p</span>, <span class="st">"size"</span><span class="op">)</span><span class="op">$</span><span class="va">units</span>, width <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">p</span>, <span class="st">"size"</span><span class="op">)</span><span class="op">$</span><span class="va">width</span>, height <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">p</span>, <span class="st">"size"</span><span class="op">)</span><span class="op">$</span><span class="va">height</span></span>
 <span class="r-in"><span class="op">)</span></span>

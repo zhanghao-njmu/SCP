@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">SCP</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.2.9003</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.2.9004</span>
       </span>
     </div>
 
@@ -50,12 +50,12 @@
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"pancreas1k"</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">pancreas1k</span> <span class="op">&lt;-</span> <span class="fu">db_scDblFinder</span><span class="op">(</span><span class="va">pancreas1k</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu"><a href="ClassDimPlot.html">ClassDimPlot</a></span><span class="op">(</span><span class="va">pancreas1k</span>, reduction <span class="op">=</span> <span class="st">"umap"</span>, group.by <span class="op">=</span> <span class="st">"db.scDblFinder_class"</span><span class="op">)</span></span>
-<span class="r-plt img"><img src="db_scDblFinder-1.png" alt="" width="700" height="433"></span>
-<span class="r-in"><span class="fu"><a href="ExpDimPlot.html">ExpDimPlot</a></span><span class="op">(</span><span class="va">pancreas1k</span>, reduction <span class="op">=</span> <span class="st">"umap"</span>, features <span class="op">=</span> <span class="st">"db.scDblFinder_score"</span><span class="op">)</span></span>
-<span class="r-plt img"><img src="db_scDblFinder-2.png" alt="" width="700" height="433"></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
+<span class="r-in">  <span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"pancreas1k"</span><span class="op">)</span></span>
+<span class="r-in">  <span class="va">pancreas1k</span> <span class="op">&lt;-</span> <span class="fu">db_scDblFinder</span><span class="op">(</span><span class="va">pancreas1k</span><span class="op">)</span></span>
+<span class="r-in">  <span class="fu"><a href="ClassDimPlot.html">ClassDimPlot</a></span><span class="op">(</span><span class="va">pancreas1k</span>, reduction <span class="op">=</span> <span class="st">"umap"</span>, group.by <span class="op">=</span> <span class="st">"db.scDblFinder_class"</span><span class="op">)</span></span>
+<span class="r-in">  <span class="fu"><a href="ExpDimPlot.html">ExpDimPlot</a></span><span class="op">(</span><span class="va">pancreas1k</span>, reduction <span class="op">=</span> <span class="st">"umap"</span>, features <span class="op">=</span> <span class="st">"db.scDblFinder_score"</span><span class="op">)</span></span>
+<span class="r-in"><span class="op">}</span></span>
 </code></pre></div>
     </div>
   </div>
