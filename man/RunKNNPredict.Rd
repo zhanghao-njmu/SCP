@@ -70,53 +70,55 @@ ClassDimPlot(pancreas1k, group.by = "knnpredict_classification", label = TRUE)
 pancreas1k <- RunKNNPredict(srt_query = pancreas1k, query_group = "SubCellType", bulk_ref = SCP::ref_scMCA)
 ClassDimPlot(pancreas1k, group.by = "knnpredict_classification", label = TRUE)
 
-# Annotate using single cell RNA-seq data
-if (!require("SeuratData", quietly = TRUE)) {
-  devtools::install_github("zhanghao-njmu/seurat-data")
+if (interactive()) {
+  # Annotate using single cell RNA-seq data
+  if (!require("SeuratData", quietly = TRUE)) {
+    devtools::install_github("zhanghao-njmu/seurat-data")
+  }
+  library(stringr)
+  library(SeuratData)
+  suppressWarnings(InstallData("panc8"))
+  data("panc8")
+
+  # Simply convert genes from human to mouse and preprocess the data
+  genenm <- make.unique(str_to_title(rownames(panc8)))
+  panc8 <- RenameFeatures(panc8, newnames = genenm)
+
+  panc8 <- check_srtMerge(panc8, batch = "tech")[["srtMerge"]]
+  pancreas1k <- RunKNNPredict(srt_query = pancreas1k, srt_ref = panc8, ref_group = "celltype")
+  ClassDimPlot(pancreas1k, group.by = "knnpredict_classification", label = TRUE)
+  ExpDimPlot(pancreas1k, features = "knnpredict_simil")
+
+  pancreas1k <- RunKNNPredict(
+    srt_query = pancreas1k, srt_ref = panc8,
+    ref_group = "celltype", ref_collapsing = FALSE
+  )
+  ClassDimPlot(pancreas1k, group.by = "knnpredict_classification", label = TRUE)
+  ExpDimPlot(pancreas1k, features = "knnpredict_prob")
+
+  pancreas1k <- RunKNNPredict(
+    srt_query = pancreas1k, srt_ref = panc8,
+    query_group = "SubCellType", ref_group = "celltype",
+    query_collapsing = TRUE, ref_collapsing = TRUE
+  )
+  ClassDimPlot(pancreas1k, group.by = "knnpredict_classification", label = TRUE)
+  ExpDimPlot(pancreas1k, features = "knnpredict_simil")
+
+  # Annotate with DE gene instead of HVF
+  pancreas1k <- RunKNNPredict(
+    srt_query = pancreas1k, srt_ref = panc8,
+    ref_group = "celltype",
+    features_type = "DE", feature_source = "ref"
+  )
+  ClassDimPlot(pancreas1k, group.by = "knnpredict_classification", label = TRUE)
+  ExpDimPlot(pancreas1k, features = "knnpredict_simil")
+
+  pancreas1k <- RunKNNPredict(
+    srt_query = pancreas1k, srt_ref = panc8,
+    query_group = "SubCellType", ref_group = "celltype",
+    features_type = "DE", feature_source = "both"
+  )
+  ClassDimPlot(pancreas1k, group.by = "knnpredict_classification", label = TRUE)
+  ExpDimPlot(pancreas1k, features = "knnpredict_simil")
 }
-library(stringr)
-library(SeuratData)
-suppressWarnings(InstallData("panc8"))
-data("panc8")
-
-# Simply convert genes from human to mouse and preprocess the data
-genenm <- make.unique(str_to_title(rownames(panc8)))
-panc8 <- RenameFeatures(panc8, newnames = genenm)
-
-panc8 <- check_srtMerge(panc8, batch = "tech")[["srtMerge"]]
-pancreas1k <- RunKNNPredict(srt_query = pancreas1k, srt_ref = panc8, ref_group = "celltype")
-ClassDimPlot(pancreas1k, group.by = "knnpredict_classification", label = TRUE)
-ExpDimPlot(pancreas1k, features = "knnpredict_simil")
-
-pancreas1k <- RunKNNPredict(
-  srt_query = pancreas1k, srt_ref = panc8,
-  ref_group = "celltype", ref_collapsing = FALSE
-)
-ClassDimPlot(pancreas1k, group.by = "knnpredict_classification", label = TRUE)
-ExpDimPlot(pancreas1k, features = "knnpredict_prob")
-
-pancreas1k <- RunKNNPredict(
-  srt_query = pancreas1k, srt_ref = panc8,
-  query_group = "SubCellType", ref_group = "celltype",
-  query_collapsing = TRUE, ref_collapsing = TRUE
-)
-ClassDimPlot(pancreas1k, group.by = "knnpredict_classification", label = TRUE)
-ExpDimPlot(pancreas1k, features = "knnpredict_simil")
-
-# Annotate with DE gene instead of HVF
-pancreas1k <- RunKNNPredict(
-  srt_query = pancreas1k, srt_ref = panc8,
-  ref_group = "celltype",
-  features_type = "DE", feature_source = "ref"
-)
-ClassDimPlot(pancreas1k, group.by = "knnpredict_classification", label = TRUE)
-ExpDimPlot(pancreas1k, features = "knnpredict_simil")
-
-pancreas1k <- RunKNNPredict(
-  srt_query = pancreas1k, srt_ref = panc8,
-  query_group = "SubCellType", ref_group = "celltype",
-  features_type = "DE", feature_source = "both"
-)
-ClassDimPlot(pancreas1k, group.by = "knnpredict_classification", label = TRUE)
-ExpDimPlot(pancreas1k, features = "knnpredict_simil")
 }

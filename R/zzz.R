@@ -48,7 +48,7 @@
       warning("You need to install git first! (http://git-scm.com/download/)", immediate. = TRUE)
       return(invisible(NULL))
     }
-    python_path <- reticulate::install_python(version = ifelse(sys_bit == "64bit", "3.8.7", "3.8.7-win32"))
+    python_path <- reticulate::install_python(version = ifelse(sys_bit == "64bit", "3.8.8", "3.8.8-win32"))
   }
 
   new_SCP <- FALSE

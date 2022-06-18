@@ -515,11 +515,11 @@ CellScoring <- function(srt, features, ncores = 1, method = "Seurat", classifica
 #' @examples
 #' library(dplyr)
 #' data(pancreas1k)
-#' pancreas1k <- RunDEtest(pancreas1k, group_by = "SubCellType")
+#' pancreas1k <- RunDEtest(pancreas1k, group_by = "CellType")
 #'
 #' # Heatmap
-#' de_filter <- filter(pancreas1k@tools$DEtest_SubCellType$AllMarkers_wilcox, p_val_adj < 0.01 & avg_log2FC > 1)
-#' ExpHeatmapPlot(pancreas1k, genes = de_filter$gene, gene_groups = de_filter$group1, cell_group_by = "SubCellType")
+#' de_filter <- filter(pancreas1k@tools$CellType$AllMarkers_wilcox, p_val_adj < 0.05 & avg_log2FC > 1)
+#' ExpHeatmapPlot(pancreas1k, genes = de_filter$gene, gene_groups = de_filter$group1, cell_group_by = "CellType")
 #'
 #' # Dot plot
 #' de_top <- de_filter %>%
@@ -527,7 +527,7 @@ CellScoring <- function(srt, features, ncores = 1, method = "Seurat", classifica
 #'   top_n(1, avg_log2FC) %>%
 #'   group_by(group1) %>%
 #'   top_n(3, avg_log2FC)
-#' ExpDotPlot(pancreas1k, genes = de_top$gene, gene_groups = de_top$group1, cell_group_by = "SubCellType")
+#' ExpDotPlot(pancreas1k, genes = de_top$gene, gene_groups = de_top$group1, cell_group_by = "CellType")
 #' @export
 #'
 RunDEtest <- function(srt, group_by = NULL, cell_group1 = NULL, cell_group2 = NULL,
@@ -1300,7 +1300,7 @@ RunEnrichment <- function(geneID = NULL, geneID_groups = NULL, IDtype = "symbol"
 #' if (interactive()) {
 #'   data("pancreas1k")
 #'   library(dplyr)
-#'   pancreas1k <- RunDEtest(pancreas1k, group_by = "CellType", only.pos = FALSE)
+#'   pancreas1k <- RunDEtest(pancreas1k, group_by = "CellType", only.pos = FALSE, fc.threshold = 1)
 #'   de_filter <- filter(pancreas1k@tools$DEtest_CellType$AllMarkers_wilcox, p_val_adj < 0.05)
 #'   res <- RunGSEA(geneID = de_filter$gene, geneScore = de_filter$avg_log2FC, geneID_groups = de_filter$group1, species = "Mus_musculus")
 #'   GSEAPlot(x = res$results[[1]], geneSetID = res$results[[1]]@result$ID[1])

@@ -2963,14 +2963,14 @@ ExpVlnPlot <- function(srt, features = NULL, group.by = NULL, split.by = NULL, b
 #' @examples
 #' library(dplyr)
 #' data(pancreas1k)
-#' pancreas1k <- RunDEtest(pancreas1k, group_by = "SubCellType")
-#' de_filter <- filter(pancreas1k@tools$DEtest_CellType$AllMarkers_wilcox, p_val_adj < 0.01 & avg_log2FC > 1)
+#' pancreas1k <- RunDEtest(pancreas1k, group_by = "CellType")
+#' de_filter <- filter(pancreas1k@tools$DEtest_CellType$AllMarkers_wilcox, p_val_adj < 0.05 & avg_log2FC > 1)
 #' de_top <- de_filter %>%
 #'   group_by(gene) %>%
 #'   top_n(1, avg_log2FC) %>%
 #'   group_by(group1) %>%
 #'   top_n(3, avg_log2FC)
-#' ExpDotPlot(pancreas1k, genes = de_top$gene, gene_groups = de_top$group1, cell_group_by = "SubCellType")
+#' ExpDotPlot(pancreas1k, genes = de_top$gene, gene_groups = de_top$group1, cell_group_by = "CellType")
 #' @importFrom circlize colorRamp2
 #' @importFrom stats aggregate formula quantile
 #' @importFrom ComplexHeatmap Legend HeatmapAnnotation anno_block anno_simple Heatmap draw
@@ -3171,7 +3171,8 @@ ExpDotPlot <- function(srt, genes = NULL, gene_groups = NULL, cell_group_by = NU
       width = unit(ncol(mat) * grid_size, "cm"),
       height = unit(length(genes) * grid_size, "cm"),
       show_heatmap_legend = FALSE,
-      use_raster = use_raster
+      use_raster = use_raster,
+      raster_device = "png"
     )
   }
   ht_list <- NULL
@@ -3197,8 +3198,8 @@ ExpDotPlot <- function(srt, genes = NULL, gene_groups = NULL, cell_group_by = NU
 #' @examples
 #' library(dplyr)
 #' data(pancreas1k)
-#' pancreas1k <- RunDEtest(pancreas1k, group_by = "SubCellType")
-#' de_filter <- filter(pancreas1k@tools$DEtest_CellType$AllMarkers_wilcox, p_val_adj < 0.01 & avg_log2FC > 1)
+#' pancreas1k <- RunDEtest(pancreas1k, group_by = "CellType")
+#' de_filter <- filter(pancreas1k@tools$DEtest_CellType$AllMarkers_wilcox, p_val_adj < 0.05 & avg_log2FC > 1)
 #' ExpHeatmapPlot(srt = pancreas1k, genes = de_filter$gene, gene_groups = de_filter$group1, cell_group_by = "CellType")
 #' @importFrom circlize colorRamp2
 #' @importFrom ComplexHeatmap Legend HeatmapAnnotation anno_block Heatmap draw
@@ -3337,8 +3338,9 @@ ExpHeatmapPlot <- function(srt, genes = NULL, gene_groups = NULL, cluster_genes 
       left_annotation = df_left_annotation,
       top_annotation = df_top_annotation,
       show_heatmap_legend = FALSE,
+      border = TRUE,
       use_raster = use_raster,
-      border = TRUE
+      raster_device = "png"
     )
   }
   gTree <- grid.grabExpr({
@@ -6396,7 +6398,8 @@ DynamicHeatmap <- function(srt, lineages, feature_from = lineages,
       right_annotation = right_annotation,
       show_heatmap_legend = FALSE,
       border = TRUE,
-      use_raster = use_raster
+      use_raster = use_raster,
+      raster_device = "png"
     )
   }
 

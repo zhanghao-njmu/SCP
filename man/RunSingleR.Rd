@@ -19,7 +19,6 @@ RunSingleR(
   fine.tune = TRUE,
   tune.thresh = 0.05,
   prune = TRUE,
-  BNPARAM = BiocNeighbors::KmknnParam(),
   BPPARAM = BiocParallel::bpparam(),
   query_assay = "RNA",
   ref_assay = "RNA",
@@ -30,28 +29,30 @@ RunSingleR(
 Annotate single cells using scmap.
 }
 \examples{
-if (!require("SeuratData", quietly = TRUE)) {
-  devtools::install_github("zhanghao-njmu/seurat-data")
+if (interactive()) {
+  if (!require("SeuratData", quietly = TRUE)) {
+    devtools::install_github("zhanghao-njmu/seurat-data")
+  }
+  library(SeuratData)
+  library(stringr)
+  suppressWarnings(InstallData("panc8"))
+  data("panc8")
+  genenm <- make.unique(str_to_title(rownames(panc8)))
+  panc8 <- RenameFeatures(panc8, newnames = genenm)
+  panc8 <- check_srtMerge(panc8, batch = "tech")[["srtMerge"]]
+
+  # Annotation
+  pancreas1k <- Standard_SCP(pancreas1k)
+  pancreas1k <- RunSingleR(
+    srt_query = pancreas1k, srt_ref = panc8,
+    query_group = "Standardclusters", ref_group = "celltype",
+  )
+  ClassDimPlot(pancreas1k, group.by = "singler_annotation")
+
+  pancreas1k <- RunSingleR(
+    srt_query = pancreas1k, srt_ref = panc8,
+    query_group = NULL, ref_group = "celltype"
+  )
+  ClassDimPlot(pancreas1k, group.by = "singler_annotation")
 }
-library(SeuratData)
-library(stringr)
-suppressWarnings(InstallData("panc8"))
-data("panc8")
-genenm <- make.unique(str_to_title(rownames(panc8)))
-panc8 <- RenameFeatures(panc8, newnames = genenm)
-panc8 <- check_srtMerge(panc8, batch = "tech")[["srtMerge"]]
-
-# Annotation
-pancreas1k <- Standard_SCP(pancreas1k)
-pancreas1k <- RunSingleR(
-  srt_query = pancreas1k, srt_ref = panc8,
-  query_group = "Standardclusters", ref_group = "celltype",
-)
-ClassDimPlot(pancreas1k, group.by = "singler_annotation")
-
-pancreas1k <- RunSingleR(
-  srt_query = pancreas1k, srt_ref = panc8,
-  query_group = NULL, ref_group = "celltype"
-)
-ClassDimPlot(pancreas1k, group.by = "singler_annotation")
 }

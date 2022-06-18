@@ -50,7 +50,7 @@ ExpHeatmapPlot
 \examples{
 library(dplyr)
 data(pancreas1k)
-pancreas1k <- RunDEtest(pancreas1k, group_by = "SubCellType")
-de_filter <- filter(pancreas1k@tools$DEtest_CellType$AllMarkers_wilcox, p_val_adj < 0.01 & avg_log2FC > 1)
+pancreas1k <- RunDEtest(pancreas1k, group_by = "CellType")
+de_filter <- filter(pancreas1k@tools$DEtest_CellType$AllMarkers_wilcox, p_val_adj < 0.05 & avg_log2FC > 1)
 ExpHeatmapPlot(srt = pancreas1k, genes = de_filter$gene, gene_groups = de_filter$group1, cell_group_by = "CellType")
 }

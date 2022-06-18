@@ -55,12 +55,12 @@ ExpDotPlot
 \examples{
 library(dplyr)
 data(pancreas1k)
-pancreas1k <- RunDEtest(pancreas1k, group_by = "SubCellType")
-de_filter <- filter(pancreas1k@tools$DEtest_CellType$AllMarkers_wilcox, p_val_adj < 0.01 & avg_log2FC > 1)
+pancreas1k <- RunDEtest(pancreas1k, group_by = "CellType")
+de_filter <- filter(pancreas1k@tools$DEtest_CellType$AllMarkers_wilcox, p_val_adj < 0.05 & avg_log2FC > 1)
 de_top <- de_filter \%>\%
   group_by(gene) \%>\%
   top_n(1, avg_log2FC) \%>\%
   group_by(group1) \%>\%
   top_n(3, avg_log2FC)
-ExpDotPlot(pancreas1k, genes = de_top$gene, gene_groups = de_top$group1, cell_group_by = "SubCellType")
+ExpDotPlot(pancreas1k, genes = de_top$gene, gene_groups = de_top$group1, cell_group_by = "CellType")
 }

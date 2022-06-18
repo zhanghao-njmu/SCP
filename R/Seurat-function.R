@@ -826,7 +826,7 @@ RunUMAP2.default <- function(object, dims = NULL, reduction = "pca", features = 
   }
 
   colnames(x = umap.output) <- paste0(reduction.key, 1:ncol(x = umap.output))
-  if ("dist" %in% class(object) && !is.null(attr(x = object, "Labels"))) {
+  if (inherits(x = object, what = "dist") && !is.null(attr(x = object, "Labels"))) {
     rownames(x = umap.output) <- attr(x = object, "Labels")
   } else if (is.list(x = object)) {
     rownames(x = umap.output) <- rownames(x = object$idx)

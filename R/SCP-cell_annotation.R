@@ -32,55 +32,57 @@ Preprocess <- function() {
 #' pancreas1k <- RunKNNPredict(srt_query = pancreas1k, query_group = "SubCellType", bulk_ref = SCP::ref_scMCA)
 #' ClassDimPlot(pancreas1k, group.by = "knnpredict_classification", label = TRUE)
 #'
-#' # Annotate using single cell RNA-seq data
-#' if (!require("SeuratData", quietly = TRUE)) {
-#'   devtools::install_github("zhanghao-njmu/seurat-data")
+#' if (interactive()) {
+#'   # Annotate using single cell RNA-seq data
+#'   if (!require("SeuratData", quietly = TRUE)) {
+#'     devtools::install_github("zhanghao-njmu/seurat-data")
+#'   }
+#'   library(stringr)
+#'   library(SeuratData)
+#'   suppressWarnings(InstallData("panc8"))
+#'   data("panc8")
+#'
+#'   # Simply convert genes from human to mouse and preprocess the data
+#'   genenm <- make.unique(str_to_title(rownames(panc8)))
+#'   panc8 <- RenameFeatures(panc8, newnames = genenm)
+#'
+#'   panc8 <- check_srtMerge(panc8, batch = "tech")[["srtMerge"]]
+#'   pancreas1k <- RunKNNPredict(srt_query = pancreas1k, srt_ref = panc8, ref_group = "celltype")
+#'   ClassDimPlot(pancreas1k, group.by = "knnpredict_classification", label = TRUE)
+#'   ExpDimPlot(pancreas1k, features = "knnpredict_simil")
+#'
+#'   pancreas1k <- RunKNNPredict(
+#'     srt_query = pancreas1k, srt_ref = panc8,
+#'     ref_group = "celltype", ref_collapsing = FALSE
+#'   )
+#'   ClassDimPlot(pancreas1k, group.by = "knnpredict_classification", label = TRUE)
+#'   ExpDimPlot(pancreas1k, features = "knnpredict_prob")
+#'
+#'   pancreas1k <- RunKNNPredict(
+#'     srt_query = pancreas1k, srt_ref = panc8,
+#'     query_group = "SubCellType", ref_group = "celltype",
+#'     query_collapsing = TRUE, ref_collapsing = TRUE
+#'   )
+#'   ClassDimPlot(pancreas1k, group.by = "knnpredict_classification", label = TRUE)
+#'   ExpDimPlot(pancreas1k, features = "knnpredict_simil")
+#'
+#'   # Annotate with DE gene instead of HVF
+#'   pancreas1k <- RunKNNPredict(
+#'     srt_query = pancreas1k, srt_ref = panc8,
+#'     ref_group = "celltype",
+#'     features_type = "DE", feature_source = "ref"
+#'   )
+#'   ClassDimPlot(pancreas1k, group.by = "knnpredict_classification", label = TRUE)
+#'   ExpDimPlot(pancreas1k, features = "knnpredict_simil")
+#'
+#'   pancreas1k <- RunKNNPredict(
+#'     srt_query = pancreas1k, srt_ref = panc8,
+#'     query_group = "SubCellType", ref_group = "celltype",
+#'     features_type = "DE", feature_source = "both"
+#'   )
+#'   ClassDimPlot(pancreas1k, group.by = "knnpredict_classification", label = TRUE)
+#'   ExpDimPlot(pancreas1k, features = "knnpredict_simil")
 #' }
-#' library(stringr)
-#' library(SeuratData)
-#' suppressWarnings(InstallData("panc8"))
-#' data("panc8")
-#'
-#' # Simply convert genes from human to mouse and preprocess the data
-#' genenm <- make.unique(str_to_title(rownames(panc8)))
-#' panc8 <- RenameFeatures(panc8, newnames = genenm)
-#'
-#' panc8 <- check_srtMerge(panc8, batch = "tech")[["srtMerge"]]
-#' pancreas1k <- RunKNNPredict(srt_query = pancreas1k, srt_ref = panc8, ref_group = "celltype")
-#' ClassDimPlot(pancreas1k, group.by = "knnpredict_classification", label = TRUE)
-#' ExpDimPlot(pancreas1k, features = "knnpredict_simil")
-#'
-#' pancreas1k <- RunKNNPredict(
-#'   srt_query = pancreas1k, srt_ref = panc8,
-#'   ref_group = "celltype", ref_collapsing = FALSE
-#' )
-#' ClassDimPlot(pancreas1k, group.by = "knnpredict_classification", label = TRUE)
-#' ExpDimPlot(pancreas1k, features = "knnpredict_prob")
-#'
-#' pancreas1k <- RunKNNPredict(
-#'   srt_query = pancreas1k, srt_ref = panc8,
-#'   query_group = "SubCellType", ref_group = "celltype",
-#'   query_collapsing = TRUE, ref_collapsing = TRUE
-#' )
-#' ClassDimPlot(pancreas1k, group.by = "knnpredict_classification", label = TRUE)
-#' ExpDimPlot(pancreas1k, features = "knnpredict_simil")
-#'
-#' # Annotate with DE gene instead of HVF
-#' pancreas1k <- RunKNNPredict(
-#'   srt_query = pancreas1k, srt_ref = panc8,
-#'   ref_group = "celltype",
-#'   features_type = "DE", feature_source = "ref"
-#' )
-#' ClassDimPlot(pancreas1k, group.by = "knnpredict_classification", label = TRUE)
-#' ExpDimPlot(pancreas1k, features = "knnpredict_simil")
-#'
-#' pancreas1k <- RunKNNPredict(
-#'   srt_query = pancreas1k, srt_ref = panc8,
-#'   query_group = "SubCellType", ref_group = "celltype",
-#'   features_type = "DE", feature_source = "both"
-#' )
-#' ClassDimPlot(pancreas1k, group.by = "knnpredict_classification", label = TRUE)
-#' ExpDimPlot(pancreas1k, features = "knnpredict_simil")
 #' @importFrom methods as
 #' @importFrom Matrix colSums t rowSums
 #' @importFrom Seurat DefaultAssay GetAssayData FindVariableFeatures VariableFeatures AverageExpression
@@ -481,30 +483,32 @@ RunKNNPredict <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
 
 #' Annotate single cells using scmap.
 #' @examples
-#' if (!require("SeuratData", quietly = TRUE)) {
-#'   devtools::install_github("zhanghao-njmu/seurat-data")
+#' if (interactive()) {
+#'   if (!require("SeuratData", quietly = TRUE)) {
+#'     devtools::install_github("zhanghao-njmu/seurat-data")
+#'   }
+#'   library(SeuratData)
+#'   library(stringr)
+#'   suppressWarnings(InstallData("panc8"))
+#'   data("panc8")
+#'   genenm <- make.unique(str_to_title(rownames(panc8)))
+#'   panc8 <- RenameFeatures(panc8, newnames = genenm)
+#'   panc8 <- check_srtMerge(panc8, batch = "tech")[["srtMerge"]]
+#'
+#'   # Annotation
+#'   pancreas1k <- Standard_SCP(pancreas1k)
+#'   pancreas1k <- RunScmap(
+#'     srt_query = pancreas1k, srt_ref = panc8,
+#'     ref_group = "celltype", method = "scmapCluster"
+#'   )
+#'   ClassDimPlot(pancreas1k, group.by = "scmap_annotation")
+#'
+#'   pancreas1k <- RunScmap(
+#'     srt_query = pancreas1k, srt_ref = panc8,
+#'     ref_group = "celltype", method = "scmapCell"
+#'   )
+#'   ClassDimPlot(pancreas1k, group.by = "scmap_annotation")
 #' }
-#' library(SeuratData)
-#' library(stringr)
-#' suppressWarnings(InstallData("panc8"))
-#' data("panc8")
-#' genenm <- make.unique(str_to_title(rownames(panc8)))
-#' panc8 <- RenameFeatures(panc8, newnames = genenm)
-#' panc8 <- check_srtMerge(panc8, batch = "tech")[["srtMerge"]]
-#'
-#' # Annotation
-#' pancreas1k <- Standard_SCP(pancreas1k)
-#' pancreas1k <- RunScmap(
-#'   srt_query = pancreas1k, srt_ref = panc8,
-#'   ref_group = "celltype", method = "scmapCluster"
-#' )
-#' ClassDimPlot(pancreas1k, group.by = "scmap_annotation")
-#'
-#' pancreas1k <- RunScmap(
-#'   srt_query = pancreas1k, srt_ref = panc8,
-#'   ref_group = "celltype", method = "scmapCell"
-#' )
-#' ClassDimPlot(pancreas1k, group.by = "scmap_annotation")
 #' @importFrom Seurat GetAssayData
 #' @export
 RunScmap <- function(srt_query, srt_ref, ref_group = NULL, method = "scmapCluster",
@@ -609,37 +613,39 @@ RunScmap <- function(srt_query, srt_ref, ref_group = NULL, method = "scmapCluste
 
 #' Annotate single cells using scmap.
 #' @examples
-#' if (!require("SeuratData", quietly = TRUE)) {
-#'   devtools::install_github("zhanghao-njmu/seurat-data")
+#' if (interactive()) {
+#'   if (!require("SeuratData", quietly = TRUE)) {
+#'     devtools::install_github("zhanghao-njmu/seurat-data")
+#'   }
+#'   library(SeuratData)
+#'   library(stringr)
+#'   suppressWarnings(InstallData("panc8"))
+#'   data("panc8")
+#'   genenm <- make.unique(str_to_title(rownames(panc8)))
+#'   panc8 <- RenameFeatures(panc8, newnames = genenm)
+#'   panc8 <- check_srtMerge(panc8, batch = "tech")[["srtMerge"]]
+#'
+#'   # Annotation
+#'   pancreas1k <- Standard_SCP(pancreas1k)
+#'   pancreas1k <- RunSingleR(
+#'     srt_query = pancreas1k, srt_ref = panc8,
+#'     query_group = "Standardclusters", ref_group = "celltype",
+#'   )
+#'   ClassDimPlot(pancreas1k, group.by = "singler_annotation")
+#'
+#'   pancreas1k <- RunSingleR(
+#'     srt_query = pancreas1k, srt_ref = panc8,
+#'     query_group = NULL, ref_group = "celltype"
+#'   )
+#'   ClassDimPlot(pancreas1k, group.by = "singler_annotation")
 #' }
-#' library(SeuratData)
-#' library(stringr)
-#' suppressWarnings(InstallData("panc8"))
-#' data("panc8")
-#' genenm <- make.unique(str_to_title(rownames(panc8)))
-#' panc8 <- RenameFeatures(panc8, newnames = genenm)
-#' panc8 <- check_srtMerge(panc8, batch = "tech")[["srtMerge"]]
-#'
-#' # Annotation
-#' pancreas1k <- Standard_SCP(pancreas1k)
-#' pancreas1k <- RunSingleR(
-#'   srt_query = pancreas1k, srt_ref = panc8,
-#'   query_group = "Standardclusters", ref_group = "celltype",
-#' )
-#' ClassDimPlot(pancreas1k, group.by = "singler_annotation")
-#'
-#' pancreas1k <- RunSingleR(
-#'   srt_query = pancreas1k, srt_ref = panc8,
-#'   query_group = NULL, ref_group = "celltype"
-#' )
-#' ClassDimPlot(pancreas1k, group.by = "singler_annotation")
 #' @importFrom Seurat GetAssayData
 #' @export
 RunSingleR <- function(srt_query, srt_ref, query_group = NULL, ref_group = NULL,
                        genes = "de", de.method = "wilcox", sd.thresh = 1, de.n = NULL,
                        aggr.ref = FALSE, aggr.args = list(),
                        quantile = 0.8, fine.tune = TRUE, tune.thresh = 0.05, prune = TRUE,
-                       BNPARAM = BiocNeighbors::KmknnParam(), BPPARAM = BiocParallel::bpparam(),
+                       BPPARAM = BiocParallel::bpparam(),
                        query_assay = "RNA", ref_assay = "RNA", force = FALSE) {
   if (!is.null(ref_group)) {
     if (length(ref_group) == ncol(srt_ref)) {
@@ -713,7 +719,7 @@ RunSingleR <- function(srt_query, srt_ref, query_group = NULL, ref_group = NULL,
       de.method = de.method, genes = genes, sd.thresh = sd.thresh, de.n = de.n,
       aggr.ref = aggr.ref, aggr.args = aggr.args,
       quantile = quantile, fine.tune = fine.tune, tune.thresh = tune.thresh, prune = prune,
-      BNPARAM = BNPARAM, BPPARAM = BPPARAM
+      BPPARAM = BPPARAM
     )
     names(SingleRCluster_results$labels) <- levels(factor(SummarizedExperiment::colData(sce_query)[[query_group]]))
     rownames(SingleRCluster_results$scores) <- levels(factor(SummarizedExperiment::colData(sce_query)[[query_group]]))
@@ -748,7 +754,7 @@ RunSingleR <- function(srt_query, srt_ref, query_group = NULL, ref_group = NULL,
       de.method = de.method, genes = genes, sd.thresh = sd.thresh, de.n = de.n,
       aggr.ref = aggr.ref, aggr.args = aggr.args,
       quantile = quantile, fine.tune = fine.tune, tune.thresh = tune.thresh, prune = prune,
-      BNPARAM = BNPARAM, BPPARAM = BPPARAM
+      BPPARAM = BPPARAM
     )
     srt_query$singler_annotation <- if (isTRUE(prune)) {
       SingleRCell_results$pruned.labels
