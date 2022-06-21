@@ -28,6 +28,12 @@
     <loc>/reference/ClassStatPlot.html</loc>
   </url>
   <url>
+    <loc>/reference/CreateDataFile.html</loc>
+  </url>
+  <url>
+    <loc>/reference/CreateMetaFile.html</loc>
+  </url>
+  <url>
     <loc>/reference/DefaultReduction.html</loc>
   </url>
   <url>
@@ -68,6 +74,12 @@
   </url>
   <url>
     <loc>/reference/Integration_SCP.html</loc>
+  </url>
+  <url>
+    <loc>/reference/LineagePlot.html</loc>
+  </url>
+  <url>
+    <loc>/reference/ListEnrichmentDB.html</loc>
   </url>
   <url>
     <loc>/reference/PAGAPlot.html</loc>
@@ -172,6 +184,12 @@
     <loc>/reference/adata_to_srt.html</loc>
   </url>
   <url>
+    <loc>/reference/check_Python.html</loc>
+  </url>
+  <url>
+    <loc>/reference/check_R.html</loc>
+  </url>
+  <url>
     <loc>/reference/compute_velocity_on_grid.html</loc>
   </url>
   <url>
@@ -199,10 +217,16 @@
     <loc>/reference/panel_fix.html</loc>
   </url>
   <url>
+    <loc>/reference/panel_fix_single.html</loc>
+  </url>
+  <url>
     <loc>/reference/segementsDf.html</loc>
   </url>
   <url>
     <loc>/reference/srt_to_adata.html</loc>
+  </url>
+  <url>
+    <loc>/reference/theme_blank.html</loc>
   </url>
   <url>
     <loc>/reference/theme_scp.html</loc>

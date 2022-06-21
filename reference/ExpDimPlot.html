@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">SCP</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.2.9004</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.3</span>
       </span>
     </div>
 
@@ -87,12 +87,17 @@
   label_point_color <span class="op">=</span> <span class="st">"black"</span>,
   label_segment_color <span class="op">=</span> <span class="st">"black"</span>,
   lineages <span class="op">=</span> <span class="cn">NULL</span>,
-  lineage_palette <span class="op">=</span> <span class="st">"Dark2"</span>,
-  span <span class="op">=</span> <span class="fl">0.75</span>,
-  arrow_reverse <span class="op">=</span> <span class="cn">FALSE</span>,
-  line_size <span class="op">=</span> <span class="fl">1</span>,
-  line_bg <span class="op">=</span> <span class="st">"white"</span>,
-  line_bg_r <span class="op">=</span> <span class="fl">0.5</span>,
+  lineages_trim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.01</span>, <span class="fl">0.99</span><span class="op">)</span>,
+  lineages_span <span class="op">=</span> <span class="fl">0.75</span>,
+  lineages_palette <span class="op">=</span> <span class="st">"Dark2"</span>,
+  lineages_pal_color <span class="op">=</span> <span class="cn">NULL</span>,
+  lineages_arrow <span class="op">=</span> <span class="fu">arrow</span><span class="op">(</span>length <span class="op">=</span> <span class="fu">unit</span><span class="op">(</span><span class="fl">0.1</span>, <span class="st">"inches"</span><span class="op">)</span><span class="op">)</span>,
+  lineages_line_size <span class="op">=</span> <span class="fl">1</span>,
+  lineages_line_bg <span class="op">=</span> <span class="st">"white"</span>,
+  lineages_line_bg_r <span class="op">=</span> <span class="fl">0.5</span>,
+  lineages_whiskers <span class="op">=</span> <span class="cn">FALSE</span>,
+  lineages_whiskers_size <span class="op">=</span> <span class="fl">0.5</span>,
+  lineages_whiskers_alpha <span class="op">=</span> <span class="fl">0.5</span>,
   graph <span class="op">=</span> <span class="cn">NULL</span>,
   edge_size <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.05</span>, <span class="fl">0.5</span><span class="op">)</span>,
   edge_alpha <span class="op">=</span> <span class="fl">0.1</span>,
@@ -201,6 +206,10 @@
 <dt>byrow</dt>
 <dd><p>Logical value indicating if the plots should be arrange by row (default) or by column.</p></dd>
 
+
+<dt>force</dt>
+<dd></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
@@ -223,9 +232,12 @@
 <span class="r-plt img"><img src="ExpDimPlot-2.png" alt="" width="700" height="433"></span>
 <span class="r-in"></span>
 <span class="r-in"><span class="va">pancreas1k</span> <span class="op">&lt;-</span> <span class="fu"><a href="RunSlingshot.html">RunSlingshot</a></span><span class="op">(</span><span class="va">pancreas1k</span>, group.by <span class="op">=</span> <span class="st">"SubCellType"</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span><span class="op">)</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Removed 8 row(s) containing missing values (geom_path).</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Removed 8 row(s) containing missing values (geom_path).</span>
 <span class="r-plt img"><img src="ExpDimPlot-3.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span class="fu">ExpDimPlot</span><span class="op">(</span><span class="va">pancreas1k</span>, features <span class="op">=</span> <span class="st">"G2M_score"</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span>, lineages <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"Lineage"</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>number of items to replace is not a multiple of replacement length</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Removed 8 row(s) containing missing values (geom_path).</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Removed 8 row(s) containing missing values (geom_path).</span>
 <span class="r-plt img"><img src="ExpDimPlot-4.png" alt="" width="700" height="433"></span>
 <span class="r-in"></span>
 <span class="r-in"><span class="fu">ExpDimPlot</span><span class="op">(</span><span class="va">pancreas1k</span>,</span>

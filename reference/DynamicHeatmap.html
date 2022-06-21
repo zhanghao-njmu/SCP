@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">SCP</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.2.9004</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.3</span>
       </span>
     </div>
 
@@ -65,7 +65,7 @@
   cluster_title_size <span class="op">=</span> <span class="fl">12</span>,
   n_cluster <span class="op">=</span> <span class="cn">NULL</span>,
   cluster_by <span class="op">=</span> <span class="va">lineages</span>,
-  cluster_method <span class="op">=</span> <span class="st">"kmeans"</span>,
+  cluster_method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">require</a></span><span class="op">(</span><span class="st"><a href="http://mfuzz.sysbiolab.eu/" class="external-link">"Mfuzz"</a></span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>, <span class="st">"mfuzz"</span>, <span class="st">"kmeans"</span><span class="op">)</span>,
   fuzzification <span class="op">=</span> <span class="cn">NULL</span>,
   show_fuzzification <span class="op">=</span> <span class="cn">FALSE</span>,
   nlabel <span class="op">=</span> <span class="fl">20</span>,
@@ -93,14 +93,22 @@
 <span class="op">)</span></code></pre></div>
     </div>
 
+    <div id="arguments">
+    <h2>Arguments</h2>
+    <dl><dt>seed</dt>
+<dd></dd>
+
+</dl></div>
 
     <div id="ref-examples">
     <h2>Examples</h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"pancreas1k"</span><span class="op">)</span></span>
 <span class="r-in"><span class="va">pancreas1k</span> <span class="op">&lt;-</span> <span class="fu"><a href="RunSlingshot.html">RunSlingshot</a></span><span class="op">(</span><span class="va">pancreas1k</span>, group.by <span class="op">=</span> <span class="st">"SubCellType"</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span><span class="op">)</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Removed 8 row(s) containing missing values (geom_path).</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Removed 8 row(s) containing missing values (geom_path).</span>
 <span class="r-plt img"><img src="DynamicHeatmap-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span class="va">pancreas1k</span> <span class="op">&lt;-</span> <span class="fu"><a href="RunDynamicFeatures.html">RunDynamicFeatures</a></span><span class="op">(</span><span class="va">pancreas1k</span>, lineages <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Lineage1"</span>, <span class="st">"Lineage2"</span><span class="op">)</span>, n_candidates <span class="op">=</span> <span class="fl">200</span><span class="op">)</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-06-19 03:41:32] Start RunDynamicFeatures</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-06-21 05:33:41] Start RunDynamicFeatures</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Number of candidate features(union): 225</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Calculate dynamic features for Lineage1...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                              |                                                                      |   0%  |                                                                              |======================================================================| 100%</span>
@@ -108,8 +116,8 @@
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Calculate dynamic features for Lineage2...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                              |                                                                      |   0%  |                                                                              |======================================================================| 100%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-06-19 03:42:01] RunDynamicFeatures done</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 28.94 secs </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-06-21 05:34:20] RunDynamicFeatures done</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 38.95 secs </span>
 <span class="r-in"><span class="va">ht_result</span> <span class="op">&lt;-</span> <span class="fu">DynamicHeatmap</span><span class="op">(</span></span>
 <span class="r-in">  srt <span class="op">=</span> <span class="va">pancreas1k</span>,</span>
 <span class="r-in">  lineages <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Lineage1"</span>, <span class="st">"Lineage2"</span><span class="op">)</span>,</span>
@@ -117,6 +125,35 @@
 <span class="r-in">  n_cluster <span class="op">=</span> <span class="fl">6</span>, reverse_ht <span class="op">=</span> <span class="st">"Lineage1"</span>,</span>
 <span class="r-in">  height <span class="op">=</span> <span class="fl">5</span>, width <span class="op">=</span> <span class="fl">7</span>, use_raster <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span class="r-in"><span class="op">)</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Attaching package: ‘BiocGenerics’</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> The following object is masked from ‘package:DynDoc’:</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>     path</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> The following objects are masked from ‘package:dplyr’:</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>     combine, intersect, setdiff, union</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> The following objects are masked from ‘package:stats’:</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>     IQR, mad, sd, var, xtabs</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> The following objects are masked from ‘package:base’:</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>     Filter, Find, Map, Position, Reduce, anyDuplicated, append,</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>     as.data.frame, basename, cbind, colnames, dirname, do.call,</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>     duplicated, eval, evalq, get, grep, grepl, intersect, is.unsorted,</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>     lapply, mapply, match, mget, order, paste, pmax, pmax.int, pmin,</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>     pmin.int, rank, rbind, rownames, sapply, setdiff, sort, table,</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>     tapply, union, unique, unsplit, which.max, which.min</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Welcome to Bioconductor</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>     Vignettes contain introductory material; view with</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>     'browseVignettes()'. To cite Bioconductor, see</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>     'citation("Biobase")', and for packages 'citation("pkgname")'.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Attaching package: ‘Biobase’</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> The following object is masked from ‘package:httr’:</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>     content</span>
 <span class="r-in"><span class="va">ht_result</span><span class="op">$</span><span class="va">plot</span></span>
 <span class="r-plt img"><img src="DynamicHeatmap-2.png" alt="" width="700" height="433"></span>
 </code></pre></div>

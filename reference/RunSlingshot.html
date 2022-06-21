@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">SCP</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.2.9004</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.3</span>
       </span>
     </div>
 
@@ -60,21 +60,29 @@
 <span class="op">)</span></code></pre></div>
     </div>
 
+    <div id="arguments">
+    <h2>Arguments</h2>
+    <dl><dt>...</dt>
+<dd></dd>
+
+</dl></div>
 
     <div id="ref-examples">
     <h2>Examples</h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"pancreas1k"</span><span class="op">)</span></span>
 <span class="r-in"><span class="va">pancreas1k</span> <span class="op">&lt;-</span> <span class="fu">RunSlingshot</span><span class="op">(</span><span class="va">pancreas1k</span>, group.by <span class="op">=</span> <span class="st">"SubCellType"</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span><span class="op">)</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Removed 8 row(s) containing missing values (geom_path).</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Removed 8 row(s) containing missing values (geom_path).</span>
 <span class="r-plt img"><img src="RunSlingshot-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"></span>
 <span class="r-in"><span class="co"># 3D lineage</span></span>
 <span class="r-in"><span class="va">pancreas1k</span> <span class="op">&lt;-</span> <span class="fu"><a href="Standard_SCP.html">Standard_SCP</a></span><span class="op">(</span><span class="va">pancreas1k</span><span class="op">)</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-06-19 03:49:34] Start Standard_SCP</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-06-19 03:49:34] Checking srtList... ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-06-21 05:44:35] Start Standard_SCP</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-06-21 05:44:35] Checking srtList... ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Data 1/1 of the srtList is raw counts. Perform NormalizeData(logCPM) on the data ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform FindVariableFeatures on the data 1/1 of the srtList...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Use the separate HVF from the existed HVF in srtList...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-06-19 03:49:36] Finished checking.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-06-21 05:44:37] Finished checking.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform ScaleData on the data...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform linear dimension reduction (pca) on the data...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform FindClusters (louvain) on the data...</span>
@@ -88,8 +96,8 @@
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Also defined by ‘spam’</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Found more than one class "dist" in cache; using the first, from namespace 'BiocGenerics'</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Also defined by ‘spam’</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-06-19 03:49:54] Standard_SCP done</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 20.02 secs </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-06-21 05:44:59] Standard_SCP done</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 24.83 secs </span>
 <span class="r-in"><span class="va">pancreas1k</span> <span class="op">&lt;-</span> <span class="fu">RunSlingshot</span><span class="op">(</span><span class="va">pancreas1k</span>, group.by <span class="op">=</span> <span class="st">"SubCellType"</span>, reduction <span class="op">=</span> <span class="st">"StandardpcaUMAP3D"</span><span class="op">)</span></span>
 </code></pre></div>
     </div>

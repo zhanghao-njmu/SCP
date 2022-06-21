@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">SCP</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.2.9004</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.3</span>
       </span>
     </div>
 
@@ -79,12 +79,17 @@
   density_filled_palette <span class="op">=</span> <span class="st">"Greys"</span>,
   density_filled_color <span class="op">=</span> <span class="cn">NULL</span>,
   lineages <span class="op">=</span> <span class="cn">NULL</span>,
-  lineage_palette <span class="op">=</span> <span class="st">"Dark2"</span>,
-  span <span class="op">=</span> <span class="fl">0.75</span>,
-  arrow_reverse <span class="op">=</span> <span class="cn">FALSE</span>,
-  line_size <span class="op">=</span> <span class="fl">1</span>,
-  line_bg <span class="op">=</span> <span class="st">"white"</span>,
-  line_bg_r <span class="op">=</span> <span class="fl">0.5</span>,
+  lineages_trim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.01</span>, <span class="fl">0.99</span><span class="op">)</span>,
+  lineages_span <span class="op">=</span> <span class="fl">0.75</span>,
+  lineages_palette <span class="op">=</span> <span class="st">"Dark2"</span>,
+  lineages_pal_color <span class="op">=</span> <span class="cn">NULL</span>,
+  lineages_arrow <span class="op">=</span> <span class="fu">arrow</span><span class="op">(</span>length <span class="op">=</span> <span class="fu">unit</span><span class="op">(</span><span class="fl">0.1</span>, <span class="st">"inches"</span><span class="op">)</span><span class="op">)</span>,
+  lineages_line_size <span class="op">=</span> <span class="fl">1</span>,
+  lineages_line_bg <span class="op">=</span> <span class="st">"white"</span>,
+  lineages_line_bg_r <span class="op">=</span> <span class="fl">0.5</span>,
+  lineages_whiskers <span class="op">=</span> <span class="cn">FALSE</span>,
+  lineages_whiskers_size <span class="op">=</span> <span class="fl">0.5</span>,
+  lineages_whiskers_alpha <span class="op">=</span> <span class="fl">0.5</span>,
   stat.by <span class="op">=</span> <span class="cn">NULL</span>,
   stat_type <span class="op">=</span> <span class="st">"percent"</span>,
   stat_plot_type <span class="op">=</span> <span class="st">"pie"</span>,
@@ -241,6 +246,10 @@
 <dt>byrow</dt>
 <dd><p>Logical value indicating if the plots should be arrange by row (default) or by column.</p></dd>
 
+
+<dt>force</dt>
+<dd></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
@@ -269,41 +278,50 @@
 <span class="r-plt img"><img src="ClassDimPlot-4.png" alt="" width="700" height="433"></span>
 <span class="r-in"></span>
 <span class="r-in"><span class="va">pancreas1k</span> <span class="op">&lt;-</span> <span class="fu"><a href="Standard_SCP.html">Standard_SCP</a></span><span class="op">(</span><span class="va">pancreas1k</span><span class="op">)</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-06-19 03:38:35] Start Standard_SCP</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-06-19 03:38:35] Checking srtList... ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-06-21 05:30:06] Start Standard_SCP</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-06-21 05:30:06] Checking srtList... ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Data 1/1 of the srtList is raw counts. Perform NormalizeData(logCPM) on the data ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform FindVariableFeatures on the data 1/1 of the srtList...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Use the separate HVF from the existed HVF in srtList...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-06-19 03:38:37] Finished checking.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-06-21 05:30:09] Finished checking.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform ScaleData on the data...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform linear dimension reduction (pca) on the data...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform FindClusters (louvain) on the data...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Reorder clusters...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform nonlinear dimension reduction (umap) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-06-19 03:38:53] Standard_SCP done</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 17.81 secs </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-06-21 05:30:28] Standard_SCP done</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 21.88 secs </span>
 <span class="r-in"><span class="fu">ClassDimPlot</span><span class="op">(</span><span class="va">pancreas1k</span>, group.by <span class="op">=</span> <span class="st">"CellType"</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span>, graph <span class="op">=</span> <span class="st">"Standardpca_SNN"</span><span class="op">)</span></span>
 <span class="r-plt img"><img src="ClassDimPlot-5.png" alt="" width="700" height="433"></span>
 <span class="r-in"></span>
 <span class="r-in"><span class="va">pancreas1k</span> <span class="op">&lt;-</span> <span class="fu"><a href="RunSlingshot.html">RunSlingshot</a></span><span class="op">(</span><span class="va">pancreas1k</span>, group.by <span class="op">=</span> <span class="st">"SubCellType"</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span>, show_plot <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu">ClassDimPlot</span><span class="op">(</span><span class="va">pancreas1k</span>, group.by <span class="op">=</span> <span class="st">"SubCellType"</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span>, lineages <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"Lineage"</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">)</span><span class="op">)</span></span>
+<span class="r-in"><span class="fu"><a href="ExpDimPlot.html">ExpDimPlot</a></span><span class="op">(</span><span class="va">pancreas1k</span>, features <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"Lineage"</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">)</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span><span class="op">)</span></span>
 <span class="r-plt img"><img src="ClassDimPlot-6.png" alt="" width="700" height="433"></span>
-<span class="r-in"><span class="fu">ClassDimPlot</span><span class="op">(</span><span class="va">pancreas1k</span>, group.by <span class="op">=</span> <span class="st">"SubCellType"</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span>, lineages <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"Lineage"</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">)</span>, span <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span></span>
+<span class="r-in"><span class="fu">ClassDimPlot</span><span class="op">(</span><span class="va">pancreas1k</span>, group.by <span class="op">=</span> <span class="st">"SubCellType"</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span>, lineages <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"Lineage"</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">)</span><span class="op">)</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Removed 8 row(s) containing missing values (geom_path).</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Removed 8 row(s) containing missing values (geom_path).</span>
 <span class="r-plt img"><img src="ClassDimPlot-7.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span class="fu">ClassDimPlot</span><span class="op">(</span><span class="va">pancreas1k</span>, group.by <span class="op">=</span> <span class="st">"SubCellType"</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span>, lineages <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"Lineage"</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">)</span>, lineages_whiskers <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Removed 8 rows containing missing values (geom_segment).</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Removed 8 row(s) containing missing values (geom_path).</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Removed 8 row(s) containing missing values (geom_path).</span>
+<span class="r-plt img"><img src="ClassDimPlot-8.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span class="fu">ClassDimPlot</span><span class="op">(</span><span class="va">pancreas1k</span>, group.by <span class="op">=</span> <span class="st">"SubCellType"</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span>, lineages <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"Lineage"</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">)</span>, lineages_span <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span></span>
+<span class="r-plt img"><img src="ClassDimPlot-9.png" alt="" width="700" height="433"></span>
 <span class="r-in"></span>
 <span class="r-in"><span class="va">pancreas1k</span> <span class="op">&lt;-</span> <span class="fu"><a href="RunPAGA.html">RunPAGA</a></span><span class="op">(</span>srt <span class="op">=</span> <span class="va">pancreas1k</span>, group_by <span class="op">=</span> <span class="st">"SubCellType"</span>, liner_reduction <span class="op">=</span> <span class="st">"PCA"</span>, nonliner_reduction <span class="op">=</span> <span class="st">"UMAP"</span>, return_seurat <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> 'misc' slot in the srt object is not converted.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> 'tools' slot in the srt object is not converted.</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'uns: neighbors' will not be converted. It is a Python object connected with the Python session. You may need to convert manually.</span>
 <span class="r-in"><span class="fu">ClassDimPlot</span><span class="op">(</span><span class="va">pancreas1k</span>, group.by <span class="op">=</span> <span class="st">"SubCellType"</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span>, paga <span class="op">=</span> <span class="va">pancreas1k</span><span class="op">@</span><span class="va">misc</span><span class="op">$</span><span class="va">paga</span><span class="op">)</span></span>
-<span class="r-plt img"><img src="ClassDimPlot-8.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="ClassDimPlot-10.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span class="fu">ClassDimPlot</span><span class="op">(</span><span class="va">pancreas1k</span>,</span>
 <span class="r-in">  group.by <span class="op">=</span> <span class="st">"SubCellType"</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span>, pt.size <span class="op">=</span> <span class="fl">5</span>, pt.alpha <span class="op">=</span> <span class="fl">0.2</span>,</span>
 <span class="r-in">  label <span class="op">=</span> <span class="cn">TRUE</span>, label_repel <span class="op">=</span> <span class="cn">TRUE</span>, label_insitu <span class="op">=</span> <span class="cn">TRUE</span>, label_segment_color <span class="op">=</span> <span class="st">"transparent"</span>,</span>
 <span class="r-in">  paga <span class="op">=</span> <span class="va">pancreas1k</span><span class="op">@</span><span class="va">misc</span><span class="op">$</span><span class="va">paga</span>, paga_edge_threshold <span class="op">=</span> <span class="fl">0.1</span>, paga_edge_color <span class="op">=</span> <span class="st">"black"</span>, paga_edge_alpha <span class="op">=</span> <span class="fl">1</span>,</span>
 <span class="r-in">  show_stat <span class="op">=</span> <span class="cn">FALSE</span>, legend.position <span class="op">=</span> <span class="st">"none"</span>, theme_use <span class="op">=</span> <span class="st">"theme_blank"</span></span>
 <span class="r-in"><span class="op">)</span></span>
-<span class="r-plt img"><img src="ClassDimPlot-9.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="ClassDimPlot-11.png" alt="" width="700" height="433"></span>
 <span class="r-in"></span>
 <span class="r-in"><span class="va">pancreas1k</span> <span class="op">&lt;-</span> <span class="fu"><a href="RunSCVELO.html">RunSCVELO</a></span><span class="op">(</span>srt <span class="op">=</span> <span class="va">pancreas1k</span>, group_by <span class="op">=</span> <span class="st">"SubCellType"</span>, liner_reduction <span class="op">=</span> <span class="st">"PCA"</span>, nonliner_reduction <span class="op">=</span> <span class="st">"UMAP"</span>, mode <span class="op">=</span> <span class="st">"stochastic"</span>, return_seurat <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> 'misc' slot in the srt object is not converted.</span>
@@ -317,20 +335,22 @@
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'uns: neighbors' will not be converted. It is a Python object connected with the Python session. You may need to convert manually.</span>
 <span class="r-in"><span class="fu">ClassDimPlot</span><span class="op">(</span><span class="va">pancreas1k</span>, group.by <span class="op">=</span> <span class="st">"SubCellType"</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span>, paga <span class="op">=</span> <span class="va">pancreas1k</span><span class="op">@</span><span class="va">misc</span><span class="op">$</span><span class="va">paga</span>, paga_show_transition <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>transitions_confidence need to be calculated first.</span>
-<span class="r-plt img"><img src="ClassDimPlot-10.png" alt="" width="700" height="433"></span>
-<span class="r-in"><span class="fu">ClassDimPlot</span><span class="op">(</span><span class="va">pancreas1k</span>, group.by <span class="op">=</span> <span class="st">"SubCellType"</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span>, pt.size <span class="op">=</span> <span class="fl">5</span>, pt.alpha <span class="op">=</span> <span class="fl">0.2</span>, velocity <span class="op">=</span> <span class="st">"stochastic"</span><span class="op">)</span></span>
+<span class="r-plt img"><img src="ClassDimPlot-12.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span class="fu">ClassDimPlot</span><span class="op">(</span><span class="va">pancreas1k</span>, group.by <span class="op">=</span> <span class="st">"SubCellType"</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span>, pt.size <span class="op">=</span> <span class="cn">NA</span>, velocity <span class="op">=</span> <span class="st">"stochastic"</span><span class="op">)</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Removed 1000 rows containing missing values (geom_point).</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Removed 1000 rows containing missing values (geom_point).</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Removed 1 rows containing missing values (geom_segment).</span>
-<span class="r-plt img"><img src="ClassDimPlot-11.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="ClassDimPlot-13.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span class="fu">ClassDimPlot</span><span class="op">(</span><span class="va">pancreas1k</span>, group.by <span class="op">=</span> <span class="st">"SubCellType"</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span>, pt.size <span class="op">=</span> <span class="fl">5</span>, pt.alpha <span class="op">=</span> <span class="fl">0.2</span>, velocity <span class="op">=</span> <span class="st">"stochastic"</span>, velocity_plot_type <span class="op">=</span> <span class="st">"grid"</span><span class="op">)</span></span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Removed 14 rows containing missing values (geom_segment).</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Removed 14 rows containing missing values (geom_segment).</span>
-<span class="r-plt img"><img src="ClassDimPlot-12.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="ClassDimPlot-14.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span class="fu">ClassDimPlot</span><span class="op">(</span><span class="va">pancreas1k</span>, group.by <span class="op">=</span> <span class="st">"SubCellType"</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span>, pt.size <span class="op">=</span> <span class="fl">5</span>, pt.alpha <span class="op">=</span> <span class="fl">0.2</span>, velocity <span class="op">=</span> <span class="st">"stochastic"</span>, velocity_plot_type <span class="op">=</span> <span class="st">"grid"</span>, velocity_scale <span class="op">=</span> <span class="fl">1.5</span><span class="op">)</span></span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Removed 14 rows containing missing values (geom_segment).</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Removed 14 rows containing missing values (geom_segment).</span>
-<span class="r-plt img"><img src="ClassDimPlot-13.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="ClassDimPlot-15.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span class="fu">ClassDimPlot</span><span class="op">(</span><span class="va">pancreas1k</span>, group.by <span class="op">=</span> <span class="st">"SubCellType"</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span>, pt.size <span class="op">=</span> <span class="fl">5</span>, pt.alpha <span class="op">=</span> <span class="fl">0.2</span>, velocity <span class="op">=</span> <span class="st">"stochastic"</span>, velocity_plot_type <span class="op">=</span> <span class="st">"stream"</span><span class="op">)</span></span>
-<span class="r-plt img"><img src="ClassDimPlot-14.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="ClassDimPlot-16.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span class="fu">ClassDimPlot</span><span class="op">(</span><span class="va">pancreas1k</span>,</span>
 <span class="r-in">  group.by <span class="op">=</span> <span class="st">"SubCellType"</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span>, pt.size <span class="op">=</span> <span class="fl">5</span>, pt.alpha <span class="op">=</span> <span class="fl">0.2</span>,</span>
 <span class="r-in">  label <span class="op">=</span> <span class="cn">TRUE</span>, label_insitu <span class="op">=</span> <span class="cn">TRUE</span>,</span>
@@ -338,7 +358,7 @@
 <span class="r-in">  velocity_density <span class="op">=</span> <span class="fl">2</span>, velocity_smooth <span class="op">=</span> <span class="fl">1</span>, streamline_n <span class="op">=</span> <span class="fl">20</span>, streamline_color <span class="op">=</span> <span class="st">"black"</span>,</span>
 <span class="r-in">  show_stat <span class="op">=</span> <span class="cn">FALSE</span>, legend.position <span class="op">=</span> <span class="st">"none"</span>, theme_use <span class="op">=</span> <span class="st">"theme_blank"</span></span>
 <span class="r-in"><span class="op">)</span></span>
-<span class="r-plt img"><img src="ClassDimPlot-15.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="ClassDimPlot-17.png" alt="" width="700" height="433"></span>
 </code></pre></div>
     </div>
   </div>

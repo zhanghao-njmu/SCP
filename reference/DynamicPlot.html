@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">SCP</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.2.9004</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.3</span>
       </span>
     </div>
 
@@ -82,11 +82,19 @@
 <span class="op">)</span></code></pre></div>
     </div>
 
+    <div id="arguments">
+    <h2>Arguments</h2>
+    <dl><dt>axis</dt>
+<dd></dd>
+
+</dl></div>
 
     <div id="ref-examples">
     <h2>Examples</h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"pancreas1k"</span><span class="op">)</span></span>
 <span class="r-in"><span class="va">pancreas1k</span> <span class="op">&lt;-</span> <span class="fu"><a href="RunSlingshot.html">RunSlingshot</a></span><span class="op">(</span><span class="va">pancreas1k</span>, group.by <span class="op">=</span> <span class="st">"SubCellType"</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span><span class="op">)</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Removed 8 row(s) containing missing values (geom_path).</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Removed 8 row(s) containing missing values (geom_path).</span>
 <span class="r-plt img"><img src="DynamicPlot-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span class="fu">DynamicPlot</span><span class="op">(</span></span>
 <span class="r-in">  srt <span class="op">=</span> <span class="va">pancreas1k</span>,</span>
@@ -96,20 +104,20 @@
 <span class="r-in">  compare_lineages <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span class="r-in">  compare_features <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span class="r-in"><span class="op">)</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-06-19 03:42:12] Start RunDynamicFeatures</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-06-21 05:34:38] Start RunDynamicFeatures</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Number of candidate features(union): 2</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Calculate dynamic features for Lineage1...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                              |                                                                      |   0%  |                                                                              |======================================================================| 100%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-06-19 03:42:14] RunDynamicFeatures done</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 2.08 secs </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-06-19 03:42:14] Start RunDynamicFeatures</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-06-21 05:34:41] RunDynamicFeatures done</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 2.61 secs </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-06-21 05:34:41] Start RunDynamicFeatures</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Number of candidate features(union): 2</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Calculate dynamic features for Lineage2...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                              |                                                                      |   0%  |                                                                              |======================================================================| 100%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-06-19 03:42:16] RunDynamicFeatures done</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 1.81 secs </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-06-21 05:34:43] RunDynamicFeatures done</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 2.32 secs </span>
 <span class="r-plt img"><img src="DynamicPlot-2.png" alt="" width="700" height="433"></span>
 </code></pre></div>
     </div>

@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">SCP</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.2.9004</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.3</span>
       </span>
     </div>
 
@@ -88,7 +88,9 @@
 <p>The analysis is based on a subsetted version of <a href="https://doi.org/10.1242/dev.173849" class="external-link">mouse pancreas data</a>.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">SCP</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"pancreas1k"</span><span class="op">)</span></code></pre></div>
+<span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"pancreas1k"</span><span class="op">)</span>
+<span class="fu"><a href="reference/ClassDimPlot.html">ClassDimPlot</a></span><span class="op">(</span><span class="va">pancreas1k</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CellType"</span>, <span class="st">"SubCellType"</span><span class="op">)</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span>, ncol <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></code></pre></div>
+<p><img src="reference/figures/README-library-1.png" width="100%" style="display: block; margin: auto;"></p>
 <p><strong>CellQC</strong>:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">pancreas1k</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/RunCellQC.html">RunCellQC</a></span><span class="op">(</span><span class="va">pancreas1k</span><span class="op">)</span>
@@ -130,19 +132,21 @@
 <p><strong>Cell annotation using bulk RNA-seq datasets</strong>:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">pancreas1k</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/RunKNNPredict.html">RunKNNPredict</a></span><span class="op">(</span>srt_query <span class="op">=</span> <span class="va">pancreas1k</span>, bulk_ref <span class="op">=</span> <span class="fu">SCP</span><span class="fu">::</span><span class="va">ref_scMCA</span>, filter_lowfreq <span class="op">=</span> <span class="fl">20</span><span class="op">)</span>
-<span class="fu"><a href="reference/ClassDimPlot.html">ClassDimPlot</a></span><span class="op">(</span><span class="va">pancreas1k</span>, group.by <span class="op">=</span> <span class="st">"knnpredict_classification"</span>, label <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
+<span class="fu"><a href="reference/ClassDimPlot.html">ClassDimPlot</a></span><span class="op">(</span><span class="va">pancreas1k</span>, group.by <span class="op">=</span> <span class="st">"knnpredict_classification"</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span>,
+    label <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
 <p><img src="reference/figures/README-RunKNNPredict-bulk-1.png" width="100%" style="display: block; margin: auto;"></p>
 <p><strong>Cell annotation using single-cell datasets</strong>:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">pancreas1k</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/RunKNNPredict.html">RunKNNPredict</a></span><span class="op">(</span>srt_query <span class="op">=</span> <span class="va">pancreas1k</span>, srt_ref <span class="op">=</span> <span class="va">panc8</span>, ref_group <span class="op">=</span> <span class="st">"celltype"</span>,
     filter_lowfreq <span class="op">=</span> <span class="fl">20</span><span class="op">)</span>
-<span class="fu"><a href="reference/ClassDimPlot.html">ClassDimPlot</a></span><span class="op">(</span><span class="va">pancreas1k</span>, group.by <span class="op">=</span> <span class="st">"knnpredict_classification"</span>, label <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
+<span class="fu"><a href="reference/ClassDimPlot.html">ClassDimPlot</a></span><span class="op">(</span><span class="va">pancreas1k</span>, group.by <span class="op">=</span> <span class="st">"knnpredict_classification"</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span>,
+    label <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
 <p><img src="reference/figures/README-RunKNNPredict-scrna-1.png" width="100%" style="display: block; margin: auto;"></p>
 <p><strong>PAGA analysis</strong>:</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">pancreas1k</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/RunPAGA.html">RunPAGA</a></span><span class="op">(</span>srt <span class="op">=</span> <span class="va">pancreas1k</span>, group_by <span class="op">=</span> <span class="st">"SubCellType"</span>, liner_reduction <span class="op">=</span> <span class="st">"PCA"</span>,
     nonliner_reduction <span class="op">=</span> <span class="st">"UMAP"</span>, return_seurat <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
-<span class="fu"><a href="reference/PAGAPlot.html">PAGAPlot</a></span><span class="op">(</span><span class="va">pancreas1k</span>, label <span class="op">=</span> <span class="cn">TRUE</span>, label_insitu <span class="op">=</span> <span class="cn">TRUE</span>, label_repel <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
+<span class="fu"><a href="reference/PAGAPlot.html">PAGAPlot</a></span><span class="op">(</span><span class="va">pancreas1k</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span>, label <span class="op">=</span> <span class="cn">TRUE</span>, label_insitu <span class="op">=</span> <span class="cn">TRUE</span>, label_repel <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
 <p><img src="reference/figures/README-RunPAGA-1.png" width="100%" style="display: block; margin: auto;"></p>
 <p><strong>Velocity analysis</strong>:</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
