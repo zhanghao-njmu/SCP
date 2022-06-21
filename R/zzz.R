@@ -33,10 +33,10 @@
     }
     if (identical(py_bit, sys_bit)) {
       python_path <- py
-      packageStartupMessage("python path: ", python_path)
+      # packageStartupMessage("python path: ", python_path)
       break
     } else {
-      packageStartupMessage(py, "architecture is ", py_bit, " and system is ", sys_bit)
+      # packageStartupMessage(py, "architecture is ", py_bit, " and system is ", sys_bit)
       next
     }
   }
@@ -88,7 +88,7 @@
         }
         check_Python(pkgs = "matplotlib", envname = "SCP")
         check_Python(pkgs = "versioned-hdf5", envname = "SCP")
-        check_Python(pkgs = c("numba==0.53.1", "scanpy", "python-igraph", "pandas", "scvelo", "palantir"), envname = "SCP")
+        check_Python(pkgs = c("numba==0.53.1", "scanpy", "python-igraph", "pandas", "numpy", "scvelo", "palantir"), envname = "SCP")
       }
 
       run_Python(command = "import matplotlib", envir = .GlobalEnv)

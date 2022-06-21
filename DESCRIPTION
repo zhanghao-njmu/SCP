@@ -1,7 +1,7 @@
 Package: SCP
 Type: Package
 Title: Single Cell Pipeline
-Version: 0.1.2.9004
+Version: 0.1.3
 Author: Hao Zhang
 Maintainer: Hao Zhang <haozhang@njmu.edu.cn>
 Description: The SCP package provides a comprehensive set of tools for single cell data processing and downstream analysis.
@@ -93,6 +93,7 @@ Suggests:
     MASS,
     Mfuzz,
     AUCell,
+    hexbin,
     htmlwidgets,
     testthat (>= 3.0.0)
 RoxygenNote: 7.2.0

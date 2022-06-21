@@ -92,7 +92,7 @@ GeneConvert <- function(geneID, geneID_from_IDtype = "symbol", geneID_to_IDtype 
     names(to_attr) <- geneID_to_IDtype
   }
 
-  message("Connecting to the Ensembl archives...")
+  message("Connect to the Ensembl archives...")
   archives <- NULL
   ntry <- 0
   while (is.null(archives)) {
@@ -123,7 +123,7 @@ GeneConvert <- function(geneID, geneID_from_IDtype = "symbol", geneID_to_IDtype 
     stop("Ensembl_version is invalid. Must be one of current_release,", paste0(archives$version, collapse = ","))
   }
 
-  message("Connecting to the biomart...")
+  message("Connect to the biomart...")
   mart <- NULL
   ntry <- 0
 
@@ -166,7 +166,7 @@ GeneConvert <- function(geneID, geneID_from_IDtype = "symbol", geneID_to_IDtype 
     warning(paste0("Can not find the dataset for the species: ", species_from, " (", dataset, ")"), immediate. = TRUE)
     return(list(geneID_res = NULL, geneID_collapse = NULL, geneID_expand = NULL, Ensembl_version = version, Datasets = Datasets, Attributes = NULL))
   }
-  message("Connecting to the dataset ", dataset, " ...")
+  message("Connect to the dataset ", dataset, " ...")
   mart1 <- NULL
   ntry <- 0
   while (is.null(mart1)) {
@@ -193,7 +193,7 @@ GeneConvert <- function(geneID, geneID_from_IDtype = "symbol", geneID_to_IDtype 
       warning(paste0("Can not find the dataset for the species: ", species_from, " (", dataset2, ")"), immediate. = TRUE)
       return(list(geneID_res = NULL, geneID_collapse = NULL, geneID_expand = NULL, Ensembl_version = version, Datasets = Datasets, Attributes = NULL))
     }
-    message("Connecting to the dataset ", dataset2, " ...")
+    message("Connect to the dataset ", dataset2, " ...")
     mart2 <- NULL
     ntry <- 0
     while (is.null(mart2)) {
@@ -739,7 +739,7 @@ RunDEtest <- function(srt, group_by = NULL, cell_group1 = NULL, cell_group2 = NU
 #'
 #' @importFrom R.cache getCacheRootPath readCacheHeader
 #' @export
-ListEnrichmentDB <- function(species = "Homo_sapiens", enrichment = c(
+ListEnrichmentDB <- function(species = c("Homo_sapiens", "Mus_musculus"), enrichment = c(
                                "GO_BP", "GO_CC", "GO_MF", "KEGG", "WikiPathway", "Reactome",
                                "ProteinComplex", "PFAM", "Chromosome"
                              )) {
@@ -751,14 +751,14 @@ ListEnrichmentDB <- function(species = "Homo_sapiens", enrichment = c(
     info <- readCacheHeader(x)
     info[["date"]] <- as.character(info[["timestamp"]])
     info[["db_version"]] <- strsplit(info[["comment"]], "\\|")[[1]][1]
-    info[["db_key"]] <- strsplit(info[["comment"]], "\\|")[[1]][2]
+    info[["db_name"]] <- strsplit(info[["comment"]], "\\|")[[1]][2]
     return(info)
   })
   dbinfo <- do.call(rbind.data.frame, dbinfo)
   dbinfo[["file"]] <- pathnames
 
-  key <- paste0("key:", species, "-", enrichment)
-  dbinfo <- dbinfo[dbinfo[["db_key"]] %in% key, ]
+  patterns <- paste0(species, "-", enrichment)
+  dbinfo <- dbinfo[unlist(lapply(patterns, function(pat) grep(pat, dbinfo[["db_name"]], fixed = TRUE))), ]
   return(dbinfo)
 }
 
@@ -776,14 +776,14 @@ ListEnrichmentDB <- function(species = "Homo_sapiens", enrichment = c(
 #'
 #' @examples
 #' if (interactive()) {
-#'   db_list <- PrepareEnrichmentDB(species = "Homo_sapiens")
+#'   db_list <- PrepareEnrichmentDB(species = c("Homo_sapiens", "Mus_musculus"))
 #' }
 #' @importFrom R.cache loadCache saveCache readCacheHeader
 #' @importFrom utils packageVersion read.table
 #' @importFrom stats na.omit
 #' @export
 #'
-PrepareEnrichmentDB <- function(species = "Homo_sapiens",
+PrepareEnrichmentDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
                                 enrichment = c(
                                   "GO_BP", "GO_CC", "GO_MF", "KEGG", "WikiPathway", "Reactome",
                                   "ProteinComplex", "PFAM", "Chromosome"
@@ -791,350 +791,347 @@ PrepareEnrichmentDB <- function(species = "Homo_sapiens",
                                 db_IDtypes = c("symbol", "entrez_id", "ensembl_id"),
                                 db_version = "latest", db_update = FALSE,
                                 Ensembl_version = 103, mirror = NULL) {
-  if (length(species) > 1) {
-    stop("Only one species name can be provided at a time")
-  }
-  message("Species: ", species)
-
   db_list <- list()
-  if (!isTRUE(db_update)) {
-    for (term in enrichment) {
-      # Try to load cached database, if already generated.
-      dbinfo <- ListEnrichmentDB(species = species, enrichment = term)
-      if (db_version == "latest") {
-        pathname <- dbinfo[order(dbinfo[["timestamp"]], decreasing = TRUE)[1], "file"]
-      } else {
-        pathname <- dbinfo[grep(db_version, dbinfo[["db_version"]], fixed = TRUE)[1], "file"]
-      }
-      if (!is.na(pathname)) {
-        header <- readCacheHeader(pathname)
-        message("Loaded cached db: ", term, " version:", strsplit(header[["comment"]], "\\|")[[1]][1], " created:", header[["timestamp"]])
-        db_list[[species]][[term]] <- loadCache(pathname = pathname)
+  for (sps in species) {
+    message("Species: ", sps)
+    if (!isTRUE(db_update)) {
+      for (term in enrichment) {
+        # Try to load cached database, if already generated.
+        dbinfo <- ListEnrichmentDB(species = sps, enrichment = term)
+        if (db_version == "latest") {
+          pathname <- dbinfo[order(dbinfo[["timestamp"]], decreasing = TRUE)[1], "file"]
+        } else {
+          pathname <- dbinfo[grep(db_version, dbinfo[["db_version"]], fixed = TRUE)[1], "file"]
+        }
+        if (!is.na(pathname)) {
+          header <- readCacheHeader(pathname)
+          message("Loaded cached db: ", term, " version:", strsplit(header[["comment"]], "\\|")[[1]][1], " created:", header[["timestamp"]])
+          db_list[[sps]][[term]] <- loadCache(pathname = pathname)
+        }
       }
     }
-  }
 
-  sp <- unlist(strsplit(species, split = "_"))
-  org_sp <- paste0("org.", paste0(substring(sp, 1, 1), collapse = ""), ".eg.db")
-  # mesh_sp <-  paste0("MeSH.", paste0(substring(sp, 1, c(1,2)), collapse = ""), ".eg.db")
-  kegg_sp <- tolower(paste0(substring(sp[1], 1, 1), substring(sp[2], 1, 2), collapse = ""))
-  complex_sp <- reactome_sp <- gsub(pattern = "_", replacement = " ", x = species)
+    sp <- unlist(strsplit(sps, split = "_"))
+    org_sp <- paste0("org.", paste0(substring(sp, 1, 1), collapse = ""), ".eg.db")
+    # mesh_sp <-  paste0("MeSH.", paste0(substring(sp, 1, c(1,2)), collapse = ""), ".eg.db")
+    kegg_sp <- tolower(paste0(substring(sp[1], 1, 1), substring(sp[2], 1, 2), collapse = ""))
+    complex_sp <- reactome_sp <- gsub(pattern = "_", replacement = " ", x = sps)
 
-  orgdb_dependent <- c("GO_BP", "GO_CC", "GO_MF", "PFAM", "Chromosome")
-  if (any(orgdb_dependent %in% enrichment)) {
-    status <- tryCatch(
-      {
-        check_R(c("AnnotationDbi", org_sp, "GO.db", "GOSemSim"))
-      },
-      error = function(e) {
-        return("error")
+    orgdb_dependent <- c("GO_BP", "GO_CC", "GO_MF", "PFAM", "Chromosome")
+    if (any(orgdb_dependent %in% enrichment)) {
+      status <- tryCatch(
+        {
+          check_R(c("AnnotationDbi", org_sp, "GO.db", "GOSemSim"))
+        },
+        error = function(e) {
+          return("error")
+        }
+      )
+      if (identical(status, "error")) {
+        check_R("AnnotationDbi", force = TRUE)
+        check_R(c(org_sp, "GO.db", "GOSemSim"))
       }
-    )
-    if (identical(status, "error")) {
-      check_R("AnnotationDbi", force = TRUE)
-      check_R(c(org_sp, "GO.db", "GOSemSim"))
+      suppressPackageStartupMessages(library(org_sp, character.only = TRUE))
+      orgdb <- get(org_sp)
+      orgdbCHR <- get(paste0(gsub(pattern = ".db", "", org_sp), "CHR"))
     }
-    suppressPackageStartupMessages(library(org_sp, character.only = TRUE))
-    orgdb <- get(org_sp)
-    orgdbCHR <- get(paste0(gsub(pattern = ".db", "", org_sp), "CHR"))
-  }
-  if ("PFAM" %in% enrichment) {
-    check_R(c("PFAM.db", "AnnotationDbi"))
-  }
-  if ("Reactome" %in% enrichment) {
-    check_R(c("reactome.db", "AnnotationDbi"))
-  }
-  if ("WikiPathway" %in% enrichment) {
-    check_R(c("clusterProfiler"))
-  }
-  if ("MeSH" %in% enrichment) {
-    check_R(c("AHMeSHDbs", "MeSHDbi", "MeSH.db", "AnnotationHub"))
-  }
+    if ("PFAM" %in% enrichment) {
+      check_R(c("PFAM.db", "AnnotationDbi"))
+    }
+    if ("Reactome" %in% enrichment) {
+      check_R(c("reactome.db", "AnnotationDbi"))
+    }
+    if ("WikiPathway" %in% enrichment) {
+      check_R(c("clusterProfiler"))
+    }
+    if ("MeSH" %in% enrichment) {
+      check_R(c("AHMeSHDbs", "MeSHDbi", "MeSH.db", "AnnotationHub"))
+    }
 
-  ## Prepare ----------------------------------------------------------------------
-  if (any(!species %in% names(db_list)) || any(!enrichment %in% names(db_list[[species]]))) {
-    ## GO ---------------------------------------------------------------------------------
-    if (any(enrichment %in% c("GO_BP", "GO_CC", "GO_MF")) && any(!c("GO_BP", "GO_CC", "GO_MF") %in% names(db_list[[species]]))) {
-      terms <- enrichment[enrichment %in% c("GO_BP", "GO_CC", "GO_MF")]
-      for (subterm in terms) {
-        message("Preparing database: ", subterm)
-        sub_enrichment <- unlist(strsplit(subterm, split = "_"))[2]
-        bg <- suppressMessages(AnnotationDbi::select(orgdb, keys = AnnotationDbi::keys(orgdb), columns = c("GOALL")))
-        bg$EVIDENCEALL <- NULL
-        bg <- unique(bg[!is.na(bg$GOALL), ])
-        bg2 <- suppressMessages(AnnotationDbi::select(GO.db::GO.db, keys = AnnotationDbi::keys(GO.db::GO.db), columns = c("GOID", "TERM", "DEFINITION")))
-        bg <- merge(x = bg, by.x = "GOALL", y = bg2, by.y = "GOID", all.x = TRUE)
-        TERM2GENE <- bg[which(bg$ONTOLOGYALL == sub_enrichment), c(1, 2)]
-        TERM2NAME <- bg[which(bg$ONTOLOGYALL == sub_enrichment), c(1, 4)]
+    ## Prepare ----------------------------------------------------------------------
+    if (any(!sps %in% names(db_list)) || any(!enrichment %in% names(db_list[[sps]]))) {
+      ## GO ---------------------------------------------------------------------------------
+      if (any(enrichment %in% c("GO_BP", "GO_CC", "GO_MF")) && any(!c("GO_BP", "GO_CC", "GO_MF") %in% names(db_list[[sps]]))) {
+        terms <- enrichment[enrichment %in% c("GO_BP", "GO_CC", "GO_MF")]
+        for (subterm in terms) {
+          message("Preparing database: ", subterm)
+          sub_enrichment <- unlist(strsplit(subterm, split = "_"))[2]
+          bg <- suppressMessages(AnnotationDbi::select(orgdb, keys = AnnotationDbi::keys(orgdb), columns = c("GOALL")))
+          bg$EVIDENCEALL <- NULL
+          bg <- unique(bg[!is.na(bg$GOALL), ])
+          bg2 <- suppressMessages(AnnotationDbi::select(GO.db::GO.db, keys = AnnotationDbi::keys(GO.db::GO.db), columns = c("GOID", "TERM", "DEFINITION")))
+          bg <- merge(x = bg, by.x = "GOALL", y = bg2, by.y = "GOID", all.x = TRUE)
+          TERM2GENE <- bg[which(bg$ONTOLOGYALL == sub_enrichment), c(1, 2)]
+          TERM2NAME <- bg[which(bg$ONTOLOGYALL == sub_enrichment), c(1, 4)]
+          colnames(TERM2GENE) <- c("Term", "entrez_id")
+          colnames(TERM2NAME) <- c("Term", "Name")
+          semData <- suppressMessages(GOSemSim::godata(orgdb, ont = sub_enrichment))
+          version <- packageVersion(org_sp)
+          db_list[[sps]][[subterm]][["TERM2GENE"]] <- unique(TERM2GENE)
+          db_list[[sps]][[subterm]][["TERM2NAME"]] <- unique(TERM2NAME)
+          db_list[[sps]][[subterm]][["semData"]] <- semData
+          db_list[[sps]][[subterm]][["version"]] <- version
+          saveCache(db_list[[sps]][[subterm]],
+            key = list(version, sps, subterm),
+            comment = paste0(version, " nterm:", length(TERM2NAME[[1]]), "|", sps, "-", subterm)
+          )
+        }
+      }
+
+      ## KEGG ---------------------------------------------------------------------------
+      if (any(enrichment == "KEGG") && (!"KEGG" %in% names(db_list[[sps]]))) {
+        message("Preparing database: KEGG")
+        kegg_db <- "pathway"
+        kegg_pathwaygene_url <- paste0("http://rest.kegg.jp/link/", kegg_sp, "/", kegg_db, collapse = "")
+        TERM2GENE <- kegg_get(kegg_pathwaygene_url)
+        TERM2GENE[, 1] <- gsub(pattern = "[^:]+:", replacement = "", x = TERM2GENE[, 1])
+        TERM2GENE[, 2] <- gsub(pattern = "[^:]+:", replacement = "", x = TERM2GENE[, 2])
+        kegg_pathwayname_url <- paste0("http://rest.kegg.jp/list/", kegg_db, collapse = "")
+        TERM2NAME <- kegg_get(kegg_pathwayname_url)
+        TERM2NAME[, 1] <- gsub(pattern = "path:map", replacement = kegg_sp, TERM2NAME[, 1])
+        TERM2NAME <- TERM2NAME[TERM2NAME[, 1] %in% TERM2GENE[, 1], ]
         colnames(TERM2GENE) <- c("Term", "entrez_id")
         colnames(TERM2NAME) <- c("Term", "Name")
-        semData <- suppressMessages(GOSemSim::godata(orgdb, ont = sub_enrichment))
+        kegg_info <- readLines("http://rest.kegg.jp/info/hsa")
+        version <- kegg_info[grepl("Release", x = kegg_info)] %>% gsub(".*(?=Release)", replacement = "", x = ., perl = TRUE)
+        db_list[[sps]][["KEGG"]][["TERM2GENE"]] <- unique(TERM2GENE)
+        db_list[[sps]][["KEGG"]][["TERM2NAME"]] <- unique(TERM2NAME)
+        db_list[[sps]][["KEGG"]][["version"]] <- version
+        saveCache(db_list[[sps]][["KEGG"]],
+          key = list(version, sps, "KEGG"),
+          comment = paste0(version, " nterm:", length(TERM2NAME[[1]]), "|", sps, "-KEGG")
+        )
+      }
+
+      ## WikiPathway ---------------------------------------------------------------------------
+      if (any(enrichment == "WikiPathway") && (!"WikiPathway" %in% names(db_list[[sps]]))) {
+        message("Preparing database: WikiPathway")
+        tempdir <- tempdir()
+        gmt_files <- list.files(tempdir)[grep(".gmt", x = list.files(tempdir))]
+        if (length(gmt_files) > 0) {
+          file.remove(paste0(tempdir, "/", gmt_files))
+        }
+        temp <- tempfile()
+        download.file("https://wikipathways-data.wmcloud.org/current/gmt", temp)
+
+        lines <- readLines(temp)
+        lines <- lines[grep("File</a></td>", lines, fixed = TRUE)]
+        lines <- gsub("(.*<td><a href='./)|('> File</a></td>)", "", lines)
+        gmtfile <- lines[grep(sps, lines, fixed = TRUE)]
+        version <- strsplit(gmtfile, split = "-")[[1]][[2]]
+        download.file(paste0("https://wikipathways-data.wmcloud.org/current/gmt/", gmtfile), temp)
+        wiki_gmt <- clusterProfiler::read.gmt(temp)
+        unlink(temp)
+        wiki_gmt <- apply(wiki_gmt, 1, function(x) {
+          wikiid <- strsplit(x[["term"]], split = "%")[[1]][3]
+          wikiterm <- strsplit(x[["term"]], split = "%")[[1]][1]
+          gmt <- x[["gene"]]
+          data.frame(v0 = wikiid, v1 = gmt, v2 = wikiterm, stringsAsFactors = FALSE)
+        })
+        bg <- do.call(rbind.data.frame, wiki_gmt)
+        TERM2GENE <- bg[, c(1, 2)]
+        TERM2NAME <- bg[, c(1, 3)]
+        colnames(TERM2GENE) <- c("Term", "entrez_id")
+        colnames(TERM2NAME) <- c("Term", "Name")
+        db_list[[sps]][["WikiPathway"]][["TERM2GENE"]] <- unique(TERM2GENE)
+        db_list[[sps]][["WikiPathway"]][["TERM2NAME"]] <- unique(TERM2NAME)
+        db_list[[sps]][["WikiPathway"]][["version"]] <- version
+        saveCache(db_list[[sps]][["WikiPathway"]],
+          key = list(version, sps, "WikiPathway"),
+          comment = paste0(version, " nterm:", length(TERM2NAME[[1]]), "|", sps, "-WikiPathway")
+        )
+      }
+
+      ## pathwaycommons ---------------------------------------------------------------------------
+      # check_R("paxtoolsr")
+
+      ## Reactome ---------------------------------------------------------------------------
+      if (any(enrichment == "Reactome") && (!"Reactome" %in% names(db_list[[sps]]))) {
+        message("Preparing database: Reactome")
+        bg <- suppressMessages(AnnotationDbi::select(reactome.db::reactome.db, keys = AnnotationDbi::keys(reactome.db::reactome.db), columns = c("PATHID", "PATHNAME")))
+        bg <- bg[grepl(pattern = reactome_sp, x = bg$PATHNAME), ]
+        bg <- na.omit(bg)
+        bg$PATHNAME <- gsub(x = bg$PATHNAME, pattern = paste0("^", reactome_sp, ": "), replacement = "", perl = TRUE)
+        TERM2GENE <- bg[, c(2, 1)]
+        TERM2NAME <- bg[, c(2, 3)]
+        colnames(TERM2GENE) <- c("Term", "entrez_id")
+        colnames(TERM2NAME) <- c("Term", "Name")
+        version <- packageVersion("reactome.db")
+        db_list[[sps]][["Reactome"]][["TERM2GENE"]] <- unique(TERM2GENE)
+        db_list[[sps]][["Reactome"]][["TERM2NAME"]] <- unique(TERM2NAME)
+        db_list[[sps]][["Reactome"]][["version"]] <- version
+        saveCache(db_list[[sps]][["Reactome"]],
+          key = list(version, sps, "Reactome"),
+          comment = paste0(version, " nterm:", length(TERM2NAME[[1]]), "|", sps, "-Reactome")
+        )
+      }
+
+      ## Protein complex ---------------------------------------------------------------------------
+      if (any(enrichment == "ProteinComplex") && (!"ProteinComplex" %in% names(db_list[[sps]]))) {
+        message("Preparing database: ProteinComplex")
+        check_R("taxize")
+        uid <- suppressMessages(taxize::get_uid(complex_sp, messages = FALSE))
+        common_name <- unlist(strsplit(unlist(suppressMessages(taxize::sci2comm(uid, db = "ncbi"))), " "))
+        common_name <- common_name[length(common_name)]
+        common_name <- paste(toupper(substr(common_name, 1, 1)), substr(common_name, 2, nchar(common_name)), sep = "")
+
+        temp <- tempfile()
+        download.file("http://mips.helmholtz-muenchen.de/corum/download/coreComplexes.txt.zip", temp)
+        df <- read.table(unz(temp, "coreComplexes.txt"), header = TRUE, sep = "\t", stringsAsFactors = FALSE, fill = TRUE, quote = "")
+        df <- df[which(df$Organism == common_name), ]
+        s <- strsplit(df$subunits.Entrez.IDs., split = ";")
+        complex <- data.frame(V1 = rep(df$ComplexName, sapply(s, length)), V2 = unlist(s), V3 = rep(paste0("ComplexID:", df$ComplexID), sapply(s, length)))
+        complex$V1 <- gsub(pattern = "\\([^\\)]*\\)$", replacement = "", x = trimws(complex$V1), perl = FALSE)
+        complex <- complex[!duplicated(complex), ]
+        complex <- complex[which(complex$V2 != "NULL"), ]
+        TERM2GENE <- complex[, c(3, 2)]
+        TERM2NAME <- complex[, c(3, 1)]
+        colnames(TERM2GENE) <- c("Term", "entrez_id")
+        colnames(TERM2NAME) <- c("Term", "Name")
+        download.file("https://mips.helmholtz-muenchen.de/corum/download.html", temp)
+        lines <- readLines(temp)
+        lines <- lines[grep("current release", lines)]
+        version <- gsub("(.*\"setLightFont\">)|(current release.*)", "", lines)
+        unlink(temp)
+        db_list[[sps]][["ProteinComplex"]][["TERM2GENE"]] <- unique(TERM2GENE)
+        db_list[[sps]][["ProteinComplex"]][["TERM2NAME"]] <- unique(TERM2NAME)
+        db_list[[sps]][["ProteinComplex"]][["version"]] <- version
+        saveCache(db_list[[sps]][["ProteinComplex"]],
+          key = list(version, sps, "ProteinComplex"),
+          comment = paste0(version, " nterm:", length(TERM2NAME[[1]]), "|", sps, "-ProteinComplex")
+        )
+      }
+
+      ## PFAM ---------------------------------------------------------------------------
+      if (any(enrichment == "PFAM") && (!"PFAM" %in% names(db_list[[sps]]))) {
+        message("Preparing database: PFAM")
+        bg <- suppressMessages(AnnotationDbi::select(orgdb, keys = AnnotationDbi::keys(orgdb), columns = "PFAM"))
+        bg <- unique(bg[!is.na(bg$PFAM), ])
+        bg2 <- as.data.frame(PFAM.db::PFAMDE2AC[AnnotationDbi::mappedkeys(PFAM.db::PFAMDE2AC)])
+        rownames(bg2) <- bg2[["ac"]]
+        bg[["PFAM_name"]] <- bg2[bg$PFAM, "de"]
+        bg[is.na(bg[["PFAM_name"]]), "PFAM_name"] <- bg[is.na(bg[["PFAM_name"]]), "PFAM"]
+        TERM2GENE <- bg[, c(2, 1)]
+        TERM2NAME <- bg[, c(2, 3)]
+        colnames(TERM2GENE) <- c("Term", "entrez_id")
+        colnames(TERM2NAME) <- c("Term", "Name")
         version <- packageVersion(org_sp)
-        db_list[[species]][[subterm]][["TERM2GENE"]] <- unique(TERM2GENE)
-        db_list[[species]][[subterm]][["TERM2NAME"]] <- unique(TERM2NAME)
-        db_list[[species]][[subterm]][["semData"]] <- semData
-        db_list[[species]][[subterm]][["version"]] <- version
-        saveCache(db_list[[species]][[subterm]],
-          key = list(version, species, subterm),
-          comment = paste0(version, " nterm:", length(TERM2NAME[[1]]), "|", "key:", species, "-", subterm)
+        db_list[[sps]][["PFAM"]][["TERM2GENE"]] <- TERM2GENE
+        db_list[[sps]][["PFAM"]][["TERM2NAME"]] <- TERM2NAME
+        db_list[[sps]][["PFAM"]][["version"]] <- version
+        saveCache(db_list[[sps]][["PFAM"]],
+          key = list(version, sps, "PFAM"),
+          comment = paste0(version, " nterm:", length(TERM2NAME[[1]]), "|", sps, "-PFAM")
+        )
+      }
+
+      ## Chromosome ---------------------------------------------------------------------------
+      if (any(enrichment == "Chromosome") && (!"Chromosome" %in% names(db_list[[sps]]))) {
+        message("Preparing database: Chromosome")
+        chr <- as.data.frame(orgdbCHR[AnnotationDbi::mappedkeys(orgdbCHR)])
+        chr[, 2] <- paste0("chr", chr[, 2])
+        TERM2GENE <- chr[, c(2, 1)]
+        TERM2NAME <- chr[, c(2, 2)]
+        colnames(TERM2GENE) <- c("Term", "entrez_id")
+        colnames(TERM2NAME) <- c("Term", "Name")
+        version <- packageVersion(org_sp)
+        db_list[[sps]][["Chromosome"]][["TERM2GENE"]] <- unique(TERM2GENE)
+        db_list[[sps]][["Chromosome"]][["TERM2NAME"]] <- unique(TERM2NAME)
+        db_list[[sps]][["Chromosome"]][["version"]] <- version
+        saveCache(db_list[[sps]][["Chromosome"]],
+          key = list(version, sps, "Chromosome"),
+          comment = paste0(version, " nterm:", length(TERM2NAME[[1]]), "|", sps, "-Chromosome")
+        )
+      }
+
+      # ## MeSH ---------------------------------------------------------------------------
+      # if (any(enrichment == "MeSH") && (!"MeSH" %in% names(db_list[[sps]]))) {
+      #   message("Preparing database: MeSH")
+      #   # dir.create("~/.cache/R/AnnotationHub",recursive = TRUE,showWarnings = FALSE)
+      #   ### A (Anatomy);B (Organisms);C (Diseases);D (Chemicals and Drugs);
+      #   ### E (Analytical Diagnostic and Therapeutic Techniques and Equipment);F (Psychiatry and Psychology);
+      #   ### G (Phenomena and Processes);H (Disciplines and Occupations);
+      #   ### I (Anthropology, Education, Sociology and Social Phenomena);J (Technology and Food and Beverages);
+      #   ### K (Humanities);L (Information Science);M (Persons);N (Health Care);
+      #   ### V (Publication Type);Z (Geographical Locations)
+      #
+      #   ah <- AnnotationHub()
+      #   qr <- query(ah, c(paste(c("MeSHDb for", sp), collapse = " "), "v001"))
+      #   if (length(qr) == 0) {
+      #     stop("no MeSH records found for ", sp)
+      #   }
+      #   if (length(qr) == 1) {
+      #     db <- qr[[1]]
+      #     <- RSQLite::dbConnect(db)
+      #     library("MeSHDbi")
+      #     meshdb <- MeSHDbi::MeSHDb(db)
+      #     MeSHDbi::dbconn(meshdb)
+      #     MeSHDbi::dbschema(meshdb)
+      #     MeSHDbi::dbconn(meshdb)
+      #   }
+      #
+      #   select(file, keys = keys(file), columns = columns(file))
+      #
+      #
+      #   bg <- AnnotationDbi::select(meshdb, keys = keys(meshdb, keytype = "GENEID"), keytype = "GENEID", columns = c("GENEID", "MESHID", "MESHCATEGORY"))
+      #   # bg <-  bg[which(bg$GENEID %in% keys(orgdb)),]
+      #   # bg_all <- AnnotationDbi::select(MeSH.db, keys=keys(MeSH.db,keytype = "MESHID"),columns = c("MESHID","MESHTERM"),keytype = "MESHID")
+      #   # saveRDS(bg_all,"./MeSHID2Term.rds")
+      #   bg_all <- readRDS("./MeSHID2Term.rds")
+      #   bg <- merge(x = bg, by.x = "MESHID", y = bg_all, by.y = "MESHID", all.x = T)
+      #   bg[which(is.na(bg$MESHTERM)), "MESHTERM"] <- bg[which(is.na(bg$MESHTERM)), "MESHID"]
+      #   assign(paste0(sps, "_meshall"), bg)
+      #
+      #   bg <- suppressMessages(AnnotationDbi::select(meshdb, keys = AnnotationDbi::keys(meshdb), columns = "PFAM"))
+      #   bg <- unique(bg[!is.na(bg$PFAM), ])
+      #   bg2 <- as.data.frame(PFAM.db::PFAMDE2AC[AnnotationDbi::mappedkeys(PFAM.db::PFAMDE2AC)])
+      #   rownames(bg2) <- bg2[["ac"]]
+      #   bg[["PFAM_name"]] <- bg2[bg$PFAM, "de"]
+      #   bg[is.na(bg[["PFAM_name"]]), "PFAM_name"] <- bg[is.na(bg[["PFAM_name"]]), "PFAM"]
+      #   TERM2GENE <- bg[, c(2, 1)]
+      #   TERM2NAME <- bg[, c(2, 3)]
+      #   version <- packageVersion(org_sp)
+      #   db_list[[sps]][["PFAM"]][["TERM2GENE"]] <- TERM2GENE
+      #   db_list[[sps]][["PFAM"]][["TERM2NAME"]] <- TERM2NAME
+      #   db_list[[sps]][["PFAM"]][["version"]] <- version
+      #   saveCache(db_list[[sps]][["PFAM"]],
+      #     key = list(sps, "PFAM"),
+      #     comment = paste0(version, " nterm:", length(unique(TERM2NAME[[1]])))
+      #   )
+      # }
+    }
+
+    ### Convert ID
+    for (term in names(db_list[[sps]])) {
+      IDtypes <- db_IDtypes[!db_IDtypes %in% colnames(db_list[[sps]][[term]][["TERM2GENE"]])]
+      if (length(IDtypes) > 0) {
+        message("Convert ID types for the database: ", term)
+        TERM2GENE <- db_list[[sps]][[term]][["TERM2GENE"]]
+        TERM2NAME <- db_list[[sps]][[term]][["TERM2NAME"]]
+        res <- GeneConvert(
+          geneID = as.character(unique(TERM2GENE[, "entrez_id"])),
+          geneID_from_IDtype = "entrez_id",
+          geneID_to_IDtype = IDtypes,
+          species_from = sps,
+          species_to = sps,
+          Ensembl_version = Ensembl_version,
+          mirror = mirror
+        )
+        map <- res$geneID_collapse
+        for (type in IDtypes) {
+          TERM2GENE[[type]] <- map[as.character(TERM2GENE[, "entrez_id"]), type]
+          TERM2GENE <- as.data.frame(tidyr::unnest(TERM2GENE, all_of(type), keep_empty = TRUE))
+        }
+        db_list[[sps]][[term]][["TERM2GENE"]] <- TERM2GENE
+        ### save cache
+        version <- db_list[[sps]][[term]][["version"]]
+        saveCache(db_list[[sps]][[term]],
+          key = list(version, sps, term),
+          comment = paste0(version, " nterm:", length(TERM2NAME[[1]]), "|", sps, "-", term)
         )
       }
     }
-
-    ## KEGG ---------------------------------------------------------------------------
-    if (any(enrichment == "KEGG") && (!"KEGG" %in% names(db_list[[species]]))) {
-      message("Preparing database: KEGG")
-      kegg_db <- "pathway"
-      kegg_pathwaygene_url <- paste0("http://rest.kegg.jp/link/", kegg_sp, "/", kegg_db, collapse = "")
-      TERM2GENE <- kegg_get(kegg_pathwaygene_url)
-      TERM2GENE[, 1] <- gsub(pattern = "[^:]+:", replacement = "", x = TERM2GENE[, 1])
-      TERM2GENE[, 2] <- gsub(pattern = "[^:]+:", replacement = "", x = TERM2GENE[, 2])
-      kegg_pathwayname_url <- paste0("http://rest.kegg.jp/list/", kegg_db, collapse = "")
-      TERM2NAME <- kegg_get(kegg_pathwayname_url)
-      TERM2NAME[, 1] <- gsub(pattern = "path:map", replacement = kegg_sp, TERM2NAME[, 1])
-      TERM2NAME <- TERM2NAME[TERM2NAME[, 1] %in% TERM2GENE[, 1], ]
-      colnames(TERM2GENE) <- c("Term", "entrez_id")
-      colnames(TERM2NAME) <- c("Term", "Name")
-      kegg_info <- readLines("http://rest.kegg.jp/info/hsa")
-      version <- kegg_info[grepl("Release", x = kegg_info)] %>% gsub(".*(?=Release)", replacement = "", x = ., perl = TRUE)
-      db_list[[species]][["KEGG"]][["TERM2GENE"]] <- unique(TERM2GENE)
-      db_list[[species]][["KEGG"]][["TERM2NAME"]] <- unique(TERM2NAME)
-      db_list[[species]][["KEGG"]][["version"]] <- version
-      saveCache(db_list[[species]][["KEGG"]],
-        key = list(version, species, "KEGG"),
-        comment = paste0(version, " nterm:", length(TERM2NAME[[1]]), "|", "key:", species, "-KEGG")
-      )
-    }
-
-    ## WikiPathway ---------------------------------------------------------------------------
-    if (any(enrichment == "WikiPathway") && (!"WikiPathway" %in% names(db_list[[species]]))) {
-      message("Preparing database: WikiPathway")
-      tempdir <- tempdir()
-      gmt_files <- list.files(tempdir)[grep(".gmt", x = list.files(tempdir))]
-      if (length(gmt_files) > 0) {
-        file.remove(paste0(tempdir, "/", gmt_files))
-      }
-      temp <- tempfile()
-      download.file("https://wikipathways-data.wmcloud.org/current/gmt", temp)
-
-      lines <- readLines(temp)
-      lines <- lines[grep("File</a></td>", lines, fixed = TRUE)]
-      lines <- gsub("(.*<td><a href='./)|('> File</a></td>)", "", lines)
-      gmtfile <- lines[grep(species, lines, fixed = TRUE)]
-      version <- strsplit(gmtfile, split = "-")[[1]][[2]]
-      download.file(paste0("https://wikipathways-data.wmcloud.org/current/gmt/", gmtfile), temp)
-      wiki_gmt <- clusterProfiler::read.gmt(temp)
-      unlink(temp)
-      wiki_gmt <- apply(wiki_gmt, 1, function(x) {
-        wikiid <- strsplit(x[["term"]], split = "%")[[1]][3]
-        wikiterm <- strsplit(x[["term"]], split = "%")[[1]][1]
-        gmt <- x[["gene"]]
-        data.frame(v0 = wikiid, v1 = gmt, v2 = wikiterm, stringsAsFactors = FALSE)
-      })
-      bg <- do.call(rbind.data.frame, wiki_gmt)
-      TERM2GENE <- bg[, c(1, 2)]
-      TERM2NAME <- bg[, c(1, 3)]
-      colnames(TERM2GENE) <- c("Term", "entrez_id")
-      colnames(TERM2NAME) <- c("Term", "Name")
-      db_list[[species]][["WikiPathway"]][["TERM2GENE"]] <- unique(TERM2GENE)
-      db_list[[species]][["WikiPathway"]][["TERM2NAME"]] <- unique(TERM2NAME)
-      db_list[[species]][["WikiPathway"]][["version"]] <- version
-      saveCache(db_list[[species]][["WikiPathway"]],
-        key = list(version, species, "WikiPathway"),
-        comment = paste0(version, " nterm:", length(TERM2NAME[[1]]), "|", "key:", species, "-WikiPathway")
-      )
-    }
-
-    ## pathwaycommons ---------------------------------------------------------------------------
-    # check_R("paxtoolsr")
-
-    ## Reactome ---------------------------------------------------------------------------
-    if (any(enrichment == "Reactome") && (!"Reactome" %in% names(db_list[[species]]))) {
-      message("Preparing database: Reactome")
-      bg <- suppressMessages(AnnotationDbi::select(reactome.db::reactome.db, keys = AnnotationDbi::keys(reactome.db::reactome.db), columns = c("PATHID", "PATHNAME")))
-      bg <- bg[grepl(pattern = reactome_sp, x = bg$PATHNAME), ]
-      bg <- na.omit(bg)
-      bg$PATHNAME <- gsub(x = bg$PATHNAME, pattern = paste0("^", reactome_sp, ": "), replacement = "", perl = TRUE)
-      TERM2GENE <- bg[, c(2, 1)]
-      TERM2NAME <- bg[, c(2, 3)]
-      colnames(TERM2GENE) <- c("Term", "entrez_id")
-      colnames(TERM2NAME) <- c("Term", "Name")
-      version <- packageVersion("reactome.db")
-      db_list[[species]][["Reactome"]][["TERM2GENE"]] <- unique(TERM2GENE)
-      db_list[[species]][["Reactome"]][["TERM2NAME"]] <- unique(TERM2NAME)
-      db_list[[species]][["Reactome"]][["version"]] <- version
-      saveCache(db_list[[species]][["Reactome"]],
-        key = list(version, species, "Reactome"),
-        comment = paste0(version, " nterm:", length(TERM2NAME[[1]]), "|", "key:", species, "-Reactome")
-      )
-    }
-
-    ## Protein complex ---------------------------------------------------------------------------
-    if (any(enrichment == "ProteinComplex") && (!"ProteinComplex" %in% names(db_list[[species]]))) {
-      message("Preparing database: ProteinComplex")
-      check_R("taxize")
-      uid <- suppressMessages(taxize::get_uid(complex_sp, messages = FALSE))
-      common_name <- unlist(strsplit(unlist(suppressMessages(taxize::sci2comm(uid, db = "ncbi"))), " "))
-      common_name <- common_name[length(common_name)]
-      common_name <- paste(toupper(substr(common_name, 1, 1)), substr(common_name, 2, nchar(common_name)), sep = "")
-
-      temp <- tempfile()
-      download.file("http://mips.helmholtz-muenchen.de/corum/download/coreComplexes.txt.zip", temp)
-      df <- read.table(unz(temp, "coreComplexes.txt"), header = TRUE, sep = "\t", stringsAsFactors = FALSE, fill = TRUE, quote = "")
-      df <- df[which(df$Organism == common_name), ]
-      s <- strsplit(df$subunits.Entrez.IDs., split = ";")
-      complex <- data.frame(V1 = rep(df$ComplexName, sapply(s, length)), V2 = unlist(s), V3 = rep(paste0("ComplexID:", df$ComplexID), sapply(s, length)))
-      complex$V1 <- gsub(pattern = "\\([^\\)]*\\)$", replacement = "", x = trimws(complex$V1), perl = FALSE)
-      complex <- complex[!duplicated(complex), ]
-      complex <- complex[which(complex$V2 != "NULL"), ]
-      TERM2GENE <- complex[, c(3, 2)]
-      TERM2NAME <- complex[, c(3, 1)]
-      colnames(TERM2GENE) <- c("Term", "entrez_id")
-      colnames(TERM2NAME) <- c("Term", "Name")
-      download.file("https://mips.helmholtz-muenchen.de/corum/download.html", temp)
-      lines <- readLines(temp)
-      lines <- lines[grep("current release", lines)]
-      version <- gsub("(.*\"setLightFont\">)|(current release.*)", "", lines)
-      unlink(temp)
-      db_list[[species]][["ProteinComplex"]][["TERM2GENE"]] <- unique(TERM2GENE)
-      db_list[[species]][["ProteinComplex"]][["TERM2NAME"]] <- unique(TERM2NAME)
-      db_list[[species]][["ProteinComplex"]][["version"]] <- version
-      saveCache(db_list[[species]][["ProteinComplex"]],
-        key = list(version, species, "ProteinComplex"),
-        comment = paste0(version, " nterm:", length(TERM2NAME[[1]]), "|", "key:", species, "-ProteinComplex")
-      )
-    }
-
-    ## PFAM ---------------------------------------------------------------------------
-    if (any(enrichment == "PFAM") && (!"PFAM" %in% names(db_list[[species]]))) {
-      message("Preparing database: PFAM")
-      bg <- suppressMessages(AnnotationDbi::select(orgdb, keys = AnnotationDbi::keys(orgdb), columns = "PFAM"))
-      bg <- unique(bg[!is.na(bg$PFAM), ])
-      bg2 <- as.data.frame(PFAM.db::PFAMDE2AC[AnnotationDbi::mappedkeys(PFAM.db::PFAMDE2AC)])
-      rownames(bg2) <- bg2[["ac"]]
-      bg[["PFAM_name"]] <- bg2[bg$PFAM, "de"]
-      bg[is.na(bg[["PFAM_name"]]), "PFAM_name"] <- bg[is.na(bg[["PFAM_name"]]), "PFAM"]
-      TERM2GENE <- bg[, c(2, 1)]
-      TERM2NAME <- bg[, c(2, 3)]
-      colnames(TERM2GENE) <- c("Term", "entrez_id")
-      colnames(TERM2NAME) <- c("Term", "Name")
-      version <- packageVersion(org_sp)
-      db_list[[species]][["PFAM"]][["TERM2GENE"]] <- TERM2GENE
-      db_list[[species]][["PFAM"]][["TERM2NAME"]] <- TERM2NAME
-      db_list[[species]][["PFAM"]][["version"]] <- version
-      saveCache(db_list[[species]][["PFAM"]],
-        key = list(version, species, "PFAM"),
-        comment = paste0(version, " nterm:", length(TERM2NAME[[1]]), "|", "key:", species, "-PFAM")
-      )
-    }
-
-    ## Chromosome ---------------------------------------------------------------------------
-    if (any(enrichment == "Chromosome") && (!"Chromosome" %in% names(db_list[[species]]))) {
-      message("Preparing database: Chromosome")
-      chr <- as.data.frame(orgdbCHR[AnnotationDbi::mappedkeys(orgdbCHR)])
-      chr[, 2] <- paste0("chr", chr[, 2])
-      TERM2GENE <- chr[, c(2, 1)]
-      TERM2NAME <- chr[, c(2, 2)]
-      colnames(TERM2GENE) <- c("Term", "entrez_id")
-      colnames(TERM2NAME) <- c("Term", "Name")
-      version <- packageVersion(org_sp)
-      db_list[[species]][["Chromosome"]][["TERM2GENE"]] <- unique(TERM2GENE)
-      db_list[[species]][["Chromosome"]][["TERM2NAME"]] <- unique(TERM2NAME)
-      db_list[[species]][["Chromosome"]][["version"]] <- version
-      saveCache(db_list[[species]][["Chromosome"]],
-        key = list(version, species, "Chromosome"),
-        comment = paste0(version, " nterm:", length(TERM2NAME[[1]]), "|", "key:", species, "-Chromosome")
-      )
-    }
-
-    # ## MeSH ---------------------------------------------------------------------------
-    # if (any(enrichment == "MeSH") && (!"MeSH" %in% names(db_list[[species]]))) {
-    #   message("Preparing database: MeSH")
-    #   # dir.create("~/.cache/R/AnnotationHub",recursive = TRUE,showWarnings = FALSE)
-    #   ### A (Anatomy);B (Organisms);C (Diseases);D (Chemicals and Drugs);
-    #   ### E (Analytical Diagnostic and Therapeutic Techniques and Equipment);F (Psychiatry and Psychology);
-    #   ### G (Phenomena and Processes);H (Disciplines and Occupations);
-    #   ### I (Anthropology, Education, Sociology and Social Phenomena);J (Technology and Food and Beverages);
-    #   ### K (Humanities);L (Information Science);M (Persons);N (Health Care);
-    #   ### V (Publication Type);Z (Geographical Locations)
-    #
-    #   ah <- AnnotationHub()
-    #   qr <- query(ah, c(paste(c("MeSHDb for", sp), collapse = " "), "v001"))
-    #   if (length(qr) == 0) {
-    #     stop("no MeSH records found for ", sp)
-    #   }
-    #   if (length(qr) == 1) {
-    #     db <- qr[[1]]
-    #     <- RSQLite::dbConnect(db)
-    #     library("MeSHDbi")
-    #     meshdb <- MeSHDbi::MeSHDb(db)
-    #     MeSHDbi::dbconn(meshdb)
-    #     MeSHDbi::dbschema(meshdb)
-    #     MeSHDbi::dbconn(meshdb)
-    #   }
-    #
-    #   select(file, keys = keys(file), columns = columns(file))
-    #
-    #
-    #   bg <- AnnotationDbi::select(meshdb, keys = keys(meshdb, keytype = "GENEID"), keytype = "GENEID", columns = c("GENEID", "MESHID", "MESHCATEGORY"))
-    #   # bg <-  bg[which(bg$GENEID %in% keys(orgdb)),]
-    #   # bg_all <- AnnotationDbi::select(MeSH.db, keys=keys(MeSH.db,keytype = "MESHID"),columns = c("MESHID","MESHTERM"),keytype = "MESHID")
-    #   # saveRDS(bg_all,"./MeSHID2Term.rds")
-    #   bg_all <- readRDS("./MeSHID2Term.rds")
-    #   bg <- merge(x = bg, by.x = "MESHID", y = bg_all, by.y = "MESHID", all.x = T)
-    #   bg[which(is.na(bg$MESHTERM)), "MESHTERM"] <- bg[which(is.na(bg$MESHTERM)), "MESHID"]
-    #   assign(paste0(species, "_meshall"), bg)
-    #
-    #   bg <- suppressMessages(AnnotationDbi::select(meshdb, keys = AnnotationDbi::keys(meshdb), columns = "PFAM"))
-    #   bg <- unique(bg[!is.na(bg$PFAM), ])
-    #   bg2 <- as.data.frame(PFAM.db::PFAMDE2AC[AnnotationDbi::mappedkeys(PFAM.db::PFAMDE2AC)])
-    #   rownames(bg2) <- bg2[["ac"]]
-    #   bg[["PFAM_name"]] <- bg2[bg$PFAM, "de"]
-    #   bg[is.na(bg[["PFAM_name"]]), "PFAM_name"] <- bg[is.na(bg[["PFAM_name"]]), "PFAM"]
-    #   TERM2GENE <- bg[, c(2, 1)]
-    #   TERM2NAME <- bg[, c(2, 3)]
-    #   version <- packageVersion(org_sp)
-    #   db_list[[species]][["PFAM"]][["TERM2GENE"]] <- TERM2GENE
-    #   db_list[[species]][["PFAM"]][["TERM2NAME"]] <- TERM2NAME
-    #   db_list[[species]][["PFAM"]][["version"]] <- version
-    #   saveCache(db_list[[species]][["PFAM"]],
-    #     key = list(species, "PFAM"),
-    #     comment = paste0(version, " nterm:", length(unique(TERM2NAME[[1]])))
-    #   )
-    # }
   }
-
-  ### Convert ID
-  for (term in names(db_list[[species]])) {
-    IDtypes <- db_IDtypes[!db_IDtypes %in% colnames(db_list[[species]][[term]][["TERM2GENE"]])]
-    if (length(IDtypes) > 0) {
-      message("Convert ID types for the database: ", term)
-      TERM2GENE <- db_list[[species]][[term]][["TERM2GENE"]]
-      TERM2NAME <- db_list[[species]][[term]][["TERM2NAME"]]
-      res <- GeneConvert(
-        geneID = as.character(unique(TERM2GENE[, "entrez_id"])),
-        geneID_from_IDtype = "entrez_id",
-        geneID_to_IDtype = IDtypes,
-        species_from = species,
-        species_to = species,
-        Ensembl_version = Ensembl_version,
-        mirror = mirror
-      )
-      map <- res$geneID_collapse
-      for (type in IDtypes) {
-        TERM2GENE[[type]] <- map[as.character(TERM2GENE[, "entrez_id"]), type]
-        TERM2GENE <- as.data.frame(tidyr::unnest(TERM2GENE, all_of(type), keep_empty = TRUE))
-      }
-      db_list[[species]][[term]][["TERM2GENE"]] <- TERM2GENE
-      ### save cache
-      version <- db_list[[species]][[term]][["version"]]
-      saveCache(db_list[[species]][[term]],
-        key = list(version, species, term),
-        comment = paste0(version, " nterm:", length(TERM2NAME[[1]]), "|", "key:", species, "-", term)
-      )
-    }
-  }
-
   return(db_list)
 }
 
@@ -1162,24 +1159,24 @@ PrepareEnrichmentDB <- function(species = "Homo_sapiens",
 #' @param BPPARAM
 #' @param progressbar
 #' @param universe universe
+#' @param srt
+#' @param group_by
+#' @param test.use
+#' @param DE_threshold
+#' @param geneID_exclude
 #'
 #' @examples
 #' if (interactive()) {
 #'   data("pancreas1k")
-#'   library(dplyr)
 #'   pancreas1k <- RunDEtest(pancreas1k, group_by = "CellType")
-#'   de_filter <- filter(pancreas1k@tools$DEtest_CellType$AllMarkers_wilcox, p_val_adj < 0.05)
-#'   res <- RunEnrichment(geneID = de_filter$gene, geneID_groups = de_filter$group1, enrichment = "GO_BP", species = "Mus_musculus")
-#'   EnrichmentPlot(res$enrichment, plot_type = "bar")
-#'   EnrichmentPlot(res$enrichment, plot_type = "bar", character_width = 30, text_size_scale = 0.8)
-#'
-#'   EnrichmentPlot(filter(res$enrichment, Groups %in% c("Ductal", "Endocrine")), plot_type = "lollipop", ncol = 1)
-#'   EnrichmentPlot(filter(res$enrichment, Groups %in% c("Ductal", "Endocrine")), plot_type = "wordcloud")
+#'   pancreas1k <- RunEnrichment(srt = pancreas1k, group_by = "CellType", enrichment = "GO_BP", species = "Mus_musculus")
+#'   EnrichmentPlot(pancreas1k, group_by = "CellType", enrichment = "GO_BP", plot_type = "bar")
 #' }
 #' @importFrom BiocParallel bplapply
 #' @export
 #'
-RunEnrichment <- function(geneID = NULL, geneID_groups = NULL, IDtype = "symbol", result_IDtype = "symbol", species = "Homo_sapiens",
+RunEnrichment <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_threshold = "avg_log2FC > 0 & p_val_adj < 0.05",
+                          geneID = NULL, geneID_groups = NULL, geneID_exclude = NULL, IDtype = "symbol", result_IDtype = "symbol", species = "Homo_sapiens",
                           enrichment = "GO_BP", db_IDtype = "symbol", db_update = FALSE, db_version = "latest", Ensembl_version = 103, mirror = NULL,
                           TERM2GENE = NULL, TERM2NAME = NULL, minGSSize = 10, maxGSSize = 500, universe = NULL,
                           GO_simplify = TRUE, GO_simplify_padjustCutoff = 0.2, simplify_method = "Rel", simplify_similarityCutoff = 0.7,
@@ -1190,6 +1187,29 @@ RunEnrichment <- function(geneID = NULL, geneID_groups = NULL, IDtype = "symbol"
 
   time_start <- Sys.time()
   cat(paste0("[", time_start, "] ", "Start Enrichment\n"))
+
+  use_srt <- FALSE
+  if (is.null(geneID)) {
+    if (is.null(group_by)) {
+      stop("'group_by' must be provided.")
+    }
+    slot <- paste0("DEtest_", group_by)
+    if (!slot %in% names(srt@tools) || length(grep(pattern = "AllMarkers", names(srt@tools[[slot]]))) == 0) {
+      stop("Cannot find the DEtest result for the group '", group_by, "'. You may perform RunDEtest first.")
+    }
+    index <- grep(pattern = paste0("AllMarkers_", test.use), names(srt@tools[[slot]]))[1]
+    if (is.na(index)) {
+      stop("Cannot find the 'AllMarkers_", test.use, "' in the DEtest result.")
+    }
+    de <- names(srt@tools[[slot]])[index]
+    de_df <- srt@tools[[slot]][[de]]
+    de_df <- filter(de_df, eval(rlang::parse_expr(DE_threshold)))
+
+    geneID <- de_df[["gene"]]
+    geneID_groups <- de_df[["group1"]]
+    use_srt <- TRUE
+  }
+
   if (is.null(geneID_groups)) {
     geneID_groups <- rep(" ", length(geneID))
   }
@@ -1201,6 +1221,7 @@ RunEnrichment <- function(geneID = NULL, geneID_groups = NULL, IDtype = "symbol"
   }
   names(geneID_groups) <- geneID
   input <- data.frame(geneID = geneID, geneID_groups = geneID_groups)
+  input <- input[!geneID %in% geneID_exclude, ]
 
   if (is.null(TERM2GENE)) {
     db_list <- PrepareEnrichmentDB(
@@ -1217,6 +1238,7 @@ RunEnrichment <- function(geneID = NULL, geneID_groups = NULL, IDtype = "symbol"
       colnames(TERM2NAME) <- c("Term", "Name")
     }
     db_list[[species]][[enrichment]][["TERM2NAME"]] <- unique(TERM2NAME)
+    db_list[[species]][[enrichment]][["version"]] <- "custom"
   }
 
   if (length(unique(c(IDtype, db_IDtype, result_IDtype))) != 1) {
@@ -1331,7 +1353,14 @@ RunEnrichment <- function(geneID = NULL, geneID_groups = NULL, IDtype = "symbol"
   cat(paste0("[", time_end, "] ", "Enrichment done\n"))
   cat("Elapsed time:", format(round(difftime(time_end, time_start), 2), format = "%Y-%m-%d %H:%M:%S"), "\n")
 
-  return(list(enrichment = res_enrichment, results = results, geneMap = geneMap, input = input))
+  res <- list(enrichment = res_enrichment, results = results, geneMap = geneMap, input = input)
+  if (isTRUE(use_srt)) {
+    res[["DE_threshold"]] <- DE_threshold
+    srt@tools[[paste("Enrichment", group_by, test.use, sep = "_")]] <- res
+    return(srt)
+  } else {
+    return(res)
+  }
 }
 
 #' Perform the enrichment analysis(GSEA) on the genes
@@ -1359,23 +1388,27 @@ RunEnrichment <- function(geneID = NULL, geneID_groups = NULL, IDtype = "symbol"
 #' @param BPPARAM
 #' @param progressbar
 #' @param maxGSSize maxGSSize
+#' @param srt
+#' @param group_by
+#' @param test.use
+#' @param DE_threshold
+#' @param geneID_exclude
 #'
 #' @importFrom BiocParallel bplapply
 #' @examples
 #' if (interactive()) {
 #'   data("pancreas1k")
-#'   library(dplyr)
 #'   pancreas1k <- RunDEtest(pancreas1k, group_by = "CellType", only.pos = FALSE, fc.threshold = 1)
-#'   de_filter <- filter(pancreas1k@tools$DEtest_CellType$AllMarkers_wilcox, p_val_adj < 0.05)
-#'   res <- RunGSEA(geneID = de_filter$gene, geneScore = de_filter$avg_log2FC, geneID_groups = de_filter$group1, species = "Mus_musculus")
-#'   GSEAPlot(x = res$results[[1]], geneSetID = res$results[[1]]@result$ID[1])
+#'   pancreas1k <- RunGSEA(pancreas1k, group_by = "CellType", enrichment = "GO_BP", species = "Mus_musculus")
+#'   GSEAPlot(pancreas1k, group_by = "CellType", group_use = "Ductal", enrichment = "GO_BP", geneSetID = "GO:0006412")
 #' }
 #' @export
 #'
-RunGSEA <- function(geneID = NULL, geneScore = NULL, geneID_groups = NULL, IDtype = "symbol", result_IDtype = "symbol", species = "Homo_sapiens",
+RunGSEA <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_threshold = "p_val_adj < 0.05",
+                    geneID = NULL, geneScore = NULL, geneID_groups = NULL, geneID_exclude = NULL, IDtype = "symbol", result_IDtype = "symbol", species = "Homo_sapiens",
                     enrichment = "GO_BP", db_IDtype = "symbol", db_update = FALSE, db_version = "latest", Ensembl_version = 103, mirror = NULL,
                     TERM2GENE = NULL, TERM2NAME = NULL, minGSSize = 10, maxGSSize = 500, scoreType = "std",
-                    GO_simplify = FALSE, GO_simplify_padjustCutoff = 0.05, simplify_method = "Rel", simplify_similarityCutoff = 0.7,
+                    GO_simplify = TRUE, GO_simplify_padjustCutoff = 0.2, simplify_method = "Rel", simplify_similarityCutoff = 0.7,
                     BPPARAM = BiocParallel::bpparam(), progressbar = TRUE) {
   if ("progressbar" %in% names(BPPARAM)) {
     BPPARAM[["progressbar"]] <- progressbar
@@ -1383,6 +1416,29 @@ RunGSEA <- function(geneID = NULL, geneScore = NULL, geneID_groups = NULL, IDtyp
 
   time_start <- Sys.time()
   cat(paste0("[", time_start, "] ", "Start GSEA\n"))
+
+  use_srt <- FALSE
+  if (is.null(geneID)) {
+    if (is.null(group_by)) {
+      stop("'group_by' must be provided.")
+    }
+    slot <- paste0("DEtest_", group_by)
+    if (!slot %in% names(srt@tools) || length(grep(pattern = "AllMarkers", names(srt@tools[[slot]]))) == 0) {
+      stop("Cannot find the DEtest result for the group '", group_by, "'. You may perform RunDEtest first.")
+    }
+    index <- grep(pattern = paste0("AllMarkers_", test.use), names(srt@tools[[slot]]))[1]
+    if (is.na(index)) {
+      stop("Cannot find the 'AllMarkers_", test.use, "' in the DEtest result.")
+    }
+    de <- names(srt@tools[[slot]])[index]
+    de_df <- srt@tools[[slot]][[de]]
+    de_df <- filter(de_df, eval(rlang::parse_expr(DE_threshold)))
+
+    geneID <- de_df[["gene"]]
+    geneScore <- de_df[["avg_log2FC"]]
+    geneID_groups <- de_df[["group1"]]
+    use_srt <- TRUE
+  }
 
   if (is.null(geneID_groups)) {
     geneID_groups <- rep(" ", length(geneID))
@@ -1403,6 +1459,7 @@ RunGSEA <- function(geneID = NULL, geneScore = NULL, geneID_groups = NULL, IDtyp
     warning("All values in the geneScore are less than zero and scoreType is '", scoreType, "', maybe you should switch to scoreType = 'neg'.", immediate. = TRUE)
   }
   input <- data.frame(geneID = geneID, geneScore = geneScore, geneID_groups = geneID_groups)
+  input <- input[!geneID %in% geneID_exclude, ]
 
   na_index <- which(is.na(geneScore))
   if (length(na_index) > 0) {
@@ -1433,6 +1490,7 @@ RunGSEA <- function(geneID = NULL, geneScore = NULL, geneID_groups = NULL, IDtyp
       colnames(TERM2NAME) <- c("Term", "Name")
     }
     db_list[[species]][[enrichment]][["TERM2NAME"]] <- unique(TERM2NAME)
+    db_list[[species]][[enrichment]][["version"]] <- "custom"
   }
 
   if (length(unique(c(IDtype, db_IDtype, result_IDtype))) != 1) {
@@ -1457,7 +1515,7 @@ RunGSEA <- function(geneID = NULL, geneScore = NULL, geneID_groups = NULL, IDtyp
   input <- as.data.frame(tidyr::unnest(input, all_of(c(db_IDtype, result_IDtype))))
   input <- input[!is.na(input[[db_IDtype]]), ]
 
-  message("Permform enrichment...")
+  message("Permform GSEA...")
   comb <- expand.grid(group = levels(geneID_groups), term = enrichment, stringsAsFactors = FALSE)
   res_list <- BiocParallel::bplapply(1:nrow(comb),
     FUN = function(i, id) {
@@ -1483,7 +1541,7 @@ RunGSEA <- function(geneID = NULL, geneScore = NULL, geneID_groups = NULL, IDtyp
               geneList = geneList,
               minGSSize = ifelse(term %in% c("Chromosome"), 1, minGSSize),
               maxGSSize = ifelse(term %in% c("Chromosome"), Inf, maxGSSize),
-              nPermSimple = 10000,
+              nPermSimple = 100000,
               eps = 0,
               scoreType = scoreType,
               pAdjustMethod = "BH",
@@ -1502,7 +1560,7 @@ RunGSEA <- function(geneID = NULL, geneScore = NULL, geneID_groups = NULL, IDtyp
               geneList = geneList,
               minGSSize = ifelse(term %in% c("Chromosome"), 1, minGSSize),
               maxGSSize = ifelse(term %in% c("Chromosome"), Inf, maxGSSize),
-              nPerm = 10000,
+              nPerm = 100000,
               eps = 0,
               scoreType = scoreType,
               pAdjustMethod = "BH",
@@ -1574,10 +1632,17 @@ RunGSEA <- function(geneID = NULL, geneScore = NULL, geneID_groups = NULL, IDtyp
   rownames(res_enrichment) <- NULL
 
   time_end <- Sys.time()
-  cat(paste0("[", time_end, "] ", "Enrichment done\n"))
+  cat(paste0("[", time_end, "] ", "GSEA done\n"))
   cat("Elapsed time:", format(round(difftime(time_end, time_start), 2), format = "%Y-%m-%d %H:%M:%S"), "\n")
 
-  return(list(enrichment = res_enrichment, results = results, geneMap = geneMap, input = input))
+  res <- list(enrichment = res_enrichment, results = results, geneMap = geneMap, input = input)
+  if (isTRUE(use_srt)) {
+    res[["DE_threshold"]] <- DE_threshold
+    srt@tools[[paste("GSEA", group_by, test.use, sep = "_")]] <- res
+    return(srt)
+  } else {
+    return(res)
+  }
 }
 
 #' RunSlingshot

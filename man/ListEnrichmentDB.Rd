@@ -5,7 +5,7 @@
 \title{ListEnrichmentDB}
 \usage{
 ListEnrichmentDB(
-  species = "Homo_sapiens",
+  species = c("Homo_sapiens", "Mus_musculus"),
   enrichment = c("GO_BP", "GO_CC", "GO_MF", "KEGG", "WikiPathway", "Reactome",
     "ProteinComplex", "PFAM", "Chromosome")
 )

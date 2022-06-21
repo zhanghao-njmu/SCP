@@ -5,9 +5,14 @@
 \title{Perform the enrichment analysis(GSEA) on the genes}
 \usage{
 RunGSEA(
+  srt = NULL,
+  group_by = NULL,
+  test.use = "wilcox",
+  DE_threshold = "p_val_adj < 0.05",
   geneID = NULL,
   geneScore = NULL,
   geneID_groups = NULL,
+  geneID_exclude = NULL,
   IDtype = "symbol",
   result_IDtype = "symbol",
   species = "Homo_sapiens",
@@ -22,8 +27,8 @@ RunGSEA(
   minGSSize = 10,
   maxGSSize = 500,
   scoreType = "std",
-  GO_simplify = FALSE,
-  GO_simplify_padjustCutoff = 0.05,
+  GO_simplify = TRUE,
+  GO_simplify_padjustCutoff = 0.2,
   simplify_method = "Rel",
   simplify_similarityCutoff = 0.7,
   BPPARAM = BiocParallel::bpparam(),
@@ -34,6 +39,8 @@ RunGSEA(
 \item{geneID}{geneID}
 
 \item{geneID_groups}{geneID_groups}
+
+\item{geneID_exclude}{}
 
 \item{IDtype}{IDtype}
 
@@ -67,10 +74,8 @@ Perform the enrichment analysis(GSEA) on the genes
 \examples{
 if (interactive()) {
   data("pancreas1k")
-  library(dplyr)
   pancreas1k <- RunDEtest(pancreas1k, group_by = "CellType", only.pos = FALSE, fc.threshold = 1)
-  de_filter <- filter(pancreas1k@tools$DEtest_CellType$AllMarkers_wilcox, p_val_adj < 0.05)
-  res <- RunGSEA(geneID = de_filter$gene, geneScore = de_filter$avg_log2FC, geneID_groups = de_filter$group1, species = "Mus_musculus")
-  GSEAPlot(x = res$results[[1]], geneSetID = res$results[[1]]@result$ID[1])
+  pancreas1k <- RunGSEA(pancreas1k, group_by = "CellType", enrichment = "GO_BP", species = "Mus_musculus")
+  GSEAPlot(pancreas1k, group_by = "CellType", group_use = "Ductal", enrichment = "GO_BP", geneSetID = "GO:0006412")
 }
 }

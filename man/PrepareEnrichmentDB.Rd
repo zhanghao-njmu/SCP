@@ -5,7 +5,7 @@
 \title{Prepare the database for enrichment analysis}
 \usage{
 PrepareEnrichmentDB(
-  species = "Homo_sapiens",
+  species = c("Homo_sapiens", "Mus_musculus"),
   enrichment = c("GO_BP", "GO_CC", "GO_MF", "KEGG", "WikiPathway", "Reactome",
     "ProteinComplex", "PFAM", "Chromosome"),
   db_IDtypes = c("symbol", "entrez_id", "ensembl_id"),
@@ -32,6 +32,6 @@ Prepare the database for enrichment analysis
 }
 \examples{
 if (interactive()) {
-  db_list <- PrepareEnrichmentDB(species = "Homo_sapiens")
+  db_list <- PrepareEnrichmentDB(species = c("Homo_sapiens", "Mus_musculus"))
 }
 }

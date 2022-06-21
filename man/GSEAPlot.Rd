@@ -5,8 +5,13 @@
 \title{GSEA Plot}
 \usage{
 GSEAPlot(
-  x,
-  geneSetID,
+  srt,
+  group_by = NULL,
+  test.use = "wilcox",
+  group_use = NULL,
+  enrichment = "GO_BP",
+  res = NULL,
+  geneSetID = NULL,
   title = NULL,
   subtitle = NULL,
   base_size = 12,
@@ -24,7 +29,7 @@ GSEAPlot(
 )
 }
 \arguments{
-\item{label.size}{}
+\item{term_use}{}
 }
 \description{
 GSEA Plot
@@ -32,10 +37,9 @@ GSEA Plot
 \examples{
 if (interactive()) {
   data("pancreas1k")
-  library(dplyr)
   pancreas1k <- RunDEtest(pancreas1k, group_by = "CellType", only.pos = FALSE, fc.threshold = 1)
-  de_filter <- filter(pancreas1k@tools$DEtest_CellType$AllMarkers_wilcox, p_val_adj < 0.05)
-  res <- RunGSEA(geneID = de_filter$gene, geneScore = de_filter$avg_log2FC, geneID_groups = de_filter$group1, species = "Mus_musculus")
-  GSEAPlot(x = res$results[[1]], geneSetID = res$results[[1]]@result$ID[1])
+  pancreas1k <- RunGSEA(pancreas1k, group_by = "CellType", enrichment = "GO_BP", species = "Mus_musculus")
+  GSEAPlot(pancreas1k, group_by = "CellType", group_use = "Ductal", enrichment = "GO_BP", geneSetID = "GO:0006412")
+  GSEAPlot(pancreas1k, group_by = "CellType", group_use = "Endocrine", enrichment = "GO_BP", geneSetID = "GO:0007186")
 }
 }

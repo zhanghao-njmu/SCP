@@ -36,7 +36,7 @@ RunNMF <- function(object, ...) {
 #' @param maxit
 #' @param ...
 #'
-#' @importFrom RcppML nmf mse
+#' @importFrom RcppML nmf
 #' @importFrom utils capture.output
 #' @importFrom Matrix t
 #' @importFrom Seurat CreateDimReducObject
@@ -76,7 +76,7 @@ RunNMF.default <- function(object,
     feature.loadings <- t(nmf.results$h)
     d <- nmf.results$d
     iter <- nmf.results$iter
-    mse <- mse(t(object), cell.embeddings, nmf.results$d, t(feature.loadings))
+    # mse <- mse(t(object), cell.embeddings, nmf.results$d, t(feature.loadings))
   }
   if (nmf.method == "NMF") {
     check_R("NMF")
@@ -84,7 +84,7 @@ RunNMF.default <- function(object,
     cell.embeddings <- nmf.results@fit@W
     feature.loadings <- t(nmf.results@fit@H)
     d <- iter <- tol <- NULL
-    mse <- mse(t(object), cell.embeddings, NULL, t(feature.loadings))
+    # mse <- mse(t(object), cell.embeddings, NULL, t(feature.loadings))
   }
 
   rownames(x = feature.loadings) <- rownames(x = object)
@@ -96,7 +96,7 @@ RunNMF.default <- function(object,
     loadings = feature.loadings,
     assay = assay,
     key = reduction.key,
-    misc = list(slot = slot, mse = mse, d = d, tol = tol, iter = iter)
+    misc = list(slot = slot, d = d, tol = tol, iter = iter)
   )
   if (verbose) {
     msg <- capture.output(print(

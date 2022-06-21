@@ -5,8 +5,13 @@
 \title{Perform the enrichment analysis(over-representation) on the genes}
 \usage{
 RunEnrichment(
+  srt = NULL,
+  group_by = NULL,
+  test.use = "wilcox",
+  DE_threshold = "avg_log2FC > 0 & p_val_adj < 0.05",
   geneID = NULL,
   geneID_groups = NULL,
+  geneID_exclude = NULL,
   IDtype = "symbol",
   result_IDtype = "symbol",
   species = "Homo_sapiens",
@@ -33,6 +38,8 @@ RunEnrichment(
 \item{geneID}{geneID}
 
 \item{geneID_groups}{geneID_groups}
+
+\item{geneID_exclude}{}
 
 \item{IDtype}{IDtype}
 
@@ -68,14 +75,8 @@ Perform the enrichment analysis(over-representation) on the genes
 \examples{
 if (interactive()) {
   data("pancreas1k")
-  library(dplyr)
   pancreas1k <- RunDEtest(pancreas1k, group_by = "CellType")
-  de_filter <- filter(pancreas1k@tools$DEtest_CellType$AllMarkers_wilcox, p_val_adj < 0.05)
-  res <- RunEnrichment(geneID = de_filter$gene, geneID_groups = de_filter$group1, enrichment = "GO_BP", species = "Mus_musculus")
-  EnrichmentPlot(res$enrichment, plot_type = "bar")
-  EnrichmentPlot(res$enrichment, plot_type = "bar", character_width = 30, text_size_scale = 0.8)
-
-  EnrichmentPlot(filter(res$enrichment, Groups \%in\% c("Ductal", "Endocrine")), plot_type = "lollipop", ncol = 1)
-  EnrichmentPlot(filter(res$enrichment, Groups \%in\% c("Ductal", "Endocrine")), plot_type = "wordcloud")
+  pancreas1k <- RunEnrichment(srt = pancreas1k, group_by = "CellType", enrichment = "GO_BP", species = "Mus_musculus")
+  EnrichmentPlot(pancreas1k, group_by = "CellType", enrichment = "GO_BP", plot_type = "bar")
 }
 }

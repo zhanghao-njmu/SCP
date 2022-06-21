@@ -6,6 +6,7 @@
 [![R-CMD-check](https://github.com/zhanghao-njmu/SCP/workflows/R-CMD-check/badge.svg)](https://github.com/zhanghao-njmu/SCP/actions)
 [![codecov](https://codecov.io/gh/zhanghao-njmu/SCP/branch/main/graph/badge.svg)](https://codecov.io/gh/zhanghao-njmu/SCP?branch=main)
 [![codesize](https://img.shields.io/github/languages/code-size/zhanghao-njmu/SCP.svg)](https://github.com/zhanghao-njmu/SCP)
+
 <!-- badges: end -->
 
 The SCP package provides a comprehensive set of tools for single cell
@@ -44,7 +45,7 @@ devtools::install_github("zhanghao-njmu/SCP")
 
 ## Example
 
-**Load the Data**
+### Load the Data
 
 The analysis is based on a subsetted version of [mouse pancreas
 data](https://doi.org/10.1242/dev.173849).
@@ -57,7 +58,7 @@ ClassDimPlot(pancreas1k, c("CellType", "SubCellType"), reduction = "UMAP", ncol 
 
 <img src="man/figures/README-library-1.png" width="100%" style="display: block; margin: auto;" />
 
-**CellQC**:
+### CellQC
 
 ``` r
 pancreas1k <- RunCellQC(pancreas1k)
@@ -79,7 +80,7 @@ ClassStatPlot(pancreas1k, stat.by = c("db_qc", "outlier_qc", "umi_qc", "gene_qc"
 
 <img src="man/figures/README-RunCellQC-3.png" width="100%" style="display: block; margin: auto;" />
 
-**Standard SCP**:
+### Standard SCP
 
 ``` r
 pancreas1k <- Standard_SCP(pancreas1k)
@@ -88,7 +89,7 @@ ClassDimPlot(pancreas1k, group.by = "CellType", reduction = "StandardUMAP2D")
 
 <img src="man/figures/README-Standard_SCP-1.png" width="100%" style="display: block; margin: auto;" />
 
-**Integration SCP**:
+### Integration SCP
 
 Example data for integration is [panc8(eight human pancreas
 datasets)](https://github.com/satijalab/seurat-data)
@@ -107,7 +108,7 @@ ClassDimPlot(panc8, group.by = c("celltype", "tech"), reduction = "SeuratUMAP2D"
 
 <img src="man/figures/README-Integration_SCP-1.png" width="100%" style="display: block; margin: auto;" />
 
-**Cell projection between single-cell datasets**:
+### Cell projection between single-cell datasets
 
 ``` r
 library(stringr)
@@ -119,7 +120,7 @@ ProjectionPlot(srt_query = pancreas1k, srt_ref = panc8, query_group = "SubCellTy
 
 <img src="man/figures/README-RunKNNMap-1.png" width="100%" style="display: block; margin: auto;" />
 
-**Cell annotation using bulk RNA-seq datasets**:
+### Cell annotation using bulk RNA-seq datasets
 
 ``` r
 pancreas1k <- RunKNNPredict(srt_query = pancreas1k, bulk_ref = SCP::ref_scMCA, filter_lowfreq = 20)
@@ -129,7 +130,7 @@ ClassDimPlot(pancreas1k, group.by = "knnpredict_classification", reduction = "UM
 
 <img src="man/figures/README-RunKNNPredict-bulk-1.png" width="100%" style="display: block; margin: auto;" />
 
-**Cell annotation using single-cell datasets**:
+### Cell annotation using single-cell datasets
 
 ``` r
 pancreas1k <- RunKNNPredict(srt_query = pancreas1k, srt_ref = panc8, ref_group = "celltype",
@@ -140,7 +141,7 @@ ClassDimPlot(pancreas1k, group.by = "knnpredict_classification", reduction = "UM
 
 <img src="man/figures/README-RunKNNPredict-scrna-1.png" width="100%" style="display: block; margin: auto;" />
 
-**PAGA analysis**:
+### PAGA analysis
 
 ``` r
 pancreas1k <- RunPAGA(srt = pancreas1k, group_by = "SubCellType", liner_reduction = "PCA",
@@ -150,7 +151,7 @@ PAGAPlot(pancreas1k, reduction = "UMAP", label = TRUE, label_insitu = TRUE, labe
 
 <img src="man/figures/README-RunPAGA-1.png" width="100%" style="display: block; margin: auto;" />
 
-**Velocity analysis**:
+### Velocity analysis
 
 ``` r
 pancreas1k <- RunSCVELO(srt = pancreas1k, group_by = "SubCellType", liner_reduction = "PCA",
@@ -166,13 +167,13 @@ VelocityPlot(pancreas1k, reduction = "UMAP", plot_type = "stream")
 
 <img src="man/figures/README-RunSCVELO-2.png" width="100%" style="display: block; margin: auto;" />
 
-**Differential expression analysis**:
+### Differential expression analysis
 
 ``` r
 library(dplyr)
 pancreas1k <- RunDEtest(pancreas1k, group_by = "CellType", only.pos = FALSE, fc.threshold = 1)
-DEGs <- filter(pancreas1k@tools$DEtest_CellType$AllMarkers_wilcox, p_val_adj < 0.05 &
-    avg_log2FC > 1)
+DEGs <- filter(pancreas1k@tools$DEtest_CellType$AllMarkers_wilcox, avg_log2FC > 1 &
+    p_val_adj < 0.05)
 ExpHeatmapPlot(pancreas1k, genes = DEGs$gene, gene_groups = DEGs$group1, cell_group_by = "CellType")
 ```
 
@@ -184,46 +185,47 @@ DEGs_top <- DEGs %>%
     top_n(1, avg_log2FC) %>%
     group_by(group1) %>%
     top_n(3, avg_log2FC)
-ExpDotPlot(pancreas1k, genes = DEGs_top$gene, gene_groups = DEGs_top$group1, cell_group_by = "SubCellType")
+ExpDotPlot(pancreas1k, genes = DEGs_top$gene, gene_groups = DEGs_top$group1, cell_group_by = "CellType")
 ```
 
 <img src="man/figures/README-RunDEtest-2.png" width="100%" style="display: block; margin: auto;" />
 
-**Enrichment analysis(over-representation)**:
+### Enrichment analysis(over-representation)
 
 ``` r
-res <- RunEnrichment(geneID = DEGs$gene, geneID_groups = DEGs$group1, enrichment = "GO_BP",
+pancreas1k <- RunEnrichment(pancreas1k, group_by = "CellType", enrichment = "GO_BP",
     species = "Mus_musculus")
-EnrichmentPlot(filter(res$enrichment, Groups %in% c("Ductal", "Endocrine")), plot_type = "bar",
-    ncol = 1)
+EnrichmentPlot(pancreas1k, group_by = "CellType", enrichment = "GO_BP", group_use = c("Ductal",
+    "Endocrine"), plot_type = "bar", ncol = 1)
 ```
 
 <img src="man/figures/README-RunEnrichment-1.png" width="100%" style="display: block; margin: auto;" />
 
 ``` r
-EnrichmentPlot(filter(res$enrichment, Groups %in% c("Ductal", "Endocrine")), plot_type = "wordcloud")
+EnrichmentPlot(pancreas1k, group_by = "CellType", enrichment = "GO_BP", group_use = c("Ductal",
+    "Endocrine"), plot_type = "wordcloud")
 ```
 
 <img src="man/figures/README-RunEnrichment-2.png" width="100%" style="display: block; margin: auto;" />
 
-**Enrichment analysis(GSEA)**:
+### Enrichment analysis(GSEA)
 
 ``` r
-DEGs <- filter(pancreas1k@tools$DEtest_CellType$AllMarkers_wilcox, p_val_adj < 0.05)
-res <- RunGSEA(geneID = DEGs$gene, geneScore = DEGs$avg_log2FC, geneID_groups = DEGs$group1,
-    species = "Mus_musculus")
-GSEAPlot(x = res$results[["Ductal-GO_BP"]], geneSetID = "GO:0006412")
+pancreas1k <- RunGSEA(pancreas1k, group_by = "CellType", enrichment = "GO_BP", species = "Mus_musculus")
+GSEAPlot(pancreas1k, group_by = "CellType", group_use = "Ductal", enrichment = "GO_BP",
+    geneSetID = "GO:0006412")
 ```
 
 <img src="man/figures/README-RunGSEA-1.png" width="100%" style="display: block; margin: auto;" />
 
 ``` r
-GSEAPlot(x = res$results[["Endocrine-GO_BP"]], geneSetID = "GO:0007186")
+GSEAPlot(pancreas1k, group_by = "CellType", group_use = "Endocrine", enrichment = "GO_BP",
+    geneSetID = "GO:0007186")
 ```
 
 <img src="man/figures/README-RunGSEA-2.png" width="100%" style="display: block; margin: auto;" />
 
-**Dynamic features analysis**:
+### Dynamic features analysis
 
 ``` r
 pancreas1k <- RunSlingshot(pancreas1k, group.by = "SubCellType", reduction = "UMAP",
