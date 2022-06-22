@@ -49,9 +49,9 @@
   group_by <span class="op">=</span> <span class="cn">NULL</span>,
   test.use <span class="op">=</span> <span class="st">"wilcox"</span>,
   group_use <span class="op">=</span> <span class="cn">NULL</span>,
-  enrichment <span class="op">=</span> <span class="cn">NULL</span>,
+  enrichment <span class="op">=</span> <span class="st">"GO_BP"</span>,
   res <span class="op">=</span> <span class="cn">NULL</span>,
-  <span class="va">geneSetID</span>,
+  geneSetID <span class="op">=</span> <span class="cn">NULL</span>,
   title <span class="op">=</span> <span class="cn">NULL</span>,
   subtitle <span class="op">=</span> <span class="cn">NULL</span>,
   base_size <span class="op">=</span> <span class="fl">12</span>,
@@ -83,6 +83,7 @@
 <span class="r-in">  <span class="va">pancreas1k</span> <span class="op">&lt;-</span> <span class="fu"><a href="RunDEtest.html">RunDEtest</a></span><span class="op">(</span><span class="va">pancreas1k</span>, group_by <span class="op">=</span> <span class="st">"CellType"</span>, only.pos <span class="op">=</span> <span class="cn">FALSE</span>, fc.threshold <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span class="r-in">  <span class="va">pancreas1k</span> <span class="op">&lt;-</span> <span class="fu"><a href="RunGSEA.html">RunGSEA</a></span><span class="op">(</span><span class="va">pancreas1k</span>, group_by <span class="op">=</span> <span class="st">"CellType"</span>, enrichment <span class="op">=</span> <span class="st">"GO_BP"</span>, species <span class="op">=</span> <span class="st">"Mus_musculus"</span><span class="op">)</span></span>
 <span class="r-in">  <span class="fu">GSEAPlot</span><span class="op">(</span><span class="va">pancreas1k</span>, group_by <span class="op">=</span> <span class="st">"CellType"</span>, group_use <span class="op">=</span> <span class="st">"Ductal"</span>, enrichment <span class="op">=</span> <span class="st">"GO_BP"</span>, geneSetID <span class="op">=</span> <span class="st">"GO:0006412"</span><span class="op">)</span></span>
+<span class="r-in">  <span class="fu">GSEAPlot</span><span class="op">(</span><span class="va">pancreas1k</span>, group_by <span class="op">=</span> <span class="st">"CellType"</span>, group_use <span class="op">=</span> <span class="st">"Endocrine"</span>, enrichment <span class="op">=</span> <span class="st">"GO_BP"</span>, geneSetID <span class="op">=</span> <span class="st">"GO:0007186"</span><span class="op">)</span></span>
 <span class="r-in"><span class="op">}</span></span>
 </code></pre></div>
     </div>

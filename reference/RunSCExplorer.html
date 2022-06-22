@@ -83,12 +83,12 @@
     <h2>Examples</h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"pancreas1k"</span><span class="op">)</span></span>
 <span class="r-in"><span class="va">pancreas1k</span> <span class="op">&lt;-</span> <span class="fu"><a href="Standard_SCP.html">Standard_SCP</a></span><span class="op">(</span><span class="va">pancreas1k</span><span class="op">)</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-06-22 08:08:32] Start Standard_SCP</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-06-22 08:08:32] Checking srtList... ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-06-22 10:11:28] Start Standard_SCP</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-06-22 10:11:28] Checking srtList... ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Data 1/1 of the srtList is raw counts. Perform NormalizeData(logCPM) on the data ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform FindVariableFeatures on the data 1/1 of the srtList...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Use the separate HVF from the existed HVF in srtList...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-06-22 08:08:35] Finished checking.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-06-22 10:11:30] Finished checking.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform ScaleData on the data...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform linear dimension reduction (pca) on the data...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform FindClusters (louvain) on the data...</span>
@@ -102,8 +102,8 @@
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Also defined by ‘spam’</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Found more than one class "dist" in cache; using the first, from namespace 'BiocGenerics'</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Also defined by ‘spam’</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-06-22 08:08:53] Standard_SCP done</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 20.81 secs </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-06-22 10:11:47] Standard_SCP done</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 19.29 secs </span>
 <span class="r-in"><span class="fu"><a href="PrepareSCExplorer.html">PrepareSCExplorer</a></span><span class="op">(</span><span class="va">pancreas1k</span>, base_dir <span class="op">=</span> <span class="st">"./SCExplorer"</span><span class="op">)</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Set the project name of each seurat object in the list to their dataset name</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Write the expression matrix to hdf5 file: /home/runner/work/SCP/SCP/docs/reference/SCExplorer/Data.hdf5</span>
