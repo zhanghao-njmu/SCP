@@ -112,6 +112,3 @@
 # save(lifemap_organ, file = "~/Git/SCP/data/lifemap_organ.rda",version = 2,compress = "xz",compression_level = 9,ascii = TRUE)
 
 NULL
-
-
-

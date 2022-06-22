@@ -3,10 +3,10 @@
 
 <!-- badges: start -->
 
+[![version](https://img.shields.io/github/r-package/v/zhanghao-njmu/SCP)](https://github.com/zhanghao-njmu/SCP)
 [![R-CMD-check](https://github.com/zhanghao-njmu/SCP/workflows/R-CMD-check/badge.svg)](https://github.com/zhanghao-njmu/SCP/actions)
 [![codecov](https://codecov.io/gh/zhanghao-njmu/SCP/branch/main/graph/badge.svg)](https://codecov.io/gh/zhanghao-njmu/SCP?branch=main)
 [![codesize](https://img.shields.io/github/languages/code-size/zhanghao-njmu/SCP.svg)](https://github.com/zhanghao-njmu/SCP)
-
 <!-- badges: end -->
 
 The SCP package provides a comprehensive set of tools for single cell
@@ -18,14 +18,17 @@ The package includes facilities for:
 -   One-stop single-cell pipeline embedded with multiple methods for
     normalization, feature reduction, cell population identification.
 -   One-stop single-cell pipeline embedded with multiple data
-    integration methods
--   Multiple single cell downstream analyses such as differential
-    feature identification, enrichment analysis, GSEA analysis, dynamic
-    feature identification, PAGA, RNA velocity, etc.
+    integration methods.
+-   Multiple single cell downstream analyses such as identification of
+    differential features, enrichment analysis, GSEA analysis,
+    identification of dynamic features,
+    [PAGA](https://github.com/theislab/paga), [RNA
+    velocity](https://github.com/theislab/scvelo), etc.
 -   Multiple methods for automatic annotation of single-cell data and
-    projection methods between single-cell datasets.
+    methods for projection between single-cell datasets.
 -   Publication-quality visualization of multiple analysis results.
--   Fast deployment of single-cell data to shiny app.
+-   Fast deployment of single-cell data to a [shiny
+    app](https://shiny.rstudio.com/).
 
 The functions in the SCP package are all developed around the [Seurat
 object](https://github.com/mojaveazure/seurat-object) and compatible
@@ -53,7 +56,7 @@ data](https://doi.org/10.1242/dev.173849).
 ``` r
 library(SCP)
 data("pancreas1k")
-ClassDimPlot(pancreas1k, c("CellType", "SubCellType"), reduction = "UMAP", ncol = 1)
+ClassDimPlot(pancreas1k, c("CellType", "SubCellType"), reduction = "UMAP")
 ```
 
 <img src="man/figures/README-library-1.png" width="100%" style="display: block; margin: auto;" />
@@ -103,7 +106,7 @@ suppressWarnings(InstallData("panc8"))
 data("panc8")
 panc8 <- Integration_SCP(panc8, batch = "tech", integration_method = "Seurat")
 ClassDimPlot(panc8, group.by = c("celltype", "tech"), reduction = "SeuratUMAP2D",
-    theme = "theme_blank", ncol = 1)
+    theme = "theme_blank")
 ```
 
 <img src="man/figures/README-Integration_SCP-1.png" width="100%" style="display: block; margin: auto;" />
@@ -194,9 +197,9 @@ ExpDotPlot(pancreas1k, genes = DEGs_top$gene, gene_groups = DEGs_top$group1, cel
 
 ``` r
 pancreas1k <- RunEnrichment(pancreas1k, group_by = "CellType", enrichment = "GO_BP",
-    species = "Mus_musculus")
+    species = "Mus_musculus", DE_threshold = "avg_log2FC > 1 & p_val_adj < 0.05")
 EnrichmentPlot(pancreas1k, group_by = "CellType", enrichment = "GO_BP", group_use = c("Ductal",
-    "Endocrine"), plot_type = "bar", ncol = 1)
+    "Endocrine"), plot_type = "bar")
 ```
 
 <img src="man/figures/README-RunEnrichment-1.png" width="100%" style="display: block; margin: auto;" />
