@@ -259,6 +259,7 @@ PrepareSCExplorer <- function(object,
   for (i in 1:length(object)) {
     nm <- names(object)[i]
     srt <- object[[nm]]
+    message("Prepare data for object: ", nm)
     if (length(Reductions(srt)) == 0) {
       stop("No reduction found in the Seurat object ", i)
     }
@@ -468,10 +469,10 @@ RunSCExplorer <- function(base_dir = "SCExplorer",
   if (!file.exists(DataFile_full) || !file.exists(MetaFile_full)) {
     stop("Please create the DataFile and MetaFile using PrepareSCExplorer function first!")
   }
-  check_R(c("shiny", "shinycssloaders", "styler"))
+  check_R(c("shiny", "shinycssloaders"))
 
   main_code <- '
-  check_R(c("shiny", "shinycssloaders", "styler"))
+  check_R(c("shiny", "shinycssloaders"))
   library(shiny)
   DataFile_full <- paste0(base_dir, "/", DataFile)
   MetaFile_full <- paste0(base_dir, "/", MetaFile)
@@ -1080,8 +1081,10 @@ RunSCExplorer <- function(base_dir = "SCExplorer",
       message("Create the SCExplorer app script: ", app_file)
       suppressWarnings(file.remove(app_file))
       file.copy(from = tempfile, to = app_file, overwrite = TRUE)
-      message("Styling the script...")
-      invisible(capture.output(styler:::style_file(app_file)))
+      if (require("styler", quietly = TRUE)) {
+        message("Styling the script...")
+        invisible(capture.output(styler:::style_file(app_file)))
+      }
     } else {
       message("app.R already exists. You may regenerate it with 'overwrite=TRUE'.")
     }

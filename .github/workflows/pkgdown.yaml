@@ -10,6 +10,8 @@ on:
   workflow_dispatch:
 
 name: pkgdown
+# env:
+#   RENV_PATHS_ROOT: ~/.local/share/renv
 
 jobs:
   pkgdown:
@@ -20,20 +22,17 @@ jobs:
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
     steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-python@v3
+        with:
+          python-version: '3.8'
 
       - name: Set up Linux swap space
         if: runner.os == 'Linux'
         uses: pierotofy/set-swap-space@v1.0
         with:
           swap-size-gb: 10
-
-      - name: Set up Windows swap space
-        if: runner.os == 'Windows'
-        uses: al-cheb/configure-pagefile-action@v1.2
-        with:
-          minimum-size: 10GB
-
-      - uses: actions/checkout@v2
 
       - name: Install system libraries
         run: |
@@ -45,14 +44,17 @@ jobs:
         with:
           use-public-rspm: true
 
-      - uses: actions/setup-python@v3
-        with:
-          python-version: '3.8'
+      # - uses: r-lib/actions/setup-renv@v2
+      #   with:
+      #     cache-version: 2
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           extra-packages: any::pkgdown, local::.
           needs: website
+
+      - name: Install Seurat data
+        run: Rscript -e "devtools::install_github('satijalab/seurat-data')"
 
       - name: Build site
         run: pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE)

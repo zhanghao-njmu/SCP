@@ -57,7 +57,6 @@ check_DataType <- function(srt, data = NULL, slot = "data", assay = DefaultAssay
 #' @importFrom Seurat SplitObject GetAssayData Assays NormalizeData FindVariableFeatures SCTransform SCTResults SelectIntegrationFeatures PrepSCTIntegration DefaultAssay DefaultAssay<- VariableFeatures VariableFeatures<-
 #' @importFrom Matrix rowSums
 #' @importFrom dplyr "%>%" arrange desc filter .data
-#' @importFrom plyr "."
 #' @importFrom utils head
 #' @export
 #'
@@ -192,7 +191,7 @@ check_srtList <- function(srtList, batch = "orig.ident",
       } else {
         VariableFeatures(srtList[[i]]) <- srtList[[i]]@assays$SCT@meta.features %>%
           arrange(desc(.data[["residual_variance"]])) %>%
-          rownames(.) %>%
+          rownames() %>%
           head(n = nHVF)
       }
     }
@@ -212,9 +211,9 @@ check_srtList <- function(srtList, batch = "orig.ident",
       HVF <- SelectIntegrationFeatures(object.list = srtList, nfeatures = nHVF, verbose = FALSE)
     }
   } else {
-    cf <- lapply(srtList, function(x) {
+    cf <- Reduce(intersect, lapply(srtList, function(x) {
       rownames(GetAssayData(x, slot = "counts"))
-    }) %>% Reduce(intersect, .)
+    }))
     HVF <- HVF[HVF %in% cf]
   }
 
@@ -381,7 +380,6 @@ RenameFeatures <- function(srt, newnames = NULL, oldnames = NULL, assays = NULL)
 #' @importFrom Seurat VariableFeatures DefaultAssay DefaultAssay<- AverageExpression Idents<-
 #' @importFrom stats hclust reorder as.dendrogram as.dist
 #' @importFrom proxyC dist simil
-#' @importFrom plyr mapvalues
 #' @export
 SrtReorder <- function(srt, features = NULL, reorder_by = NULL, slot = "data", assay = NULL, log = TRUE,
                        distance_metric = "euclidean", reorder_FUN = "mean") {
@@ -438,7 +436,7 @@ SrtReorder <- function(srt, features = NULL, reorder_by = NULL, slot = "data", a
   hc <- hclust(d = data.dist)
   dd <- as.dendrogram(hc)
   dd_ordered <- reorder(dd, wts = colMeans(data.avg[features, ]), agglo.FUN = reorder_FUN)
-  ident_new <- mapvalues(x = srt$ident, from = labels(dd_ordered), to = 1:length(labels(dd_ordered)))
+  ident_new <- unname(setNames(object = 1:length(labels(dd_ordered)), nm = labels(dd_ordered))[as.character(srt$ident)])
   ident_new <- factor(ident_new, levels = 1:length(labels(dd_ordered)))
   Idents(srt) <- srt$ident <- ident_new
   return(srt)
@@ -749,8 +747,8 @@ Uncorrected_integrate <- function(srtMerge = NULL, batch = "orig.ident", append 
   if (!liner_reduction %in% reduc_test) {
     stop("'liner_reduction' must be one of 'pca', 'ica', 'nmf', 'mds', 'glmpca'.")
   }
-  if (any(!nonliner_reduction %in% c("umap", "umap-naive", "tsne", "dm", "fdg", "isomap", "dbmap", "phate"))) {
-    stop("'nonliner_reduction' must be one of 'umap', 'tsne', 'dm', 'fdg', 'isomap', 'dbmap', 'phate'.")
+  if (any(!nonliner_reduction %in% c("umap", "umap-naive", "tsne", "dm", "fdg", "isomap", "dbmap", "phate", "edge"))) {
+    stop("'nonliner_reduction' must be one of 'umap', 'tsne', 'dm', 'fdg', 'isomap', 'dbmap', 'phate','edge','date','dca','sauice','scVI'.")
   }
   if (!cluster_algorithm %in% c("louvain", "slm", "leiden")) {
     stop("'cluster_algorithm' must be one of 'louvain', 'slm', 'leiden'.")
@@ -1461,7 +1459,6 @@ Harmony_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TR
 #' @importFrom Seurat GetAssayData ScaleData SetAssayData DefaultAssay DefaultAssay<- SplitObject CreateAssayObject CreateDimReducObject Embeddings FindNeighbors FindClusters Idents
 #' @importFrom Matrix t
 #' @importFrom dplyr "%>%"
-#' @importFrom plyr rbind.fill.matrix
 #' @importFrom reticulate import
 #' @importFrom stats sd
 #' @export
@@ -1564,9 +1561,7 @@ Scanorama_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = 
     return_dense = TRUE,
     union = FALSE
   )
-  cor_value <- integrated.corrected.data[[2]] %>%
-    rbind.fill.matrix() %>%
-    t()
+  cor_value <- t(do.call(rbind, integrated.corrected.data[[2]]))
   rownames(cor_value) <- integrated.corrected.data[[3]]
   colnames(cor_value) <- unlist(sapply(assaylist, rownames))
   dim_reduction <- integrated.corrected.data[[1]] %>% rbind.fill.matrix()
@@ -1659,7 +1654,6 @@ Scanorama_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = 
 #' @importFrom Seurat GetAssayData ScaleData SetAssayData DefaultAssay DefaultAssay<- as.Graph Embeddings FindClusters Idents VariableFeatures VariableFeatures<-
 #' @importFrom Matrix t
 #' @importFrom dplyr "%>%"
-#' @importFrom plyr rbind.fill.matrix
 #' @importFrom reticulate import
 #' @export
 BBKNN_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE, srtList = NULL,
@@ -2561,7 +2555,6 @@ LIGER_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE
 #' ClassDimPlot(pancreas1k, group.by = "CellType")
 #' @importFrom Seurat Assays GetAssayData NormalizeData SCTransform SCTResults ScaleData SetAssayData DefaultAssay DefaultAssay<- FindNeighbors FindClusters Idents VariableFeatures VariableFeatures<-
 #' @importFrom dplyr "%>%" filter arrange desc
-#' @importFrom plyr "."
 #' @importFrom Matrix rowSums
 #' @export
 Standard_SCP <- function(srt, prefix = "Standard",

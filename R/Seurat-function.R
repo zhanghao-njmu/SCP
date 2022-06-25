@@ -775,10 +775,8 @@ RunUMAP2 <- function(object, ...) {
 #' @param ...
 #'
 #' @importFrom reticulate py_module_available py_set_seed import
-#' @importFrom uwot umap_transform
-#' @importFrom future nbrOfWorkers
 #' @importFrom Seurat CreateDimReducObject Misc<- Misc
-#' @importFrom umap umap.defaults
+#' @importFrom uwot umap_transform
 #'
 #' @rdname RunUMAP2
 #' @concept dimensional_reduction
@@ -882,7 +880,7 @@ RunUMAP2.default <- function(object, dims = NULL, reduction = "pca", features = 
     uwot = {
       if (is.list(x = object)) {
         uwot::umap(
-          X = NULL, nn_method = object, n_threads = nbrOfWorkers(),
+          X = NULL, nn_method = object, n_threads = 1,
           n_components = as.integer(x = n.components),
           metric = metric, n_epochs = n.epochs, learning_rate = learning.rate,
           min_dist = min.dist, spread = spread, set_op_mix_ratio = set.op.mix.ratio,
@@ -893,7 +891,7 @@ RunUMAP2.default <- function(object, dims = NULL, reduction = "pca", features = 
         )
       } else {
         uwot::umap(
-          X = object, n_threads = nbrOfWorkers(), n_neighbors = as.integer(x = n.neighbors),
+          X = object, n_threads = 1, n_neighbors = as.integer(x = n.neighbors),
           n_components = as.integer(x = n.components),
           metric = metric, n_epochs = n.epochs, learning_rate = learning.rate,
           min_dist = min.dist, spread = spread, set_op_mix_ratio = set.op.mix.ratio,
@@ -935,18 +933,23 @@ RunUMAP2.default <- function(object, dims = NULL, reduction = "pca", features = 
         }
         umap_transform(
           X = NULL, nn_method = object, model = model,
-          n_threads = nbrOfWorkers(), n_epochs = n.epochs,
+          n_threads = 1, n_epochs = n.epochs,
           verbose = verbose
         )
       } else {
         umap_transform(
-          X = object, model = model, n_threads = nbrOfWorkers(),
+          X = object, model = model, n_threads = 1,
           n_epochs = n.epochs, verbose = verbose
         )
       }
     },
     naive = {
-      umap.config <- umap.defaults
+      if (require("umap", quietly = TRUE)) {
+      } else {
+        message("You need to install 'umap' package first.")
+        check_R("umap")
+      }
+      umap.config <- umap::umap.defaults
       umap.config$n_neighbors <- min(n.neighbors, ncol(object))
       umap.config$n_components <- min(n.components, ncol(object))
       umap.config$metric <- metric

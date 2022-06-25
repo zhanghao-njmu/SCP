@@ -19,10 +19,10 @@
     py_version <- tryCatch(suppressWarnings(reticulate:::python_version(py)),
       error = identity
     )
-    if (inherits(py_version, "error")) {
+    if (inherits(py_version, "error") || length(py_version) == 0) {
       next
     }
-    if (py_version < numeric_version("3.7.0") || py_version > numeric_version("3.10.0")) {
+    if (py_version < numeric_version("3.7.0") || py_version >= numeric_version("3.10.0")) {
       next
     }
     py_bit <- tryCatch(suppressWarnings(system2(command = py, args = " -c 'import platform; print(platform.architecture()[0])'", stdout = TRUE)),
@@ -42,7 +42,7 @@
   }
 
   if (is.null(python_path)) {
-    packageStartupMessage("Python is unavailable. Install python automatically ...")
+    packageStartupMessage("Python(3.7-3.9) is unavailable. Install python(3.8.8) automatically ...")
     git_exist <- suppressWarnings(system("git", ignore.stdout = TRUE, ignore.stderr = TRUE))
     if (git_exist == 127) {
       warning("You need to install git first! (http://git-scm.com/download/)", immediate. = TRUE)
@@ -64,7 +64,7 @@
     warning("SCP need python 3.7-3.9! Please install python and reload the SCP!", immediate. = TRUE)
     return(invisible(NULL))
   } else {
-    if (version < numeric_version("3.7.0") || version > numeric_version("3.10.0")) {
+    if (version < numeric_version("3.7.0") || version >= numeric_version("3.10.0")) {
       warning("SCP currently only support python version 3.7-3.9! The version of Python currently is ", version,
         "!\nPython related functions may not work. Please install the right version of python and reload the SCP!",
         immediate. = TRUE

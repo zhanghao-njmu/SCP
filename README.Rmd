@@ -12,7 +12,7 @@ knitr::opts_chunk$set(
   message = FALSE,
   warning = FALSE,
   fig.path = "man/figures/README-",
-  fig.height = 6,
+  fig.height = 5,
   fig.width = 10,
   fig.align = "center",
   dpi = 100,
@@ -154,7 +154,7 @@ ExpDotPlot(pancreas1k, genes = DEGs_top$gene, gene_groups = DEGs_top$group1, cel
 ### Enrichment analysis(over-representation)
 
 ```{r RunEnrichment}
-pancreas1k <- RunEnrichment(pancreas1k, group_by = "CellType", enrichment = "GO_BP", species = "Mus_musculus",DE_threshold = "avg_log2FC > 1 & p_val_adj < 0.05")
+pancreas1k <- RunEnrichment(pancreas1k, group_by = "CellType", enrichment = "GO_BP", species = "Mus_musculus", DE_threshold = "avg_log2FC > 1 & p_val_adj < 0.05")
 EnrichmentPlot(pancreas1k, group_by = "CellType", enrichment = "GO_BP", group_use = c("Ductal", "Endocrine"), plot_type = "bar")
 EnrichmentPlot(pancreas1k, group_by = "CellType", enrichment = "GO_BP", group_use = c("Ductal", "Endocrine"), plot_type = "wordcloud")
 ```

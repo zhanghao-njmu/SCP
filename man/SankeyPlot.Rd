@@ -4,7 +4,7 @@
 \alias{SankeyPlot}
 \title{SankeyPlot}
 \usage{
-SankeyPlot(source, target)
+SankeyPlot(node, edge, node_group = NULL, group_list = NULL)
 }
 \description{
 SankeyPlot

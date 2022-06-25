@@ -14,16 +14,14 @@
 #' @return A list.
 #'
 #' @examples
-#' if (interactive()) {
-#'   res <- GeneConvert(
-#'     geneID = c("CDK1", "MKI67", "TOP2A", "AURKA", "CTCF"), geneID_from_IDtype = "symbol", geneID_to_IDtype = "entrez_id",
-#'     species_from = "Homo_sapiens", species_to = "Mus_musculus", Ensembl_version = 103
-#'   )
-#'   str(res)
-#' }
+#'
+#' res <- GeneConvert(
+#'   geneID = c("CDK1", "MKI67", "TOP2A", "AURKA", "CTCF"), geneID_from_IDtype = "symbol", geneID_to_IDtype = "entrez_id",
+#'   species_from = "Homo_sapiens", species_to = "Mus_musculus", Ensembl_version = 103
+#' )
+#' str(res)
+#'
 #' @importFrom dplyr "%>%" group_by mutate .data
-#' @importFrom tidyr unnest
-#' @importFrom tidyselect all_of
 #' @importFrom reshape2 dcast melt
 #' @importFrom R.cache loadCache saveCache
 #' @importFrom biomaRt listEnsemblArchives useMart listDatasets useDataset getBM listAttributes
@@ -362,7 +360,7 @@ GeneConvert <- function(geneID, geneID_from_IDtype = "symbol", geneID_to_IDtype 
 
   geneID_expand <- geneID_collapse
   for (i in colnames(geneID_expand)[sapply(geneID_expand, class) == "list"]) {
-    geneID_expand <- unnest(data = geneID_expand, cols = all_of(i))
+    geneID_expand <- unnest(data = geneID_expand, cols = i)
   }
   geneID_expand <- as.data.frame(geneID_expand)
 
@@ -802,6 +800,10 @@ PrepareEnrichmentDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
           pathname <- dbinfo[order(dbinfo[["timestamp"]], decreasing = TRUE)[1], "file"]
         } else {
           pathname <- dbinfo[grep(db_version, dbinfo[["db_version"]], fixed = TRUE)[1], "file"]
+          if (is.na(pathname)) {
+            warning("There is no ", db_version, " version of the database. Use the latest version.", immediate. = TRUE)
+            pathname <- dbinfo[order(dbinfo[["timestamp"]], decreasing = TRUE)[1], "file"]
+          }
         }
         if (!is.na(pathname)) {
           header <- readCacheHeader(pathname)
@@ -1120,7 +1122,7 @@ PrepareEnrichmentDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
         map <- res$geneID_collapse
         for (type in IDtypes) {
           TERM2GENE[[type]] <- map[as.character(TERM2GENE[, "entrez_id"]), type]
-          TERM2GENE <- as.data.frame(tidyr::unnest(TERM2GENE, all_of(type), keep_empty = TRUE))
+          TERM2GENE <- as.data.frame(unnest(TERM2GENE, cols = type, keep_empty = TRUE))
         }
         db_list[[sps]][[term]][["TERM2GENE"]] <- TERM2GENE
         ### save cache
@@ -1260,7 +1262,7 @@ RunEnrichment <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_t
 
   input[[db_IDtype]] <- geneMap[as.character(input$geneID), db_IDtype]
   input[[result_IDtype]] <- geneMap[as.character(input$geneID), result_IDtype]
-  input <- as.data.frame(tidyr::unnest(input, all_of(c(db_IDtype, result_IDtype))))
+  input <- as.data.frame(unnest(input, cols = c(db_IDtype, result_IDtype)))
   input <- input[!is.na(input[[db_IDtype]]), ]
 
   message("Permform enrichment...")
@@ -1512,7 +1514,7 @@ RunGSEA <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_thresho
 
   input[[db_IDtype]] <- geneMap[as.character(input$geneID), db_IDtype]
   input[[result_IDtype]] <- geneMap[as.character(input$geneID), result_IDtype]
-  input <- as.data.frame(tidyr::unnest(input, all_of(c(db_IDtype, result_IDtype))))
+  input <- as.data.frame(unnest(input, cols = c(db_IDtype, result_IDtype)))
   input <- input[!is.na(input[[db_IDtype]]), ]
 
   message("Permform GSEA...")

@@ -44,7 +44,6 @@ NULL
 #'   pancreas1k <- RunKNNMap(srt_query = pancreas1k, srt_ref = panc8, ref_umap = "SeuratUMAP2D")
 #'   ProjectionPlot(srt_query = pancreas1k, srt_ref = panc8, query_group = "SubCellType", ref_group = "celltype")
 #' }
-#' @importFrom RcppParallel setThreadOptions
 #' @importFrom Seurat Reductions Embeddings FindVariableFeatures VariableFeatures GetAssayData FindNeighbors CreateDimReducObject DefaultAssay
 #' @importFrom Matrix t
 #' @export
@@ -171,7 +170,9 @@ RunKNNMap <- function(srt_query, srt_ref, ref_umap = NULL, force = FALSE,
     refumap_all <- srt_ref[[ref_umap]]@cell.embeddings[knn_cells, ]
     group <- rep(query.neighbor@cell.names, ncol(query.neighbor@nn.idx))
   } else {
-    setThreadOptions()
+    if (require("RcppParallel", quietly = TRUE)) {
+      setThreadOptions()
+    }
     if (distance_metric %in% c(simil_method, "pearson", "spearman")) {
       if (distance_metric %in% c("pearson", "spearman")) {
         if (distance_metric == "spearman") {
@@ -817,7 +818,7 @@ buildReferenceFromSeurat <- function(obj, assay = "RNA", pca = "pca", harmony = 
   message("Saved soft cluster assignments")
 
   if (assay == "RNA") {
-    vargenes_means_sds <- tibble::tibble(
+    vargenes_means_sds <- data.frame(
       symbol = obj@assays[[assay]]@var.features,
       mean = rowMeans(obj@assays[[assay]]@data[obj@assays[[assay]]@var.features, ])
     )
@@ -826,12 +827,12 @@ buildReferenceFromSeurat <- function(obj, assay = "RNA", pca = "pca", harmony = 
       row_means = vargenes_means_sds$mean
     )
   } else if (assay == "SCT") {
-    vargenes_means_sds <- tibble::tibble(
+    vargenes_means_sds <- data.frame(
       symbol = obj@assays[[assay]]@var.features,
       mean = rowMeans(obj@assays[[assay]]@scale.data[obj@assays[[assay]]@var.features, ])
     )
     asdgc <- Matrix(obj@assays[[assay]]@scale.data[obj@assays[[assay]]@var.features, ], sparse = TRUE)
-    vargenes_means_sds$stddev <- rowSDs(
+    vargenes_means_sds$stddev <- symphony::rowSDs(
       asdgc,
       vargenes_means_sds$mean
     )

@@ -2670,7 +2670,7 @@ GeomSplitViolin <- ggplot2::ggproto("GeomSplitViolin", ggplot2::GeomViolin,
   draw_group = function(self, data, ..., draw_quantiles = NULL) {
     data <- transform(data, xminv = x - violinwidth * (x - xmin), xmaxv = x + violinwidth * (xmax - x))
     grp <- data[1, "group"]
-    newdata <- plyr::arrange(transform(data, x = if (grp %% 2 == 1) xminv else xmaxv), if (grp %% 2 == 1) y else -y)
+    newdata <- dplyr::arrange(transform(data, x = if (grp %% 2 == 1) xminv else xmaxv), if (grp %% 2 == 1) y else -y)
     newdata <- rbind(newdata[1, ], newdata, newdata[nrow(newdata), ], newdata[1, ])
     newdata[c(1, nrow(newdata) - 1, nrow(newdata)), "x"] <- round(newdata[1, "x"])
 
@@ -4847,7 +4847,7 @@ PAGAPlot <- function(srt, paga = srt@misc$paga, reduction = NULL, dims = c(1, 2)
   ylab <- xlab %||% paste0(reduction_key, dims[2])
 
   out <- GraphPlot(
-    node = dat, edge = connectivities, node_coord = paste0(reduction_key, dims),
+    node = dat, edge = as.matrix(connectivities), node_coord = paste0(reduction_key, dims),
     node_group = groups, node_palette = node_palette, node_size = node_size, node_alpha = node_alpha,
     node_highlight = node_highlight, node_highlight_color = node_highlight_color,
     label = label, label.size = label.size, label.fg = label.fg, label.bg = label.bg, label.bg.r = label.bg.r,
@@ -4959,6 +4959,12 @@ GraphPlot <- function(node, edge, transition = NULL,
   if (missing(node) || missing(edge)) {
     stop("Both nodes and edges must be provided.")
   }
+  if (!is.data.frame(node)) {
+    stop("'node' must be a data.frame object.")
+  }
+  if (!is.matrix(edge)) {
+    stop("'edge' must be a matrix object.")
+  }
   if (!identical(nrow(edge), ncol(edge))) {
     stop("nrow and ncol is not identical in edge matrix")
   }
@@ -5029,7 +5035,6 @@ GraphPlot <- function(node, edge, transition = NULL,
   }
   global_size <- sqrt(max(node[["x"]], na.rm = TRUE)^2 + max(node[["y"]], na.rm = TRUE)^2)
 
-  edge <- as.matrix(edge)
   edge[edge <= edge_threshold] <- NA
   if (use_triangular == "upper") {
     edge[lower.tri(edge)] <- NA
@@ -5686,30 +5691,65 @@ VolcanoPlot <- function(srt, pvalue) {
 
 #' SankeyPlot
 #'
-#' @importFrom tibble rownames_to_column
 #' @export
-SankeyPlot <- function(source, target) {
+SankeyPlot <- function(node, edge, node_group = NULL, group_list = NULL) {
   check_R("networkD3")
-  data <- cbind(source = source, target = target) %>%
-    as.data.frame() %>%
-    table() %>%
-    as.data.frame.matrix()
-  data_long <- data %>%
-    rownames_to_column() %>%
-    tidyr::gather(key = "key", value = "value", -.data[["rowname"]]) %>%
-    filter(.data[["value"]] > 0)
-  colnames(data_long) <- c("source", "target", "value")
 
-  nodes <- data.frame(name = c(as.character(data_long$source), as.character(data_long$target)) %>% unique())
-  data_long$IDsource <- match(data_long$source, nodes$name) - 1
-  data_long$IDtarget <- match(data_long$target, nodes$name) - 1
+  if (is.null(group_list)) {
+    if (!is.data.frame(node)) {
+      stop("'node' must be a data.frame object.")
+    }
+    if (!is.matrix(edge)) {
+      stop("'edge' must be a matrix object.")
+    }
+    if (!identical(nrow(edge), ncol(edge))) {
+      stop("nrow and ncol is not identical in edge matrix")
+    }
+    if (!identical(nrow(edge), nrow(node))) {
+      stop("nrow is not identical between edge and node.")
+    }
+    if (!identical(rownames(edge), rownames(node))) {
+      warning("rownames of node is not identical with edge matrix. They will correspond according to the order.")
+      colnames(edge) <- rownames(edge) <- rownames(node) <- rownames(node) %||% colnames(edge) %||% rownames(edge)
+    }
+    node[["name"]] <- node[[node_group]]
+    edge_df <- reshape2::melt(edge, na.rm = TRUE, stringsAsFactors = FALSE)
+    colnames(edge_df) <- c("from", "to", "size")
+    edge_df[["from"]] <- match(edge_df[["from"]], node[["name"]]) - 1
+    edge_df[["to"]] <- match(edge_df[["to"]], node[["name"]]) - 1
+    edge_df <- edge_df[edge_df[["size"]] > 0, ]
+    edge_df <- aggregate(size ~ from + to, data = edge_df, sum)
+  } else {
+    if (length(unique(unlist(lapply(group_list, length)))) != 1) {
+      stop("Elements in the group_list must be the same length.")
+    }
+    group_list <- lapply(group_list, as.factor)
+    all_levels <- unique(unlist(lapply(group_list, levels)))
+    group_list <- lapply(group_list, as.character)
+    edge_df <- do.call(cbind.data.frame, group_list)
+    if (ncol(edge_df) >= 3) {
+      edge_df_raw <- edge_df
+      edge_df <- edge_df_raw[, 1:2]
+      for (i in 3:ncol(edge_df_raw)) {
+        edge_df <- rbind(edge_df, edge_df_raw[, c(i - 1, i)])
+      }
+    }
+    colnames(edge_df) <- c("from", "to")
+    node <- data.frame(name = unique(unlist(group_list)))
+    node[["name"]] <- factor(node[["name"]], all_levels)
+    edge_df[["from"]] <- match(edge_df[["from"]], node[["name"]]) - 1
+    edge_df[["to"]] <- match(edge_df[["to"]], node[["name"]]) - 1
+    edge_df[["size"]] <- 1
+    edge_df <- aggregate(size ~ from + to, data = edge_df, sum)
+  }
 
   p <- networkD3::sankeyNetwork(
-    Links = data_long, Nodes = nodes,
-    Source = "IDsource", Target = "IDtarget",
-    Value = "value", NodeID = "name",
+    Links = edge_df, Nodes = node,
+    Source = "from", Target = "to",
+    Value = "size", NodeID = "name",
     sinksRight = FALSE, nodeWidth = 40, fontSize = 15, nodePadding = 20
   )
+
   return(p)
 }
 
@@ -7068,9 +7108,7 @@ ProjectionPlot <- function(srt_query, srt_ref,
 #' @importFrom ggplot2 ggplot geom_bar geom_text labs scale_fill_manual scale_y_continuous facet_grid coord_flip scale_color_gradientn scale_fill_gradientn scale_size guides geom_segment expansion guide_colorbar
 #' @importFrom scales breaks_extended
 #' @importFrom dplyr group_by filter arrange desc across all_of mutate group_by summarise distinct top_n n .data
-#' @importFrom tidyr unnest
 #' @importFrom stringr str_extract str_wrap str_split
-#' @importFrom tidyselect all_of
 #' @importFrom stats formula
 #' @export
 #'
@@ -7228,7 +7266,7 @@ EnrichmentPlot <- function(srt, group_by = NULL, test.use = "wilcox",
     plist <- lapply(df_list, function(df) {
       df <- df %>%
         mutate(geneID = strsplit(as.character(.data[["geneID"]]), "/")) %>%
-        unnest(.data[["geneID"]]) %>%
+        unnest("geneID") %>%
         group_by(.data[["geneID"]], Enrichment, Groups) %>%
         summarise(
           geneID = .data[["geneID"]],

@@ -207,3 +207,32 @@ col2hex <- function(cname) {
   colMat <- col2rgb(cname)
   rgb(red = colMat[1, ] / 255, green = colMat[2, ] / 255, blue = colMat[3, ] / 255)
 }
+
+unnest <- function(data, cols, keep_empty = FALSE) {
+  if (nrow(data) == 0 || length(cols) == 0) {
+    return(data)
+  }
+  for (col in cols) {
+    df_list <- list()
+    for (i in 1:nrow(data)) {
+      x <- data[i, , drop = FALSE]
+      add <- data[[col]][[i]]
+      if (length(add) == 0) {
+        if (isTRUE(keep_empty)) {
+          x <- x[1, !colnames(x) %in% col]
+          x[[col]] <- NA
+          df_list[[i]] <- x
+        } else {
+          df_list[[i]] <- list(NULL)
+        }
+      } else {
+        x <- x[rep(1, length(add)), !colnames(x) %in% col]
+        x[[col]] <- add
+        df_list[[i]] <- x
+      }
+    }
+    data <- do.call(rbind.data.frame, df_list)
+  }
+  rownames(data) <- NULL
+  return(data)
+}

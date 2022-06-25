@@ -394,7 +394,9 @@ RunKNNPredict <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
     match_k_distance <- query.neighbor@nn.dist
     rownames(match_k_distance) <- rownames(query)
   } else {
-    RcppParallel::setThreadOptions()
+    if (require("RcppParallel", quietly = TRUE)) {
+      setThreadOptions()
+    }
     if (distance_metric %in% c(simil_method, "pearson", "spearman")) {
       if (distance_metric %in% c("pearson", "spearman")) {
         if (distance_metric == "spearman") {
