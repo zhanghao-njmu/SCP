@@ -1,234 +1,234 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>/404.html</loc>
+    <loc>https://zhanghao-njmu.github.io/SCP/404.html</loc>
   </url>
   <url>
-    <loc>/LICENSE-text.html</loc>
+    <loc>https://zhanghao-njmu.github.io/SCP/LICENSE-text.html</loc>
   </url>
   <url>
-    <loc>/authors.html</loc>
+    <loc>https://zhanghao-njmu.github.io/SCP/authors.html</loc>
   </url>
   <url>
-    <loc>/index.html</loc>
+    <loc>https://zhanghao-njmu.github.io/SCP/index.html</loc>
   </url>
   <url>
-    <loc>/reference/CC_GenePrefetch.html</loc>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/CC_GenePrefetch.html</loc>
   </url>
   <url>
-    <loc>/reference/CellScoring.html</loc>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/CellScoring.html</loc>
   </url>
   <url>
-    <loc>/reference/ClassDimPlot.html</loc>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/ClassDimPlot.html</loc>
   </url>
   <url>
-    <loc>/reference/ClassDimPlot3D.html</loc>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/ClassDimPlot3D.html</loc>
   </url>
   <url>
-    <loc>/reference/ClassStatPlot.html</loc>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/ClassStatPlot.html</loc>
   </url>
   <url>
-    <loc>/reference/CreateDataFile.html</loc>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/CreateDataFile.html</loc>
   </url>
   <url>
-    <loc>/reference/CreateMetaFile.html</loc>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/CreateMetaFile.html</loc>
   </url>
   <url>
-    <loc>/reference/DefaultReduction.html</loc>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/DefaultReduction.html</loc>
   </url>
   <url>
-    <loc>/reference/DynamicHeatmap.html</loc>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/DynamicHeatmap.html</loc>
   </url>
   <url>
-    <loc>/reference/DynamicPlot.html</loc>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/DynamicPlot.html</loc>
   </url>
   <url>
-    <loc>/reference/EnrichmentPlot.html</loc>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/EnrichmentPlot.html</loc>
   </url>
   <url>
-    <loc>/reference/ExpCorPlot.html</loc>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/ExpCorPlot.html</loc>
   </url>
   <url>
-    <loc>/reference/ExpDimPlot.html</loc>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/ExpDimPlot.html</loc>
   </url>
   <url>
-    <loc>/reference/ExpDimPlot3D.html</loc>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/ExpDimPlot3D.html</loc>
   </url>
   <url>
-    <loc>/reference/ExpDotPlot.html</loc>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/ExpDotPlot.html</loc>
   </url>
   <url>
-    <loc>/reference/ExpHeatmapPlot.html</loc>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/ExpHeatmapPlot.html</loc>
   </url>
   <url>
-    <loc>/reference/ExpVlnPlot.html</loc>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/ExpVlnPlot.html</loc>
   </url>
   <url>
-    <loc>/reference/FetchH5.html</loc>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/FetchH5.html</loc>
   </url>
   <url>
-    <loc>/reference/GSEAPlot.html</loc>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/GSEAPlot.html</loc>
   </url>
   <url>
-    <loc>/reference/GeneConvert.html</loc>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/GeneConvert.html</loc>
   </url>
   <url>
-    <loc>/reference/Integration_SCP.html</loc>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/Integration_SCP.html</loc>
   </url>
   <url>
-    <loc>/reference/LineagePlot.html</loc>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/LineagePlot.html</loc>
   </url>
   <url>
-    <loc>/reference/ListEnrichmentDB.html</loc>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/ListEnrichmentDB.html</loc>
   </url>
   <url>
-    <loc>/reference/PAGAPlot.html</loc>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/PAGAPlot.html</loc>
   </url>
   <url>
-    <loc>/reference/PrepareEnrichmentDB.html</loc>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/PrepareEnrichmentDB.html</loc>
   </url>
   <url>
-    <loc>/reference/PrepareSCExplorer.html</loc>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/PrepareSCExplorer.html</loc>
   </url>
   <url>
-    <loc>/reference/ProjectionPlot.html</loc>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/ProjectionPlot.html</loc>
   </url>
   <url>
-    <loc>/reference/RunCSSMap.html</loc>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/RunCSSMap.html</loc>
   </url>
   <url>
-    <loc>/reference/RunCellQC.html</loc>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/RunCellQC.html</loc>
   </url>
   <url>
-    <loc>/reference/RunDEtest.html</loc>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/RunDEtest.html</loc>
   </url>
   <url>
-    <loc>/reference/RunDM.html</loc>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/RunDM.html</loc>
   </url>
   <url>
-    <loc>/reference/RunDoubletCalling.html</loc>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/RunDoubletCalling.html</loc>
   </url>
   <url>
-    <loc>/reference/RunDynamicEnrichment.html</loc>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/RunDynamicEnrichment.html</loc>
   </url>
   <url>
-    <loc>/reference/RunDynamicFeatures.html</loc>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/RunDynamicFeatures.html</loc>
   </url>
   <url>
-    <loc>/reference/RunEnrichment.html</loc>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/RunEnrichment.html</loc>
   </url>
   <url>
-    <loc>/reference/RunGSEA.html</loc>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/RunGSEA.html</loc>
   </url>
   <url>
-    <loc>/reference/RunHarmony2.html</loc>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/RunHarmony2.html</loc>
   </url>
   <url>
-    <loc>/reference/RunKNNMap.html</loc>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/RunKNNMap.html</loc>
   </url>
   <url>
-    <loc>/reference/RunKNNPredict.html</loc>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/RunKNNPredict.html</loc>
   </url>
   <url>
-    <loc>/reference/RunMDS.html</loc>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/RunMDS.html</loc>
   </url>
   <url>
-    <loc>/reference/RunNMF.html</loc>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/RunNMF.html</loc>
   </url>
   <url>
-    <loc>/reference/RunPAGA.html</loc>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/RunPAGA.html</loc>
   </url>
   <url>
-    <loc>/reference/RunPCAMap.html</loc>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/RunPCAMap.html</loc>
   </url>
   <url>
-    <loc>/reference/RunPalantir.html</loc>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/RunPalantir.html</loc>
   </url>
   <url>
-    <loc>/reference/RunSCExplorer.html</loc>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/RunSCExplorer.html</loc>
   </url>
   <url>
-    <loc>/reference/RunSCVELO.html</loc>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/RunSCVELO.html</loc>
   </url>
   <url>
-    <loc>/reference/RunScmap.html</loc>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/RunScmap.html</loc>
   </url>
   <url>
-    <loc>/reference/RunSeuratMap.html</loc>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/RunSeuratMap.html</loc>
   </url>
   <url>
-    <loc>/reference/RunSingleR.html</loc>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/RunSingleR.html</loc>
   </url>
   <url>
-    <loc>/reference/RunSlingshot.html</loc>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/RunSlingshot.html</loc>
   </url>
   <url>
-    <loc>/reference/RunSymphonyMap.html</loc>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/RunSymphonyMap.html</loc>
   </url>
   <url>
-    <loc>/reference/RunUMAP2.html</loc>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/RunUMAP2.html</loc>
   </url>
   <url>
-    <loc>/reference/SankeyPlot.html</loc>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/SankeyPlot.html</loc>
   </url>
   <url>
-    <loc>/reference/Standard_SCP.html</loc>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/Standard_SCP.html</loc>
   </url>
   <url>
-    <loc>/reference/SummaryPlot.html</loc>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/SummaryPlot.html</loc>
   </url>
   <url>
-    <loc>/reference/VelocityPlot.html</loc>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/VelocityPlot.html</loc>
   </url>
   <url>
-    <loc>/reference/adata_to_srt.html</loc>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/adata_to_srt.html</loc>
   </url>
   <url>
-    <loc>/reference/check_Python.html</loc>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/check_Python.html</loc>
   </url>
   <url>
-    <loc>/reference/check_R.html</loc>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/check_R.html</loc>
   </url>
   <url>
-    <loc>/reference/compute_velocity_on_grid.html</loc>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/compute_velocity_on_grid.html</loc>
   </url>
   <url>
-    <loc>/reference/db_DoubletDetection.html</loc>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/db_DoubletDetection.html</loc>
   </url>
   <url>
-    <loc>/reference/db_Scrublet.html</loc>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/db_Scrublet.html</loc>
   </url>
   <url>
-    <loc>/reference/db_scDblFinder.html</loc>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/db_scDblFinder.html</loc>
   </url>
   <url>
-    <loc>/reference/db_scds.html</loc>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/db_scds.html</loc>
   </url>
   <url>
-    <loc>/reference/index.html</loc>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/index.html</loc>
   </url>
   <url>
-    <loc>/reference/isOutlier.html</loc>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/isOutlier.html</loc>
   </url>
   <url>
-    <loc>/reference/palette_scp.html</loc>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/palette_scp.html</loc>
   </url>
   <url>
-    <loc>/reference/panel_fix.html</loc>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/panel_fix.html</loc>
   </url>
   <url>
-    <loc>/reference/panel_fix_single.html</loc>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/panel_fix_single.html</loc>
   </url>
   <url>
-    <loc>/reference/segementsDf.html</loc>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/segementsDf.html</loc>
   </url>
   <url>
-    <loc>/reference/srt_to_adata.html</loc>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/srt_to_adata.html</loc>
   </url>
   <url>
-    <loc>/reference/theme_blank.html</loc>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/theme_blank.html</loc>
   </url>
   <url>
-    <loc>/reference/theme_scp.html</loc>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/theme_scp.html</loc>
   </url>
 </urlset>
