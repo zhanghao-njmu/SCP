@@ -11,7 +11,7 @@ ClassDimPlot3D(
   dims = c(1, 2, 3),
   axis_labs = NULL,
   palette = "Paired",
-  pal_color = NULL,
+  palcolor = NULL,
   bg_color = "grey80",
   pt.size = 1.5,
   cells.highlight = NULL,

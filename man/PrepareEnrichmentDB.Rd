@@ -31,7 +31,5 @@ A list containing the database.
 Prepare the database for enrichment analysis
 }
 \examples{
-if (interactive()) {
-  db_list <- PrepareEnrichmentDB(species = c("Homo_sapiens", "Mus_musculus"))
-}
+db_list <- PrepareEnrichmentDB(species = "Homo_sapiens", enrichment = "GO_BP")
 }

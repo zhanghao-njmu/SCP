@@ -13,10 +13,8 @@ db_Scrublet(srt, assay = "RNA", db_rate = ncol(srt)/1000 * 0.01, ...)
 Run doublet-calling with Scrublet
 }
 \examples{
-if (interactive()) {
-  data("pancreas1k")
-  pancreas1k <- db_Scrublet(pancreas1k)
-  ClassDimPlot(pancreas1k, reduction = "umap", group.by = "db.Scrublet_class")
-  ExpDimPlot(pancreas1k, reduction = "umap", features = "db.Scrublet_score")
-}
+data("pancreas1k")
+pancreas1k <- db_Scrublet(pancreas1k)
+ClassDimPlot(pancreas1k, reduction = "umap", group.by = "db.Scrublet_class")
+ExpDimPlot(pancreas1k, reduction = "umap", features = "db.Scrublet_score")
 }

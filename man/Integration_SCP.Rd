@@ -96,21 +96,20 @@ A \code{Seurat} object containing the result.
 Single cell pipeline for the integration of multiple datasets.
 }
 \examples{
-if (interactive()) {
-  if (!require("SeuratData", quietly = TRUE)) {
-    devtools::install_github("zhanghao-njmu/seurat-data")
-  }
-  library(SeuratData)
-  library(cowplot)
-  suppressWarnings(InstallData("panc8"))
-  data("panc8")
-  plist <- list()
-  for (method in c("Uncorrected", "Seurat", "fastMNN", "Harmony", "Scanorama", "BBKNN", "CSS", "LIGER")) {
-    panc8 <- Integration_SCP(panc8, batch = "tech", integration_method = method)
-    p <- ClassDimPlot(panc8, group.by = c("tech", "celltype"), theme_use = "theme_blank")
-    plist[[method]] <- p
-    print(p)
-  }
-  p_all <- plot_grid(plotlist = plist, labels = names(plist))
+if (!require("SeuratData", quietly = TRUE)) {
+  devtools::install_github("zhanghao-njmu/seurat-data")
 }
+library(SeuratData)
+library(cowplot)
+suppressWarnings(InstallData("panc8"))
+data("panc8")
+cell_sub <- unlist(lapply(split(colnames(panc8), panc8$tech), function(x) sample(x, size = 500)))
+panc8 <- subset(panc8, cells = cell_sub)
+plist <- list()
+for (method in c("Uncorrected", "Seurat", "fastMNN", "Harmony", "Scanorama", "BBKNN", "CSS", "LIGER")) {
+  panc8 <- Integration_SCP(panc8, batch = "tech", integration_method = method)
+  plist[[method]] <- ClassDimPlot(panc8, group.by = c("tech", "celltype"), theme_use = "theme_blank")
+  print(plist[[method]])
+}
+p_all <- plot_grid(plotlist = plist, labels = names(plist))
 }

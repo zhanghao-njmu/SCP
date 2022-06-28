@@ -7,6 +7,7 @@
 panel_fix_single(
   x,
   panel_index = NULL,
+  respect = NULL,
   width = NULL,
   height = NULL,
   margin = 0.5,

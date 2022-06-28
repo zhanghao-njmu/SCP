@@ -220,13 +220,15 @@
     },
     "ComplexHeatmap": {
       "Package": "ComplexHeatmap",
-      "Version": "2.12.0",
-      "Source": "Bioconductor",
-      "git_url": "https://git.bioconductor.org/packages/ComplexHeatmap",
-      "git_branch": "RELEASE_3_15",
-      "git_last_commit": "8a5f060",
-      "git_last_commit_date": "2022-04-26",
-      "Hash": "dfc85f03afca224993b96d7b87577153",
+      "Version": "2.13.1",
+      "Source": "GitHub",
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteRepo": "ComplexHeatmap",
+      "RemoteUsername": "jokergoo",
+      "RemoteRef": "HEAD",
+      "RemoteSha": "5cefa674e04ca17a6d35f2669f57e991e1306025",
+      "Hash": "e059031beeb843a059f5ca48a8ade7e8",
       "Requirements": [
         "GetoptLong",
         "GlobalOptions",
@@ -636,6 +638,14 @@
         "e1071",
         "tkWidgets"
       ]
+    },
+    "NLP": {
+      "Package": "NLP",
+      "Version": "0.2-1",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "94b0a21c13933f61cf6272a192964624",
+      "Requirements": []
     },
     "NMF": {
       "Package": "NMF",
@@ -4161,9 +4171,9 @@
     },
     "reactome.db": {
       "Package": "reactome.db",
-      "Version": "1.79.0",
+      "Version": "1.81.0",
       "Source": "Bioconductor",
-      "Hash": "c49af5007e0eae86f4f70bc14546f808",
+      "Hash": "788808715f5a69a5266f036e395935ce",
       "Requirements": [
         "AnnotationDbi"
       ]
@@ -4958,6 +4968,35 @@
         "shiny"
       ]
     },
+    "simplifyEnrichment": {
+      "Package": "simplifyEnrichment",
+      "Version": "1.6.1",
+      "Source": "Bioconductor",
+      "git_url": "https://git.bioconductor.org/packages/simplifyEnrichment",
+      "git_branch": "RELEASE_3_15",
+      "git_last_commit": "42b964d",
+      "git_last_commit_date": "2022-06-11",
+      "Hash": "dc3c8d0c62aaa832617cbd83e46303f9",
+      "Requirements": [
+        "AnnotationDbi",
+        "BiocGenerics",
+        "ComplexHeatmap",
+        "GO.db",
+        "GOSemSim",
+        "GetoptLong",
+        "GlobalOptions",
+        "Matrix",
+        "circlize",
+        "clue",
+        "cluster",
+        "colorspace",
+        "digest",
+        "org.Hs.eg.db",
+        "proxyC",
+        "slam",
+        "tm"
+      ]
+    },
     "simspec": {
       "Package": "simspec",
       "Version": "0.0.0.9000",
@@ -5467,6 +5506,20 @@
       "Requirements": [
         "DynDoc",
         "widgetTools"
+      ]
+    },
+    "tm": {
+      "Package": "tm",
+      "Version": "0.7-8",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "608413cbdf64d418b6a33e6c3d4d3b25",
+      "Requirements": [
+        "BH",
+        "NLP",
+        "Rcpp",
+        "slam",
+        "xml2"
       ]
     },
     "treeio": {

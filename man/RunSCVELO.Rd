@@ -49,7 +49,7 @@ RunSCVELO(
 \arguments{
 \item{srt}{A \code{Seurat} object.}
 
-\item{adata}{An \code{anndata} object. Generally created through \code{\link{srt_to_adata}}}
+\item{adata}{An \code{anndata} object. Can be created through \code{\link{srt_to_adata}}}
 
 \item{h5ad}{h5ad file path.}
 

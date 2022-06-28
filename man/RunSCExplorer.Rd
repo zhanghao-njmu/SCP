@@ -24,15 +24,15 @@ RunSCExplorer(
   initial_size = 4,
   initial_ncol = 3,
   initial_arrange = "Row",
-  initial_panel_dpi = 300,
   initial_plot_dpi = 100,
-  run_explorer = TRUE,
   create_script = TRUE,
-  overwrite = FALSE
+  style_script = require("styler", quietly = TRUE),
+  overwrite = FALSE,
+  return_app = TRUE
 )
 }
 \arguments{
-\item{overwrite}{}
+\item{return_app}{}
 }
 \description{
 RunSCExplorer
@@ -42,8 +42,11 @@ data("pancreas1k")
 pancreas1k <- Standard_SCP(pancreas1k)
 PrepareSCExplorer(pancreas1k, base_dir = "./SCExplorer")
 
-# Create the app.R script and run.
+# Create the app.R script
+app <- RunSCExplorer(base_dir = "./SCExplorer", return_app = TRUE)
+
+# Run shiny app
 if (interactive()) {
-  RunSCExplorer(base_dir = "./SCExplorer")
+  shiny::runApp(app)
 }
 }

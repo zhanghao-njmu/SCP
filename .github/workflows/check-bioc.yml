@@ -159,7 +159,7 @@ jobs:
 
           brew install openssl
 
-          brew install gcc
+          pip3 install git+https://github.com/sutao/annoy.git@master
 
       - name: Install Windows system dependencies
         if: runner.os == 'Windows'

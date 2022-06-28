@@ -325,11 +325,11 @@ RunMDS.default <- function(object,
   }
   if (mds.method == "isoMDS") {
     check_R("MASS")
-    mds.results2 <- MASS::isoMDS(cell.dist, k = nmds)
+    mds.results <- MASS::isoMDS(cell.dist, k = nmds)
   }
   if (mds.method == "sammon") {
     check_R("MASS")
-    mds.results3 <- MASS::sammon(cell.dist, k = nmds)
+    mds.results <- MASS::sammon(cell.dist, k = nmds)
   }
   cell.embeddings <- mds.results$points
 
@@ -781,6 +781,7 @@ RunUMAP2 <- function(object, ...) {
 #' @rdname RunUMAP2
 #' @concept dimensional_reduction
 #' @method RunUMAP2 default
+#' @importFrom SeuratObject Indices Distances
 #' @export
 #'
 RunUMAP2.default <- function(object, dims = NULL, reduction = "pca", features = NULL,
@@ -977,7 +978,7 @@ RunUMAP2.default <- function(object, dims = NULL, reduction = "pca", features = 
     }
   }
 
-  colnames(x = umap.output) <- paste0(reduction.key, 1:ncol(x = umap.output))
+  colnames(x = umap.output) <- paste0(reduction.key, seq_len(ncol(x = umap.output)))
   if (inherits(x = object, what = "dist") && !is.null(attr(x = object, "Labels"))) {
     rownames(x = umap.output) <- attr(x = object, "Labels")
   } else if (is.list(x = object)) {
@@ -1350,13 +1351,13 @@ RunHarmony2.Seurat <- function(object,
                                ...) {
   if (reduction == "pca") {
     tryCatch(
-      embedding <- Embeddings(object, reduction = "pca"),
+      embedding = Embeddings(object, reduction = "pca"),
       error = function(e) {
         if (verbose) {
           message("Harmony needs PCA. Trying to run PCA now.")
         }
         tryCatch(
-          object <- Seurat::RunPCA(
+          object = Seurat::RunPCA(
             object,
             assay = assay.use, verbose = verbose
           ),

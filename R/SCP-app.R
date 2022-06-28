@@ -11,6 +11,7 @@
 #'
 #' @importFrom HDF5Array writeTENxMatrix
 #' @importFrom Seurat GetAssayData
+#' @importFrom rhdf5 h5createFile h5delete h5createGroup h5write
 #' @export
 CreateDataFile <- function(srt, DataFile, name = NULL, assays = "RNA", slots = "data", compression_level = 0, overwrite = FALSE) {
   if (missing(DataFile) || is.null(DataFile)) {
@@ -256,7 +257,7 @@ PrepareSCExplorer <- function(object,
     message("Set the project name of each seurat object in the list to their dataset name")
   }
 
-  for (i in 1:length(object)) {
+  for (i in seq_along(object)) {
     nm <- names(object)[i]
     srt <- object[[nm]]
     message("Prepare data for object: ", nm)
@@ -366,9 +367,9 @@ FetchH5 <- function(DataFile, MetaFile, name = NULL,
   }
 
   if (length(gene_features) > 0) {
-    srt_tmp <- CreateSeuratObject(counts = as(t(data[, gene_features, drop = F]), "dgCMatrix"))
+    srt_tmp <- CreateSeuratObject(counts = as(t(data[, gene_features, drop = FALSE]), "matrix")) # sparseMatrix
   } else {
-    srt_tmp <- CreateSeuratObject(counts = sparseMatrix(i = integer(0), j = integer(0), dims = c(1, length(all_cells)), dimnames = list("empty", all_cells)))
+    srt_tmp <- CreateSeuratObject(counts = matrix(data = 0, ncol = length(all_cells), dimnames = list("empty", all_cells)))
   }
 
   if (length(c(metanames, meta_features)) > 0) {
@@ -378,7 +379,7 @@ FetchH5 <- function(DataFile, MetaFile, name = NULL,
       if ("levels" %in% names(meta_attr)) {
         meta <- factor(meta, levels = meta_attr$levels)
       }
-      srt_tmp[[i]] <- meta
+      srt_tmp@meta.data[, i] <- meta
     }
   }
 
@@ -391,8 +392,8 @@ FetchH5 <- function(DataFile, MetaFile, name = NULL,
       reduction <- as.matrix(h5read(MetaFile, name = paste0(name, "/reductions/", i)))
       reduction_attr <- h5readAttributes(MetaFile, name = paste0(name, "/reductions/", i))
       rownames(reduction) <- all_cells
-      colnames(reduction) <- paste0(as.character(reduction_attr$key), 1:ncol(reduction))
-      srt_tmp[[i]] <- CreateDimReducObject(
+      colnames(reduction) <- paste0(as.character(reduction_attr$key), seq_len(ncol(reduction)))
+      srt_tmp@reductions[[i]] <- CreateDimReducObject(
         embeddings = reduction,
         key = as.character(reduction_attr$key),
         assay = assay %||% "RNA"
@@ -425,19 +426,24 @@ FetchH5 <- function(DataFile, MetaFile, name = NULL,
 #' @param initial_arrange
 #' @param initial_panel_dpi
 #' @param initial_plot_dpi
-#' @param run_explorer
 #' @param create_script
+#' @param style_script
 #' @param overwrite
+#' @param return_app
 #'
 #' @examples
 #' data("pancreas1k")
 #' pancreas1k <- Standard_SCP(pancreas1k)
 #' PrepareSCExplorer(pancreas1k, base_dir = "./SCExplorer")
 #'
-#' # Create the app.R script and run.
+#' # Create the app.R script
+#' app <- RunSCExplorer(base_dir = "./SCExplorer", return_app = TRUE)
+#'
+#' # Run shiny app
 #' if (interactive()) {
-#'   RunSCExplorer(base_dir = "./SCExplorer")
+#'   shiny::runApp(app)
 #' }
+#' @importFrom shiny shinyAppDir
 #' @export
 RunSCExplorer <- function(base_dir = "SCExplorer",
                           DataFile = "Data.hdf5",
@@ -458,12 +464,12 @@ RunSCExplorer <- function(base_dir = "SCExplorer",
                           initial_size = 4,
                           initial_ncol = 3,
                           initial_arrange = "Row",
-                          initial_panel_dpi = 300,
                           initial_plot_dpi = 100,
-                          run_explorer = TRUE,
                           create_script = TRUE,
-                          overwrite = FALSE) {
-  base_dir <- R.utils::getAbsolutePath(base_dir)
+                          style_script = require("styler", quietly = TRUE),
+                          overwrite = FALSE,
+                          return_app = TRUE) {
+  base_dir <- normalizePath(base_dir)
   DataFile_full <- paste0(base_dir, "/", DataFile)
   MetaFile_full <- paste0(base_dir, "/", MetaFile)
   if (!file.exists(DataFile_full) || !file.exists(MetaFile_full)) {
@@ -540,19 +546,19 @@ RunSCExplorer <- function(base_dir = "SCExplorer",
     label = ifelse(initial_label == "Yes", TRUE, FALSE), palette = initial_palette1, theme_use = initial_theme1,
     ncol = initial_ncol, byrow = ifelse(initial_arrange == "Row", TRUE, FALSE), force = TRUE
   )
-  initial_p1_dim <- panel_fix(initial_p1_dim, height = initial_size, raster = TRUE, dpi = initial_panel_dpi, verbose = FALSE)
+  initial_p1_dim <- panel_fix(initial_p1_dim, height = initial_size, raster = FALSE, verbose = FALSE)
   initial_p2_dim <- ExpDimPlot(
     srt = initial_srt_tmp, features = initial_feature, reduction = initial_reduction, slot = "data",
     calculate_coexp = ifelse(initial_coExp == "Yes", TRUE, FALSE), palette = initial_palette2, theme_use = initial_theme2,
     ncol = initial_ncol, byrow = ifelse(initial_arrange == "Row", TRUE, FALSE)
   )
-  initial_p2_dim <- panel_fix(initial_p2_dim, height = initial_size, raster = TRUE, dpi = initial_panel_dpi, verbose = FALSE)
+  initial_p2_dim <- panel_fix(initial_p2_dim, height = initial_size, raster = FALSE, verbose = FALSE)
   initial_p2_vln <- ExpVlnPlot(
     srt = initial_srt_tmp, features = initial_feature, group.by = initial_metaname,
     calculate_coexp = ifelse(initial_coExp == "Yes", TRUE, FALSE), palette = initial_palette2,
     ncol = initial_ncol, byrow = ifelse(initial_arrange == "Row", TRUE, FALSE), force = TRUE
   )
-  initial_p2_vln <- panel_fix(initial_p2_vln, height = initial_size, raster = TRUE, dpi = initial_panel_dpi, verbose = FALSE)
+  initial_p2_vln <- panel_fix(initial_p2_vln, height = initial_size, raster = FALSE, verbose = FALSE)
 
   initial_plot3d <- max(sapply(names(initial_srt_tmp@reductions), function(r) dim(initial_srt_tmp[[r]])[2])) >= 3
   if (isTRUE(initial_plot3d)) {
@@ -568,6 +574,7 @@ RunSCExplorer <- function(base_dir = "SCExplorer",
     initial_p1_3d <- initial_p2_3d <- NULL
   }
 
+  palette_list <- SCP:::palette_list
   # ui ----------------------------------------------------------------------
   ui <- fluidPage(
     navbarPage(
@@ -626,15 +633,6 @@ RunSCExplorer <- function(base_dir = "SCExplorer",
             min = 1,
             max = 10,
             step = 0.1,
-            width = "150px"
-          ),
-          numericInput(
-            inputId = "panel_dpi1",
-            label = "Resolution of the panel",
-            value = initial_panel_dpi,
-            min = 50,
-            max = 1000,
-            step = 50,
             width = "150px"
           ),
           numericInput(
@@ -773,15 +771,6 @@ RunSCExplorer <- function(base_dir = "SCExplorer",
             min = 1,
             max = 10,
             step = 0.1,
-            width = "150px"
-          ),
-          numericInput(
-            inputId = "panel_dpi2",
-            label = "Resolution of the panel",
-            value = initial_panel_dpi,
-            min = 50,
-            max = 1000,
-            step = 50,
             width = "150px"
           ),
           numericInput(
@@ -951,7 +940,7 @@ RunSCExplorer <- function(base_dir = "SCExplorer",
         label = ifelse(input$label1 == "Yes", TRUE, FALSE), palette = input$palette1, theme_use = input$theme1,
         ncol = input$ncol1, byrow = ifelse(input$arrange1 == "Row", TRUE, FALSE), force = TRUE
       )
-      p1_dim <- panel_fix(p1_dim, height = input$size1, raster = TRUE, dpi = input$panel_dpi1, verbose = FALSE)
+      p1_dim <- panel_fix(p1_dim, height = input$size1, raster = FALSE, verbose = FALSE)
 
       output$plot1 <- renderPlot(
         {
@@ -1017,8 +1006,7 @@ RunSCExplorer <- function(base_dir = "SCExplorer",
         calculate_coexp = ifelse(input$coExp2 == "Yes", TRUE, FALSE), palette = input$palette2, theme_use = input$theme2,
         ncol = input$ncol2, byrow = ifelse(input$arrange2 == "Row", TRUE, FALSE)
       )
-      print(p2_dim)
-      p2_dim <- panel_fix(p2_dim, height = input$size2, raster = TRUE, dpi = input$panel_dpi2, verbose = FALSE)
+      p2_dim <- panel_fix(p2_dim, height = input$size2, raster = FALSE, verbose = FALSE)
 
       output$plot2 <- renderPlot(
         {
@@ -1034,7 +1022,7 @@ RunSCExplorer <- function(base_dir = "SCExplorer",
         calculate_coexp = ifelse(input$coExp2 == "Yes", TRUE, FALSE), palette = input$palette2,
         ncol = input$ncol2, byrow = ifelse(input$arrange2 == "Row", TRUE, FALSE), force = TRUE
       )
-      p2_vln <- panel_fix(p2_vln, height = input$size2, raster = TRUE, dpi = input$panel_dpi2, verbose = FALSE)
+      p2_vln <- panel_fix(p2_vln, height = input$size2, raster = FALSE, verbose = FALSE)
 
       output$plot2_vln <- renderPlot(
         {
@@ -1066,7 +1054,7 @@ RunSCExplorer <- function(base_dir = "SCExplorer",
   main_code <- gsub("\\\\r", "\\\\\\\r", main_code)
   main_code <- gsub("\\\\n", "\\\\\\\n", main_code)
   args <- mget(names(formals()))
-  args <- args[!names(args) %in% c("run_explorer", "create_script", "overwrite")]
+  args <- args[!names(args) %in% c("return_app", "create_script", "style_script", "overwrite")]
   for (varnm in names(args)) {
     main_code <- c(paste0(varnm, "=", deparse(args[[varnm]])), main_code)
   }
@@ -1077,11 +1065,11 @@ RunSCExplorer <- function(base_dir = "SCExplorer",
   source(tempfile)
   if (isTRUE(create_script)) {
     app_file <- paste0(base_dir, "/app.R")
-    if (!file.exists(app_file) | isTRUE(overwrite)) {
+    if (!file.exists(app_file) || isTRUE(overwrite)) {
       message("Create the SCExplorer app script: ", app_file)
       suppressWarnings(file.remove(app_file))
       file.copy(from = tempfile, to = app_file, overwrite = TRUE)
-      if (require("styler", quietly = TRUE)) {
+      if (isTRUE(style_script)) {
         message("Styling the script...")
         invisible(capture.output(styler:::style_file(app_file)))
       }
@@ -1091,7 +1079,10 @@ RunSCExplorer <- function(base_dir = "SCExplorer",
   }
   unlink(tempfile)
 
-  if (isTRUE(run_explorer)) {
-    shinyApp(ui = ui, server = server)
+  if (isTRUE(return_app)) {
+    app <- shinyAppDir(base_dir)
+    return(app)
+  } else {
+    return(invisible(NULL))
   }
 }

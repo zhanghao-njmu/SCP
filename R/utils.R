@@ -10,11 +10,11 @@
 #' @importFrom rlang %||%
 #' @export
 check_R <- function(pkgs, pkg_names = NULL, install_methods = c("BiocManager::install", "install.packages", "devtools::install_github"), lib = .libPaths()[1], force = FALSE) {
-  if (length(pkg_names) != 0 & length(pkg_names) != length(pkgs)) {
+  if (length(pkg_names) != 0 && length(pkg_names) != length(pkgs)) {
     stop("pkg_names must be NULL or a vector of the same length with pkgs")
   }
   status_list <- list()
-  for (n in 1:length(pkgs)) {
+  for (n in seq_along(pkgs)) {
     pkg <- pkgs[n]
     pkg_info <- strsplit(pkg, split = "/|@")[[1]]
     if (length(pkg_info) > 1) {
@@ -98,15 +98,15 @@ exist_pkg <- function(pkg, envname = "SCP") {
 #' @importFrom rlang %||%
 #' @export
 check_Python <- function(pkgs, pkg_names = NULL, envname = "SCP", force = FALSE) {
-  if (length(pkg_names) != 0 & length(pkg_names) != length(pkgs)) {
+  if (length(pkg_names) != 0 && length(pkg_names) != length(pkgs)) {
     stop("pkg_names must be NULL or a vector of the same length with pkgs")
   }
   status_list <- list()
-  for (n in 1:length(pkgs)) {
+  for (n in seq_along(pkgs)) {
     pkg <- pkgs[n]
     pkg_name <- pkg_names[n] %||% gsub("(.*)(\\[.*\\])|(==.*)", "\\1", pkg)
     exist <- exist_pkg(pkg_name, envname)
-    if (!isTRUE(exist) | isTRUE(force)) {
+    if (!isTRUE(exist) || isTRUE(force)) {
       message("Try to install '", pkg, "' ...")
       tryCatch(expr = {
         reticulate::py_install(pkg, envname = envname)
@@ -115,7 +115,7 @@ check_Python <- function(pkgs, pkg_names = NULL, envname = "SCP", force = FALSE)
       })
     }
   }
-  for (n in 1:length(pkgs)) {
+  for (n in seq_along(pkgs)) {
     pkg <- pkgs[n]
     pkg_name <- pkg_names[n] %||% gsub("(.*)(\\[.*\\])", "\\1", pkg)
     exist <- exist_pkg(pkg_name, envname)
@@ -161,7 +161,7 @@ kegg_get <- function(url) {
       return(NULL)
     })
     ntry <- ntry + 1
-    if (is.null(status) & ntry >= 5) {
+    if (is.null(status) && ntry >= 5) {
       stop("Stop connecting...")
     }
   }
@@ -208,30 +208,21 @@ col2hex <- function(cname) {
   rgb(red = colMat[1, ] / 255, green = colMat[2, ] / 255, blue = colMat[3, ] / 255)
 }
 
+#' @export
 unnest <- function(data, cols, keep_empty = FALSE) {
   if (nrow(data) == 0 || length(cols) == 0) {
     return(data)
   }
   for (col in cols) {
-    df_list <- list()
-    for (i in 1:nrow(data)) {
-      x <- data[i, , drop = FALSE]
-      add <- data[[col]][[i]]
-      if (length(add) == 0) {
-        if (isTRUE(keep_empty)) {
-          x <- x[1, !colnames(x) %in% col]
-          x[[col]] <- NA
-          df_list[[i]] <- x
-        } else {
-          df_list[[i]] <- list(NULL)
-        }
-      } else {
-        x <- x[rep(1, length(add)), !colnames(x) %in% col]
-        x[[col]] <- add
-        df_list[[i]] <- x
-      }
+    col_expand <- unlist(data[[col]])
+    expand_times <- sapply(data[[col]], length)
+    if (isTRUE(keep_empty)) {
+      data[[col]][expand_times == 0] <- NA
+      col_expand <- unlist(data[[col]])
+      expand_times[expand_times == 0] <- 1
     }
-    data <- do.call(rbind.data.frame, df_list)
+    data <- data[rep(seq_len(nrow(data)), times = expand_times), ]
+    data[, col] <- col_expand
   }
   rownames(data) <- NULL
   return(data)

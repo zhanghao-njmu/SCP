@@ -20,7 +20,7 @@ ExpCorPlot(
   add_pvalue = TRUE,
   add_smooth = TRUE,
   palette = "Paired",
-  pal_color = NULL,
+  palcolor = NULL,
   bg_color = "grey80",
   pt.size = NULL,
   pt.alpha = 1,

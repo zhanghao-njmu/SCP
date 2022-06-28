@@ -30,7 +30,7 @@ VelocityPlot(
   streamline_alpha = 1,
   streamline_color = NULL,
   streamline_palette = "RdYlBu",
-  streamline_pal_color = NULL,
+  streamline_palcolor = NULL,
   streamline_bg_color = "white",
   streamline_bg_stroke = 0.5,
   theme_use = "theme_scp",

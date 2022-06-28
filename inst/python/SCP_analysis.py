@@ -52,6 +52,9 @@ def SCVELO(adata=None, h5ad=None, group_by=None, n_jobs=8,
         basis="basis"
         adata.obsm["basis"]=adata.obsm[liner_reduction][:,0:2]
 
+    if type(mode) is str:
+      mode=[mode]
+
     mode.append(fitting_by)
     if kinetics is True or denoise is True:
       mode.append("dynamical")

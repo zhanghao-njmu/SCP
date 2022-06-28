@@ -1,4 +1,13 @@
 url: https://zhanghao-njmu.github.io/SCP/
+
 template:
   bootstrap: 5
 
+code:
+  width: 120
+
+navbar:
+  title: "SCP"
+  right:
+    - icon: fa-github
+      href: https://github.com/zhanghao-njmu/SCP
