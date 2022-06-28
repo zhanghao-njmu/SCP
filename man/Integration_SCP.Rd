@@ -28,6 +28,7 @@ Integration_SCP(
   nonliner_reduction = "umap",
   nonliner_reduction_dims = c(2, 3),
   nonliner_reduction_distance = "cosine",
+  force_nonliner_reduction = TRUE,
   do_cluster_finding = TRUE,
   cluster_algorithm = "louvain",
   cluster_resolution = 0.6,
@@ -45,7 +46,7 @@ Integration_SCP(
 
 \item{srtList}{A list of \code{Seurat} object.}
 
-\item{integration_method}{Integration method. Can be one of "Uncorrected", "Seurat", "fastMNN", "Harmony", "Scanorama", "BBKNN", "CSS", "LIGER".}
+\item{integration_method}{Integration method. Can be one of "Uncorrected", "Seurat", "scVI", "MNN", "fastMNN", "Harmony", "Scanorama", "BBKNN", "CSS", "LIGER", "Conos", "ZINBWaVE".}
 
 \item{do_normalization}{Whether to normalize the data. If NULL, will automatically determine.}
 
@@ -73,7 +74,7 @@ Integration_SCP(
 
 \item{liner_reduction_dims_use}{Which dimensions to use.}
 
-\item{nonliner_reduction}{Non-liner reduction method name. Can be one of "umap","umap-naive", "tsne", "dm".}
+\item{nonliner_reduction}{Non-liner reduction method name. Can be one of "umap", "umap-naive", "umap-learn", "tsne", "dm".}
 
 \item{nonliner_reduction_dims}{Dimensions to calculate when performing non-liner reduction.}
 
@@ -96,21 +97,19 @@ A \code{Seurat} object containing the result.
 Single cell pipeline for the integration of multiple datasets.
 }
 \examples{
-if (interactive()) {
-  if (!require("SeuratData", quietly = TRUE)) {
-    devtools::install_github("zhanghao-njmu/seurat-data")
-  }
-  library(SeuratData)
-  library(cowplot)
-  suppressWarnings(InstallData("panc8"))
-  data("panc8")
-  plist <- list()
-  for (method in c("Uncorrected", "Seurat", "fastMNN", "Harmony", "Scanorama", "BBKNN", "CSS", "LIGER")) {
-    panc8 <- Integration_SCP(panc8, batch = "tech", integration_method = method)
-    p <- ClassDimPlot(panc8, group.by = c("tech", "celltype"), theme_use = "theme_blank")
-    plist[[method]] <- p
-    print(p)
-  }
-  p_all <- plot_grid(plotlist = plist, labels = names(plist))
+if (!require("SeuratData", quietly = TRUE)) {
+  devtools::install_github("zhanghao-njmu/seurat-data")
+}
+library(SeuratData)
+library(cowplot)
+suppressWarnings(InstallData("panc8"))
+data("panc8")
+cell_sub <- unlist(lapply(split(colnames(panc8), panc8$tech), function(x) sample(x, size = 500)))
+panc8 <- subset(panc8, cells = cell_sub)
+plist <- list()
+for (method in c("Uncorrected", "Seurat", "scVI", "MNN", "fastMNN", "Harmony", "Scanorama", "BBKNN", "CSS", "LIGER", "Conos", "ZINBWaVE")) {
+  panc8 <- Integration_SCP(panc8, batch = "tech", integration_method = method)
+  plist[[method]] <- ClassDimPlot(panc8, group.by = c("tech", "celltype"), theme_use = "theme_blank")
+  print(plist[[method]])
 }
 }

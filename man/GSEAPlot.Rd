@@ -6,26 +6,37 @@
 \usage{
 GSEAPlot(
   srt,
-  group_by = NULL,
-  test.use = "wilcox",
-  group_use = NULL,
   enrichment = "GO_BP",
+  group_by = NULL,
+  group_use = NULL,
+  test.use = "wilcox",
   res = NULL,
+  pvalueCutoff = NULL,
+  padjustCutoff = 0.05,
+  topTerm = 6,
   geneSetID = NULL,
-  title = NULL,
-  subtitle = NULL,
-  base_size = 12,
-  rel_heights = c(1.5, 0.5, 1),
-  subplots = 1:3,
   ES_geom = c("line", "dot"),
+  subplots = 1:3,
+  rel_heights = c(1.5, 0.5, 1),
+  rel_width = 3,
+  size = 1.5,
+  alpha = 1,
   color = "#6BB82D",
+  palette = "Set1",
   n_coregene = 10,
   sample_coregene = FALSE,
-  label_gene = NULL,
+  features_label = NULL,
   label.fg = "black",
   label.bg = "white",
   label.bg.r = 0.1,
-  label.size = 4
+  label.size = 4,
+  base_size = 12,
+  title = NULL,
+  subtitle = NULL,
+  combine = TRUE,
+  nrow = NULL,
+  ncol = NULL,
+  byrow = TRUE
 )
 }
 \arguments{
@@ -35,11 +46,10 @@ GSEAPlot(
 GSEA Plot
 }
 \examples{
-if (interactive()) {
-  data("pancreas1k")
-  pancreas1k <- RunDEtest(pancreas1k, group_by = "CellType", only.pos = FALSE, fc.threshold = 1)
-  pancreas1k <- RunGSEA(pancreas1k, group_by = "CellType", enrichment = "GO_BP", species = "Mus_musculus")
-  GSEAPlot(pancreas1k, group_by = "CellType", group_use = "Ductal", enrichment = "GO_BP", geneSetID = "GO:0006412")
-  GSEAPlot(pancreas1k, group_by = "CellType", group_use = "Endocrine", enrichment = "GO_BP", geneSetID = "GO:0007186")
-}
+data("pancreas1k")
+pancreas1k <- RunDEtest(pancreas1k, group_by = "CellType", only.pos = FALSE, fc.threshold = 1)
+pancreas1k <- RunGSEA(pancreas1k, group_by = "CellType", enrichment = "GO_BP", species = "Mus_musculus")
+GSEAPlot(pancreas1k, group_by = "CellType", group_use = c("Ngn3 low EP", "Endocrine"))
+GSEAPlot(pancreas1k, group_by = "CellType", group_use = "Ductal", geneSetID = "GO:0006412")
+GSEAPlot(pancreas1k, group_by = "CellType", group_use = "Endocrine", geneSetID = c("GO:0046903", "GO:0015031", "GO:0007600"))
 }

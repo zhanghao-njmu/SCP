@@ -6,32 +6,32 @@
 \usage{
 ExpDotPlot(
   srt,
-  genes = NULL,
-  gene_groups = NULL,
-  cell_group_by = NULL,
+  features = NULL,
+  feature_split = NULL,
+  cell_split_by = NULL,
   aggregate_fun = mean,
   slot = "counts",
   assay = "RNA",
   exp_method = c("zscore", "raw", "log2fc", "log1p"),
-  lib_normalize = FALSE,
-  lib_size = NULL,
+  lib_normalize = TRUE,
+  libsize = NULL,
   heatmap_palette = "YlOrRd",
-  gene_palette = "Paired",
+  feature_palette = "Paired",
   cell_palette = "Paired",
   add_reticle = FALSE,
-  cluster_rows = TRUE,
-  cluster_columns = FALSE,
+  cluster_features = FALSE,
+  cluster_cells = FALSE,
   grid_size = 0.4
 )
 }
 \arguments{
 \item{srt}{A \code{Seurat} object.}
 
-\item{genes}{A vector of gene names to plot.}
+\item{features}{A vector of gene names to plot.}
 
-\item{gene_groups}{A vector of group names for genes.}
+\item{feature_split}{A vector of group names for features.}
 
-\item{cell_group_by}{Columns used to calculate cell expression. One heatmap per column name.}
+\item{cell_split_by}{Columns used to calculate cell expression. One heatmap per column name.}
 
 \item{assay}{Assay used to calculate the expression.}
 
@@ -39,15 +39,11 @@ ExpDotPlot(
 
 \item{heatmap_palette}{Heatmap expression palette.}
 
-\item{gene_palette}{Gene group palette.}
+\item{feature_palette}{Feature groups palette.}
 
 \item{cell_palette}{Column palette.}
 
-\item{add_reticle}{}
-
-\item{cluster_rows}{Whether to cluster rows.}
-
-\item{cluster_columns}{Whether to cluster columns.}
+\item{cluster_cells}{}
 
 \item{grid_size}{size for each dot.}
 }
@@ -57,6 +53,17 @@ ExpDotPlot
 \examples{
 library(dplyr)
 data(pancreas1k)
+ExpDotPlot(pancreas1k,
+  features = c(
+    "Sox9", "Anxa2", "Bicc1", # Ductal
+    "Neurog3", "Hes6", # EPs
+    "Fev", "Neurod1", # Pre-endocrine
+    "Rbp4", "Pyy", # Endocrine
+    "Ins1", "Gcg", "Sst", "Ghrl" # Beta, Alpha, Delta, Epsilon
+  ),
+  cell_split_by = c("CellType", "SubCellType")
+)
+
 pancreas1k <- RunDEtest(pancreas1k, group_by = "CellType")
 de_filter <- filter(pancreas1k@tools$DEtest_CellType$AllMarkers_wilcox, p_val_adj < 0.05 & avg_log2FC > 1)
 de_top <- de_filter \%>\%
@@ -64,5 +71,5 @@ de_top <- de_filter \%>\%
   top_n(1, avg_log2FC) \%>\%
   group_by(group1) \%>\%
   top_n(3, avg_log2FC)
-ExpDotPlot(pancreas1k, genes = de_top$gene, gene_groups = de_top$group1, cell_group_by = "CellType")
+ExpDotPlot(pancreas1k, features = de_top$gene, feature_split = de_top$group1, cell_split_by = "CellType")
 }

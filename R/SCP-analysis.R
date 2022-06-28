@@ -14,7 +14,6 @@
 #' @return A list.
 #'
 #' @examples
-#'
 #' res <- GeneConvert(
 #'   geneID = c("CDK1", "MKI67", "TOP2A", "AURKA", "CTCF"), geneID_from_IDtype = "symbol", geneID_to_IDtype = "entrez_id",
 #'   species_from = "Homo_sapiens", species_to = "Mus_musculus", Ensembl_version = 103
@@ -24,7 +23,7 @@
 #' @importFrom dplyr "%>%" group_by mutate .data
 #' @importFrom reshape2 dcast melt
 #' @importFrom R.cache loadCache saveCache
-#' @importFrom biomaRt listEnsemblArchives useMart listDatasets useDataset getBM listAttributes
+#' @importFrom biomaRt listEnsemblArchives useMart listDatasets useDataset getBM listAttributes useEnsembl
 #' @export
 #'
 GeneConvert <- function(geneID, geneID_from_IDtype = "symbol", geneID_to_IDtype = "entrez_id",
@@ -76,7 +75,7 @@ GeneConvert <- function(geneID, geneID_from_IDtype = "symbol", geneID_to_IDtype 
     )
   })
 
-  if (species_from != species_to & all(geneID_to_IDtype %in% c("symbol", "ensembl_id"))) {
+  if (species_from != species_to && all(geneID_to_IDtype %in% c("symbol", "ensembl_id"))) {
     to_IDtype <- sapply(to_IDtype, function(x) {
       switch(x,
         "external_gene_name" = "associated_gene_name",
@@ -103,7 +102,7 @@ GeneConvert <- function(geneID, geneID_from_IDtype = "symbol", geneID_to_IDtype 
       Sys.sleep(1)
       return(NULL)
     })
-    if (is.null(archives) & ntry >= try_times) {
+    if (is.null(archives) && ntry >= try_times) {
       stop("Stop connecting...")
     }
   }
@@ -153,7 +152,7 @@ GeneConvert <- function(geneID, geneID_from_IDtype = "symbol", geneID_to_IDtype 
         }
       )
     }
-    if (is.null(mart) & ntry >= try_times) {
+    if (is.null(mart) && ntry >= try_times) {
       stop("Stop connecting...")
     }
   }
@@ -180,12 +179,12 @@ GeneConvert <- function(geneID, geneID_from_IDtype = "symbol", geneID_to_IDtype 
         return(NULL)
       }
     )
-    if (is.null(mart1) & ntry >= try_times) {
+    if (is.null(mart1) && ntry >= try_times) {
       stop("Stop connecting...")
     }
   }
 
-  if (species_from != species_to & any(!geneID_to_IDtype %in% c("symbol", "ensembl_id"))) {
+  if (species_from != species_to && any(!geneID_to_IDtype %in% c("symbol", "ensembl_id"))) {
     dataset2 <- paste0(species_to_simp, "_gene_ensembl")
     if (!dataset2 %in% Datasets$dataset) {
       warning(paste0("Can not find the dataset for the species: ", species_from, " (", dataset2, ")"), immediate. = TRUE)
@@ -207,7 +206,7 @@ GeneConvert <- function(geneID, geneID_from_IDtype = "symbol", geneID_to_IDtype 
           return(NULL)
         }
       )
-      if (is.null(mart2) & ntry >= try_times) {
+      if (is.null(mart2) && ntry >= try_times) {
         stop("Stop connecting...")
       }
     }
@@ -357,12 +356,7 @@ GeneConvert <- function(geneID, geneID_from_IDtype = "symbol", geneID_to_IDtype 
   geneID_collapse <- geneID_collapse[sapply(geneID_collapse$to_geneID, length) > 0, ]
   geneID_collapse <- reshape2::dcast(geneID_collapse, formula = from_geneID ~ to_IDtype, value.var = "to_geneID")
   rownames(geneID_collapse) <- geneID_collapse[, "from_geneID"]
-
-  geneID_expand <- geneID_collapse
-  for (i in colnames(geneID_expand)[sapply(geneID_expand, class) == "list"]) {
-    geneID_expand <- unnest(data = geneID_expand, cols = i)
-  }
-  geneID_expand <- as.data.frame(geneID_expand)
+  geneID_expand <- unnest(data = geneID_collapse, cols = colnames(geneID_collapse)[sapply(geneID_collapse, class) == "list"])
 
   return(list(geneID_res = geneID_res, geneID_collapse = geneID_collapse, geneID_expand = geneID_expand, Ensembl_version = version, Datasets = Datasets, Attributes = Attributes, geneID_unmapped = geneID))
 }
@@ -378,10 +372,8 @@ GeneConvert <- function(geneID, geneID_from_IDtype = "symbol", geneID_to_IDtype 
 #' @return A list of S-phase and G2M-phase genes.
 #'
 #' @examples
-#' if (interactive()) {
-#'   ccgenes <- CC_GenePrefetch("Mus_musculus")
-#'   names(ccgenes)
-#' }
+#' ccgenes <- CC_GenePrefetch("Mus_musculus")
+#' names(ccgenes)
 #' @importFrom R.cache loadCache saveCache
 #' @export
 CC_GenePrefetch <- function(species, Ensembl_version = 103, mirror = NULL, try_times = 5, use_cached_gene = TRUE) {
@@ -460,7 +452,7 @@ CellScoring <- function(srt, features, ncores = 1, method = "Seurat", classifica
       assay = assay,
       ...
     )
-    scores <- srt_tmp[[paste0(name, 1:length(features))]]
+    scores <- srt_tmp[[paste0(name, seq_along(features))]]
   } else if (method == "UCell") {
     check_R(pkgs = "UCell")
     srt_tmp <- UCell::AddModuleScore_UCell(
@@ -537,7 +529,7 @@ CellScoring <- function(srt, features, ncores = 1, method = "Seurat", classifica
 #'
 #' # Heatmap
 #' de_filter <- filter(pancreas1k@tools$DEtest_CellType$AllMarkers_wilcox, p_val_adj < 0.05 & avg_log2FC > 1)
-#' ExpHeatmapPlot(pancreas1k, genes = de_filter$gene, gene_groups = de_filter$group1, cell_group_by = "CellType")
+#' ExpHeatmap(pancreas1k, features = de_filter$gene, feature_split = de_filter$group1, cell_split_by = "CellType")
 #'
 #' # Dot plot
 #' de_top <- de_filter %>%
@@ -545,13 +537,13 @@ CellScoring <- function(srt, features, ncores = 1, method = "Seurat", classifica
 #'   top_n(1, avg_log2FC) %>%
 #'   group_by(group1) %>%
 #'   top_n(3, avg_log2FC)
-#' ExpDotPlot(pancreas1k, genes = de_top$gene, gene_groups = de_top$group1, cell_group_by = "CellType")
+#' ExpDotPlot(pancreas1k, features = de_top$gene, feature_split = de_top$group1, cell_split_by = "CellType")
 #' @export
 #'
-RunDEtest <- function(srt, group_by = NULL, cell_group1 = NULL, cell_group2 = NULL,
+RunDEtest <- function(srt, group_by = NULL, group1 = NULL, group2 = NULL, cells1 = NULL, cells2 = NULL,
                       FindAllMarkers = TRUE, FindPairedMarkers = FALSE,
                       test.use = "wilcox", only.pos = TRUE,
-                      fc.threshold = 1.5, min.pct = 0.1, max.cells.per.ident = Inf, latent.vars = NULL,
+                      fc.threshold = 1.5, min.pct = 0.1, min.diff.pct = -Inf, max.cells.per.ident = Inf, latent.vars = NULL,
                       slot = "data", assay = "RNA", BPPARAM = BiocParallel::bpparam(), progressbar = TRUE, force = FALSE, ...) {
   if ("progressbar" %in% names(BPPARAM)) {
     BPPARAM[["progressbar"]] <- progressbar
@@ -561,28 +553,40 @@ RunDEtest <- function(srt, group_by = NULL, cell_group1 = NULL, cell_group2 = NU
   cat(paste0("[", time_start, "] ", "Start DEtest\n"))
   message("Threads used for DE test: ", BPPARAM$workers)
 
-  if (!is.null(cell_group1)) {
-    if (!all(cell_group1 %in% colnames(srt))) {
-      stop("cell_group1 has some cells not in the Seurat object.")
+  if (!is.null(cells1) || !is.null(group1)) {
+    if (is.null(cells1)) {
+      if (is.null(group_by)) {
+        stop("'group_by' must be provided when 'group1' specified")
+      }
+      cells1 <- colnames(srt)[srt[[group_by, drop = TRUE]] %in% group1]
     }
-    if (is.null(cell_group2)) {
-      message("cell_group2 is not provided. Use the remaining cells.")
-      cell_group2 <- colnames(srt)[!colnames(srt) %in% cell_group1]
+    if (is.null(cells2) & !is.null(group2)) {
+      cells2 <- colnames(srt)[srt[[group_by, drop = TRUE]] %in% group2]
     }
-    if (!all(cell_group2 %in% colnames(srt))) {
-      stop("cell_group2 has some cells not in the Seurat object.")
+    if (!all(cells1 %in% colnames(srt))) {
+      stop("cells1 has some cells not in the Seurat object.")
     }
-    if (length(cell_group1) < 3 | length(cell_group2) < 3) {
+    if (is.null(cells2)) {
+      message("Use the remaining cells to compare with.")
+      cells2 <- colnames(srt)[!colnames(srt) %in% cells1]
+      group2 <- "others"
+    }
+    if (!all(cells2 %in% colnames(srt))) {
+      stop("cells2 has some cells not in the Seurat object.")
+    }
+    if (length(cells1) < 3 || length(cells2) < 3) {
       stop("Cell groups must have more than 3 cells")
     }
+
     cat("Perform FindMarkers(", test.use, ") for custom cell groups...\n", sep = "")
     markers <- FindMarkers(
       object = Assays(srt, assay), slot = slot,
-      cells.1 = cell_group1,
-      cells.2 = cell_group2,
+      cells.1 = cells1,
+      cells.2 = cells2,
       test.use = test.use,
       logfc.threshold = log2(fc.threshold),
       min.pct = min.pct,
+      min.diff.pct = min.diff.pct,
       max.cells.per.ident = max.cells.per.ident,
       latent.vars = latent.vars,
       only.pos = only.pos,
@@ -591,21 +595,21 @@ RunDEtest <- function(srt, group_by = NULL, cell_group1 = NULL, cell_group2 = NU
     )
     if (nrow(markers) > 0) {
       markers[, "gene"] <- rownames(markers)
-      markers[, "group1"] <- "cell_group1"
-      markers[, "group2"] <- "cell_group2"
+      markers[, "group1"] <- group1 %||% "group1"
+      markers[, "group2"] <- group2 %||% "group2"
       rownames(markers) <- NULL
       markers[, "group1"] <- factor(markers[, "group1"], levels = unique(markers[, "group1"]))
       if ("p_val" %in% colnames(markers)) {
         markers[, "p_val_adj"] <- p.adjust(markers[, "p_val"], method = "BH")
       }
-      markers[, "DE_group_number"] <- as.integer(table(markers[["gene"]])[markers[, "gene"]])
+      markers[, "test_group_number"] <- as.integer(table(markers[["gene"]])[markers[, "gene"]])
       MarkersMatrix <- as.data.frame.matrix(table(markers[, c("gene", "group1")]))
-      markers[, "DE_group"] <- apply(MarkersMatrix, 1, function(x) {
+      markers[, "test_group"] <- apply(MarkersMatrix, 1, function(x) {
         paste0(colnames(MarkersMatrix)[x > 0], collapse = ";")
       })[markers[, "gene"]]
-      srt@tools[["DEtest_custom"]][[paste0("custom_", test.use)]] <- markers
-      srt@tools[["DEtest_custom"]][["cell_group1"]] <- cell_group1
-      srt@tools[["DEtest_custom"]][["cell_group2"]] <- cell_group2
+      srt@tools[["DEtest_custom"]][[paste0("AllMarkers_", test.use)]] <- markers
+      srt@tools[["DEtest_custom"]][["cells1"]] <- cells1
+      srt@tools[["DEtest_custom"]][["cells2"]] <- cells2
     } else {
       warning("No markers found.", immediate. = TRUE)
     }
@@ -642,6 +646,7 @@ RunDEtest <- function(srt, group_by = NULL, cell_group1 = NULL, cell_group2 = NU
             test.use = test.use,
             logfc.threshold = log2(fc.threshold),
             min.pct = min.pct,
+            min.diff.pct = min.diff.pct,
             max.cells.per.ident = Inf,
             latent.vars = latent.vars,
             only.pos = only.pos,
@@ -664,22 +669,22 @@ RunDEtest <- function(srt, group_by = NULL, cell_group1 = NULL, cell_group2 = NU
       if ("p_val" %in% colnames(AllMarkers)) {
         AllMarkers[, "p_val_adj"] <- p.adjust(AllMarkers[, "p_val"], method = "BH")
       }
-      AllMarkers[, "DE_group_number"] <- as.integer(table(AllMarkers[["gene"]])[AllMarkers[, "gene"]])
+      AllMarkers[, "test_group_number"] <- as.integer(table(AllMarkers[["gene"]])[AllMarkers[, "gene"]])
       AllMarkersMatrix <- as.data.frame.matrix(table(AllMarkers[, c("gene", "group1")]))
-      AllMarkers[, "DE_group"] <- apply(AllMarkersMatrix, 1, function(x) {
+      AllMarkers[, "test_group"] <- apply(AllMarkersMatrix, 1, function(x) {
         paste0(colnames(AllMarkersMatrix)[x > 0], collapse = ";")
       })[AllMarkers[, "gene"]]
       srt@tools[[paste0("DEtest_", group_by)]][[paste0("AllMarkers_", test.use)]] <- AllMarkers
     }
 
     if (isTRUE(FindPairedMarkers)) {
-      if (nlevels(cell_group) > 30 & (!isTRUE(force))) {
+      if (nlevels(cell_group) > 30 && (!isTRUE(force))) {
         warning("Too many groups for FindPairedMarkers function. If you want to force to run, set force=TRUE.", immediate. = TRUE)
       } else {
         cat("Perform FindPairedMarkers(", test.use, ")...\n", sep = "")
         pair <- expand.grid(x = levels(cell_group), y = levels(cell_group))
         pair <- pair[pair[, 1] != pair[, 2], ]
-        PairedMarkers <- bplapply(1:nrow(pair), function(i) {
+        PairedMarkers <- bplapply(seq_len(nrow(pair)), function(i) {
           cells.1 <- names(cell_group)[which(cell_group == pair[i, 1])]
           cells.2 <- names(cell_group)[which(cell_group == pair[i, 2])]
           if (length(cells.1) < 3 | length(cells.2) < 3) {
@@ -692,6 +697,7 @@ RunDEtest <- function(srt, group_by = NULL, cell_group1 = NULL, cell_group2 = NU
               test.use = test.use,
               logfc.threshold = log2(fc.threshold),
               min.pct = min.pct,
+              min.diff.pct = min.diff.pct,
               max.cells.per.ident = Inf,
               latent.vars = latent.vars,
               only.pos = only.pos,
@@ -714,9 +720,9 @@ RunDEtest <- function(srt, group_by = NULL, cell_group1 = NULL, cell_group2 = NU
         if ("p_val" %in% colnames(PairedMarkers)) {
           PairedMarkers[, "p_val_adj"] <- p.adjust(PairedMarkers[, "p_val"], method = "BH")
         }
-        PairedMarkers[, "DE_group_number"] <- as.integer(table(PairedMarkers[["gene"]])[PairedMarkers[, "gene"]])
+        PairedMarkers[, "test_group_number"] <- as.integer(table(PairedMarkers[["gene"]])[PairedMarkers[, "gene"]])
         PairedMarkersMatrix <- as.data.frame.matrix(table(PairedMarkers[, c("gene", "group1")]))
-        PairedMarkers[, "DE_group"] <- apply(PairedMarkersMatrix, 1, function(x) {
+        PairedMarkers[, "test_group"] <- apply(PairedMarkersMatrix, 1, function(x) {
           paste0(colnames(PairedMarkersMatrix)[x > 0], collapse = ";")
         })[PairedMarkers[, "gene"]]
         srt@tools[[paste0("DEtest_", group_by)]][[paste0("PairedMarkers_", test.use)]] <- PairedMarkers
@@ -773,9 +779,7 @@ ListEnrichmentDB <- function(species = c("Homo_sapiens", "Mus_musculus"), enrich
 #' @return A list containing the database.
 #'
 #' @examples
-#' if (interactive()) {
-#'   db_list <- PrepareEnrichmentDB(species = c("Homo_sapiens", "Mus_musculus"))
-#' }
+#' db_list <- PrepareEnrichmentDB(species = "Homo_sapiens", enrichment = "GO_BP")
 #' @importFrom R.cache loadCache saveCache readCacheHeader
 #' @importFrom utils packageVersion read.table
 #' @importFrom stats na.omit
@@ -789,6 +793,12 @@ PrepareEnrichmentDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
                                 db_IDtypes = c("symbol", "entrez_id", "ensembl_id"),
                                 db_version = "latest", db_update = FALSE,
                                 Ensembl_version = 103, mirror = NULL) {
+  if (!any(enrichment %in% c(
+    "GO_BP", "GO_CC", "GO_MF", "KEGG", "WikiPathway", "Reactome",
+    "ProteinComplex", "PFAM", "Chromosome"
+  ))) {
+    stop("'enrichment' is invalid. Can be 'GO_BP', 'GO_CC', 'GO_MF', 'KEGG', 'WikiPathway', 'Reactome','ProteinComplex', 'PFAM', 'Chromosome'")
+  }
   db_list <- list()
   for (sps in species) {
     message("Species: ", sps)
@@ -895,7 +905,7 @@ PrepareEnrichmentDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
         colnames(TERM2GENE) <- c("Term", "entrez_id")
         colnames(TERM2NAME) <- c("Term", "Name")
         kegg_info <- readLines("http://rest.kegg.jp/info/hsa")
-        version <- kegg_info[grepl("Release", x = kegg_info)] %>% gsub(".*(?=Release)", replacement = "", x = ., perl = TRUE)
+        version <- gsub(".*(?=Release)", replacement = "", x = kegg_info[grepl("Release", x = kegg_info)], perl = TRUE)
         db_list[[sps]][["KEGG"]][["TERM2GENE"]] <- unique(TERM2GENE)
         db_list[[sps]][["KEGG"]][["TERM2NAME"]] <- unique(TERM2NAME)
         db_list[[sps]][["KEGG"]][["version"]] <- version
@@ -1122,7 +1132,7 @@ PrepareEnrichmentDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
         map <- res$geneID_collapse
         for (type in IDtypes) {
           TERM2GENE[[type]] <- map[as.character(TERM2GENE[, "entrez_id"]), type]
-          TERM2GENE <- as.data.frame(unnest(TERM2GENE, cols = type, keep_empty = TRUE))
+          TERM2GENE <- unnest(TERM2GENE, cols = type, keep_empty = TRUE)
         }
         db_list[[sps]][[term]][["TERM2GENE"]] <- TERM2GENE
         ### save cache
@@ -1168,12 +1178,10 @@ PrepareEnrichmentDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
 #' @param geneID_exclude
 #'
 #' @examples
-#' if (interactive()) {
-#'   data("pancreas1k")
-#'   pancreas1k <- RunDEtest(pancreas1k, group_by = "CellType")
-#'   pancreas1k <- RunEnrichment(srt = pancreas1k, group_by = "CellType", enrichment = "GO_BP", species = "Mus_musculus")
-#'   EnrichmentPlot(pancreas1k, group_by = "CellType", enrichment = "GO_BP", plot_type = "bar")
-#' }
+#' data("pancreas1k")
+#' pancreas1k <- RunDEtest(pancreas1k, group_by = "CellType")
+#' pancreas1k <- RunEnrichment(srt = pancreas1k, group_by = "CellType", enrichment = "GO_BP", species = "Mus_musculus")
+#' EnrichmentPlot(pancreas1k, group_by = "CellType", enrichment = "GO_BP", plot_type = "bar")
 #' @importFrom BiocParallel bplapply
 #' @export
 #'
@@ -1193,7 +1201,7 @@ RunEnrichment <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_t
   use_srt <- FALSE
   if (is.null(geneID)) {
     if (is.null(group_by)) {
-      stop("'group_by' must be provided.")
+      group_by <- "custom"
     }
     slot <- paste0("DEtest_", group_by)
     if (!slot %in% names(srt@tools) || length(grep(pattern = "AllMarkers", names(srt@tools[[slot]]))) == 0) {
@@ -1262,12 +1270,12 @@ RunEnrichment <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_t
 
   input[[db_IDtype]] <- geneMap[as.character(input$geneID), db_IDtype]
   input[[result_IDtype]] <- geneMap[as.character(input$geneID), result_IDtype]
-  input <- as.data.frame(unnest(input, cols = c(db_IDtype, result_IDtype)))
+  input <- unnest(input, cols = c(db_IDtype, result_IDtype))
   input <- input[!is.na(input[[db_IDtype]]), ]
 
   message("Permform enrichment...")
   comb <- expand.grid(group = levels(geneID_groups), term = enrichment, stringsAsFactors = FALSE)
-  res_list <- bplapply(1:nrow(comb),
+  res_list <- bplapply(seq_len(nrow(comb)),
     FUN = function(i, id) {
       group <- comb[i, "group"]
       term <- comb[i, "term"]
@@ -1398,12 +1406,12 @@ RunEnrichment <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_t
 #'
 #' @importFrom BiocParallel bplapply
 #' @examples
-#' if (interactive()) {
-#'   data("pancreas1k")
-#'   pancreas1k <- RunDEtest(pancreas1k, group_by = "CellType", only.pos = FALSE, fc.threshold = 1)
-#'   pancreas1k <- RunGSEA(pancreas1k, group_by = "CellType", enrichment = "GO_BP", species = "Mus_musculus")
-#'   GSEAPlot(pancreas1k, group_by = "CellType", group_use = "Ductal", enrichment = "GO_BP", geneSetID = "GO:0006412")
-#' }
+#' data("pancreas1k")
+#' pancreas1k <- RunDEtest(pancreas1k, group_by = "CellType", only.pos = FALSE, fc.threshold = 1)
+#' pancreas1k <- RunGSEA(pancreas1k, group_by = "CellType", enrichment = "GO_BP", species = "Mus_musculus")
+#' GSEAPlot(pancreas1k, group_by = "CellType")
+#' GSEAPlot(pancreas1k, group_by = "CellType", group_use = "Ductal", geneSetID = "GO:0006412")
+#' GSEAPlot(pancreas1k, group_by = "CellType", group_use = "Endocrine", geneSetID = c("GO:0046903", "GO:0015031", "GO:0007600"))
 #' @export
 #'
 RunGSEA <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_threshold = "p_val_adj < 0.05",
@@ -1422,7 +1430,7 @@ RunGSEA <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_thresho
   use_srt <- FALSE
   if (is.null(geneID)) {
     if (is.null(group_by)) {
-      stop("'group_by' must be provided.")
+      group_by <- "custom"
     }
     slot <- paste0("DEtest_", group_by)
     if (!slot %in% names(srt@tools) || length(grep(pattern = "AllMarkers", names(srt@tools[[slot]]))) == 0) {
@@ -1514,12 +1522,12 @@ RunGSEA <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_thresho
 
   input[[db_IDtype]] <- geneMap[as.character(input$geneID), db_IDtype]
   input[[result_IDtype]] <- geneMap[as.character(input$geneID), result_IDtype]
-  input <- as.data.frame(unnest(input, cols = c(db_IDtype, result_IDtype)))
+  input <- unnest(input, cols = c(db_IDtype, result_IDtype))
   input <- input[!is.na(input[[db_IDtype]]), ]
 
   message("Permform GSEA...")
   comb <- expand.grid(group = levels(geneID_groups), term = enrichment, stringsAsFactors = FALSE)
-  res_list <- BiocParallel::bplapply(1:nrow(comb),
+  res_list <- BiocParallel::bplapply(seq_len(nrow(comb)),
     FUN = function(i, id) {
       # print(paste0("current", i))
       group <- comb[i, "group"]
@@ -1821,7 +1829,7 @@ RunMoncle3 <- function(srt, group.by, reduction = NULL, start = NULL, end = NULL
     # plot(srt[[reduction]]@cell.embeddings, col = palette_scp(srt[[group.by, drop = TRUE]], matched = TRUE), asp = 1, pch = 16)
     # lines(slingshot::SlingshotDataSet(sl), lwd = 3, type = "l")
     plot(srt[[reduction]]@cell.embeddings, col = palette_scp(srt[[group.by, drop = TRUE]], matched = TRUE), asp = 1, pch = 16)
-    lines(slingshot::SlingshotDataSet(sl), lwd = 3, col = 1:length(slingshot::SlingshotDataSet(sl)@lineages))
+    lines(slingshot::SlingshotDataSet(sl), lwd = 3, col = seq_along(slingshot::SlingshotDataSet(sl)@lineages))
   }
   return(srt)
 }
@@ -1854,7 +1862,7 @@ RunMoncle3 <- function(srt, group.by, reduction = NULL, start = NULL, end = NULL
 #'   srt = pancreas1k,
 #'   lineages = c("Lineage1", "Lineage2"),
 #'   cell_annotation = "SubCellType",
-#'   n_cluster = 6, reverse_ht = "Lineage1",
+#'   n_split = 6, reverse_ht = "Lineage1",
 #'   height = 5, width = 7, use_raster = FALSE
 #' )
 #' ht_result$plot
@@ -1977,7 +1985,7 @@ RunDynamicFeatures <- function(srt, lineages, features = NULL, suffix = lineages
     }
   }
 
-  for (i in 1:length(lineages)) {
+  for (i in seq_along(lineages)) {
     l <- lineages[i]
     srt_sub <- srt_sub_list[[l]]
     t <- na.omit(srt_sub[[l, drop = TRUE]])
@@ -1996,7 +2004,7 @@ RunDynamicFeatures <- function(srt, lineages, features = NULL, suffix = lineages
 
     message("Calculate dynamic features for ", l, "...")
     system.time({
-      gam_out <- BiocParallel::bplapply(1:nrow(Y_ordered), function(n, Y_ordered, t_ordered, l_libsize, family) {
+      gam_out <- BiocParallel::bplapply(seq_len(nrow(Y_ordered)), function(n, Y_ordered, t_ordered, l_libsize, family) {
         feature_nm <- rownames(Y_ordered)[n]
         family_current <- family[feature_nm]
         if (min(Y_ordered[feature_nm, ]) < 0 && family_current %in% c("nb", "poisson", "binomial")) {
@@ -2029,8 +2037,8 @@ RunDynamicFeatures <- function(srt, lineages, features = NULL, suffix = lineages
         upr.values <- upr * sizefactror
         lwr.values <- lwr * sizefactror
         exp_ncells <- sum(Y_ordered[feature_nm, ] > min(Y_ordered[feature_nm, ]), na.rm = TRUE)
-        peak_time <- median(t_ordered[fitted.values > quantile(fitted.values, 0.99, na.rm = TRUE)])
-        valley_time <- median(t_ordered[fitted.values < quantile(fitted.values, 0.01, na.rm = TRUE)])
+        peaktime <- median(t_ordered[fitted.values > quantile(fitted.values, 0.99, na.rm = TRUE)])
+        valleytime <- median(t_ordered[fitted.values < quantile(fitted.values, 0.01, na.rm = TRUE)])
 
         # ggplot(data = data.frame(
         #   x = t_ordered,
@@ -2054,7 +2062,7 @@ RunDynamicFeatures <- function(srt, lineages, features = NULL, suffix = lineages
         return(list(
           features = feature_nm, exp_ncells = exp_ncells,
           r.sq = r.sq, dev.expl = dev.expl,
-          peak_time = peak_time, valley_time = valley_time,
+          peaktime = peaktime, valleytime = valleytime,
           pvalue = pvalue, fitted.values = fitted.values,
           upr.values = upr.values, lwr.values = lwr.values
         ))
@@ -2134,34 +2142,32 @@ RunDynamicFeatures <- function(srt, lineages, features = NULL, suffix = lineages
 #' @importFrom ggplot2 ggplot aes geom_point geom_abline labs
 #'
 #' @examples
-#' if (interactive()) {
-#'   data("pancreas1k")
-#'   pancreas1k <- RunSlingshot(pancreas1k, group.by = "SubCellType", reduction = "UMAP")
-#'   pancreas1k <- RunDynamicFeatures(pancreas1k, lineages = c("Lineage1", "Lineage2"), n_candidates = 200)
-#'   ht_result <- DynamicHeatmap(
-#'     srt = pancreas1k,
-#'     lineages = c("Lineage1", "Lineage2"),
-#'     cell_annotation = "SubCellType",
-#'     n_cluster = 6, reverse_ht = 1, use_raster = FALSE
-#'   )
-#'   ht_result$plot
+#' data("pancreas1k")
+#' pancreas1k <- RunSlingshot(pancreas1k, group.by = "SubCellType", reduction = "UMAP")
+#' pancreas1k <- RunDynamicFeatures(pancreas1k, lineages = c("Lineage1", "Lineage2"), n_candidates = 200)
+#' ht_result <- DynamicHeatmap(
+#'   srt = pancreas1k,
+#'   lineages = c("Lineage1", "Lineage2"),
+#'   cell_annotation = "SubCellType",
+#'   n_split = 6, reverse_ht = 1, use_raster = FALSE
+#' )
+#' ht_result$plot
 #'
-#'   pancreas1k <- RunDynamicEnrichment(
-#'     srt = pancreas1k,
-#'     lineages = c("Lineage1", "Lineage2"),
-#'     score_method = "AUCell",
-#'     enrichment = "GO_BP",
-#'     species = "Mus_musculus"
-#'   )
-#'   ht_result <- DynamicHeatmap(
-#'     srt = pancreas1k, assay = "GO_BP", use_fitted = TRUE,
-#'     lineages = c("Lineage1_GO_BP", "Lineage2_GO_BP"),
-#'     cell_annotation = "SubCellType",
-#'     n_cluster = 6, reverse_ht = 1,
-#'     height = 5, width = 7, use_raster = FALSE
-#'   )
-#'   ht_result$plot
-#' }
+#' pancreas1k <- RunDynamicEnrichment(
+#'   srt = pancreas1k,
+#'   lineages = c("Lineage1", "Lineage2"),
+#'   score_method = "AUCell",
+#'   enrichment = "GO_BP",
+#'   species = "Mus_musculus"
+#' )
+#' ht_result <- DynamicHeatmap(
+#'   srt = pancreas1k, assay = "GO_BP", use_fitted = TRUE,
+#'   lineages = c("Lineage1_GO_BP", "Lineage2_GO_BP"),
+#'   cell_annotation = "SubCellType",
+#'   n_split = 6, reverse_ht = 1,
+#'   height = 5, width = 7, use_raster = FALSE
+#' )
+#' ht_result$plot
 #' @export
 RunDynamicEnrichment <- function(srt, lineages,
                                  score_method = "AUCell", ncore = 1,
@@ -2209,7 +2215,7 @@ RunDynamicEnrichment <- function(srt, lineages,
     db_list[[species]][[enrichment]][["TERM2NAME"]] <- unique(TERM2NAME)
   }
 
-  for (i in 1:length(enrichment)) {
+  for (i in seq_along(enrichment)) {
     term <- enrichment[i]
     TERM2GENE_tmp <- db_list[[species]][[term]][["TERM2GENE"]][, c("Term", IDtype)]
     TERM2NAME_tmp <- db_list[[species]][[term]][["TERM2NAME"]]
@@ -2292,9 +2298,11 @@ srt_to_adata <- function(srt,
   }
 
   sc <- import("scanpy", convert = FALSE)
+  np <- import("numpy", convert = FALSE)
+
   obs <- srt@meta.data
   if (ncol(obs) > 0) {
-    for (i in 1:ncol(obs)) {
+    for (i in seq_len(ncol(obs))) {
       if (is.logical(obs[, i])) {
         obs[, i] <- factor(as.character(obs[, i]), levels = c("TRUE", "FALSE"))
       }
@@ -2303,7 +2311,7 @@ srt_to_adata <- function(srt,
 
   var <- srt[[assay_X]]@meta.features
   if (ncol(var) > 0) {
-    for (i in 1:ncol(var)) {
+    for (i in seq_len(ncol(var))) {
       if (is.logical(var[, i]) && !identical(colnames(var)[i], "highly_variable")) {
         var[, i] <- factor(as.character(var[, i]), levels = c("TRUE", "FALSE"))
       }
@@ -2313,7 +2321,8 @@ srt_to_adata <- function(srt,
   adata <- sc$AnnData(
     X = t(GetAssayData(srt, assay = assay_X, slot = slot_X)),
     obs = obs,
-    var = cbind(data.frame(features = rownames(srt)), var)
+    var = cbind(data.frame(features = rownames(srt)), var),
+    dtype = np$float32
   )
   adata$var_names <- rownames(srt)
   if (length(VariableFeatures(srt, assay = assay_X) > 0)) {
@@ -2428,7 +2437,7 @@ adata_to_srt <- function(adata) {
   if (length(iterate(adata$obsm$keys())) > 0) {
     for (k in iterate(adata$obsm$keys())) {
       obsm <- adata$obsm[[k]]
-      colnames(obsm) <- paste0(k, "_", 1:ncol(obsm))
+      colnames(obsm) <- paste0(k, "_", seq_len(ncol(obsm)))
       rownames(obsm) <- adata$obs_names$values
       srt[[k]] <- CreateDimReducObject(embeddings = obsm, assay = "RNA", key = paste0(k, "_"))
     }
@@ -2438,7 +2447,7 @@ adata_to_srt <- function(adata) {
       obsp <- adata$obsp[[k]]
       colnames(obsp) <- adata$obs_names$values
       rownames(obsp) <- adata$obs_names$values
-      obsp <- as.Graph(obsp[1:nrow(obsp), ])
+      obsp <- as.Graph(obsp[seq_len(nrow(obsp)), ])
       DefaultAssay(object = obsp) <- "RNA"
       srt[[k]] <- obsp
     }
@@ -2551,7 +2560,7 @@ RunPAGA <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_layers
   if (is.null(group_by)) {
     stop("'group_by' must be provided.")
   }
-  if (is.null(liner_reduction) & is.null(nonliner_reduction)) {
+  if (is.null(liner_reduction) && is.null(nonliner_reduction)) {
     stop("'liner_reduction' or 'nonliner_reduction' must be provided at least one.")
   }
   args <- mget(names(formals()))
@@ -2609,7 +2618,7 @@ RunPAGA <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_layers
 #' This function performs scVelo workflow in R by reticulate.
 #'
 #' @param srt A \code{Seurat} object.
-#' @param adata An \code{anndata} object. Generally created through \code{\link{srt_to_adata}}
+#' @param adata An \code{anndata} object. Can be created through \code{\link{srt_to_adata}}
 #' @param h5ad h5ad file path.
 #' @param group_by group_by.
 #' @param liner_reduction liner_reduction.
@@ -2676,10 +2685,9 @@ RunSCVELO <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_laye
   if (is.null(group_by)) {
     stop("'group_by' must be provided.")
   }
-  if (is.null(liner_reduction) & is.null(nonliner_reduction)) {
+  if (is.null(liner_reduction) && is.null(nonliner_reduction)) {
     stop("'liner_reduction' or 'nonliner_reduction' must be provided at least one.")
   }
-  mode <- as.list(mode)
   args <- mget(names(formals()))
   args <- lapply(args, function(x) {
     if (is.numeric(x)) {
@@ -2720,7 +2728,7 @@ RunSCVELO <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_laye
       return(srt_out)
     } else {
       srt_out1 <- SrtAppend(srt_raw = srt, srt_append = srt_out)
-      srt_out2 <- SrtAppend(srt_raw = srt_out1, srt_append = srt_out, pattern = paste0("(Ms)|(Mu)|(velocity)|(", mode, ")"), overwrite = TRUE, verbose = FALSE)
+      srt_out2 <- SrtAppend(srt_raw = srt_out1, srt_append = srt_out, pattern = paste0("(Ms)|(Mu)|(velocity)|", paste(mode, collapse = "|"), "|(paga)"), overwrite = TRUE, verbose = FALSE)
       return(srt_out2)
     }
   } else {
@@ -2754,13 +2762,13 @@ RunPalantir <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_la
   if (all(is.null(srt), is.null(adata), is.null(h5ad))) {
     stop("One of 'srt', 'adata' or 'h5ad' must be provided.")
   }
-  if (is.null(group_by) & any(!is.null(early_group), !is.null(terminal_groups))) {
+  if (is.null(group_by) && any(!is.null(early_group), !is.null(terminal_groups))) {
     stop("'group_by' must be provided when early_group or terminal_groups provided.")
   }
-  if (is.null(liner_reduction) & is.null(nonliner_reduction)) {
+  if (is.null(liner_reduction) && is.null(nonliner_reduction)) {
     stop("'liner_reduction' or 'nonliner_reduction' must be provided at least one.")
   }
-  if (is.null(early_cell) & is.null(early_group)) {
+  if (is.null(early_cell) && is.null(early_group)) {
     stop("'early_cell' or 'early_group' must be provided.")
   }
   args <- mget(names(formals()))
@@ -2833,7 +2841,7 @@ RunCellRank <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_la
   if (is.null(group_by)) {
     stop("'group_by' must be provided.")
   }
-  if (is.null(liner_reduction) & is.null(nonliner_reduction)) {
+  if (is.null(liner_reduction) && is.null(nonliner_reduction)) {
     stop("'liner_reduction' or 'nonliner_reduction' must be provided at least one.")
   }
   mode <- as.list(mode)
@@ -2899,7 +2907,7 @@ RunDynamo <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_laye
   if (is.null(group_by)) {
     stop("'group_by' must be provided.")
   }
-  if (is.null(liner_reduction) & is.null(nonliner_reduction)) {
+  if (is.null(liner_reduction) && is.null(nonliner_reduction)) {
     stop("'liner_reduction' or 'nonliner_reduction' must be provided at least one.")
   }
   args <- mget(names(formals()))

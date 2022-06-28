@@ -6,12 +6,10 @@
 #' @param ...
 #'
 #' @examples
-#' if (interactive()) {
-#'   data("pancreas1k")
-#'   pancreas1k <- db_scDblFinder(pancreas1k)
-#'   ClassDimPlot(pancreas1k, reduction = "umap", group.by = "db.scDblFinder_class")
-#'   ExpDimPlot(pancreas1k, reduction = "umap", features = "db.scDblFinder_score")
-#' }
+#' data("pancreas1k")
+#' pancreas1k <- db_scDblFinder(pancreas1k)
+#' ClassDimPlot(pancreas1k, reduction = "umap", group.by = "db.scDblFinder_class")
+#' ExpDimPlot(pancreas1k, reduction = "umap", features = "db.scDblFinder_score")
 #' @importFrom Seurat as.SingleCellExperiment
 #' @export
 db_scDblFinder <- function(srt, assay = "RNA", db_rate = ncol(srt) / 1000 * 0.01, ...) {
@@ -39,12 +37,10 @@ db_scDblFinder <- function(srt, assay = "RNA", db_rate = ncol(srt) / 1000 * 0.01
 #' @param ...
 #'
 #' @examples
-#' if (interactive()) {
-#'   data("pancreas1k")
-#'   pancreas1k <- db_scds(pancreas1k, method = "hybrid")
-#'   ClassDimPlot(pancreas1k, reduction = "umap", group.by = "db.scds_hybrid_class")
-#'   ExpDimPlot(pancreas1k, reduction = "umap", features = "db.scds_hybrid_score")
-#' }
+#' data("pancreas1k")
+#' pancreas1k <- db_scds(pancreas1k, method = "hybrid")
+#' ClassDimPlot(pancreas1k, reduction = "umap", group.by = "db.scds_hybrid_class")
+#' ExpDimPlot(pancreas1k, reduction = "umap", features = "db.scds_hybrid_score")
 #' @importFrom Seurat as.SingleCellExperiment
 #' @export
 db_scds <- function(srt, assay = "RNA", db_rate = ncol(srt) / 1000 * 0.01, method = "hybrid", ...) {
@@ -76,12 +72,10 @@ db_scds <- function(srt, assay = "RNA", db_rate = ncol(srt) / 1000 * 0.01, metho
 #' @param ...
 #'
 #' @examples
-#' if (interactive()) {
-#'   data("pancreas1k")
-#'   pancreas1k <- db_Scrublet(pancreas1k)
-#'   ClassDimPlot(pancreas1k, reduction = "umap", group.by = "db.Scrublet_class")
-#'   ExpDimPlot(pancreas1k, reduction = "umap", features = "db.Scrublet_score")
-#' }
+#' data("pancreas1k")
+#' pancreas1k <- db_Scrublet(pancreas1k)
+#' ClassDimPlot(pancreas1k, reduction = "umap", group.by = "db.Scrublet_class")
+#' ExpDimPlot(pancreas1k, reduction = "umap", features = "db.Scrublet_score")
 #' @importFrom reticulate import
 #' @importFrom Seurat GetAssayData
 #' @export
@@ -119,12 +113,10 @@ db_Scrublet <- function(srt, assay = "RNA", db_rate = ncol(srt) / 1000 * 0.01, .
 #' @param ...
 #'
 #' @examples
-#' if (interactive()) {
-#'   data("pancreas1k")
-#'   pancreas1k <- db_DoubletDetection(pancreas1k)
-#'   ClassDimPlot(pancreas1k, reduction = "umap", group.by = "db.DoubletDetection_class")
-#'   ExpDimPlot(pancreas1k, reduction = "umap", features = "db.DoubletDetection_score")
-#' }
+#' data("pancreas1k")
+#' pancreas1k <- db_DoubletDetection(pancreas1k)
+#' ClassDimPlot(pancreas1k, reduction = "umap", group.by = "db.DoubletDetection_class")
+#' ExpDimPlot(pancreas1k, reduction = "umap", features = "db.DoubletDetection_score")
 #' @importFrom reticulate import
 #' @importFrom Seurat GetAssayData
 #' @export
@@ -442,7 +434,7 @@ RunCellQC <- function(srt, assay = "RNA",
   qc_nm <- c("db_qc", "outlier_qc", "umi_qc", "gene_qc", "mito_qc", "ribo_qc", "ribo_mito_ratio_qc", "species_qc", "CellQC")
   for (qc in qc_nm) {
     srt[[qc]] <- ifelse(colnames(srt) %in% get(qc), "Fail", "Pass")
-    srt[[qc]] <- factor(srt[[qc, drop = TRUE]], levels = c("Fail", "Pass"))
+    srt[[qc]] <- factor(srt[[qc, drop = TRUE]], levels = c("Pass", "Fail"))
   }
 
   if (return_filtered) {

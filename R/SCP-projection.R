@@ -21,29 +21,30 @@ NULL
 #' @param vote_fun
 #'
 #' @examples
-#' if (interactive()) {
-#'   if (!require("SeuratData", quietly = TRUE)) {
-#'     devtools::install_github("zhanghao-njmu/seurat-data")
-#'   }
-#'   library(SeuratData)
-#'   library(stringr)
-#'   suppressWarnings(InstallData("panc8"))
-#'   data("panc8")
-#'
-#'   # Simply convert genes from human to mouse and preprocess the data
-#'   genenm <- make.unique(str_to_title(rownames(panc8)))
-#'   panc8 <- RenameFeatures(panc8, newnames = genenm)
-#'   head(rownames(panc8))
-#'
-#'   panc8 <- Integration_SCP(panc8, batch = "tech", integration_method = "Seurat")
-#'   ClassDimPlot(panc8, "celltype")
-#'
-#'   # Projection
-#'   pancreas1k <- Standard_SCP(pancreas1k)
-#'   head(intersect(rownames(panc8), rownames(pancreas1k)))
-#'   pancreas1k <- RunKNNMap(srt_query = pancreas1k, srt_ref = panc8, ref_umap = "SeuratUMAP2D")
-#'   ProjectionPlot(srt_query = pancreas1k, srt_ref = panc8, query_group = "SubCellType", ref_group = "celltype")
+#' if (!require("SeuratData", quietly = TRUE)) {
+#'   devtools::install_github("zhanghao-njmu/seurat-data")
 #' }
+#' library(SeuratData)
+#' library(stringr)
+#' suppressWarnings(InstallData("panc8"))
+#' data("panc8")
+#' cell_sub <- unlist(lapply(split(colnames(panc8), panc8$tech), function(x) sample(x, size = 500)))
+#' panc8 <- subset(panc8, cells = cell_sub)
+#'
+#' # Simply convert genes from human to mouse and preprocess the data
+#' genenm <- make.unique(str_to_title(rownames(panc8)))
+#' panc8 <- RenameFeatures(panc8, newnames = genenm)
+#' head(rownames(panc8))
+#'
+#' panc8 <- Integration_SCP(panc8, batch = "tech", integration_method = "Seurat")
+#' ClassDimPlot(panc8, "celltype")
+#'
+#' # Projection
+#' data("pancreas1k")
+#' pancreas1k <- Standard_SCP(pancreas1k)
+#' head(intersect(rownames(panc8), rownames(pancreas1k)))
+#' pancreas1k <- RunKNNMap(srt_query = pancreas1k, srt_ref = panc8, ref_umap = "SeuratUMAP2D")
+#' ProjectionPlot(srt_query = pancreas1k, srt_ref = panc8, query_group = "SubCellType", ref_group = "celltype")
 #' @importFrom Seurat Reductions Embeddings FindVariableFeatures VariableFeatures GetAssayData FindNeighbors CreateDimReducObject DefaultAssay
 #' @importFrom Matrix t
 #' @export
@@ -77,11 +78,11 @@ RunKNNMap <- function(srt_query, srt_ref, ref_umap = NULL, force = FALSE,
   if (!projection_method %in% c("model", "knn")) {
     stop("projection_method must be one of 'model' and 'knn'")
   }
-  if (projection_method == "model" & !"model" %in% names(srt_ref[[ref_umap]]@misc)) {
+  if (projection_method == "model" && !"model" %in% names(srt_ref[[ref_umap]]@misc)) {
     message("No UMAP model detected. Set the projection_method to 'knn'")
     projection_method <- "knn"
   }
-  if (projection_method == "model" & !distance_metric %in% c("euclidean", "cosine", "manhattan", "hamming")) {
+  if (projection_method == "model" && !distance_metric %in% c("euclidean", "cosine", "manhattan", "hamming")) {
     stop("distance_metric must be one of euclidean, cosine, manhattan, and hamming when projection_method='model'")
   }
   simil_method <- c(
@@ -103,9 +104,9 @@ RunKNNMap <- function(srt_query, srt_ref, ref_umap = NULL, force = FALSE,
     }
   }
 
-  if (!is.null(query_reduction) & !is.null(ref_reduction)) {
+  if (!is.null(query_reduction) && !is.null(ref_reduction)) {
     message("Use the reduction to calculate distance metric.")
-    if (!is.null(query_dims) & !is.null(ref_dims) & length(query_dims) == length(ref_dims)) {
+    if (!is.null(query_dims) && !is.null(ref_dims) && length(query_dims) == length(ref_dims)) {
       query <- Embeddings(srt_query, reduction = query_reduction)[, query_dims]
       ref <- Embeddings(srt_ref, reduction = ref_reduction)[, ref_dims]
     } else {
@@ -118,7 +119,7 @@ RunKNNMap <- function(srt_query, srt_ref, ref_umap = NULL, force = FALSE,
     message("Detected srt_query data type: ", status_query)
     status_ref <- check_DataType(data = GetAssayData(srt_ref, slot = "data", assay = ref_assay))
     message("Detected srt_ref data type: ", status_ref)
-    if (status_ref != status_query | any(status_query == "unknown", status_ref == "unknown")) {
+    if (status_ref != status_query || any(status_query == "unknown", status_ref == "unknown")) {
       if (isTRUE(force)) {
         warning("Data type is different between query and ref.")
       } else {
@@ -151,7 +152,7 @@ RunKNNMap <- function(srt_query, srt_ref, ref_umap = NULL, force = FALSE,
   if (!nn_method %in% c("raw", "annoy", "rann")) {
     stop("nn_method must be one of raw, rann and annoy")
   }
-  if (nn_method == "annoy" & !distance_metric %in% c("euclidean", "cosine", "manhattan", "hamming")) {
+  if (nn_method == "annoy" && !distance_metric %in% c("euclidean", "cosine", "manhattan", "hamming")) {
     stop("distance_metric must be one of euclidean, cosine, manhattan, and hamming when nn_method='annoy'")
   }
 
@@ -213,7 +214,7 @@ RunKNNMap <- function(srt_query, srt_ref, ref_umap = NULL, force = FALSE,
     if ("layout" %in% names(model)) {
       class(model) <- "umap"
       res <- predict(model, query)
-      colnames(res) <- paste0("refUMAP_", 1:ncol(res))
+      colnames(res) <- paste0("refUMAP_", seq_len(ncol(res)))
       srt_query[["ref.umap"]] <- CreateDimReducObject(embeddings = res, key = "refUMAP_", assay = DefaultAssay(srt_query), misc = list(reduction.model = ref_umap))
     } else if ("embedding" %in% names(model)) {
       neighborlist <- list(idx = match_k, dist = match_k_distance)
@@ -224,7 +225,7 @@ RunKNNMap <- function(srt_query, srt_ref, ref_umap = NULL, force = FALSE,
     refumap <- aggregate(refumap_all, by = list(group), FUN = vote_fun)
     rownames(refumap) <- refumap[, 1]
     refumap[, 1] <- NULL
-    colnames(refumap) <- paste0("refUMAP_", 1:ncol(refumap))
+    colnames(refumap) <- paste0("refUMAP_", seq_len(ncol(refumap)))
     refumap <- as.matrix(refumap)
     srt_query[["ref.umap"]] <- CreateDimReducObject(embeddings = refumap, key = "refUMAP_", assay = DefaultAssay(srt_query), misc = list(reduction.model = ref_umap))
   }
@@ -278,28 +279,29 @@ RunKNNMap <- function(srt_query, srt_ref, ref_umap = NULL, force = FALSE,
 #' @param vote_fun
 #'
 #' @examples
-#' if (interactive()) {
-#'   if (!require("SeuratData", quietly = TRUE)) {
-#'     devtools::install_github("zhanghao-njmu/seurat-data")
-#'   }
-#'   library(SeuratData)
-#'   library(stringr)
-#'   suppressWarnings(InstallData("panc8"))
-#'   data("panc8")
-#'
-#'   # Simply convert genes from human to mouse and preprocess the data
-#'   genenm <- make.unique(str_to_title(rownames(panc8)))
-#'   panc8 <- RenameFeatures(panc8, newnames = genenm)
-#'   head(rownames(panc8))
-#'
-#'   panc8 <- Integration_SCP(panc8, batch = "tech", integration_method = "Seurat")
-#'   ClassDimPlot(panc8, "celltype")
-#'
-#'   # Projection
-#'   pancreas1k <- Standard_SCP(pancreas1k)
-#'   pancreas1k <- RunPCAMap(srt_query = pancreas1k, srt_ref = panc8, ref_pca = "Seuratpca", ref_umap = "SeuratUMAP2D")
-#'   ProjectionPlot(srt_query = pancreas1k, srt_ref = panc8, query_group = "SubCellType", ref_group = "celltype")
+#' if (!require("SeuratData", quietly = TRUE)) {
+#'   devtools::install_github("zhanghao-njmu/seurat-data")
 #' }
+#' library(SeuratData)
+#' library(stringr)
+#' suppressWarnings(InstallData("panc8"))
+#' data("panc8")
+#' cell_sub <- unlist(lapply(split(colnames(panc8), panc8$tech), function(x) sample(x, size = 500)))
+#' panc8 <- subset(panc8, cells = cell_sub)
+#'
+#' # Simply convert genes from human to mouse and preprocess the data
+#' genenm <- make.unique(str_to_title(rownames(panc8)))
+#' panc8 <- RenameFeatures(panc8, newnames = genenm)
+#' head(rownames(panc8))
+#'
+#' panc8 <- Integration_SCP(panc8, batch = "tech", integration_method = "Seurat")
+#' ClassDimPlot(panc8, "celltype")
+#'
+#' # Projection
+#' data("pancreas1k")
+#' pancreas1k <- Standard_SCP(pancreas1k)
+#' pancreas1k <- RunPCAMap(srt_query = pancreas1k, srt_ref = panc8, ref_pca = "Seuratpca", ref_umap = "SeuratUMAP2D")
+#' ProjectionPlot(srt_query = pancreas1k, srt_ref = panc8, query_group = "SubCellType", ref_group = "celltype")
 #' @importFrom Seurat Reductions GetAssayData CreateDimReducObject ProjectUMAP
 #' @export
 RunPCAMap <- function(srt_query, srt_ref, ref_pca = NULL, ref_dims = 1:30, ref_umap = NULL, force = FALSE,
@@ -339,11 +341,11 @@ RunPCAMap <- function(srt_query, srt_ref, ref_pca = NULL, ref_dims = 1:30, ref_u
   if (!projection_method %in% c("model", "knn")) {
     stop("projection_method must be one of 'model' and 'knn'")
   }
-  if (projection_method == "model" & !"model" %in% names(srt_ref[[ref_umap]]@misc)) {
+  if (projection_method == "model" && !"model" %in% names(srt_ref[[ref_umap]]@misc)) {
     message("No UMAP model detected. Set the projection_method to 'knn'")
     projection_method <- "knn"
   }
-  if (projection_method == "model" & !distance_metric %in% c("euclidean", "cosine", "manhattan", "hamming")) {
+  if (projection_method == "model" && !distance_metric %in% c("euclidean", "cosine", "manhattan", "hamming")) {
     stop("distance_metric must be one of euclidean, cosine, manhattan, and hamming when projection_method='model'")
   }
 
@@ -352,7 +354,7 @@ RunPCAMap <- function(srt_query, srt_ref, ref_pca = NULL, ref_dims = 1:30, ref_u
   message("Detected srt_query data type: ", status_query)
   status_ref <- check_DataType(data = GetAssayData(srt_ref, slot = "data", assay = pca.out@assay.used))
   message("Detected srt_ref data type: ", status_ref)
-  if (status_ref != status_query | any(status_query == "unknown", status_ref == "unknown")) {
+  if (status_ref != status_query || any(status_query == "unknown", status_ref == "unknown")) {
     if (isTRUE(force)) {
       warning("Data type is different between query and ref.")
     } else {
@@ -437,28 +439,29 @@ RunPCAMap <- function(srt_query, srt_ref, ref_pca = NULL, ref_dims = 1:30, ref_u
 #' @param vote_fun
 #'
 #' @examples
-#' if (interactive()) {
-#'   if (!require("SeuratData", quietly = TRUE)) {
-#'     devtools::install_github("zhanghao-njmu/seurat-data")
-#'   }
-#'   library(SeuratData)
-#'   library(stringr)
-#'   suppressWarnings(InstallData("panc8"))
-#'   data("panc8")
-#'
-#'   # Simply convert genes from human to mouse and preprocess the data
-#'   genenm <- make.unique(str_to_title(rownames(panc8)))
-#'   panc8 <- RenameFeatures(panc8, newnames = genenm)
-#'   head(rownames(panc8))
-#'
-#'   panc8 <- Integration_SCP(panc8, batch = "tech", integration_method = "Seurat")
-#'   ClassDimPlot(panc8, "celltype")
-#'
-#'   # Projection
-#'   pancreas1k <- Standard_SCP(pancreas1k)
-#'   pancreas1k <- RunSeuratMap(srt_query = pancreas1k, srt_ref = panc8, ref_pca = "Seuratpca", ref_umap = "SeuratUMAP2D")
-#'   ProjectionPlot(srt_query = pancreas1k, srt_ref = panc8, query_group = "SubCellType", ref_group = "celltype")
+#' if (!require("SeuratData", quietly = TRUE)) {
+#'   devtools::install_github("zhanghao-njmu/seurat-data")
 #' }
+#' library(SeuratData)
+#' library(stringr)
+#' suppressWarnings(InstallData("panc8"))
+#' data("panc8")
+#' cell_sub <- unlist(lapply(split(colnames(panc8), panc8$tech), function(x) sample(x, size = 500)))
+#' panc8 <- subset(panc8, cells = cell_sub)
+#'
+#' # Simply convert genes from human to mouse and preprocess the data
+#' genenm <- make.unique(str_to_title(rownames(panc8)))
+#' panc8 <- RenameFeatures(panc8, newnames = genenm)
+#' head(rownames(panc8))
+#'
+#' panc8 <- Integration_SCP(panc8, batch = "tech", integration_method = "Seurat")
+#' ClassDimPlot(panc8, "celltype")
+#'
+#' # Projection
+#' data("pancreas1k")
+#' pancreas1k <- Standard_SCP(pancreas1k)
+#' pancreas1k <- RunSeuratMap(srt_query = pancreas1k, srt_ref = panc8, ref_pca = "Seuratpca", ref_umap = "SeuratUMAP2D")
+#' ProjectionPlot(srt_query = pancreas1k, srt_ref = panc8, query_group = "SubCellType", ref_group = "celltype")
 #' @importFrom Seurat Reductions FindTransferAnchors TransferData IntegrateEmbeddings ProjectUMAP
 #' @export
 RunSeuratMap <- function(srt_query, srt_ref,
@@ -494,11 +497,11 @@ RunSeuratMap <- function(srt_query, srt_ref,
   if (!projection_method %in% c("model", "knn")) {
     stop("projection_method must be one of 'model' and 'knn'")
   }
-  if (projection_method == "model" & !"model" %in% names(srt_ref[[ref_umap]]@misc)) {
+  if (projection_method == "model" && !"model" %in% names(srt_ref[[ref_umap]]@misc)) {
     message("No UMAP model detected. Set the projection_method to 'knn'")
     projection_method <- "knn"
   }
-  if (projection_method == "model" & !distance_metric %in% c("euclidean", "cosine", "manhattan", "hamming")) {
+  if (projection_method == "model" && !distance_metric %in% c("euclidean", "cosine", "manhattan", "hamming")) {
     stop("distance_metric must be one of euclidean, cosine, manhattan, and hamming when projection_method='model'")
   }
 
@@ -506,7 +509,7 @@ RunSeuratMap <- function(srt_query, srt_ref,
   message("Detected srt_query data type: ", status_query)
   status_ref <- check_DataType(data = GetAssayData(srt_ref, slot = "data", assay = srt_ref[[ref_pca]]@assay.used))
   message("Detected srt_ref data type: ", status_ref)
-  if (status_ref != status_query | any(status_query == "unknown", status_ref == "unknown")) {
+  if (status_ref != status_query || any(status_query == "unknown", status_ref == "unknown")) {
     if (isTRUE(force)) {
       warning("Data type is different between query and ref.")
     } else {
@@ -553,28 +556,29 @@ RunSeuratMap <- function(srt_query, srt_ref,
 #' @param vote_fun
 #'
 #' @examples
-#' if (interactive()) {
-#'   if (!require("SeuratData", quietly = TRUE)) {
-#'     devtools::install_github("zhanghao-njmu/seurat-data")
-#'   }
-#'   library(SeuratData)
-#'   library(stringr)
-#'   suppressWarnings(InstallData("panc8"))
-#'   data("panc8")
-#'
-#'   # Simply convert genes from human to mouse and preprocess the data
-#'   genenm <- make.unique(str_to_title(rownames(panc8)))
-#'   panc8 <- RenameFeatures(panc8, newnames = genenm)
-#'   head(rownames(panc8))
-#'
-#'   panc8 <- Integration_SCP(panc8, batch = "tech", integration_method = "CSS")
-#'   ClassDimPlot(panc8, "celltype")
-#'
-#'   # Projection
-#'   pancreas1k <- Standard_SCP(pancreas1k)
-#'   pancreas1k <- RunCSSMap(srt_query = pancreas1k, srt_ref = panc8, ref_css = "CSS", ref_umap = "CSSUMAP2D")
-#'   ProjectionPlot(srt_query = pancreas1k, srt_ref = panc8, query_group = "SubCellType", ref_group = "celltype")
+#' if (!require("SeuratData", quietly = TRUE)) {
+#'   devtools::install_github("zhanghao-njmu/seurat-data")
 #' }
+#' library(SeuratData)
+#' library(stringr)
+#' suppressWarnings(InstallData("panc8"))
+#' data("panc8")
+#' cell_sub <- unlist(lapply(split(colnames(panc8), panc8$tech), function(x) sample(x, size = 500)))
+#' panc8 <- subset(panc8, cells = cell_sub)
+#'
+#' # Simply convert genes from human to mouse and preprocess the data
+#' genenm <- make.unique(str_to_title(rownames(panc8)))
+#' panc8 <- RenameFeatures(panc8, newnames = genenm)
+#' head(rownames(panc8))
+#'
+#' panc8 <- Integration_SCP(panc8, batch = "tech", integration_method = "CSS")
+#' ClassDimPlot(panc8, "celltype")
+#'
+#' # Projection
+#' data("pancreas1k")
+#' pancreas1k <- Standard_SCP(pancreas1k)
+#' pancreas1k <- RunCSSMap(srt_query = pancreas1k, srt_ref = panc8, ref_css = "CSS", ref_umap = "CSSUMAP2D")
+#' ProjectionPlot(srt_query = pancreas1k, srt_ref = panc8, query_group = "SubCellType", ref_group = "celltype")
 #' @importFrom Seurat Reductions CreateDimReducObject ProjectUMAP
 #' @export
 RunCSSMap <- function(srt_query, srt_ref, ref_css = NULL, ref_umap = NULL, force = FALSE,
@@ -616,11 +620,11 @@ RunCSSMap <- function(srt_query, srt_ref, ref_css = NULL, ref_umap = NULL, force
   if (!projection_method %in% c("model", "knn")) {
     stop("projection_method must be one of 'model' and 'knn'")
   }
-  if (projection_method == "model" & !"model" %in% names(srt_ref[[ref_umap]]@misc)) {
+  if (projection_method == "model" && !"model" %in% names(srt_ref[[ref_umap]]@misc)) {
     message("No UMAP model detected. Set the projection_method to 'knn'")
     projection_method <- "knn"
   }
-  if (projection_method == "model" & !distance_metric %in% c("euclidean", "cosine", "manhattan", "hamming")) {
+  if (projection_method == "model" && !distance_metric %in% c("euclidean", "cosine", "manhattan", "hamming")) {
     stop("distance_metric must be one of euclidean, cosine, manhattan, and hamming when projection_method='model'")
   }
 
@@ -628,7 +632,7 @@ RunCSSMap <- function(srt_query, srt_ref, ref_css = NULL, ref_umap = NULL, force
   message("Detected srt_query data type: ", status_query)
   status_ref <- check_DataType(data = GetAssayData(srt_ref, slot = "data", assay = srt_ref[[ref_css]]@assay.used))
   message("Detected srt_ref data type: ", status_ref)
-  if (status_ref != status_query | any(status_query == "unknown", status_ref == "unknown")) {
+  if (status_ref != status_query || any(status_query == "unknown", status_ref == "unknown")) {
     if (isTRUE(force)) {
       warning("Data type is different between query and ref.")
     } else {
@@ -641,7 +645,7 @@ RunCSSMap <- function(srt_query, srt_ref, ref_css = NULL, ref_umap = NULL, force
   srt_query <- simspec::css_project(object = srt_query, model = CSSmodel)
 
   message("Run UMAP projection")
-  ref_dims <- 1:dim(srt_ref[[ref_css]])[2]
+  ref_dims <- seq_len(dim(srt_ref[[ref_css]])[2])
   srt_query <- RunKNNMap(
     srt_query = srt_query, srt_ref = srt_ref, ref_group = ref_group, ref_umap = ref_umap, force = force,
     query_reduction = "css_proj", ref_reduction = ref_css, query_dims = ref_dims, ref_dims = ref_dims,
@@ -667,28 +671,29 @@ RunCSSMap <- function(srt_query, srt_ref, ref_css = NULL, ref_umap = NULL, force
 #' @param vote_fun
 #'
 #' @examples
-#' if (interactive()) {
-#'   if (!require("SeuratData", quietly = TRUE)) {
-#'     devtools::install_github("zhanghao-njmu/seurat-data")
-#'   }
-#'   library(SeuratData)
-#'   library(stringr)
-#'   suppressWarnings(InstallData("panc8"))
-#'   data("panc8")
-#'
-#'   # Simply convert genes from human to mouse and preprocess the data
-#'   genenm <- make.unique(str_to_title(rownames(panc8)))
-#'   panc8 <- RenameFeatures(panc8, newnames = genenm)
-#'   head(rownames(panc8))
-#'
-#'   panc8 <- Integration_SCP(panc8, batch = "tech", integration_method = "Harmony")
-#'   ClassDimPlot(panc8, "celltype")
-#'
-#'   # Projection
-#'   pancreas1k <- Standard_SCP(pancreas1k)
-#'   pancreas1k <- RunSymphonyMap(srt_query = pancreas1k, srt_ref = panc8, ref_pca = "Harmonypca", ref_harmony = "Harmony", ref_umap = "HarmonyUMAP2D")
-#'   ProjectionPlot(srt_query = pancreas1k, srt_ref = panc8, query_group = "SubCellType", ref_group = "celltype")
+#' if (!require("SeuratData", quietly = TRUE)) {
+#'   devtools::install_github("zhanghao-njmu/seurat-data")
 #' }
+#' library(SeuratData)
+#' library(stringr)
+#' suppressWarnings(InstallData("panc8"))
+#' data("panc8")
+#' cell_sub <- unlist(lapply(split(colnames(panc8), panc8$tech), function(x) sample(x, size = 500)))
+#' panc8 <- subset(panc8, cells = cell_sub)
+#'
+#' # Simply convert genes from human to mouse and preprocess the data
+#' genenm <- make.unique(str_to_title(rownames(panc8)))
+#' panc8 <- RenameFeatures(panc8, newnames = genenm)
+#' head(rownames(panc8))
+#'
+#' panc8 <- Integration_SCP(panc8, batch = "tech", integration_method = "Harmony")
+#' ClassDimPlot(panc8, "celltype")
+#'
+#' # Projection
+#' data("pancreas1k")
+#' pancreas1k <- Standard_SCP(pancreas1k)
+#' pancreas1k <- RunSymphonyMap(srt_query = pancreas1k, srt_ref = panc8, ref_pca = "Harmonypca", ref_harmony = "Harmony", ref_umap = "HarmonyUMAP2D")
+#' ProjectionPlot(srt_query = pancreas1k, srt_ref = panc8, query_group = "SubCellType", ref_group = "celltype")
 #' @importFrom Seurat Reductions GetAssayData DefaultAssay ProjectUMAP
 #' @export
 RunSymphonyMap <- function(srt_query, srt_ref, ref_pca = NULL, ref_harmony = NULL, ref_umap = NULL, force = FALSE,
@@ -736,11 +741,11 @@ RunSymphonyMap <- function(srt_query, srt_ref, ref_pca = NULL, ref_harmony = NUL
   if (!projection_method %in% c("model", "knn")) {
     stop("projection_method must be one of 'model' and 'knn'")
   }
-  if (projection_method == "model" & !"model" %in% names(srt_ref[[ref_umap]]@misc)) {
+  if (projection_method == "model" && !"model" %in% names(srt_ref[[ref_umap]]@misc)) {
     message("No UMAP model detected. Set the projection_method to 'knn'")
     projection_method <- "knn"
   }
-  if (projection_method == "model" & !distance_metric %in% c("euclidean", "cosine", "manhattan", "hamming")) {
+  if (projection_method == "model" && !distance_metric %in% c("euclidean", "cosine", "manhattan", "hamming")) {
     stop("distance_metric must be one of euclidean, cosine, manhattan, and hamming when projection_method='model'")
   }
 
@@ -748,7 +753,7 @@ RunSymphonyMap <- function(srt_query, srt_ref, ref_pca = NULL, ref_harmony = NUL
   message("Detected srt_query data type: ", status_query)
   status_ref <- check_DataType(data = GetAssayData(srt_ref, slot = "data", assay = srt_ref[[ref_pca]]@assay.used))
   message("Detected srt_ref data type: ", status_ref)
-  if (status_ref != status_query | any(status_query == "unknown", status_ref == "unknown")) {
+  if (status_ref != status_query || any(status_query == "unknown", status_ref == "unknown")) {
     if (isTRUE(force)) {
       warning("Data type is different between query and ref.")
     } else {
@@ -791,7 +796,7 @@ RunSymphonyMap <- function(srt_query, srt_ref, ref_pca = NULL, ref_harmony = NUL
   )
 
   message("Run UMAP projection")
-  ref_dims <- 1:dim(srt_ref[[ref_harmony]])[2]
+  ref_dims <- seq_len(dim(srt_ref[[ref_harmony]])[2])
   srt_query <- RunKNNMap(
     srt_query = srt_query, srt_ref = srt_ref, ref_group = ref_group, ref_umap = ref_umap, force = force,
     query_reduction = "ref.harmony", ref_reduction = ref_harmony, query_dims = ref_dims, ref_dims = ref_dims,

@@ -24,12 +24,12 @@ Standard_SCP(
   nonliner_reduction = "umap",
   nonliner_reduction_dims = c(2, 3),
   nonliner_reduction_distance = "cosine",
+  force_nonliner_reduction = TRUE,
   do_cluster_finding = TRUE,
   cluster_algorithm = "louvain",
   cluster_resolution = 0.6,
   cluster_reorder = TRUE,
-  seed = 11,
-  ...
+  seed = 11
 )
 }
 \arguments{
@@ -61,7 +61,7 @@ Standard_SCP(
 
 \item{liner_reduction_dims_use}{Which dimensions to use.}
 
-\item{nonliner_reduction}{Non-liner reduction method name. Can be one of "umap","umap-naive", "tsne", "dm".}
+\item{nonliner_reduction}{Non-liner reduction method name. Can be one of "umap", "umap-naive", "umap-learn", "tsne", "dm".}
 
 \item{nonliner_reduction_dims}{Dimensions to calculate when performing non-liner reduction.}
 
@@ -74,8 +74,6 @@ Standard_SCP(
 \item{cluster_reorder}{Whether to reorder the cluster names using hierarchical clustering.}
 
 \item{seed}{Set a random seed.}
-
-\item{...}{}
 }
 \value{
 A \code{Seurat} object containing the result.

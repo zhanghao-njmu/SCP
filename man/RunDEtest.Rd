@@ -7,14 +7,17 @@
 RunDEtest(
   srt,
   group_by = NULL,
-  cell_group1 = NULL,
-  cell_group2 = NULL,
+  group1 = NULL,
+  group2 = NULL,
+  cells1 = NULL,
+  cells2 = NULL,
   FindAllMarkers = TRUE,
   FindPairedMarkers = FALSE,
   test.use = "wilcox",
   only.pos = TRUE,
   fc.threshold = 1.5,
   min.pct = 0.1,
+  min.diff.pct = -Inf,
   max.cells.per.ident = Inf,
   latent.vars = NULL,
   slot = "data",
@@ -30,10 +33,6 @@ RunDEtest(
 
 \item{group_by}{group_by}
 
-\item{cell_group1}{cell_group1}
-
-\item{cell_group2}{cell_group2}
-
 \item{FindAllMarkers}{Whether to find markers across all cells.}
 
 \item{FindPairedMarkers}{Whether to find markers between pairs of the cell groups.}
@@ -45,6 +44,10 @@ RunDEtest(
 \item{force}{force}
 
 \item{...}{}
+
+\item{cell_group1}{cell_group1}
+
+\item{cell_group2}{cell_group2}
 }
 \description{
 Differential gene test
@@ -56,7 +59,7 @@ pancreas1k <- RunDEtest(pancreas1k, group_by = "CellType")
 
 # Heatmap
 de_filter <- filter(pancreas1k@tools$DEtest_CellType$AllMarkers_wilcox, p_val_adj < 0.05 & avg_log2FC > 1)
-ExpHeatmapPlot(pancreas1k, genes = de_filter$gene, gene_groups = de_filter$group1, cell_group_by = "CellType")
+ExpHeatmap(pancreas1k, features = de_filter$gene, feature_split = de_filter$group1, cell_split_by = "CellType")
 
 # Dot plot
 de_top <- de_filter \%>\%
@@ -64,5 +67,5 @@ de_top <- de_filter \%>\%
   top_n(1, avg_log2FC) \%>\%
   group_by(group1) \%>\%
   top_n(3, avg_log2FC)
-ExpDotPlot(pancreas1k, genes = de_top$gene, gene_groups = de_top$group1, cell_group_by = "CellType")
+ExpDotPlot(pancreas1k, features = de_top$gene, feature_split = de_top$group1, cell_split_by = "CellType")
 }

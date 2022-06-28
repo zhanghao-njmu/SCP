@@ -26,26 +26,27 @@ RunSymphonyMap(
 Single-cell reference mapping with Symphony method
 }
 \examples{
-if (interactive()) {
-  if (!require("SeuratData", quietly = TRUE)) {
-    devtools::install_github("zhanghao-njmu/seurat-data")
-  }
-  library(SeuratData)
-  library(stringr)
-  suppressWarnings(InstallData("panc8"))
-  data("panc8")
-
-  # Simply convert genes from human to mouse and preprocess the data
-  genenm <- make.unique(str_to_title(rownames(panc8)))
-  panc8 <- RenameFeatures(panc8, newnames = genenm)
-  head(rownames(panc8))
-
-  panc8 <- Integration_SCP(panc8, batch = "tech", integration_method = "Harmony")
-  ClassDimPlot(panc8, "celltype")
-
-  # Projection
-  pancreas1k <- Standard_SCP(pancreas1k)
-  pancreas1k <- RunSymphonyMap(srt_query = pancreas1k, srt_ref = panc8, ref_pca = "Harmonypca", ref_harmony = "Harmony", ref_umap = "HarmonyUMAP2D")
-  ProjectionPlot(srt_query = pancreas1k, srt_ref = panc8, query_group = "SubCellType", ref_group = "celltype")
+if (!require("SeuratData", quietly = TRUE)) {
+  devtools::install_github("zhanghao-njmu/seurat-data")
 }
+library(SeuratData)
+library(stringr)
+suppressWarnings(InstallData("panc8"))
+data("panc8")
+cell_sub <- unlist(lapply(split(colnames(panc8), panc8$tech), function(x) sample(x, size = 500)))
+panc8 <- subset(panc8, cells = cell_sub)
+
+# Simply convert genes from human to mouse and preprocess the data
+genenm <- make.unique(str_to_title(rownames(panc8)))
+panc8 <- RenameFeatures(panc8, newnames = genenm)
+head(rownames(panc8))
+
+panc8 <- Integration_SCP(panc8, batch = "tech", integration_method = "Harmony")
+ClassDimPlot(panc8, "celltype")
+
+# Projection
+data("pancreas1k")
+pancreas1k <- Standard_SCP(pancreas1k)
+pancreas1k <- RunSymphonyMap(srt_query = pancreas1k, srt_ref = panc8, ref_pca = "Harmonypca", ref_harmony = "Harmony", ref_umap = "HarmonyUMAP2D")
+ProjectionPlot(srt_query = pancreas1k, srt_ref = panc8, query_group = "SubCellType", ref_group = "celltype")
 }

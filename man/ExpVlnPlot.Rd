@@ -15,10 +15,10 @@ ExpVlnPlot(
   slot = "data",
   assay = DefaultAssay(srt),
   palette = "Paired",
-  pal_color = NULL,
+  palcolor = NULL,
   alpha = 1,
   bg_palette = "Paired",
-  bg_pal_color = NULL,
+  bg_palcolor = NULL,
   bg_apha = 0.5,
   add_box = TRUE,
   box_fill = "black",
@@ -34,6 +34,7 @@ ExpVlnPlot(
   alpha.highlight = 1,
   calculate_coexp = FALSE,
   compare_features = FALSE,
+  y.nbreaks = 3,
   y.max = NULL,
   same.y.lims = FALSE,
   y.trans = "identity",
@@ -49,7 +50,7 @@ ExpVlnPlot(
   multiplegroup_comparisons = FALSE,
   multiple_method = "kruskal.test",
   theme_use = "theme_scp",
-  aspect.ratio = 0.5,
+  aspect.ratio = NULL,
   title = NULL,
   subtitle = NULL,
   xlab = group.by,
@@ -73,7 +74,17 @@ Violin plot for cell expression.
 }
 \examples{
 data("pancreas1k")
+ExpVlnPlot(pancreas1k,
+  features = c(
+    "Sox9", "Anxa2", "Bicc1", # Ductal
+    "Neurog3", "Hes6", # EPs
+    "Fev", "Neurod1", # Pre-endocrine
+    "Rbp4", "Pyy", # Endocrine
+    "Ins1", "Gcg", "Sst", "Ghrl" # Beta, Alpha, Delta, Epsilon
+  ),
+  group.by = "SubCellType", bg.by = "CellType", stack = TRUE, flip = TRUE
+)
 ExpVlnPlot(pancreas1k, features = c("G2M_score", "S_score"), group.by = "SubCellType")
-ExpVlnPlot(pancreas1k, features = c("Ghrl", "Ins1", "Ins2", "Gcg"), group.by = "SubCellType", bg.by = "CellType", stack = TRUE)
-ExpVlnPlot(pancreas1k, features = c("Ghrl", "Ins1", "Ins2", "Gcg"), group.by = "SubCellType", comparisons = list(c("Alpha", "Beta")), multiplegroup_comparisons = TRUE)
+ExpVlnPlot(pancreas1k, features = c("Neurog3", "Fev"), group.by = "SubCellType", bg.by = "CellType", stack = TRUE)
+ExpVlnPlot(pancreas1k, features = c("Rbp4", "Pyy"), group.by = "SubCellType", comparisons = list(c("Alpha", "Beta"), c("Alpha", "Delta")), multiplegroup_comparisons = TRUE)
 }

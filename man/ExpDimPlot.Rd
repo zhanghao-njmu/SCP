@@ -14,7 +14,7 @@ ExpDimPlot(
   assay = DefaultAssay(srt),
   show_stat = TRUE,
   palette = ifelse(isTRUE(compare_features), "Set1", "Spectral"),
-  pal_color = NULL,
+  palcolor = NULL,
   bg_cutoff = 0,
   bg_color = "grey80",
   pt.size = NULL,
@@ -50,7 +50,7 @@ ExpDimPlot(
   lineages_trim = c(0.01, 0.99),
   lineages_span = 0.75,
   lineages_palette = "Dark2",
-  lineages_pal_color = NULL,
+  lineages_palcolor = NULL,
   lineages_arrow = arrow(length = unit(0.1, "inches")),
   lineages_line_size = 1,
   lineages_line_bg = "white",
@@ -160,22 +160,22 @@ ExpDimPlot(pancreas1k,
 )
 
 ExpDimPlot(pancreas1k,
-  features = c("S_score", "G2M_score"), pt.size = 1, pal_color = c("red", "green"),
+  features = c("S_score", "G2M_score"), pt.size = 1, palcolor = c("red", "green"),
   compare_features = TRUE, color_blend_mode = "mix", title = "mix",
   label = TRUE, label_insitu = TRUE
 )
 ExpDimPlot(pancreas1k,
-  features = c("S_score", "G2M_score"), pt.size = 1, pal_color = c("red", "green"),
+  features = c("S_score", "G2M_score"), pt.size = 1, palcolor = c("red", "green"),
   compare_features = TRUE, color_blend_mode = "blend", title = "blend",
   label = TRUE, label_insitu = TRUE
 )
 ExpDimPlot(pancreas1k,
-  features = c("S_score", "G2M_score"), pt.size = 1, pal_color = c("red", "green"),
+  features = c("S_score", "G2M_score"), pt.size = 1, palcolor = c("red", "green"),
   compare_features = TRUE, color_blend_mode = "screen", title = "screen",
   label = TRUE, label_insitu = TRUE
 )
 ExpDimPlot(pancreas1k,
-  features = c("S_score", "G2M_score"), pt.size = 1, pal_color = c("red", "green"),
+  features = c("S_score", "G2M_score"), pt.size = 1, palcolor = c("red", "green"),
   compare_features = TRUE, color_blend_mode = "multiply", title = "multiply",
   label = TRUE, label_insitu = TRUE
 )

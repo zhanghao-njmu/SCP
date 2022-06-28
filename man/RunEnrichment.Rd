@@ -73,10 +73,8 @@ RunEnrichment(
 Perform the enrichment analysis(over-representation) on the genes
 }
 \examples{
-if (interactive()) {
-  data("pancreas1k")
-  pancreas1k <- RunDEtest(pancreas1k, group_by = "CellType")
-  pancreas1k <- RunEnrichment(srt = pancreas1k, group_by = "CellType", enrichment = "GO_BP", species = "Mus_musculus")
-  EnrichmentPlot(pancreas1k, group_by = "CellType", enrichment = "GO_BP", plot_type = "bar")
-}
+data("pancreas1k")
+pancreas1k <- RunDEtest(pancreas1k, group_by = "CellType")
+pancreas1k <- RunEnrichment(srt = pancreas1k, group_by = "CellType", enrichment = "GO_BP", species = "Mus_musculus")
+EnrichmentPlot(pancreas1k, group_by = "CellType", enrichment = "GO_BP", plot_type = "bar")
 }

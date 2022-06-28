@@ -6,23 +6,24 @@
 \usage{
 EnrichmentPlot(
   srt,
+  enrichment = "GO_BP",
   group_by = NULL,
+  group_use = NULL,
   test.use = "wilcox",
   res = NULL,
-  enrichment = "GO_BP",
-  plot_type = "bar",
-  group_use = NULL,
-  topTerm = 6,
-  topGene = 100,
-  text_size_scale = 1,
-  character_width = 50,
-  line_height = 0.7,
-  panel_fix = FALSE,
-  panel_height_scale = 0.25 * text_size_scale,
-  panel_width = 2.5,
   pvalueCutoff = NULL,
   padjustCutoff = 0.05,
+  plot_type = c("bar", "lollipop", "wordcloud"),
   palette = "Spectral",
+  topTerm = 6,
+  topWord = 100,
+  word_type = c("term", "feature"),
+  min_word_length = 3,
+  exclude_words = c("cell", "cellular", "dna", "rna", "protein", "development",
+    "system", "regulation", "positive", "negative", "response", "process"),
+  base_size = 12,
+  character_width = 50,
+  line_height = 0.7,
   combine = TRUE,
   nrow = NULL,
   ncol = NULL,
@@ -32,19 +33,19 @@ EnrichmentPlot(
 )
 }
 \arguments{
-\item{plot_type}{Type of plot to be visualized.}
-
 \item{group_use}{}
-
-\item{topTerm}{Number of terms to plot if \code{plot_type="bar"} or \code{plot_type="lollipop"}.}
-
-\item{topGene}{Number of genes to plot if \code{plot_type="wordcloud"}.}
 
 \item{pvalueCutoff}{pvalueCutoff}
 
 \item{padjustCutoff}{padjustCutoff}
 
+\item{plot_type}{Type of plot to be visualized.}
+
 \item{palette}{palette}
+
+\item{topTerm}{Number of terms to plot if \code{plot_type="bar"} or \code{plot_type="lollipop"}.}
+
+\item{topWord}{Number of features to plot if \code{plot_type="wordcloud"}.}
 
 \item{combine}{combine}
 
@@ -58,14 +59,13 @@ EnrichmentPlot(
 EnrichmentPlot
 }
 \examples{
-if (interactive()) {
-  data("pancreas1k")
-  pancreas1k <- RunDEtest(pancreas1k, group_by = "CellType")
-  pancreas1k <- RunEnrichment(srt = pancreas1k, group_by = "CellType", enrichment = "GO_BP", species = "Mus_musculus")
-  EnrichmentPlot(pancreas1k, group_by = "CellType", enrichment = "GO_BP", plot_type = "bar")
-  EnrichmentPlot(pancreas1k, group_by = "CellType", enrichment = "GO_BP", plot_type = "bar", character_width = 30, text_size_scale = 0.8)
+data("pancreas1k")
+pancreas1k <- RunDEtest(pancreas1k, group_by = "CellType")
+pancreas1k <- RunEnrichment(srt = pancreas1k, group_by = "CellType", enrichment = "GO_BP", species = "Mus_musculus")
+EnrichmentPlot(pancreas1k, group_by = "CellType", plot_type = "bar")
+EnrichmentPlot(pancreas1k, group_by = "CellType", plot_type = "bar", character_width = 30, base_size = 10)
 
-  EnrichmentPlot(pancreas1k, group_by = "CellType", enrichment = "GO_BP", group_use = c("Ductal", "Endocrine"), plot_type = "lollipop", ncol = 1)
-  EnrichmentPlot(pancreas1k, group_by = "CellType", enrichment = "GO_BP", group_use = c("Ductal", "Endocrine"), plot_type = "wordcloud")
-}
+EnrichmentPlot(pancreas1k, group_by = "CellType", group_use = c("Ductal", "Endocrine"), plot_type = "lollipop", ncol = 1)
+EnrichmentPlot(pancreas1k, group_by = "CellType", group_use = c("Ductal", "Endocrine"), plot_type = "wordcloud")
+EnrichmentPlot(pancreas1k, group_by = "CellType", group_use = c("Ductal", "Endocrine"), plot_type = "wordcloud", word_type = "feature")
 }

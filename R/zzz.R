@@ -16,6 +16,7 @@
     if (!file.exists(py)) {
       next
     }
+    py <- file.path(normalizePath(dirname(py)), basename(py))
     py_version <- tryCatch(suppressWarnings(reticulate:::python_version(py)),
       error = identity
     )
@@ -53,14 +54,15 @@
 
   new_SCP <- FALSE
   if (!reticulate::virtualenv_exists("SCP")) {
-    warning("Create SCP virtual environment. The path is: ", reticulate:::virtualenv_path("SCP"), immediate. = TRUE)
+    packageStartupMessage("Create SCP virtual environment. The path is: ", reticulate:::virtualenv_path("SCP"), immediate. = TRUE)
     reticulate::virtualenv_create(envname = "SCP", python = python_path)
     new_SCP <- TRUE
   }
-  Sys.setenv(RETICULATE_PYTHON = reticulate::virtualenv_python("SCP"))
+  python_path <- reticulate::virtualenv_python("SCP")
+  Sys.setenv(RETICULATE_PYTHON = python_path)
 
   version <- tryCatch(suppressWarnings(reticulate:::python_version(python_path)), error = identity)
-  if (inherits(py_version, "error")) {
+  if (inherits(version, "error")) {
     warning("SCP need python 3.7-3.9! Please install python and reload the SCP!", immediate. = TRUE)
     return(invisible(NULL))
   } else {
@@ -78,7 +80,6 @@
         pyinfo,
         "==================================================================="
       )
-      invisible(lapply(pyinfo_mesg, packageStartupMessage))
       if (isTRUE(new_SCP)) {
         if (!exist_pkg("pip")) {
           temp <- tempfile()
@@ -89,7 +90,10 @@
         check_Python(pkgs = "matplotlib", envname = "SCP")
         check_Python(pkgs = "versioned-hdf5", envname = "SCP")
         check_Python(pkgs = c("numba==0.53.1", "scanpy", "python-igraph", "pandas", "numpy", "scvelo", "palantir"), envname = "SCP")
+        reticulate::py_install("numpy", pip_options = "--no-binary='numpy'", ignore_installed = TRUE, envname = "SCP")
       }
+      invisible(lapply(pyinfo_mesg, packageStartupMessage))
+
 
       run_Python(command = "import matplotlib", envir = .GlobalEnv)
       if (!interactive()) {

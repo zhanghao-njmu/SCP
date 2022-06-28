@@ -8,7 +8,7 @@ palette_scp(
   x,
   n = 100,
   palette = "Paired",
-  pal_color = NULL,
+  palcolor = NULL,
   type = "auto",
   matched = FALSE,
   reverse = FALSE,
@@ -21,7 +21,7 @@ palette_scp(
 
 \item{palette}{palette name used.}
 
-\item{pal_color}{}
+\item{palcolor}{}
 
 \item{type}{Type of \code{x}.Can be one of "auto","discrete" or "continuous". The default is "auto", which automatically detects if \code{x} is a numeric value.
 If it is numeric, then \code{x} is interpolated to the palette color of length 100 in ascending order.
@@ -44,4 +44,90 @@ palette_scp(x, palette = "Spectral")
 palette_scp(x, palette = "Spectral", matched = TRUE)
 palette_scp(x, palette = "Spectral", matched = TRUE, NA_keep = TRUE)
 palette_scp(x, palette = "Paired", type = "discrete")
+
+\dontrun{
+if (interactive()) {
+  check_R(c("stringr", "RColorBrewer", "ggsci", "Redmonder", "rcartocolor", "nord", "viridis", "pals", "oompaBase"))
+  library(stringr)
+  library(RColorBrewer)
+  library(ggsci)
+  library(Redmonder)
+  library(rcartocolor)
+  library(nord)
+  library(viridis)
+  library(pals)
+  brewer.pal.info <- RColorBrewer::brewer.pal.info
+  ggsci_db <- ggsci:::ggsci_db
+  redmonder.pal.info <- Redmonder::redmonder.pal.info
+  metacartocolors <- rcartocolor::metacartocolors
+  rownames(metacartocolors) <- metacartocolors$Name
+  nord_palettes <- nord::nord_palettes
+  viridis_names <- c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")
+  viridis_palettes <- lapply(setNames(viridis_names, viridis_names), function(x) viridis::viridis(100, option = x))
+  ocean_names <- names(pals:::syspals)[str_detect(names(pals:::syspals), "ocean")]
+  ocean_palettes <- pals:::syspals[ocean_names]
+  custom_names <- c("jet", "simspec")
+  custom_palettes <- list(
+    oompaBase::jetColors(N = 100),
+    c("#c22b86", "#f769a1", "#fcc5c1", "#253777", "#1d92c0", "#9ec9e1", "#015b33", "#42aa5e", "#d9f0a2", "#E66F00", "#f18c28", "#FFBB61")
+  )
+  names(custom_palettes) <- custom_names
+
+  palette_list <- list()
+  all_colors <- c(
+    rownames(brewer.pal.info), names(ggsci_db), rownames(redmonder.pal.info),
+    rownames(metacartocolors), names(nord_palettes), names(viridis_palettes),
+    ocean_names, custom_names
+  )
+  for (pal in all_colors) {
+    if (!pal \%in\% all_colors) {
+      stop(paste0("Invalid pal Must be one of ", paste0(all_colors, collapse = ",")))
+    }
+    if (pal \%in\% rownames(brewer.pal.info)) {
+      pal_n <- brewer.pal.info[pal, "maxcolors"]
+      pal_category <- brewer.pal.info[pal, "category"]
+      if (pal_category == "div") {
+        palcolor <- rev(brewer.pal(name = pal, n = pal_n))
+      } else {
+        if (pal == "Paired") {
+          palcolor <- brewer.pal(12, "Paired")[c(1:4, 7, 8, 5, 6, 9, 10, 11, 12)]
+        } else {
+          palcolor <- brewer.pal(name = pal, n = pal_n)
+        }
+      }
+    } else if (pal \%in\% names(ggsci_db)) {
+      if (pal \%in\% c("d3", "uchicago", "material")) {
+        for (subpal in names(ggsci_db[[pal]])) {
+          palcolor <- ggsci_db[[pal]][[subpal]]
+          palette_list[[paste0(pal, "-", subpal)]] <- palcolor
+        }
+        next
+      } else {
+        palcolor <- ggsci_db[[pal]][[1]]
+      }
+    } else if (pal \%in\% rownames(redmonder.pal.info)) {
+      pal_n <- redmonder.pal.info[pal, "maxcolors"]
+      pal_category <- redmonder.pal.info[pal, "category"]
+      if (pal_category == "div") {
+        palcolor <- rev(redmonder.pal(name = pal, n = pal_n))
+      } else {
+        palcolor <- redmonder.pal(name = pal, n = pal_n)
+      }
+    } else if (pal \%in\% rownames(metacartocolors)) {
+      pal_n <- metacartocolors[pal, "Max_n"]
+      palcolor <- carto_pal(name = pal, n = pal_n)
+    } else if (pal \%in\% names(nord_palettes)) {
+      palcolor <- nord_palettes[[pal]]
+    } else if (pal \%in\% names(viridis_palettes)) {
+      palcolor <- viridis_palettes[[pal]]
+    } else if (pal \%in\% names(ocean_palettes)) {
+      palcolor <- ocean_palettes[[pal]]
+    } else if (pal \%in\% custom_names) {
+      palcolor <- custom_palettes[[pal]]
+    }
+    palette_list[[pal]] <- palcolor
+  }
+  # save(palette_list, file = "~/Git/SCP/R/sysdata.rda", version = 2)
+}
+}
 }

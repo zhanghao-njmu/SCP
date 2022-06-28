@@ -325,11 +325,11 @@ RunMDS.default <- function(object,
   }
   if (mds.method == "isoMDS") {
     check_R("MASS")
-    mds.results2 <- MASS::isoMDS(cell.dist, k = nmds)
+    mds.results <- MASS::isoMDS(cell.dist, k = nmds)
   }
   if (mds.method == "sammon") {
     check_R("MASS")
-    mds.results3 <- MASS::sammon(cell.dist, k = nmds)
+    mds.results <- MASS::sammon(cell.dist, k = nmds)
   }
   cell.embeddings <- mds.results$points
 
@@ -781,6 +781,7 @@ RunUMAP2 <- function(object, ...) {
 #' @rdname RunUMAP2
 #' @concept dimensional_reduction
 #' @method RunUMAP2 default
+#' @importFrom SeuratObject Indices Distances
 #' @export
 #'
 RunUMAP2.default <- function(object, dims = NULL, reduction = "pca", features = NULL,
@@ -953,7 +954,7 @@ RunUMAP2.default <- function(object, dims = NULL, reduction = "pca", features = 
       umap.config$n_neighbors <- min(n.neighbors, ncol(object))
       umap.config$n_components <- min(n.components, ncol(object))
       umap.config$metric <- metric
-      umap.config$n_epochs <- ifelse(is.null(n.epochs), 200, n.epochs)
+      umap.config$n_epochs <- ifelse(is.null(n.epochs), 500, n.epochs)
       umap.config$min_dist <- min.dist
       umap.config$set_op_mix_ratio <- set.op.mix.ratio
       umap.config$local_connectivity <- local.connectivity
@@ -977,7 +978,7 @@ RunUMAP2.default <- function(object, dims = NULL, reduction = "pca", features = 
     }
   }
 
-  colnames(x = umap.output) <- paste0(reduction.key, 1:ncol(x = umap.output))
+  colnames(x = umap.output) <- paste0(reduction.key, seq_len(ncol(x = umap.output)))
   if (inherits(x = object, what = "dist") && !is.null(attr(x = object, "Labels"))) {
     rownames(x = umap.output) <- attr(x = object, "Labels")
   } else if (is.list(x = object)) {
@@ -1030,7 +1031,7 @@ RunUMAP2.Graph <- function(object, assay = NULL,
                            umap.method = "uwot",
                            n.components = 2L,
                            metric = "correlation",
-                           n.epochs = 0L,
+                           n.epochs = 500L,
                            learning.rate = 1,
                            min.dist = 0.3,
                            spread = 1,
@@ -1076,7 +1077,7 @@ RunUMAP2.Graph <- function(object, assay = NULL,
   ab.params <- umap$umap_$find_ab_params(spread = spread, min_dist = min.dist)
   a <- a %||% ab.params[[1]]
   b <- b %||% ab.params[[2]]
-  n.epochs <- n.epochs %||% 0L
+  n.epochs <- n.epochs %||% 500L
   random.state <- sklearn$utils$check_random_state(seed = as.integer(x = seed.use))
   umap.args <- list(
     data = data,
@@ -1350,13 +1351,13 @@ RunHarmony2.Seurat <- function(object,
                                ...) {
   if (reduction == "pca") {
     tryCatch(
-      embedding <- Embeddings(object, reduction = "pca"),
+      embedding = Embeddings(object, reduction = "pca"),
       error = function(e) {
         if (verbose) {
           message("Harmony needs PCA. Trying to run PCA now.")
         }
         tryCatch(
-          object <- Seurat::RunPCA(
+          object = Seurat::RunPCA(
             object,
             assay = assay.use, verbose = verbose
           ),

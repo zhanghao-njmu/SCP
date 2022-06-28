@@ -12,7 +12,7 @@ LineagePlot(
   trim = c(0.01, 0.99),
   span = 0.75,
   palette = "Dark2",
-  pal_color = NULL,
+  palcolor = NULL,
   lineages_arrow = arrow(length = unit(0.1, "inches")),
   line_size = 1,
   line_bg = "white",

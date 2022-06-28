@@ -2,7 +2,7 @@
 % Please edit documentation in R/SCP-plot.R
 \name{DynamicHeatmap}
 \alias{DynamicHeatmap}
-\title{Heatmap plot for dynamic genes along lineages}
+\title{Heatmap plot for dynamic features along lineages}
 \usage{
 DynamicHeatmap(
   srt,
@@ -13,31 +13,59 @@ DynamicHeatmap(
   assay = "RNA",
   use_fitted = FALSE,
   lib_normalize = TRUE,
-  lib_size = NULL,
+  libsize = NULL,
   min_expcells = 20,
   r.sq = 0.2,
   dev.expl = 0.2,
   padjust = 0.05,
   cell_density = 1,
-  order_by = "peak_time",
+  order_by = c("peaktime", "valleytime"),
   decreasing = FALSE,
-  feature_clusters = NULL,
-  cluster_title_size = 12,
-  n_cluster = NULL,
-  cluster_by = lineages,
-  cluster_method = ifelse(require("Mfuzz", quietly = TRUE), "mfuzz", "kmeans"),
+  feature_split = NULL,
+  row_title_size = 12,
+  n_split = NULL,
+  heatmap_split_by = lineages,
+  split_method = c("mfuzz", "kmeans", "kmeans-peaktime", "hclust", "hclust-peaktime"),
   fuzzification = NULL,
   show_fuzzification = FALSE,
+  anno_enrichmnet = FALSE,
+  anno_features = FALSE,
+  IDtype = "symbol",
+  species = "Homo_sapiens",
+  db_IDtype = "symbol",
+  db_update = FALSE,
+  db_version = "latest",
+  Ensembl_version = 103,
+  mirror = NULL,
+  enrichment = "GO_BP",
+  TERM2GENE = NULL,
+  TERM2NAME = NULL,
+  minGSSize = 10,
+  maxGSSize = 500,
+  universe = NULL,
+  GO_simplify = TRUE,
+  GO_simplify_padjustCutoff = 0.2,
+  simplify_method = "Rel",
+  simplify_similarityCutoff = 0.7,
+  pvalueCutoff = NULL,
+  padjustCutoff = 0.05,
+  topWord = 20,
+  min_word_length = 3,
+  exclude_words = c("cell", "cellular", "dna", "rna", "protein", "development",
+    "system", "regulation", "positive", "negative", "response", "process"),
+  anno_width = unit(2, "in"),
+  anno_size = c(6, 10),
   nlabel = 20,
-  feature_label = NULL,
+  features_label = NULL,
   label_size = 10,
   label_color = "black",
   pseudotime_label = NULL,
   pseudotime_label_color = "black",
   pseudotime_label_linetype = 2,
   pseudotime_label_linewidth = 2,
-  ht_palette = "RdBu",
+  heatmap_palette = "RdBu",
   pseudotime_palette = "cividis",
+  feature_split_palette = "jama",
   cell_annotation = NULL,
   cell_palette = "Paired",
   cell_palcolor = NULL,
@@ -56,18 +84,37 @@ DynamicHeatmap(
 \item{seed}{}
 }
 \description{
-Heatmap plot for dynamic genes along lineages
+Heatmap plot for dynamic features along lineages
 }
 \examples{
 data("pancreas1k")
 pancreas1k <- RunSlingshot(pancreas1k, group.by = "SubCellType", reduction = "UMAP")
 pancreas1k <- RunDynamicFeatures(pancreas1k, lineages = c("Lineage1", "Lineage2"), n_candidates = 200)
-ht_result <- DynamicHeatmap(
+ht_result1 <- DynamicHeatmap(
+  srt = pancreas1k,
+  lineages = c("Lineage1"), order_by = "peaktime",
+  cell_annotation = "SubCellType",
+  n_split = 5, split_method = "kmeans-peaktime",
+  height = 6, width = 7, use_raster = FALSE
+)
+ht_result1$plot
+
+ht_result2 <- DynamicHeatmap(
   srt = pancreas1k,
   lineages = c("Lineage1", "Lineage2"),
   cell_annotation = "SubCellType",
-  n_cluster = 6, reverse_ht = "Lineage1",
-  height = 5, width = 7, use_raster = FALSE
+  n_split = 5, reverse_ht = "Lineage1",
+  height = 6, width = 7, use_raster = FALSE
 )
-ht_result$plot
+ht_result2$plot
+
+ht_result3 <- DynamicHeatmap(
+  srt = pancreas1k,
+  lineages = c("Lineage1", "Lineage2"),
+  cell_annotation = "SubCellType",
+  n_split = 5, reverse_ht = "Lineage1",
+  species = "Mus_musculus", anno_enrichmnet = TRUE, anno_features = TRUE,
+  height = 6, width = 7, use_raster = FALSE
+)
+ht_result3$plot
 }

@@ -37,69 +37,72 @@ Preprocess <- function() {
 #' @examples
 #' # Annotate cells using bulk RNA-seq data
 #' data("pancreas1k")
+#' data("ref_scMCA")
 #' pancreas1k <- Standard_SCP(pancreas1k)
-#' pancreas1k <- RunKNNPredict(srt_query = pancreas1k, bulk_ref = SCP::ref_scMCA)
+#' pancreas1k <- RunKNNPredict(srt_query = pancreas1k, bulk_ref = ref_scMCA)
 #' ClassDimPlot(pancreas1k, group.by = "knnpredict_classification", label = TRUE)
 #'
 #' # Removal of low credible cell types from the predicted results
-#' pancreas1k <- RunKNNPredict(srt_query = pancreas1k, bulk_ref = SCP::ref_scMCA, filter_lowfreq = 30)
+#' pancreas1k <- RunKNNPredict(srt_query = pancreas1k, bulk_ref = ref_scMCA, filter_lowfreq = 30)
 #' ClassDimPlot(pancreas1k, group.by = "knnpredict_classification", label = TRUE)
 #'
 #' # Annotate clusters using bulk RNA-seq data
-#' pancreas1k <- RunKNNPredict(srt_query = pancreas1k, query_group = "SubCellType", bulk_ref = SCP::ref_scMCA)
+#' pancreas1k <- RunKNNPredict(srt_query = pancreas1k, query_group = "SubCellType", bulk_ref = ref_scMCA)
 #' ClassDimPlot(pancreas1k, group.by = "knnpredict_classification", label = TRUE)
 #'
-#' if (interactive()) {
-#'   # Annotate using single cell RNA-seq data
-#'   if (!require("SeuratData", quietly = TRUE)) {
-#'     devtools::install_github("zhanghao-njmu/seurat-data")
-#'   }
-#'   library(stringr)
-#'   library(SeuratData)
-#'   suppressWarnings(InstallData("panc8"))
-#'   data("panc8")
 #'
-#'   # Simply convert genes from human to mouse and preprocess the data
-#'   genenm <- make.unique(str_to_title(rownames(panc8)))
-#'   panc8 <- RenameFeatures(panc8, newnames = genenm)
-#'
-#'   panc8 <- check_srtMerge(panc8, batch = "tech")[["srtMerge"]]
-#'   pancreas1k <- RunKNNPredict(srt_query = pancreas1k, srt_ref = panc8, ref_group = "celltype")
-#'   ClassDimPlot(pancreas1k, group.by = "knnpredict_classification", label = TRUE)
-#'   ExpDimPlot(pancreas1k, features = "knnpredict_simil")
-#'
-#'   pancreas1k <- RunKNNPredict(
-#'     srt_query = pancreas1k, srt_ref = panc8,
-#'     ref_group = "celltype", ref_collapsing = FALSE
-#'   )
-#'   ClassDimPlot(pancreas1k, group.by = "knnpredict_classification", label = TRUE)
-#'   ExpDimPlot(pancreas1k, features = "knnpredict_prob")
-#'
-#'   pancreas1k <- RunKNNPredict(
-#'     srt_query = pancreas1k, srt_ref = panc8,
-#'     query_group = "SubCellType", ref_group = "celltype",
-#'     query_collapsing = TRUE, ref_collapsing = TRUE
-#'   )
-#'   ClassDimPlot(pancreas1k, group.by = "knnpredict_classification", label = TRUE)
-#'   ExpDimPlot(pancreas1k, features = "knnpredict_simil")
-#'
-#'   # Annotate with DE gene instead of HVF
-#'   pancreas1k <- RunKNNPredict(
-#'     srt_query = pancreas1k, srt_ref = panc8,
-#'     ref_group = "celltype",
-#'     features_type = "DE", feature_source = "ref"
-#'   )
-#'   ClassDimPlot(pancreas1k, group.by = "knnpredict_classification", label = TRUE)
-#'   ExpDimPlot(pancreas1k, features = "knnpredict_simil")
-#'
-#'   pancreas1k <- RunKNNPredict(
-#'     srt_query = pancreas1k, srt_ref = panc8,
-#'     query_group = "SubCellType", ref_group = "celltype",
-#'     features_type = "DE", feature_source = "both"
-#'   )
-#'   ClassDimPlot(pancreas1k, group.by = "knnpredict_classification", label = TRUE)
-#'   ExpDimPlot(pancreas1k, features = "knnpredict_simil")
+#' # Annotate using single cell RNA-seq data
+#' if (!require("SeuratData", quietly = TRUE)) {
+#'   devtools::install_github("zhanghao-njmu/seurat-data")
 #' }
+#' library(stringr)
+#' library(SeuratData)
+#' suppressWarnings(InstallData("panc8"))
+#' data("panc8")
+#' cell_sub <- unlist(lapply(split(colnames(panc8), panc8$tech), function(x) sample(x, size = 500)))
+#' panc8 <- subset(panc8, cells = cell_sub)
+#'
+#' # Simply convert genes from human to mouse and preprocess the data
+#' genenm <- make.unique(str_to_title(rownames(panc8)))
+#' panc8 <- RenameFeatures(panc8, newnames = genenm)
+#' panc8 <- check_srtMerge(panc8, batch = "tech")[["srtMerge"]]
+#'
+#' pancreas1k <- RunKNNPredict(srt_query = pancreas1k, srt_ref = panc8, ref_group = "celltype")
+#' ClassDimPlot(pancreas1k, group.by = "knnpredict_classification", label = TRUE)
+#' ExpDimPlot(pancreas1k, features = "knnpredict_simil")
+#'
+#' pancreas1k <- RunKNNPredict(
+#'   srt_query = pancreas1k, srt_ref = panc8,
+#'   ref_group = "celltype", ref_collapsing = FALSE
+#' )
+#' ClassDimPlot(pancreas1k, group.by = "knnpredict_classification", label = TRUE)
+#' ExpDimPlot(pancreas1k, features = "knnpredict_prob")
+#'
+#' pancreas1k <- RunKNNPredict(
+#'   srt_query = pancreas1k, srt_ref = panc8,
+#'   query_group = "SubCellType", ref_group = "celltype",
+#'   query_collapsing = TRUE, ref_collapsing = TRUE
+#' )
+#' ClassDimPlot(pancreas1k, group.by = "knnpredict_classification", label = TRUE)
+#' ExpDimPlot(pancreas1k, features = "knnpredict_simil")
+#'
+#' # Annotate with DE gene instead of HVF
+#' pancreas1k <- RunKNNPredict(
+#'   srt_query = pancreas1k, srt_ref = panc8,
+#'   ref_group = "celltype",
+#'   features_type = "DE", feature_source = "ref"
+#' )
+#' ClassDimPlot(pancreas1k, group.by = "knnpredict_classification", label = TRUE)
+#' ExpDimPlot(pancreas1k, features = "knnpredict_simil")
+#'
+#' pancreas1k <- RunKNNPredict(
+#'   srt_query = pancreas1k, srt_ref = panc8,
+#'   query_group = "SubCellType", ref_group = "celltype",
+#'   features_type = "DE", feature_source = "both"
+#' )
+#' ClassDimPlot(pancreas1k, group.by = "knnpredict_classification", label = TRUE)
+#' ExpDimPlot(pancreas1k, features = "knnpredict_simil")
+#'
 #' @importFrom methods as
 #' @importFrom Matrix colSums t rowSums
 #' @importFrom Seurat DefaultAssay GetAssayData FindVariableFeatures VariableFeatures AverageExpression
@@ -213,7 +216,7 @@ RunKNNPredict <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
       message("Use the reduction to calculate distance metric.")
       ref_collapsing <- FALSE
       query_collapsing <- FALSE
-      if (!is.null(query_dims) & !is.null(ref_dims) & length(query_dims) == length(ref_dims)) {
+      if (!is.null(query_dims) && !is.null(ref_dims) && length(query_dims) == length(ref_dims)) {
         query <- Embeddings(srt_query, reduction = query_reduction)[, query_dims]
         ref <- Embeddings(srt_ref, reduction = ref_reduction)[, ref_dims]
       } else {
@@ -270,8 +273,8 @@ RunKNNPredict <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
         } else {
           features_ref <- rownames(srt_ref[[ref_assay]])
         }
+        features <- intersect(features_ref, features_query)
       }
-      features <- intersect(features_ref, features_query)
       features_common <- Reduce(intersect, list(features, rownames(srt_query), rownames(srt_ref)))
       message("Use ", length(features_common), " common features to calculate distance.")
       if (isTRUE(ref_collapsing)) {
@@ -320,7 +323,7 @@ RunKNNPredict <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
     message("Detected query data type: ", status_dat)
     status_ref <- check_DataType(data = ref)
     message("Detected reference data type: ", status_ref)
-    if (status_ref != status_dat | any(status_dat == "unknown", status_ref == "unknown")) {
+    if (status_ref != status_dat || any(status_dat == "unknown", status_ref == "unknown")) {
       if (isTRUE(force)) {
         warning("Data type is different between query and reference.")
       } else {
@@ -363,10 +366,10 @@ RunKNNPredict <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
   if (!nn_method %in% c("raw", "annoy", "rann")) {
     stop("nn_method must be one of raw, rann and annoy")
   }
-  if (nn_method == "annoy" & !distance_metric %in% c("euclidean", "cosine", "manhattan", "hamming")) {
+  if (nn_method == "annoy" && !distance_metric %in% c("euclidean", "cosine", "manhattan", "hamming")) {
     stop("distance_metric must be one of euclidean, cosine, manhattan, and hamming when nn_method='annoy'")
   }
-  if (isTRUE(return_full_distance_matrix) & nn_method != "raw") {
+  if (isTRUE(return_full_distance_matrix) && nn_method != "raw") {
     warning("Distance matrix will not be returned besause nn_method is not 'raw'", immediate. = TRUE)
     return_full_distance_matrix <- FALSE
   }
@@ -430,7 +433,7 @@ RunKNNPredict <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
 
   message("Predict cell type...")
   match_prob <- NULL
-  if (!is.null(srt_ref) & !isTRUE(ref_collapsing)) {
+  if (!is.null(srt_ref) && !isTRUE(ref_collapsing)) {
     level <- as.character(unique(srt_ref[["ref_group", drop = TRUE]]))
     if (k == 1) {
       match_best <- srt_ref[["ref_group", drop = TRUE]][match_k_cell[, 1]]
@@ -468,7 +471,7 @@ RunKNNPredict <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
   result[["match_k_cell"]] <- match_k_cell
   result[["match_k_distance"]] <- match_k_distance
   if (isTRUE(return_full_distance_matrix)) {
-    result[["distance_matrix"]] <- d[1:nrow(d), ]
+    result[["distance_matrix"]] <- d[seq_len(nrow(d)), ]
   }
 
   srt_query@tools[[paste0(prefix, "_classification")]] <- result
@@ -514,32 +517,36 @@ RunKNNPredict <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
 #' @param force
 #'
 #' @examples
-#' if (interactive()) {
-#'   if (!require("SeuratData", quietly = TRUE)) {
-#'     devtools::install_github("zhanghao-njmu/seurat-data")
-#'   }
-#'   library(SeuratData)
-#'   library(stringr)
-#'   suppressWarnings(InstallData("panc8"))
-#'   data("panc8")
-#'   genenm <- make.unique(str_to_title(rownames(panc8)))
-#'   panc8 <- RenameFeatures(panc8, newnames = genenm)
-#'   panc8 <- check_srtMerge(panc8, batch = "tech")[["srtMerge"]]
-#'
-#'   # Annotation
-#'   pancreas1k <- Standard_SCP(pancreas1k)
-#'   pancreas1k <- RunScmap(
-#'     srt_query = pancreas1k, srt_ref = panc8,
-#'     ref_group = "celltype", method = "scmapCluster"
-#'   )
-#'   ClassDimPlot(pancreas1k, group.by = "scmap_annotation")
-#'
-#'   pancreas1k <- RunScmap(
-#'     srt_query = pancreas1k, srt_ref = panc8,
-#'     ref_group = "celltype", method = "scmapCell"
-#'   )
-#'   ClassDimPlot(pancreas1k, group.by = "scmap_annotation")
+#' if (!require("SeuratData", quietly = TRUE)) {
+#'   devtools::install_github("zhanghao-njmu/seurat-data")
 #' }
+#' library(SeuratData)
+#' library(stringr)
+#' suppressWarnings(InstallData("panc8"))
+#' data("panc8")
+#' cell_sub <- unlist(lapply(split(colnames(panc8), panc8$tech), function(x) sample(x, size = 500)))
+#' panc8 <- subset(panc8, cells = cell_sub)
+#'
+#' # Simply convert genes from human to mouse and preprocess the data
+#' genenm <- make.unique(str_to_title(rownames(panc8)))
+#' panc8 <- RenameFeatures(panc8, newnames = genenm)
+#' panc8 <- check_srtMerge(panc8, batch = "tech")[["srtMerge"]]
+#'
+#' # Annotation
+#' data("pancreas1k")
+#' pancreas1k <- Standard_SCP(pancreas1k)
+#' pancreas1k <- RunScmap(
+#'   srt_query = pancreas1k, srt_ref = panc8,
+#'   ref_group = "celltype", method = "scmapCluster"
+#' )
+#' ClassDimPlot(pancreas1k, group.by = "scmap_annotation")
+#'
+#' pancreas1k <- RunScmap(
+#'   srt_query = pancreas1k, srt_ref = panc8,
+#'   ref_group = "celltype", method = "scmapCell"
+#' )
+#' ClassDimPlot(pancreas1k, group.by = "scmap_annotation")
+#'
 #' @importFrom Seurat GetAssayData
 #' @export
 RunScmap <- function(srt_query, srt_ref, ref_group = NULL, method = "scmapCluster",
@@ -566,7 +573,7 @@ RunScmap <- function(srt_query, srt_ref, ref_group = NULL, method = "scmapCluste
   message("Detected srt_query data type: ", status_query)
   status_ref <- check_DataType(data = GetAssayData(srt_ref, slot = "data", assay = ref_assay))
   message("Detected srt_ref data type: ", status_ref)
-  if (status_ref != status_query | any(status_query == "unknown", status_ref == "unknown")) {
+  if (status_ref != status_query || any(status_query == "unknown", status_ref == "unknown")) {
     if (isTRUE(force)) {
       warning("Data type is different between query and ref.")
     } else {
@@ -664,32 +671,36 @@ RunScmap <- function(srt_query, srt_ref, ref_group = NULL, method = "scmapCluste
 #' @param force
 #'
 #' @examples
-#' if (interactive()) {
-#'   if (!require("SeuratData", quietly = TRUE)) {
-#'     devtools::install_github("zhanghao-njmu/seurat-data")
-#'   }
-#'   library(SeuratData)
-#'   library(stringr)
-#'   suppressWarnings(InstallData("panc8"))
-#'   data("panc8")
-#'   genenm <- make.unique(str_to_title(rownames(panc8)))
-#'   panc8 <- RenameFeatures(panc8, newnames = genenm)
-#'   panc8 <- check_srtMerge(panc8, batch = "tech")[["srtMerge"]]
-#'
-#'   # Annotation
-#'   pancreas1k <- Standard_SCP(pancreas1k)
-#'   pancreas1k <- RunSingleR(
-#'     srt_query = pancreas1k, srt_ref = panc8,
-#'     query_group = "Standardclusters", ref_group = "celltype",
-#'   )
-#'   ClassDimPlot(pancreas1k, group.by = "singler_annotation")
-#'
-#'   pancreas1k <- RunSingleR(
-#'     srt_query = pancreas1k, srt_ref = panc8,
-#'     query_group = NULL, ref_group = "celltype"
-#'   )
-#'   ClassDimPlot(pancreas1k, group.by = "singler_annotation")
+#' if (!require("SeuratData", quietly = TRUE)) {
+#'   devtools::install_github("zhanghao-njmu/seurat-data")
 #' }
+#' library(SeuratData)
+#' library(stringr)
+#' suppressWarnings(InstallData("panc8"))
+#' data("panc8")
+#' cell_sub <- unlist(lapply(split(colnames(panc8), panc8$tech), function(x) sample(x, size = 500)))
+#' panc8 <- subset(panc8, cells = cell_sub)
+#'
+#' # Simply convert genes from human to mouse and preprocess the data
+#' genenm <- make.unique(str_to_title(rownames(panc8)))
+#' panc8 <- RenameFeatures(panc8, newnames = genenm)
+#' panc8 <- check_srtMerge(panc8, batch = "tech")[["srtMerge"]]
+#'
+#' # Annotation
+#' data("pancreas1k")
+#' pancreas1k <- Standard_SCP(pancreas1k)
+#' pancreas1k <- RunSingleR(
+#'   srt_query = pancreas1k, srt_ref = panc8,
+#'   query_group = "Standardclusters", ref_group = "celltype",
+#' )
+#' ClassDimPlot(pancreas1k, group.by = "singler_annotation")
+#'
+#' pancreas1k <- RunSingleR(
+#'   srt_query = pancreas1k, srt_ref = panc8,
+#'   query_group = NULL, ref_group = "celltype"
+#' )
+#' ClassDimPlot(pancreas1k, group.by = "singler_annotation")
+#'
 #' @importFrom Seurat GetAssayData
 #' @export
 RunSingleR <- function(srt_query, srt_ref, query_group = NULL, ref_group = NULL,
@@ -736,7 +747,7 @@ RunSingleR <- function(srt_query, srt_ref, query_group = NULL, ref_group = NULL,
   message("Detected srt_query data type: ", status_query)
   status_ref <- check_DataType(data = GetAssayData(srt_ref, slot = "data", assay = ref_assay))
   message("Detected srt_ref data type: ", status_ref)
-  if (status_ref != status_query | any(status_query == "unknown", status_ref == "unknown")) {
+  if (status_ref != status_query || any(status_query == "unknown", status_ref == "unknown")) {
     if (isTRUE(force)) {
       warning("Data type is different between query and ref.")
     } else {
@@ -812,7 +823,7 @@ RunSingleR <- function(srt_query, srt_ref, query_group = NULL, ref_group = NULL,
     } else {
       SingleRCell_results$labels
     }
-    srt_query$singler_score <- sapply(1:ncol(srt_query), FUN = function(x) {
+    srt_query$singler_score <- sapply(seq_len(ncol(srt_query)), FUN = function(x) {
       if (isTRUE(prune)) {
         y <- SingleRCell_results$pruned.labels[x]
       } else {

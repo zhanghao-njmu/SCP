@@ -55,7 +55,7 @@ RunUMAP2(object, ...)
   umap.method = "uwot",
   n.components = 2L,
   metric = "correlation",
-  n.epochs = 0L,
+  n.epochs = 500L,
   learning.rate = 1,
   min.dist = 0.3,
   spread = 1,

@@ -19,10 +19,8 @@ db_scds(
 Run doublet-calling with scds
 }
 \examples{
-if (interactive()) {
-  data("pancreas1k")
-  pancreas1k <- db_scds(pancreas1k, method = "hybrid")
-  ClassDimPlot(pancreas1k, reduction = "umap", group.by = "db.scds_hybrid_class")
-  ExpDimPlot(pancreas1k, reduction = "umap", features = "db.scds_hybrid_score")
-}
+data("pancreas1k")
+pancreas1k <- db_scds(pancreas1k, method = "hybrid")
+ClassDimPlot(pancreas1k, reduction = "umap", group.by = "db.scds_hybrid_class")
+ExpDimPlot(pancreas1k, reduction = "umap", features = "db.scds_hybrid_score")
 }

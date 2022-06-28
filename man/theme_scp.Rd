@@ -4,12 +4,12 @@
 \alias{theme_scp}
 \title{SCP theme}
 \usage{
-theme_scp(aspect.ratio = 1, text_size_scale = 1, ...)
+theme_scp(aspect.ratio = NULL, base_size = 12, ...)
 }
 \arguments{
 \item{aspect.ratio}{Aspect ratio of the panel.}
 
-\item{text_size_scale}{}
+\item{base_size}{}
 
 \item{...}{Arguments passed to the \code{\link[ggplot2]{theme}}.}
 }
