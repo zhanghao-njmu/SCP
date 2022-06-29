@@ -25,7 +25,7 @@
         <input type="search" class="form-control me-sm-2" aria-label="Toggle navigation" name="search-input" data-search-index="../search.json" id="search-input" placeholder="Search for" autocomplete="off"></form>
 
       <ul class="navbar-nav"><li class="nav-item">
-  <a class="nav-link" href="https://zhanghao-njmu.github.io/SCP/">
+  <a class="external-link nav-link" href="https://github.com/zhanghao-njmu/SCP">
     <span class="fa fa-github"></span>
      
   </a>
@@ -149,12 +149,24 @@
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
-<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"pancreas1k"</span><span class="op">)</span></span></span>
-<span class="r-in"><span>  <span class="va">pancreas1k</span> <span class="op">&lt;-</span> <span class="fu"><a href="RunDEtest.html">RunDEtest</a></span><span class="op">(</span><span class="va">pancreas1k</span>, group_by <span class="op">=</span> <span class="st">"CellType"</span>, only.pos <span class="op">=</span> <span class="cn">FALSE</span>, fc.threshold <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
-<span class="r-in"><span>  <span class="va">pancreas1k</span> <span class="op">&lt;-</span> <span class="fu">RunGSEA</span><span class="op">(</span><span class="va">pancreas1k</span>, group_by <span class="op">=</span> <span class="st">"CellType"</span>, enrichment <span class="op">=</span> <span class="st">"GO_BP"</span>, species <span class="op">=</span> <span class="st">"Mus_musculus"</span><span class="op">)</span></span></span>
-<span class="r-in"><span>  <span class="fu"><a href="GSEAPlot.html">GSEAPlot</a></span><span class="op">(</span><span class="va">pancreas1k</span>, group_by <span class="op">=</span> <span class="st">"CellType"</span>, group_use <span class="op">=</span> <span class="st">"Ductal"</span>, enrichment <span class="op">=</span> <span class="st">"GO_BP"</span>, geneSetID <span class="op">=</span> <span class="st">"GO:0006412"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="op">}</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"pancreas1k"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">pancreas1k</span> <span class="op">&lt;-</span> <span class="fu"><a href="RunDEtest.html">RunDEtest</a></span><span class="op">(</span><span class="va">pancreas1k</span>, group_by <span class="op">=</span> <span class="st">"CellType"</span>, only.pos <span class="op">=</span> <span class="cn">FALSE</span>, fc.threshold <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-06-29 12:34:56] Start DEtest</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Threads used for DE test: 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Perform FindAllMarkers(wilcox)...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                            |                                                                                                    |   0%  |                                                                                                            |====================================================================================================| 100%</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-06-29 12:41:05] DEtest done</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 6.14 mins </span>
+<span class="r-in"><span><span class="va">pancreas1k</span> <span class="op">&lt;-</span> <span class="fu">RunGSEA</span><span class="op">(</span><span class="va">pancreas1k</span>, group_by <span class="op">=</span> <span class="st">"CellType"</span>, enrichment <span class="op">=</span> <span class="st">"GO_BP"</span>, species <span class="op">=</span> <span class="st">"Mus_musculus"</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-06-29 12:41:05] Start GSEA</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Species: Mus_musculus</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Loaded cached db: GO_BP version:3.15.0 nterm:1483108 created:2022-06-29 11:51:07</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Convert ID types for the database: GO_BP</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Connect to the Ensembl archives...</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in curl::curl_fetch_memory(url, handle = handle):</span> Timeout was reached: [www.ensembl.org] Connection timed out after 10001 milliseconds</span>
+<span class="r-in"><span><span class="fu"><a href="GSEAPlot.html">GSEAPlot</a></span><span class="op">(</span><span class="va">pancreas1k</span>, group_by <span class="op">=</span> <span class="st">"CellType"</span>, group_use <span class="op">=</span> <span class="st">"Ductal"</span>, enrichment <span class="op">=</span> <span class="st">"GO_BP"</span>, geneSetID <span class="op">=</span> <span class="st">"GO:0006412"</span><span class="op">)</span></span></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in GSEAPlot(pancreas1k, group_by = "CellType", group_use = "Ductal",     enrichment = "GO_BP", geneSetID = "GO:0006412"):</span> No Enrichment result found. You may perform RunGSEA first.</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
