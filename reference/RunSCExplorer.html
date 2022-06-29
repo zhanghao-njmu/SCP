@@ -70,16 +70,16 @@
 <span>  initial_arrange <span class="op">=</span> <span class="st">"Row"</span>,</span>
 <span>  initial_panel_dpi <span class="op">=</span> <span class="fl">300</span>,</span>
 <span>  initial_plot_dpi <span class="op">=</span> <span class="fl">100</span>,</span>
-<span>  run_explorer <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  create_script <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  style_script <span class="op">=</span> <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">require</a></span><span class="op">(</span><span class="st"><a href="https://github.com/r-lib/styler" class="external-link">"styler"</a></span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
-<span>  overwrite <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span>  overwrite <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  return_app <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
-    <dl><dt>overwrite</dt>
+    <dl><dt>return_app</dt>
 <dd></dd>
 
 </dl></div>
@@ -88,12 +88,12 @@
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"pancreas1k"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">pancreas1k</span> <span class="op">&lt;-</span> <span class="fu"><a href="Standard_SCP.html">Standard_SCP</a></span><span class="op">(</span><span class="va">pancreas1k</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-06-29 12:42:20] Start Standard_SCP</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-06-29 12:42:20] Checking srtList... ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-06-29 15:49:08] Start Standard_SCP</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-06-29 15:49:08] Checking srtList... ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Data 1/1 of the srtList is raw counts. Perform NormalizeData(logCPM) on the data ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform FindVariableFeatures on the data 1/1 of the srtList...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Use the separate HVF from the existed HVF in srtList...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-06-29 12:42:23] Finished checking.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-06-29 15:49:10] Finished checking.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform ScaleData on the data...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform linear dimension reduction (pca) on the data...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform FindClusters (louvain) on the data...</span>
@@ -107,8 +107,8 @@
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Also defined by ‘spam’</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Found more than one class "dist" in cache; using the first, from namespace 'BiocGenerics'</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Also defined by ‘spam’</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-06-29 12:42:45] Standard_SCP done</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 25.1 secs </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-06-29 15:49:32] Standard_SCP done</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 24.27 secs </span>
 <span class="r-in"><span><span class="fu"><a href="PrepareSCExplorer.html">PrepareSCExplorer</a></span><span class="op">(</span><span class="va">pancreas1k</span>, base_dir <span class="op">=</span> <span class="st">"./SCExplorer"</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Set the project name of each seurat object in the list to their dataset name</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Prepare data for object: AnnData</span>
@@ -142,8 +142,8 @@
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Group /AnnData/reductions/StandardUMAP3D already exists in the /home/runner/work/SCP/SCP/docs/reference/SCExplorer/Meta.hdf5</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Group /AnnData/reductions.stat already exists in the /home/runner/work/SCP/SCP/docs/reference/SCExplorer/Meta.hdf5</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Create the app.R script.</span></span></span>
-<span class="r-in"><span><span class="fu">RunSCExplorer</span><span class="op">(</span>base_dir <span class="op">=</span> <span class="st">"./SCExplorer"</span>, run_explorer <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># Create the app.R script</span></span></span>
+<span class="r-in"><span><span class="va">app</span> <span class="op">&lt;-</span> <span class="fu">RunSCExplorer</span><span class="op">(</span>base_dir <span class="op">=</span> <span class="st">"./SCExplorer"</span>, return_app <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Attaching package: ‘styler’</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> The following object is masked from ‘package:httr’:</span>
@@ -154,7 +154,7 @@
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Run shiny app</span></span></span>
 <span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
-<span class="r-in"><span>  <span class="fu">RunSCExplorer</span><span class="op">(</span>base_dir <span class="op">=</span> <span class="st">"./SCExplorer"</span>, run_explorer <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu">shiny</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/shiny/man/runApp.html" class="external-link">runApp</a></span><span class="op">(</span><span class="va">app</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span></span></span>
 </code></pre></div>
     </div>

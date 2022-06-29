@@ -1,6 +1,5 @@
 # !/usr/bin/env Rscript
 library(SCP)
-style_script <- TRUE
 initial_plot_dpi <- 100
 initial_panel_dpi <- 300
 initial_arrange <- "Row"
