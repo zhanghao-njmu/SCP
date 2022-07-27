@@ -18,12 +18,10 @@ Standard_SCP(
   regression_model = "linear",
   liner_reduction = "pca",
   liner_reduction_dims = 100,
-  liner_reduction_distance = "euclidean",
   liner_reduction_dims_use = NULL,
   force_liner_reduction = FALSE,
   nonliner_reduction = "umap",
   nonliner_reduction_dims = c(2, 3),
-  nonliner_reduction_distance = "cosine",
   force_nonliner_reduction = TRUE,
   do_cluster_finding = TRUE,
   cluster_algorithm = "louvain",
@@ -57,15 +55,11 @@ Standard_SCP(
 
 \item{liner_reduction_dims}{Dimensions to calculate when performing liner reduction.}
 
-\item{liner_reduction_distance}{A distance method if liner reduction need.}
+\item{liner_reduction_dims_use}{Which dimensions to use when performing the nonliner reduction.}
 
-\item{liner_reduction_dims_use}{Which dimensions to use.}
-
-\item{nonliner_reduction}{Non-liner reduction method name. Can be one of "umap", "umap-naive", "umap-learn", "tsne", "dm".}
+\item{nonliner_reduction}{Non-liner reduction method name. Can be one of "umap", "umap-naive",  "tsne", "dm".}
 
 \item{nonliner_reduction_dims}{Dimensions to calculate when performing non-liner reduction.}
-
-\item{nonliner_reduction_distance}{A distance method if non-liner reduction need.}
 
 \item{cluster_algorithm}{Algorithm for modularity optimization when finding clusters.}
 

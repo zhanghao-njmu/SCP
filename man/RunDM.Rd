@@ -2,21 +2,26 @@
 % Please edit documentation in R/Seurat-function.R
 \name{RunDM}
 \alias{RunDM}
-\alias{RunDM.dist}
-\alias{RunDM.matrix}
 \alias{RunDM.Seurat}
+\alias{RunDM.matrix}
+\alias{RunDM.dist}
 \title{Run DiffusionMap(DM)}
 \usage{
 RunDM(object, ...)
 
-\method{RunDM}{dist}(
+\method{RunDM}{Seurat}(
   object,
-  exprs,
+  reduction = "pca",
+  dims = 1:30,
+  features = NULL,
+  assay = NULL,
+  slot = "data",
+  graph = NULL,
   ndcs = 2,
   sigma = "local",
-  k = NULL,
-  slot = "scale.data",
-  assay = NULL,
+  k = 30,
+  dist.method = "euclidean",
+  reduction.name = "dm",
   reduction.key = "DM_",
   seed.use = 42,
   verbose = TRUE,
@@ -27,33 +32,26 @@ RunDM(object, ...)
   object,
   ndcs = 2,
   sigma = "local",
-  k = NULL,
-  knn_method = "find_knn",
+  k = 30,
   dist.method = "euclidean",
   assay = NULL,
-  slot = "scale.data",
+  slot = "data",
   reduction.key = "DM_",
   seed.use = 42,
   verbose = TRUE,
   ...
 )
 
-\method{RunDM}{Seurat}(
+\method{RunDM}{dist}(
   object,
-  reduction = "pca",
-  dims = 1:30,
-  assay = NULL,
-  slot = "scale.data",
-  features = NULL,
   ndcs = 2,
   sigma = "local",
-  k = NULL,
-  knn_method = "find_knn",
-  dist.method = "euclidean",
-  reduction.name = "dm",
+  k = 30,
+  slot = "data",
+  assay = NULL,
   reduction.key = "DM_",
-  seed.use = 42,
   verbose = TRUE,
+  seed.use = 42,
   ...
 )
 }
@@ -62,11 +60,15 @@ RunDM(object, ...)
 
 \item{...}{}
 
-\item{ndcs}{Total Number of DM to compute and store (2 by default).}
+\item{assay}{Name of Assay dm is being run on.}
 
 \item{slot}{Name of slot dm is being run on.}
 
-\item{assay}{Name of Assay dm is being run on.}
+\item{graph}{}
+
+\item{ndcs}{Total Number of DM to compute and store (2 by default).}
+
+\item{reduction.name}{dimensional reduction name, 'dm' by default}
 
 \item{reduction.key}{dimensional reduction key, specifies the string before
 the number for the dimension names. "DM_" by default.}
@@ -75,8 +77,6 @@ the number for the dimension names. "DM_" by default.}
 NULL will not set a seed.}
 
 \item{verbose}{Show a progressbar and other progress information}
-
-\item{reduction.name}{dimensional reduction name, 'dm' by default}
 }
 \value{
 Returns Seurat object with the DM calculation stored in the reductions slot.

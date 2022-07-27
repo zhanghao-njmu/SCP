@@ -19,18 +19,19 @@ Conos_integrate(
   do_scaling = TRUE,
   vars_to_regress = NULL,
   regression_model = "linear",
+  liner_reduction = "pca",
   liner_reduction_dims = 100,
   liner_reduction_dims_use = NULL,
-  liner_reduction_distance = "euclidean",
   force_liner_reduction = FALSE,
+  nonliner_reduction = "umap",
   nonliner_reduction_dims = c(2, 3),
-  nonliner_reduction_distance = "cosine",
   force_nonliner_reduction = TRUE,
   do_cluster_finding = TRUE,
   cluster_algorithm = "louvain",
   cluster_resolution = 0.6,
   cluster_reorder = TRUE,
   buildGraph_params = list(),
+  num_threads = 2,
   seed = 11
 )
 }

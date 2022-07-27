@@ -1008,6 +1008,7 @@ ClassDimPlot <- function(srt, group.by = "orig.ident", reduction = NULL, dims = 
   reduction_key <- Key(srt[[reduction]])
   dat_dim <- Embeddings(srt, reduction = reduction)
   colnames(dat_dim) <- paste0(reduction_key, seq_len(ncol(dat_dim)))
+  rownames(dat_dim) <- rownames(dat_dim) %||% colnames(srt)
   dat_use <- cbind(dat_dim, dat_meta[row.names(dat_dim), , drop = FALSE])
   if (is.null(pt.size)) {
     pt.size <- min(3000 / nrow(dat_use), 0.5)
@@ -1680,6 +1681,7 @@ ExpDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), split.by
   reduction_key <- Key(srt[[reduction]])
   dat_dim <- Embeddings(srt, reduction = reduction)
   colnames(dat_dim) <- paste0(reduction_key, seq_len(ncol(dat_dim)))
+  rownames(dat_dim) <- rownames(dat_dim) %||% colnames(srt)
   dat_sp <- srt@meta.data[, split.by, drop = FALSE]
   dat_use <- cbind(dat_dim, dat_sp[row.names(dat_dim), , drop = FALSE])
 
@@ -2330,6 +2332,7 @@ ClassDimPlot3D <- function(srt, group.by = "orig.ident", reduction = NULL, dims 
 
   dat_dim <- Embeddings(srt, reduction = reduction)
   colnames(dat_dim) <- paste0(reduction_key, seq_len(ncol(dat_dim)))
+  rownames(dat_dim) <- rownames(dat_dim) %||% colnames(srt)
   dat_use <- cbind(dat_dim[colnames(srt), ], srt@meta.data[colnames(srt), , drop = FALSE])
   nlev <- sapply(dat_use[, group.by, drop = FALSE], nlevels)
   nlev <- nlev[nlev > 50]
@@ -2607,6 +2610,7 @@ ExpDimPlot3D <- function(srt, features = NULL, reduction = NULL, dims = c(1, 2, 
   dat_sp <- srt@meta.data[, split.by, drop = FALSE]
   dat_dim <- Embeddings(srt, reduction = reduction)
   colnames(dat_dim) <- paste0(reduction_key, seq_len(ncol(dat_dim)))
+  rownames(dat_dim) <- rownames(dat_dim) %||% colnames(srt)
   dat_use <- cbind(dat_exp, dat_dim[rownames(dat_exp), , drop = FALSE], dat_sp[rownames(dat_exp), , drop = FALSE])
 
   dat_use[[paste0(reduction_key, dims[1], "All_cells")]] <- dat_use[[paste0(reduction_key, dims[1])]]
@@ -8174,7 +8178,7 @@ EnrichmentPlot <- function(srt, enrichment = "GO_BP", group_by = NULL, group_use
                            plot_type = c("bar", "lollipop", "wordcloud"), palette = "Spectral",
                            topTerm = 6, topWord = 100, word_type = c("term", "feature"),
                            min_word_length = 3, exclude_words = c("cell", "cellular", "dna", "rna", "protein", "development", "system", "regulation", "positive", "negative", "response", "process"),
-                           base_size = 12, character_width = 50, line_height = 0.7,
+                           aspect.ratio = 1, base_size = 12, character_width = 50, line_height = 0.7,
                            combine = TRUE, nrow = NULL, ncol = NULL, byrow = TRUE, align = "hv", axis = "lr") {
   plot_type <- match.arg(plot_type)
   word_type <- match.arg(word_type)
@@ -8243,6 +8247,7 @@ EnrichmentPlot <- function(srt, enrichment = "GO_BP", group_by = NULL, group_use
         scale_y_continuous(limits = c(0, 1.3 * max(df[["metric"]])), expand = expansion(0, 0)) +
         facet_grid(Enrichment ~ Groups, scales = "free") +
         theme_scp(
+          aspect.ratio = aspect.ratio,
           base_size = base_size,
           panel.grid.major = element_line(colour = "grey80", linetype = 2),
           strip.background.y = element_rect(fill = "white", color = "black", linetype = 1, size = 1),
@@ -8300,6 +8305,7 @@ EnrichmentPlot <- function(srt, enrichment = "GO_BP", group_by = NULL, group_use
         ) +
         facet_grid(Enrichment ~ Groups, scales = "free") +
         theme_scp(
+          aspect.ratio = aspect.ratio,
           panel.background = element_rect(fill = "#1A365C"),
           base_size = base_size,
           panel.grid.major = element_line(colour = "grey80", linetype = 2),
@@ -8389,7 +8395,7 @@ EnrichmentPlot <- function(srt, enrichment = "GO_BP", group_by = NULL, group_use
         guides(size = guide_legend(override.aes = list(colour = "black", label = "G"), order = 1)) +
         facet_grid(Enrichment ~ Groups, scales = "free") +
         coord_flip() +
-        theme_scp(aspect.ratio = 1)
+        theme_scp(aspect.ratio = aspect.ratio)
       return(p)
     })
   }

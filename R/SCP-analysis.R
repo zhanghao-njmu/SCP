@@ -2286,7 +2286,7 @@ RunDynamicEnrichment <- function(srt, lineages,
 srt_to_adata <- function(srt,
                          assay_X = "RNA", slot_X = "counts",
                          assay_layers = c("spliced", "unspliced"), slot_layers = "counts",
-                         convert_tools = FALSE, convert_misc = FALSE) {
+                         convert_tools = FALSE, convert_misc = FALSE, verbose = TRUE) {
   if (class(srt) != "Seurat") {
     stop("'srt' is not a Seurat object.")
   }
@@ -2294,7 +2294,7 @@ srt_to_adata <- function(srt,
     slot_layers <- rep(slot_layers, length(assay_layers))
     names(slot_layers) <- assay_layers
   } else if (length(slot_layers) != length(assay_layers)) {
-    stop("slot_layers must be one character or the same length with the assay_layers")
+    stop("slot_layers must be one character or the same length of the assay_layers")
   }
 
   sc <- import("scanpy", convert = FALSE)
@@ -2337,7 +2337,9 @@ srt_to_adata <- function(srt,
     if (assay %in% assay_layers) {
       layer_list[[assay]] <- t(GetAssayData(srt, assay = assay, slot = slot_layers[assay]))
     } else {
-      message("Assay '", assay, "' is in the srt object but not converted.")
+      if (isTRUE(verbose)) {
+        message("Assay '", assay, "' is in the srt object but not converted.")
+      }
     }
   }
   if (length(layer_list) > 0) {
@@ -2378,7 +2380,9 @@ srt_to_adata <- function(srt,
       }
     }
   } else {
-    message("'misc' slot in the srt object is not converted.")
+    if (isTRUE(verbose)) {
+      message("'misc' slot in the srt object is not converted.")
+    }
   }
   if (isTRUE(convert_tools)) {
     for (nm in names(srt@tools)) {
@@ -2387,7 +2391,9 @@ srt_to_adata <- function(srt,
       }
     }
   } else {
-    message("'tools' slot in the srt object is not converted.")
+    if (isTRUE(verbose)) {
+      message("'tools' slot in the srt object is not converted.")
+    }
   }
   if (length(uns_list) > 0) {
     adata$uns <- uns_list

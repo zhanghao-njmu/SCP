@@ -11,7 +11,8 @@ srt_to_adata(
   assay_layers = c("spliced", "unspliced"),
   slot_layers = "counts",
   convert_tools = FALSE,
-  convert_misc = FALSE
+  convert_misc = FALSE,
+  verbose = TRUE
 )
 }
 \arguments{

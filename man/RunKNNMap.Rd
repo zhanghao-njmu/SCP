@@ -14,7 +14,7 @@ RunKNNMap(
   nfeatures = 2000,
   query_reduction = NULL,
   ref_reduction = NULL,
-  query_dims = ref_dims,
+  query_dims = 1:30,
   ref_dims = 1:30,
   projection_method = "model",
   nn_method = NULL,
@@ -37,8 +37,6 @@ library(SeuratData)
 library(stringr)
 suppressWarnings(InstallData("panc8"))
 data("panc8")
-cell_sub <- unlist(lapply(split(colnames(panc8), panc8$tech), function(x) sample(x, size = 500)))
-panc8 <- subset(panc8, cells = cell_sub)
 
 # Simply convert genes from human to mouse and preprocess the data
 genenm <- make.unique(str_to_title(rownames(panc8)))

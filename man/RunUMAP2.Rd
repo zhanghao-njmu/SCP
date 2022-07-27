@@ -2,22 +2,21 @@
 % Please edit documentation in R/Seurat-function.R
 \name{RunUMAP2}
 \alias{RunUMAP2}
-\alias{RunUMAP2.default}
-\alias{RunUMAP2.Graph}
-\alias{RunUMAP2.Neighbor}
 \alias{RunUMAP2.Seurat}
+\alias{RunUMAP2.default}
 \title{Run UMAP}
 \usage{
 RunUMAP2(object, ...)
 
-\method{RunUMAP2}{default}(
+\method{RunUMAP2}{Seurat}(
   object,
-  dims = NULL,
   reduction = "pca",
+  dims = NULL,
   features = NULL,
+  neighbor = NULL,
   graph = NULL,
+  distance = NULL,
   assay = DefaultAssay(object = object),
-  nn.name = NULL,
   slot = "data",
   umap.method = "uwot",
   reduction.model = NULL,
@@ -25,91 +24,44 @@ RunUMAP2(object, ...)
   n.neighbors = 30L,
   n.components = 2L,
   metric = "cosine",
-  n.epochs = NULL,
-  learning.rate = 1,
-  min.dist = 0.3,
+  n.epochs = 200L,
   spread = 1,
+  min.dist = 0.3,
   set.op.mix.ratio = 1,
   local.connectivity = 1L,
-  repulsion.strength = 1,
   negative.sample.rate = 5L,
   a = NULL,
   b = NULL,
-  uwot.sgd = FALSE,
+  learning.rate = 1,
+  repulsion.strength = 1,
   seed.use = 42L,
-  metric.kwds = NULL,
-  angular.rp.forest = FALSE,
-  densmap = FALSE,
-  dens.lambda = 2,
-  dens.frac = 0.3,
-  dens.var.shift = 0.1,
   verbose = TRUE,
   reduction.name = "umap",
   reduction.key = "UMAP_",
   ...
 )
 
-\method{RunUMAP2}{Graph}(
+\method{RunUMAP2}{default}(
   object,
   assay = NULL,
   umap.method = "uwot",
-  n.components = 2L,
-  metric = "correlation",
-  n.epochs = 500L,
-  learning.rate = 1,
-  min.dist = 0.3,
-  spread = 1,
-  repulsion.strength = 1,
-  negative.sample.rate = 5L,
-  a = NULL,
-  b = NULL,
-  uwot.sgd = FALSE,
-  seed.use = 42L,
-  metric.kwds = NULL,
-  densmap = FALSE,
-  densmap.kwds = NULL,
-  verbose = TRUE,
-  reduction.key = "UMAP_",
-  ...
-)
-
-\method{RunUMAP2}{Neighbor}(object, reduction.model, ...)
-
-\method{RunUMAP2}{Seurat}(
-  object,
-  dims = NULL,
-  reduction = "pca",
-  features = NULL,
-  graph = NULL,
-  assay = DefaultAssay(object = object),
-  nn.name = NULL,
-  slot = "data",
-  umap.method = "uwot",
   reduction.model = NULL,
   return.model = FALSE,
   n.neighbors = 30L,
   n.components = 2L,
   metric = "cosine",
-  n.epochs = NULL,
-  learning.rate = 1,
-  min.dist = 0.3,
+  n.epochs = 200L,
   spread = 1,
+  min.dist = 0.3,
   set.op.mix.ratio = 1,
   local.connectivity = 1L,
-  repulsion.strength = 1,
   negative.sample.rate = 5L,
   a = NULL,
   b = NULL,
-  uwot.sgd = FALSE,
+  learning.rate = 1,
+  repulsion.strength = 1,
   seed.use = 42L,
-  metric.kwds = NULL,
-  angular.rp.forest = FALSE,
-  densmap = FALSE,
-  dens.lambda = 2,
-  dens.frac = 0.3,
-  dens.var.shift = 0.1,
   verbose = TRUE,
-  reduction.name = "umap",
   reduction.key = "UMAP_",
   ...
 )

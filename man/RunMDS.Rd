@@ -2,61 +2,61 @@
 % Please edit documentation in R/Seurat-function.R
 \name{RunMDS}
 \alias{RunMDS}
-\alias{RunMDS.default}
-\alias{RunMDS.Assay}
 \alias{RunMDS.Seurat}
+\alias{RunMDS.Assay}
+\alias{RunMDS.default}
 \title{Run multi-dimensional scaling(MDS)}
 \usage{
 RunMDS(object, ...)
 
-\method{RunMDS}{default}(
+\method{RunMDS}{Seurat}(
   object,
   assay = NULL,
-  slot = "scale.data",
+  slot = "data",
+  features = NULL,
   nmds = 50,
-  dist.method = "cosine",
+  dist.method = "euclidean",
   mds.method = "cmdscale",
   rev.mds = FALSE,
   ndims.print = 1:5,
   nfeatures.print = 30,
+  reduction.name = "mds",
   reduction.key = "MDS_",
-  seed.use = 42,
   verbose = TRUE,
+  seed.use = 42,
   ...
 )
 
 \method{RunMDS}{Assay}(
   object,
   assay = NULL,
-  slot = "scale.data",
+  slot = "data",
   features = NULL,
   nmds = 50,
-  dist.method = "cosine",
+  dist.method = "euclidean",
   mds.method = "cmdscale",
   rev.mds = FALSE,
-  verbose = TRUE,
   ndims.print = 1:5,
   nfeatures.print = 30,
   reduction.key = "MDS_",
+  verbose = TRUE,
   seed.use = 42,
   ...
 )
 
-\method{RunMDS}{Seurat}(
+\method{RunMDS}{default}(
   object,
   assay = NULL,
-  slot = "scale.data",
-  features = NULL,
+  slot = "data",
   nmds = 50,
-  dist.method = "cosine",
+  dist.method = "euclidean",
   mds.method = "cmdscale",
   rev.mds = FALSE,
-  verbose = TRUE,
   ndims.print = 1:5,
   nfeatures.print = 30,
-  reduction.name = "mds",
   reduction.key = "MDS_",
   seed.use = 42,
+  verbose = TRUE,
   ...
 )
 }
@@ -69,6 +69,9 @@ RunMDS(object, ...)
 
 \item{slot}{Name of slot mds is being run on.}
 
+\item{features}{Features to compute mds on. If features=NULL, mds will be run
+using the variable features for the Assay.}
+
 \item{nmds}{Total Number of MDS to compute and store (50 by default).}
 
 \item{rev.mds}{By default computes the mds on the cell x gene matrix. Setting
@@ -78,19 +81,16 @@ to true will compute it on gene x cell matrix.}
 
 \item{nfeatures.print}{Number of genes to print for each MDS.}
 
+\item{reduction.name}{dimensional reduction name, 'mds' by default}
+
 \item{reduction.key}{dimensional reduction key, specifies the string before
 the number for the dimension names. "MDS_" by default.}
-
-\item{seed.use}{Set a random seed. By default, sets the seed to 42. Setting
-NULL will not set a seed.}
 
 \item{verbose}{Print the top genes associated with high/low loadings for
 the MDS.}
 
-\item{features}{Features to compute mds on. If features=NULL, mds will be run
-using the variable features for the Assay.}
-
-\item{reduction.name}{dimensional reduction name, 'mds' by default}
+\item{seed.use}{Set a random seed. By default, sets the seed to 42. Setting
+NULL will not set a seed.}
 }
 \value{
 Returns Seurat object with the MDS calculation stored in the reductions slot.

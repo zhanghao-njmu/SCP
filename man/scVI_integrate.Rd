@@ -18,13 +18,13 @@ scVI_integrate(
   HVF = NULL,
   nonliner_reduction = "umap",
   nonliner_reduction_dims = c(2, 3),
-  nonliner_reduction_distance = "cosine",
   force_nonliner_reduction = TRUE,
   do_cluster_finding = TRUE,
   cluster_algorithm = "louvain",
   cluster_resolution = 0.6,
   cluster_reorder = TRUE,
   SCVI_params = list(),
+  num_threads = 8,
   seed = 11
 )
 }

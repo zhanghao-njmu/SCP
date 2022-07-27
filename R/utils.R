@@ -208,6 +208,34 @@ col2hex <- function(cname) {
   rgb(red = colMat[1, ] / 255, green = colMat[2, ] / 255, blue = colMat[3, ] / 255)
 }
 
+#' @importFrom rlang caller_env is_null is_scalar_character is_character is_function set_names env env_get env_bind syms call2
+invoke <- function(.fn, .args = list(), ..., .env = caller_env(), .bury = c(".fn", "")) {
+  args <- c(.args, list(...))
+  if (is_null(.bury) || !length(args)) {
+    if (is_scalar_character(.fn)) {
+      .fn <- env_get(.env, .fn, inherit = TRUE)
+    }
+    call <- call2(.fn, !!!args)
+    return(.External2(rlang:::ffi_eval, call, .env))
+  }
+  if (!is_character(.bury, 2L)) {
+    abort("`.bury` must be a character vector of length 2")
+  }
+  arg_prefix <- .bury[[2]]
+  fn_nm <- .bury[[1]]
+  buried_nms <- paste0(arg_prefix, seq_along(args))
+  buried_args <- set_names(args, buried_nms)
+  .env <- env(.env, !!!buried_args)
+  args <- set_names(buried_nms, names(args))
+  args <- syms(args)
+  if (is_function(.fn)) {
+    env_bind(.env, `:=`(!!fn_nm, .fn))
+    .fn <- fn_nm
+  }
+  call <- call2(.fn, !!!args)
+  .External2(rlang:::ffi_eval, call, .env)
+}
+
 #' @export
 unnest <- function(data, cols, keep_empty = FALSE) {
   if (nrow(data) == 0 || length(cols) == 0) {

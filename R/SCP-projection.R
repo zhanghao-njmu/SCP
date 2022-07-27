@@ -28,8 +28,6 @@ NULL
 #' library(stringr)
 #' suppressWarnings(InstallData("panc8"))
 #' data("panc8")
-#' cell_sub <- unlist(lapply(split(colnames(panc8), panc8$tech), function(x) sample(x, size = 500)))
-#' panc8 <- subset(panc8, cells = cell_sub)
 #'
 #' # Simply convert genes from human to mouse and preprocess the data
 #' genenm <- make.unique(str_to_title(rownames(panc8)))
@@ -51,7 +49,7 @@ NULL
 RunKNNMap <- function(srt_query, srt_ref, ref_umap = NULL, force = FALSE,
                       ref_group = NULL,
                       features = NULL, nfeatures = 2000,
-                      query_reduction = NULL, ref_reduction = NULL, query_dims = ref_dims, ref_dims = 1:30,
+                      query_reduction = NULL, ref_reduction = NULL, query_dims = 1:30, ref_dims = 1:30,
                       projection_method = "model", nn_method = NULL, k = 30, distance_metric = "cosine", vote_fun = "mean") {
   if (!is.null(ref_group)) {
     if (length(ref_group) == ncol(srt_ref)) {
@@ -98,9 +96,16 @@ RunKNNMap <- function(srt_query, srt_ref, ref_umap = NULL, force = FALSE,
   }
   if (projection_method == "model") {
     model <- srt_ref[[ref_umap]]@misc$model
-    if (k != model$n_neighbors) {
-      k <- model$n_neighbors
-      message("Set k to ", k, " which is used in the umap model")
+    if ("layout" %in% names(model)) {
+      if (k != model$config$n_neighbors) {
+        k <- model$config$n_neighbors
+        message("Set k to ", k, " which is used in the umap model")
+      }
+    } else if ("embedding" %in% names(model)) {
+      if (k != model$n_neighbors) {
+        k <- model$n_neighbors
+        message("Set k to ", k, " which is used in the umap model")
+      }
     }
   }
 
@@ -139,6 +144,12 @@ RunKNNMap <- function(srt_query, srt_ref, ref_umap = NULL, force = FALSE,
     message("Use ", length(features_common), " common features to calculate distance.")
     query <- t(GetAssayData(srt_query, slot = "data")[features_common, ])
     ref <- t(GetAssayData(srt_ref, slot = "data", assay = ref_assay)[features_common, ])
+  }
+
+  if (projection_method == "model" && "layout" %in% names(model) && is.null(ref_group)) {
+    srt_query[["ref.umap"]] <- RunUMAP2(object = query, reduction.model = srt_ref[[ref_umap]], assay = DefaultAssay(srt_query))
+    srt_query[["ref.umap"]]@misc[["reduction.model"]] <- ref_umap
+    return(srt_query)
   }
 
   if (is.null(nn_method)) {
@@ -212,10 +223,8 @@ RunKNNMap <- function(srt_query, srt_ref, ref_umap = NULL, force = FALSE,
 
   if (projection_method == "model") {
     if ("layout" %in% names(model)) {
-      class(model) <- "umap"
-      res <- predict(model, query)
-      colnames(res) <- paste0("refUMAP_", seq_len(ncol(res)))
-      srt_query[["ref.umap"]] <- CreateDimReducObject(embeddings = res, key = "refUMAP_", assay = DefaultAssay(srt_query), misc = list(reduction.model = ref_umap))
+      srt_query[["ref.umap"]] <- RunUMAP2(object = query, reduction.model = srt_ref[[ref_umap]], assay = DefaultAssay(srt_query))
+      srt_query[["ref.umap"]]@misc[["reduction.model"]] <- ref_umap
     } else if ("embedding" %in% names(model)) {
       neighborlist <- list(idx = match_k, dist = match_k_distance)
       srt_query[["ref.umap"]] <- RunUMAP2(object = neighborlist, reduction.model = srt_ref[[ref_umap]], assay = DefaultAssay(srt_query))
@@ -286,8 +295,6 @@ RunKNNMap <- function(srt_query, srt_ref, ref_umap = NULL, force = FALSE,
 #' library(stringr)
 #' suppressWarnings(InstallData("panc8"))
 #' data("panc8")
-#' cell_sub <- unlist(lapply(split(colnames(panc8), panc8$tech), function(x) sample(x, size = 500)))
-#' panc8 <- subset(panc8, cells = cell_sub)
 #'
 #' # Simply convert genes from human to mouse and preprocess the data
 #' genenm <- make.unique(str_to_title(rownames(panc8)))
@@ -375,7 +382,7 @@ RunPCAMap <- function(srt_query, srt_ref, ref_pca = NULL, ref_dims = 1:30, ref_u
   query_data <- t(GetAssayData(srt_query, slot = "data")[features_common, ])
   query_pca <- scale(query_data[, features_common], center[features_common], sds[features_common]) %*% rotation[features_common, ]
   # ggplot(data = as.data.frame(pca.out@cell.embeddings))+geom_point(aes(x=StandardPC_1,y=StandardPC_2 ))+geom_point(data = as.data.frame(query_pca),mapping = aes(x=StandardPC_1,y=StandardPC_2),color="red")
-  srt_query[["ref.pca"]] <- CreateDimReducObject(embeddings = query_pca, key = "refPC_", assay = DefaultAssay(srt_query))
+  srt_query[["ref.pca"]] <- CreateDimReducObject(embeddings = query_pca, key = pca.out@key, assay = DefaultAssay(srt_query))
 
   message("Run UMAP projection")
   srt_query <- RunKNNMap(
@@ -383,37 +390,6 @@ RunPCAMap <- function(srt_query, srt_ref, ref_pca = NULL, ref_dims = 1:30, ref_u
     query_reduction = "ref.pca", ref_reduction = ref_pca, query_dims = ref_dims, ref_dims = ref_dims,
     projection_method = projection_method, nn_method = nn_method, k = k, distance_metric = distance_metric, vote_fun = vote_fun
   )
-  # if (projection_method == "model") {
-  #   model <- srt_ref[[ref_umap]]@misc$model
-  #   if ("layout" %in% names(model)) {
-  #     class(model) <- "umap"
-  #     res <- predict(model, query_pca[, colnames(model$data)])
-  #     colnames(res) <- paste0("refUMAP_", 1:ncol(res))
-  #     srt_query[["ref.umap"]] <- CreateDimReducObject(embeddings = res, key = "refUMAP_", assay = DefaultAssay(srt_query), misc = list(reduction.model = ref_umap))
-  #   } else if ("embedding" %in% names(model)) {
-  #     srt_query <- RunKNNMap(
-  #       srt_query = srt_query, srt_ref = srt_ref, ref_group = ref_group, ref_umap = ref_umap, force = force,
-  #       query_reduction = "ref.pca", ref_reduction = ref_pca, query_dims = ref_dims, ref_dims = ref_dims,
-  #       projection_method=projection_method,nn_method = nn_method, k = model$n_neighbors, distance_metric = distance_metric, vote_fun = vote_fun
-  #     )
-  #     srt_query <- ProjectUMAP(
-  #       query = srt_query, query.reduction = "ref.pca", query.dims = ref_dims,
-  #       reference = srt_ref, reference.reduction = ref_pca, reference.dims = ref_dims, reduction.model = ref_umap,
-  #       k.param = model$n_neighbors, annoy.metric = distance_metric
-  #     )
-  #     srt_query[["ref.umap"]]@misc[["reduction.model"]] <- ref_umap
-  #   }
-  # } else {
-  #
-  # }
-  # if (!is.null(ref_group) & projection_method != "knn") {
-  #   srt_query <- RunKNNPredict(
-  #     srt_query = srt_query, srt_ref = srt_ref, ref_group = ref_group, ref_assay = pca.out@assay.used,
-  #     query_reduction = "ref.pca", ref_reduction = ref_pca, query_dims = ref_dims, ref_dims = ref_dims,
-  #     k = k, distance_metric = distance_metric,
-  #     query_collapsing = FALSE, ref_collapsing = FALSE
-  #   )
-  # }
   return(srt_query)
 }
 
@@ -446,8 +422,6 @@ RunPCAMap <- function(srt_query, srt_ref, ref_pca = NULL, ref_dims = 1:30, ref_u
 #' library(stringr)
 #' suppressWarnings(InstallData("panc8"))
 #' data("panc8")
-#' cell_sub <- unlist(lapply(split(colnames(panc8), panc8$tech), function(x) sample(x, size = 500)))
-#' panc8 <- subset(panc8, cells = cell_sub)
 #'
 #' # Simply convert genes from human to mouse and preprocess the data
 #' genenm <- make.unique(str_to_title(rownames(panc8)))
@@ -468,7 +442,7 @@ RunSeuratMap <- function(srt_query, srt_ref,
                          ref_pca = NULL, ref_dims = 1:30, ref_umap = NULL, force = FALSE,
                          ref_group = NULL,
                          normalization.method = "LogNormalize", reduction_project_method = "pcaproject",
-                         k.anchor = 5, k.filter = 200, k.score = 30, k.weight = 20,
+                         k.anchor = 5, k.filter = 200, k.score = 30, k.weight = 100,
                          projection_method = "model", nn_method = NULL, k = 30, distance_metric = "cosine", vote_fun = "mean") {
   weight.reduction <- switch(reduction_project_method,
     "pcaproject" = "pcaproject",
@@ -563,8 +537,6 @@ RunSeuratMap <- function(srt_query, srt_ref,
 #' library(stringr)
 #' suppressWarnings(InstallData("panc8"))
 #' data("panc8")
-#' cell_sub <- unlist(lapply(split(colnames(panc8), panc8$tech), function(x) sample(x, size = 500)))
-#' panc8 <- subset(panc8, cells = cell_sub)
 #'
 #' # Simply convert genes from human to mouse and preprocess the data
 #' genenm <- make.unique(str_to_title(rownames(panc8)))
@@ -678,8 +650,6 @@ RunCSSMap <- function(srt_query, srt_ref, ref_css = NULL, ref_umap = NULL, force
 #' library(stringr)
 #' suppressWarnings(InstallData("panc8"))
 #' data("panc8")
-#' cell_sub <- unlist(lapply(split(colnames(panc8), panc8$tech), function(x) sample(x, size = 500)))
-#' panc8 <- subset(panc8, cells = cell_sub)
 #'
 #' # Simply convert genes from human to mouse and preprocess the data
 #' genenm <- make.unique(str_to_title(rownames(panc8)))

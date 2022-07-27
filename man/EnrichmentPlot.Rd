@@ -21,6 +21,7 @@ EnrichmentPlot(
   min_word_length = 3,
   exclude_words = c("cell", "cellular", "dna", "rna", "protein", "development",
     "system", "regulation", "positive", "negative", "response", "process"),
+  aspect.ratio = 1,
   base_size = 12,
   character_width = 50,
   line_height = 0.7,

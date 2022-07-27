@@ -21,7 +21,6 @@ ZINBWaVE_integrate(
   regression_model = "linear",
   nonliner_reduction = "umap",
   nonliner_reduction_dims = c(2, 3),
-  nonliner_reduction_distance = "cosine",
   do_cluster_finding = TRUE,
   cluster_algorithm = "louvain",
   cluster_resolution = 0.6,

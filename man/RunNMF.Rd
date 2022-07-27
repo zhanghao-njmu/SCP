@@ -2,26 +2,28 @@
 % Please edit documentation in R/Seurat-function.R
 \name{RunNMF}
 \alias{RunNMF}
-\alias{RunNMF.default}
-\alias{RunNMF.Assay}
 \alias{RunNMF.Seurat}
+\alias{RunNMF.Assay}
+\alias{RunNMF.default}
 \title{Run Non-negative matrix factorization(NMF)}
 \usage{
 RunNMF(object, ...)
 
-\method{RunNMF}{default}(
+\method{RunNMF}{Seurat}(
   object,
   assay = NULL,
   slot = "data",
+  features = NULL,
   nbes = 50,
   nmf.method = "RcppML",
   tol = 1e-05,
   maxit = 100,
   rev.nmf = FALSE,
-  verbose = TRUE,
   ndims.print = 1:5,
   nfeatures.print = 30,
+  reduction.name = "nmf",
   reduction.key = "BE_",
+  verbose = TRUE,
   seed.use = 42,
   ...
 )
@@ -36,29 +38,27 @@ RunNMF(object, ...)
   tol = 1e-05,
   maxit = 100,
   rev.nmf = FALSE,
-  verbose = TRUE,
   ndims.print = 1:5,
   nfeatures.print = 30,
   reduction.key = "BE_",
+  verbose = TRUE,
   seed.use = 42,
   ...
 )
 
-\method{RunNMF}{Seurat}(
+\method{RunNMF}{default}(
   object,
   assay = NULL,
   slot = "data",
-  features = NULL,
   nbes = 50,
   nmf.method = "RcppML",
   tol = 1e-05,
   maxit = 100,
   rev.nmf = FALSE,
-  verbose = TRUE,
   ndims.print = 1:5,
   nfeatures.print = 30,
-  reduction.name = "nmf",
   reduction.key = "BE_",
+  verbose = TRUE,
   seed.use = 42,
   ...
 )
@@ -72,28 +72,28 @@ RunNMF(object, ...)
 
 \item{slot}{Name of slot nmf is being run on.}
 
+\item{features}{Features to compute nmf on. If features=NULL, nmf will be run
+using the variable features for the Assay.}
+
 \item{nbes}{Total Number of BEs("basis experiment", aka "metagene") to compute and store (50 by default).}
 
 \item{rev.nmf}{By default computes the nmf on the cell x gene matrix. Setting
 to true will compute it on gene x cell matrix.}
 
-\item{verbose}{Print the top genes associated with high/low loadings for
-the BEs.}
-
 \item{ndims.print}{BEs to print genes for.}
 
 \item{nfeatures.print}{Number of genes to print for each BE.}
 
+\item{reduction.name}{dimensional reduction name, 'nmf' by default}
+
 \item{reduction.key}{dimensional reduction key, specifies the string before
 the number for the dimension names. "BE_" by default.}
 
+\item{verbose}{Print the top genes associated with high/low loadings for
+the BEs.}
+
 \item{seed.use}{Set a random seed. By default, sets the seed to 42. Setting
 NULL will not set a seed.}
-
-\item{features}{Features to compute nmf on. If features=NULL, nmf will be run
-using the variable features for the Assay.}
-
-\item{reduction.name}{dimensional reduction name, 'nmf' by default}
 }
 \value{
 Returns Seurat object with the NMF calculation stored in the reductions slot.

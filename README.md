@@ -7,6 +7,7 @@
 [![R-CMD-check](https://github.com/zhanghao-njmu/SCP/workflows/R-CMD-check/badge.svg)](https://github.com/zhanghao-njmu/SCP/actions)
 [![codecov](https://codecov.io/gh/zhanghao-njmu/SCP/branch/main/graph/badge.svg)](https://codecov.io/gh/zhanghao-njmu/SCP?branch=main)
 [![codesize](https://img.shields.io/github/languages/code-size/zhanghao-njmu/SCP.svg)](https://github.com/zhanghao-njmu/SCP)
+
 <!-- badges: end -->
 
 The SCP package provides a comprehensive set of tools for single cell
@@ -15,11 +16,9 @@ data processing and downstream analysis.
 The package includes facilities for:
 
 -   Integrated single cell quality control methods.
--   One-stop single-cell pipeline embedded with multiple methods for
-    normalization, feature reduction, and cell population
-    identification.
--   One-stop single-cell pipeline embedded with multiple data
-    integration methods.
+-   Pipelines embedded with multiple methods for normalization, feature
+    reduction, and cell population identification.
+-   Pipelines embedded with multiple data integration methods.
 -   Multiple single cell downstream analyses such as identification of
     differential features, enrichment analysis, GSEA analysis,
     identification of dynamic features,
@@ -27,7 +26,7 @@ The package includes facilities for:
     velocity](https://github.com/theislab/scvelo), etc.
 -   Multiple methods for automatic annotation of single-cell data and
     methods for projection between single-cell datasets.
--   Publication-quality visualization of multiple analysis results.
+-   High-quality visualization for multiple analysis results.
 -   Fast deployment of single-cell data to a [shiny
     app](https://shiny.rstudio.com/).
 

@@ -76,8 +76,6 @@ library(stringr)
 library(SeuratData)
 suppressWarnings(InstallData("panc8"))
 data("panc8")
-cell_sub <- unlist(lapply(split(colnames(panc8), panc8$tech), function(x) sample(x, size = 500)))
-panc8 <- subset(panc8, cells = cell_sub)
 
 # Simply convert genes from human to mouse and preprocess the data
 genenm <- make.unique(str_to_title(rownames(panc8)))

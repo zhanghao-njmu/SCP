@@ -22,12 +22,10 @@ Integration_SCP(
   regression_model = "linear",
   liner_reduction = "pca",
   liner_reduction_dims = 100,
-  liner_reduction_distance = "euclidean",
   liner_reduction_dims_use = NULL,
   force_liner_reduction = FALSE,
   nonliner_reduction = "umap",
   nonliner_reduction_dims = c(2, 3),
-  nonliner_reduction_distance = "cosine",
   force_nonliner_reduction = TRUE,
   do_cluster_finding = TRUE,
   cluster_algorithm = "louvain",
@@ -46,7 +44,7 @@ Integration_SCP(
 
 \item{srtList}{A list of \code{Seurat} object.}
 
-\item{integration_method}{Integration method. Can be one of "Uncorrected", "Seurat", "scVI", "MNN", "fastMNN", "Harmony", "Scanorama", "BBKNN", "CSS", "LIGER", "Conos", "ZINBWaVE".}
+\item{integration_method}{Integration method. Can be one of "Uncorrected", "Seurat", "scVI", "MNN", "fastMNN", "Harmony", "Scanorama", "BBKNN", "CSS", "LIGER", "Conos".}
 
 \item{do_normalization}{Whether to normalize the data. If NULL, will automatically determine.}
 
@@ -70,15 +68,11 @@ Integration_SCP(
 
 \item{liner_reduction_dims}{Dimensions to calculate when performing liner reduction.}
 
-\item{liner_reduction_distance}{A distance method if liner reduction need.}
+\item{liner_reduction_dims_use}{Which dimensions to use when performing the nonliner reduction.}
 
-\item{liner_reduction_dims_use}{Which dimensions to use.}
-
-\item{nonliner_reduction}{Non-liner reduction method name. Can be one of "umap", "umap-naive", "umap-learn", "tsne", "dm".}
+\item{nonliner_reduction}{Non-liner reduction method name. Can be one of "umap", "umap-naive",  "tsne", "dm".}
 
 \item{nonliner_reduction_dims}{Dimensions to calculate when performing non-liner reduction.}
-
-\item{nonliner_reduction_distance}{A distance method if non-liner reduction need.}
 
 \item{cluster_algorithm}{Algorithm for modularity optimization when finding clusters.}
 
@@ -101,15 +95,25 @@ if (!require("SeuratData", quietly = TRUE)) {
   devtools::install_github("zhanghao-njmu/seurat-data")
 }
 library(SeuratData)
-library(cowplot)
 suppressWarnings(InstallData("panc8"))
 data("panc8")
 cell_sub <- unlist(lapply(split(colnames(panc8), panc8$tech), function(x) sample(x, size = 500)))
 panc8 <- subset(panc8, cells = cell_sub)
-plist <- list()
-for (method in c("Uncorrected", "Seurat", "scVI", "MNN", "fastMNN", "Harmony", "Scanorama", "BBKNN", "CSS", "LIGER", "Conos", "ZINBWaVE")) {
+plist1 <- list()
+for (method in c("Uncorrected", "Seurat", "scVI", "MNN", "fastMNN", "Harmony", "Scanorama", "BBKNN", "CSS", "LIGER", "Conos")) {
   panc8 <- Integration_SCP(panc8, batch = "tech", integration_method = method)
-  plist[[method]] <- ClassDimPlot(panc8, group.by = c("tech", "celltype"), theme_use = "theme_blank")
-  print(plist[[method]])
+  plist1[[method]] <- ClassDimPlot(panc8, group.by = c("tech", "celltype"), theme_use = "theme_blank")
+  print(plist1[[method]])
+}
+
+reductions <- c("umap", "umap-naive", "tsne", "dm", "phate", "pacmap", "trimap", "largevis")
+panc8 <- Integration_SCP(panc8,
+  batch = "tech", integration_method = "Seurat",
+  nonliner_reduction = reductions
+)
+plist2 <- list()
+for (reduc in reductions) {
+  plist2[[reduc]] <- ClassDimPlot(panc8, group.by = c("tech", "celltype"), reduction = reduc, theme_use = "theme_blank")
+  print(plist2[[reduc]])
 }
 }
