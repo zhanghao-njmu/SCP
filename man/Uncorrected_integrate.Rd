@@ -22,9 +22,11 @@ Uncorrected_integrate(
   liner_reduction = "pca",
   liner_reduction_dims = 100,
   liner_reduction_dims_use = NULL,
+  liner_reduction_params = list(),
   force_liner_reduction = FALSE,
   nonliner_reduction = "umap",
   nonliner_reduction_dims = c(2, 3),
+  nonliner_reduction_params = list(),
   force_nonliner_reduction = TRUE,
   do_cluster_finding = TRUE,
   cluster_algorithm = "louvain",
@@ -36,7 +38,7 @@ Uncorrected_integrate(
 \arguments{
 \item{srtMerge}{}
 
-\item{...}{}
+\item{seed}{}
 }
 \description{
 Uncorrected_integrate

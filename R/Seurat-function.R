@@ -1365,9 +1365,9 @@ RunPHATE <- function(object, ...) {
 RunPHATE.Seurat <- function(object, reduction = "pca", dims = NULL, features = NULL,
                             assay = DefaultAssay(object = object), slot = "data",
                             n_components = 2, knn = 5, decay = 40, n_landmark = 2000, t = "auto", gamma = 1,
-                            n_pca = 100, knn_dist = "euclidean", knn_max = NULL,
-                            mds = "metric", mds_dist = "euclidean", mds_solver = "sgd",
-                            t_max = 100, n_jobs = 1,
+                            n_pca = 100, knn_dist = "euclidean", knn_max = NULL, n_jobs = 1,
+                            mds = "metric", mds_dist = "euclidean", mds_solver = "sgd", t_max = 100,
+                            do_cluster = FALSE, n_clusters = "auto", max_clusters = 100,
                             reduction.name = "phate", reduction.key = "PHATE_",
                             verbose = TRUE, seed.use = 11L,
                             ...) {
@@ -1405,9 +1405,9 @@ RunPHATE.Seurat <- function(object, reduction = "pca", dims = NULL, features = N
   object[[reduction.name]] <- RunPHATE(
     object = data.use, assay = assay,
     n_components = n_components, knn = knn, decay = decay, n_landmark = n_landmark, t = t, gamma = gamma,
-    n_pca = n_pca, knn_dist = knn_dist, knn_max = knn_max,
-    mds = mds, mds_dist = mds_dist, mds_solver = mds_solver,
-    t_max = t_max, n_jobs = n_jobs,
+    n_pca = n_pca, knn_dist = knn_dist, knn_max = knn_max, n_jobs = n_jobs,
+    mds = mds, mds_dist = mds_dist, mds_solver = mds_solver, t_max = t_max,
+    do_cluster = do_cluster, n_clusters = n_clusters, max_clusters = max_clusters,
     reduction.key = reduction.key, verbose = verbose, seed.use = seed.use
   )
   object <- LogSeuratCommand(object = object)
@@ -1435,8 +1435,10 @@ RunPHATE.Seurat <- function(object, reduction = "pca", dims = NULL, features = N
 #' @param t_max
 #' @param n_jobs
 #' @param assay
+#' @param n_clusters
+#' @param max_clusters
 #'
-#' @importFrom reticulate py_module_available py_set_seed import
+#' @importFrom reticulate import
 #' @importFrom Seurat CreateDimReducObject Misc<- Misc
 #'
 #' @rdname RunPHATE
@@ -1447,9 +1449,9 @@ RunPHATE.Seurat <- function(object, reduction = "pca", dims = NULL, features = N
 #'
 RunPHATE.default <- function(object, assay = NULL,
                              n_components = 2, knn = 5, decay = 40, n_landmark = 2000, t = "auto", gamma = 1,
-                             n_pca = 100, knn_dist = "euclidean", knn_max = NULL,
-                             mds = "metric", mds_dist = "euclidean", mds_solver = "sgd",
-                             t_max = 100, n_jobs = 1,
+                             n_pca = 100, knn_dist = "euclidean", knn_max = NULL, n_jobs = 1,
+                             mds = "metric", mds_dist = "euclidean", mds_solver = "sgd", t_max = 100,
+                             do_cluster = FALSE, n_clusters = "auto", max_clusters = 100,
                              reduction.key = "PHATE_", verbose = TRUE, seed.use = 11L,
                              ...) {
   if (!is.null(x = seed.use)) {
@@ -1481,7 +1483,6 @@ RunPHATE.default <- function(object, assay = NULL,
     random_state = as.integer(seed.use),
     verbose = as.integer(verbose)
   )
-
   embedding <- operator$fit_transform(object, t_max = as.integer(t_max))
   colnames(x = embedding) <- paste0(reduction.key, seq_len(ncol(x = embedding)))
   rownames(x = embedding) <- rownames(object)
@@ -1490,6 +1491,19 @@ RunPHATE.default <- function(object, assay = NULL,
     embeddings = embedding,
     key = reduction.key, assay = assay, global = TRUE
   )
+  if (isTRUE(do_cluster)) {
+    if (is.numeric(n_clusters)) {
+      n_clusters <- as.integer(n_clusters)
+    }
+    if (is.numeric(max_clusters)) {
+      max_clusters <- as.integer(max_clusters)
+    }
+    clusters <- phate$cluster$kmeans(operator, n_clusters = n_clusters, max_clusters = max_clusters, random_state = as.integer(seed.use))
+    clusters <- clusters + 1
+    clusters <- factor(clusters, levels = sort(unique(clusters)))
+    names(clusters) <- rownames(embedding)
+    Misc(reduction, slot = "clusters") <- clusters
+  }
   return(reduction)
 }
 
@@ -1621,7 +1635,7 @@ RunTriMap.Seurat <- function(object, reduction = "pca", dims = NULL, features = 
 #' @param opt_method
 #' @param n_components
 #'
-#' @importFrom reticulate py_module_available py_set_seed import
+#' @importFrom reticulate import
 #' @importFrom Seurat CreateDimReducObject Misc<- Misc
 #'
 #' @rdname RunTriMap
@@ -2009,6 +2023,8 @@ RunHarmony2 <- function(object, ...) {
 #' @param project.dim
 #' @param ...
 #'
+#' @rdname RunHarmony2
+#' @method RunHarmony2 Seurat
 #' @importFrom Seurat Embeddings RunPCA FetchData CreateDimReducObject ProjectDim LogSeuratCommand
 #' @importFrom harmony HarmonyMatrix
 RunHarmony2.Seurat <- function(object,

@@ -21,6 +21,8 @@ ZINBWaVE_integrate(
   regression_model = "linear",
   nonliner_reduction = "umap",
   nonliner_reduction_dims = c(2, 3),
+  nonliner_reduction_params = list(),
+  force_nonliner_reduction = TRUE,
   do_cluster_finding = TRUE,
   cluster_algorithm = "louvain",
   cluster_resolution = 0.6,
@@ -30,7 +32,7 @@ ZINBWaVE_integrate(
 )
 }
 \arguments{
-\item{...}{}
+\item{seed}{}
 }
 \description{
 ZINBWaVE_integrate

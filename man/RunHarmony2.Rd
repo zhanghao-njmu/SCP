@@ -2,14 +2,98 @@
 % Please edit documentation in R/Seurat-function.R
 \name{RunHarmony2}
 \alias{RunHarmony2}
+\alias{RunHarmony2.Seurat}
 \title{Harmony single cell integration}
 \usage{
 RunHarmony2(object, ...)
+
+\method{RunHarmony2}{Seurat}(
+  object,
+  group.by.vars,
+  reduction = "pca",
+  dims.use = NULL,
+  theta = NULL,
+  lambda = NULL,
+  sigma = 0.1,
+  nclust = NULL,
+  tau = 0,
+  block.size = 0.05,
+  max.iter.harmony = 10,
+  max.iter.cluster = 20,
+  epsilon.cluster = 1e-05,
+  epsilon.harmony = 1e-04,
+  plot_convergence = FALSE,
+  verbose = TRUE,
+  reference_values = NULL,
+  reduction.save = "Harmony",
+  assay.use = "RNA",
+  project.dim = TRUE,
+  ...
+)
 }
 \arguments{
-\item{object}{An Seurat object}
+\item{object}{}
 
-\item{...}{other parameters}
+\item{...}{}
+
+\item{group.by.vars}{Which variable(s) to remove (character vector).}
+
+\item{reduction}{Name of dimension reduction to use. Default is PCA.}
+
+\item{dims.use}{Which PCA dimensions to use for Harmony. By default, use all}
+
+\item{theta}{Diversity clustering penalty parameter. Specify for each 
+variable in group.by.vars. Default theta=2. theta=0 does not encourage any
+ diversity. Larger values of theta result in more diverse clusters.}
+
+\item{lambda}{Ridge regression penalty parameter. Specify for each variable 
+in group.by.vars. Default lambda=1. Lambda must be strictly positive. 
+Smaller values result in more aggressive correction.}
+
+\item{sigma}{Width of soft kmeans clusters. Default sigma=0.1. Sigma scales 
+the distance from a cell to cluster centroids. Larger values of sigma result
+ in cells assigned to more clusters. Smaller values of sigma make soft 
+ kmeans cluster approach hard clustering.}
+
+\item{nclust}{Number of clusters in model. nclust=1 equivalent to simple
+linear regression.}
+
+\item{tau}{Protection against overclustering small datasets with large ones.
+tau is the expected number of cells per cluster.}
+
+\item{block.size}{What proportion of cells to update during clustering.
+Between 0 to 1, default 0.05. Larger values may be faster but less accurate}
+
+\item{max.iter.harmony}{Maximum number of rounds to run Harmony. One round
+of Harmony involves one clustering and one correction step.}
+
+\item{max.iter.cluster}{Maximum number of rounds to run clustering at each 
+round of Harmony.}
+
+\item{epsilon.cluster}{Convergence tolerance for clustering round of Harmony
+Set to -Inf to never stop early.}
+
+\item{epsilon.harmony}{Convergence tolerance for Harmony. Set to -Inf to
+never stop early.}
+
+\item{plot_convergence}{Whether to print the convergence plot of the 
+clustering objective function. TRUE to plot, FALSE to suppress. This can be
+ useful for debugging.}
+
+\item{verbose}{Whether to print progress messages. TRUE to print, FALSE to
+suppress.}
+
+\item{reference_values}{(Advanced Usage) Defines reference dataset(s). Cells
+that have batch variables values matching reference_values will not be moved}
+
+\item{reduction.save}{Keyword to save Harmony reduction. Useful if you want
+to try Harmony with multiple parameters and save them as e.g. 
+'harmony_theta0', 'harmony_theta1', 'harmony_theta2'}
+
+\item{assay.use}{(Seurat V3 only) Which assay to Harmonize with (RNA 
+by default).}
+
+\item{project.dim}{Project dimension reduction loadings. Default TRUE.}
 }
 \description{
 Run Harmony algorithm with Seurat pipelines.

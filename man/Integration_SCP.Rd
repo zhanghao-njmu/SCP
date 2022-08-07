@@ -23,9 +23,11 @@ Integration_SCP(
   liner_reduction = "pca",
   liner_reduction_dims = 100,
   liner_reduction_dims_use = NULL,
+  liner_reduction_params = list(),
   force_liner_reduction = FALSE,
   nonliner_reduction = "umap",
   nonliner_reduction_dims = c(2, 3),
+  nonliner_reduction_params = list(),
   force_nonliner_reduction = TRUE,
   do_cluster_finding = TRUE,
   cluster_algorithm = "louvain",
@@ -62,7 +64,7 @@ Integration_SCP(
 
 \item{vars_to_regress}{Variables to regress out.}
 
-\item{regression_model}{Use a linear model or generalized linear model (poisson, negative binomial) for the regression. Options are 'linear' (default), 'poisson', and 'negbinom'}
+\item{regression_model}{Use a linear model or generalized linear model (poisson, negative binomial) for the regression. Options are "linear" (default), "poisson", and "negbinom".}
 
 \item{liner_reduction}{Liner reduction method name. Can be one of "pca", "ica", "nmf", "mds", "glmpca".}
 
@@ -70,19 +72,19 @@ Integration_SCP(
 
 \item{liner_reduction_dims_use}{Which dimensions to use when performing the nonliner reduction.}
 
-\item{nonliner_reduction}{Non-liner reduction method name. Can be one of "umap", "umap-naive",  "tsne", "dm".}
+\item{nonliner_reduction}{Non-liner reduction method name. Can be one of "umap", "umap-naive", "tsne", "dm", "phate", "pacmap", "trimap", "largevis".}
 
 \item{nonliner_reduction_dims}{Dimensions to calculate when performing non-liner reduction.}
 
-\item{cluster_algorithm}{Algorithm for modularity optimization when finding clusters.}
+\item{force_nonliner_reduction}{}
+
+\item{cluster_algorithm}{Algorithm for modularity optimization when finding clusters. Can be one of "louvain", "slm", "leiden".}
 
 \item{cluster_resolution}{Cluster resolution parameter.}
 
 \item{cluster_reorder}{Whether to reorder the cluster names using hierarchical clustering.}
 
 \item{seed}{Set a random seed.}
-
-\item{...}{}
 }
 \value{
 A \code{Seurat} object containing the result.
@@ -100,20 +102,26 @@ data("panc8")
 cell_sub <- unlist(lapply(split(colnames(panc8), panc8$tech), function(x) sample(x, size = 500)))
 panc8 <- subset(panc8, cells = cell_sub)
 plist1 <- list()
-for (method in c("Uncorrected", "Seurat", "scVI", "MNN", "fastMNN", "Harmony", "Scanorama", "BBKNN", "CSS", "LIGER", "Conos")) {
-  panc8 <- Integration_SCP(panc8, batch = "tech", integration_method = method)
+methods <- c("Uncorrected", "Seurat", "scVI", "MNN", "fastMNN", "Harmony", "Scanorama", "BBKNN", "CSS", "LIGER", "Conos")
+for (method in methods) {
+  panc8 <- Integration_SCP(panc8,
+    batch = "tech", integration_method = method,
+    nonliner_reduction = "umap"
+  )
   plist1[[method]] <- ClassDimPlot(panc8, group.by = c("tech", "celltype"), theme_use = "theme_blank")
+}
+for (method in methods) {
   print(plist1[[method]])
 }
 
-reductions <- c("umap", "umap-naive", "tsne", "dm", "phate", "pacmap", "trimap", "largevis")
+reductions <- c("umap", "tsne", "dm", "phate", "pacmap", "trimap", "largevis")
 panc8 <- Integration_SCP(panc8,
   batch = "tech", integration_method = "Seurat",
   nonliner_reduction = reductions
 )
 plist2 <- list()
 for (reduc in reductions) {
-  plist2[[reduc]] <- ClassDimPlot(panc8, group.by = c("tech", "celltype"), reduction = reduc, theme_use = "theme_blank")
+  plist2[[reduc]] <- ClassDimPlot(panc8, group.by = c("tech", "celltype"), reduction = paste0("Seurat", reduc, "2D"), theme_use = "theme_blank")
   print(plist2[[reduc]])
 }
 }

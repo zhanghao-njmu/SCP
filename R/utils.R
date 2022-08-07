@@ -132,6 +132,33 @@ check_Python <- function(pkgs, pkg_names = NULL, envname = "SCP", force = FALSE)
   }
 }
 
+#' @importFrom rlang %||%
+#' @export
+list_palette <- function(palette_list, names = NULL) {
+  if (is.null(names)) {
+    names <- names %||% names(palette_list) %||% seq_along(palette_list)
+  }
+  par(mar = c(0, 0, 0, 0) + 0.1)
+
+  plot(0, 0,
+    type = "n", axes = FALSE, bty = "n", xlab = "", ylab = "",
+    xlim = c(0, 1), ylim = c(-length(palette_list) - 1, -1)
+  )
+
+  for (i in seq_len(length(palette_list))) {
+    colors_len <- length(palette_list[[i]])
+    breaks <- seq(from = 0, to = 1, length = colors_len + 1)
+
+
+    text(0, -i, names[i], pos = 4)
+    rect(
+      xleft = breaks[1:colors_len], xright = breaks[1:colors_len + 1],
+      ytop = -0.15 - i, ybottom = -0.8 - i,
+      col = palette_list[[i]], border = NA
+    )
+  }
+}
+
 #' @export
 run_Python <- function(command, envir = .GlobalEnv) {
   tryCatch(expr = {

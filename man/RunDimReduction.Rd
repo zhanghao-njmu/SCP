@@ -30,9 +30,9 @@ RunDimReduction(
 \arguments{
 \item{liner_reduction}{"pca", "ica", "nmf", "mds", "glmpca"}
 
-\item{nonliner_reduction}{"umap", "umap-naive",  "tsne",  "dm",   "phate", "pacmap", "trimap", "largevis"}
+\item{nonliner_reduction}{"umap", "umap-naive", "tsne", "dm", "phate", "pacmap", "trimap", "largevis"}
 
-\item{seed}{}
+\item{force_nonliner_reduction}{}
 }
 \description{
 RunDimReduction

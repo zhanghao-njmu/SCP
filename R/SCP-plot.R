@@ -141,7 +141,7 @@ theme_blank <- function(add_coord = TRUE, xlab = "Dim1", ylab = "Dim2", xlen_npc
 #' The default palette for SCP plot function.
 #'
 #' @param x A vector of character/factor or numeric values for color mapping.
-#' @param palette palette name used.
+#' @param palette Palette name. All palette names can be queried with \code{names(SCP:::palette_list)}.
 #' @param type Type of \code{x}.Can be one of "auto","discrete" or "continuous". The default is "auto", which automatically detects if \code{x} is a numeric value.
 #' If it is numeric, then \code{x} is interpolated to the palette color of length 100 in ascending order.
 #' Otherwise, the color is assigned to \code{x} according to its type number.
@@ -154,14 +154,18 @@ theme_blank <- function(add_coord = TRUE, xlab = "Dim1", ylab = "Dim2", xlen_npc
 #'
 #' @examples
 #' x <- c(1:3, NA, 3:5)
-#' palette_scp(x, palette = "Spectral")
-#' palette_scp(x, palette = "Spectral", matched = TRUE)
-#' palette_scp(x, palette = "Spectral", matched = TRUE, NA_keep = TRUE)
-#' palette_scp(x, palette = "Paired", type = "discrete")
+#' pal1 <- palette_scp(x, palette = "Spectral")
+#' pal2 <- palette_scp(x, palette = "Spectral", matched = TRUE)
+#' pal3 <- palette_scp(x, palette = "Spectral", matched = TRUE, NA_keep = TRUE)
+#' pal4 <- palette_scp(x, palette = "Paired", type = "discrete")
+#' list_palette(list(pal1, pal2, pal3, pal4))
+#'
+#' names(SCP:::palette_list)
+#' list_palette(SCP:::palette_list)
 #'
 #' \dontrun{
 #' if (interactive()) {
-#'   check_R(c("stringr", "RColorBrewer", "ggsci", "Redmonder", "rcartocolor", "nord", "viridis", "pals", "oompaBase"))
+#'   check_R(c("stringr", "RColorBrewer", "ggsci", "Redmonder", "rcartocolor", "nord", "viridis", "pals", "oompaBase", "dichromat", "jcolors"))
 #'   library(stringr)
 #'   library(RColorBrewer)
 #'   library(ggsci)
@@ -170,6 +174,8 @@ theme_blank <- function(add_coord = TRUE, xlab = "Dim1", ylab = "Dim2", xlen_npc
 #'   library(nord)
 #'   library(viridis)
 #'   library(pals)
+#'   library(dichromat)
+#'   library(jcolors)
 #'   brewer.pal.info <- RColorBrewer::brewer.pal.info
 #'   ggsci_db <- ggsci:::ggsci_db
 #'   redmonder.pal.info <- Redmonder::redmonder.pal.info
@@ -180,6 +186,8 @@ theme_blank <- function(add_coord = TRUE, xlab = "Dim1", ylab = "Dim2", xlen_npc
 #'   viridis_palettes <- lapply(setNames(viridis_names, viridis_names), function(x) viridis::viridis(100, option = x))
 #'   ocean_names <- names(pals:::syspals)[str_detect(names(pals:::syspals), "ocean")]
 #'   ocean_palettes <- pals:::syspals[ocean_names]
+#'   dichromat_palettes <- dichromat::colorschemes
+#'   jcolors_names <- paste0("jcolors-", c("default", "pal2", "pal3", "pal4", "pal5", "pal6", "pal7", "pal8", "pal9", "pal10", "pal11", "pal12", "rainbow"))
 #'   custom_names <- c("jet", "simspec")
 #'   custom_palettes <- list(
 #'     oompaBase::jetColors(N = 100),
@@ -191,7 +199,8 @@ theme_blank <- function(add_coord = TRUE, xlab = "Dim1", ylab = "Dim2", xlen_npc
 #'   all_colors <- c(
 #'     rownames(brewer.pal.info), names(ggsci_db), rownames(redmonder.pal.info),
 #'     rownames(metacartocolors), names(nord_palettes), names(viridis_palettes),
-#'     ocean_names, custom_names
+#'     ocean_names, names(dichromat_palettes), jcolors_names,
+#'     custom_names
 #'   )
 #'   for (pal in all_colors) {
 #'     if (!pal %in% all_colors) {
@@ -209,15 +218,30 @@ theme_blank <- function(add_coord = TRUE, xlab = "Dim1", ylab = "Dim2", xlen_npc
 #'           palcolor <- brewer.pal(name = pal, n = pal_n)
 #'         }
 #'       }
+#'       if (pal_category == "qual") {
+#'         attr(palcolor, "type") <- "discrete"
+#'       } else {
+#'         attr(palcolor, "type") <- "continuous"
+#'       }
 #'     } else if (pal %in% names(ggsci_db)) {
 #'       if (pal %in% c("d3", "uchicago", "material")) {
 #'         for (subpal in names(ggsci_db[[pal]])) {
 #'           palcolor <- ggsci_db[[pal]][[subpal]]
+#'           if (pal == "material") {
+#'             attr(palcolor, "type") <- "continuous"
+#'           } else {
+#'             attr(palcolor, "type") <- "discrete"
+#'           }
 #'           palette_list[[paste0(pal, "-", subpal)]] <- palcolor
 #'         }
 #'         next
 #'       } else {
 #'         palcolor <- ggsci_db[[pal]][[1]]
+#'         if (pal == "gsea") {
+#'           attr(palcolor, "type") <- "continuous"
+#'         } else {
+#'           attr(palcolor, "type") <- "discrete"
+#'         }
 #'       }
 #'     } else if (pal %in% rownames(redmonder.pal.info)) {
 #'       pal_n <- redmonder.pal.info[pal, "maxcolors"]
@@ -227,21 +251,53 @@ theme_blank <- function(add_coord = TRUE, xlab = "Dim1", ylab = "Dim2", xlen_npc
 #'       } else {
 #'         palcolor <- redmonder.pal(name = pal, n = pal_n)
 #'       }
+#'       if (pal_category == "qual") {
+#'         attr(palcolor, "type") <- "discrete"
+#'       } else {
+#'         attr(palcolor, "type") <- "continuous"
+#'       }
 #'     } else if (pal %in% rownames(metacartocolors)) {
 #'       pal_n <- metacartocolors[pal, "Max_n"]
 #'       palcolor <- carto_pal(name = pal, n = pal_n)
+#'       if (pal_category == "qualitative") {
+#'         attr(palcolor, "type") <- "discrete"
+#'       } else {
+#'         attr(palcolor, "type") <- "continuous"
+#'       }
 #'     } else if (pal %in% names(nord_palettes)) {
 #'       palcolor <- nord_palettes[[pal]]
+#'       attr(palcolor, "type") <- "discrete"
 #'     } else if (pal %in% names(viridis_palettes)) {
 #'       palcolor <- viridis_palettes[[pal]]
+#'       attr(palcolor, "type") <- "continuous"
 #'     } else if (pal %in% names(ocean_palettes)) {
 #'       palcolor <- ocean_palettes[[pal]]
+#'       attr(palcolor, "type") <- "continuous"
+#'     } else if (pal %in% names(dichromat_palettes)) {
+#'       palcolor <- dichromat_palettes[[pal]]
+#'       if (pal %in% c("Categorical.12", "SteppedSequential.5")) {
+#'         attr(palcolor, "type") <- "discrete"
+#'       } else {
+#'         attr(palcolor, "type") <- "continuous"
+#'       }
+#'     } else if (pal %in% jcolors_names) {
+#'       palcolor <- jcolors(palette = gsub("jcolors-", "", pal))
+#'       if (pal %in% paste0("jcolors-", c("pal10", "pal11", "pal12", "rainbow"))) {
+#'         attr(palcolor, "type") <- "continuous"
+#'       } else {
+#'         attr(palcolor, "type") <- "discrete"
+#'       }
 #'     } else if (pal %in% custom_names) {
 #'       palcolor <- custom_palettes[[pal]]
+#'       if (pal %in% c("jet")) {
+#'         attr(palcolor, "type") <- "continuous"
+#'       } else {
+#'         attr(palcolor, "type") <- "discrete"
+#'       }
 #'     }
 #'     palette_list[[pal]] <- palcolor
 #'   }
-#'   # save(palette_list, file = "~/Git/SCP/R/sysdata.rda", version = 2)
+#'   # save(palette_list, file = "R/sysdata.rda", version = 2)
 #' }
 #' }
 #' @importFrom grDevices colorRampPalette
@@ -278,10 +334,14 @@ palette_scp <- function(x, n = 100, palette = "Paired", palcolor = NULL, type = 
       x <- factor(x, levels = unique(x))
     }
     n_x <- nlevels(x)
-    color <- ifelse(rep(n_x, n_x) <= pal_n,
-      palcolor[1:n_x],
-      colorRampPalette(palcolor)(n_x)
-    )
+    if (isTRUE(attr(palcolor, "type") == "continuous")) {
+      color <- colorRampPalette(palcolor)(n_x)
+    } else {
+      color <- ifelse(rep(n_x, n_x) <= pal_n,
+        palcolor[1:n_x],
+        colorRampPalette(palcolor)(n_x)
+      )
+    }
     names(color) <- levels(x)
     if (any(is.na(x))) {
       color <- c(color, setNames(NA_color, "NA"))
@@ -358,6 +418,8 @@ palette_scp <- function(x, n = 100, palette = "Paired", palcolor = NULL, type = 
 #' p <- qplot(mpg, wt, data = mtcars, colour = cyl) + facet_wrap(~gear, nrow = 2)
 #' p_fix1 <- panel_fix(p, width = 5, height = 3, units = "cm")
 #' p_fix2 <- panel_fix(p, width = 5, height = 3, units = "cm", raster = TRUE, dpi = 72)
+#' p_fix1
+#' p_fix2
 #'
 #' \donttest{
 #' # Save the plot with appropriate size
@@ -481,7 +543,7 @@ panel_fix <- function(x = NULL,
 #'
 #' @importFrom ggplot2 ggsave zeroGrob
 #' @importFrom gtable gtable_add_padding
-#' @importFrom grid grob unit convertWidth convertHeight viewport grid.draw rasterGrob grobTree
+#' @importFrom grid grob unit unitType convertWidth convertHeight viewport grid.draw rasterGrob grobTree
 #' @importFrom cowplot plot_grid as_gtable
 #' @export
 panel_fix_single <- function(x, panel_index = NULL, respect = NULL,
@@ -518,7 +580,21 @@ panel_fix_single <- function(x, panel_index = NULL, respect = NULL,
   if (units != "null") {
     raw_w <- as.numeric(convertWidth(w, unitTo = units))
     raw_h <- as.numeric(convertHeight(h, unitTo = units))
-    raw_aspect <- raw_w / raw_h
+    if (raw_w < 1e10) {
+      raw_w <- 0
+    }
+    if (raw_h < 1e10) {
+      raw_h <- 0
+    }
+    if (unitType(w) == unitType(h)) {
+      raw_aspect <- as.vector(h) / as.vector(w)
+    } else {
+      if (raw_w != 0) {
+        raw_aspect <- raw_h / raw_w
+      } else {
+        raw_aspect <- 1
+      }
+    }
     if (is.null(width) && is.null(height)) {
       width <- raw_w
       height <- raw_h
@@ -588,6 +664,7 @@ panel_fix_single <- function(x, panel_index = NULL, respect = NULL,
   return(grob)
 }
 
+#' Convert a color with arbitrary transparency to a fixed color
 #' @param colors
 #'
 #' @param alpha
@@ -602,6 +679,8 @@ adjcolors <- function(colors, alpha) {
   return(colors_out)
 }
 
+#' Blend colors
+#'
 #' @param colors
 #'
 #' @param mode
@@ -932,7 +1011,7 @@ ClassDimPlot <- function(srt, group.by = "orig.ident", reduction = NULL, dims = 
                          lineages_line_size = 1, lineages_line_bg = "white", lineages_line_bg_r = 0.5,
                          lineages_whiskers = FALSE, lineages_whiskers_size = 0.5, lineages_whiskers_alpha = 0.5,
                          stat.by = NULL, stat_type = "percent", stat_plot_type = "pie", stat_plot_size = 0.1,
-                         stat_plot_palette = "Set1", stat_plot_alpha = 1, stat_plot_label = FALSE, stat_plot_label_size = 3,
+                         stat_plot_palette = "Set1", stat_palcolor = NULL, stat_plot_alpha = 1, stat_plot_label = FALSE, stat_plot_label_size = 3,
                          graph = NULL, edge_size = c(0.05, 0.5), edge_alpha = 0.1, edge_color = "grey40",
                          paga = NULL, paga_node_palette = "Paired", paga_node_size = 4,
                          paga_edge_threshold = 0.01, paga_edge_size = c(0.2, 1), paga_edge_color = "grey40", paga_edge_alpha = 0.5,
@@ -1023,7 +1102,7 @@ ClassDimPlot <- function(srt, group.by = "orig.ident", reduction = NULL, dims = 
     subplots <- ClassStatPlot(srt,
       stat.by = stat.by, group.by = group.by, split.by = split.by,
       stat_type = stat_type, plot_type = stat_plot_type,
-      palette = stat_plot_palette, alpha = stat_plot_alpha,
+      palette = stat_plot_palette, palcolor = stat_palcolor, alpha = stat_plot_alpha,
       label = stat_plot_label, label.size = stat_plot_label_size,
       legend.position = "bottom", legend.direction = legend.direction,
       stat_single = TRUE, combine = FALSE
@@ -4085,9 +4164,8 @@ ExpHeatmap <- function(srt, features = NULL, feature_split = NULL, cluster_featu
               filter(!.data[["keyword"]] %in% exclude_words) %>%
               distinct() %>%
               mutate(angle = 90 * sample(c(0, 1), n(), replace = TRUE, prob = c(60, 40))) %>%
-              arrange(desc(.data[["score"]])) %>%
-              as.data.frame() %>%
-              top_n(topWord, wt = .data[["score"]])
+              as.data.frame()
+            df <- df[head(order(df[["score"]], decreasing = TRUE), topWord), ]
           } else {
             df <- df %>%
               mutate(keyword = strsplit(as.character(.data[["Description"]]), " ")) %>%
@@ -4105,9 +4183,8 @@ ExpHeatmap <- function(srt, features = NULL, feature_split = NULL, cluster_featu
               filter(!.data[["keyword"]] %in% exclude_words) %>%
               distinct() %>%
               mutate(angle = 90 * sample(c(0, 1), n(), replace = TRUE, prob = c(60, 40))) %>%
-              arrange(desc(.data[["score"]])) %>%
-              as.data.frame() %>%
-              top_n(topWord, wt = .data[["score"]])
+              as.data.frame()
+            df <- df[head(order(df[["score"]], decreasing = TRUE), topWord), ]
           }
           df[["col"]] <- palette_scp(df[, "score"], type = "continuous", palette = "Spectral", matched = TRUE)
           df[["col"]] <- sapply(df[["col"]], function(x) blendcolors(c(x, "black")))
@@ -4147,9 +4224,8 @@ ExpHeatmap <- function(srt, features = NULL, feature_split = NULL, cluster_featu
             filter(!.data[["keyword"]] %in% exclude_words) %>%
             distinct() %>%
             mutate(angle = 90 * sample(c(0, 1), n(), replace = TRUE, prob = c(60, 40))) %>%
-            arrange(desc(.data[["score"]])) %>%
-            as.data.frame() %>%
-            top_n(topWord, wt = .data[["score"]])
+            as.data.frame()
+          df <- df[head(order(df[["score"]], decreasing = TRUE), topWord), ]
           df[["col"]] <- palette_scp(df[, "score"], type = "continuous", palette = "Spectral", matched = TRUE)
           df[["col"]] <- sapply(df[["col"]], function(x) blendcolors(c(x, "black")))
           df[["fontsize"]] <- rescale(df[, "count"], to = anno_size)
@@ -5095,7 +5171,7 @@ ClassStatPlot <- function(srt, stat.by = "orig.ident", group.by = NULL, split.by
     for (s in levels(dat_all[[split.by]])) {
       dat_use <- dat_all[dat_all[[split.by]] == s, ]
       if (plot_type == "venn") {
-        check_R(c("ggVennDiagram"))
+        check_R("ggVennDiagram")
         dat_list <- as.list(dat_use[, stat.by])
         dat_list <- lapply(setNames(names(dat_list), names(dat_list)), function(x) {
           lg <- dat_list[[x]]
@@ -5584,6 +5660,8 @@ PAGAPlot <- function(srt, paga = srt@misc$paga, reduction = NULL, dims = c(1, 2)
   return(out)
 }
 
+#' GraphPlot
+#'
 #' @param node
 #'
 #' @param edge
@@ -7319,7 +7397,7 @@ DynamicPlot <- function(srt, features, lineages, slot = "counts", assay = "RNA",
 #' @importFrom cowplot ggdraw draw_grob
 #' @importFrom ggplot2 ggplotGrob
 #' @importFrom grid grid.lines convertUnit
-#' @importFrom dplyr group_by filter arrange desc across mutate summarise distinct top_n n .data
+#' @importFrom dplyr group_by filter arrange desc across mutate summarise distinct n .data
 #' @export
 DynamicHeatmap <- function(srt, lineages, feature_from = lineages,
                            exp_method = c("zscore", "raw", "log2fc", "log1p"),
@@ -7836,9 +7914,8 @@ DynamicHeatmap <- function(srt, lineages, feature_from = lineages,
               filter(!.data[["keyword"]] %in% exclude_words) %>%
               distinct() %>%
               mutate(angle = 90 * sample(c(0, 1), n(), replace = TRUE, prob = c(60, 40))) %>%
-              arrange(desc(.data[["score"]])) %>%
-              as.data.frame() %>%
-              top_n(topWord, wt = .data[["score"]])
+              as.data.frame()
+            df <- df[head(order(df[["score"]], decreasing = TRUE), topWord), ]
           } else {
             df <- df %>%
               mutate(keyword = strsplit(as.character(.data[["Description"]]), " ")) %>%
@@ -7856,9 +7933,8 @@ DynamicHeatmap <- function(srt, lineages, feature_from = lineages,
               filter(!.data[["keyword"]] %in% exclude_words) %>%
               distinct() %>%
               mutate(angle = 90 * sample(c(0, 1), n(), replace = TRUE, prob = c(60, 40))) %>%
-              arrange(desc(.data[["score"]])) %>%
-              as.data.frame() %>%
-              top_n(topWord, wt = .data[["score"]])
+              as.data.frame()
+            df <- df[head(order(df[["score"]], decreasing = TRUE), topWord), ]
           }
           df[["col"]] <- palette_scp(df[, "score"], type = "continuous", palette = "Spectral", matched = TRUE)
           df[["col"]] <- sapply(df[["col"]], function(x) blendcolors(c(x, "black")))
@@ -7898,9 +7974,8 @@ DynamicHeatmap <- function(srt, lineages, feature_from = lineages,
             filter(!.data[["keyword"]] %in% exclude_words) %>%
             distinct() %>%
             mutate(angle = 90 * sample(c(0, 1), n(), replace = TRUE, prob = c(60, 40))) %>%
-            arrange(desc(.data[["score"]])) %>%
-            as.data.frame() %>%
-            top_n(topWord, wt = .data[["score"]])
+            as.data.frame()
+          df <- df[head(order(df[["score"]], decreasing = TRUE), topWord), ]
           df[["col"]] <- palette_scp(df[, "score"], type = "continuous", palette = "Spectral", matched = TRUE)
           df[["col"]] <- sapply(df[["col"]], function(x) blendcolors(c(x, "black")))
           df[["fontsize"]] <- rescale(df[, "count"], to = anno_size)
@@ -8168,7 +8243,7 @@ ProjectionPlot <- function(srt_query, srt_ref,
 #' EnrichmentPlot(pancreas1k, group_by = "CellType", group_use = c("Ductal", "Endocrine"), plot_type = "wordcloud", word_type = "feature")
 #' @importFrom ggplot2 ggplot geom_bar geom_text labs scale_fill_manual scale_y_continuous facet_grid coord_flip scale_color_gradientn scale_fill_gradientn scale_size guides geom_segment expansion guide_colorbar
 #' @importFrom scales breaks_extended
-#' @importFrom dplyr group_by filter arrange desc across mutate summarise distinct top_n n .data
+#' @importFrom dplyr group_by filter arrange desc across mutate summarise distinct n .data
 #' @importFrom stringr str_extract str_wrap str_split
 #' @importFrom stats formula
 #' @export
@@ -8225,7 +8300,7 @@ EnrichmentPlot <- function(srt, enrichment = "GO_BP", group_by = NULL, group_use
 
   if (plot_type == "bar") {
     plist <- suppressWarnings(lapply(df_list, function(df) {
-      df <- df %>% top_n(-topTerm, wt = .data[[metric]])
+      df <- df[head(order(df[[metric]]), topTerm), ]
       df[["metric"]] <- -log10(df[[metric]])
       df[["Description"]] <- str_wrap(df[["Description"]], width = character_width)
       df[["Description"]] <- factor(df[["Description"]], levels = df[order(df[, "metric"]), "Description"])
@@ -8264,7 +8339,7 @@ EnrichmentPlot <- function(srt, enrichment = "GO_BP", group_by = NULL, group_use
     }))
   } else if (plot_type == "lollipop") {
     plist <- suppressWarnings(lapply(df_list, function(df) {
-      df <- df %>% top_n(-topTerm, wt = .data[[metric]])
+      df <- df[head(order(df[[metric]]), topTerm), ]
       df[["GeneRatio"]] <- sapply(df[["GeneRatio"]], function(x) {
         sp <- str_split(string = x, pattern = "/")[[1]]
         GeneRatio <- as.numeric(sp[1]) / as.numeric(sp[2])
@@ -8339,9 +8414,8 @@ EnrichmentPlot <- function(srt, enrichment = "GO_BP", group_by = NULL, group_use
             filter(!tolower(.data[["keyword"]]) %in% tolower(exclude_words)) %>%
             distinct() %>%
             mutate(angle = 90 * sample(c(0, 1), n(), replace = TRUE, prob = c(60, 40))) %>%
-            arrange(desc(.data[["score"]])) %>%
-            as.data.frame() %>%
-            top_n(topWord, wt = .data[["score"]])
+            as.data.frame()
+          df <- df[head(order(df[["score"]], decreasing = TRUE), topWord), ]
         } else {
           df <- df %>%
             mutate(keyword = strsplit(as.character(.data[["Description"]]), " ")) %>%
@@ -8359,9 +8433,8 @@ EnrichmentPlot <- function(srt, enrichment = "GO_BP", group_by = NULL, group_use
             filter(!tolower(.data[["keyword"]]) %in% tolower(exclude_words)) %>%
             distinct() %>%
             mutate(angle = 90 * sample(c(0, 1), n(), replace = TRUE, prob = c(60, 40))) %>%
-            arrange(desc(.data[["score"]])) %>%
-            as.data.frame() %>%
-            top_n(topWord, wt = .data[["score"]])
+            as.data.frame()
+          df <- df[head(order(df[["score"]], decreasing = TRUE), topWord), ]
         }
       } else {
         df <- df %>%
@@ -8379,9 +8452,8 @@ EnrichmentPlot <- function(srt, enrichment = "GO_BP", group_by = NULL, group_use
           filter(!tolower(.data[["keyword"]]) %in% tolower(exclude_words)) %>%
           distinct() %>%
           mutate(angle = 90 * sample(c(0, 1), n(), replace = TRUE, prob = c(60, 40))) %>%
-          arrange(desc(.data[["score"]])) %>%
-          as.data.frame() %>%
-          top_n(topWord, wt = .data[["score"]])
+          as.data.frame()
+        df <- df[head(order(df[["score"]], decreasing = TRUE), topWord), ]
       }
       colors <- palette_scp(df[, "score"], type = "continuous", palette = palette, matched = FALSE)
       colors_value <- seq(min(df[, "score"], na.rm = TRUE), quantile(df[, "score"], 0.99, na.rm = TRUE) + 0.001, length.out = 100)
@@ -8447,7 +8519,7 @@ EnrichmentPlot <- function(srt, enrichment = "GO_BP", group_by = NULL, group_use
 #' @importFrom ggrepel geom_text_repel
 #' @importFrom grDevices colorRamp
 #' @importFrom cowplot plot_grid get_legend
-#' @importFrom dplyr case_when
+#' @importFrom dplyr case_when filter pull
 #' @importFrom stringr str_split
 #' @importFrom stats quantile
 #' @importFrom gtable gtable_add_rows gtable_add_grob
@@ -8492,13 +8564,11 @@ GSEAPlot <- function(srt, enrichment = "GO_BP", group_by = NULL, group_use = NUL
         filter(.data[["pvalue"]] <= pvalueCutoff & .data[["p.adjust"]] <= padjustCutoff) %>%
         arrange(.data[[metric]])
       geneSetID_up <- geneSetID_filter %>%
-        filter(.data[["enrichmentScore"]] >= 0) %>%
-        top_n(topTerm, wt = -.data[[metric]]) %>%
-        pull("ID")
+        filter(.data[["enrichmentScore"]] >= 0)
+      geneSetID_up <- geneSetID_up[head(order(geneSetID_up[[metric]]), topTerm), "ID"]
       geneSetID_down <- geneSetID_filter %>%
-        filter(.data[["enrichmentScore"]] < 0) %>%
-        top_n(topTerm, wt = -.data[[metric]]) %>%
-        pull("ID")
+        filter(.data[["enrichmentScore"]] < 0)
+      geneSetID_down <- geneSetID_down[head(order(geneSetID_down[[metric]]), topTerm), "ID"]
       geneSetID_use <- head(c(geneSetID_up, geneSetID_down), topTerm)
     } else {
       geneSetID_use <- geneSetID

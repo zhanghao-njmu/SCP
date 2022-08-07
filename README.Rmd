@@ -33,14 +33,34 @@ The SCP package provides a comprehensive set of tools for single cell data proce
 The package includes facilities for:
 
 -   Integrated single cell quality control methods.
--   Pipelines embedded with multiple methods for normalization, feature reduction, and cell population identification.
--   Pipelines embedded with multiple data integration methods.
+-   Pipelines embedded with multiple methods for normalization, feature reduction, and cell population identification (standard Seurat workflow).
+-   Pipelines embedded with multiple data integration methods, including Uncorrected, [Seurat](https://github.com/satijalab/seurat), [scVI](https://github.com/scverse/scvi-tools), [MNN](http://www.bioconductor.org/packages/release/bioc/html/batchelor.html), [fastMNN](http://www.bioconductor.org/packages/release/bioc/html/batchelor.html), [Harmony](https://github.com/immunogenomics/harmony), [Scanorama](https://github.com/brianhie/scanorama), [BBKNN](https://github.com/Teichlab/bbknn), [CSS](https://github.com/quadbiolab/simspec), [LIGER](https://github.com/welch-lab/liger), [Conos](https://github.com/kharchenkolab/conos).
 -   Multiple single cell downstream analyses such as identification of differential features, enrichment analysis, GSEA analysis, identification of dynamic features, [PAGA](https://github.com/theislab/paga), [RNA velocity](https://github.com/theislab/scvelo), etc.
 -   Multiple methods for automatic annotation of single-cell data and methods for projection between single-cell datasets.
 -   High-quality visualization for multiple analysis results.
 -   Fast deployment of single-cell data to a [shiny app](https://shiny.rstudio.com/).
 
 The functions in the SCP package are all developed around the [Seurat object](https://github.com/mojaveazure/seurat-object) and compatible with other Seurat functions.
+
+## Requirement
+
+SCP requires python 3.7-3.9 to be installed in the environment.
+
+Check the version of python in the terminal:
+
+```{shell eval=FALSE}
+python --version
+```
+
+or in the R environment:
+
+```{r eval=FALSE}
+if (!require("reticulate", quietly = TRUE)) {
+  install.packages("reticulate")
+}
+py <- Sys.which("python")
+reticulate:::python_version(py)
+```
 
 ## Installation
 
@@ -50,7 +70,7 @@ You can install the development version of SCP from [GitHub](https://github.com/
 if (!require("devtools", quietly = TRUE)) {
   install.packages("devtools")
 }
-devtools::install_github("zhanghao-njmu/SCP")
+devtools::install_github("zhanghao-njmu/SCP", INSTALL_opts = "--no-multiarch")
 ```
 
 ## Example
@@ -109,13 +129,13 @@ ClassDimPlot(
 )
 ```
 
-```{r ClassDimPlot3D}
+```{r ClassDimPlot3D,eval=FALSE}
 ClassDimPlot3D(srt = pancreas1k, group.by = "SubCellType")
 ```
 
 ![ClassDimPlot3D](man/figures/README-ClassDimPlot3D-1.png)
 
-```{r ExpDimPlot3D}
+```{r ExpDimPlot3D,eval=FALSE}
 ExpDimPlot3D(srt = pancreas1k, features = c("Sox9", "Neurog3", "Fev", "Rbp4"))
 ```
 

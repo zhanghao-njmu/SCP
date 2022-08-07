@@ -55,6 +55,7 @@ ClassDimPlot(
   stat_plot_type = "pie",
   stat_plot_size = 0.1,
   stat_plot_palette = "Set1",
+  stat_palcolor = NULL,
   stat_plot_alpha = 1,
   stat_plot_label = FALSE,
   stat_plot_label_size = 3,

@@ -54,6 +54,8 @@ library(ggplot2)
 p <- qplot(mpg, wt, data = mtcars, colour = cyl) + facet_wrap(~gear, nrow = 2)
 p_fix1 <- panel_fix(p, width = 5, height = 3, units = "cm")
 p_fix2 <- panel_fix(p, width = 5, height = 3, units = "cm", raster = TRUE, dpi = 72)
+p_fix1
+p_fix2
 
 \donttest{
 # Save the plot with appropriate size

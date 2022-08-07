@@ -21,6 +21,7 @@ LIGER_integrate(
   regression_model = "linear",
   nonliner_reduction = "umap",
   nonliner_reduction_dims = c(2, 3),
+  nonliner_reduction_params = list(),
   force_nonliner_reduction = TRUE,
   do_cluster_finding = TRUE,
   cluster_algorithm = "louvain",
@@ -34,7 +35,7 @@ LIGER_integrate(
 \arguments{
 \item{srtMerge}{}
 
-\item{...}{}
+\item{seed}{}
 }
 \description{
 LIGER_integrate

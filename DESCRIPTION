@@ -1,7 +1,7 @@
 Package: SCP
 Type: Package
 Title: Single Cell Pipeline
-Version: 0.1.5
+Version: 0.1.7
 Author: Hao Zhang
 Maintainer: Hao Zhang <haozhang@njmu.edu.cn>
 Description: The SCP package provides a comprehensive set of tools for single cell data processing and downstream analysis.
@@ -11,6 +11,7 @@ LazyData: false
 LazyDataCompression: xz
 Depends:
     R (>= 3.5.0)
+biocViews: SingleCell, Visualization    
 Imports:
     AnnotationDbi,
     BiocParallel,
@@ -25,7 +26,6 @@ Imports:
     ggpubr,
     ggrepel,
     ggupset,
-    ggVennDiagram,
     ggwordcloud,
     GO.db,
     GOSemSim,
@@ -72,11 +72,13 @@ Remotes:
     zhanghao-njmu/seurat-wrappers,
     zhanghao-njmu/seurat-data,
     quadbiolab/simspec,
-    carmonalab/UCell
+    carmonalab/UCell,
+    jokergoo/ComplexHeatmap
 Suggests:
     AUCell,
     covr,
     devtools,
+    ggVennDiagram,
     hexbin,
     htmlwidgets,
     httr,

@@ -24,11 +24,14 @@ RunPHATE(object, ...)
   n_pca = 100,
   knn_dist = "euclidean",
   knn_max = NULL,
+  n_jobs = 1,
   mds = "metric",
   mds_dist = "euclidean",
   mds_solver = "sgd",
   t_max = 100,
-  n_jobs = 1,
+  do_cluster = FALSE,
+  n_clusters = "auto",
+  max_clusters = 100,
   reduction.name = "phate",
   reduction.key = "PHATE_",
   verbose = TRUE,
@@ -48,11 +51,14 @@ RunPHATE(object, ...)
   n_pca = 100,
   knn_dist = "euclidean",
   knn_max = NULL,
+  n_jobs = 1,
   mds = "metric",
   mds_dist = "euclidean",
   mds_solver = "sgd",
   t_max = 100,
-  n_jobs = 1,
+  do_cluster = FALSE,
+  n_clusters = "auto",
+  max_clusters = 100,
   reduction.key = "PHATE_",
   verbose = TRUE,
   seed.use = 11L,
@@ -64,7 +70,7 @@ RunPHATE(object, ...)
 
 \item{...}{}
 
-\item{assay}{}
+\item{max_clusters}{}
 }
 \description{
 Run PHATE

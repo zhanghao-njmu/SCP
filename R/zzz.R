@@ -13,10 +13,11 @@
   python_path <- NULL
   sys_bit <- ifelse(grepl("64", Sys.info()["machine"]), "64bit", "32bit")
   for (py in pythons) {
-    if (!file.exists(py)) {
+    if (py != "" && !file.exists(py)) {
+      packageStartupMessage(py, " is not a Python executable file.")
       next
     }
-    py <- file.path(normalizePath(dirname(py)), basename(py))
+    # py <- file.path(normalizePath(dirname(py)), basename(py))
     py_version <- tryCatch(suppressWarnings(reticulate:::python_version(py)),
       error = identity
     )
@@ -26,7 +27,7 @@
     if (py_version < numeric_version("3.7.0") || py_version >= numeric_version("3.10.0")) {
       next
     }
-    py_bit <- tryCatch(suppressWarnings(system2(command = py, args = " -c 'import platform; print(platform.architecture()[0])'", stdout = TRUE)),
+    py_bit <- tryCatch(suppressWarnings(system2(command = py, args = " -c \"import platform; print(platform.architecture()[0])\"", stdout = TRUE)),
       error = identity
     )
     if (inherits(py_bit, "error") || length(py_bit) == 0) {
@@ -37,28 +38,28 @@
       # packageStartupMessage("python path: ", python_path)
       break
     } else {
-      # packageStartupMessage(py, "architecture is ", py_bit, " and system is ", sys_bit)
+      packageStartupMessage("System architecture is ", sys_bit, " but ", py, " is ", py_bit)
       next
     }
   }
 
-  if (is.null(python_path)) {
-    packageStartupMessage("Python(3.7-3.9) is unavailable. Install python(3.8.8) automatically ...")
-    git_exist <- suppressWarnings(system("git", ignore.stdout = TRUE, ignore.stderr = TRUE))
-    if (git_exist == 127) {
-      warning("You need to install git first! (http://git-scm.com/download/)", immediate. = TRUE)
-      return(invisible(NULL))
-    }
-    python_path <- reticulate::install_python(version = ifelse(sys_bit == "64bit", "3.8.8", "3.8.8-win32"))
-  }
-
-  new_SCP <- FALSE
   if (!reticulate::virtualenv_exists("SCP")) {
+    if (is.null(python_path)) {
+      packageStartupMessage("Python(3.7-3.9) is unavailable. Install python(3.8.8) automatically ...")
+      git_exist <- suppressWarnings(system("git", ignore.stdout = TRUE, ignore.stderr = TRUE))
+      if (git_exist == 127) {
+        warning("You need to install git first! (http://git-scm.com/download/) or install python manually.", immediate. = TRUE)
+        return(invisible(NULL))
+      }
+      python_path <- reticulate::install_python(version = ifelse(sys_bit == "64bit", "3.8.8", "3.8.8-win32"))
+    }
     packageStartupMessage("Create SCP virtual environment. The path is: ", reticulate:::virtualenv_path("SCP"), immediate. = TRUE)
     reticulate::virtualenv_create(envname = "SCP", python = python_path)
     new_SCP <- TRUE
+  } else {
+    python_path <- reticulate::virtualenv_python("SCP")
+    new_SCP <- FALSE
   }
-  python_path <- reticulate::virtualenv_python("SCP")
   Sys.setenv(RETICULATE_PYTHON = python_path)
 
   version <- tryCatch(suppressWarnings(reticulate:::python_version(python_path)), error = identity)

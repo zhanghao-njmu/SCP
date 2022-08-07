@@ -10,8 +10,6 @@ def SCVELO(adata=None, h5ad=None, group_by=None, n_jobs=8,
           s_genes=None, g2m_genes=None, axis="equal",
           show_plot=True, dpi=300, save=False, dirpath="./", fileprefix=""):
   import matplotlib.pyplot as plt
-  import random
-  random.seed(12)
   import scvelo as scv
   import scanpy as sc
   import numpy as np
@@ -322,8 +320,6 @@ def CellRank(adata=None, h5ad=None, group_by=None, n_jobs=8,
              denoise=False,kinetics=False,axis="equal",
              show_plot=True, dpi=300, save=False, dirpath="./", fileprefix=""):
   import matplotlib.pyplot as plt
-  import random
-  random.seed(12)
   import scvelo as scv
   import cellrank as cr
   import pandas as pd
@@ -431,8 +427,6 @@ def PAGA(adata=None, h5ad=None, group_by=None, liner_reduction=None, nonliner_re
             embedded_with_PAGA=False,paga_layout="fr", threshold=0.1, point_size=20, axis="equal",
             show_plot=True, dpi=300, save=False, dirpath="./", fileprefix=""):
   import matplotlib.pyplot as plt
-  import random
-  random.seed(11)
   import scanpy as sc
 
   import warnings
@@ -544,8 +538,6 @@ def Palantir(adata=None, h5ad=None,group_by=None,
   import matplotlib
   import statistics
   from math import hypot
-  import random
-  random.seed(11)
   import scanpy as sc
   import numpy as np
   import pandas as pd
@@ -692,8 +684,6 @@ def Dynamo(adata=None, h5ad=None,group_by=None,
   import matplotlib
   import statistics
   from math import hypot
-  import random
-  random.seed(11)
   import scanpy as sc
   import numpy as np
   import pandas as pd

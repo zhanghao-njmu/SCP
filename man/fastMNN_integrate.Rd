@@ -19,6 +19,7 @@ fastMNN_integrate(
   fastMNN_dims_use = NULL,
   nonliner_reduction = "umap",
   nonliner_reduction_dims = c(2, 3),
+  nonliner_reduction_params = list(),
   force_nonliner_reduction = TRUE,
   do_cluster_finding = TRUE,
   cluster_algorithm = "louvain",
@@ -31,7 +32,7 @@ fastMNN_integrate(
 \arguments{
 \item{srtMerge}{}
 
-\item{...}{}
+\item{seed}{}
 }
 \description{
 fastMNN_integrate

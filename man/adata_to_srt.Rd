@@ -18,4 +18,11 @@ adata <- srt_to_adata(pancreas1k)
 adata <- RunPAGA(adata = adata, group_by = "SubCellType", liner_reduction = "PCA", nonliner_reduction = "UMAP")
 srt <- adata_to_srt(adata)
 srt
+
+### Or convert a h5ad file to Seurat object
+# library(reticulate)
+# sc <- import("scanpy")
+# adata <- sc$read_h5ad("pancreas.h5ad")
+# srt <- adata_to_srt(adata)
+# srt
 }

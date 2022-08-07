@@ -292,7 +292,7 @@ RunCellQC <- function(srt, assay = "RNA",
                       UMI_threshold = 3000, gene_threshold = 1000,
                       mito_threshold = 20, mito_pattern = c("MT-", "Mt-", "mt-"), mito_gene = NULL,
                       ribo_threshold = 50, ribo_pattern = c("RP[SL]\\d+\\w{0,1}\\d*$", "Rp[sl]\\d+\\w{0,1}\\d*$", "rp[sl]\\d+\\w{0,1}\\d*$"), ribo_gene = NULL,
-                      ribo_mito_ratio_threshold = 0,
+                      ribo_mito_ratio_range = c(1, 10),
                       species = NULL, species_gene_prefix = NULL, species_percent = 95,
                       seed = 11) {
   set.seed(seed)
@@ -344,7 +344,7 @@ RunCellQC <- function(srt, assay = "RNA",
     nFeature <- srt[[paste0(c(paste0("nFeature_", assay), sp), collapse = ".")]] <- colSums(srt[[assay]]@counts[sp_genes, ] > 0)
     percent.mito <- srt[[paste0(c("percent.mito", sp), collapse = ".")]] <- PercentageFeatureSet(object = srt, assay = assay, pattern = paste0("(", paste0("^", prefix, "-*", mito_pattern), ")", collapse = "|"), features = mito_gene)[[1]]
     percent.ribo <- srt[[paste0(c("percent.ribo", sp), collapse = ".")]] <- PercentageFeatureSet(object = srt, assay = assay, pattern = paste0("(", paste0("^", prefix, "-*", ribo_pattern), ")", collapse = "|"), features = ribo_gene)[[1]]
-    percent.ribo <- srt[[paste0(c("percent.ribo.mito.ratio", sp), collapse = ".")]] <- srt[[paste0(c("percent.ribo", sp), collapse = "."), drop = TRUE]] / srt[[paste0(c("percent.mito", sp), collapse = "."), drop = TRUE]]
+    percent.ribo <- srt[[paste0(c("ribo.mito.ratio", sp), collapse = ".")]] <- srt[[paste0(c("percent.ribo", sp), collapse = "."), drop = TRUE]] / srt[[paste0(c("percent.mito", sp), collapse = "."), drop = TRUE]]
     percent.genome <- srt[[paste0(c("percent.genome", sp), collapse = ".")]] <- PercentageFeatureSet(object = srt, assay = assay, pattern = paste0("^", prefix))[[1]]
 
     if (n == 1) {
@@ -412,7 +412,7 @@ RunCellQC <- function(srt, assay = "RNA",
     ribo_qc <- colnames(srt)[srt[[paste0(c("percent.ribo", species[1]), collapse = "."), drop = TRUE]] > ribo_threshold]
   }
   if ("ribo_mito_ratio" %in% qc_metrics) {
-    ribo_mito_ratio_qc <- colnames(srt)[srt[[paste0(c("percent.ribo.mito.ratio", species[1]), collapse = "."), drop = TRUE]] < ribo_mito_ratio_threshold]
+    ribo_mito_ratio_qc <- colnames(srt)[srt[[paste0(c("ribo.mito.ratio", species[1]), collapse = "."), drop = TRUE]] < ribo_mito_ratio_range[1] | srt[[paste0(c("ribo.mito.ratio", species[1]), collapse = "."), drop = TRUE]] > ribo_mito_ratio_range[2]]
   }
   if ("species" %in% qc_metrics) {
     species_qc <- colnames(srt)[srt[[paste0(c("percent.genome", species[1]), collapse = "."), drop = TRUE]] < species_percent]
@@ -427,7 +427,7 @@ RunCellQC <- function(srt, assay = "RNA",
   cat("...", length(gene_qc), "low-gene cells", "\n")
   cat("...", length(mito_qc), "high-mito cells", "\n")
   cat("...", length(ribo_qc), "high-ribo cells", "\n")
-  cat("...", length(ribo_mito_ratio_qc), "low-ribo_mito_ratio cells", "\n")
+  cat("...", length(ribo_mito_ratio_qc), " ribo_mito_ratio outlier cells", "\n")
   cat("...", length(species_qc), "species-contaminated cells", "\n")
   cat(">>>", "Remained cells after filtering:", ntotal - length(CellQC), "\n")
 

@@ -17,8 +17,19 @@ The package includes facilities for:
 
 -   Integrated single cell quality control methods.
 -   Pipelines embedded with multiple methods for normalization, feature
-    reduction, and cell population identification.
--   Pipelines embedded with multiple data integration methods.
+    reduction, and cell population identification (standard Seurat
+    workflow).
+-   Pipelines embedded with multiple data integration methods, including
+    Uncorrected, [Seurat](https://github.com/satijalab/seurat),
+    [scVI](https://github.com/scverse/scvi-tools),
+    [MNN](http://www.bioconductor.org/packages/release/bioc/html/batchelor.html),
+    [fastMNN](http://www.bioconductor.org/packages/release/bioc/html/batchelor.html),
+    [Harmony](https://github.com/immunogenomics/harmony),
+    [Scanorama](https://github.com/brianhie/scanorama),
+    [BBKNN](https://github.com/Teichlab/bbknn),
+    [CSS](https://github.com/quadbiolab/simspec),
+    [LIGER](https://github.com/welch-lab/liger),
+    [Conos](https://github.com/kharchenkolab/conos).
 -   Multiple single cell downstream analyses such as identification of
     differential features, enrichment analysis, GSEA analysis,
     identification of dynamic features,
@@ -34,6 +45,26 @@ The functions in the SCP package are all developed around the [Seurat
 object](https://github.com/mojaveazure/seurat-object) and compatible
 with other Seurat functions.
 
+## Requirement
+
+SCP requires python 3.7-3.9 to be installed in the environment.
+
+Check the version of python in the terminal:
+
+``` shell
+python --version
+```
+
+or in the R environment:
+
+``` r
+if (!require("reticulate", quietly = TRUE)) {
+  install.packages("reticulate")
+}
+py <- Sys.which("python")
+reticulate:::python_version(py)
+```
+
 ## Installation
 
 You can install the development version of SCP from
@@ -43,7 +74,7 @@ You can install the development version of SCP from
 if (!require("devtools", quietly = TRUE)) {
   install.packages("devtools")
 }
-devtools::install_github("zhanghao-njmu/SCP")
+devtools::install_github("zhanghao-njmu/SCP", INSTALL_opts = "--no-multiarch")
 ```
 
 ## Example

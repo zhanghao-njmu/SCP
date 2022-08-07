@@ -19,7 +19,7 @@ palette_scp(
 \arguments{
 \item{x}{A vector of character/factor or numeric values for color mapping.}
 
-\item{palette}{palette name used.}
+\item{palette}{Palette name. All palette names can be queried with \code{names(SCP:::palette_list)}.}
 
 \item{palcolor}{}
 
@@ -40,14 +40,18 @@ The default palette for SCP plot function.
 }
 \examples{
 x <- c(1:3, NA, 3:5)
-palette_scp(x, palette = "Spectral")
-palette_scp(x, palette = "Spectral", matched = TRUE)
-palette_scp(x, palette = "Spectral", matched = TRUE, NA_keep = TRUE)
-palette_scp(x, palette = "Paired", type = "discrete")
+pal1 <- palette_scp(x, palette = "Spectral")
+pal2 <- palette_scp(x, palette = "Spectral", matched = TRUE)
+pal3 <- palette_scp(x, palette = "Spectral", matched = TRUE, NA_keep = TRUE)
+pal4 <- palette_scp(x, palette = "Paired", type = "discrete")
+list_palette(list(pal1, pal2, pal3, pal4))
+
+names(SCP:::palette_list)
+list_palette(SCP:::palette_list)
 
 \dontrun{
 if (interactive()) {
-  check_R(c("stringr", "RColorBrewer", "ggsci", "Redmonder", "rcartocolor", "nord", "viridis", "pals", "oompaBase"))
+  check_R(c("stringr", "RColorBrewer", "ggsci", "Redmonder", "rcartocolor", "nord", "viridis", "pals", "oompaBase", "dichromat", "jcolors"))
   library(stringr)
   library(RColorBrewer)
   library(ggsci)
@@ -56,6 +60,8 @@ if (interactive()) {
   library(nord)
   library(viridis)
   library(pals)
+  library(dichromat)
+  library(jcolors)
   brewer.pal.info <- RColorBrewer::brewer.pal.info
   ggsci_db <- ggsci:::ggsci_db
   redmonder.pal.info <- Redmonder::redmonder.pal.info
@@ -66,6 +72,8 @@ if (interactive()) {
   viridis_palettes <- lapply(setNames(viridis_names, viridis_names), function(x) viridis::viridis(100, option = x))
   ocean_names <- names(pals:::syspals)[str_detect(names(pals:::syspals), "ocean")]
   ocean_palettes <- pals:::syspals[ocean_names]
+  dichromat_palettes <- dichromat::colorschemes
+  jcolors_names <- paste0("jcolors-", c("default", "pal2", "pal3", "pal4", "pal5", "pal6", "pal7", "pal8", "pal9", "pal10", "pal11", "pal12", "rainbow"))
   custom_names <- c("jet", "simspec")
   custom_palettes <- list(
     oompaBase::jetColors(N = 100),
@@ -77,7 +85,8 @@ if (interactive()) {
   all_colors <- c(
     rownames(brewer.pal.info), names(ggsci_db), rownames(redmonder.pal.info),
     rownames(metacartocolors), names(nord_palettes), names(viridis_palettes),
-    ocean_names, custom_names
+    ocean_names, names(dichromat_palettes), jcolors_names,
+    custom_names
   )
   for (pal in all_colors) {
     if (!pal \%in\% all_colors) {
@@ -95,15 +104,30 @@ if (interactive()) {
           palcolor <- brewer.pal(name = pal, n = pal_n)
         }
       }
+      if (pal_category == "qual") {
+        attr(palcolor, "type") <- "discrete"
+      } else {
+        attr(palcolor, "type") <- "continuous"
+      }
     } else if (pal \%in\% names(ggsci_db)) {
       if (pal \%in\% c("d3", "uchicago", "material")) {
         for (subpal in names(ggsci_db[[pal]])) {
           palcolor <- ggsci_db[[pal]][[subpal]]
+          if (pal == "material") {
+            attr(palcolor, "type") <- "continuous"
+          } else {
+            attr(palcolor, "type") <- "discrete"
+          }
           palette_list[[paste0(pal, "-", subpal)]] <- palcolor
         }
         next
       } else {
         palcolor <- ggsci_db[[pal]][[1]]
+        if (pal == "gsea") {
+          attr(palcolor, "type") <- "continuous"
+        } else {
+          attr(palcolor, "type") <- "discrete"
+        }
       }
     } else if (pal \%in\% rownames(redmonder.pal.info)) {
       pal_n <- redmonder.pal.info[pal, "maxcolors"]
@@ -113,21 +137,53 @@ if (interactive()) {
       } else {
         palcolor <- redmonder.pal(name = pal, n = pal_n)
       }
+      if (pal_category == "qual") {
+        attr(palcolor, "type") <- "discrete"
+      } else {
+        attr(palcolor, "type") <- "continuous"
+      }
     } else if (pal \%in\% rownames(metacartocolors)) {
       pal_n <- metacartocolors[pal, "Max_n"]
       palcolor <- carto_pal(name = pal, n = pal_n)
+      if (pal_category == "qualitative") {
+        attr(palcolor, "type") <- "discrete"
+      } else {
+        attr(palcolor, "type") <- "continuous"
+      }
     } else if (pal \%in\% names(nord_palettes)) {
       palcolor <- nord_palettes[[pal]]
+      attr(palcolor, "type") <- "discrete"
     } else if (pal \%in\% names(viridis_palettes)) {
       palcolor <- viridis_palettes[[pal]]
+      attr(palcolor, "type") <- "continuous"
     } else if (pal \%in\% names(ocean_palettes)) {
       palcolor <- ocean_palettes[[pal]]
+      attr(palcolor, "type") <- "continuous"
+    } else if (pal \%in\% names(dichromat_palettes)) {
+      palcolor <- dichromat_palettes[[pal]]
+      if (pal \%in\% c("Categorical.12", "SteppedSequential.5")) {
+        attr(palcolor, "type") <- "discrete"
+      } else {
+        attr(palcolor, "type") <- "continuous"
+      }
+    } else if (pal \%in\% jcolors_names) {
+      palcolor <- jcolors(palette = gsub("jcolors-", "", pal))
+      if (pal \%in\% paste0("jcolors-", c("pal10", "pal11", "pal12", "rainbow"))) {
+        attr(palcolor, "type") <- "continuous"
+      } else {
+        attr(palcolor, "type") <- "discrete"
+      }
     } else if (pal \%in\% custom_names) {
       palcolor <- custom_palettes[[pal]]
+      if (pal \%in\% c("jet")) {
+        attr(palcolor, "type") <- "continuous"
+      } else {
+        attr(palcolor, "type") <- "discrete"
+      }
     }
     palette_list[[pal]] <- palcolor
   }
-  # save(palette_list, file = "~/Git/SCP/R/sysdata.rda", version = 2)
+  # save(palette_list, file = "R/sysdata.rda", version = 2)
 }
 }
 }

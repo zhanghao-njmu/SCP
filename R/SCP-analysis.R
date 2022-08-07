@@ -799,6 +799,7 @@ PrepareEnrichmentDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
   ))) {
     stop("'enrichment' is invalid. Can be 'GO_BP', 'GO_CC', 'GO_MF', 'KEGG', 'WikiPathway', 'Reactome','ProteinComplex', 'PFAM', 'Chromosome'")
   }
+
   db_list <- list()
   for (sps in species) {
     message("Species: ", sps)
@@ -806,19 +807,21 @@ PrepareEnrichmentDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
       for (term in enrichment) {
         # Try to load cached database, if already generated.
         dbinfo <- ListEnrichmentDB(species = sps, enrichment = term)
-        if (db_version == "latest") {
-          pathname <- dbinfo[order(dbinfo[["timestamp"]], decreasing = TRUE)[1], "file"]
-        } else {
-          pathname <- dbinfo[grep(db_version, dbinfo[["db_version"]], fixed = TRUE)[1], "file"]
-          if (is.na(pathname)) {
-            warning("There is no ", db_version, " version of the database. Use the latest version.", immediate. = TRUE)
+        if (nrow(dbinfo) > 0 && !is.null(dbinfo)) {
+          if (db_version == "latest") {
             pathname <- dbinfo[order(dbinfo[["timestamp"]], decreasing = TRUE)[1], "file"]
+          } else {
+            pathname <- dbinfo[grep(db_version, dbinfo[["db_version"]], fixed = TRUE)[1], "file"]
+            if (is.na(pathname)) {
+              warning("There is no ", db_version, " version of the database. Use the latest version.", immediate. = TRUE)
+              pathname <- dbinfo[order(dbinfo[["timestamp"]], decreasing = TRUE)[1], "file"]
+            }
           }
-        }
-        if (!is.na(pathname)) {
-          header <- readCacheHeader(pathname)
-          message("Loaded cached db: ", term, " version:", strsplit(header[["comment"]], "\\|")[[1]][1], " created:", header[["timestamp"]])
-          db_list[[sps]][[term]] <- loadCache(pathname = pathname)
+          if (!is.na(pathname)) {
+            header <- readCacheHeader(pathname)
+            message("Loaded cached db: ", term, " version:", strsplit(header[["comment"]], "\\|")[[1]][1], " created:", header[["timestamp"]])
+            db_list[[sps]][[term]] <- loadCache(pathname = pathname)
+          }
         }
       }
     }
@@ -892,6 +895,8 @@ PrepareEnrichmentDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
 
       ## KEGG ---------------------------------------------------------------------------
       if (any(enrichment == "KEGG") && (!"KEGG" %in% names(db_list[[sps]]))) {
+        options(timeout = 120)
+        check_R("httr")
         message("Preparing database: KEGG")
         kegg_db <- "pathway"
         kegg_pathwaygene_url <- paste0("http://rest.kegg.jp/link/", kegg_sp, "/", kegg_db, collapse = "")
@@ -904,7 +909,8 @@ PrepareEnrichmentDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
         TERM2NAME <- TERM2NAME[TERM2NAME[, 1] %in% TERM2GENE[, 1], ]
         colnames(TERM2GENE) <- c("Term", "entrez_id")
         colnames(TERM2NAME) <- c("Term", "Name")
-        kegg_info <- readLines("http://rest.kegg.jp/info/hsa")
+        # kegg_info <- readLines("http://rest.kegg.jp/info/hsa")
+        kegg_info <- strsplit(httr::content(httr::GET("http://rest.kegg.jp/info/hsa")), split = "\n")[[1]]
         version <- gsub(".*(?=Release)", replacement = "", x = kegg_info[grepl("Release", x = kegg_info)], perl = TRUE)
         db_list[[sps]][["KEGG"]][["TERM2GENE"]] <- unique(TERM2GENE)
         db_list[[sps]][["KEGG"]][["TERM2NAME"]] <- unique(TERM2NAME)
@@ -918,20 +924,22 @@ PrepareEnrichmentDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
       ## WikiPathway ---------------------------------------------------------------------------
       if (any(enrichment == "WikiPathway") && (!"WikiPathway" %in% names(db_list[[sps]]))) {
         message("Preparing database: WikiPathway")
+        options(timeout = 120)
         tempdir <- tempdir()
         gmt_files <- list.files(tempdir)[grep(".gmt", x = list.files(tempdir))]
         if (length(gmt_files) > 0) {
           file.remove(paste0(tempdir, "/", gmt_files))
         }
         temp <- tempfile()
-        download.file("https://wikipathways-data.wmcloud.org/current/gmt", temp)
+        use_wget <- suppressWarnings(system2("wget", stdout = FALSE, stderr = FALSE))
+        download.file("https://wikipathways-data.wmcloud.org/current/gmt", destfile = temp, method = ifelse(use_wget == 1, "wget", "auto"))
 
         lines <- readLines(temp)
         lines <- lines[grep("File</a></td>", lines, fixed = TRUE)]
         lines <- gsub("(.*<td><a href='./)|('> File</a></td>)", "", lines)
         gmtfile <- lines[grep(sps, lines, fixed = TRUE)]
         version <- strsplit(gmtfile, split = "-")[[1]][[2]]
-        download.file(paste0("https://wikipathways-data.wmcloud.org/current/gmt/", gmtfile), temp)
+        download.file(paste0("https://wikipathways-data.wmcloud.org/current/gmt/", gmtfile), destfile = temp, method = ifelse(use_wget == 1, "wget", "auto"))
         wiki_gmt <- clusterProfiler::read.gmt(temp)
         unlink(temp)
         wiki_gmt <- apply(wiki_gmt, 1, function(x) {
@@ -981,6 +989,7 @@ PrepareEnrichmentDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
       ## Protein complex ---------------------------------------------------------------------------
       if (any(enrichment == "ProteinComplex") && (!"ProteinComplex" %in% names(db_list[[sps]]))) {
         message("Preparing database: ProteinComplex")
+        options(timeout = 120)
         check_R("taxize")
         uid <- suppressMessages(taxize::get_uid(complex_sp, messages = FALSE))
         common_name <- unlist(strsplit(unlist(suppressMessages(taxize::sci2comm(uid, db = "ncbi"))), " "))
@@ -988,7 +997,8 @@ PrepareEnrichmentDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
         common_name <- paste(toupper(substr(common_name, 1, 1)), substr(common_name, 2, nchar(common_name)), sep = "")
 
         temp <- tempfile()
-        download.file("http://mips.helmholtz-muenchen.de/corum/download/coreComplexes.txt.zip", temp)
+        use_wget <- suppressWarnings(system2("wget", stdout = FALSE, stderr = FALSE))
+        download.file("http://mips.helmholtz-muenchen.de/corum/download/coreComplexes.txt.zip", temp, method = ifelse(use_wget == 1, "wget", "auto"))
         df <- read.table(unz(temp, "coreComplexes.txt"), header = TRUE, sep = "\t", stringsAsFactors = FALSE, fill = TRUE, quote = "")
         df <- df[which(df$Organism == common_name), ]
         s <- strsplit(df$subunits.Entrez.IDs., split = ";")
@@ -1000,7 +1010,7 @@ PrepareEnrichmentDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
         TERM2NAME <- complex[, c(3, 1)]
         colnames(TERM2GENE) <- c("Term", "entrez_id")
         colnames(TERM2NAME) <- c("Term", "Name")
-        download.file("https://mips.helmholtz-muenchen.de/corum/download.html", temp)
+        download.file("https://mips.helmholtz-muenchen.de/corum/download.html", temp, method = ifelse(use_wget == 1, "wget", "auto"))
         lines <- readLines(temp)
         lines <- lines[grep("current release", lines)]
         version <- gsub("(.*\"setLightFont\">)|(current release.*)", "", lines)
@@ -1274,6 +1284,7 @@ RunEnrichment <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_t
   input <- input[!is.na(input[[db_IDtype]]), ]
 
   message("Permform enrichment...")
+  suppressPackageStartupMessages(library("DOSE"))
   comb <- expand.grid(group = levels(geneID_groups), term = enrichment, stringsAsFactors = FALSE)
   res_list <- bplapply(seq_len(nrow(comb)),
     FUN = function(i, id) {
@@ -1526,6 +1537,7 @@ RunGSEA <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_thresho
   input <- input[!is.na(input[[db_IDtype]]), ]
 
   message("Permform GSEA...")
+  suppressPackageStartupMessages(library("DOSE"))
   comb <- expand.grid(group = levels(geneID_groups), term = enrichment, stringsAsFactors = FALSE)
   res_list <- BiocParallel::bplapply(seq_len(nrow(comb)),
     FUN = function(i, id) {
@@ -2412,6 +2424,13 @@ srt_to_adata <- function(srt,
 #' adata <- RunPAGA(adata = adata, group_by = "SubCellType", liner_reduction = "PCA", nonliner_reduction = "UMAP")
 #' srt <- adata_to_srt(adata)
 #' srt
+#'
+#' ### Or convert a h5ad file to Seurat object
+#' # library(reticulate)
+#' # sc <- import("scanpy")
+#' # adata <- sc$read_h5ad("pancreas.h5ad")
+#' # srt <- adata_to_srt(adata)
+#' # srt
 #' @importFrom Seurat CreateSeuratObject CreateAssayObject CreateDimReducObject AddMetaData
 #' @importFrom SeuratObject as.Graph
 #' @importFrom reticulate iterate
@@ -2424,19 +2443,25 @@ adata_to_srt <- function(adata) {
   x <- t(adata$X)
   rownames(x) <- adata$var_names$values
   colnames(x) <- adata$obs_names$values
+  if (!"dgCMatrix" %in% class(x)) {
+    x <- as(x[1:nrow(x), ], "dgCMatrix")
+  }
 
   metadata <- NULL
   if (length(adata$obs_keys()) > 0) {
     metadata <- as.data.frame(adata$obs)
   }
 
-  srt <- CreateSeuratObject(counts = x, meta.data = metadata)
+  srt <- CreateSeuratObject(counts = as(x[1:nrow(x), ], "dgCMatrix"), meta.data = metadata)
 
   if (length(adata$layers$keys()) > 0) {
     for (k in iterate(adata$layers$keys())) {
       layer <- t(adata$layers[[k]])
       rownames(layer) <- adata$var_names$values
       colnames(layer) <- adata$obs_names$values
+      if (!"dgCMatrix" %in% class(layer)) {
+        layer <- as(layer[1:nrow(layer), ], "dgCMatrix")
+      }
       srt[[k]] <- CreateAssayObject(counts = layer)
     }
   }
