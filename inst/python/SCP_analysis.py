@@ -1,4 +1,4 @@
-def SCVELO(adata=None, h5ad=None, group_by=None, n_jobs=8,
+def SCVELO(adata=None, h5ad=None, group_by=None, n_jobs=1,
           liner_reduction=None, nonliner_reduction=None,basis=None,
           mode=["deterministic","stochastic","dynamical"],fitting_by="stochastic",
           magic_impute=False,knn=5, t=2,
@@ -22,6 +22,17 @@ def SCVELO(adata=None, h5ad=None, group_by=None, n_jobs=8,
   import os
   prevdir = os.getcwd()
   os.chdir(os.path.expanduser(dirpath))
+  
+  import platform
+  if platform.system()=="Windows":
+    import sys, multiprocessing, re
+    if re.match(pattern=".*pythonw.exe$",string=sys.executable):
+      pythonw=sys.executable
+    else:
+      pythonw=sys.executable.replace("python.exe", "pythonw.exe")
+    sys.executable = pythonw
+    sys._base_executable = pythonw
+    multiprocessing.set_executable(pythonw) 
 
   try:
     if adata is None and h5ad is None:
@@ -74,7 +85,7 @@ def SCVELO(adata=None, h5ad=None, group_by=None, n_jobs=8,
     if show_plot is True:
       plt.show() 
     if save:
-        plt.savefig('.'.join(filter(None, [fileprefix, "sp_usp_proportions.png"])), dpi=dpi)
+      plt.savefig('.'.join(filter(None, [fileprefix, "sp_usp_proportions.png"])), dpi=dpi)
 
     scv.pp.filter_and_normalize(adata, min_shared_counts = min_shared_counts)
          
@@ -189,14 +200,14 @@ def SCVELO(adata=None, h5ad=None, group_by=None, n_jobs=8,
         
         # Velocity confidence
         scv.tl.velocity_confidence(adata, vkey=vkey)
-        scv.pl.scatter(adata, basis=basis, title=vkey+" length", color=vkey+"_length",cmap="coolwarm", perc=[5, 95], save=False, show=False)
+        scv.pl.scatter(adata, basis=basis, title=vkey+" length", color=vkey+"_length",cmap="coolwarm", save=False, show=False)
         plt.axis(axis) 
         if show_plot is True:
           plt.show()
         if save:
           plt.savefig('.'.join(filter(None, [fileprefix, vkey+"_length.png"])), dpi=dpi)
           
-        scv.pl.scatter(adata, basis=basis, title=vkey+" confidence",color=vkey+"_confidence",cmap="coolwarm", perc=[5, 95], save=False, show=False)
+        scv.pl.scatter(adata, basis=basis, title=vkey+" confidence",color=vkey+"_confidence",cmap="coolwarm", save=False, show=False)
         plt.axis(axis) 
         if show_plot is True:
           plt.show()
@@ -213,7 +224,7 @@ def SCVELO(adata=None, h5ad=None, group_by=None, n_jobs=8,
           adata.obs[vkey+"_"+term]= adata.obs[term]
           adata.obs.drop(term, axis=1, inplace=True)
         
-        # scv.pl.scatter(adata,basis=basis,title=vkey+" terminal_states",color_gradients=[vkey+'_root_cells', vkey+'_end_points'], perc=[5, 95], legend_loc="best", save=False, show=False)
+        # scv.pl.scatter(adata,basis=basis,title=vkey+" terminal_states",color_gradients=[vkey+'_root_cells', vkey+'_end_points'], legend_loc="best", save=False, show=False)
         # plt.axis(axis);plt.show() 
         # if show_plot is True:
         #   plt.show()
@@ -284,7 +295,7 @@ def SCVELO(adata=None, h5ad=None, group_by=None, n_jobs=8,
     # Cell cycle  
     # if s_genes is not None and g2m_genes is not None:
     scv.tl.score_genes_cell_cycle(adata, s_genes=s_genes, g2m_genes=g2m_genes)
-    # scv.pl.scatter(adata, basis=basis, color_gradients=('S_score', 'G2M_score'), perc=[5, 95], smooth=True, legend_loc="best", save=False, show=False)
+    # scv.pl.scatter(adata, basis=basis, color_gradients=('S_score', 'G2M_score'), smooth=True, legend_loc="best", save=False, show=False)
     # plt.axis(axis);
     # if show_plot is True:
     #  plt.show() 
@@ -309,7 +320,7 @@ def SCVELO(adata=None, h5ad=None, group_by=None, n_jobs=8,
 
   return adata
 
-def CellRank(adata=None, h5ad=None, group_by=None, n_jobs=8,
+def CellRank(adata=None, h5ad=None, group_by=None, n_jobs=1,
              liner_reduction=None, nonliner_reduction=None,basis=None,
              mode=["deterministic","stochastic","dynamical"],fitting_by="stochastic",
              magic_impute=False,knn=5, t=2,
@@ -333,6 +344,17 @@ def CellRank(adata=None, h5ad=None, group_by=None, n_jobs=8,
   import os
   prevdir = os.getcwd()
   os.chdir(os.path.expanduser(dirpath))
+  
+  import platform
+  if platform.system()=="Windows":
+    import sys, multiprocessing, re
+    if re.match(pattern=".*pythonw.exe$",string=sys.executable):
+      pythonw=sys.executable
+    else:
+      pythonw=sys.executable.replace("python.exe", "pythonw.exe")
+    sys.executable = pythonw
+    sys._base_executable = pythonw
+    multiprocessing.set_executable(pythonw) 
 
   try:
     if adata is None and h5ad is None:
@@ -438,6 +460,17 @@ def PAGA(adata=None, h5ad=None, group_by=None, liner_reduction=None, nonliner_re
   prevdir = os.getcwd()
   os.chdir(os.path.expanduser(dirpath))
   
+  import platform
+  if platform.system()=="Windows":
+    import sys, multiprocessing, re
+    if re.match(pattern=".*pythonw.exe$",string=sys.executable):
+      pythonw=sys.executable
+    else:
+      pythonw=sys.executable.replace("python.exe", "pythonw.exe")
+    sys.executable = pythonw
+    sys._base_executable = pythonw
+    multiprocessing.set_executable(pythonw) 
+  
   try:
     if adata is None and h5ad is None:
       print("adata or h5ad must be provided.")
@@ -531,7 +564,7 @@ def Palantir(adata=None, h5ad=None,group_by=None,
              n_pcs=30,n_neighbors=30,dm_n_components=10,dm_alpha=0,dm_n_eigs=None,
              early_group = None, terminal_groups = None,early_cell=None,terminal_cells=None,
              num_waypoints=1200,scale_components=True,use_early_cell_as_start=False,
-             max_iterations=25,n_jobs=8,
+             max_iterations=25,n_jobs=1,
              point_size=20,axis="equal",
              show_plot=True, dpi=300, save=False, dirpath="./", fileprefix=""):
   import matplotlib.pyplot as plt
@@ -551,6 +584,17 @@ def Palantir(adata=None, h5ad=None,group_by=None,
   import os
   prevdir = os.getcwd()
   os.chdir(os.path.expanduser(dirpath))
+  
+  import platform
+  if platform.system()=="Windows":
+    import sys, multiprocessing, re
+    if re.match(pattern=".*pythonw.exe$",string=sys.executable):
+      pythonw=sys.executable
+    else:
+      pythonw=sys.executable.replace("python.exe", "pythonw.exe")
+    sys.executable = pythonw
+    sys._base_executable = pythonw
+    multiprocessing.set_executable(pythonw) 
 
   try:
     if adata is None and h5ad is None:
@@ -677,7 +721,7 @@ def Dynamo(adata=None, h5ad=None,group_by=None,
            n_pcs=30,n_neighbors=30,dm_n_components=10,dm_alpha=0,dm_n_eigs=None,
            early_group = None, terminal_groups = None,early_cell=None,terminal_cells=None,
            num_waypoints=1200,scale_components=True,use_early_cell_as_start=False,
-           max_iterations=25,n_jobs=8,
+           max_iterations=25,n_jobs=1,
            point_size=20,axis="equal",
            show_plot=True, dpi=300,save=False, dirpath="./", fileprefix=""):
   import matplotlib.pyplot as plt
@@ -697,6 +741,17 @@ def Dynamo(adata=None, h5ad=None,group_by=None,
   import os
   prevdir = os.getcwd()
   os.chdir(os.path.expanduser(dirpath))
+  
+  import platform
+  if platform.system()=="Windows":
+    import sys, multiprocessing, re
+    if re.match(pattern=".*pythonw.exe$",string=sys.executable):
+      pythonw=sys.executable
+    else:
+      pythonw=sys.executable.replace("python.exe", "pythonw.exe")
+    sys.executable = pythonw
+    sys._base_executable = pythonw
+    multiprocessing.set_executable(pythonw) 
 
   try:
     if adata is None and h5ad is None:

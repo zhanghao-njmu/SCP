@@ -57,17 +57,15 @@ p_fix2 <- panel_fix(p, width = 5, height = 3, units = "cm", raster = TRUE, dpi =
 p_fix1
 p_fix2
 
-\donttest{
-# Save the plot with appropriate size
-plot_size <- attr(p_fix1, "size")
-ggsave(
-  filename = "p_fix.png", plot = p_fix1,
-  units = plot_size$units, width = plot_size$width, height = plot_size$height
-)
+## Save the plot with appropriate size
+# plot_size <- attr(p_fix1, "size")
+# ggsave(
+#   filename = "p_fix.png", plot = p_fix1,
+#   units = plot_size$units, width = plot_size$width, height = plot_size$height
+# )
 
-# or save the plot directly
-p_fix1 <- panel_fix(p, width = 5, height = 3, units = "cm", save = "p_fix.png")
-}
+## or save the plot directly
+# p_fix1 <- panel_fix(p, width = 5, height = 3, units = "cm", save = "p_fix.png")
 
 data("pancreas1k")
 p1 <- ClassDimPlot(pancreas1k, "Phase") # ggplot object

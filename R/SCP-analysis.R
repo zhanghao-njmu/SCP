@@ -2290,6 +2290,10 @@ RunDynamicEnrichment <- function(srt, lineages,
 #' data("pancreas1k")
 #' adata <- srt_to_adata(pancreas1k)
 #' adata
+#'
+#' ### Or save as an h5ad file
+#' # adata$write_h5ad("pancreas1k.h5ad")
+#'
 #' @importFrom reticulate import
 #' @importFrom Seurat GetAssayData
 #' @importFrom Matrix t
@@ -2585,6 +2589,7 @@ RunPAGA <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_layers
                     embedded_with_PAGA = FALSE, paga_layout = "fr", threshold = 0.1, point_size = 20,
                     show_plot = TRUE, dpi = 300, save = FALSE, dirpath = "./", fileprefix = "",
                     return_seurat = FALSE) {
+  check_Python("scanpy")
   if (all(is.null(srt), is.null(adata), is.null(h5ad))) {
     stop("One of 'srt', 'adata' or 'h5ad' must be provided.")
   }
@@ -2623,10 +2628,8 @@ RunPAGA <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_layers
   }
   args <- args[!names(args) %in% c("srt", "assay_X", "slot_X", "assay_layers", "slot_layers", "return_seurat")]
 
-  adata <- do.call(
-    what = PAGA,
-    args = args
-  )
+  SCP_analysis <- reticulate::import_from_path("SCP_analysis", system.file("python", package = "SCP", mustWork = TRUE))
+  adata <- do.call(SCP_analysis$PAGA, args)
 
   if (isTRUE(return_seurat)) {
     srt_out <- adata_to_srt(adata)
@@ -2707,6 +2710,7 @@ RunSCVELO <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_laye
                       calculate_velocity_genes = FALSE, s_genes = NULL, g2m_genes = NULL,
                       show_plot = TRUE, dpi = 300, save = FALSE, dirpath = "./", fileprefix = "",
                       return_seurat = FALSE) {
+  check_Python("scvelo")
   if (isTRUE(magic_impute)) {
     check_Python("magic-impute")
   }
@@ -2748,10 +2752,8 @@ RunSCVELO <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_laye
   }
   args <- args[!names(args) %in% c("srt", "assay_X", "slot_X", "assay_layers", "slot_layers", "return_seurat")]
 
-  adata <- do.call(
-    what = SCVELO,
-    args = args
-  )
+  SCP_analysis <- reticulate::import_from_path("SCP_analysis", system.file("python", package = "SCP", mustWork = TRUE))
+  adata <- do.call(SCP_analysis$SCVELO, args)
 
   if (isTRUE(return_seurat)) {
     srt_out <- adata_to_srt(adata)
@@ -2790,6 +2792,7 @@ RunPalantir <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_la
                         max_iterations = 25, n_jobs = 8, point_size = 20,
                         show_plot = TRUE, dpi = 300, save = FALSE, dirpath = "./", fileprefix = "",
                         return_seurat = FALSE) {
+  check_Python("palantir")
   if (all(is.null(srt), is.null(adata), is.null(h5ad))) {
     stop("One of 'srt', 'adata' or 'h5ad' must be provided.")
   }
@@ -2831,10 +2834,8 @@ RunPalantir <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_la
   }
   args <- args[!names(args) %in% c("srt", "assay_X", "slot_X", "assay_layers", "slot_layers", "return_seurat")]
 
-  adata <- do.call(
-    what = Palantir,
-    args = args
-  )
+  SCP_analysis <- reticulate::import_from_path("SCP_analysis", system.file("python", package = "SCP", mustWork = TRUE))
+  adata <- do.call(SCP_analysis$Palantir, args)
 
   if (isTRUE(return_seurat)) {
     srt_out <- adata_to_srt(adata)
@@ -2862,7 +2863,7 @@ RunCellRank <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_la
                         denoise = FALSE, kinetics = FALSE, axis = "equal",
                         show_plot = TRUE, dpi = 300, save = FALSE, dirpath = "./", fileprefix = "",
                         return_seurat = FALSE) {
-  check_Python(c("pandas", "numpy", "scvelo", "cellrank[external]", "cython", "wot", "statot", "POT"))
+  check_Python("cellrank")
   if (isTRUE(magic_impute)) {
     check_Python("magic-impute")
   }
@@ -2905,10 +2906,8 @@ RunCellRank <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_la
   }
   args <- args[!names(args) %in% c("srt", "assay_X", "slot_X", "assay_layers", "slot_layers", "return_seurat")]
 
-  adata <- do.call(
-    what = CellRank,
-    args = args
-  )
+  SCP_analysis <- reticulate::import_from_path("SCP_analysis", system.file("python", package = "SCP", mustWork = TRUE))
+  adata <- do.call(SCP_analysis$CellRank, args)
 
   if (isTRUE(return_seurat)) {
     srt_out <- adata_to_srt(adata)
@@ -2931,7 +2930,7 @@ RunDynamo <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_laye
                       max_iterations = 25, n_jobs = 1, point_size = 20,
                       show_plot = TRUE, dpi = 300, save = FALSE, dirpath = "./", fileprefix = "",
                       return_seurat = FALSE) {
-  check_Python(c("matplotlib", "python-igraph", "pandas", "numpy", "dynamo-release"))
+  check_Python("dynamo-release")
   if (all(is.null(srt), is.null(adata), is.null(h5ad))) {
     stop("One of 'srt', 'adata' or 'h5ad' must be provided.")
   }
@@ -2970,10 +2969,8 @@ RunDynamo <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_laye
   }
   args <- args[!names(args) %in% c("srt", "assay_X", "slot_X", "assay_layers", "slot_layers", "return_seurat")]
 
-  adata <- do.call(
-    what = Dynamo,
-    args = args
-  )
+  SCP_analysis <- reticulate::import_from_path("SCP_analysis", system.file("python", package = "SCP", mustWork = TRUE))
+  adata <- do.call(SCP_analysis$Dynamo, args)
 
   if (isTRUE(return_seurat)) {
     srt_out <- adata_to_srt(adata)

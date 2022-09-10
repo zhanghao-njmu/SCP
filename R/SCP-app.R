@@ -225,9 +225,11 @@ CreateMetaFile <- function(srt, MetaFile, name = NULL, write_tools = FALSE, writ
 #' @param overwrite
 #'
 #' @examples
-#' data("pancreas1k")
-#' pancreas1k <- Standard_SCP(pancreas1k)
-#' PrepareSCExplorer(pancreas1k, base_dir = "./SCExplorer")
+#' if (interactive()) {
+#'   data("pancreas1k")
+#'   pancreas1k <- Standard_SCP(pancreas1k)
+#'   PrepareSCExplorer(pancreas1k, base_dir = "./SCExplorer")
+#' }
 #' @importFrom Seurat Reductions Assays
 #' @export
 PrepareSCExplorer <- function(object,
@@ -295,10 +297,12 @@ PrepareSCExplorer <- function(object,
 #' @param reduction
 #'
 #' @examples
-#' data("pancreas1k")
-#' pancreas1k <- Standard_SCP(pancreas1k)
-#' PrepareSCExplorer(pancreas1k, base_dir = "./SCExplorer")
-#' FetchH5("./SCExplorer/Data.hdf5", "./SCExplorer/Meta.hdf5", features = "Isl1", reduction = "UMAP")
+#' if (interactive()) {
+#'   data("pancreas1k")
+#'   pancreas1k <- Standard_SCP(pancreas1k)
+#'   PrepareSCExplorer(pancreas1k, base_dir = "./SCExplorer")
+#'   FetchH5("./SCExplorer/Data.hdf5", "./SCExplorer/Meta.hdf5", features = "Isl1", reduction = "UMAP")
+#' }
 #' @importFrom HDF5Array TENxMatrix
 #' @importFrom rhdf5 h5ls h5read h5readAttributes
 #' @importFrom Seurat CreateSeuratObject CreateDimReducObject
@@ -432,15 +436,15 @@ FetchH5 <- function(DataFile, MetaFile, name = NULL,
 #' @param return_app
 #'
 #' @examples
-#' data("pancreas1k")
-#' pancreas1k <- Standard_SCP(pancreas1k)
-#' PrepareSCExplorer(pancreas1k, base_dir = "./SCExplorer")
-#'
-#' # Create the app.R script
-#' app <- RunSCExplorer(base_dir = "./SCExplorer", return_app = TRUE)
-#'
-#' # Run shiny app
 #' if (interactive()) {
+#'   data("pancreas1k")
+#'   pancreas1k <- Standard_SCP(pancreas1k)
+#'   PrepareSCExplorer(pancreas1k, base_dir = "./SCExplorer")
+#'
+#'   # Create the app.R script
+#'   app <- RunSCExplorer(base_dir = "./SCExplorer", return_app = TRUE)
+#'
+#'   # Run shiny app
 #'   shiny::runApp(app)
 #' }
 #' @importFrom shiny shinyAppDir
@@ -479,11 +483,9 @@ RunSCExplorer <- function(base_dir = "SCExplorer",
   main_code <- '
   check_R(c("shiny", "shinycssloaders"))
   library(shiny)
-  DataFile_full <- paste0(base_dir, "/", DataFile)
-  MetaFile_full <- paste0(base_dir, "/", MetaFile)
 
-  data_group <- rhdf5::h5ls(DataFile_full)$group
-  meta_group <- rhdf5::h5ls(MetaFile_full)$group
+  data_group <- rhdf5::h5ls(DataFile)$group
+  meta_group <- rhdf5::h5ls(MetaFile)$group
   group <- intersect(data_group, meta_group)
   group <- group[group != "/"]
   group <- as.character(sapply(group, function(x) substr(x, 2, nchar(x))))
@@ -503,7 +505,7 @@ RunSCExplorer <- function(base_dir = "SCExplorer",
   assays <- unique(na.omit(sapply(strsplit(data_group[grep(initial_dataset, data_group)], "/"), function(x) x[3])))
   slots <- unique(na.omit(sapply(strsplit(data_group[grep(initial_dataset, data_group)], "/"), function(x) x[4])))
   if (is.null(initial_assay)) {
-    initial_assay <- as.character(rhdf5::h5read(DataFile_full, name = paste0("/", initial_dataset, "/Default_assay")))
+    initial_assay <- as.character(rhdf5::h5read(DataFile, name = paste0("/", initial_dataset, "/Default_assay")))
   }
   if (is.null(initial_slot)) {
     initial_slot <- ifelse("data" %in% slots, "data", slots[1])
@@ -515,14 +517,14 @@ RunSCExplorer <- function(base_dir = "SCExplorer",
     stop("initial_slot is not in the dataset ", initial_slot, " in the DataFile")
   }
 
-  data <- HDF5Array::TENxMatrix(filepath = DataFile_full, group = paste0("/", initial_dataset, "/", initial_assay, "/", initial_slot))
+  data <- HDF5Array::TENxMatrix(filepath = DataFile, group = paste0("/", initial_dataset, "/", initial_assay, "/", initial_slot))
   all_features <- colnames(data)
 
-  meta_struc <- rhdf5::h5ls(MetaFile_full)
-  meta_features_name <- rhdf5::h5read(MetaFile_full, name = paste0("/", initial_dataset, "/metadata.stat/asfeatures"))
-  meta_groups_name <- rhdf5::h5read(MetaFile_full, name = paste0("/", initial_dataset, "/metadata.stat/asgroups"))
+  meta_struc <- rhdf5::h5ls(MetaFile)
+  meta_features_name <- rhdf5::h5read(MetaFile, name = paste0("/", initial_dataset, "/metadata.stat/asfeatures"))
+  meta_groups_name <- rhdf5::h5read(MetaFile, name = paste0("/", initial_dataset, "/metadata.stat/asgroups"))
   reduction_name <- meta_struc[meta_struc$group == paste0("/", initial_dataset, "/reductions"), "name"]
-  default_reduction <- as.character(rhdf5::h5read(MetaFile_full, name = paste0("/", initial_dataset, "/reductions.stat/Default_reduction")))
+  default_reduction <- as.character(rhdf5::h5read(MetaFile, name = paste0("/", initial_dataset, "/reductions.stat/Default_reduction")))
 
   if (is.null(initial_reduction)) {
     initial_reduction <- default_reduction
@@ -535,7 +537,7 @@ RunSCExplorer <- function(base_dir = "SCExplorer",
   }
 
   initial_srt_tmp <- FetchH5(
-    DataFile = DataFile_full, MetaFile = MetaFile_full, name = initial_dataset,
+    DataFile = DataFile, MetaFile = MetaFile, name = initial_dataset,
     features = initial_feature, slot = initial_slot, assay = initial_assay,
     metanames = initial_metaname, reduction = initial_reduction
   )
@@ -882,9 +884,9 @@ RunSCExplorer <- function(base_dir = "SCExplorer",
 
     # change dataset  ----------------------------------------------------------------
     observeEvent(input$dataset1, {
-      meta_groups_name <- rhdf5::h5read(MetaFile_full, name = paste0("/", input$dataset1, "/metadata.stat/asgroups"))
+      meta_groups_name <- rhdf5::h5read(MetaFile, name = paste0("/", input$dataset1, "/metadata.stat/asgroups"))
       reduction_name <- meta_struc[meta_struc$group == paste0("/", input$dataset1, "/reductions"), "name"]
-      default_reduction <- as.character(rhdf5::h5read(MetaFile_full, name = paste0("/", input$dataset1, "/reductions.stat/Default_reduction")))
+      default_reduction <- as.character(rhdf5::h5read(MetaFile, name = paste0("/", input$dataset1, "/reductions.stat/Default_reduction")))
       updateSelectInput(session, "reduction1", choices = reduction_name, selected = default_reduction)
       updateSelectInput(session, "class1", choices = meta_groups_name, selected = "orig.ident")
       updateSelectInput(session, "split1", choices = c("None", meta_groups_name), selected = "None")
@@ -893,17 +895,17 @@ RunSCExplorer <- function(base_dir = "SCExplorer",
     observeEvent(input$dataset2, {
       assays <- unique(na.omit(sapply(strsplit(data_group[grep(input$dataset2, data_group)], "/"), function(x) x[3])))
       slots <- unique(na.omit(sapply(strsplit(data_group[grep(input$dataset2, data_group)], "/"), function(x) x[4])))
-      default_assay <- as.character(rhdf5::h5read(DataFile_full, name = paste0("/", input$dataset2, "/Default_assay")))
+      default_assay <- as.character(rhdf5::h5read(DataFile, name = paste0("/", input$dataset2, "/Default_assay")))
       default_slot <- ifelse("data" %in% slots, "data", slots[1])
       updateSelectInput(session, "assays2", choices = assays, selected = default_assay)
       updateSelectInput(session, "slots2", choices = slots, selected = default_slot)
 
-      data <- HDF5Array::TENxMatrix(filepath = DataFile_full, group = paste0("/", input$dataset2, "/", default_assay, "/", default_slot))
+      data <- HDF5Array::TENxMatrix(filepath = DataFile, group = paste0("/", input$dataset2, "/", default_assay, "/", default_slot))
       all_features <- colnames(data)
-      meta_features_name <- rhdf5::h5read(MetaFile_full, name = paste0("/", input$dataset2, "/metadata.stat/asfeatures"))
-      meta_groups_name <- rhdf5::h5read(MetaFile_full, name = paste0("/", input$dataset2, "/metadata.stat/asgroups"))
+      meta_features_name <- rhdf5::h5read(MetaFile, name = paste0("/", input$dataset2, "/metadata.stat/asfeatures"))
+      meta_groups_name <- rhdf5::h5read(MetaFile, name = paste0("/", input$dataset2, "/metadata.stat/asgroups"))
       reduction_name <- meta_struc[meta_struc$group == paste0("/", input$dataset2, "/reductions"), "name"]
-      default_reduction <- as.character(rhdf5::h5read(MetaFile_full, name = paste0("/", input$dataset2, "/reductions.stat/Default_reduction")))
+      default_reduction <- as.character(rhdf5::h5read(MetaFile, name = paste0("/", input$dataset2, "/reductions.stat/Default_reduction")))
       updateSelectInput(session, "reduction2", choices = reduction_name, selected = default_reduction)
       updateSelectizeInput(session, "features2",
         choices = c(meta_features_name, all_features), selected = meta_features_name[1],
@@ -921,15 +923,15 @@ RunSCExplorer <- function(base_dir = "SCExplorer",
         split1 <- input$split1
       }
 
-      # message("DataFile_full:", DataFile_full)
-      # message("MetaFile_full:", MetaFile_full)
+      # message("DataFile:", DataFile)
+      # message("MetaFile:", MetaFile)
       # message("input$dataset1:", input$dataset1)
       # message("initial_slot:", initial_slot)
       # message("c(input$class1, split1):", c(input$class1, split1))
       # message("input$reduction1:", input$reduction1)
 
       srt_tmp <- FetchH5(
-        DataFile = DataFile_full, MetaFile = MetaFile_full, name = input$dataset1,
+        DataFile = DataFile, MetaFile = MetaFile, name = input$dataset1,
         features = NULL, slot = initial_slot, assay = NULL,
         metanames = c(input$class1, split1), reduction = input$reduction1
       )
@@ -967,9 +969,9 @@ RunSCExplorer <- function(base_dir = "SCExplorer",
 
     # submit2  ----------------------------------------------------------------
     observeEvent(input$submit2, ignoreInit = FALSE, {
-      data <- HDF5Array::TENxMatrix(filepath = DataFile_full, group = paste0("/", input$dataset2, "/", initial_assay, "/", initial_slot))
+      data <- HDF5Array::TENxMatrix(filepath = DataFile, group = paste0("/", input$dataset2, "/", initial_assay, "/", initial_slot))
       all_features <- colnames(data)
-      meta_features_name <- rhdf5::h5read(MetaFile_full, name = paste0("/", input$dataset2, "/metadata.stat/asfeatures"))
+      meta_features_name <- rhdf5::h5read(MetaFile, name = paste0("/", input$dataset2, "/metadata.stat/asfeatures"))
 
       if (input$split2 == "None") {
         split2 <- NULL
@@ -985,8 +987,8 @@ RunSCExplorer <- function(base_dir = "SCExplorer",
       input_features <- c(as.character(input_features), as.character(gene_area))
       input_features <- unique(input_features[input_features %in% c(all_features, meta_features_name)])
 
-      # message("DataFile_full:", DataFile_full)
-      # message("MetaFile_full:", MetaFile_full)
+      # message("DataFile:", DataFile)
+      # message("MetaFile:", MetaFile)
       # message("input$dataset2:", input$dataset2)
       # message("input_features:", paste0(input_features,collapse = ","))
       # message("initial_slot:", initial_slot)
@@ -995,7 +997,7 @@ RunSCExplorer <- function(base_dir = "SCExplorer",
       # message("input$reduction2:", input$reduction2)
 
       srt_tmp <- FetchH5(
-        DataFile = DataFile_full, MetaFile = MetaFile_full, name = input$dataset2,
+        DataFile = DataFile, MetaFile = MetaFile, name = input$dataset2,
         features = input_features, slot = input$slots2, assay = input$assays2,
         metanames = c(input$group2, split2), reduction = input$reduction2
       )
@@ -1053,21 +1055,24 @@ RunSCExplorer <- function(base_dir = "SCExplorer",
   main_code <- gsub("\\\\r", "\\\\\\\r", main_code)
   main_code <- gsub("\\\\n", "\\\\\\\n", main_code)
   args <- mget(names(formals()))
-  args <- args[!names(args) %in% c("return_app", "create_script", "style_script", "overwrite")]
+  args <- args[!names(args) %in% c("base_dir", "return_app", "create_script", "style_script", "overwrite")]
   for (varnm in names(args)) {
     main_code <- c(paste0(varnm, "=", deparse(args[[varnm]])), main_code)
   }
   main_code <- c("# !/usr/bin/env Rscript", "library(SCP)", main_code)
   main_code <- c(main_code, "shinyApp(ui = ui, server = server)")
-  tempfile <- tempfile("SCExplorer")
-  writeLines(main_code, tempfile)
-  source(tempfile)
+  temp <- tempfile("SCExplorer")
+  writeLines(main_code, temp)
+  wd <- getwd()
+  setwd(base_dir)
+  source(temp)
+  setwd(wd)
   if (isTRUE(create_script)) {
     app_file <- paste0(base_dir, "/app.R")
     if (!file.exists(app_file) || isTRUE(overwrite)) {
       message("Create the SCExplorer app script: ", app_file)
       suppressWarnings(file.remove(app_file))
-      file.copy(from = tempfile, to = app_file, overwrite = TRUE)
+      file.copy(from = temp, to = app_file, overwrite = TRUE)
       if (isTRUE(style_script)) {
         message("Styling the script...")
         invisible(capture.output(styler:::style_file(app_file)))
@@ -1076,7 +1081,7 @@ RunSCExplorer <- function(base_dir = "SCExplorer",
       message("app.R already exists. You may regenerate it with 'overwrite=TRUE'.")
     }
   }
-  unlink(tempfile)
+  unlink(temp)
 
   if (isTRUE(return_app)) {
     app <- shinyAppDir(base_dir)

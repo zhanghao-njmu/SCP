@@ -22,8 +22,10 @@ FetchH5(
 Fetch data from the hdf5 file
 }
 \examples{
-data("pancreas1k")
-pancreas1k <- Standard_SCP(pancreas1k)
-PrepareSCExplorer(pancreas1k, base_dir = "./SCExplorer")
-FetchH5("./SCExplorer/Data.hdf5", "./SCExplorer/Meta.hdf5", features = "Isl1", reduction = "UMAP")
+if (interactive()) {
+  data("pancreas1k")
+  pancreas1k <- Standard_SCP(pancreas1k)
+  PrepareSCExplorer(pancreas1k, base_dir = "./SCExplorer")
+  FetchH5("./SCExplorer/Data.hdf5", "./SCExplorer/Meta.hdf5", features = "Isl1", reduction = "UMAP")
+}
 }

@@ -38,15 +38,15 @@ RunSCExplorer(
 RunSCExplorer
 }
 \examples{
-data("pancreas1k")
-pancreas1k <- Standard_SCP(pancreas1k)
-PrepareSCExplorer(pancreas1k, base_dir = "./SCExplorer")
-
-# Create the app.R script
-app <- RunSCExplorer(base_dir = "./SCExplorer", return_app = TRUE)
-
-# Run shiny app
 if (interactive()) {
+  data("pancreas1k")
+  pancreas1k <- Standard_SCP(pancreas1k)
+  PrepareSCExplorer(pancreas1k, base_dir = "./SCExplorer")
+
+  # Create the app.R script
+  app <- RunSCExplorer(base_dir = "./SCExplorer", return_app = TRUE)
+
+  # Run shiny app
   shiny::runApp(app)
 }
 }

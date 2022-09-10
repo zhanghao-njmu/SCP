@@ -32,4 +32,8 @@ Convert a seurat object to an anndata object using reticulate
 data("pancreas1k")
 adata <- srt_to_adata(pancreas1k)
 adata
+
+### Or save as an h5ad file
+# adata$write_h5ad("pancreas1k.h5ad")
+
 }

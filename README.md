@@ -45,26 +45,6 @@ The functions in the SCP package are all developed around the [Seurat
 object](https://github.com/mojaveazure/seurat-object) and compatible
 with other Seurat functions.
 
-## Requirement
-
-SCP requires python 3.7-3.9 to be installed in the environment.
-
-Check the version of python in the terminal:
-
-``` shell
-python --version
-```
-
-or in the R environment:
-
-``` r
-if (!require("reticulate", quietly = TRUE)) {
-  install.packages("reticulate")
-}
-py <- Sys.which("python")
-reticulate:::python_version(py)
-```
-
 ## Installation
 
 You can install the development version of SCP from
@@ -74,7 +54,35 @@ You can install the development version of SCP from
 if (!require("devtools", quietly = TRUE)) {
   install.packages("devtools")
 }
-devtools::install_github("zhanghao-njmu/SCP", INSTALL_opts = "--no-multiarch")
+devtools::install_github("zhanghao-njmu/SCP")
+```
+
+### Requirement for python functions in SCP
+
+To run functions such as `RunSCVELO` or `RunPAGA`, SCP requires python
+3.7-3.9 to be installed in the environment.
+
+Check the version of python in the terminal:
+
+``` shell
+python3 --version
+```
+
+or in the R environment:
+
+``` r
+if (!require("reticulate", quietly = TRUE)) {
+  install.packages("reticulate")
+}
+py <- Sys.which("python3")
+reticulate:::python_version(py)
+```
+
+Then run `PrepareVirtualEnv` to create the python virtual environment
+for SCP and install the necessary packages.
+
+``` r
+PrepareVirtualEnv(python = py, pipy_mirror = "https://pypi.tuna.tsinghua.edu.cn/simple", remove_old = TRUE)
 ```
 
 ## Example
@@ -93,7 +101,7 @@ ClassDimPlot(
 )
 ```
 
-<img src="man/figures/README-library-1.png" width="100%" style="display: block; margin: auto;" />
+<img src="README/README-library-1.png" width="100%" style="display: block; margin: auto;" />
 
 ``` r
 ExpDimPlot(
@@ -102,7 +110,7 @@ ExpDimPlot(
 )
 ```
 
-<img src="man/figures/README-library-2.png" width="100%" style="display: block; margin: auto;" />
+<img src="README/README-library-2.png" width="100%" style="display: block; margin: auto;" />
 
 ``` r
 ExpDotPlot(
@@ -118,7 +126,7 @@ ExpDotPlot(
 )
 ```
 
-<img src="man/figures/README-library-3.png" width="100%" style="display: block; margin: auto;" />
+<img src="README/README-library-3.png" width="100%" style="display: block; margin: auto;" />
 
 ### CellQC
 
@@ -127,13 +135,13 @@ pancreas1k <- RunCellQC(srt = pancreas1k)
 ClassDimPlot(srt = pancreas1k, group.by = "CellQC", reduction = "UMAP")
 ```
 
-<img src="man/figures/README-RunCellQC-1.png" width="100%" style="display: block; margin: auto;" />
+<img src="README/README-RunCellQC-1.png" width="100%" style="display: block; margin: auto;" />
 
 ``` r
 ClassStatPlot(srt = pancreas1k, stat.by = "CellQC", group.by = "CellType", label = TRUE)
 ```
 
-<img src="man/figures/README-RunCellQC-2.png" width="100%" style="display: block; margin: auto;" />
+<img src="README/README-RunCellQC-2.png" width="100%" style="display: block; margin: auto;" />
 
 ``` r
 ClassStatPlot(
@@ -146,9 +154,9 @@ ClassStatPlot(
 )
 ```
 
-<img src="man/figures/README-RunCellQC-3.png" width="100%" style="display: block; margin: auto;" />
+<img src="README/README-RunCellQC-3.png" width="100%" style="display: block; margin: auto;" />
 
-### Standard SCP
+### Standard pipeline in SCP
 
 ``` r
 pancreas1k <- Standard_SCP(srt = pancreas1k)
@@ -158,21 +166,21 @@ ClassDimPlot(
 )
 ```
 
-<img src="man/figures/README-Standard_SCP-1.png" width="100%" style="display: block; margin: auto;" />
+<img src="README/README-Standard_SCP-1.png" width="100%" style="display: block; margin: auto;" />
 
 ``` r
 ClassDimPlot3D(srt = pancreas1k, group.by = "SubCellType")
 ```
 
-![ClassDimPlot3D](man/figures/README-ClassDimPlot3D-1.png)
+![ClassDimPlot3D](README/README-ClassDimPlot3D-1.png)
 
 ``` r
 ExpDimPlot3D(srt = pancreas1k, features = c("Sox9", "Neurog3", "Fev", "Rbp4"))
 ```
 
-![ExpDimPlot3D](man/figures/README-ExpDimPlot3D-1.png)
+![ExpDimPlot3D](README/README-ExpDimPlot3D-1.png)
 
-### Integration SCP
+### Integration pipeline in SCP
 
 Example data for integration is [panc8(eight human pancreas
 datasets)](https://github.com/satijalab/seurat-data)
@@ -184,16 +192,24 @@ if (!require("SeuratData", quietly = TRUE)) {
 library(SeuratData)
 suppressWarnings(InstallData("panc8"))
 data("panc8")
-cell_sub <- unlist(lapply(split(colnames(panc8), panc8$tech), function(x) sample(x, size = 500)))
-panc8 <- subset(panc8, cells = cell_sub)
 panc8 <- Integration_SCP(srtMerge = panc8, batch = "tech", integration_method = "Seurat")
+panc8 <- Integration_SCP(srtMerge = panc8, batch = "tech", integration_method = "Harmony", nonliner_reduction = "pacmap")
 ClassDimPlot(
   srt = panc8, group.by = c("celltype", "tech"), reduction = "SeuratUMAP2D",
-  theme_use = "theme_blank"
+  title = "Seurat", theme_use = "theme_blank"
 )
 ```
 
-<img src="man/figures/README-Integration_SCP-1.png" width="100%" style="display: block; margin: auto;" />
+<img src="README/README-Integration_SCP-1.png" width="100%" style="display: block; margin: auto;" />
+
+``` r
+ClassDimPlot(
+  srt = panc8, group.by = c("celltype", "tech"), reduction = "HarmonyPACMAP2D",
+  title = "Harmony", theme_use = "theme_blank"
+)
+```
+
+<img src="README/README-Integration_SCP-2.png" width="100%" style="display: block; margin: auto;" />
 
 ### Cell projection between single-cell datasets
 
@@ -207,7 +223,7 @@ ProjectionPlot(
 )
 ```
 
-<img src="man/figures/README-RunKNNMap-1.png" width="100%" style="display: block; margin: auto;" />
+<img src="README/README-RunKNNMap-1.png" width="100%" style="display: block; margin: auto;" />
 
 ### Cell annotation using bulk RNA-seq datasets
 
@@ -217,7 +233,7 @@ pancreas1k <- RunKNNPredict(srt_query = pancreas1k, bulk_ref = ref_scMCA, filter
 ClassDimPlot(srt = pancreas1k, group.by = "knnpredict_classification", reduction = "UMAP", label = TRUE)
 ```
 
-<img src="man/figures/README-RunKNNPredict-bulk-1.png" width="100%" style="display: block; margin: auto;" />
+<img src="README/README-RunKNNPredict-bulk-1.png" width="100%" style="display: block; margin: auto;" />
 
 ### Cell annotation using single-cell datasets
 
@@ -229,7 +245,7 @@ pancreas1k <- RunKNNPredict(
 ClassDimPlot(srt = pancreas1k, group.by = "knnpredict_classification", reduction = "UMAP", label = TRUE)
 ```
 
-<img src="man/figures/README-RunKNNPredict-scrna-1.png" width="100%" style="display: block; margin: auto;" />
+<img src="README/README-RunKNNPredict-scrna-1.png" width="100%" style="display: block; margin: auto;" />
 
 ### PAGA analysis
 
@@ -241,7 +257,7 @@ pancreas1k <- RunPAGA(
 PAGAPlot(srt = pancreas1k, reduction = "UMAP", label = TRUE, label_insitu = TRUE, label_repel = TRUE)
 ```
 
-<img src="man/figures/README-RunPAGA-1.png" width="100%" style="display: block; margin: auto;" />
+<img src="README/README-RunPAGA-1.png" width="100%" style="display: block; margin: auto;" />
 
 ### Velocity analysis
 
@@ -253,13 +269,13 @@ pancreas1k <- RunSCVELO(
 VelocityPlot(srt = pancreas1k, reduction = "UMAP", group_by = "SubCellType")
 ```
 
-<img src="man/figures/README-RunSCVELO-1.png" width="100%" style="display: block; margin: auto;" />
+<img src="README/README-RunSCVELO-1.png" width="100%" style="display: block; margin: auto;" />
 
 ``` r
 VelocityPlot(srt = pancreas1k, reduction = "UMAP", plot_type = "stream")
 ```
 
-<img src="man/figures/README-RunSCVELO-2.png" width="100%" style="display: block; margin: auto;" />
+<img src="README/README-RunSCVELO-2.png" width="100%" style="display: block; margin: auto;" />
 
 ### Differential expression analysis
 
@@ -268,7 +284,7 @@ pancreas1k <- RunDEtest(srt = pancreas1k, group_by = "CellType", only.pos = FALS
 VolcanoPlot(srt = pancreas1k, group_by = "CellType")
 ```
 
-<img src="man/figures/README-RunDEtest-1.png" width="100%" style="display: block; margin: auto;" />
+<img src="README/README-RunDEtest-1.png" width="100%" style="display: block; margin: auto;" />
 
 ``` r
 DEGs <- pancreas1k@tools$DEtest_CellType$AllMarkers_wilcox
@@ -281,7 +297,7 @@ ht <- ExpHeatmap(
 print(ht$plot)
 ```
 
-<img src="man/figures/README-DEGsPlot-1.png" width="100%" style="display: block; margin: auto;" />
+<img src="README/README-DEGsPlot-1.png" width="100%" style="display: block; margin: auto;" />
 
 ### Enrichment analysis(over-representation)
 
@@ -296,7 +312,7 @@ EnrichmentPlot(
 )
 ```
 
-<img src="man/figures/README-RunEnrichment-1.png" width="100%" style="display: block; margin: auto;" />
+<img src="README/README-RunEnrichment-1.png" width="100%" style="display: block; margin: auto;" />
 
 ``` r
 EnrichmentPlot(
@@ -305,7 +321,16 @@ EnrichmentPlot(
 )
 ```
 
-<img src="man/figures/README-RunEnrichment-2.png" width="100%" style="display: block; margin: auto;" />
+<img src="README/README-RunEnrichment-2.png" width="100%" style="display: block; margin: auto;" />
+
+``` r
+EnrichmentPlot(
+  srt = pancreas1k, group_by = "CellType", group_use = c("Ductal", "Endocrine"),
+  plot_type = "wordcloud", word_type = "feature"
+)
+```
+
+<img src="README/README-RunEnrichment-3.png" width="100%" style="display: block; margin: auto;" />
 
 ### Enrichment analysis(GSEA)
 
@@ -317,13 +342,13 @@ pancreas1k <- RunGSEA(
 GSEAPlot(srt = pancreas1k, group_by = "CellType", group_use = "Endocrine")
 ```
 
-<img src="man/figures/README-RunGSEA-1.png" width="100%" style="display: block; margin: auto;" />
+<img src="README/README-RunGSEA-1.png" width="100%" style="display: block; margin: auto;" />
 
 ``` r
 GSEAPlot(srt = pancreas1k, group_by = "CellType", group_use = "Endocrine", geneSetID = "GO:0007186")
 ```
 
-<img src="man/figures/README-RunGSEA-2.png" width="100%" style="display: block; margin: auto;" />
+<img src="README/README-RunGSEA-2.png" width="100%" style="display: block; margin: auto;" />
 
 ### Dynamic features analysis
 
@@ -331,7 +356,7 @@ GSEAPlot(srt = pancreas1k, group_by = "CellType", group_use = "Endocrine", geneS
 pancreas1k <- RunSlingshot(srt = pancreas1k, group.by = "SubCellType", reduction = "UMAP", show_plot = TRUE)
 ```
 
-<img src="man/figures/README-RunDynamicFeatures-1.png" width="100%" style="display: block; margin: auto;" />
+<img src="README/README-RunDynamicFeatures-1.png" width="100%" style="display: block; margin: auto;" />
 
 ``` r
 pancreas1k <- RunDynamicFeatures(srt = pancreas1k, lineages = c("Lineage1", "Lineage2"), n_candidates = 200)
@@ -347,7 +372,7 @@ ht <- DynamicHeatmap(
 print(ht$plot)
 ```
 
-<img src="man/figures/README-DynamicHeatmap-1.png" width="100%" style="display: block; margin: auto;" />
+<img src="README/README-DynamicHeatmap-1.png" width="100%" style="display: block; margin: auto;" />
 
 ``` r
 DynamicPlot(
@@ -357,7 +382,7 @@ DynamicPlot(
 )
 ```
 
-<img src="man/figures/README-DynamicPlot-1.png" width="100%" style="display: block; margin: auto;" />
+<img src="README/README-DynamicPlot-1.png" width="100%" style="display: block; margin: auto;" />
 
 ``` r
 ExpVlnPlot(
@@ -372,4 +397,4 @@ ExpVlnPlot(
 )
 ```
 
-<img src="man/figures/README-ExpVlnPlot-1.png" width="100%" style="display: block; margin: auto;" />
+<img src="README/README-ExpVlnPlot-1.png" width="100%" style="display: block; margin: auto;" />

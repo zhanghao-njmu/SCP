@@ -1,3 +1,118 @@
+#' Prepare SCP python virtual environment
+#'
+#' @param python Python path which is used to create the virtual environment.
+#' @param pipy_mirror pipy mirrors. Default is "https://pypi.org/simple/". Options can be "https://pypi.tuna.tsinghua.edu.cn/simple", "http://mirrors.aliyun.com/pypi/simple/", "https://pypi.mirrors.ustc.edu.cn/simple/", etc.
+#' @param remove_old Whether to remove the old SCP virtual environment.
+#' @export
+PrepareVirtualEnv <- function(python = NULL, pipy_mirror = "https://pypi.org/simple/", remove_old = FALSE) {
+  if (isTRUE(remove_old)) {
+    unlink(reticulate:::virtualenv_path("SCP"), recursive = TRUE)
+  }
+  if (!is.null(python) && file.exists(python)) {
+    pythons <- python
+  } else {
+    pythons <- unique(c(reticulate::virtualenv_python("SCP"), Sys.getenv("RETICULATE_PYTHON"), Sys.which("python3"), Sys.which("python")))
+  }
+  python_path <- NULL
+  sys_bit <- ifelse(grepl("64", Sys.info()["machine"]), "64bit", "32bit")
+  for (py in pythons) {
+    if (py != "" && !file.exists(py)) {
+      # packageStartupMessage(py, " is not a Python executable file.")
+      next
+    }
+    # py <- file.path(normalizePath(dirname(py)), basename(py))
+    py_version <- tryCatch(suppressWarnings(reticulate:::python_version(py)),
+      error = identity
+    )
+    if (inherits(py_version, "error") || length(py_version) == 0) {
+      next
+    }
+    if (py_version < numeric_version("3.7.0") || py_version >= numeric_version("3.10.0")) {
+      next
+    }
+    py_bit <- tryCatch(suppressWarnings(system2(command = py, args = " -c \"import platform; print(platform.architecture()[0])\"", stdout = TRUE)),
+      error = identity
+    )
+    if (inherits(py_bit, "error") || length(py_bit) == 0) {
+      next
+    }
+    if (identical(py_bit, sys_bit)) {
+      python_path <- py
+      # packageStartupMessage("python path: ", python_path)
+      break
+    } else {
+      # packageStartupMessage("System architecture is ", sys_bit, " but ", py, " is ", py_bit)
+      next
+    }
+  }
+
+  if (!reticulate::virtualenv_exists("SCP")) {
+    if (is.null(python_path)) {
+      packageStartupMessage("Python(3.7-3.9) is unavailable. Install python(3.8.8) automatically ...")
+      git_exist <- suppressWarnings(system("git", ignore.stdout = TRUE, ignore.stderr = TRUE))
+      if (git_exist == 127) {
+        stop("You need to install git first! (http://git-scm.com/download/) or install python manually.")
+      }
+      python_path <- reticulate::install_python(version = ifelse(sys_bit == "64bit", "3.8.8", "3.8.8-win32"))
+    }
+    packageStartupMessage("Create SCP virtual environment. The path is: ", reticulate:::virtualenv_path("SCP"))
+    reticulate::virtualenv_create(envname = "SCP", python = python_path, packages = FALSE)
+    check_Python(
+      pkgs = c("pip", "setuptools", "wheel"),
+      envname = "SCP",
+      pipy_mirror = pipy_mirror,
+      force = TRUE
+    )
+  }
+  python_path <- reticulate::virtualenv_python("SCP")
+  Sys.setenv(RETICULATE_PYTHON = python_path)
+
+  version <- tryCatch(suppressWarnings(reticulate:::python_version(python_path)), error = identity)
+  if (inherits(version, "error")) {
+    stop("SCP need python 3.7-3.9! Please install python and reload the SCP!")
+  } else {
+    if (version < numeric_version("3.7.0") || version >= numeric_version("3.10.0")) {
+      stop(
+        "SCP currently only support python version 3.7-3.9! The version of Python currently is ", version,
+        "!\nPython related functions may not work. Please install the right version of python and reload the SCP!"
+      )
+    } else {
+      reticulate::use_virtualenv("SCP", required = TRUE)
+
+      if (!exist_pkg("pip")) {
+        temp <- tempfile()
+        download.file("https://bootstrap.pypa.io/get-pip.py", temp)
+        suppressWarnings(system2(command = reticulate::virtualenv_python("SCP"), args = temp, stdout = TRUE))
+        unlink(temp)
+      }
+      # reticulate::py_install("numpy==1.23.2", pip_options = "--no-binary='numpy'", ignore_installed = TRUE, envname = "SCP")
+      # check_Python(pkgs = c("numba==0.53.1", "python-igraph==0.9.9", "pandas", "matplotlib", "versioned-hdf5", "scanpy", "scvelo", "palantir"), envname = "SCP")
+      check_Python(
+        pkgs = c(
+          "numpy==1.21.6", "numba==0.55.2", "python-igraph==0.9.11",
+          "pandas", "matplotlib", "versioned-hdf5", "scanpy", "scvelo", "palantir"
+        ),
+        envname = "SCP",
+        pipy_mirror = pipy_mirror
+      )
+
+      pyinfo <- utils::capture.output(reticulate::py_config())
+      pyinfo_mesg <- c(
+        "======================== SCP python config ========================",
+        pyinfo,
+        "==================================================================="
+      )
+      invisible(lapply(pyinfo_mesg, packageStartupMessage))
+      invisible(run_Python(command = "import matplotlib", envir = .GlobalEnv))
+      if (!interactive()) {
+        invisible(run_Python(command = "matplotlib.use('pdf')", envir = .GlobalEnv))
+      }
+      invisible(run_Python(command = "import matplotlib.pyplot as plt", envir = .GlobalEnv))
+      invisible(run_Python(command = "import scanpy", envir = .GlobalEnv))
+    }
+  }
+}
+
 #' Check and install R packages
 #'
 #' @param pkgs
@@ -72,7 +187,7 @@ exist_pkg <- function(pkg, envname = "SCP") {
   pkg_name <- pkg_info[1]
   pkg_version <- pkg_info[2]
   pkg_exist <- suppressWarnings(system2(command = reticulate::virtualenv_python(envname), args = paste0("-m pip show ", pkg_name), stdout = TRUE))
-  if (length(pkg_exist) == 0) {
+  if (length(pkg_exist) == 0 || isTRUE(attr(pkg_exist, "status") == 1)) {
     return(FALSE)
   } else {
     if (!is.na(pkg_version)) {
@@ -97,19 +212,23 @@ exist_pkg <- function(pkg, envname = "SCP") {
 #'
 #' @importFrom rlang %||%
 #' @export
-check_Python <- function(pkgs, pkg_names = NULL, envname = "SCP", force = FALSE) {
+check_Python <- function(pkgs, pkg_names = NULL, envname = "SCP", pipy_mirror = "https://pypi.org/simple/", force = FALSE) {
+  if (!reticulate::virtualenv_exists("SCP")) {
+    warning("SCP python virtual environment do not exist. Create it with the PrepareVirtualEnv function...", immediate. = TRUE)
+    PrepareVirtualEnv()
+  }
   if (length(pkg_names) != 0 && length(pkg_names) != length(pkgs)) {
     stop("pkg_names must be NULL or a vector of the same length with pkgs")
   }
   status_list <- list()
   for (n in seq_along(pkgs)) {
     pkg <- pkgs[n]
-    pkg_name <- pkg_names[n] %||% gsub("(.*)(\\[.*\\])|(==.*)", "\\1", pkg)
+    pkg_name <- pkg_names[n] %||% gsub("(.*)(\\[.*\\])", "\\1", pkg)
     exist <- exist_pkg(pkg_name, envname)
     if (!isTRUE(exist) || isTRUE(force)) {
       message("Try to install '", pkg, "' ...")
       tryCatch(expr = {
-        reticulate::py_install(pkg, envname = envname)
+        reticulate::py_install(pkg, envname = envname, pip_options = paste("-i", pipy_mirror))
       }, error = function(e) {
         warning("Something went wrong when installing the package ", pkg)
       })
@@ -196,6 +315,7 @@ kegg_get <- function(url) {
     strsplit(., "\t") %>%
     do.call("rbind", .)
   res <- data.frame(from = content[, 1], to = content[, 2])
+  unlink(temp)
   return(res)
 }
 
@@ -235,6 +355,7 @@ col2hex <- function(cname) {
   rgb(red = colMat[1, ] / 255, green = colMat[2, ] / 255, blue = colMat[3, ] / 255)
 }
 
+#' @export
 #' @importFrom rlang caller_env is_null is_scalar_character is_character is_function set_names env env_get env_bind syms call2
 invoke <- function(.fn, .args = list(), ..., .env = caller_env(), .bury = c(".fn", "")) {
   args <- c(.args, list(...))

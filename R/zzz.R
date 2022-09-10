@@ -1,110 +1,21 @@
 .onAttach <- function(libname, pkgname) {
   options(future.globals.maxSize = Inf)
   options(expressions = 5e5)
-  if (Sys.getenv("SCP_PYTHON") != "") {
-    packageStartupMessage("Use the environment variable 'SCP_PYTHON'.")
-    Sys.setenv(RETICULATE_PYTHON = Sys.getenv("SCP_PYTHON"))
-    pythons <- Sys.getenv("SCP_PYTHON")
-  } else {
-    packageStartupMessage("Default python will be used by SCP. \nOne can use Sys.setenv(SCP_PYTHON='/path/to/python') to specify the python version before library(SCP).")
-    pythons <- unique(c(Sys.getenv("RETICULATE_PYTHON"), Sys.which("python3"), Sys.which("python")))
-  }
-
-  python_path <- NULL
-  sys_bit <- ifelse(grepl("64", Sys.info()["machine"]), "64bit", "32bit")
-  for (py in pythons) {
-    if (py != "" && !file.exists(py)) {
-      packageStartupMessage(py, " is not a Python executable file.")
-      next
-    }
-    # py <- file.path(normalizePath(dirname(py)), basename(py))
-    py_version <- tryCatch(suppressWarnings(reticulate:::python_version(py)),
-      error = identity
+  if (reticulate::virtualenv_exists("SCP")) {
+    Sys.setenv(RETICULATE_PYTHON = reticulate::virtualenv_python("SCP"))
+    reticulate::use_virtualenv("SCP", required = TRUE)
+    pyinfo <- utils::capture.output(reticulate::py_config())
+    pyinfo_mesg <- c(
+      "======================== SCP python config ========================",
+      pyinfo,
+      "==================================================================="
     )
-    if (inherits(py_version, "error") || length(py_version) == 0) {
-      next
+    invisible(lapply(pyinfo_mesg, packageStartupMessage))
+    invisible(run_Python(command = "import matplotlib", envir = .GlobalEnv))
+    if (!interactive()) {
+      invisible(run_Python(command = "matplotlib.use('pdf')", envir = .GlobalEnv))
     }
-    if (py_version < numeric_version("3.7.0") || py_version >= numeric_version("3.10.0")) {
-      next
-    }
-    py_bit <- tryCatch(suppressWarnings(system2(command = py, args = " -c \"import platform; print(platform.architecture()[0])\"", stdout = TRUE)),
-      error = identity
-    )
-    if (inherits(py_bit, "error") || length(py_bit) == 0) {
-      next
-    }
-    if (identical(py_bit, sys_bit)) {
-      python_path <- py
-      # packageStartupMessage("python path: ", python_path)
-      break
-    } else {
-      packageStartupMessage("System architecture is ", sys_bit, " but ", py, " is ", py_bit)
-      next
-    }
-  }
-
-  if (!reticulate::virtualenv_exists("SCP")) {
-    if (is.null(python_path)) {
-      packageStartupMessage("Python(3.7-3.9) is unavailable. Install python(3.8.8) automatically ...")
-      git_exist <- suppressWarnings(system("git", ignore.stdout = TRUE, ignore.stderr = TRUE))
-      if (git_exist == 127) {
-        warning("You need to install git first! (http://git-scm.com/download/) or install python manually.", immediate. = TRUE)
-        return(invisible(NULL))
-      }
-      python_path <- reticulate::install_python(version = ifelse(sys_bit == "64bit", "3.8.8", "3.8.8-win32"))
-    }
-    packageStartupMessage("Create SCP virtual environment. The path is: ", reticulate:::virtualenv_path("SCP"), immediate. = TRUE)
-    reticulate::virtualenv_create(envname = "SCP", python = python_path)
-    new_SCP <- TRUE
-  } else {
-    python_path <- reticulate::virtualenv_python("SCP")
-    new_SCP <- FALSE
-  }
-  Sys.setenv(RETICULATE_PYTHON = python_path)
-
-  version <- tryCatch(suppressWarnings(reticulate:::python_version(python_path)), error = identity)
-  if (inherits(version, "error")) {
-    warning("SCP need python 3.7-3.9! Please install python and reload the SCP!", immediate. = TRUE)
-    return(invisible(NULL))
-  } else {
-    if (version < numeric_version("3.7.0") || version >= numeric_version("3.10.0")) {
-      warning("SCP currently only support python version 3.7-3.9! The version of Python currently is ", version,
-        "!\nPython related functions may not work. Please install the right version of python and reload the SCP!",
-        immediate. = TRUE
-      )
-      return(invisible(NULL))
-    } else {
-      reticulate::use_virtualenv("SCP", required = TRUE)
-      pyinfo <- utils::capture.output(reticulate::py_config())
-      pyinfo_mesg <- c(
-        "======================== SCP python config ========================",
-        pyinfo,
-        "==================================================================="
-      )
-      if (isTRUE(new_SCP)) {
-        if (!exist_pkg("pip")) {
-          temp <- tempfile()
-          download.file("https://bootstrap.pypa.io/get-pip.py", temp)
-          suppressWarnings(system2(command = reticulate::virtualenv_python("SCP"), args = temp, stdout = TRUE))
-          unlink(temp)
-        }
-        check_Python(pkgs = "matplotlib", envname = "SCP")
-        check_Python(pkgs = "versioned-hdf5", envname = "SCP")
-        check_Python(pkgs = c("numba==0.53.1", "scanpy", "python-igraph", "pandas", "numpy", "scvelo", "palantir"), envname = "SCP")
-        reticulate::py_install("numpy", pip_options = "--no-binary='numpy'", ignore_installed = TRUE, envname = "SCP")
-      }
-      invisible(lapply(pyinfo_mesg, packageStartupMessage))
-
-
-      run_Python(command = "import matplotlib", envir = .GlobalEnv)
-      if (!interactive()) {
-        run_Python(command = "matplotlib.use('pdf')", envir = .GlobalEnv)
-      }
-      run_Python(command = "import matplotlib.pyplot as plt", envir = .GlobalEnv)
-      run_Python(command = "import scanpy", envir = .GlobalEnv)
-
-      SCP_analysis <- reticulate::import_from_path("SCP_analysis", system.file("python", package = utils::packageName(), mustWork = TRUE))
-      lapply(names(SCP_analysis), function(name) assign(name, SCP_analysis[[name]], envir = as.environment("package:SCP")))
-    }
+    invisible(run_Python(command = "import matplotlib.pyplot as plt", envir = .GlobalEnv))
+    invisible(run_Python(command = "import scanpy", envir = .GlobalEnv))
   }
 }

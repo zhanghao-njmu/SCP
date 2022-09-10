@@ -421,17 +421,15 @@ palette_scp <- function(x, n = 100, palette = "Paired", palcolor = NULL, type = 
 #' p_fix1
 #' p_fix2
 #'
-#' \donttest{
-#' # Save the plot with appropriate size
-#' plot_size <- attr(p_fix1, "size")
-#' ggsave(
-#'   filename = "p_fix.png", plot = p_fix1,
-#'   units = plot_size$units, width = plot_size$width, height = plot_size$height
-#' )
+#' ## Save the plot with appropriate size
+#' # plot_size <- attr(p_fix1, "size")
+#' # ggsave(
+#' #   filename = "p_fix.png", plot = p_fix1,
+#' #   units = plot_size$units, width = plot_size$width, height = plot_size$height
+#' # )
 #'
-#' # or save the plot directly
-#' p_fix1 <- panel_fix(p, width = 5, height = 3, units = "cm", save = "p_fix.png")
-#' }
+#' ## or save the plot directly
+#' # p_fix1 <- panel_fix(p, width = 5, height = 3, units = "cm", save = "p_fix.png")
 #'
 #' data("pancreas1k")
 #' p1 <- ClassDimPlot(pancreas1k, "Phase") # ggplot object
@@ -646,12 +644,12 @@ panel_fix_single <- function(x, panel_index = NULL, respect = NULL,
         }
       }
       g$vp <- viewport()
-      tmp <- tempfile(fileext = "png")
-      grDevices::png(tmp, width = width[1], height = height[1], bg = "transparent", res = dpi, units = units)
+      temp <- tempfile(fileext = "png")
+      grDevices::png(temp, width = width[1], height = height[1], bg = "transparent", res = dpi, units = units)
       grid.draw(g)
       grDevices::dev.off()
-      g_ras <- rasterGrob(png::readPNG(tmp, native = TRUE))
-      unlink(tmp)
+      g_ras <- rasterGrob(png::readPNG(temp, native = TRUE))
+      unlink(temp)
       grob$grobs[[i]] <- do.call(grobTree, c(list(g_ras), child_list))
       # grid.draw(grob)
     }
@@ -1028,6 +1026,7 @@ ClassDimPlot <- function(srt, group.by = "orig.ident", reduction = NULL, dims = 
                          xlab = NULL, ylab = NULL, lab_cex = 1, xlen_npc = 0.15, ylen_npc = 0.15,
                          legend.position = "right", legend.direction = "vertical",
                          combine = TRUE, nrow = NULL, ncol = NULL, byrow = TRUE, align = "hv", axis = "lr", force = FALSE) {
+  set.seed(11)
   check_R("exaexa/scattermore")
   if (is.null(split.by)) {
     split.by <- "All_cells"
@@ -2965,10 +2964,12 @@ geom_split_violin <- function(mapping = NULL, data = NULL, stat = "ydensity", po
 #' ExpVlnPlot(pancreas1k, features = c("G2M_score", "S_score"), group.by = "SubCellType")
 #' ExpVlnPlot(pancreas1k, features = c("Neurog3", "Fev"), group.by = "SubCellType", bg.by = "CellType", stack = TRUE)
 #' ExpVlnPlot(pancreas1k, features = c("Rbp4", "Pyy"), group.by = "SubCellType", comparisons = list(c("Alpha", "Beta"), c("Alpha", "Delta")), multiplegroup_comparisons = TRUE)
+#' @importFrom Seurat DefaultAssay
 #' @importFrom gtable gtable_add_cols gtable_add_rows gtable_add_grob gtable_add_padding
 #' @importFrom ggplot2 geom_blank geom_violin geom_rect geom_boxplot layer_scales position_jitterdodge position_dodge2 stat_summary scale_x_discrete element_line annotate
 #' @importFrom grid grobHeight grobWidth
 #' @importFrom rlang %||%
+#' @importFrom cowplot plot_grid
 #' @export
 ExpVlnPlot <- function(srt, features = NULL, group.by = NULL, split.by = NULL, bg.by = NULL,
                        cells_subset = NULL, keep_empty = FALSE,
@@ -3209,6 +3210,7 @@ ExpVlnPlot <- function(srt, features = NULL, group.by = NULL, split.by = NULL, b
       y_max_use <- layer_scales(p)$y$range$range[2]
     }
     if (isTRUE(multiplegroup_comparisons)) {
+      check_R("ggpubr")
       p <- p + ggpubr::stat_compare_means(method = multiple_method, label.y = Inf, vjust = 1.3, hjust = 0, size = 3.5)
       y_max_use <- y_min_use + (y_max_use - y_min_use) * 1.2
     }
@@ -5152,8 +5154,8 @@ ClassStatPlot <- function(srt, stat.by = "orig.ident", group.by = NULL, split.by
   } else if (plot_type %in% c("chord", "sankey", "venn", "upset")) {
     colors <- palette_scp(stat.by, palette = palette, palcolor = palcolor)
     if (plot_type == "chord" && isTRUE(combine)) {
-      tmp <- tempfile(fileext = "png")
-      grDevices::png(tmp)
+      temp <- tempfile(fileext = "png")
+      grDevices::png(temp)
       grDevices::dev.control("enable")
       nlev <- nlevels(dat_all[[split.by]])
       if (is.null(nrow) && is.null(ncol)) {
@@ -5342,7 +5344,7 @@ ClassStatPlot <- function(srt, stat.by = "orig.ident", group.by = NULL, split.by
   if (isTRUE(combine) && plot_type == "chord") {
     plot <- grDevices::recordPlot()
     grDevices::dev.off()
-    unlink(tmp)
+    unlink(temp)
     return(plot)
   }
   if (isTRUE(combine) && plot_type != "chord") {
@@ -5598,6 +5600,9 @@ PAGAPlot <- function(srt, paga = srt@misc$paga, reduction = NULL, dims = c(1, 2)
                      xlab = NULL, ylab = NULL, lab_cex = 1, xlen_npc = 0.15, ylen_npc = 0.15,
                      legend.position = "right", legend.direction = "vertical",
                      return_layer = FALSE) {
+  if (is.null(paga)) {
+    stop("Cannot find the paga result.")
+  }
   connectivities <- paga[["connectivities"]]
   transition <- paga[["transitions_confidence"]]
   groups <- paga[["groups"]]
@@ -6185,13 +6190,14 @@ VelocityPlot <- function(srt, reduction, dims = c(1, 2), velocity = "stochastic"
                          return_layer = FALSE, seed = 11) {
   plot_type <- match.arg(plot_type)
   set.seed(seed)
+  check_R("metR")
 
   if (!reduction %in% Reductions(srt)) {
     stop(paste0(reduction, " is not in the srt reduction names."))
   }
   V_reduction <- paste0(velocity, "_", reduction)
   if (!V_reduction %in% Reductions(srt)) {
-    stop("Cannot find the velocity embedding ", V_reduction, ". Please run Scvelo first.")
+    stop("Cannot find the velocity embedding ", V_reduction, ".")
   }
   X_emb <- Embeddings(srt, reduction)[, dims]
   V_emb <- Embeddings(srt, V_reduction)[, dims]
@@ -6696,13 +6702,13 @@ SankeyPlot <- function(node, edge, node_group = NULL, group_list = NULL) {
 #'   features = c("S_score", "G2M_score", "nFeature_RNA", "nCount_RNA")
 #' )
 #' p
-#' \donttest{
-#' # Save the plot with appropriate size
-#' ggplot2::ggsave(
-#'   filename = "summaryplot.png", plot = p,
-#'   units = attr(p, "size")$units, width = attr(p, "size")$width, height = attr(p, "size")$height
-#' )
-#' }
+#'
+#' ## Save the plot with appropriate size
+#' # ggplot2::ggsave(
+#' #   filename = "summaryplot.png", plot = p,
+#' #   units = attr(p, "size")$units, width = attr(p, "size")$width, height = attr(p, "size")$height
+#' # )
+#'
 #' @export
 SummaryPlot <- function(srt,
                         group.by = NULL,

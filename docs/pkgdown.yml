@@ -1,9 +1,0 @@
-pandoc: 2.17.1.1
-pkgdown: 2.0.5
-pkgdown_sha: ~
-articles: {}
-last_built: 2022-08-25T14:12Z
-urls:
-  reference: https://zhanghao-njmu.github.io/SCP/reference
-  article: https://zhanghao-njmu.github.io/SCP/articles
-

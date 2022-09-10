@@ -1107,7 +1107,6 @@ Seurat_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRU
       "logCPM" = "LogNormalize",
       "SCT" = "SCT"
     ),
-    features.to.integrate = HVF,
     verbose = FALSE
   )
   for (nm in names(IntegrateData_params)) {

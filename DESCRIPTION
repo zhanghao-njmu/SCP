@@ -1,13 +1,13 @@
 Package: SCP
 Type: Package
 Title: Single Cell Pipeline
-Version: 0.1.7
+Version: 0.1.8
 Author: Hao Zhang
 Maintainer: Hao Zhang <haozhang@njmu.edu.cn>
 Description: The SCP package provides a comprehensive set of tools for single cell data processing and downstream analysis.
-License: AGPL-3
+License: GPL (>= 3)
 Encoding: UTF-8
-LazyData: false
+LazyData: True
 LazyDataCompression: xz
 Depends:
     R (>= 3.5.0)
@@ -16,14 +16,13 @@ Imports:
     AnnotationDbi,
     BiocParallel,
     biomaRt,
+    ComplexHeatmap (>= 2.13.0),
     circlize,
     clusterProfiler,
-    ComplexHeatmap (>= 2.13.0),
     cowplot,
     dplyr,
     ggnewscale,
     ggplot2,
-    ggpubr,
     ggrepel,
     ggupset,
     ggwordcloud,
@@ -32,13 +31,12 @@ Imports:
     grDevices,
     grid,
     gtable,
-    harmony,
     HDF5Array,
+    harmony,
     intrinsicDimension,
     Matrix,
     MatrixGenerics,
     methods,
-    metR,
     mgcv,
     org.Hs.eg.db,
     org.Mm.eg.db,
@@ -54,18 +52,17 @@ Imports:
     rhdf5,
     rlang,
     rliger,
-    scales,
-    scDblFinder,
-    scmap,
     Seurat,
     SeuratObject,
+    SingleR,
+    scales,
+    scmap,
+    sf,
     shiny,
     shinycssloaders,
     simplifyEnrichment,
-    SingleR,
     slingshot,
     stringr,
-    symphony,
     uwot
 Remotes: 
     davidsjoberg/ggsankey,
@@ -79,17 +76,21 @@ Suggests:
     covr,
     devtools,
     ggVennDiagram,
+    ggsignif,
     hexbin,
     htmlwidgets,
     httr,
     MASS,
     Mfuzz,
+    metR,
     NMF,
     RcppParallel,
     renv,
     scattermore,
     scds,
+    scDblFinder,
     styler,
+    symphony,
     testthat (>= 3.0.0),
     umap
 RoxygenNote: 7.2.0

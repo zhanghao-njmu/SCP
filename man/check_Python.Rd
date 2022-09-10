@@ -4,7 +4,13 @@
 \alias{check_Python}
 \title{Check and install python packages}
 \usage{
-check_Python(pkgs, pkg_names = NULL, envname = "SCP", force = FALSE)
+check_Python(
+  pkgs,
+  pkg_names = NULL,
+  envname = "SCP",
+  pipy_mirror = "https://pypi.org/simple/",
+  force = FALSE
+)
 }
 \arguments{
 \item{force}{}

@@ -9,3 +9,4 @@
 ^\.github$
 ^codecov\.yml$
 ^README\.Rmd$
+^LICENSE\.md$

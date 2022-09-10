@@ -49,11 +49,11 @@ p <- SummaryPlot(pancreas1k,
   features = c("S_score", "G2M_score", "nFeature_RNA", "nCount_RNA")
 )
 p
-\donttest{
-# Save the plot with appropriate size
-ggplot2::ggsave(
-  filename = "summaryplot.png", plot = p,
-  units = attr(p, "size")$units, width = attr(p, "size")$width, height = attr(p, "size")$height
-)
-}
+
+## Save the plot with appropriate size
+# ggplot2::ggsave(
+#   filename = "summaryplot.png", plot = p,
+#   units = attr(p, "size")$units, width = attr(p, "size")$width, height = attr(p, "size")$height
+# )
+
 }

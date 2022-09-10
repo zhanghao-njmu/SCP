@@ -11,7 +11,7 @@ knitr::opts_chunk$set(
   results = "hide",
   message = FALSE,
   warning = FALSE,
-  fig.path = "man/figures/README-",
+  fig.path = "README/README-",
   fig.height = 5,
   fig.width = 10,
   fig.align = "center",
@@ -42,26 +42,6 @@ The package includes facilities for:
 
 The functions in the SCP package are all developed around the [Seurat object](https://github.com/mojaveazure/seurat-object) and compatible with other Seurat functions.
 
-## Requirement
-
-SCP requires python 3.7-3.9 to be installed in the environment.
-
-Check the version of python in the terminal:
-
-```{shell eval=FALSE}
-python --version
-```
-
-or in the R environment:
-
-```{r eval=FALSE}
-if (!require("reticulate", quietly = TRUE)) {
-  install.packages("reticulate")
-}
-py <- Sys.which("python")
-reticulate:::python_version(py)
-```
-
 ## Installation
 
 You can install the development version of SCP from [GitHub](https://github.com/zhanghao-njmu/SCP) with:
@@ -70,7 +50,33 @@ You can install the development version of SCP from [GitHub](https://github.com/
 if (!require("devtools", quietly = TRUE)) {
   install.packages("devtools")
 }
-devtools::install_github("zhanghao-njmu/SCP", INSTALL_opts = "--no-multiarch")
+devtools::install_github("zhanghao-njmu/SCP")
+```
+
+### Requirement for python functions in SCP
+
+To run functions such as `RunSCVELO` or `RunPAGA`, SCP requires python 3.7-3.9 to be installed in the environment.
+
+Check the version of python in the terminal:
+
+```{shell eval=FALSE}
+python3 --version
+```
+
+or in the R environment:
+
+```{r eval=FALSE}
+if (!require("reticulate", quietly = TRUE)) {
+  install.packages("reticulate")
+}
+py <- Sys.which("python3")
+reticulate:::python_version(py)
+```
+
+Then run `PrepareVirtualEnv` to create the python virtual environment for SCP and install the necessary packages.
+
+```{r eval=FALSE}
+PrepareVirtualEnv(python = py, pipy_mirror = "https://pypi.tuna.tsinghua.edu.cn/simple", remove_old = TRUE)
 ```
 
 ## Example
@@ -119,7 +125,7 @@ ClassStatPlot(
 )
 ```
 
-### Standard SCP
+### Standard pipeline in SCP
 
 ```{r Standard_SCP}
 pancreas1k <- Standard_SCP(srt = pancreas1k)
@@ -133,15 +139,15 @@ ClassDimPlot(
 ClassDimPlot3D(srt = pancreas1k, group.by = "SubCellType")
 ```
 
-![ClassDimPlot3D](man/figures/README-ClassDimPlot3D-1.png)
+![ClassDimPlot3D](README/README-ClassDimPlot3D-1.png)
 
 ```{r ExpDimPlot3D,eval=FALSE}
 ExpDimPlot3D(srt = pancreas1k, features = c("Sox9", "Neurog3", "Fev", "Rbp4"))
 ```
 
-![ExpDimPlot3D](man/figures/README-ExpDimPlot3D-1.png)
+![ExpDimPlot3D](README/README-ExpDimPlot3D-1.png)
 
-### Integration SCP
+### Integration pipeline in SCP
 
 Example data for integration is [panc8(eight human pancreas datasets)](https://github.com/satijalab/seurat-data)
 
@@ -152,12 +158,15 @@ if (!require("SeuratData", quietly = TRUE)) {
 library(SeuratData)
 suppressWarnings(InstallData("panc8"))
 data("panc8")
-cell_sub <- unlist(lapply(split(colnames(panc8), panc8$tech), function(x) sample(x, size = 500)))
-panc8 <- subset(panc8, cells = cell_sub)
 panc8 <- Integration_SCP(srtMerge = panc8, batch = "tech", integration_method = "Seurat")
+panc8 <- Integration_SCP(srtMerge = panc8, batch = "tech", integration_method = "Harmony", nonliner_reduction = "pacmap")
 ClassDimPlot(
   srt = panc8, group.by = c("celltype", "tech"), reduction = "SeuratUMAP2D",
-  theme_use = "theme_blank"
+  title = "Seurat", theme_use = "theme_blank"
+)
+ClassDimPlot(
+  srt = panc8, group.by = c("celltype", "tech"), reduction = "HarmonyPACMAP2D",
+  title = "Harmony", theme_use = "theme_blank"
 )
 ```
 
@@ -244,6 +253,10 @@ EnrichmentPlot(
 EnrichmentPlot(
   srt = pancreas1k, group_by = "CellType", group_use = c("Ductal", "Endocrine"),
   plot_type = "wordcloud"
+)
+EnrichmentPlot(
+  srt = pancreas1k, group_by = "CellType", group_use = c("Ductal", "Endocrine"),
+  plot_type = "wordcloud", word_type = "feature"
 )
 ```
 
