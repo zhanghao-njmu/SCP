@@ -28,7 +28,8 @@ DynamicHeatmap(
   split_method = c("mfuzz", "kmeans", "kmeans-peaktime", "hclust", "hclust-peaktime"),
   fuzzification = NULL,
   show_fuzzification = FALSE,
-  anno_enrichmnet = FALSE,
+  anno_terms = FALSE,
+  anno_keys = FALSE,
   anno_features = FALSE,
   IDtype = "symbol",
   species = "Homo_sapiens",
@@ -49,11 +50,13 @@ DynamicHeatmap(
   simplify_similarityCutoff = 0.7,
   pvalueCutoff = NULL,
   padjustCutoff = 0.05,
+  topTerm = 5,
+  show_id = TRUE,
   topWord = 20,
   min_word_length = 3,
   exclude_words = c("cell", "cellular", "dna", "rna", "protein", "development",
     "system", "regulation", "positive", "negative", "response", "process"),
-  anno_width = unit(2, "in"),
+  anno_width = unit(c(4, 2, 2), "in"),
   anno_size = c(6, 10),
   nlabel = 20,
   features_label = NULL,
@@ -113,7 +116,7 @@ ht_result3 <- DynamicHeatmap(
   lineages = c("Lineage1", "Lineage2"),
   cell_annotation = "SubCellType",
   n_split = 5, reverse_ht = "Lineage1",
-  species = "Mus_musculus", anno_enrichmnet = TRUE, anno_features = TRUE,
+  species = "Mus_musculus", anno_terms = TRUE, anno_keys = TRUE, anno_features = TRUE,
   height = 6, width = 7, use_raster = FALSE
 )
 ht_result3$plot

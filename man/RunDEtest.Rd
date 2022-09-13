@@ -16,6 +16,7 @@ RunDEtest(
   test.use = "wilcox",
   only.pos = TRUE,
   fc.threshold = 1.5,
+  base = 2,
   min.pct = 0.1,
   min.diff.pct = -Inf,
   max.cells.per.ident = Inf,

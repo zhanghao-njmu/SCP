@@ -5,6 +5,11 @@
 #' @param remove_old Whether to remove the old SCP virtual environment.
 #' @export
 PrepareVirtualEnv <- function(python = NULL, pipy_mirror = "https://pypi.org/simple/", remove_old = FALSE) {
+  if (isTRUE(remove_old) || reticulate::virtualenv_exists("SCP")) {
+    if (isTRUE(reticulate:::is_python_initialized())) {
+      warning("Package installation may fail because python is initialized in the current R session.\nYou may reload SCP in a new R seesion with command 'options(SCP_virtualenv_init = FALSE)'. Then run PrepareVirtualEnv again to create SCP virtual environmenet.", immediate. = TRUE)
+    }
+  }
   if (isTRUE(remove_old)) {
     unlink(reticulate:::virtualenv_path("SCP"), recursive = TRUE)
   }
@@ -402,4 +407,20 @@ unnest <- function(data, cols, keep_empty = FALSE) {
   }
   rownames(data) <- NULL
   return(data)
+}
+
+#' @useDynLib SCP
+#' @export
+as_matrix <- function(mat) {
+  row_pos <- mat@i
+  col_pos <- findInterval(seq(mat@x) - 1, mat@p[-1])
+
+  tmp <- asMatrix(
+    rp = row_pos, cp = col_pos, z = mat@x,
+    nrows = mat@Dim[1], ncols = mat@Dim[2]
+  )
+
+  row.names(tmp) <- mat@Dimnames[[1]]
+  colnames(tmp) <- mat@Dimnames[[2]]
+  return(tmp)
 }

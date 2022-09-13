@@ -228,12 +228,12 @@ pancreas1k <- RunDEtest(srt = pancreas1k, group_by = "CellType", only.pos = FALS
 VolcanoPlot(srt = pancreas1k, group_by = "CellType")
 ```
 
-```{r DEGsPlot, fig.height=6, fig.width=13}
+```{r DEGsPlot, fig.height=6, fig.width=16}
 DEGs <- pancreas1k@tools$DEtest_CellType$AllMarkers_wilcox
 DEGs <- DEGs[with(DEGs, avg_log2FC > 1 & p_val_adj < 0.05), ]
 ht <- ExpHeatmap(
   srt = pancreas1k, features = DEGs$gene, feature_split = DEGs$group1, cell_split_by = "CellType",
-  species = "Mus_musculus", anno_enrichmnet = TRUE, anno_features = TRUE,
+  species = "Mus_musculus", anno_terms = TRUE, anno_keys = TRUE, anno_features = TRUE,
   row_title_size = 0, height = 5, width = 7
 )
 print(ht$plot)
@@ -278,11 +278,11 @@ pancreas1k <- RunSlingshot(srt = pancreas1k, group.by = "SubCellType", reduction
 pancreas1k <- RunDynamicFeatures(srt = pancreas1k, lineages = c("Lineage1", "Lineage2"), n_candidates = 200)
 ```
 
-```{r DynamicHeatmap, fig.height=6, fig.width=13}
+```{r DynamicHeatmap, fig.height=6, fig.width=17}
 ht <- DynamicHeatmap(
   srt = pancreas1k, lineages = c("Lineage1", "Lineage2"), cell_annotation = "SubCellType",
   n_split = 5, reverse_ht = "Lineage1",
-  species = "Mus_musculus", anno_enrichmnet = TRUE, anno_features = TRUE,
+  species = "Mus_musculus", anno_terms = TRUE, anno_keys = TRUE, anno_features = TRUE,
   height = 5, width = 7, use_raster = FALSE
 )
 print(ht$plot)

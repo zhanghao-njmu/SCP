@@ -361,6 +361,7 @@ palette_scp <- function(x, n = 100, palette = "Paired", palcolor = NULL, type = 
     } else {
       values <- cut(x, breaks = seq(min(x, na.rm = TRUE), max(x, na.rm = TRUE), length.out = n + 1), include.lowest = TRUE)
     }
+
     n_x <- nlevels(values)
     color <- ifelse(rep(n_x, n_x) <= pal_n,
       palcolor[1:n_x],
@@ -371,8 +372,15 @@ palette_scp <- function(x, n = 100, palette = "Paired", palcolor = NULL, type = 
       color <- c(color, setNames(NA_color, "NA"))
     }
     if (isTRUE(matched)) {
-      color <- color[as.character(values)]
-      color[is.na(color)] <- NA_color
+      if (all(is.na(x))) {
+        color <- NA_color
+      } else if (length(unique(na.omit(x))) == 1) {
+        color <- color[as.character(unique(na.omit(x)))]
+        color[is.na(color)] <- NA_color
+      } else {
+        color <- color[as.character(values)]
+        color[is.na(color)] <- NA_color
+      }
     }
   }
 
@@ -3650,7 +3658,7 @@ ExpDotPlot <- function(srt, features = NULL, feature_split = NULL, cell_split_by
 #' @param decreasing
 #' @param lib_normalize
 #' @param libsize
-#' @param anno_enrichmnet
+#' @param anno_keys
 #' @param anno_features
 #' @param IDtype
 #' @param species
@@ -3712,7 +3720,7 @@ ExpDotPlot <- function(srt, features = NULL, feature_split = NULL, cell_split_by
 #'
 #' ht3 <- ExpHeatmap(
 #'   srt = pancreas1k, features = de_filter$gene, feature_split = de_filter$group1, cell_split_by = "CellType",
-#'   species = "Mus_musculus", anno_enrichmnet = TRUE, anno_features = TRUE
+#'   species = "Mus_musculus", anno_terms = TRUE, anno_keys = TRUE, anno_features = TRUE
 #' )
 #' ht3$plot
 #'
@@ -3730,12 +3738,12 @@ ExpHeatmap <- function(srt, features = NULL, feature_split = NULL, cluster_featu
                        n_split = NULL, heatmap_split_by = cell_split_by[1], split_method = c("kmeans", "hclust", "mfuzz"),
                        row_title_size = 12, decreasing = TRUE,
                        lib_normalize = TRUE, libsize = NULL,
-                       anno_enrichmnet = FALSE, anno_features = FALSE,
+                       anno_terms = FALSE, anno_keys = FALSE, anno_features = FALSE,
                        IDtype = "symbol", species = "Homo_sapiens", db_IDtype = "symbol", db_update = FALSE, db_version = "latest", Ensembl_version = 103, mirror = NULL,
                        enrichment = "GO_BP", TERM2GENE = NULL, TERM2NAME = NULL, minGSSize = 10, maxGSSize = 500, universe = NULL,
                        GO_simplify = TRUE, GO_simplify_padjustCutoff = 0.2, simplify_method = "Rel", simplify_similarityCutoff = 0.7,
-                       pvalueCutoff = NULL, padjustCutoff = 0.05, topWord = 20, min_word_length = 3, exclude_words = c("cell", "cellular", "dna", "rna", "protein", "development", "system", "regulation", "positive", "negative", "response", "process"),
-                       anno_width = unit(2, "in"), anno_size = c(6, 10),
+                       pvalueCutoff = NULL, padjustCutoff = 0.05, topTerm = 5, show_id = TRUE, topWord = 20, min_word_length = 3, exclude_words = c("cell", "cellular", "dna", "rna", "protein", "development", "system", "regulation", "positive", "negative", "response", "process"),
+                       anno_width = unit(c(4, 2, 2), "in"), anno_size = c(6, 10),
                        nlabel = 20, features_label = NULL, label_size = 10, label_color = "black",
                        heatmap_palette = "RdBu", cell_split_palette = "Paired", feature_split_palette = "jama",
                        cell_annotation = NULL, cell_palette = "Paired", cell_palcolor = NULL,
@@ -4094,7 +4102,7 @@ ExpHeatmap <- function(srt, features = NULL, feature_split = NULL, cluster_featu
       featurean <- feature_annotation[i]
       palette <- feature_palette[i]
       palcolor <- feature_palcolor[[i]]
-      feature_class <- feature_metadata[, featurean]
+      feature_class <- feature_metadata[features_unique, featurean]
       if (!is.factor(feature_class)) {
         feature_class <- factor(feature_class, levels = unique(feature_class))
       }
@@ -4116,11 +4124,11 @@ ExpHeatmap <- function(srt, features = NULL, feature_split = NULL, cluster_featu
       )
     }
   }
-  if (isTRUE(anno_enrichmnet) || isTRUE(anno_features)) {
+  if (isTRUE(anno_keys) || isTRUE(anno_features) || isTRUE(anno_terms)) {
     check_R("ggwordcloud")
     check_R("simplifyEnrichment")
-    geneID <- feature_metadata[, "features"]
-    geneID_groups <- feature_metadata[, "feature_split"]
+    geneID <- feature_metadata[features_unique, "features"]
+    geneID_groups <- feature_metadata[features_unique, "feature_split"]
     if (all(is.na(geneID_groups))) {
       geneID_groups <- rep(1, length(geneID))
     }
@@ -4151,7 +4159,38 @@ ExpHeatmap <- function(srt, features = NULL, feature_split = NULL, cluster_featu
       subdf_list <- df_list[unlist(lapply(nm, function(x) x[[1]])) %in% enrich]
 
       ha_terms <- NULL
-      if (isTRUE(anno_enrichmnet)) {
+      if (isTRUE(anno_terms)) {
+        ids_list <- lapply(subdf_list, function(df) {
+          if (isTRUE(show_id)) {
+            ids <- paste(head(df$ID, topTerm), head(df$Description, topTerm))
+          } else {
+            ids <- head(df$Description, topTerm)
+            ids <- paste(toupper(substr(ids, 1, 1)), substr(ids, 2, nchar(ids)), sep = "")
+          }
+          df_out <- data.frame(keyword = ids)
+          df_out[["col"]] <- palette_scp(-log10(head(df[, "p.adjust"], topTerm)), type = "continuous", palette = "Spectral", matched = TRUE)
+          df_out[["col"]] <- sapply(df_out[["col"]], function(x) blendcolors(c(x, "black")))
+          df_out[["fontsize"]] <- mean(anno_size)
+          return(df_out)
+        })
+        names(ids_list) <- unlist(lapply(nm, function(x) x[[2]]))
+        ha_terms <- HeatmapAnnotation(
+          id_empty = anno_empty(width = unit(0.05, "in"), border = FALSE),
+          id_cluster = anno_block(
+            gp = gpar(fill = palette_scp(geneID_groups, type = "discrete", palette = feature_split_palette)),
+            width = unit(0.1, "in")
+          ),
+          id = anno_textbox(
+            align_to = geneID_groups, text = ids_list, max_width = anno_width[1],
+            word_wrap = TRUE, add_new_line = TRUE,
+            background_gp = gpar(fill = "grey98", col = "black"), round_corners = TRUE
+          ),
+          which = "row", gap = unit(0, "points")
+        )
+      }
+
+      ha_keys <- NULL
+      if (isTRUE(anno_keys)) {
         term_list <- lapply(subdf_list, function(df) {
           if (df$Enrichment[1] %in% c("GO_BP", "GO_CC", "GO_MF")) {
             df <- simplifyEnrichment::keyword_enrichment_from_GO(df[["ID"]]) %>%
@@ -4194,14 +4233,14 @@ ExpHeatmap <- function(srt, features = NULL, feature_split = NULL, cluster_featu
           return(df)
         })
         names(term_list) <- unlist(lapply(nm, function(x) x[[2]]))
-        ha_terms <- HeatmapAnnotation(
+        ha_keys <- HeatmapAnnotation(
           terms_empty = anno_empty(width = unit(0.05, "in"), border = FALSE),
           terms_cluster = anno_block(
             gp = gpar(fill = palette_scp(geneID_groups, type = "discrete", palette = feature_split_palette)),
             width = unit(0.1, "in")
           ),
           terms = anno_textbox(
-            align_to = geneID_groups, text = term_list, max_width = anno_width,
+            align_to = geneID_groups, text = term_list, max_width = anno_width[2],
             background_gp = gpar(fill = "grey98", col = "black"), round_corners = TRUE
           ),
           which = "row", gap = unit(0, "points")
@@ -4241,13 +4280,16 @@ ExpHeatmap <- function(srt, features = NULL, feature_split = NULL, cluster_featu
             width = unit(0.1, "in")
           ),
           feat = anno_textbox(
-            align_to = geneID_groups, text = features_list, max_width = anno_width,
+            align_to = geneID_groups, text = features_list, max_width = anno_width[3],
             background_gp = gpar(fill = "grey98", col = "black"), round_corners = TRUE
           ),
           which = "row", gap = unit(0, "points")
         )
       }
-      ha_enrichment <- c(ha_terms, ha_features)
+
+      ha_enrichment <- list(ha_terms, ha_keys, ha_features)
+      ha_enrichment <- ha_enrichment[sapply(ha_enrichment, length) > 0]
+      ha_enrichment <- do.call(c, ha_enrichment)
 
       if (is.null(ha_right)) {
         ha_right <- ha_enrichment
@@ -4296,7 +4338,7 @@ ExpHeatmap <- function(srt, features = NULL, feature_split = NULL, cluster_featu
     )
   }
 
-  if (length(index) == 0 && is.null(anno_enrichmnet) && is.null(anno_features) && is.null(width) && is.null(height)) {
+  if (length(index) == 0 && is.null(anno_keys) && is.null(anno_features) && is.null(width) && is.null(height)) {
     fix <- FALSE
   } else {
     fix <- TRUE
@@ -7392,7 +7434,7 @@ DynamicPlot <- function(srt, features, lineages, slot = "counts", assay = "RNA",
 #'   lineages = c("Lineage1", "Lineage2"),
 #'   cell_annotation = "SubCellType",
 #'   n_split = 5, reverse_ht = "Lineage1",
-#'   species = "Mus_musculus", anno_enrichmnet = TRUE, anno_features = TRUE,
+#'   species = "Mus_musculus", anno_terms = TRUE, anno_keys = TRUE, anno_features = TRUE,
 #'   height = 6, width = 7, use_raster = FALSE
 #' )
 #' ht_result3$plot
@@ -7414,12 +7456,12 @@ DynamicHeatmap <- function(srt, lineages, feature_from = lineages,
                            feature_split = NULL, row_title_size = 12,
                            n_split = NULL, heatmap_split_by = lineages,
                            split_method = c("mfuzz", "kmeans", "kmeans-peaktime", "hclust", "hclust-peaktime"), fuzzification = NULL, show_fuzzification = FALSE,
-                           anno_enrichmnet = FALSE, anno_features = FALSE,
+                           anno_terms = FALSE, anno_keys = FALSE, anno_features = FALSE,
                            IDtype = "symbol", species = "Homo_sapiens", db_IDtype = "symbol", db_update = FALSE, db_version = "latest", Ensembl_version = 103, mirror = NULL,
                            enrichment = "GO_BP", TERM2GENE = NULL, TERM2NAME = NULL, minGSSize = 10, maxGSSize = 500, universe = NULL,
                            GO_simplify = TRUE, GO_simplify_padjustCutoff = 0.2, simplify_method = "Rel", simplify_similarityCutoff = 0.7,
-                           pvalueCutoff = NULL, padjustCutoff = 0.05, topWord = 20, min_word_length = 3, exclude_words = c("cell", "cellular", "dna", "rna", "protein", "development", "system", "regulation", "positive", "negative", "response", "process"),
-                           anno_width = unit(2, "in"), anno_size = c(6, 10),
+                           pvalueCutoff = NULL, padjustCutoff = 0.05, topTerm = 5, show_id = TRUE, topWord = 20, min_word_length = 3, exclude_words = c("cell", "cellular", "dna", "rna", "protein", "development", "system", "regulation", "positive", "negative", "response", "process"),
+                           anno_width = unit(c(4, 2, 2), "in"), anno_size = c(6, 10),
                            nlabel = 20, features_label = NULL, label_size = 10, label_color = "black",
                            pseudotime_label = NULL, pseudotime_label_color = "black",
                            pseudotime_label_linetype = 2, pseudotime_label_linewidth = 2,
@@ -7837,7 +7879,7 @@ DynamicHeatmap <- function(srt, lineages, feature_from = lineages,
   if (length(lineages) > 1) {
     ha_list <- list()
     for (l in lineages) {
-      ha_list[[l]] <- anno_simple(x = is.na(feature_metadata[, paste0(l, order_by)]) + 0, col = c("0" = "#181830", "1" = "white"), width = unit(0.5, "cm"), which = "row")
+      ha_list[[l]] <- anno_simple(x = is.na(feature_metadata[rownames(mat), paste0(l, order_by)]) + 0, col = c("0" = "#181830", "1" = "white"), width = unit(0.5, "cm"), which = "row")
     }
     ha_lineage <- do.call("HeatmapAnnotation", args = c(ha_list, which = "row", annotation_name_side = "top", border = TRUE))
     if (is.null(ha_right)) {
@@ -7851,7 +7893,7 @@ DynamicHeatmap <- function(srt, lineages, feature_from = lineages,
       featurean <- feature_annotation[i]
       palette <- feature_palette[i]
       palcolor <- feature_palcolor[[i]]
-      feature_class <- feature_metadata[, featurean]
+      feature_class <- feature_metadata[rownames(mat), featurean]
       if (!is.factor(feature_class)) {
         feature_class <- factor(feature_class, levels = unique(feature_class))
       }
@@ -7874,7 +7916,7 @@ DynamicHeatmap <- function(srt, lineages, feature_from = lineages,
     }
   }
 
-  if (isTRUE(anno_enrichmnet) || isTRUE(anno_features)) {
+  if (isTRUE(anno_keys) || isTRUE(anno_features) || isTRUE(anno_terms)) {
     check_R("ggwordcloud")
     check_R("simplifyEnrichment")
     clusters <- row_split %||% setNames(rep(1, nrow(mat_split)), rownames(mat_split))
@@ -7905,7 +7947,38 @@ DynamicHeatmap <- function(srt, lineages, feature_from = lineages,
       subdf_list <- df_list[unlist(lapply(nm, function(x) x[[1]])) %in% enrich]
 
       ha_terms <- NULL
-      if (isTRUE(anno_enrichmnet)) {
+      if (isTRUE(anno_terms)) {
+        ids_list <- lapply(subdf_list, function(df) {
+          if (isTRUE(show_id)) {
+            ids <- paste(head(df$ID, topTerm), head(df$Description, topTerm))
+          } else {
+            ids <- head(df$Description, topTerm)
+            ids <- paste(toupper(substr(ids, 1, 1)), substr(ids, 2, nchar(ids)), sep = "")
+          }
+          df_out <- data.frame(keyword = ids)
+          df_out[["col"]] <- palette_scp(-log10(head(df[, "p.adjust"], topTerm)), type = "continuous", palette = "Spectral", matched = TRUE)
+          df_out[["col"]] <- sapply(df_out[["col"]], function(x) blendcolors(c(x, "black")))
+          df_out[["fontsize"]] <- mean(anno_size)
+          return(df_out)
+        })
+        names(ids_list) <- unlist(lapply(nm, function(x) x[[2]]))
+        ha_terms <- HeatmapAnnotation(
+          id_empty = anno_empty(width = unit(0.05, "in"), border = FALSE),
+          id_cluster = anno_block(
+            gp = gpar(fill = palette_scp(clusters, type = "discrete", palette = feature_split_palette)),
+            width = unit(0.1, "in")
+          ),
+          id = anno_textbox(
+            align_to = clusters, text = ids_list, max_width = anno_width[1],
+            word_wrap = TRUE, add_new_line = TRUE,
+            background_gp = gpar(fill = "grey98", col = "black"), round_corners = TRUE
+          ),
+          which = "row", gap = unit(0, "points")
+        )
+      }
+
+      ha_keys <- NULL
+      if (isTRUE(anno_keys)) {
         term_list <- lapply(subdf_list, function(df) {
           if (df$Enrichment[1] %in% c("GO_BP", "GO_CC", "GO_MF")) {
             df <- simplifyEnrichment::keyword_enrichment_from_GO(df[["ID"]]) %>%
@@ -7948,14 +8021,14 @@ DynamicHeatmap <- function(srt, lineages, feature_from = lineages,
           return(df)
         })
         names(term_list) <- unlist(lapply(nm, function(x) x[[2]]))
-        ha_terms <- HeatmapAnnotation(
+        ha_keys <- HeatmapAnnotation(
           terms_empty = anno_empty(width = unit(0.05, "in"), border = FALSE),
           terms_cluster = anno_block(
             gp = gpar(fill = palette_scp(clusters, type = "discrete", palette = feature_split_palette)),
             width = unit(0.1, "in")
           ),
           terms = anno_textbox(
-            align_to = clusters, text = term_list, max_width = anno_width,
+            align_to = clusters, text = term_list, max_width = anno_width[2],
             background_gp = gpar(fill = "grey98", col = "black"), round_corners = TRUE
           ),
           which = "row", gap = unit(0, "points")
@@ -7995,13 +8068,16 @@ DynamicHeatmap <- function(srt, lineages, feature_from = lineages,
             width = unit(0.1, "in")
           ),
           feat = anno_textbox(
-            align_to = clusters, text = features_list, max_width = anno_width,
+            align_to = clusters, text = features_list, max_width = anno_width[3],
             background_gp = gpar(fill = "grey98", col = "black"), round_corners = TRUE
           ),
           which = "row", gap = unit(0, "points")
         )
       }
-      ha_enrichment <- c(ha_terms, ha_features)
+
+      ha_enrichment <- list(ha_terms, ha_keys, ha_features)
+      ha_enrichment <- ha_enrichment[sapply(ha_enrichment, length) > 0]
+      ha_enrichment <- do.call(c, ha_enrichment)
 
       if (is.null(ha_right)) {
         ha_right <- ha_enrichment
@@ -8048,7 +8124,7 @@ DynamicHeatmap <- function(srt, lineages, feature_from = lineages,
     )
   }
 
-  if (length(index) == 0 && is.null(anno_enrichmnet) && is.null(anno_features) && is.null(width) && is.null(height)) {
+  if (length(index) == 0 && is.null(anno_keys) && is.null(anno_features) && is.null(width) && is.null(height)) {
     fix <- FALSE
   } else {
     fix <- TRUE

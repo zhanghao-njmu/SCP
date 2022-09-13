@@ -291,7 +291,7 @@ DEGs <- pancreas1k@tools$DEtest_CellType$AllMarkers_wilcox
 DEGs <- DEGs[with(DEGs, avg_log2FC > 1 & p_val_adj < 0.05), ]
 ht <- ExpHeatmap(
   srt = pancreas1k, features = DEGs$gene, feature_split = DEGs$group1, cell_split_by = "CellType",
-  species = "Mus_musculus", anno_enrichmnet = TRUE, anno_features = TRUE,
+  species = "Mus_musculus", anno_terms = TRUE, anno_keys = TRUE, anno_features = TRUE,
   row_title_size = 0, height = 5, width = 7
 )
 print(ht$plot)
@@ -366,7 +366,7 @@ pancreas1k <- RunDynamicFeatures(srt = pancreas1k, lineages = c("Lineage1", "Lin
 ht <- DynamicHeatmap(
   srt = pancreas1k, lineages = c("Lineage1", "Lineage2"), cell_annotation = "SubCellType",
   n_split = 5, reverse_ht = "Lineage1",
-  species = "Mus_musculus", anno_enrichmnet = TRUE, anno_features = TRUE,
+  species = "Mus_musculus", anno_terms = TRUE, anno_keys = TRUE, anno_features = TRUE,
   height = 5, width = 7, use_raster = FALSE
 )
 print(ht$plot)

@@ -22,7 +22,8 @@ ExpHeatmap(
   decreasing = TRUE,
   lib_normalize = TRUE,
   libsize = NULL,
-  anno_enrichmnet = FALSE,
+  anno_terms = FALSE,
+  anno_keys = FALSE,
   anno_features = FALSE,
   IDtype = "symbol",
   species = "Homo_sapiens",
@@ -43,11 +44,13 @@ ExpHeatmap(
   simplify_similarityCutoff = 0.7,
   pvalueCutoff = NULL,
   padjustCutoff = 0.05,
+  topTerm = 5,
+  show_id = TRUE,
   topWord = 20,
   min_word_length = 3,
   exclude_words = c("cell", "cellular", "dna", "rna", "protein", "development",
     "system", "regulation", "positive", "negative", "response", "process"),
-  anno_width = unit(2, "in"),
+  anno_width = unit(c(4, 2, 2), "in"),
   anno_size = c(6, 10),
   nlabel = 20,
   features_label = NULL,
@@ -92,7 +95,7 @@ ht2$plot
 
 ht3 <- ExpHeatmap(
   srt = pancreas1k, features = de_filter$gene, feature_split = de_filter$group1, cell_split_by = "CellType",
-  species = "Mus_musculus", anno_enrichmnet = TRUE, anno_features = TRUE
+  species = "Mus_musculus", anno_terms = TRUE, anno_keys = TRUE, anno_features = TRUE
 )
 ht3$plot
 

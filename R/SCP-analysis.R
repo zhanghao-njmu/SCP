@@ -543,7 +543,7 @@ CellScoring <- function(srt, features, ncores = 1, method = "Seurat", classifica
 RunDEtest <- function(srt, group_by = NULL, group1 = NULL, group2 = NULL, cells1 = NULL, cells2 = NULL,
                       FindAllMarkers = TRUE, FindPairedMarkers = FALSE,
                       test.use = "wilcox", only.pos = TRUE,
-                      fc.threshold = 1.5, min.pct = 0.1, min.diff.pct = -Inf, max.cells.per.ident = Inf, latent.vars = NULL,
+                      fc.threshold = 1.5, base = 2, min.pct = 0.1, min.diff.pct = -Inf, max.cells.per.ident = Inf, latent.vars = NULL,
                       slot = "data", assay = "RNA", BPPARAM = BiocParallel::bpparam(), progressbar = TRUE, force = FALSE, ...) {
   if ("progressbar" %in% names(BPPARAM)) {
     BPPARAM[["progressbar"]] <- progressbar
@@ -584,7 +584,7 @@ RunDEtest <- function(srt, group_by = NULL, group1 = NULL, group2 = NULL, cells1
       cells.1 = cells1,
       cells.2 = cells2,
       test.use = test.use,
-      logfc.threshold = log2(fc.threshold),
+      logfc.threshold = log(fc.threshold, base = base),
       min.pct = min.pct,
       min.diff.pct = min.diff.pct,
       max.cells.per.ident = max.cells.per.ident,
@@ -630,6 +630,23 @@ RunDEtest <- function(srt, group_by = NULL, group1 = NULL, group2 = NULL, cells1
     })
     cell_group <- setNames(unlist(lapply(cell_group, function(x) x), use.names = F), unlist(lapply(cell_group, names)))
 
+    args1 <- list(
+      object = Assays(srt, assay),
+      slot = slot,
+      test.use = test.use,
+      logfc.threshold = log(fc.threshold, base = base),
+      min.pct = min.pct,
+      min.diff.pct = min.diff.pct,
+      max.cells.per.ident = Inf,
+      latent.vars = latent.vars,
+      only.pos = only.pos,
+      verbose = FALSE
+    )
+    args2 <- as.list(match.call())[-1]
+    for (n in names(args2)[!names(args2) %in% names(formals())]) {
+      args1[[n]] <- args2[[n]]
+    }
+
     if (isTRUE(FindAllMarkers)) {
       cat("Perform FindAllMarkers(", test.use, ")...\n", sep = "")
       AllMarkers <- bplapply(levels(cell_group), FUN = function(group) {
@@ -639,20 +656,9 @@ RunDEtest <- function(srt, group_by = NULL, group1 = NULL, group2 = NULL, cells1
         if (length(cells.1) < 3 | length(cells.2) < 3) {
           return(NULL)
         } else {
-          markers <- FindMarkers(
-            object = Assays(srt, assay), slot = slot,
-            cells.1 = cells.1,
-            cells.2 = cells.2,
-            test.use = test.use,
-            logfc.threshold = log2(fc.threshold),
-            min.pct = min.pct,
-            min.diff.pct = min.diff.pct,
-            max.cells.per.ident = Inf,
-            latent.vars = latent.vars,
-            only.pos = only.pos,
-            verbose = FALSE,
-            ...
-          )
+          args1[["cells.1"]] <- cells.1
+          args1[["cells.2"]] <- cells.2
+          markers <- do.call(FindMarkers, args1)
           if (nrow(markers) > 0) {
             markers[, "gene"] <- rownames(markers)
             markers[, "group1"] <- as.character(group)
@@ -690,20 +696,9 @@ RunDEtest <- function(srt, group_by = NULL, group1 = NULL, group2 = NULL, cells1
           if (length(cells.1) < 3 | length(cells.2) < 3) {
             return(NULL)
           } else {
-            markers <- FindMarkers(
-              object = Assays(srt, assay), slot = slot,
-              cells.1 = cells.1,
-              cells.2 = cells.2,
-              test.use = test.use,
-              logfc.threshold = log2(fc.threshold),
-              min.pct = min.pct,
-              min.diff.pct = min.diff.pct,
-              max.cells.per.ident = Inf,
-              latent.vars = latent.vars,
-              only.pos = only.pos,
-              verbose = FALSE,
-              ...
-            )
+            args1[["cells.1"]] <- cells.1
+            args1[["cells.2"]] <- cells.2
+            markers <- do.call(FindMarkers, args1)
             if (nrow(markers) > 0) {
               markers[, "gene"] <- rownames(markers)
               markers[, "group1"] <- as.character(pair[i, 1])
@@ -2370,6 +2365,16 @@ srt_to_adata <- function(srt,
     adata$obsm <- reduction_list
   }
 
+  # varm_list <- list()
+  # for (reduction in names(srt@reductions)) {
+  #   if (ncol(srt[[reduction]]@feature.loadings) > 0) {
+  #     varm_list[[paste0(reduction, "_feature.loadings")]] <- srt[[reduction]]@feature.loadings
+  #   }
+  # }
+  # if (length(varm_list) > 0) {
+  #   adata$varm <- varm_list
+  # }
+
   obsp_list <- list()
   for (graph in names(srt@graphs)) {
     obsp_list[[graph]] <- srt[[graph]]
@@ -2471,7 +2476,11 @@ adata_to_srt <- function(adata) {
   }
   if (length(iterate(adata$obsm$keys())) > 0) {
     for (k in iterate(adata$obsm$keys())) {
-      obsm <- adata$obsm[[k]]
+      obsm <- tryCatch(adata$obsm[[k]], error = identity)
+      if (inherits(obsm, "error")) {
+        warning("'obsm: ", k, "' will not be converted. You may need to convert it manually.")
+        next
+      }
       colnames(obsm) <- paste0(k, "_", seq_len(ncol(obsm)))
       rownames(obsm) <- adata$obs_names$values
       srt[[k]] <- CreateDimReducObject(embeddings = obsm, assay = "RNA", key = paste0(k, "_"))
@@ -2479,7 +2488,11 @@ adata_to_srt <- function(adata) {
   }
   if (length(iterate(adata$obsp$keys())) > 0) {
     for (k in iterate(adata$obsp$keys())) {
-      obsp <- adata$obsp[[k]]
+      obsp <- tryCatch(adata$obsp[[k]], error = identity)
+      if (inherits(obsp, "error")) {
+        warning("'obsp: ", k, "' will not be converted. You may need to convert it manually.")
+        next
+      }
       colnames(obsp) <- adata$obs_names$values
       rownames(obsp) <- adata$obs_names$values
       obsp <- as.Graph(obsp[seq_len(nrow(obsp)), ])
@@ -2493,29 +2506,42 @@ adata_to_srt <- function(adata) {
   }
   if (length(iterate(adata$varm$keys())) > 0) {
     for (k in iterate(adata$varm$keys())) {
-      varm <- adata$varm[[k]]
-      colnames(varm) <- adata$var_names$values
+      varm <- tryCatch(adata$varm[[k]], error = identity)
+      if (inherits(varm, "error")) {
+        warning("'varm: ", k, "' will not be converted. You may need to convert it manually.")
+        next
+      }
+      colnames(varm) <- paste0(k, "_", seq_len(ncol(varm)))
       rownames(varm) <- adata$var_names$values
-      srt[["RNA"]]@misc[["reductions"]][[k]] <- varm
+      srt[["RNA"]]@misc[["feature.loadings"]][[k]] <- varm
     }
   }
   if (length(iterate(adata$varp$keys())) > 0) {
     for (k in iterate(adata$varp$keys())) {
-      varp <- adata$varp[[k]]
+      varp <- tryCatch(adata$varp[[k]], error = identity)
+      if (inherits(varp, "error")) {
+        warning("'varp: ", k, "' will not be converted. You may need to convert it manually.")
+        next
+      }
       colnames(varp) <- adata$var_names$values
       rownames(varp) <- adata$var_names$values
-      srt[["RNA"]]@misc[["graphs"]][[k]] <- varp
+      srt[["RNA"]]@misc[["feature.graphs"]][[k]] <- varp
     }
   }
 
   if (length(iterate(adata$uns$keys())) > 0) {
     for (k in iterate(adata$uns$keys())) {
-      uns <- adata$uns[[k]]
+      uns <- tryCatch(adata$uns[[k]], error = identity)
+      if (inherits(uns, "error")) {
+        warning("'uns: ", k, "' will not be converted. You may need to convert it manually.")
+        next
+      }
       uns <- check_python_element(uns)
-      if (!"python.builtin.object" %in% class(uns)) {
+      if (!inherits(uns, "python.builtin.object")) {
         srt@misc[[k]] <- uns
       } else {
-        warning("'uns: ", k, "' will not be converted. It is a Python object connected with the Python session. You may need to convert manually.", immediate. = TRUE)
+        warning("'uns: ", k, "' will not be converted. You may need to convert it manually.", immediate. = TRUE)
+        next
       }
     }
   }
@@ -2531,9 +2557,10 @@ maxDepth <- function(x, depth = 0) {
 }
 
 #' @importFrom reticulate py_to_r
+#' @export
 check_python_element <- function(x, depth = maxDepth(x)) {
   if (depth == 0 || !is.list(x)) {
-    if ("python.builtin.object" %in% class(x)) {
+    if (inherits(x, "python.builtin.object")) {
       x_r <- tryCatch(py_to_r(x), error = identity)
       if (inherits(x_r, "error")) {
         return(x)
@@ -2546,7 +2573,7 @@ check_python_element <- function(x, depth = maxDepth(x)) {
   } else {
     raw_depth <- maxDepth(x)
     x <- lapply(x, function(element) {
-      if ("python.builtin.object" %in% class(element)) {
+      if (inherits(element, "python.builtin.object")) {
         element_r <- tryCatch(py_to_r(element), error = identity)
         if (inherits(element_r, "error")) {
           return(element)

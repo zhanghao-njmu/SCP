@@ -895,8 +895,12 @@ RunUMAP2.default <- function(object, assay = NULL,
     }
     if (inherits(x = object, what = "Graph")) {
       # object<- srt@graphs$BBKNN
-      object <- as.matrix(object)
       diag(object) <- 0
+      if (inherits(object, what = "dgCMatrix")) {
+        object <- as_matrix(object)
+      } else {
+        object <- as.matrix(object)
+      }
       if (!isSymmetric(object)) {
         stop("Graph must be a symmetric matrix.")
       }
@@ -994,9 +998,12 @@ RunUMAP2.default <- function(object, assay = NULL,
       return(reduction)
     }
     if (inherits(x = object, what = "Graph")) {
-      # object <- srt@graphs$BBKNN
-      object <- as.matrix(object)
       diag(object) <- 0
+      if (inherits(object, what = "dgCMatrix")) {
+        object <- as_matrix(object)
+      } else {
+        object <- as.matrix(object)
+      }
       if (!isSymmetric(object)) {
         stop("Graph must be a symmetric matrix.")
       }
