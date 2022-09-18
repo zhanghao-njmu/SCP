@@ -525,7 +525,10 @@ RunDM.Seurat <- function(object,
 #' @rdname RunDM
 #' @concept dimensional_reduction
 #' @importFrom parallelDist parDist
+#' @importFrom utils capture.output
 #' @importFrom Seurat CreateDimReducObject
+#' @importFrom rlang "%||%"
+#' @importFrom destiny DiffusionMap
 #' @export
 #' @method RunDM matrix
 #'
@@ -537,28 +540,42 @@ RunDM.matrix <- function(object, ndcs = 2, sigma = "local", k = 30, dist.method 
   }
   ndcs <- min(ndcs, nrow(x = object) - 1)
   x <- as.matrix(object)
-  if (dist.method %in% c("pearson", "spearman")) {
-    if (dist.method == "spearman") {
-      x <- t(apply(x, 1, rank))
-    }
-    x <- t(apply(x, 1, function(x) x - mean(x)))
-    dist.method <- "cosine"
-  }
-  cell.dist <- parDist(x = x, method = dist.method)
-  reduction <- RunDM(
-    object = cell.dist,
-    exprs = x,
-    ndcs = ndcs,
-    sigma = sigma,
-    k = k,
+  dm.results <- DiffusionMap(data = x, n_eigs = ndcs, sigma = sigma, k = k, distance = dist.method, verbose = verbose)
+  # set.seed(11);plot(dm.results)
+  # knn <- get_knn(NULL, dists, k, distance, knn_params,verbose)
+  # gene.relevance <- gene_relevance(coords=dm.results@eigenvectors,verbose=verbose)
+  cell.embeddings <- dm.results@eigenvectors
+  rownames(x = cell.embeddings) <- attr(object, "Labels")
+  colnames(x = cell.embeddings) <- paste0(reduction.key, 1:ndcs)
+  reduction <- CreateDimReducObject(
+    embeddings = cell.embeddings,
     assay = assay,
-    slot = slot,
-    reduction.key = reduction.key,
-    seed.use = seed.use,
-    verbose = verbose,
-    ...
+    key = reduction.key,
+    misc = list(slot = slot, dm.results = dm.results)
   )
   return(reduction)
+  # if (dist.method %in% c("pearson", "spearman")) {
+  #   if (dist.method == "spearman") {
+  #     x <- t(apply(x, 1, rank))
+  #   }
+  #   x <- t(apply(x, 1, function(x) x - mean(x)))
+  #   dist.method <- "cosine"
+  # }
+  # cell.dist <- parDist(x = x, method = dist.method)
+  # reduction <- RunDM(
+  #   object = cell.dist,
+  #   exprs = x,
+  #   ndcs = ndcs,
+  #   sigma = sigma,
+  #   k = k,
+  #   assay = assay,
+  #   slot = slot,
+  #   reduction.key = reduction.key,
+  #   seed.use = seed.use,
+  #   verbose = verbose,
+  #   ...
+  # )
+  # return(reduction)
 }
 
 #' @param ndcs Total Number of DM to compute and store (2 by default).
@@ -582,6 +599,7 @@ RunDM.matrix <- function(object, ndcs = 2, sigma = "local", k = 30, dist.method 
 #' @importFrom utils capture.output
 #' @importFrom Seurat CreateDimReducObject
 #' @importFrom rlang "%||%"
+#' @importFrom destiny DiffusionMap
 #' @export
 RunDM.dist <- function(object,
                        ndcs = 2, sigma = "local", k = 30, slot = "data",
@@ -589,11 +607,11 @@ RunDM.dist <- function(object,
   if (!is.null(x = seed.use)) {
     set.seed(seed = seed.use)
   }
-  if (is.null(k)) {
-    k <- destiny::find_dm_k(destiny:::dataset_n_observations(data = NULL, distances = object) - 1L)
-  }
   # message("Number of nearest neighbors: ", k)
   dm.results <- destiny::DiffusionMap(distance = object, n_eigs = ndcs, sigma = sigma, k = k, verbose = verbose)
+  set.seed(11)
+  plot(dm.results)
+  # knn <- get_knn(NULL, dists, k, distance, knn_params,verbose)
   # gene.relevance <- gene_relevance(coords=dm.results@eigenvectors,verbose=verbose)
   cell.embeddings <- dm.results@eigenvectors
   rownames(x = cell.embeddings) <- attr(object, "Labels")
@@ -837,9 +855,9 @@ RunUMAP2.default <- function(object, assay = NULL,
     umap.config$random_state <- seed.use
     umap.config$transform_state <- seed.use
     umap.config$verbose <- verbose
-    # if (is.na(umap.config$a) || is.na(umap.config$b)) {
-    #   umap.config[c("a", "b")] <- umap:::find.ab.params(umap.config$spread, umap.config$min_dist)
-    # }
+    if (is.na(umap.config$a) || is.na(umap.config$b)) {
+      umap.config[c("a", "b")] <- umap:::find.ab.params(umap.config$spread, umap.config$min_dist)
+    }
 
     if (inherits(x = object, what = "dist")) {
       knn <- umap:::knn.from.dist(d = object, k = n.neighbors)
@@ -894,17 +912,62 @@ RunUMAP2.default <- function(object, assay = NULL,
       return(reduction)
     }
     if (inherits(x = object, what = "Graph")) {
-      # object<- srt@graphs$BBKNN
-      diag(object) <- 0
-      if (inherits(object, what = "dgCMatrix")) {
-        object <- as_matrix(object)
-      } else {
-        object <- as.matrix(object)
+      if (!inherits(object, "dgCMatrix")) {
+        object <- as(object[1:nrow(object), ], "dgCMatrix")
       }
-      if (!isSymmetric(object)) {
+      diag(object) <- 0
+      if (ncol(object) > 10000) {
+        obs_sample <- sample(1:ncol(object), size = 10000)
+      } else {
+        obs_sample <- 1:ncol(object)
+      }
+      if (!isSymmetric(as.matrix(object[obs_sample, obs_sample]))) {
         stop("Graph must be a symmetric matrix.")
       }
-      graph <- umap:::coo(object)
+
+      coo <- matrix(ncol = 3, nrow = length(object@x))
+      coo[, 1] <- rep(1:ncol(object), diff(object@p))
+      coo[, 2] <- object@i + 1
+      coo[, 3] <- object@x
+      colnames(coo) <- c("from", "to", "value")
+      coo <- coo[order(coo[, 1], coo[, 2]), ]
+      graph <- list(coo = coo, names = rownames(object), n.elements = nrow(object))
+      class(graph) <- "coo"
+
+      # diag(object) <- 0
+      # if (inherits(object, what = "dgCMatrix")) {
+      #   object <- as_matrix(object)
+      # } else {
+      #   object <- as.matrix(object)
+      # }
+      # if (!isSymmetric(object)) {
+      #   stop("Graph must be a symmetric matrix.")
+      # }
+      # graph <- umap:::coo(object)
+      # # coo <- function(x) {
+      # #   if (!is(x, "Matrix")) {
+      # #     stop("x must be a square matrix\n")
+      # #   }
+      # #   if (nrow(x) != ncol(x)) {
+      # #     stop("x must be a square matrix\n")
+      # #   }
+      # #   nx <- nrow(x)
+      # #   coo <- matrix(0, ncol = 3, nrow = nx * nx)
+      # #   coo[, 1] <- rep(seq_len(nx), nx)
+      # #   coo[, 2] <- rep(seq_len(nx), each = nx)
+      # #   coo[, 3] <- as.vector(x)
+      # #   colnames(coo) <- c("from", "to", "value")
+      # #   coo <- coo[order(coo[, 1], coo[, 2]), ]
+      # #   make.coo(coo, rownames(x), nrow(x))
+      # # }
+      # # make.coo <- function(x, names, n.elements) {
+      # #   x <- x[, 1:3, drop = FALSE]
+      # #   colnames(x) <- c("from", "to", "value")
+      # #   result <- list(coo = x, names = names, n.elements = n.elements)
+      # #   class(result) <- "coo"
+      # #   result
+      # # }
+
       umap.config$init <- "spectral"
       initial <- umap:::make.initial.embedding(V = graph$n.elements, config = umap.config, g = graph)
       embeddings <- umap:::naive.simplicial.set.embedding(g = graph, embedding = initial, config = umap.config)
@@ -998,19 +1061,35 @@ RunUMAP2.default <- function(object, assay = NULL,
       return(reduction)
     }
     if (inherits(x = object, what = "Graph")) {
-      diag(object) <- 0
-      if (inherits(object, what = "dgCMatrix")) {
-        object <- as_matrix(object)
-      } else {
-        object <- as.matrix(object)
+      if (!inherits(object, "dgCMatrix")) {
+        object <- as(object[1:nrow(object), ], "dgCMatrix")
       }
-      if (!isSymmetric(object)) {
+      diag(object) <- 0
+      if (ncol(object) > 10000) {
+        obs_sample <- sample(1:ncol(object), size = 10000)
+      } else {
+        obs_sample <- 1:ncol(object)
+      }
+      if (!isSymmetric(as.matrix(object[obs_sample, obs_sample]))) {
         stop("Graph must be a symmetric matrix.")
       }
-      idx <- t(as.matrix(apply(object, 2, function(x) order(x, decreasing = TRUE)[1:n.neighbors])))
-      connectivity <- t(as.matrix(apply(object, 2, function(x) x[order(x, decreasing = TRUE)[1:n.neighbors]])))
-      idx[connectivity == 0] <- sample(1:nrow(object), size = sum(connectivity == 0), replace = TRUE)
+      val <- split(object@x, rep(1:ncol(object), diff(object@p)))
+      pos <- split(object@i + 1, rep(1:ncol(object), diff(object@p)))
+      idx <- t(mapply(function(x, y) {
+        out <- y[head(order(x, decreasing = TRUE), n.neighbors)]
+        length(out) <- n.neighbors
+        return(out)
+      }, x = val, y = pos))
+      connectivity <- t(mapply(function(x, y) {
+        out <- y[head(order(x, decreasing = TRUE), n.neighbors)]
+        length(out) <- n.neighbors
+        out[is.na(out)] <- 0
+        return(out)
+      }, x = val, y = val))
+      idx[is.na(idx)] <- sample(1:nrow(object), size = sum(connectivity == 0), replace = TRUE)
       nn <- list(idx = idx, dist = max(connectivity) - connectivity + min(diff(range(connectivity)), 1) / 1e50)
+      # idx <- t(as.matrix(apply(object, 2, function(x) order(x, decreasing = TRUE)[1:n.neighbors])))
+      # connectivity <- t(as.matrix(apply(object, 2, function(x) x[order(x, decreasing = TRUE)[1:n.neighbors]])))
       out <- uwot::umap(
         X = NULL, nn_method = nn, n_threads = 1, n_components = n.components,
         metric = metric, n_epochs = n.epochs, learning_rate = learning.rate,

@@ -22,7 +22,7 @@ ExpVlnPlot(
   bg_apha = 0.5,
   add_box = TRUE,
   box_fill = "black",
-  box_width = 0.3,
+  box_width = 0.2,
   add_point = FALSE,
   pt.color = "black",
   pt.size = NULL,

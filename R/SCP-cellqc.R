@@ -13,7 +13,7 @@
 #' @importFrom Seurat as.SingleCellExperiment
 #' @export
 db_scDblFinder <- function(srt, assay = "RNA", db_rate = ncol(srt) / 1000 * 0.01, ...) {
-  if (class(srt) != "Seurat") {
+  if (!inherits(srt, "Seurat")) {
     stop("'srt' is not a Seurat object.")
   }
   status <- check_DataType(srt, slot = "counts", assay = assay)
@@ -44,7 +44,7 @@ db_scDblFinder <- function(srt, assay = "RNA", db_rate = ncol(srt) / 1000 * 0.01
 #' @importFrom Seurat as.SingleCellExperiment
 #' @export
 db_scds <- function(srt, assay = "RNA", db_rate = ncol(srt) / 1000 * 0.01, method = "hybrid", ...) {
-  if (class(srt) != "Seurat") {
+  if (!inherits(srt, "Seurat")) {
     stop("'srt' is not a Seurat object.")
   }
   status <- check_DataType(srt, slot = "counts", assay = assay)
@@ -80,7 +80,7 @@ db_scds <- function(srt, assay = "RNA", db_rate = ncol(srt) / 1000 * 0.01, metho
 #' @importFrom Seurat GetAssayData
 #' @export
 db_Scrublet <- function(srt, assay = "RNA", db_rate = ncol(srt) / 1000 * 0.01, ...) {
-  if (class(srt) != "Seurat") {
+  if (!inherits(srt, "Seurat")) {
     stop("'srt' is not a Seurat object.")
   }
   status <- check_DataType(srt, slot = "counts", assay = assay)
@@ -121,7 +121,7 @@ db_Scrublet <- function(srt, assay = "RNA", db_rate = ncol(srt) / 1000 * 0.01, .
 #' @importFrom Seurat GetAssayData
 #' @export
 db_DoubletDetection <- function(srt, assay = "RNA", db_rate = ncol(srt) / 1000 * 0.01, ...) {
-  if (class(srt) != "Seurat") {
+  if (!inherits(srt, "Seurat")) {
     stop("'srt' is not a Seurat object.")
   }
   status <- check_DataType(srt, slot = "counts", assay = assay)
@@ -171,7 +171,7 @@ db_DoubletDetection <- function(srt, assay = "RNA", db_rate = ncol(srt) / 1000 *
 #' @export
 #'
 RunDoubletCalling <- function(srt, assay = "RNA", db_method = "scDblFinder", db_rate = ncol(srt) / 1000 * 0.01, ...) {
-  if (class(srt) != "Seurat") {
+  if (!inherits(srt, "Seurat")) {
     stop("'srt' is not a Seurat object.")
   }
   status <- check_DataType(srt, slot = "counts", assay = assay)
@@ -297,7 +297,7 @@ RunCellQC <- function(srt, assay = "RNA",
                       seed = 11) {
   set.seed(seed)
 
-  if (class(srt) != "Seurat") {
+  if (!inherits(srt, "Seurat")) {
     stop("'srt' is not a Seurat object.")
   }
   if (!isTRUE(assay %in% Seurat::Assays(srt))) {

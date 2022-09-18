@@ -34,7 +34,7 @@ CreateDataFile <- function(srt, DataFile, name = NULL, assays = "RNA", slots = "
   message("Write the expression matrix to hdf5 file: ", DataFile)
   for (assay in assays) {
     for (slot in slots) {
-      data <- GetAssayData(srt, slot = slot, assay = assay)
+      data <- t(GetAssayData(srt, slot = slot, assay = assay))
       if (isTRUE(overwrite)) {
         try(h5delete(file = DataFile, name = paste0(name, "/", assay, "/", slot)), silent = TRUE)
       }
@@ -43,6 +43,9 @@ CreateDataFile <- function(srt, DataFile, name = NULL, assays = "RNA", slots = "
       } else {
         if (!paste0(name, "/", assay) %in% h5ls(DataFile)$group) {
           h5createGroup(file = DataFile, group = paste0(name, "/", assay))
+        }
+        if (!inherits(data, "dgCMatrix")) {
+          data <- as(data[1:nrow(data), ], "dgCMatrix")
         }
         writeTENxMatrix(x = t(data), filepath = DataFile, group = paste0(name, "/", assay, "/", slot), level = compression_level)
       }
@@ -117,7 +120,7 @@ CreateMetaFile <- function(srt, MetaFile, name = NULL, write_tools = FALSE, writ
   meta_asgroups <- c()
   for (var in colnames(srt[[]])) {
     meta <- srt[[var, drop = TRUE]][colnames(srt)]
-    if ("factor" %in% class(meta)) {
+    if (inherits(meta, "factor")) {
       levels <- levels(meta)
       meta <- as.character(meta)
       attr(meta, "levels") <- levels
@@ -125,7 +128,7 @@ CreateMetaFile <- function(srt, MetaFile, name = NULL, write_tools = FALSE, writ
     } else {
       write.attributes <- FALSE
     }
-    if ("numeric" %in% class(meta)) {
+    if (inherits(meta, "numeric")) {
       meta <- as.double(meta)
       meta_asfeatures <- c(meta_asfeatures, var)
     }
@@ -248,7 +251,7 @@ PrepareSCExplorer <- function(object,
   if (!is.list(object)) {
     object <- list(object)
   }
-  if (any(sapply(object, function(x) !"Seurat" %in% class(x)))) {
+  if (any(sapply(object, function(x) !inherits(x, "Seurat")))) {
     stop("'object' must be one Seurat object or a list of Seurat object.")
   }
   if (length(names(object)) > 0 && length(names(object)) != length(object)) {

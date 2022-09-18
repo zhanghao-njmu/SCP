@@ -8,7 +8,7 @@
 #' @param species_from Latin names for animals of the input geneID.
 #' @param species_to Latin names for animals of the output geneID. e.g. "Homo_sapiens","Mus_musculus"
 #' @param Ensembl_version Ensembl database version. If NULL, use the current release version.
-#' @param try_times Times when trying to connect with the biomart service.
+#' @param attempts Number of attempts to connect with the biomart service.
 #' @param mirror Specify an Ensembl mirror to connect to. The valid options here are 'www', 'uswest', 'useast', 'asia'.
 #'
 #' @return A list.
@@ -28,7 +28,7 @@
 #'
 GeneConvert <- function(geneID, geneID_from_IDtype = "symbol", geneID_to_IDtype = "entrez_id",
                         species_from = "Homo_sapiens", species_to = NULL,
-                        Ensembl_version = 103, try_times = 5, mirror = NULL) {
+                        Ensembl_version = 103, attempts = 5, mirror = NULL) {
   if (require("httr", quietly = TRUE)) {
     httr::set_config(httr::config(ssl_verifypeer = FALSE, ssl_verifyhost = FALSE))
   }
@@ -102,7 +102,7 @@ GeneConvert <- function(geneID, geneID_from_IDtype = "symbol", geneID_to_IDtype 
       Sys.sleep(1)
       return(NULL)
     })
-    if (is.null(archives) && ntry >= try_times) {
+    if (is.null(archives) && ntry >= attempts) {
       stop("Stop connecting...")
     }
   }
@@ -152,7 +152,7 @@ GeneConvert <- function(geneID, geneID_from_IDtype = "symbol", geneID_to_IDtype 
         }
       )
     }
-    if (is.null(mart) && ntry >= try_times) {
+    if (is.null(mart) && ntry >= attempts) {
       stop("Stop connecting...")
     }
   }
@@ -179,7 +179,7 @@ GeneConvert <- function(geneID, geneID_from_IDtype = "symbol", geneID_to_IDtype 
         return(NULL)
       }
     )
-    if (is.null(mart1) && ntry >= try_times) {
+    if (is.null(mart1) && ntry >= attempts) {
       stop("Stop connecting...")
     }
   }
@@ -206,7 +206,7 @@ GeneConvert <- function(geneID, geneID_from_IDtype = "symbol", geneID_to_IDtype 
           return(NULL)
         }
       )
-      if (is.null(mart2) && ntry >= try_times) {
+      if (is.null(mart2) && ntry >= attempts) {
         stop("Stop connecting...")
       }
     }
@@ -376,7 +376,7 @@ GeneConvert <- function(geneID, geneID_from_IDtype = "symbol", geneID_to_IDtype 
 #' names(ccgenes)
 #' @importFrom R.cache loadCache saveCache
 #' @export
-CC_GenePrefetch <- function(species, Ensembl_version = 103, mirror = NULL, try_times = 5, use_cached_gene = TRUE) {
+CC_GenePrefetch <- function(species, Ensembl_version = 103, mirror = NULL, attempts = 5, use_cached_gene = TRUE) {
   cc_S_genes <- Seurat::cc.genes.updated.2019$s.genes
   cc_G2M_genes <- Seurat::cc.genes.updated.2019$g2m.genes
   res <- NULL
@@ -392,7 +392,7 @@ CC_GenePrefetch <- function(species, Ensembl_version = 103, mirror = NULL, try_t
         species_from = "Homo_sapiens",
         species_to = species,
         Ensembl_version = Ensembl_version,
-        try_times = try_times,
+        attempts = attempts,
         mirror = mirror
       )
       saveCache(res, key = list(species))
@@ -1231,6 +1231,7 @@ RunEnrichment <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_t
   if (!is.factor(geneID_groups)) {
     geneID_groups <- factor(geneID_groups, levels = unique(geneID_groups))
   }
+  geneID_groups <- factor(geneID_groups, levels = levels(geneID_groups)[levels(geneID_groups) %in% geneID_groups])
   if (length(geneID_groups) != length(geneID)) {
     stop("length(geneID_groups)!=length(geneID)")
   }
@@ -1462,6 +1463,7 @@ RunGSEA <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_thresho
   if (!is.factor(geneID_groups)) {
     geneID_groups <- factor(geneID_groups, levels = unique(geneID_groups))
   }
+  geneID_groups <- factor(geneID_groups, levels = levels(geneID_groups)[levels(geneID_groups) %in% geneID_groups])
   if (length(geneID_groups) != length(geneID)) {
     stop("length(geneID_groups)!=length(geneID)")
   }
@@ -1687,7 +1689,7 @@ RunGSEA <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_thresho
 #' @importFrom Seurat AddMetaData as.SingleCellExperiment
 #' @importFrom slingshot slingshot slingPseudotime slingBranchID
 #' @export
-RunSlingshot <- function(srt, group.by, reduction = NULL, start = NULL, end = NULL, prefix = NULL,
+RunSlingshot <- function(srt, group.by, reduction = NULL, dims = NULL, start = NULL, end = NULL, prefix = NULL,
                          reverse = FALSE, align_start = FALSE, show_plot = TRUE, lineage_palette = "Dark2", seed = 11, ...) {
   if (missing(group.by)) {
     stop("group.by is missing")
@@ -1703,29 +1705,37 @@ RunSlingshot <- function(srt, group.by, reduction = NULL, start = NULL, end = NU
     prefix <- paste0(prefix, "_")
   }
   srt_sub <- srt[, !is.na(srt[[group.by, drop = TRUE]])]
+  if (is.null(dims)) {
+    dims <- 1:ncol(srt_sub[[reduction]]@cell.embeddings)
+  }
 
   set.seed(seed)
-  sl <- tryCatch(
-    {
-      slingshot::slingshot(
-        data = as.data.frame(srt_sub[[reduction]]@cell.embeddings),
-        clusterLabels = as.character(srt_sub[[group.by, drop = TRUE]]),
-        start.clus = start, end.clus = end,
-        ...
-      )
-    },
-    error = function(error) {
-      sce <- as.SingleCellExperiment(srt_sub)
-      sce <- slingshot::slingshot(
-        data = sce, reducedDim = reduction,
-        clusterLabels = as.character(srt_sub[[group.by, drop = TRUE]]),
-        start.clus = start, end.clus = end,
-        ...
-      )
-      sl <- sce@colData$slingshot
-      return(sl)
-    }
+  sl <- slingshot::slingshot(
+    data = as.data.frame(srt_sub[[reduction]]@cell.embeddings[, dims]),
+    clusterLabels = as.character(srt_sub[[group.by, drop = TRUE]]),
+    start.clus = start, end.clus = end, ...
   )
+  # sl <- tryCatch(
+  #   {
+  #     slingshot::slingshot(
+  #       data = as.data.frame(srt_sub[[reduction]]@cell.embeddings),
+  #       clusterLabels = as.character(srt_sub[[group.by, drop = TRUE]]),
+  #       start.clus = start, end.clus = end,
+  #       ...
+  #     )
+  #   },
+  #   error = function(error) {
+  #     sce <- as.SingleCellExperiment(srt_sub)
+  #     sce <- slingshot::slingshot(
+  #       data = sce, reducedDim = reduction,
+  #       clusterLabels = as.character(srt_sub[[group.by, drop = TRUE]]),
+  #       start.clus = start, end.clus = end,
+  #       ...
+  #     )
+  #     sl <- sce@colData$slingshot
+  #     return(sl)
+  #   }
+  # )
 
   srt@tools[[paste("Slingshot", group.by, reduction, sep = "_")]] <- sl
   df <- as.data.frame(slingshot::slingPseudotime(sl))
@@ -1741,18 +1751,16 @@ RunSlingshot <- function(srt, group.by, reduction = NULL, start = NULL, end = NU
   srt <- AddMetaData(srt, metadata = slingshot::slingBranchID(sl), col.name = paste0(prefix, "BranchID"))
 
   if (isTRUE(show_plot)) {
-    if (ncol(srt[[reduction]]@cell.embeddings) == 2) {
+    if (ncol(srt[[reduction]]@cell.embeddings) == 2 || ncol(srt[[reduction]]@cell.embeddings) > 3) {
       # plot(srt[[reduction]]@cell.embeddings, col = palette_scp(srt[[group.by, drop = TRUE]], matched = TRUE), asp = 1, pch = 16)
       # lines(slingshot::SlingshotDataSet(sl), lwd = 2, type = "lineages", col = "black")
       # plot(srt[[reduction]]@cell.embeddings, col = palette_scp(srt[[group.by, drop = TRUE]], matched = TRUE), asp = 1, pch = 16)
       # lines(slingshot::SlingshotDataSet(sl), lwd = 3, col = 1:length(slingshot::SlingshotDataSet(sl)@lineages))
-      p <- ClassDimPlot(srt, group.by = group.by, reduction = reduction, lineages = colnames(df))
+      p <- ClassDimPlot(srt, group.by = group.by, reduction = reduction, dims = c(1, 2), lineages = colnames(df))
       print(p)
     } else if (ncol(srt[[reduction]]@cell.embeddings) == 3) {
       p <- ClassDimPlot3D(srt, group.by = group.by, reduction = reduction, lineages = colnames(df))
       print(p)
-    } else {
-      warning("Unable to plot lineages in the specified reduction.", immediate. = TRUE)
     }
   }
   return(srt)
@@ -2286,8 +2294,9 @@ RunDynamicEnrichment <- function(srt, lineages,
 #' adata <- srt_to_adata(pancreas1k)
 #' adata
 #'
-#' ### Or save as an h5ad file
+#' ### Or save as an h5ad file or a loom file
 #' # adata$write_h5ad("pancreas1k.h5ad")
+#' # adata$write_loom("pancreas1k.loom", write_obsm_varm = TRUE)
 #'
 #' @importFrom reticulate import
 #' @importFrom Seurat GetAssayData
@@ -2298,7 +2307,7 @@ srt_to_adata <- function(srt,
                          assay_X = "RNA", slot_X = "counts",
                          assay_layers = c("spliced", "unspliced"), slot_layers = "counts",
                          convert_tools = FALSE, convert_misc = FALSE, verbose = TRUE) {
-  if (class(srt) != "Seurat") {
+  if (!inherits(srt, "Seurat")) {
     stop("'srt' is not a Seurat object.")
   }
   if (length(slot_layers) == 1) {
@@ -2446,29 +2455,30 @@ srt_to_adata <- function(srt,
 #' @importFrom Matrix t
 #' @export
 adata_to_srt <- function(adata) {
-  if (!"python.builtin.object" %in% class(adata)) {
+  if (!inherits(adata, "python.builtin.object")) {
     stop("'adata' is not a Python object.")
   }
   x <- t(adata$X)
-  rownames(x) <- adata$var_names$values
-  colnames(x) <- adata$obs_names$values
-  if (!"dgCMatrix" %in% class(x)) {
+  if (!inherits(x, "dgCMatrix")) {
     x <- as(x[1:nrow(x), ], "dgCMatrix")
   }
+  rownames(x) <- adata$var_names$values
+  colnames(x) <- adata$obs_names$values
+
 
   metadata <- NULL
   if (length(adata$obs_keys()) > 0) {
     metadata <- as.data.frame(adata$obs)
   }
 
-  srt <- CreateSeuratObject(counts = as(x[1:nrow(x), ], "dgCMatrix"), meta.data = metadata)
+  srt <- CreateSeuratObject(counts = x, meta.data = metadata)
 
   if (length(adata$layers$keys()) > 0) {
     for (k in iterate(adata$layers$keys())) {
       layer <- t(adata$layers[[k]])
       rownames(layer) <- adata$var_names$values
       colnames(layer) <- adata$obs_names$values
-      if (!"dgCMatrix" %in% class(layer)) {
+      if (!inherits(layer, "dgCMatrix")) {
         layer <- as(layer[1:nrow(layer), ], "dgCMatrix")
       }
       srt[[k]] <- CreateAssayObject(counts = layer)

@@ -37,8 +37,8 @@ The package includes facilities for:
     velocity](https://github.com/theislab/scvelo), etc.
 -   Multiple methods for automatic annotation of single-cell data and
     methods for projection between single-cell datasets.
--   High-quality visualization for multiple analysis results.
--   Fast deployment of single-cell data to a [shiny
+-   High quality data visualization methods.
+-   Fast deployment of single-cell data into a [shiny
     app](https://shiny.rstudio.com/).
 
 The functions in the SCP package are all developed around the [Seurat
@@ -78,8 +78,8 @@ py <- Sys.which("python3")
 reticulate:::python_version(py)
 ```
 
-Then run `PrepareVirtualEnv` to create the python virtual environment
-for SCP and install the necessary packages.
+Then run `PrepareVirtualEnv` to create a standalone python virtual
+environment for SCP and install the necessary packages.
 
 ``` r
 PrepareVirtualEnv(python = py, pipy_mirror = "https://pypi.tuna.tsinghua.edu.cn/simple", remove_old = TRUE)

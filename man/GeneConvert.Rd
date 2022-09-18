@@ -11,7 +11,7 @@ GeneConvert(
   species_from = "Homo_sapiens",
   species_to = NULL,
   Ensembl_version = 103,
-  try_times = 5,
+  attempts = 5,
   mirror = NULL
 )
 }
@@ -28,7 +28,7 @@ GeneConvert(
 
 \item{Ensembl_version}{Ensembl database version. If NULL, use the current release version.}
 
-\item{try_times}{Times when trying to connect with the biomart service.}
+\item{attempts}{Number of attempts to connect with the biomart service.}
 
 \item{mirror}{Specify an Ensembl mirror to connect to. The valid options here are 'www', 'uswest', 'useast', 'asia'.}
 }

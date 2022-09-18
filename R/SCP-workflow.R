@@ -11,7 +11,7 @@ check_DataType <- function(srt, data = NULL, slot = "data", assay = NULL) {
     data <- GetAssayData(srt, slot = slot, assay = assay)
   }
   isfinite <- all(is.finite(range(data, na.rm = TRUE)))
-  if ("dgCMatrix" %in% class(data)) {
+  if (inherits(data, "dgCMatrix")) {
     isfloat <- any(data@x %% 1 != 0, na.rm = TRUE)
   } else {
     isfloat <- any(data[, sample(seq_len(ncol(data)), min(ncol(data), 1000))] %% 1 != 0, na.rm = TRUE)
@@ -57,7 +57,7 @@ check_srtList <- function(srtList, batch = "orig.ident",
   cat(paste0("[", Sys.time(), "]", " Checking srtList... ...\n"))
   set.seed(seed)
 
-  if (class(srtList) != "list" || any(sapply(srtList, class) != "Seurat")) {
+  if (!inherits(srtList, "list") || any(sapply(srtList, function(x) !inherits(x, "Seurat")))) {
     stop("'srtList' is not a list of Seurat object.")
   }
   if (!normalization_method %in% c("logCPM", "SCT")) {
@@ -247,7 +247,7 @@ check_srtMerge <- function(srtMerge, batch = "orig.ident",
                            do_normalization = NULL, normalization_method = "logCPM",
                            do_HVF_finding = TRUE, HVF_source = "separate", HVF_method = "vst", nHVF = 2000, HVF = NULL,
                            vars_to_regress = NULL, seed = 11, ...) {
-  if (class(srtMerge) != "Seurat") {
+  if (!inherits(srtMerge, "Seurat")) {
     stop("'srtMerge' is not a Seurat object.")
   }
   if (length(batch) != 1) {
@@ -344,7 +344,7 @@ check_final <- function(srt, HVF, do_normalization) {
 #' @export
 RecoverCounts <- function(srt, assay = "RNA", min_count = c(1, 2, 3), tolerance = 0.1, verbose = TRUE) {
   counts <- GetAssayData(srt, assay = assay, slot = "counts")
-  if (!"dgCMatrix" %in% class(counts)) {
+  if (!inherits(counts, "dgCMatrix")) {
     counts <- as(counts[1:nrow(counts), ], "dgCMatrix")
   }
   status <- check_DataType(data = counts)
@@ -445,6 +445,7 @@ RenameFeatures <- function(srt, newnames = NULL, oldnames = NULL, assays = NULL)
 #' @importFrom Seurat VariableFeatures DefaultAssay DefaultAssay<- AverageExpression Idents<-
 #' @importFrom stats hclust reorder as.dendrogram as.dist
 #' @importFrom proxyC dist simil
+#' @importFrom Matrix t colMeans
 #' @export
 SrtReorder <- function(srt, features = NULL, reorder_by = NULL, slot = "data", assay = NULL, log = TRUE,
                        distance_metric = "euclidean", reorder_FUN = "mean") {
@@ -476,15 +477,14 @@ SrtReorder <- function(srt, features = NULL, reorder_by = NULL, slot = "data", a
     stop(distance_metric, " method is invalid.")
   }
 
-  data.avg <- as.matrix(AverageExpression(object = srt, features = features, slot = slot, assays = assay, group.by = "ident", verbose = FALSE)[[1]])
+  data.avg <- AverageExpression(object = srt, features = features, slot = slot, assays = assay, group.by = "ident", verbose = FALSE)[[1]][features, ]
   if (isTRUE(log)) {
     data.avg <- log1p(data.avg)
   }
   mat <- t(x = data.avg[features, ])
-  if (!"matrix" %in% class(mat)) {
-    mat <- as.matrix(mat)
+  if (!inherits(mat, "dgCMatrix")) {
+    mat <- as(mat[1:nrow(mat), ], "dgCMatrix")
   }
-  mat <- as(mat, "dgCMatrix")
 
   if (distance_metric %in% c(simil_method, "pearson", "spearman")) {
     if (distance_metric %in% c("pearson", "spearman")) {
@@ -493,9 +493,9 @@ SrtReorder <- function(srt, features = NULL, reorder_by = NULL, slot = "data", a
       }
       distance_metric <- "correlation"
     }
-    d <- 1 - simil(as(mat, "dgCMatrix"), method = distance_metric)
+    d <- 1 - simil(as(mat[1:nrow(mat), ], "dgCMatrix"), method = distance_metric)
   } else if (distance_metric %in% dist_method) {
-    d <- dist(as(mat, "dgCMatrix"), method = distance_metric)
+    d <- dist(as(mat[1:nrow(mat), ], "dgCMatrix"), method = distance_metric)
   }
   data.dist <- as.dist(d)
   hc <- hclust(d = data.dist)
@@ -521,7 +521,7 @@ SrtReorder <- function(srt, features = NULL, reorder_by = NULL, slot = "data", a
 SrtAppend <- function(srt_raw, srt_append,
                       slots = slotNames(srt_append), pattern = NULL, overwrite = FALSE,
                       verbose = TRUE) {
-  if (class(srt_raw) != "Seurat" || class(srt_append) != "Seurat") {
+  if (!inherits(srt_raw, "Seurat") || !inherits(srt_append, "Seurat")) {
     stop("'srt_raw' or 'srt_append' is not a Seurat object.")
   }
   pattern <- pattern %||% ""
@@ -1107,6 +1107,7 @@ Seurat_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRU
       "logCPM" = "LogNormalize",
       "SCT" = "SCT"
     ),
+    features.to.integrate = HVF,
     verbose = FALSE
   )
   for (nm in names(IntegrateData_params)) {
@@ -3138,7 +3139,7 @@ Standard_SCP <- function(srt, prefix = "Standard",
                          nonliner_reduction = "umap", nonliner_reduction_dims = c(2, 3), nonliner_reduction_params = list(), force_nonliner_reduction = TRUE,
                          do_cluster_finding = TRUE, cluster_algorithm = "louvain", cluster_resolution = 0.6, cluster_reorder = TRUE,
                          seed = 11) {
-  if (class(srt) != "Seurat") {
+  if (!inherits(srt, "Seurat")) {
     stop("'srt' is not a Seurat object.")
   }
   if (!normalization_method %in% c("logCPM", "SCT", "Linnorm", "Scran", "Scone", "DESeq2")) {

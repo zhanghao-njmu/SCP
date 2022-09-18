@@ -37,8 +37,8 @@ The package includes facilities for:
 -   Pipelines embedded with multiple data integration methods, including Uncorrected, [Seurat](https://github.com/satijalab/seurat), [scVI](https://github.com/scverse/scvi-tools), [MNN](http://www.bioconductor.org/packages/release/bioc/html/batchelor.html), [fastMNN](http://www.bioconductor.org/packages/release/bioc/html/batchelor.html), [Harmony](https://github.com/immunogenomics/harmony), [Scanorama](https://github.com/brianhie/scanorama), [BBKNN](https://github.com/Teichlab/bbknn), [CSS](https://github.com/quadbiolab/simspec), [LIGER](https://github.com/welch-lab/liger), [Conos](https://github.com/kharchenkolab/conos).
 -   Multiple single cell downstream analyses such as identification of differential features, enrichment analysis, GSEA analysis, identification of dynamic features, [PAGA](https://github.com/theislab/paga), [RNA velocity](https://github.com/theislab/scvelo), etc.
 -   Multiple methods for automatic annotation of single-cell data and methods for projection between single-cell datasets.
--   High-quality visualization for multiple analysis results.
--   Fast deployment of single-cell data to a [shiny app](https://shiny.rstudio.com/).
+-   High quality data visualization methods.
+-   Fast deployment of single-cell data into a [shiny app](https://shiny.rstudio.com/).
 
 The functions in the SCP package are all developed around the [Seurat object](https://github.com/mojaveazure/seurat-object) and compatible with other Seurat functions.
 
@@ -73,7 +73,7 @@ py <- Sys.which("python3")
 reticulate:::python_version(py)
 ```
 
-Then run `PrepareVirtualEnv` to create the python virtual environment for SCP and install the necessary packages.
+Then run `PrepareVirtualEnv` to create a standalone python virtual environment for SCP and install the necessary packages.
 
 ```{r eval=FALSE}
 PrepareVirtualEnv(python = py, pipy_mirror = "https://pypi.tuna.tsinghua.edu.cn/simple", remove_old = TRUE)

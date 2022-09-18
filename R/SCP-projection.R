@@ -252,7 +252,7 @@ RunKNNMap <- function(srt_query, srt_ref, ref_umap = NULL, force = FALSE,
       )
       rownames(match_k_cell) <- rn
       match_freq <- apply(match_k_cell, 1, table)
-      if (!"list" %in% class(match_freq)) {
+      if (!inherits(match_freq, "list")) {
         match_freq <- as.list(setNames(object = rep(k, nrow(match_k_cell)), rn))
         match_freq <- lapply(setNames(names(match_freq), names(match_freq)), function(x) setNames(k, match_k_cell[x, 1]))
       }

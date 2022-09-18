@@ -286,7 +286,7 @@ RunKNNPredict <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
     stop("srt_ref or bulk_ref must be provided at least one.")
   }
 
-  if (!"matrix" %in% class(ref)) {
+  if (!inherits(ref, "matrix")) {
     ref <- as.matrix(ref)
   }
   k <- min(c(k, nrow(ref)))
@@ -443,7 +443,7 @@ RunKNNPredict <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
       )
       rownames(match_k_cell) <- rn
       match_freq <- apply(match_k_cell, 1, table)
-      if (class(match_freq) != "list") {
+      if (!inherits(match_freq, "list")) {
         match_freq <- as.list(setNames(object = rep(k, nrow(match_k_cell)), rn))
         match_freq <- lapply(setNames(names(match_freq), names(match_freq)), function(x) setNames(k, match_k_cell[x, 1]))
       }

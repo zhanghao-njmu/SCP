@@ -8,6 +8,7 @@ RunSlingshot(
   srt,
   group.by,
   reduction = NULL,
+  dims = NULL,
   start = NULL,
   end = NULL,
   prefix = NULL,
