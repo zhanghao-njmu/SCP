@@ -1,7 +1,7 @@
 Package: SCP
 Type: Package
 Title: Single Cell Pipeline
-Version: 0.1.10.9000
+Version: 0.1.11
 Author: Hao Zhang
 Maintainer: Hao Zhang <haozhang@njmu.edu.cn>
 Description: The SCP package provides a comprehensive set of tools for single cell data processing and downstream analysis.
@@ -14,6 +14,7 @@ Depends:
 biocViews: SingleCell, Visualization    
 Imports:
     AnnotationDbi,
+    BiocGenerics,
     BiocParallel,
     biomaRt,
     ComplexHeatmap (>= 2.13.0),
@@ -35,11 +36,14 @@ Imports:
     gtools,
     HDF5Array,
     harmony,
+    igraph,
     intrinsicDimension,
     Matrix,
     MatrixGenerics,
     methods,
     mgcv,
+    monocle,
+    monocle3,
     org.Hs.eg.db,
     org.Mm.eg.db,
     parallelDist,
@@ -66,14 +70,17 @@ Imports:
     simplifyEnrichment,
     slingshot,
     stringr,
-    uwot
+    uwot,
+    utils,
+    VGAM
 Remotes: 
     davidsjoberg/ggsankey,
     zhanghao-njmu/seurat-wrappers,
     zhanghao-njmu/seurat-data,
     quadbiolab/simspec,
     carmonalab/UCell,
-    jokergoo/ComplexHeatmap
+    jokergoo/ComplexHeatmap,
+    cole-trapnell-lab/monocle3
 Suggests:
     AUCell,
     covr,
@@ -97,6 +104,6 @@ Suggests:
     testthat (>= 3.0.0),
     umap
 LinkingTo: Rcpp
-RoxygenNote: 7.2.0
+RoxygenNote: 7.2.1
 Config/testthat/edition: 3
 URL: https://github.com/zhanghao-njmu/SCP/, https://zhanghao-njmu.github.io/SCP/
