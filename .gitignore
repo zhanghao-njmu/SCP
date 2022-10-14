@@ -2,5 +2,8 @@
 .Rhistory
 .RData
 .Ruserdata
+.Rprofile
 SCExplorer
 docs
+renv
+renv.lock

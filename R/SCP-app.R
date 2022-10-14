@@ -11,6 +11,7 @@
 #'
 #' @importFrom HDF5Array writeTENxMatrix
 #' @importFrom Seurat GetAssayData
+#' @importFrom SeuratObject as.sparse
 #' @importFrom rhdf5 h5createFile h5delete h5createGroup h5write
 #' @export
 CreateDataFile <- function(srt, DataFile, name = NULL, assays = "RNA", slots = "data", compression_level = 0, overwrite = FALSE) {
@@ -45,7 +46,7 @@ CreateDataFile <- function(srt, DataFile, name = NULL, assays = "RNA", slots = "
           h5createGroup(file = DataFile, group = paste0(name, "/", assay))
         }
         if (!inherits(data, "dgCMatrix")) {
-          data <- as(data[1:nrow(data), ], "dgCMatrix")
+          data <- as.sparse(data[1:nrow(data), ])
         }
         writeTENxMatrix(x = t(data), filepath = DataFile, group = paste0(name, "/", assay, "/", slot), level = compression_level)
       }

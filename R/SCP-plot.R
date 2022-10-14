@@ -3742,7 +3742,7 @@ ExpHeatmap <- function(srt, features = NULL, feature_split = NULL, cluster_featu
                        anno_terms = FALSE, anno_keys = FALSE, anno_features = FALSE,
                        IDtype = "symbol", species = "Homo_sapiens", db_IDtype = "symbol", db_update = FALSE, db_version = "latest", Ensembl_version = 103, mirror = NULL,
                        enrichment = "GO_BP", TERM2GENE = NULL, TERM2NAME = NULL, minGSSize = 10, maxGSSize = 500, universe = NULL,
-                       GO_simplify = TRUE, GO_simplify_padjustCutoff = 0.2, simplify_method = "Rel", simplify_similarityCutoff = 0.7,
+                       GO_simplify = FALSE, GO_simplify_padjustCutoff = 0.2, simplify_method = "Rel", simplify_similarityCutoff = 0.7,
                        pvalueCutoff = NULL, padjustCutoff = 0.05, topTerm = 5, show_id = TRUE, topWord = 20, min_word_length = 3, exclude_words = c("cell", "cellular", "dna", "rna", "protein", "development", "system", "regulation", "positive", "negative", "response", "process"),
                        anno_width = unit(c(4, 2, 2), "in"), anno_size = c(6, 10),
                        nlabel = 20, features_label = NULL, label_size = 10, label_color = "black",
@@ -4439,6 +4439,7 @@ ExpHeatmap <- function(srt, features = NULL, feature_split = NULL, cluster_featu
 #' pancreas1k <- Standard_SCP(pancreas1k)
 #' ExpCorPlot(pancreas1k, features = c("Ghrl", "Gcg", "Ins1", "Ins2"), group.by = "SubCellType")
 #' @importFrom Seurat Reductions Embeddings Key
+#' @importFrom SeuratObject as.sparse
 #' @importFrom dplyr group_by summarize "%>%" .data
 #' @importFrom stats quantile
 #' @importFrom ggplot2 ggplot aes geom_point geom_smooth geom_density_2d stat_density_2d labs scale_x_continuous scale_y_continuous facet_grid scale_color_gradientn scale_fill_gradientn scale_colour_gradient scale_fill_gradient guide_colorbar scale_color_identity scale_fill_identity guide_colourbar geom_hex stat_summary_hex
@@ -4540,8 +4541,8 @@ ExpCorPlot <- function(srt, features, group.by = NULL, split.by = NULL, slot = "
     stop("features must be a vector of length at least 2.")
   }
 
-  if ("dgCMatrix" %in% class(dat_exp)) {
-    dat_exp <- as(as.matrix(dat_exp), "dgCMatrix")
+  if (!inherits(dat_exp, "dgCMatrix")) {
+    dat_exp <- as.sparse(as.matrix(dat_exp))
   }
   if (!all(sapply(dat_exp, is.numeric))) {
     stop("'features' must be type of numeric variable.")
@@ -5475,6 +5476,7 @@ LineagePlot <- function(srt, lineages, reduction = NULL, dims = c(1, 2),
   reduction_key <- Key(srt[[reduction]])
   dat_dim <- Embeddings(srt, reduction = reduction)
   colnames(dat_dim) <- paste0(reduction_key, seq_len(ncol(dat_dim)))
+  rownames(dat_dim) <- rownames(dat_dim) %||% colnames(srt)
   dat_lineages <- srt@meta.data[, unique(lineages), drop = FALSE]
   dat <- cbind(dat_dim, dat_lineages[row.names(dat_dim), , drop = FALSE])
   dat[, "cell"] <- rownames(dat)
@@ -5675,6 +5677,7 @@ PAGAPlot <- function(srt, paga = srt@misc$paga, reduction = NULL, dims = c(1, 2)
   reduction_key <- Key(srt[[reduction]])
   dat_dim <- as.data.frame(Embeddings(srt, reduction = reduction))
   colnames(dat_dim) <- paste0(reduction_key, seq_len(ncol(dat_dim)))
+  rownames(dat_dim) <- rownames(dat_dim) %||% colnames(srt)
   dat_dim <- dat_dim[, paste0(reduction_key, dims)]
   dat_dim[[groups]] <- srt[[groups, drop = TRUE]][rownames(dat_dim)]
   dat <- aggregate(dat_dim[, paste0(reduction_key, dims)], by = list(dat_dim[[groups]]), FUN = median)
@@ -6459,6 +6462,7 @@ VelocityPlot <- function(srt, reduction, dims = c(1, 2), velocity = "stochastic"
 #' @param adjust_for_stream
 #' @param cutoff_perc
 #'
+#' @importFrom SeuratObject as.sparse
 #' @export
 compute_velocity_on_grid <- function(X_emb, V_emb,
                                      density = NULL, smooth = NULL, n_neighbors = NULL, min_mass = NULL,
@@ -6484,8 +6488,8 @@ compute_velocity_on_grid <- function(X_emb, V_emb,
   X_grid <- as.matrix(expand.grid(grs))
 
   d <- proxyC::dist(
-    x = as(X_emb, "dgCMatrix"),
-    y = as(X_grid, "dgCMatrix"),
+    x = as.sparse(X_emb),
+    y = as.sparse(X_grid),
     method = "euclidean",
     use_nan = TRUE
   )
@@ -6544,16 +6548,19 @@ compute_velocity_on_grid <- function(X_emb, V_emb,
 #' data("pancreas1k")
 #' pancreas1k <- RunDEtest(pancreas1k, group_by = "CellType", only.pos = FALSE)
 #' VolcanoPlot(pancreas1k, group_by = "CellType")
+#' VolcanoPlot(pancreas1k, group_by = "CellType", DE_threshold = "abs(diff_pct) > 0.3 & p_val_adj < 0.05")
 #' VolcanoPlot(pancreas1k, group_by = "CellType", x_metric = "avg_log2FC")
 #'
 #' @importFrom stats quantile
 #' @importFrom ggplot2 ggplot aes geom_point geom_vline geom_hline labs scale_color_gradientn guide_colorbar facet_wrap position_jitter
+#' @importFrom ggrepel geom_text_repel
 #' @importFrom cowplot plot_grid
 #' @export
 VolcanoPlot <- function(srt, group_by = NULL, test.use = "wilcox", DE_threshold = "avg_log2FC > 0 & p_val_adj < 0.05",
-                        x_metric = "diff_pct", palette = "RdBu", palcolor = NULL,
-                        nlabel = 5, features_label = NULL,
-                        label.fg = "black", label.bg = "white", label.bg.r = 0.1, label.size = 4,
+                        x_metric = "diff_pct", palette = "RdBu", palcolor = NULL, pt.size = 1, pt.alpha = 1,
+                        cols.highlight = "black", sizes.highlight = 1, alpha.highlight = 1, stroke.highlight = 0.5,
+                        nlabel = 5, features_label = NULL, label.fg = "black", label.bg = "white", label.bg.r = 0.1, label.size = 4,
+                        aspect.ratio = NULL, xlab = x_metric, ylab = "-log10(p-adjust)",
                         combine = TRUE, nrow = NULL, ncol = NULL, byrow = TRUE, align = "hv", axis = "lr") {
   if (is.null(group_by)) {
     group_by <- "custom"
@@ -6568,10 +6575,10 @@ VolcanoPlot <- function(srt, group_by = NULL, test.use = "wilcox", DE_threshold 
   }
   de <- names(srt@tools[[slot]])[index]
   de_df <- srt@tools[[slot]][[de]]
-  de_df[, "DE"] <- FALSE
-  de_df[with(de_df, eval(rlang::parse_expr(DE_threshold))), "DE"] <- TRUE
   de_df[, "diff_pct"] <- de_df[, "pct.1"] - de_df[, "pct.2"]
   de_df[, "-log10padj"] <- -log10(de_df[, "p_val_adj"])
+  de_df[, "DE"] <- FALSE
+  de_df[with(de_df, eval(rlang::parse_expr(DE_threshold))), "DE"] <- TRUE
 
   x_upper <- quantile(de_df[["avg_log2FC"]][is.finite(de_df[["avg_log2FC"]])], c(0.99, 1))
   x_lower <- quantile(de_df[["avg_log2FC"]][is.finite(de_df[["avg_log2FC"]])], c(0.01, 0))
@@ -6588,7 +6595,6 @@ VolcanoPlot <- function(srt, group_by = NULL, test.use = "wilcox", DE_threshold 
   de_df[de_df[["avg_log2FC"]] > x_upper, "avg_log2FC"] <- x_upper
   de_df[de_df[["avg_log2FC"]] < x_lower, "border"] <- TRUE
   de_df[de_df[["avg_log2FC"]] < x_lower, "avg_log2FC"] <- x_lower
-
 
   de_df[, "y"] <- -log10(de_df[, "p_val_adj"])
   if (x_metric == "diff_pct") {
@@ -6610,62 +6616,38 @@ VolcanoPlot <- function(srt, group_by = NULL, test.use = "wilcox", DE_threshold 
     }
     x_nudge <- diff(range(df$x)) * 0.05
     df[, "label"] <- FALSE
-    df[df[["y"]] >= 0, ][head(order(df[df[["y"]] >= 0, "distance"], decreasing = TRUE), nlabel), "label"] <- TRUE
-    df[df[["y"]] < 0, ][head(order(df[df[["y"]] < 0, "distance"], decreasing = TRUE), nlabel), "label"] <- TRUE
-    if (x_metric == "diff_pct") {
-      p <- ggplot() +
-        geom_point(data = df[df[["DE"]], ], aes(x = x, y = y), color = "black", size = 1 + 1, alpha = 1) +
-        geom_point(data = df, aes(x = x, y = y, color = avg_log2FC), size = 1, alpha = 1) +
-        geom_hline(yintercept = 0, color = "black", linetype = 1) +
-        geom_vline(xintercept = 0, color = "grey", linetype = 2) +
-        geom_text_repel(
-          data = df[df[["label"]], ], aes(x = x, y = y, label = gene),
-          min.segment.length = 0, max.overlaps = 100, segment.colour = "grey40",
-          color = label.fg, bg.color = label.bg, bg.r = label.bg.r, size = label.size, force = 20,
-          nudge_x = ifelse(df[df[["label"]], "y"] >= 0, -x_nudge, x_nudge)
-        ) +
-        labs(x = "Percentage difference", y = "-log10(p-adjust)") +
-        scale_color_gradientn(
-          name = "Log2(FC)", colors = palette_scp(palette = palette, palcolor = palcolor),
-          values = rescale(unique(c(min(df[, "avg_log2FC"], 0), 0, max(df[, "avg_log2FC"])))),
-          guide = guide_colorbar(frame.colour = "black", ticks.colour = "black", title.hjust = 0, order = 1)
-        ) +
-        scale_y_continuous(labels = abs) +
-        facet_wrap(~group1, ) +
-        theme_scp(aspect.ratio = NULL)
-    } else if (x_metric == "avg_log2FC") {
-      jitter <- position_jitter(width = 0.2, height = 0.2, seed = 11)
-      p <- ggplot() +
-        geom_point(data = df[df[["DE"]] & !df[["border"]], ], aes(x = x, y = y), color = "black", size = 1 + 1, alpha = 1) +
-        geom_point(data = df[df[["DE"]] & df[["border"]], ], aes(x = x, y = y), color = "black", size = 1 + 1, alpha = 1, position = jitter) +
-        geom_point(data = df[!df[["border"]], ], aes(x = x, y = y, color = diff_pct), size = 1, alpha = 1) +
-        geom_point(
-          data = df[!df[["DE"]] & df[["border"]], ], aes(x = x, y = y, color = diff_pct),
-          size = 1, alpha = 1, position = jitter
-        ) +
-        geom_point(
-          data = df[df[["DE"]] & df[["border"]], ], aes(x = x, y = y, color = diff_pct),
-          size = 1, alpha = 1, position = jitter
-        ) +
-        geom_hline(yintercept = 0, color = "black", linetype = 1) +
-        geom_vline(xintercept = 0, color = "grey", linetype = 2) +
-        geom_text_repel(
-          data = df[df[["label"]], ], aes(x = x, y = y, label = gene),
-          min.segment.length = 0, max.overlaps = 100, segment.colour = "grey40",
-          color = label.fg, bg.color = label.bg, bg.r = label.bg.r, size = label.size, force = 20,
-          nudge_x = ifelse(df[df[["label"]], "y"] >= 0, -x_nudge, x_nudge)
-        ) +
-        labs(x = "Log2(FC)", y = "-log10(p-adjust)") +
-        scale_color_gradientn(
-          name = "diff_pct", colors = palette_scp(palette = palette, palcolor = palcolor),
-          values = rescale(unique(c(min(df[, "diff_pct"], 0), 0, max(df[, "diff_pct"])))),
-          guide = guide_colorbar(frame.colour = "black", ticks.colour = "black", title.hjust = 0, order = 1)
-        ) +
-        scale_y_continuous(labels = abs) +
-        facet_wrap(~group1, ) +
-        theme_scp(aspect.ratio = NULL)
+    if (is.null(features_label)) {
+      df[df[["y"]] >= 0, ][head(order(df[df[["y"]] >= 0, "distance"], decreasing = TRUE), nlabel), "label"] <- TRUE
+      df[df[["y"]] < 0, ][head(order(df[df[["y"]] < 0, "distance"], decreasing = TRUE), nlabel), "label"] <- TRUE
+    } else {
+      df[df[["gene"]] %in% features_label, "label"] <- TRUE
     }
-
+    jitter <- position_jitter(width = 0.2, height = 0.2, seed = 11)
+    color_by <- ifelse(x_metric == "diff_pct", "avg_log2FC", "diff_pct")
+    p <- ggplot() +
+      geom_point(data = df[!df[["DE"]] & !df[["border"]], ], aes(x = x, y = y, color = .data[[color_by]]), size = pt.size, alpha = pt.alpha) +
+      geom_point(data = df[!df[["DE"]] & df[["border"]], ], aes(x = x, y = y, color = .data[[color_by]]), size = pt.size, alpha = pt.alpha, position = jitter) +
+      geom_point(data = df[df[["DE"]] & !df[["border"]], ], aes(x = x, y = y), color = cols.highlight, size = sizes.highlight + stroke.highlight, alpha = alpha.highlight) +
+      geom_point(data = df[df[["DE"]] & df[["border"]], ], aes(x = x, y = y), color = cols.highlight, size = sizes.highlight + stroke.highlight, alpha = alpha.highlight, position = jitter) +
+      geom_point(data = df[df[["DE"]] & !df[["border"]], ], aes(x = x, y = y, color = .data[[color_by]]), size = pt.size, alpha = pt.alpha) +
+      geom_point(data = df[df[["DE"]] & df[["border"]], ], aes(x = x, y = y, color = .data[[color_by]]), size = pt.size, alpha = pt.alpha, position = jitter) +
+      geom_hline(yintercept = 0, color = "black", linetype = 1) +
+      geom_vline(xintercept = 0, color = "grey", linetype = 2) +
+      geom_text_repel(
+        data = df[df[["label"]], ], aes(x = x, y = y, label = gene),
+        min.segment.length = 0, max.overlaps = 100, segment.colour = "grey40",
+        color = label.fg, bg.color = label.bg, bg.r = label.bg.r, size = label.size, force = 20,
+        nudge_x = ifelse(df[df[["label"]], "y"] >= 0, -x_nudge, x_nudge)
+      ) +
+      labs(x = xlab, y = ylab) +
+      scale_color_gradientn(
+        name = ifelse(x_metric == "diff_pct", "log2FC", "diff_pct"), colors = palette_scp(palette = palette, palcolor = palcolor),
+        values = rescale(unique(c(min(df[, color_by], 0), 0, max(df[, color_by])))),
+        guide = guide_colorbar(frame.colour = "black", ticks.colour = "black", title.hjust = 0, order = 1)
+      ) +
+      scale_y_continuous(labels = abs) +
+      facet_wrap(~group1) +
+      theme_scp(aspect.ratio = aspect.ratio)
     plist[[group]] <- p
   }
   if (isTRUE(combine)) {
@@ -7475,7 +7457,7 @@ DynamicHeatmap <- function(srt, lineages, feature_from = lineages,
                            anno_terms = FALSE, anno_keys = FALSE, anno_features = FALSE,
                            IDtype = "symbol", species = "Homo_sapiens", db_IDtype = "symbol", db_update = FALSE, db_version = "latest", Ensembl_version = 103, mirror = NULL,
                            enrichment = "GO_BP", TERM2GENE = NULL, TERM2NAME = NULL, minGSSize = 10, maxGSSize = 500, universe = NULL,
-                           GO_simplify = TRUE, GO_simplify_padjustCutoff = 0.2, simplify_method = "Rel", simplify_similarityCutoff = 0.7,
+                           GO_simplify = FALSE, GO_simplify_padjustCutoff = 0.2, simplify_method = "Rel", simplify_similarityCutoff = 0.7,
                            pvalueCutoff = NULL, padjustCutoff = 0.05, topTerm = 5, show_id = TRUE, topWord = 20, min_word_length = 3, exclude_words = c("cell", "cellular", "dna", "rna", "protein", "development", "system", "regulation", "positive", "negative", "response", "process"),
                            anno_width = unit(c(4, 2, 2), "in"), anno_size = c(6, 10),
                            nlabel = 20, features_label = NULL, label_size = 10, label_color = "black",
@@ -8358,9 +8340,10 @@ ProjectionPlot <- function(srt_query, srt_ref,
 EnrichmentPlot <- function(srt, enrichment = "GO_BP", group_by = NULL, group_use = NULL, test.use = "wilcox",
                            res = NULL, pvalueCutoff = NULL, padjustCutoff = 0.05,
                            plot_type = c("bar", "lollipop", "wordcloud"), palette = "Spectral",
-                           topTerm = 6, topWord = 100, word_type = c("term", "feature"),
+                           topTerm = 6, topWord = 100, word_type = c("term", "feature"), word_size = c(2, 8),
                            min_word_length = 3, exclude_words = c("cell", "cellular", "dna", "rna", "protein", "development", "system", "regulation", "positive", "negative", "response", "process"),
                            aspect.ratio = 1, base_size = 12, character_width = 50, line_height = 0.7,
+                           legend.position = "right", legend.direction = "vertical",
                            combine = TRUE, nrow = NULL, ncol = NULL, byrow = TRUE, align = "hv", axis = "lr") {
   plot_type <- match.arg(plot_type)
   word_type <- match.arg(word_type)
@@ -8435,6 +8418,8 @@ EnrichmentPlot <- function(srt, enrichment = "GO_BP", group_by = NULL, group_use
           strip.background.y = element_rect(fill = "white", color = "black", linetype = 1, size = 1),
           legend.box.margin = margin(0, 0, 0, 0),
           legend.margin = margin(0, 0, 0, 0),
+          legend.position = legend.position,
+          legend.direction = legend.direction,
           plot.margin = margin(0, 0, 0, 0),
           axis.text.y = element_text(
             lineheight = line_height, hjust = 1,
@@ -8494,6 +8479,8 @@ EnrichmentPlot <- function(srt, enrichment = "GO_BP", group_by = NULL, group_use
           strip.background.y = element_rect(fill = "white", color = "black", linetype = 1, size = 1),
           legend.box.margin = margin(0, 0, 0, 0),
           legend.margin = margin(0, 0, 0, 0),
+          legend.position = legend.position,
+          legend.direction = legend.direction,
           plot.margin = margin(0, 0, 0, 0),
           axis.text.y = element_text(
             lineheight = line_height, hjust = 1,
@@ -8570,11 +8557,15 @@ EnrichmentPlot <- function(srt, enrichment = "GO_BP", group_by = NULL, group_use
           name = "Score:", colours = colors, values = rescale(colors_value),
           guide = guide_colorbar(frame.colour = "black", ticks.colour = "black", title.hjust = 0)
         ) +
-        scale_size(name = "Count", range = c(2, 8), breaks = ceiling(seq(min(df[["count"]]), max(df[["count"]]), length.out = 3))) +
+        scale_size(name = "Count", range = word_size, breaks = ceiling(seq(min(df[["count"]]), max(df[["count"]]), length.out = 3))) +
         guides(size = guide_legend(override.aes = list(colour = "black", label = "G"), order = 1)) +
         facet_grid(Enrichment ~ Groups, scales = "free") +
         coord_flip() +
-        theme_scp(aspect.ratio = aspect.ratio)
+        theme_scp(
+          aspect.ratio = aspect.ratio,
+          legend.position = legend.position,
+          legend.direction = legend.direction
+        )
       return(p)
     })
   }

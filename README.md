@@ -34,7 +34,9 @@ The package includes facilities for:
     differential features, enrichment analysis, GSEA analysis,
     identification of dynamic features,
     [PAGA](https://github.com/theislab/paga), [RNA
-    velocity](https://github.com/theislab/scvelo), etc.
+    velocity](https://github.com/theislab/scvelo),
+    [Monocle2](http://cole-trapnell-lab.github.io/monocle-release),
+    [Monocle3](https://cole-trapnell-lab.github.io/monocle3), etc.
 -   Multiple methods for automatic annotation of single-cell data and
     methods for projection between single-cell datasets.
 -   High quality data visualization methods.
@@ -82,7 +84,7 @@ Then run `PrepareVirtualEnv` to create a standalone python virtual
 environment for SCP and install the necessary packages.
 
 ``` r
-PrepareVirtualEnv(python = py, pipy_mirror = "https://pypi.tuna.tsinghua.edu.cn/simple", remove_old = TRUE)
+SCP::PrepareVirtualEnv(python = py, pipy_mirror = "https://pypi.tuna.tsinghua.edu.cn/simple", remove_old = TRUE)
 ```
 
 ## Example
@@ -398,3 +400,13 @@ ExpVlnPlot(
 ```
 
 <img src="README/README-ExpVlnPlot-1.png" width="100%" style="display: block; margin: auto;" />
+
+More examples of SCP can be found in the documentation of the individual
+functions, such as
+[Integration_SCP](https://zhanghao-njmu.github.io/SCP/reference/Integration_SCP.html),
+[RunGSEA](https://zhanghao-njmu.github.io/SCP/reference/RunGSEA.html),
+[RunKNNMap](https://zhanghao-njmu.github.io/SCP/reference/RunKNNMap.html),
+[RunMonocle3](https://zhanghao-njmu.github.io/SCP/reference/RunMonocle3.html),
+[ClassDimPlot](https://zhanghao-njmu.github.io/SCP/reference/ClassDimPlot.html),
+[RunSCExplorer](https://zhanghao-njmu.github.io/SCP/reference/RunSCExplorer.html),
+etc.

@@ -21,6 +21,7 @@ RunDEtest(
   min.diff.pct = -Inf,
   max.cells.per.ident = Inf,
   latent.vars = NULL,
+  norm.method = "LogNormalize",
   slot = "data",
   assay = "RNA",
   BPPARAM = BiocParallel::bpparam(),
@@ -42,13 +43,9 @@ RunDEtest(
 
 \item{min.pct}{min.pct}
 
+\item{norm.method}{}
+
 \item{force}{force}
-
-\item{...}{}
-
-\item{cell_group1}{cell_group1}
-
-\item{cell_group2}{cell_group2}
 }
 \description{
 Differential gene test

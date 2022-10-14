@@ -341,11 +341,12 @@ check_final <- function(srt, HVF, do_normalization) {
 #' identical(raw_counts, pancreas1k@assays$RNA@counts)
 #'
 #' @importFrom Seurat GetAssayData SetAssayData
+#' @importFrom SeuratObject as.sparse
 #' @export
 RecoverCounts <- function(srt, assay = "RNA", min_count = c(1, 2, 3), tolerance = 0.1, verbose = TRUE) {
   counts <- GetAssayData(srt, assay = assay, slot = "counts")
   if (!inherits(counts, "dgCMatrix")) {
-    counts <- as(counts[1:nrow(counts), ], "dgCMatrix")
+    counts <- as.sparse(counts[1:nrow(counts), ])
   }
   status <- check_DataType(data = counts)
   if (status == "raw_counts") {
@@ -443,6 +444,7 @@ RenameFeatures <- function(srt, newnames = NULL, oldnames = NULL, assays = NULL)
 #' @param reorder_FUN
 #'
 #' @importFrom Seurat VariableFeatures DefaultAssay DefaultAssay<- AverageExpression Idents<-
+#' @importFrom SeuratObject as.sparse
 #' @importFrom stats hclust reorder as.dendrogram as.dist
 #' @importFrom proxyC dist simil
 #' @importFrom Matrix t colMeans
@@ -483,7 +485,7 @@ SrtReorder <- function(srt, features = NULL, reorder_by = NULL, slot = "data", a
   }
   mat <- t(x = data.avg[features, ])
   if (!inherits(mat, "dgCMatrix")) {
-    mat <- as(mat[1:nrow(mat), ], "dgCMatrix")
+    mat <- as.sparse(mat[1:nrow(mat), ])
   }
 
   if (distance_metric %in% c(simil_method, "pearson", "spearman")) {
@@ -493,9 +495,9 @@ SrtReorder <- function(srt, features = NULL, reorder_by = NULL, slot = "data", a
       }
       distance_metric <- "correlation"
     }
-    d <- 1 - simil(as(mat[1:nrow(mat), ], "dgCMatrix"), method = distance_metric)
+    d <- 1 - simil(as.sparse(mat[1:nrow(mat), ]), method = distance_metric)
   } else if (distance_metric %in% dist_method) {
-    d <- dist(as(mat[1:nrow(mat), ], "dgCMatrix"), method = distance_metric)
+    d <- dist(as.sparse(mat[1:nrow(mat), ]), method = distance_metric)
   }
   data.dist <- as.dist(d)
   hc <- hclust(d = data.dist)
@@ -2281,7 +2283,7 @@ BBKNN_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE
   }
   bem <- invoke(.fn = bbknn$bbknn_matrix, .args = params)
 
-  bbknn_graph <- as(bem[[2]][1:nrow(bem[[2]]), ], "dgCMatrix")
+  bbknn_graph <- as.sparse(bem[[2]][1:nrow(bem[[2]]), ])
   rownames(bbknn_graph) <- colnames(bbknn_graph) <- rownames(emb)
   bbknn_graph <- as.Graph(bbknn_graph)
   bbknn_graph@assay.used <- DefaultAssay(srtMerge)

@@ -12,12 +12,21 @@ VolcanoPlot(
   x_metric = "diff_pct",
   palette = "RdBu",
   palcolor = NULL,
+  pt.size = 1,
+  pt.alpha = 1,
+  cols.highlight = "black",
+  sizes.highlight = 1,
+  alpha.highlight = 1,
+  stroke.highlight = 0.5,
   nlabel = 5,
   features_label = NULL,
   label.fg = "black",
   label.bg = "white",
   label.bg.r = 0.1,
   label.size = 4,
+  aspect.ratio = NULL,
+  xlab = x_metric,
+  ylab = "-log10(p-adjust)",
   combine = TRUE,
   nrow = NULL,
   ncol = NULL,
@@ -33,6 +42,7 @@ VolcanoPlot
 data("pancreas1k")
 pancreas1k <- RunDEtest(pancreas1k, group_by = "CellType", only.pos = FALSE)
 VolcanoPlot(pancreas1k, group_by = "CellType")
+VolcanoPlot(pancreas1k, group_by = "CellType", DE_threshold = "abs(diff_pct) > 0.3 & p_val_adj < 0.05")
 VolcanoPlot(pancreas1k, group_by = "CellType", x_metric = "avg_log2FC")
 
 }

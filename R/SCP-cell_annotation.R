@@ -407,15 +407,15 @@ RunKNNPredict <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
         distance_metric <- "correlation"
       }
       d <- 1 - proxyC::simil(
-        x = as(ref, "dgCMatrix"),
-        y = as(query, "dgCMatrix"),
+        x = as.sparse(ref),
+        y = as.sparse(query),
         method = distance_metric,
         use_nan = TRUE
       )
     } else if (distance_metric %in% dist_method) {
       d <- proxyC::dist(
-        x = as(ref, "dgCMatrix"),
-        y = as(query, "dgCMatrix"),
+        x = as.sparse(ref),
+        y = as.sparse(query),
         method = distance_metric,
         use_nan = TRUE
       )

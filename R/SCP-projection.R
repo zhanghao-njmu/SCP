@@ -44,6 +44,7 @@ NULL
 #' pancreas1k <- RunKNNMap(srt_query = pancreas1k, srt_ref = panc8, ref_umap = "SeuratUMAP2D")
 #' ProjectionPlot(srt_query = pancreas1k, srt_ref = panc8, query_group = "SubCellType", ref_group = "celltype")
 #' @importFrom Seurat Reductions Embeddings FindVariableFeatures VariableFeatures GetAssayData FindNeighbors CreateDimReducObject DefaultAssay
+#' @importFrom SeuratObject as.sparse
 #' @importFrom Matrix t
 #' @export
 RunKNNMap <- function(srt_query, srt_ref, ref_umap = NULL, force = FALSE,
@@ -194,15 +195,15 @@ RunKNNMap <- function(srt_query, srt_ref, ref_umap = NULL, force = FALSE,
         distance_metric <- "correlation"
       }
       d <- 1 - proxyC::simil(
-        x = as(ref, "dgCMatrix"),
-        y = as(query, "dgCMatrix"),
+        x = as.sparse(ref),
+        y = as.sparse(query),
         method = distance_metric,
         use_nan = TRUE
       )
     } else if (distance_metric %in% dist_method) {
       d <- proxyC::dist(
-        x = as(ref, "dgCMatrix"),
-        y = as(query, "dgCMatrix"),
+        x = as.sparse(ref),
+        y = as.sparse(query),
         method = distance_metric,
         use_nan = TRUE
       )

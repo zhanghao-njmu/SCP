@@ -545,7 +545,7 @@ RunDM.matrix <- function(object, ndcs = 2, sigma = "local", k = 30, dist.method 
   # knn <- get_knn(NULL, dists, k, distance, knn_params,verbose)
   # gene.relevance <- gene_relevance(coords=dm.results@eigenvectors,verbose=verbose)
   cell.embeddings <- dm.results@eigenvectors
-  rownames(x = cell.embeddings) <- attr(object, "Labels")
+  rownames(x = cell.embeddings) <- rownames(object)
   colnames(x = cell.embeddings) <- paste0(reduction.key, 1:ndcs)
   reduction <- CreateDimReducObject(
     embeddings = cell.embeddings,
@@ -792,7 +792,7 @@ RunUMAP2.Seurat <- function(object,
 #' @rdname RunUMAP2
 #' @method RunUMAP2 default
 #' @concept dimensional_reduction
-#' @importFrom SeuratObject Indices Distances
+#' @importFrom SeuratObject Indices Distances as.sparse
 #' @importFrom Matrix sparseMatrix
 #' @export
 RunUMAP2.default <- function(object, assay = NULL,
@@ -913,7 +913,7 @@ RunUMAP2.default <- function(object, assay = NULL,
     }
     if (inherits(x = object, what = "Graph")) {
       if (!inherits(object, "dgCMatrix")) {
-        object <- as(object[1:nrow(object), ], "dgCMatrix")
+        object <- as.sparse(object[1:nrow(object), ])
       }
       diag(object) <- 0
       if (ncol(object) > 10000) {
@@ -1062,7 +1062,7 @@ RunUMAP2.default <- function(object, assay = NULL,
     }
     if (inherits(x = object, what = "Graph")) {
       if (!inherits(object, "dgCMatrix")) {
-        object <- as(object[1:nrow(object), ], "dgCMatrix")
+        object <- as.sparse(object[1:nrow(object), ])
       }
       diag(object) <- 0
       if (ncol(object) > 10000) {

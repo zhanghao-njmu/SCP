@@ -7,8 +7,8 @@
 RunCellQC(
   srt,
   assay = "RNA",
-  qc_metrics = c("doublets", "outlier", "umi", "gene", "mito", "ribo",
-    "ribo_mito_ratio", "species"),
+  qc_metrics = c("doublets", "outlier", "umi", "gene", "mito", "ribo", "ribo_mito_ratio",
+    "species"),
   return_filtered = FALSE,
   db_method = "scDblFinder",
   db_rate = ncol(srt)/1000 * 0.01,

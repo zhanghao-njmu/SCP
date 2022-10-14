@@ -7,7 +7,7 @@
 PrepareVirtualEnv <- function(python = NULL, pipy_mirror = "https://pypi.org/simple/", remove_old = FALSE) {
   if (isTRUE(remove_old) || reticulate::virtualenv_exists("SCP")) {
     if (isTRUE(reticulate:::is_python_initialized())) {
-      warning("Package installation may fail because python is initialized in the current R session.\nYou may reload SCP in a new R seesion with command 'options(SCP_virtualenv_init = FALSE)'. Then run PrepareVirtualEnv again to create SCP virtual environmenet.", immediate. = TRUE)
+      warning("Package installation may fail because python is initialized in the current R session. You may run SCP::PrepareVirtualEnv() in a new R seesion to create SCP virtual environmenet. If you want to disable virtual environment initialization, you can set options(SCP_virtualenv_init = FALSE) before library(SCP).", immediate. = TRUE)
     }
   }
   if (isTRUE(remove_old)) {
@@ -128,6 +128,7 @@ PrepareVirtualEnv <- function(python = NULL, pipy_mirror = "https://pypi.org/sim
 #' @param force
 #'
 #' @importFrom rlang %||%
+#' @importFrom utils packageVersion
 #' @export
 check_R <- function(pkgs, pkg_names = NULL, install_methods = c("BiocManager::install", "install.packages", "devtools::install_github"), lib = .libPaths()[1], force = FALSE) {
   if (length(pkg_names) != 0 && length(pkg_names) != length(pkgs)) {
@@ -136,11 +137,20 @@ check_R <- function(pkgs, pkg_names = NULL, install_methods = c("BiocManager::in
   status_list <- list()
   for (n in seq_along(pkgs)) {
     pkg <- pkgs[n]
-    pkg_info <- strsplit(pkg, split = "/|@")[[1]]
-    if (length(pkg_info) > 1) {
-      pkg_name <- pkg_names[n] %||% pkg_info[2]
-    } else {
-      pkg_name <- pkg_names[n] %||% pkg_info
+    pkg_info <- pkg
+    if (!grepl("/", pkg_info)) {
+      pkg_info <- paste0("/", pkg_info)
+    }
+    if (!grepl("@", pkg_info)) {
+      pkg_info <- paste0(pkg_info, "@")
+    }
+    git <- grep("/", sub(pattern = "(.*/)(.*)(@.*)", replacement = "\\1", x = pkg_info), value = TRUE)
+    git <- gsub("/", "", git)
+    pkg_name <- pkg_names[n] %||% sub(pattern = "(.*/)(.*)(@.*)", replacement = "\\2", x = pkg_info)
+    version <- grep("@", sub(pattern = "(.*/)(.*)(@.*)", replacement = "\\3", x = pkg_info), value = TRUE)
+    version <- gsub("@", "", version)
+    if (version != "") {
+      force <- isTRUE(packageVersion(pkg_name) < package_version(version))
     }
     if (!suppressPackageStartupMessages(requireNamespace(pkg_name, quietly = TRUE)) || isTRUE(force)) {
       message("Install package: '", pkg_name, "' ...")
@@ -152,7 +162,7 @@ check_R <- function(pkgs, pkg_names = NULL, install_methods = c("BiocManager::in
             if (!require("BiocManager", quietly = TRUE)) {
               install.packages("BiocManager", lib = lib)
             }
-            eval(str2lang(paste0(install_methods[i], "('", pkg, "', lib='", lib, "', update = FALSE, ask = FALSE, force = TRUE)")))
+            eval(str2lang(paste0(install_methods[i], "('", pkg, "', lib='", lib, "', update = FALSE, upgrade = 'never', ask = FALSE, force = TRUE)")))
           } else if (grepl("devtools", install_methods[i])) {
             if (!require("devtools", quietly = TRUE)) {
               install.packages("devtools", lib = lib)

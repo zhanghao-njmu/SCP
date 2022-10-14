@@ -502,8 +502,6 @@ CellScoring <- function(srt, features, ncores = 1, method = "Seurat", classifica
 #' @param FindAllMarkers Whether to find markers across all cells.
 #' @param FindPairedMarkers Whether to find markers between pairs of the cell groups.
 #' @param group_by group_by
-#' @param cell_group1 cell_group1
-#' @param cell_group2 cell_group2
 #' @param fc.threshold fc.threshold
 #' @param min.pct min.pct
 #' @param force force
@@ -516,6 +514,13 @@ CellScoring <- function(srt, features, ncores = 1, method = "Seurat", classifica
 #' @param BPPARAM
 #' @param progressbar
 #' @param ...
+#' @param group1
+#' @param group2
+#' @param cells1
+#' @param cells2
+#' @param base
+#' @param min.diff.pct
+#' @param norm.method
 #'
 #' @importFrom BiocParallel bplapply
 #' @importFrom dplyr bind_rows
@@ -544,6 +549,7 @@ RunDEtest <- function(srt, group_by = NULL, group1 = NULL, group2 = NULL, cells1
                       FindAllMarkers = TRUE, FindPairedMarkers = FALSE,
                       test.use = "wilcox", only.pos = TRUE,
                       fc.threshold = 1.5, base = 2, min.pct = 0.1, min.diff.pct = -Inf, max.cells.per.ident = Inf, latent.vars = NULL,
+                      norm.method = "LogNormalize",
                       slot = "data", assay = "RNA", BPPARAM = BiocParallel::bpparam(), progressbar = TRUE, force = FALSE, ...) {
   if ("progressbar" %in% names(BPPARAM)) {
     BPPARAM[["progressbar"]] <- progressbar
@@ -552,6 +558,10 @@ RunDEtest <- function(srt, group_by = NULL, group1 = NULL, group2 = NULL, cells1
   time_start <- Sys.time()
   cat(paste0("[", time_start, "] ", "Start DEtest\n"))
   message("Threads used for DE test: ", BPPARAM$workers)
+
+  if (fc.threshold < 1) {
+    stop("fc.threshold must be greater than or equal to 1")
+  }
 
   if (!is.null(cells1) || !is.null(group1)) {
     if (is.null(cells1)) {
@@ -590,6 +600,7 @@ RunDEtest <- function(srt, group_by = NULL, group1 = NULL, group2 = NULL, cells1
       max.cells.per.ident = max.cells.per.ident,
       latent.vars = latent.vars,
       only.pos = only.pos,
+      norm.method = norm.method,
       verbose = FALSE,
       ...
     )
@@ -640,6 +651,7 @@ RunDEtest <- function(srt, group_by = NULL, group1 = NULL, group2 = NULL, cells1
       max.cells.per.ident = Inf,
       latent.vars = latent.vars,
       only.pos = only.pos,
+      norm.method = norm.method,
       verbose = FALSE
     )
     args2 <- as.list(match.call())[-1]
@@ -1766,88 +1778,549 @@ RunSlingshot <- function(srt, group.by, reduction = NULL, dims = NULL, start = N
   return(srt)
 }
 
-RunMoncle2 <- function(srt, features = NULL, assay = DefaultAssay(srt)) {
-  library(monocle)
-  expr_matrix <- as(as.matrix(srt_epi@assays$RNA@counts), "sparseMatrix")
-  p_data <- srt_epi@meta.data
-  f_data <- data.frame(gene_short_name = row.names(srt_epi), row.names = row.names(srt_epi))
+#' Run Monocle2 analysis
+#'
+#' @param srt
+#' @param annotation
+#' @param assay
+#' @param slot
+#' @param expressionFamily
+#' @param features
+#' @param feature_type
+#' @param disp_filter
+#' @param max_components
+#' @param reduction_method
+#' @param norm_method
+#' @param residualModelFormulaStr
+#' @param pseudo_expr
+#' @param root_state
+#'
+#' @examples
+#' if (interactive()) {
+#'   data("pancreas1k")
+#'   pancreas1k <- RunMonocle2(srt = pancreas1k, annotation = "CellType")
+#'   names(pancreas1k@tools$Monocle2)
+#'   trajectory <- pancreas1k@tools$Monocle2$trajectory
+#'
+#'   p1 <- ClassDimPlot(pancreas1k, group.by = "Monocle2_State", reduction = "DDRTree", label = TRUE) + trajectory
+#'   p2 <- ClassDimPlot(pancreas1k, group.by = "Monocle2_State", reduction = "UMAP", label = TRUE)
+#'   p3 <- ExpDimPlot(pancreas1k, features = "Monocle2_Pseudotime", reduction = "UMAP")
+#'   print(p1 + p2 + p3)
+#'
+#'   pancreas1k <- RunMonocle2(
+#'     srt = pancreas1k, annotation = "CellType",
+#'     feature_type = "Disp", disp_filter = "mean_expression >= 0.01 & dispersion_empirical >= 1 * dispersion_fit"
+#'   )
+#'   trajectory <- pancreas1k@tools$Monocle2$trajectory
+#'   p1 <- ClassDimPlot(pancreas1k, group.by = "Monocle2_State", reduction = "DDRTree", label = TRUE) + trajectory
+#'   p2 <- ClassDimPlot(pancreas1k, group.by = "Monocle2_State", reduction = "UMAP", label = TRUE)
+#'   p3 <- ExpDimPlot(pancreas1k, features = "Monocle2_Pseudotime", reduction = "UMAP")
+#'   print(p1 + p2 + p3)
+#' }
+#' @importFrom Seurat DefaultAssay CreateDimReducObject GetAssayData VariableFeatures FindVariableFeatures
+#' @importFrom SeuratObject as.sparse
+#' @importFrom igraph as_data_frame
+#' @importFrom ggplot2 geom_segment
+#' @export
+RunMonocle2 <- function(srt, annotation = NULL, assay = NULL, slot = "counts", expressionFamily = "negbinomial.size",
+                        features = NULL, feature_type = "HVF", disp_filter = "mean_expression >= 0.1 & dispersion_empirical >= 1 * dispersion_fit",
+                        max_components = 2, reduction_method = "DDRTree", norm_method = "log", residualModelFormulaStr = NULL, pseudo_expr = 1,
+                        root_state = NULL, seed = 11) {
+  set.seed(seed)
+  check_R(c("monocle", "DDRTree", "BiocGenerics", "Biobase", "VGAM", "utils"))
+  require("DDRTree", quietly = TRUE)
+
+  assay <- assay %||% DefaultAssay(srt)
+  expr_matrix <- as.sparse(GetAssayData(srt, assay = assay, slot = slot))
+  p_data <- srt@meta.data
+  f_data <- data.frame(gene_short_name = row.names(expr_matrix), row.names = row.names(expr_matrix))
   pd <- new("AnnotatedDataFrame", data = p_data)
   fd <- new("AnnotatedDataFrame", data = f_data)
-  cds <- newCellDataSet(expr_matrix,
+  cds <- monocle::newCellDataSet(expr_matrix,
     phenoData = pd,
     featureData = fd,
-    lowerDetectionLimit = 0.1,
-    expressionFamily = negbinomial.size()
+    expressionFamily = do.call(get(expressionFamily, envir = getNamespace("VGAM")), args = list())
   )
-  cds <- estimateSizeFactors(cds)
-  cds <- estimateDispersions(cds)
-  cds <- detectGenes(cds, min_expr = 0.1)
-  express_genes <- VariableFeatures(srt_epi)
-  cds <- setOrderingFilter(cds, express_genes)
-  plot_ordering_genes(cds)
-  cds <- clusterCells(cds, num_clusters = 2)
-  cds <- reduceDimension(cds,
-    max_components = 3,
-    method = "DDRTree", norm_method = "log"
+  if (any(c("negbinomial", "negbinomial.size") %in% expressionFamily)) {
+    cds <- BiocGenerics::estimateSizeFactors(cds)
+    cds <- suppressWarnings(suppressMessages(BiocGenerics::estimateDispersions(cds)))
+  }
+  if (is.null(features)) {
+    if (feature_type == "HVF") {
+      features <- VariableFeatures(srt)
+      if (length(features) == 0) {
+        features <- VariableFeatures(FindVariableFeatures(srt))
+      }
+    }
+    if (feature_type == "Disp") {
+      features <- subset(monocle::dispersionTable(cds), eval(rlang::parse_expr(disp_filter)))$gene_id
+    }
+  }
+  message("features number: ", length(features))
+  cds <- monocle::setOrderingFilter(cds, features)
+  p <- monocle::plot_ordering_genes(cds)
+  suppressWarnings(print(p))
+
+  cds <- monocle::reduceDimension(
+    cds = cds,
+    max_components = max_components,
+    reduction_method = reduction_method,
+    norm_method = norm_method,
+    residualModelFormulaStr = residualModelFormulaStr,
+    pseudo_expr = pseudo_expr
   )
   cds <- orderCells(cds)
-  plot_cell_trajectory(cds, color_by = c("State"), cell_size = 0.8)
-  plot_cell_trajectory(cds, color_by = c("Cluster"), cell_size = 0.8)
-  plot_cell_trajectory(cds, color_by = c("Pseudotime"), cell_size = 0.8)
-  cds <- orderCells(cds, root_state = 2)
-  srt <- as.Seurat(cds)
-  srt_epi[["DDRTree"]] <- srt[["DDRTree"]]
-  srt_epi[["Cluster"]] <- srt[["Cluster"]]
-  srt_epi[["Pseudotime"]] <- srt[["Pseudotime"]]
-  srt_epi[["State"]] <- srt[["State"]]
 
-  srt_epi@tools$Monocle2 <- list(
-    reducedDimS = cds@reducedDimS,
-    reducedDimW = cds@reducedDimW,
-    reducedDimK = cds@reducedDimK
-  )
-  srt_epi[["State"]] <- sapply(srt_epi[["State", drop = TRUE]], function(x) {
-    switch(as.character(x),
-      "1" = 2,
-      "2" = 1,
-      "3" = 3,
-      "4" = 4,
-      "5" = 5
-    )
-  })
-  ClassDimPlot(srt_epi, "State", "DDRTree")
-  ClassDimPlot(srt_epi, "State", "UncorrectedUMAP2D")
-  ExpDimPlot(srt_epi, "Pseudotime", "UncorrectedUMAP2D")
-}
-
-RunMoncle3 <- function(srt, group.by, reduction = NULL, start = NULL, end = NULL,
-                       seed = 11, plot = TRUE, ...) {
-  check_R("slingshot")
-  if (is.null(reduction)) {
-    reduction <- DefaultReduction(srt)
-  } else {
-    reduction <- DefaultReduction(srt, pattern = reduction)
+  embeddings <- t(cds@reducedDimS)
+  colnames(embeddings) <- paste0(cds@dim_reduce_type, "_", 1:ncol(embeddings))
+  srt[[cds@dim_reduce_type]] <- CreateDimReducObject(embeddings = embeddings, key = paste0(cds@dim_reduce_type, "_"), assay = assay)
+  srt[["Monocle2_State"]] <- cds[["State"]]
+  if (cds@dim_reduce_type == "ICA") {
+    reduced_dim_coords <- as.data.frame(t(cds@reducedDimS))
+  } else if (cds@dim_reduce_type %in% c("simplePPT", "DDRTree")) {
+    reduced_dim_coords <- as.data.frame(t(cds@reducedDimK))
   }
-  set.seed(seed)
-  sl <- slingshot::slingshot(srt[[reduction]]@cell.embeddings,
-    clusterLabels = srt[[group.by, drop = TRUE]],
-    start.clus = start, end.clus = end,
-    ...
-  )
-
-  srt@tools[[paste("Slingshot", group.by, reduction, sep = "_")]] <- sl
-  sl@assays@data$pseudotime
-
-  srt <- AddMetaData(srt, metadata = as.data.frame(slingshot::slingPseudotime(sl)))
-  srt <- AddMetaData(srt, metadata = slingshot::slingBranchID(sl), col.name = "BranchID")
-  if (isTRUE(plot)) {
-    # plot(srt[[reduction]]@cell.embeddings, col = palette_scp(srt[[group.by, drop = TRUE]], matched = TRUE), asp = 1, pch = 16)
-    # lines(slingshot::SlingshotDataSet(sl), lwd = 3, type = "l")
-    plot(srt[[reduction]]@cell.embeddings, col = palette_scp(srt[[group.by, drop = TRUE]], matched = TRUE), asp = 1, pch = 16)
-    lines(slingshot::SlingshotDataSet(sl), lwd = 3, col = seq_along(slingshot::SlingshotDataSet(sl)@lineages))
+  edge_df <- as_data_frame(cds@minSpanningTree)
+  edge_df[, c("x", "y")] <- reduced_dim_coords[edge_df[["from"]], 1:2]
+  edge_df[, c("xend", "yend")] <- reduced_dim_coords[edge_df[["to"]], 1:2]
+  trajectory <- geom_segment(data = edge_df, aes(x = x, y = y, xend = xend, yend = yend))
+  p <- ClassDimPlot(srt, group.by = "Monocle2_State", reduction = reduction_method, label = TRUE, force = TRUE) +
+    trajectory
+  if (!is.null(annotation)) {
+    p_anno <- ClassDimPlot(srt, group.by = annotation, reduction = reduction_method, label = TRUE, force = TRUE) +
+      trajectory
+    p <- p + p_anno
   }
+  suppressWarnings(print(p))
+  if (is.null(root_state)) {
+    root_state <- select.list(sort(unique(cds[["State"]])), title = "Select the root state to order cells:")
+    if (root_state == "" || length(root_state) == 0) {
+      root_state <- NULL
+    }
+  }
+  cds <- orderCells(cds, root_state = root_state)
+  srt[["Monocle2_State"]] <- cds[["State"]]
+  srt[["Monocle2_Pseudotime"]] <- cds[["Pseudotime"]]
+  srt@tools$Monocle2 <- list(cds = cds, features = features, trajectory = trajectory)
+
+  p1 <- ClassDimPlot(srt, group.by = "Monocle2_State", reduction = reduction_method, label = TRUE, force = TRUE) + trajectory
+  p2 <- ExpDimPlot(srt, features = "Monocle2_Pseudotime", reduction = reduction_method) + trajectory
+  p <- p1 + p2
+  print(p)
   return(srt)
 }
+
+orderCells <- function(cds, root_state = NULL, num_paths = NULL, reverse = NULL) {
+  if (class(cds)[1] != "CellDataSet") {
+    stop("Error cds is not of type 'CellDataSet'")
+  }
+  if (is.null(cds@dim_reduce_type)) {
+    stop("Error: dimensionality not yet reduced. Please call reduceDimension() before calling this function.")
+  }
+  if (any(c(length(cds@reducedDimS) == 0, length(cds@reducedDimK) == 0))) {
+    stop("Error: dimension reduction didn't prodvide correct results. Please check your reduceDimension() step and ensure correct dimension reduction are performed before calling this function.")
+  }
+  root_cell <- monocle:::select_root_cell(cds, root_state, reverse)
+  cds@auxOrderingData <- new.env(hash = TRUE)
+  if (cds@dim_reduce_type == "ICA") {
+    if (is.null(num_paths)) {
+      num_paths <- 1
+    }
+    adjusted_S <- t(cds@reducedDimS)
+    dp <- as.matrix(stats::dist(adjusted_S))
+    cellPairwiseDistances(cds) <- as.matrix(stats::dist(adjusted_S))
+    gp <- igraph::graph.adjacency(dp, mode = "undirected", weighted = TRUE)
+    dp_mst <- igraph::minimum.spanning.tree(gp)
+    monocle::minSpanningTree(cds) <- dp_mst
+    next_node <<- 0
+    res <- monocle::pq_helper(dp_mst, use_weights = FALSE, root_node = root_cell)
+    cds@auxOrderingData[[cds@dim_reduce_type]]$root_cell <- root_cell
+    order_list <- monocle::extract_good_branched_ordering(res$subtree, res$root, monocle::cellPairwiseDistances(cds), num_paths, FALSE)
+    cc_ordering <- order_list$ordering_df
+    row.names(cc_ordering) <- cc_ordering$sample_name
+    monocle::minSpanningTree(cds) <- igraph::as.undirected(order_list$cell_ordering_tree)
+    cds[["Pseudotime"]] <- cc_ordering[row.names(Biobase::pData(cds)), ]$pseudo_time
+    cds[["State"]] <- cc_ordering[row.names(Biobase::pData(cds)), ]$cell_state
+    mst_branch_nodes <- igraph::V(monocle::minSpanningTree(cds))[which(igraph::degree(monocle::minSpanningTree(cds)) > 2)]$name
+    monocle::minSpanningTree(cds) <- dp_mst
+    cds@auxOrderingData[[cds@dim_reduce_type]]$cell_ordering_tree <- igraph::as.undirected(order_list$cell_ordering_tree)
+  } else if (cds@dim_reduce_type == "DDRTree") {
+    if (is.null(num_paths) == FALSE) {
+      message("Warning: num_paths only valid for method 'ICA' in reduceDimension()")
+    }
+    cc_ordering <- extract_ddrtree_ordering(cds, root_cell)
+    cds[["Pseudotime"]] <- cc_ordering[row.names(Biobase::pData(cds)), ]$pseudo_time
+    K_old <- monocle::reducedDimK(cds)
+    old_dp <- monocle::cellPairwiseDistances(cds)
+    old_mst <- monocle::minSpanningTree(cds)
+    old_A <- monocle::reducedDimA(cds)
+    old_W <- monocle::reducedDimW(cds)
+    cds <- project2MST(cds, monocle:::project_point_to_line_segment)
+    monocle::minSpanningTree(cds) <- cds@auxOrderingData[[cds@dim_reduce_type]]$pr_graph_cell_proj_tree
+    root_cell_idx <- which(igraph::V(old_mst)$name == root_cell, arr.ind = T)
+    cells_mapped_to_graph_root <- which(cds@auxOrderingData[["DDRTree"]]$pr_graph_cell_proj_closest_vertex == root_cell_idx)
+    if (length(cells_mapped_to_graph_root) == 0) {
+      cells_mapped_to_graph_root <- root_cell_idx
+    }
+    cells_mapped_to_graph_root <- igraph::V(monocle::minSpanningTree(cds))[cells_mapped_to_graph_root]$name
+    tip_leaves <- names(which(igraph::degree(monocle::minSpanningTree(cds)) == 1))
+    root_cell <- cells_mapped_to_graph_root[cells_mapped_to_graph_root %in% tip_leaves][1]
+    if (is.na(root_cell)) {
+      root_cell <- monocle:::select_root_cell(cds, root_state, reverse)
+    }
+    cds@auxOrderingData[[cds@dim_reduce_type]]$root_cell <- root_cell
+    cc_ordering_new_pseudotime <- extract_ddrtree_ordering(cds, root_cell)
+    cds[["Pseudotime"]] <- cc_ordering_new_pseudotime[row.names(Biobase::pData(cds)), ]$pseudo_time
+    if (is.null(root_state) == TRUE) {
+      closest_vertex <- cds@auxOrderingData[["DDRTree"]]$pr_graph_cell_proj_closest_vertex
+      cds[["State"]] <- cc_ordering[closest_vertex[, 1], ]$cell_state
+    }
+    cds@reducedDimK <- K_old
+    cds@cellPairwiseDistances <- old_dp
+    cds@minSpanningTree <- old_mst
+    cds@reducedDimA <- old_A
+    cds@reducedDimW <- old_W
+    mst_branch_nodes <- igraph::V(monocle::minSpanningTree(cds))[which(igraph::degree(monocle::minSpanningTree(cds)) > 2)]$name
+  } else if (cds@dim_reduce_type == "SimplePPT") {
+    if (is.null(num_paths) == FALSE) {
+      message("Warning: num_paths only valid for method 'ICA' in reduceDimension()")
+    }
+    cc_ordering <- extract_ddrtree_ordering(cds, root_cell)
+    cds[["Pseudotime"]] <- cc_ordering[row.names(Biobase::pData(cds)), ]$pseudo_time
+    cds[["State"]] <- cc_ordering[row.names(Biobase::pData(cds)), ]$cell_state
+    mst_branch_nodes <- igraph::V(monocle::minSpanningTree(cds))[which(igraph::degree(monocle::minSpanningTree(cds)) > 2)]$name
+  }
+  cds@auxOrderingData[[cds@dim_reduce_type]]$branch_points <- mst_branch_nodes
+  cds
+}
+project2MST <- function(cds, Projection_Method) {
+  dp_mst <- monocle::minSpanningTree(cds)
+  Z <- monocle::reducedDimS(cds)
+  Y <- monocle::reducedDimK(cds)
+  cds <- monocle:::findNearestPointOnMST(cds)
+  closest_vertex <- cds@auxOrderingData[["DDRTree"]]$pr_graph_cell_proj_closest_vertex
+  closest_vertex_names <- colnames(Y)[closest_vertex]
+  closest_vertex_df <- as.matrix(closest_vertex)
+  row.names(closest_vertex_df) <- row.names(closest_vertex)
+  tip_leaves <- names(which(igraph::degree(dp_mst) == 1))
+  if (!is.function(Projection_Method)) {
+    P <- Y[, closest_vertex]
+  } else {
+    P <- matrix(rep(0, length(Z)), nrow = nrow(Z))
+    for (i in 1:length(closest_vertex)) {
+      neighbors <- names(igraph::V(dp_mst)[suppressWarnings(nei(closest_vertex_names[i], mode = "all"))])
+      projection <- NULL
+      distance <- NULL
+      Z_i <- Z[, i]
+      for (neighbor in neighbors) {
+        if (closest_vertex_names[i] %in% tip_leaves) {
+          tmp <- monocle:::projPointOnLine(Z_i, Y[, c(closest_vertex_names[i], neighbor)])
+        } else {
+          tmp <- Projection_Method(Z_i, Y[, c(closest_vertex_names[i], neighbor)])
+        }
+        projection <- rbind(projection, tmp)
+        distance <- c(distance, stats::dist(rbind(Z_i, tmp)))
+      }
+      if (!inherits(projection, "matrix")) {
+        projection <- as.matrix(projection)
+      }
+      P[, i] <- projection[which(distance == min(distance))[1], ]
+    }
+  }
+  colnames(P) <- colnames(Z)
+  dp <- as.matrix(stats::dist(t(P)))
+  min_dist <- min(dp[dp != 0])
+  dp <- dp + min_dist
+  diag(dp) <- 0
+  monocle::cellPairwiseDistances(cds) <- dp
+  gp <- igraph::graph.adjacency(dp, mode = "undirected", weighted = TRUE)
+  dp_mst <- igraph::minimum.spanning.tree(gp)
+  cds@auxOrderingData[["DDRTree"]]$pr_graph_cell_proj_tree <- dp_mst
+  cds@auxOrderingData[["DDRTree"]]$pr_graph_cell_proj_dist <- P
+  cds@auxOrderingData[["DDRTree"]]$pr_graph_cell_proj_closest_vertex <- closest_vertex_df
+  cds
+}
+extract_ddrtree_ordering <- function(cds, root_cell, verbose = T) {
+  dp <- monocle::cellPairwiseDistances(cds)
+  dp_mst <- monocle::minSpanningTree(cds)
+  curr_state <- 1
+  res <- list(subtree = dp_mst, root = root_cell)
+  states <- rep(1, ncol(dp))
+  names(states) <- igraph::V(dp_mst)$name
+  pseudotimes <- rep(0, ncol(dp))
+  names(pseudotimes) <- igraph::V(dp_mst)$name
+  parents <- rep(NA, ncol(dp))
+  names(parents) <- igraph::V(dp_mst)$name
+  mst_traversal <- igraph::graph.dfs(dp_mst,
+    root = root_cell, mode = "all",
+    unreachable = FALSE, father = TRUE
+  )
+  mst_traversal$father <- as.numeric(mst_traversal$father)
+  curr_state <- 1
+  for (i in 1:length(mst_traversal$order)) {
+    curr_node <- mst_traversal$order[i]
+    curr_node_name <- igraph::V(dp_mst)[curr_node]$name
+    if (is.na(mst_traversal$father[curr_node]) == FALSE) {
+      parent_node <- mst_traversal$father[curr_node]
+      parent_node_name <- igraph::V(dp_mst)[parent_node]$name
+      parent_node_pseudotime <- pseudotimes[parent_node_name]
+      parent_node_state <- states[parent_node_name]
+      curr_node_pseudotime <- parent_node_pseudotime +
+        dp[curr_node_name, parent_node_name]
+      if (igraph::degree(dp_mst, v = parent_node_name) > 2) {
+        curr_state <- curr_state + 1
+      }
+    } else {
+      parent_node <- NA
+      parent_node_name <- NA
+      curr_node_pseudotime <- 0
+    }
+    curr_node_state <- curr_state
+    pseudotimes[curr_node_name] <- curr_node_pseudotime
+    states[curr_node_name] <- curr_node_state
+    parents[curr_node_name] <- parent_node_name
+  }
+  ordering_df <- data.frame(
+    sample_name = names(states), cell_state = factor(states),
+    pseudo_time = as.vector(pseudotimes), parent = parents
+  )
+  row.names(ordering_df) <- ordering_df$sample_name
+  return(ordering_df)
+}
+
+#' Run Monocle3 analysis
+#'
+#' @param srt
+#' @param annotation
+#' @param assay
+#' @param slot
+#' @param reduction
+#' @param cluster
+#' @param graph
+#' @param partition_qval
+#' @param k
+#' @param cluster_method
+#' @param num_iter
+#' @param resolution
+#' @param use_partition
+#' @param close_loop
+#' @param learn_graph_control
+#' @param root_pr_nodes
+#' @param root_cells
+#' @param seed
+#'
+#' @examples
+#' if (interactive()) {
+#'   data("pancreas1k")
+#'   # Use Monocle clusters to infer the trajectories
+#'   pancreas1k <- RunMonocle3(srt = pancreas1k, annotation = "CellType")
+#'   names(pancreas1k@tools$Monocle3)
+#'   trajectory <- pancreas1k@tools$Monocle3$trajectory
+#'   milestones <- pancreas1k@tools$Monocle3$milestones
+#'
+#'   p1 <- ClassDimPlot(pancreas1k, group.by = "Monocle3_partitions", reduction = "UMAP", label = TRUE) + trajectory + milestones
+#'   p2 <- ClassDimPlot(pancreas1k, group.by = "Monocle3_clusters", reduction = "UMAP", label = TRUE) + trajectory
+#'   p3 <- ExpDimPlot(pancreas1k, features = "Monocle3_Pseudotime", reduction = "UMAP") + trajectory
+#'   print(p1 + p2 + p3)
+#'
+#'   # Select the lineage using  monocle3::choose_graph_segments
+#'   cds <- pancreas1k@tools$Monocle3$cds
+#'   cds_sub <- monocle3::choose_graph_segments(cds, starting_pr_node = NULL, ending_pr_nodes = NULL)
+#'   pancreas1k$Lineages_1 <- NA
+#'   pancreas1k$Lineages_1[colnames(cds_sub)] <- pancreas1k$Monocle3_Pseudotime[colnames(cds_sub)]
+#'   ClassDimPlot(pancreas1k, group.by = "SubCellType", lineages = "Lineages_1", lineages_span = 0.1)
+#'
+#'   # Use Seurat clusters to infer the trajectories
+#'   pancreas1k <- Standard_SCP(pancreas1k)
+#'   ClassDimPlot(pancreas1k, group.by = c("Standardclusters", "CellType"), label = TRUE)
+#'   pancreas1k <- RunMonocle3(srt = pancreas1k, annotation = "CellType", clusters = "Standardclusters")
+#'   trajectory <- pancreas1k@tools$Monocle3$trajectory
+#'   p1 <- ClassDimPlot(pancreas1k, group.by = "Monocle3_partitions", reduction = "StandardUMAP2D", label = TRUE) + trajectory
+#'   p2 <- ClassDimPlot(pancreas1k, group.by = "Monocle3_clusters", reduction = "StandardUMAP2D", label = TRUE) + trajectory
+#'   p3 <- ExpDimPlot(pancreas1k, features = "Monocle3_Pseudotime", reduction = "StandardUMAP2D") + trajectory
+#'   print(p1 + p2 + p3)
+#'
+#'   # Use custom graphs and cell clusters to infer the partitions and trajectories, respectively
+#'   pancreas1k <- Standard_SCP(pancreas1k, cluster_resolution = 5)
+#'   ClassDimPlot(pancreas1k, group.by = c("Standardclusters", "CellType"), label = TRUE)
+#'   pancreas1k <- RunMonocle3(
+#'     srt = pancreas1k, annotation = "CellType",
+#'     clusters = "Standardclusters", graph = "Standardpca_SNN"
+#'   )
+#'   trajectory <- pancreas1k@tools$Monocle3$trajectory
+#'   p1 <- ClassDimPlot(pancreas1k, group.by = "Monocle3_partitions", reduction = "StandardUMAP2D", label = TRUE) + trajectory
+#'   p2 <- ClassDimPlot(pancreas1k, group.by = "Monocle3_clusters", reduction = "StandardUMAP2D", label = TRUE) + trajectory
+#'   p3 <- ExpDimPlot(pancreas1k, features = "Monocle3_Pseudotime", reduction = "StandardUMAP2D") + trajectory
+#'   print(p1 + p2 + p3)
+#' }
+#' @importFrom SeuratObject as.sparse Embeddings Loadings Stdev
+#' @importFrom Seurat DefaultAssay GetAssayData
+#' @importFrom igraph as_data_frame
+#' @importFrom ggplot2 geom_segment
+#' @importFrom ggrepel geom_text_repel
+#' @importFrom ggnewscale new_scale_color
+#' @importFrom utils packageVersion
+#' @export
+RunMonocle3 <- function(srt, annotation = NULL, assay = NULL, slot = "counts",
+                        reduction = DefaultReduction(srt), clusters = NULL, graph = NULL, partition_qval = 0.05,
+                        k = 50, cluster_method = "louvain", num_iter = 2, resolution = NULL,
+                        use_partition = NULL, close_loop = TRUE, learn_graph_control = NULL,
+                        root_pr_nodes = NULL, root_cells = NULL, seed = 11) {
+  set.seed(seed)
+  if (!requireNamespace("monocle3", quietly = TRUE) || packageVersion("monocle3") < package_version("1.2.0")) {
+    check_R(c("cole-trapnell-lab/monocle3"), force = TRUE)
+  }
+  require("DDRTree", quietly = TRUE)
+
+  assay <- assay %||% DefaultAssay(srt)
+  expr_matrix <- as.sparse(GetAssayData(srt, assay = assay, slot = slot))
+  p_data <- srt@meta.data
+  f_data <- data.frame(gene_short_name = row.names(expr_matrix), row.names = row.names(expr_matrix))
+  cds <- monocle3::new_cell_data_set(
+    expression_data = expr_matrix,
+    cell_metadata = p_data,
+    gene_metadata = f_data
+  )
+  if (!"Size_Factor" %in% colnames(cds@colData)) {
+    size.factor <- paste0("nCount_", assay)
+    if (size.factor %in% colnames(srt@meta.data)) {
+      cds[["Size_Factor"]] <- cds[[size.factor, drop = TRUE]]
+    }
+  }
+  reduction <- reduction %||% DefaultReduction(srt)
+  SingleCellExperiment::reducedDims(cds)[["UMAP"]] <- Embeddings(srt[[reduction]])
+  loadings <- Loadings(object = srt[[reduction]])
+  if (length(loadings) > 0) {
+    slot(object = cds, name = "reduce_dim_aux")[["gene_loadings"]] <- loadings
+  }
+  stdev <- Stdev(object = srt[[reduction]])
+  if (length(stdev) > 0) {
+    slot(object = cds, name = "reduce_dim_aux")[["prop_var_expl"]] <- stdev
+  }
+
+  if (!is.null(clusters)) {
+    if (!is.null(graph)) {
+      g <- igraph::graph_from_adjacency_matrix(
+        adjmatrix = srt[[graph]],
+        weighted = TRUE
+      )
+      cluster_result <- list(
+        g = g,
+        relations = NULL,
+        distMatrix = "matrix",
+        coord = NULL,
+        edge_links = NULL,
+        optim_res = list(
+          membership = as.integer(as.factor(srt[[clusters, drop = TRUE]])),
+          modularity = NA_real_
+        )
+      )
+      if (length(unique(cluster_result$optim_res$membership)) > 1) {
+        cluster_graph_res <- monocle3:::compute_partitions(cluster_result$g, cluster_result$optim_res, partition_qval)
+        partitions <- igraph::components(cluster_graph_res$cluster_g)$membership[cluster_result$optim_res$membership]
+        partitions <- as.factor(partitions)
+      } else {
+        partitions <- rep(1, ncol(srt))
+      }
+      names(partitions) <- colnames(cds)
+      cds@clusters[["UMAP"]] <- list(
+        cluster_result = cluster_result,
+        partitions = partitions,
+        clusters = as.factor(srt[[clusters, drop = TRUE]])
+      )
+      cds[["clusters"]] <- cds[[clusters]]
+      cds <- monocle3:::add_citation(cds, "clusters")
+      cds <- monocle3:::add_citation(cds, "partitions")
+    } else {
+      cds <- monocle3::cluster_cells(cds,
+        reduction_method = "UMAP", partition_qval = partition_qval,
+        k = k, cluster_method = cluster_method, num_iter = num_iter, resolution = resolution
+      )
+      cds@clusters[["UMAP"]]$clusters <- as.factor(srt[[clusters, drop = TRUE]])
+      cds[["clusters"]] <- cds@clusters[["UMAP"]]$clusters
+    }
+  } else {
+    cds <- monocle3::cluster_cells(cds,
+      reduction_method = "UMAP", partition_qval = partition_qval,
+      k = k, cluster_method = cluster_method, num_iter = num_iter, resolution = resolution
+    )
+    cds[["clusters"]] <- cds@clusters[["UMAP"]]$clusters
+  }
+  srt[["Monocle3_clusters"]] <- cds@clusters[["UMAP"]]$clusters
+  srt[["Monocle3_partitions"]] <- cds@clusters[["UMAP"]]$partitions
+  p <- ClassDimPlot(srt, c("Monocle3_partitions", "Monocle3_clusters"), reduction = reduction, label = FALSE, nrow = 1, force = TRUE)
+  print(p)
+  if (is.null(use_partition)) {
+    use_partition <- select.list(c(TRUE, FALSE), title = "Whether to use partitions to learn disjoint graph in each partition?")
+    if (use_partition == "" || length(use_partition) == 0) {
+      use_partition <- TRUE
+    }
+  }
+  cds <- suppressWarnings(monocle3::learn_graph(cds = cds, use_partition = use_partition, close_loop = close_loop, learn_graph_control = learn_graph_control))
+
+  reduced_dim_coords <- t(cds@principal_graph_aux[["UMAP"]]$dp_mst)
+  edge_df <- as_data_frame(cds@principal_graph[["UMAP"]])
+  edge_df[, c("x", "y")] <- reduced_dim_coords[edge_df[["from"]], 1:2]
+  edge_df[, c("xend", "yend")] <- reduced_dim_coords[edge_df[["to"]], 1:2]
+  mst_branch_nodes <- monocle3:::branch_nodes(cds, "UMAP")
+  mst_leaf_nodes <- monocle3:::leaf_nodes(cds, "UMAP")
+  mst_root_nodes <- monocle3:::root_nodes(cds, "UMAP")
+  pps <- c(mst_branch_nodes, mst_leaf_nodes, mst_root_nodes)
+  point_df <- data.frame(nodes = names(pps), x = reduced_dim_coords[pps, 1], y = reduced_dim_coords[pps, 2])
+  point_df[, "is_branch"] <- names(pps) %in% names(mst_branch_nodes)
+  trajectory <- list(
+    geom_segment(data = edge_df, aes(x = x, y = y, xend = xend, yend = yend))
+  )
+  milestones <- list(
+    geom_point(
+      data = point_df[point_df[["is_branch"]] == FALSE, ], aes(x = x, y = y),
+      shape = 21, color = "white", fill = "black", size = 3, stroke = 1
+    ),
+    geom_point(
+      data = point_df[point_df[["is_branch"]] == TRUE, ], aes(x = x, y = y),
+      shape = 21, color = "white", fill = "red", size = 3, stroke = 1
+    ),
+    new_scale_color(),
+    geom_text_repel(
+      data = point_df, aes(x = x, y = y, label = nodes, color = is_branch),
+      fontface = "bold", min.segment.length = 0,
+      point.size = 3, max.overlaps = 100,
+      bg.color = "white", bg.r = 0.1, size = 3.5
+    ),
+    scale_color_manual(values = setNames(c("red", "black"), nm = c(TRUE, FALSE)))
+  )
+  p <- ClassDimPlot(srt, group.by = "Monocle3_partitions", reduction = reduction, label = FALSE, force = TRUE) +
+    trajectory + milestones
+  if (!is.null(annotation)) {
+    p_anno <- ClassDimPlot(srt, group.by = annotation, reduction = reduction, label = TRUE, force = TRUE) +
+      trajectory + milestones
+    p <- p + p_anno
+  }
+  suppressWarnings(print(p))
+
+  if (is.null(root_pr_nodes) && is.null(root_cells)) {
+    root_pr_nodes <- utils::select.list(names(pps), title = "Select the root nodes to order cells, or leave blank for interactive selection:", multiple = TRUE)
+    if (root_pr_nodes == "" || length(root_pr_nodes) == 0) {
+      root_pr_nodes <- NULL
+    }
+  }
+  cds <- monocle3::order_cells(cds, root_pr_nodes = root_pr_nodes, root_cells = root_cells)
+  pseudotime <- cds@principal_graph_aux[["UMAP"]]$pseudotime
+  pseudotime[is.infinite(pseudotime)] <- NA
+  srt[["Monocle3_Pseudotime"]] <- pseudotime
+  srt@tools$Monocle3 <- list(cds = cds, trajectory = trajectory, milestones = milestones)
+
+  p1 <- ClassDimPlot(srt, group.by = "Monocle3_partitions", reduction = reduction, label = FALSE, force = TRUE) +
+    trajectory
+  p2 <- suppressWarnings(ExpDimPlot(srt, features = "Monocle3_Pseudotime", reduction = reduction) +
+    theme(legend.position = "none") +
+    trajectory)
+  p <- p1 + p2
+  print(p)
+  return(srt)
+}
+
+
 
 #' RunDynamicFeatures
 #'
@@ -2450,7 +2923,7 @@ srt_to_adata <- function(srt,
 #' # srt <- adata_to_srt(adata)
 #' # srt
 #' @importFrom Seurat CreateSeuratObject CreateAssayObject CreateDimReducObject AddMetaData
-#' @importFrom SeuratObject as.Graph
+#' @importFrom SeuratObject as.Graph as.sparse
 #' @importFrom reticulate iterate
 #' @importFrom Matrix t
 #' @export
@@ -2460,7 +2933,7 @@ adata_to_srt <- function(adata) {
   }
   x <- t(adata$X)
   if (!inherits(x, "dgCMatrix")) {
-    x <- as(x[1:nrow(x), ], "dgCMatrix")
+    x <- as.sparse(x[1:nrow(x), ])
   }
   rownames(x) <- adata$var_names$values
   colnames(x) <- adata$obs_names$values
@@ -2479,7 +2952,7 @@ adata_to_srt <- function(adata) {
       rownames(layer) <- adata$var_names$values
       colnames(layer) <- adata$obs_names$values
       if (!inherits(layer, "dgCMatrix")) {
-        layer <- as(layer[1:nrow(layer), ], "dgCMatrix")
+        layer <- as.sparse(layer[1:nrow(layer), ])
       }
       srt[[k]] <- CreateAssayObject(counts = layer)
     }
