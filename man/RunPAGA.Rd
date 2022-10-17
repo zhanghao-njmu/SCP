@@ -24,6 +24,12 @@ RunPAGA(
   paga_layout = "fr",
   threshold = 0.1,
   point_size = 20,
+  infer_pseudotime = FALSE,
+  root_group = NULL,
+  root_cell = NULL,
+  n_dcs = 10,
+  n_branchings = 0,
+  min_group_size = 0.01,
   show_plot = TRUE,
   dpi = 300,
   save = FALSE,
@@ -80,4 +86,12 @@ Run PAGA analysis
 \examples{
 data("pancreas1k")
 pancreas1k <- RunPAGA(srt = pancreas1k, group_by = "SubCellType", liner_reduction = "PCA", nonliner_reduction = "UMAP", return_seurat = TRUE)
+
+pancreas1k <- RunPAGA(
+  srt = pancreas1k, group_by = "SubCellType", liner_reduction = "PCA", nonliner_reduction = "UMAP",
+  embedded_with_PAGA = TRUE, infer_pseudotime = TRUE, root_group = "Ductal", return_seurat = TRUE
+)
+head(pancreas1k[[]])
+ExpDimPlot(pancreas1k, "dpt_pseudotime")
+
 }

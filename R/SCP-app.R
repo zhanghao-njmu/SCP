@@ -48,7 +48,7 @@ CreateDataFile <- function(srt, DataFile, name = NULL, assays = "RNA", slots = "
         if (!inherits(data, "dgCMatrix")) {
           data <- as.sparse(data[1:nrow(data), ])
         }
-        writeTENxMatrix(x = t(data), filepath = DataFile, group = paste0(name, "/", assay, "/", slot), level = compression_level)
+        writeTENxMatrix(x = data, filepath = DataFile, group = paste0(name, "/", assay, "/", slot), level = compression_level)
       }
     }
   }

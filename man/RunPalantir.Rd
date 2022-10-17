@@ -84,4 +84,8 @@ pancreas1k <- RunPalantir(
   srt = pancreas1k, group_by = "SubCellType", liner_reduction = "PCA", nonliner_reduction = "UMAP",
   early_group = "Ductal", terminal_groups = c("Alpha", "Beta", "Delta", "Epsilon"), return_seurat = TRUE
 )
+head(pancreas1k[[]])
+ExpDimPlot(pancreas1k, c("palantir_pseudotime", "palantir_diff_potential"))
+ExpDimPlot(pancreas1k, paste0(c("Alpha", "Beta", "Delta", "Epsilon"), "_diff_potential"))
+
 }

@@ -3090,6 +3090,14 @@ check_python_element <- function(x, depth = maxDepth(x)) {
 #' @examples
 #' data("pancreas1k")
 #' pancreas1k <- RunPAGA(srt = pancreas1k, group_by = "SubCellType", liner_reduction = "PCA", nonliner_reduction = "UMAP", return_seurat = TRUE)
+#'
+#' pancreas1k <- RunPAGA(
+#'   srt = pancreas1k, group_by = "SubCellType", liner_reduction = "PCA", nonliner_reduction = "UMAP",
+#'   embedded_with_PAGA = TRUE, infer_pseudotime = TRUE, root_group = "Ductal", return_seurat = TRUE
+#' )
+#' head(pancreas1k[[]])
+#' ExpDimPlot(pancreas1k, "dpt_pseudotime")
+#'
 #' @export
 #'
 RunPAGA <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_layers = c("spliced", "unspliced"), slot_layers = "counts",
@@ -3097,6 +3105,7 @@ RunPAGA <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_layers
                     liner_reduction = NULL, nonliner_reduction = NULL, basis = NULL,
                     n_pcs = 30, n_neighbors = 30, use_rna_velocity = FALSE, vkey = "stochastic",
                     embedded_with_PAGA = FALSE, paga_layout = "fr", threshold = 0.1, point_size = 20,
+                    infer_pseudotime = FALSE, root_group = NULL, root_cell = NULL, n_dcs = 10, n_branchings = 0, min_group_size = 0.01,
                     show_plot = TRUE, dpi = 300, save = FALSE, dirpath = "./", fileprefix = "",
                     return_seurat = FALSE) {
   check_Python("scanpy")
@@ -3206,6 +3215,11 @@ RunPAGA <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_layers
 #' @examples
 #' data("pancreas1k")
 #' pancreas1k <- RunSCVELO(srt = pancreas1k, group_by = "SubCellType", liner_reduction = "PCA", nonliner_reduction = "UMAP", return_seurat = TRUE)
+#' head(pancreas1k[[]])
+#' names(pancreas1k@assays)
+#' ExpDimPlot(pancreas1k, c("stochastic_length", "stochastic_confidence"))
+#' ExpDimPlot(pancreas1k, "stochastic_pseudotime")
+#'
 #' @export
 #'
 RunSCVELO <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_layers = c("spliced", "unspliced"), slot_layers = "counts",
@@ -3291,6 +3305,10 @@ RunSCVELO <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_laye
 #'   srt = pancreas1k, group_by = "SubCellType", liner_reduction = "PCA", nonliner_reduction = "UMAP",
 #'   early_group = "Ductal", terminal_groups = c("Alpha", "Beta", "Delta", "Epsilon"), return_seurat = TRUE
 #' )
+#' head(pancreas1k[[]])
+#' ExpDimPlot(pancreas1k, c("palantir_pseudotime", "palantir_diff_potential"))
+#' ExpDimPlot(pancreas1k, paste0(c("Alpha", "Beta", "Delta", "Epsilon"), "_diff_potential"))
+#'
 #' @export
 #'
 RunPalantir <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_layers = c("spliced", "unspliced"), slot_layers = "counts",

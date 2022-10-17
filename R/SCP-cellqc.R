@@ -292,7 +292,7 @@ RunCellQC <- function(srt, assay = "RNA",
                       UMI_threshold = 3000, gene_threshold = 1000,
                       mito_threshold = 20, mito_pattern = c("MT-", "Mt-", "mt-"), mito_gene = NULL,
                       ribo_threshold = 50, ribo_pattern = c("RP[SL]\\d+\\w{0,1}\\d*$", "Rp[sl]\\d+\\w{0,1}\\d*$", "rp[sl]\\d+\\w{0,1}\\d*$"), ribo_gene = NULL,
-                      ribo_mito_ratio_range = c(1, 10),
+                      ribo_mito_ratio_range = c(1, Inf),
                       species = NULL, species_gene_prefix = NULL, species_percent = 95,
                       seed = 11) {
   set.seed(seed)

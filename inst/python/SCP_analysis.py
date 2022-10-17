@@ -446,10 +446,14 @@ def CellRank(adata=None, h5ad=None, group_by=None, n_jobs=1,
 
 def PAGA(adata=None, h5ad=None, group_by=None, liner_reduction=None, nonliner_reduction=None,basis=None,
             n_pcs=30,n_neighbors=30, use_rna_velocity=False,vkey="stochastic",
-            embedded_with_PAGA=False,paga_layout="fr", threshold=0.1, point_size=20, axis="equal",
+            embedded_with_PAGA=False,paga_layout="fr", threshold=0.1, point_size=20, axis = "equal",
+            infer_pseudotime = False,root_cell = None,root_group=None,n_dcs = 10, n_branchings = 0, min_group_size = 0.01,
             show_plot=True, dpi=300, save=False, dirpath="./", fileprefix=""):
   import matplotlib.pyplot as plt
   import scanpy as sc
+  import numpy as np
+  import statistics
+  from math import hypot
 
   import warnings
   warnings.simplefilter("ignore", category=UserWarning)
@@ -501,13 +505,24 @@ def PAGA(adata=None, h5ad=None, group_by=None, liner_reduction=None, nonliner_re
     if point_size is None:
       point_size = min(100000 / adata.shape[0],20)  
       
+    if infer_pseudotime is True and root_cell is None and root_group is None:
+      print("root_cell or root_group should be provided.")
+      exit()
+
     if use_rna_velocity is True:
       adata.uns["velocity_graph"]=adata.uns[vkey+"_graph"]
     # del adata.uns
     
     adata.obs[group_by] = adata.obs[group_by].astype(dtype = "category")
-  
-    sc.pp.neighbors(adata, n_pcs = n_pcs, use_rep = liner_reduction, n_neighbors = n_neighbors)
+    
+    if "X_diffmap" in adata.obsm_keys():
+      X_diffmap = adata.obsm['X_diffmap']
+      del adata.obsm['X_diffmap']
+      sc.pp.neighbors(adata, n_pcs = n_pcs, use_rep = liner_reduction, n_neighbors = n_neighbors)
+      adata.obsm['X_diffmap'] = X_diffmap
+    else:
+      sc.pp.neighbors(adata, n_pcs = n_pcs, use_rep = liner_reduction, n_neighbors = n_neighbors)
+    
     sc.tl.paga(adata, groups = group_by, use_rna_velocity = use_rna_velocity)
     
     if use_rna_velocity is True:
@@ -546,6 +561,31 @@ def PAGA(adata=None, h5ad=None, group_by=None, liner_reduction=None, nonliner_re
         plt.show()
       if save:
         plt.savefig('.'.join(filter(None, [fileprefix, "paga_umap.png"])), dpi=dpi)
+        
+    if infer_pseudotime is True:
+      if root_group is not None and root_cell is None:
+        cell = adata.obs[group_by].index.values[adata.obs[group_by]==root_group]
+        root_group_cell=adata.obsm[basis][adata.obs[group_by]==root_group,][:, [0, 1]]
+        x=statistics.median(root_group_cell[:,0])
+        y=statistics.median(root_group_cell[:,1])
+        diff=np.array((x - root_group_cell[:,0], y - root_group_cell[:,1]))
+        dist=[]
+        for i in range(diff.shape[1]):
+          dist.append(hypot(diff[0,i],diff[1,i]))
+
+        root_cell=cell[dist.index(min(dist))]
+        
+      sc.tl.diffmap(adata, n_comps = n_dcs)
+      adata.uns['iroot'] = np.flatnonzero(adata.obs_names == root_cell)[0]
+      sc.tl.dpt(adata, n_dcs = n_dcs, n_branchings = n_branchings, min_group_size = min_group_size)
+      
+      sc.pl.embedding(adata, basis = basis, color = "dpt_pseudotime", save = False, show = False)
+      plt.axis(axis) 
+      if show_plot is True:
+          plt.show()
+      if save:
+          plt.savefig('.'.join(filter(None, [fileprefix, "dpt_pseudotime.png"])), dpi=dpi)
+      
 
   finally:
       os.chdir(prevdir)
@@ -635,6 +675,7 @@ def Palantir(adata=None, h5ad=None,group_by=None,
       dist=[]
       for i in range(diff.shape[1]):
         dist.append(hypot(diff[0,i],diff[1,i]))
+        
       early_cell=cell[dist.index(min(dist))]
       
     if early_cell is None:
@@ -643,8 +684,8 @@ def Palantir(adata=None, h5ad=None,group_by=None,
     else:  
       print("early_cell: ",early_cell)
           
+    terminal_cells_dict=dict()
     if terminal_groups is not None and terminal_cells is None:
-      terminal_cells=[]
       for n in range(len(terminal_groups)):
         terminal_group=terminal_groups[n]
         cell = adata.obs[group_by].index.values[adata.obs[group_by]==terminal_group]
@@ -655,7 +696,9 @@ def Palantir(adata=None, h5ad=None,group_by=None,
         dist=[]
         for i in range(diff.shape[1]):
           dist.append(hypot(diff[0,i],diff[1,i]))
-        terminal_cells.append(cell[dist.index(min(dist))])
+        terminal_cells_dict[cell[dist.index(min(dist))]]=terminal_group + "_diff_potential"
+        
+      terminal_cells=list(terminal_cells_dict.keys())
 
     if terminal_cells is None:
       print("terminal_cells: None")
@@ -691,6 +734,8 @@ def Palantir(adata=None, h5ad=None,group_by=None,
         adata.obs.drop(term, axis=1, inplace=True)
     adata.obs=adata.obs.join(pr_res.pseudotime.to_frame("palantir_pseudotime"))
     adata.obs=adata.obs.join(pr_res.entropy.to_frame("palantir_diff_potential"))
+    if len(terminal_cells_dict)>0:
+      pr_res.branch_probs=pr_res.branch_probs.rename(columns=terminal_cells_dict)
     adata.obs=adata.obs.join(pr_res.branch_probs)
     
     sc.pl.embedding(adata,basis=basis,color="palantir_pseudotime",size = point_size)

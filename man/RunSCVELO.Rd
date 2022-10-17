@@ -111,4 +111,9 @@ This function performs scVelo workflow in R by reticulate.
 \examples{
 data("pancreas1k")
 pancreas1k <- RunSCVELO(srt = pancreas1k, group_by = "SubCellType", liner_reduction = "PCA", nonliner_reduction = "UMAP", return_seurat = TRUE)
+head(pancreas1k[[]])
+names(pancreas1k@assays)
+ExpDimPlot(pancreas1k, c("stochastic_length", "stochastic_confidence"))
+ExpDimPlot(pancreas1k, "stochastic_pseudotime")
+
 }

@@ -24,7 +24,7 @@ RunCellQC(
   ribo_pattern = c("RP[SL]\\\\d+\\\\w{0,1}\\\\d*$", "Rp[sl]\\\\d+\\\\w{0,1}\\\\d*$",
     "rp[sl]\\\\d+\\\\w{0,1}\\\\d*$"),
   ribo_gene = NULL,
-  ribo_mito_ratio_range = c(1, 10),
+  ribo_mito_ratio_range = c(1, Inf),
   species = NULL,
   species_gene_prefix = NULL,
   species_percent = 95,

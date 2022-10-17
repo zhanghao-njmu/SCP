@@ -230,7 +230,7 @@ exist_pkg <- function(pkg, envname = "SCP") {
 check_Python <- function(pkgs, pkg_names = NULL, envname = "SCP", pipy_mirror = "https://pypi.org/simple/", force = FALSE) {
   if (!reticulate::virtualenv_exists("SCP")) {
     warning("SCP python virtual environment do not exist. Create it with the PrepareVirtualEnv function...", immediate. = TRUE)
-    PrepareVirtualEnv()
+    PrepareVirtualEnv(pipy_mirror = pipy_mirror)
   }
   if (length(pkg_names) != 0 && length(pkg_names) != length(pkgs)) {
     stop("pkg_names must be NULL or a vector of the same length with pkgs")
