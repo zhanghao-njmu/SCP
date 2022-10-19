@@ -115,5 +115,6 @@ head(pancreas1k[[]])
 names(pancreas1k@assays)
 ExpDimPlot(pancreas1k, c("stochastic_length", "stochastic_confidence"))
 ExpDimPlot(pancreas1k, "stochastic_pseudotime")
-
+VelocityPlot(pancreas1k, reduction = "UMAP", plot_type = "stream")
+ClassDimPlot(pancreas1k, group.by = "SubCellType", reduction = "UMAP", pt.size = NA, velocity = "stochastic")
 }

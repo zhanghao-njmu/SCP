@@ -78,4 +78,9 @@ pancreas1k <- RunGSEA(pancreas1k, group_by = "CellType", enrichment = "GO_BP", s
 GSEAPlot(pancreas1k, group_by = "CellType")
 GSEAPlot(pancreas1k, group_by = "CellType", group_use = "Ductal", geneSetID = "GO:0006412")
 GSEAPlot(pancreas1k, group_by = "CellType", group_use = "Endocrine", geneSetID = c("GO:0046903", "GO:0015031", "GO:0007600"))
+
+# Or run GSEA with "geneID", "geneScore" and "geneID_groups" as input
+de_df <- dplyr::filter(pancreas1k@tools$DEtest_CellType$AllMarkers_wilcox, p_val_adj < 0.05)
+gsea_out <- RunGSEA(geneID = de_df[["gene"]], geneScore = de_df[["avg_log2FC"]], geneID_groups = de_df[["group1"]], enrichment = "GO_BP", species = "Mus_musculus")
+GSEAPlot(res = gsea_out, group_use = c("Ngn3 low EP", "Endocrine"))
 }

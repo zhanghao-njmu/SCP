@@ -1079,7 +1079,7 @@ RunSCExplorer <- function(base_dir = "SCExplorer",
       file.copy(from = temp, to = app_file, overwrite = TRUE)
       if (isTRUE(style_script)) {
         message("Styling the script...")
-        invisible(capture.output(styler:::style_file(app_file)))
+        invisible(capture.output(styler::style_file(app_file)))
       }
     } else {
       message("app.R already exists. You may regenerate it with 'overwrite=TRUE'.")

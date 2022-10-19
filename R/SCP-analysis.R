@@ -1199,6 +1199,11 @@ PrepareEnrichmentDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
 #' pancreas1k <- RunDEtest(pancreas1k, group_by = "CellType")
 #' pancreas1k <- RunEnrichment(srt = pancreas1k, group_by = "CellType", enrichment = "GO_BP", species = "Mus_musculus")
 #' EnrichmentPlot(pancreas1k, group_by = "CellType", enrichment = "GO_BP", plot_type = "bar")
+#'
+#' # Or run enrichment with "geneID" and "geneID_groups" as input
+#' de_df <- dplyr::filter(pancreas1k@tools$DEtest_CellType$AllMarkers_wilcox, avg_log2FC > 0 & p_val_adj < 0.05)
+#' enrich_out <- RunEnrichment(geneID = de_df[["gene"]], geneID_groups = de_df[["group1"]], enrichment = "GO_BP", species = "Mus_musculus")
+#' EnrichmentPlot(res = enrich_out, group_use = c("Ngn3 low EP", "Endocrine"))
 #' @importFrom BiocParallel bplapply
 #' @export
 #'
@@ -1431,6 +1436,11 @@ RunEnrichment <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_t
 #' GSEAPlot(pancreas1k, group_by = "CellType")
 #' GSEAPlot(pancreas1k, group_by = "CellType", group_use = "Ductal", geneSetID = "GO:0006412")
 #' GSEAPlot(pancreas1k, group_by = "CellType", group_use = "Endocrine", geneSetID = c("GO:0046903", "GO:0015031", "GO:0007600"))
+#'
+#' # Or run GSEA with "geneID", "geneScore" and "geneID_groups" as input
+#' de_df <- dplyr::filter(pancreas1k@tools$DEtest_CellType$AllMarkers_wilcox, p_val_adj < 0.05)
+#' gsea_out <- RunGSEA(geneID = de_df[["gene"]], geneScore = de_df[["avg_log2FC"]], geneID_groups = de_df[["group1"]], enrichment = "GO_BP", species = "Mus_musculus")
+#' GSEAPlot(res = gsea_out, group_use = c("Ngn3 low EP", "Endocrine"))
 #' @export
 #'
 RunGSEA <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_threshold = "p_val_adj < 0.05",
@@ -1933,9 +1943,9 @@ orderCells <- function(cds, root_state = NULL, num_paths = NULL, reverse = NULL)
     dp_mst <- igraph::minimum.spanning.tree(gp)
     monocle::minSpanningTree(cds) <- dp_mst
     next_node <<- 0
-    res <- monocle::pq_helper(dp_mst, use_weights = FALSE, root_node = root_cell)
+    res <- monocle:::pq_helper(dp_mst, use_weights = FALSE, root_node = root_cell)
     cds@auxOrderingData[[cds@dim_reduce_type]]$root_cell <- root_cell
-    order_list <- monocle::extract_good_branched_ordering(res$subtree, res$root, monocle::cellPairwiseDistances(cds), num_paths, FALSE)
+    order_list <- monocle:::extract_good_branched_ordering(res$subtree, res$root, monocle::cellPairwiseDistances(cds), num_paths, FALSE)
     cc_ordering <- order_list$ordering_df
     row.names(cc_ordering) <- cc_ordering$sample_name
     monocle::minSpanningTree(cds) <- igraph::as.undirected(order_list$cell_ordering_tree)
@@ -3090,13 +3100,17 @@ check_python_element <- function(x, depth = maxDepth(x)) {
 #' @examples
 #' data("pancreas1k")
 #' pancreas1k <- RunPAGA(srt = pancreas1k, group_by = "SubCellType", liner_reduction = "PCA", nonliner_reduction = "UMAP", return_seurat = TRUE)
+#' PAGAPlot(pancreas1k)
 #'
 #' pancreas1k <- RunPAGA(
 #'   srt = pancreas1k, group_by = "SubCellType", liner_reduction = "PCA", nonliner_reduction = "UMAP",
 #'   embedded_with_PAGA = TRUE, infer_pseudotime = TRUE, root_group = "Ductal", return_seurat = TRUE
 #' )
 #' head(pancreas1k[[]])
-#' ExpDimPlot(pancreas1k, "dpt_pseudotime")
+#' names(pancreas1k@reductions)
+#' ExpDimPlot(pancreas1k, "dpt_pseudotime", reduction = "PAGAUMAP2D")
+#' PAGAPlot(pancreas1k, reduction = "PAGAUMAP2D")
+#' ClassDimPlot(pancreas1k, group.by = "SubCellType", reduction = "PAGAUMAP2D", paga = pancreas1k@misc$paga)
 #'
 #' @export
 #'
@@ -3219,7 +3233,8 @@ RunPAGA <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_layers
 #' names(pancreas1k@assays)
 #' ExpDimPlot(pancreas1k, c("stochastic_length", "stochastic_confidence"))
 #' ExpDimPlot(pancreas1k, "stochastic_pseudotime")
-#'
+#' VelocityPlot(pancreas1k, reduction = "UMAP", plot_type = "stream")
+#' ClassDimPlot(pancreas1k, group.by = "SubCellType", reduction = "UMAP", pt.size = NA, velocity = "stochastic")
 #' @export
 #'
 RunSCVELO <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_layers = c("spliced", "unspliced"), slot_layers = "counts",

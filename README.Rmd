@@ -149,35 +149,29 @@ ExpDimPlot3D(srt = pancreas1k, features = c("Sox9", "Neurog3", "Fev", "Rbp4"))
 
 ### Integration pipeline in SCP
 
-Example data for integration is [panc8(eight human pancreas datasets)](https://github.com/satijalab/seurat-data)
+Example data for integration is a subsetted version of [panc8(eight human pancreas datasets)](https://github.com/satijalab/seurat-data)
 
 ```{r Integration_SCP}
-if (!require("SeuratData", quietly = TRUE)) {
-  devtools::install_github("satijalab/seurat-data")
-}
-library(SeuratData)
-suppressWarnings(InstallData("panc8"))
-data("panc8")
-panc8 <- Integration_SCP(srtMerge = panc8, batch = "tech", integration_method = "Seurat")
-panc8 <- Integration_SCP(srtMerge = panc8, batch = "tech", integration_method = "Harmony", nonliner_reduction = "pacmap")
+data("panc8_sub")
+panc8_sub <- Integration_SCP(srtMerge = panc8_sub, batch = "tech", integration_method = "Seurat")
+panc8_sub <- Integration_SCP(srtMerge = panc8_sub, batch = "tech", integration_method = "fastMNN", nonliner_reduction = "pacmap")
 ClassDimPlot(
-  srt = panc8, group.by = c("celltype", "tech"), reduction = "SeuratUMAP2D",
+  srt = panc8_sub, group.by = c("celltype", "tech"), reduction = "SeuratUMAP2D",
   title = "Seurat", theme_use = "theme_blank"
 )
 ClassDimPlot(
-  srt = panc8, group.by = c("celltype", "tech"), reduction = "HarmonyPACMAP2D",
-  title = "Harmony", theme_use = "theme_blank"
+  srt = panc8_sub, group.by = c("celltype", "tech"), reduction = "fastMNNPACMAP2D",
+  title = "fastMNN", theme_use = "theme_blank"
 )
 ```
 
 ### Cell projection between single-cell datasets
 
 ```{r RunKNNMap}
-library(stringr)
-panc8 <- RenameFeatures(srt = panc8, newnames = make.unique(str_to_title(rownames(panc8))))
-pancreas1k <- RunKNNMap(srt_query = pancreas1k, srt_ref = panc8, ref_umap = "SeuratUMAP2D")
+panc8_sub <- RenameFeatures(srt = panc8_sub, newnames = make.unique(stringr::str_to_title(rownames(panc8_sub))))
+pancreas1k <- RunKNNMap(srt_query = pancreas1k, srt_ref = panc8_sub, ref_umap = "SeuratUMAP2D")
 ProjectionPlot(
-  srt_query = pancreas1k, srt_ref = panc8,
+  srt_query = pancreas1k, srt_ref = panc8_sub,
   query_group = "SubCellType", ref_group = "celltype"
 )
 ```
@@ -194,7 +188,7 @@ ClassDimPlot(srt = pancreas1k, group.by = "knnpredict_classification", reduction
 
 ```{r RunKNNPredict-scrna}
 pancreas1k <- RunKNNPredict(
-  srt_query = pancreas1k, srt_ref = panc8,
+  srt_query = pancreas1k, srt_ref = panc8_sub,
   ref_group = "celltype", filter_lowfreq = 20
 )
 ClassDimPlot(srt = pancreas1k, group.by = "knnpredict_classification", reduction = "UMAP", label = TRUE)

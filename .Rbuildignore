@@ -10,3 +10,5 @@
 ^codecov\.yml$
 ^README\.Rmd$
 ^LICENSE\.md$
+^SCExplorer$
+^README$

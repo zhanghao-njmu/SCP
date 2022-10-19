@@ -86,12 +86,16 @@ Run PAGA analysis
 \examples{
 data("pancreas1k")
 pancreas1k <- RunPAGA(srt = pancreas1k, group_by = "SubCellType", liner_reduction = "PCA", nonliner_reduction = "UMAP", return_seurat = TRUE)
+PAGAPlot(pancreas1k)
 
 pancreas1k <- RunPAGA(
   srt = pancreas1k, group_by = "SubCellType", liner_reduction = "PCA", nonliner_reduction = "UMAP",
   embedded_with_PAGA = TRUE, infer_pseudotime = TRUE, root_group = "Ductal", return_seurat = TRUE
 )
 head(pancreas1k[[]])
-ExpDimPlot(pancreas1k, "dpt_pseudotime")
+names(pancreas1k@reductions)
+ExpDimPlot(pancreas1k, "dpt_pseudotime", reduction = "PAGAUMAP2D")
+PAGAPlot(pancreas1k, reduction = "PAGAUMAP2D")
+ClassDimPlot(pancreas1k, group.by = "SubCellType", reduction = "PAGAUMAP2D", paga = pancreas1k@misc$paga)
 
 }

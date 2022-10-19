@@ -77,4 +77,9 @@ data("pancreas1k")
 pancreas1k <- RunDEtest(pancreas1k, group_by = "CellType")
 pancreas1k <- RunEnrichment(srt = pancreas1k, group_by = "CellType", enrichment = "GO_BP", species = "Mus_musculus")
 EnrichmentPlot(pancreas1k, group_by = "CellType", enrichment = "GO_BP", plot_type = "bar")
+
+# Or run enrichment with "geneID" and "geneID_groups" as input
+de_df <- dplyr::filter(pancreas1k@tools$DEtest_CellType$AllMarkers_wilcox, avg_log2FC > 0 & p_val_adj < 0.05)
+enrich_out <- RunEnrichment(geneID = de_df[["gene"]], geneID_groups = de_df[["group1"]], enrichment = "GO_BP", species = "Mus_musculus")
+EnrichmentPlot(res = enrich_out, group_use = c("Ngn3 low EP", "Endocrine"))
 }

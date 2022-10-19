@@ -353,6 +353,7 @@ RecoverCounts <- function(srt, assay = "RNA", min_count = c(1, 2, 3), tolerance 
     if (isTRUE(verbose)) {
       message("The data is already raw counts.")
     }
+    return(srt)
   }
   if (status == "log_normalized_counts") {
     if (isTRUE(verbose)) {
@@ -366,10 +367,10 @@ RecoverCounts <- function(srt, assay = "RNA", min_count = c(1, 2, 3), tolerance 
     }
   }
   sf <- unique(round(colSums(counts)))
+  if (isTRUE(verbose)) {
+    message("The presumed scale factor: ", paste0(head(sf, 10), collapse = ", "))
+  }
   if (length(sf) == 1) {
-    if (isTRUE(verbose)) {
-      message("The presumed scale factor: ", sf)
-    }
     counts <- counts / sf
     elements <- split(counts@x, rep(1:ncol(counts), diff(counts@p)))
     min_norm <- sapply(elements, min)
@@ -635,9 +636,6 @@ RunDimReduction <- function(srt, prefix = "", features = NULL, assay = NULL, slo
           message("assay.used is ", srt[[liner_reduction]]@assay.used, ", which is not the same as the ", assay, " specified. Recalculate the liner reduction")
         }
       }
-    }
-    if (liner_reduction == "glmpca") {
-      check_R(c("R.utils", "zhanghao-njmu/seurat-wrappers", "glmpca"), pkg_names = c("R.utils", "SeuratWrappers", "glmpca"))
     }
     if (is.null(features) || length(features) == 0) {
       message("No features provided. Use variable features.")
@@ -1223,7 +1221,7 @@ scVI_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE,
     "leiden" = 4
   )
 
-  check_Python("scvi-tools")
+  check_Python(c("scvi-tools==0.18.0", "jaxlib==0.3.22"))
   scvi <- import("scvi")
   scipy <- import("scipy")
   set.seed(seed)
@@ -3287,37 +3285,31 @@ Standard_SCP <- function(srt, prefix = "Standard",
 #' @return A \code{Seurat} object containing the result.
 #'
 #' @examples
-#' if (!require("SeuratData", quietly = TRUE)) {
-#'   devtools::install_github("zhanghao-njmu/seurat-data")
-#' }
-#' library(SeuratData)
-#' suppressWarnings(InstallData("panc8"))
-#' data("panc8")
-#' cell_sub <- unlist(lapply(split(colnames(panc8), panc8$tech), function(x) sample(x, size = 500)))
-#' panc8 <- subset(panc8, cells = cell_sub)
+#' data("panc8_sub")
 #' plist1 <- list()
 #' methods <- c("Uncorrected", "Seurat", "scVI", "MNN", "fastMNN", "Harmony", "Scanorama", "BBKNN", "CSS", "LIGER", "Conos")
 #' for (method in methods) {
-#'   panc8 <- Integration_SCP(panc8,
+#'   panc8_sub <- Integration_SCP(panc8_sub,
 #'     batch = "tech", integration_method = method,
 #'     nonliner_reduction = "umap"
 #'   )
-#'   plist1[[method]] <- ClassDimPlot(panc8, group.by = c("tech", "celltype"), theme_use = "theme_blank")
+#'   plist1[[method]] <- ClassDimPlot(panc8_sub, group.by = c("tech", "celltype"), theme_use = "theme_blank")
 #' }
 #' for (method in methods) {
 #'   print(plist1[[method]])
 #' }
 #'
+#' plist2 <- list()
 #' reductions <- c("umap", "tsne", "dm", "phate", "pacmap", "trimap", "largevis")
-#' panc8 <- Integration_SCP(panc8,
+#' panc8_sub <- Integration_SCP(panc8_sub,
 #'   batch = "tech", integration_method = "Seurat",
 #'   nonliner_reduction = reductions
 #' )
-#' plist2 <- list()
 #' for (reduc in reductions) {
-#'   plist2[[reduc]] <- ClassDimPlot(panc8, group.by = c("tech", "celltype"), reduction = paste0("Seurat", reduc, "2D"), theme_use = "theme_blank")
+#'   plist2[[reduc]] <- ClassDimPlot(panc8_sub, group.by = c("tech", "celltype"), reduction = paste0("Seurat", reduc, "2D"), theme_use = "theme_blank")
 #'   print(plist2[[reduc]])
 #' }
+#'
 #' @export
 Integration_SCP <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE, srtList = NULL,
                             integration_method = "Uncorrected",

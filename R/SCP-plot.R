@@ -8357,6 +8357,8 @@ EnrichmentPlot <- function(srt, enrichment = "GO_BP", group_by = NULL, group_use
       stop("No Enrichment result found. You may perform RunEnrichment first.")
     }
     res <- srt@tools[[slot]][["enrichment"]]
+  } else {
+    res <- res[["enrichment"]]
   }
 
   if (is.null(pvalueCutoff) && is.null(padjustCutoff)) {
@@ -8642,6 +8644,8 @@ GSEAPlot <- function(srt, enrichment = "GO_BP", group_by = NULL, group_use = NUL
       stop("No Enrichment result found. You may perform RunGSEA first.")
     }
     res <- srt@tools[[slot]][["results"]]
+  } else {
+    res <- res[["results"]]
   }
   if (is.null(group_use)) {
     use <- grep(pattern = paste0("-", paste(enrichment, collapse = "|"), "$"), x = names(res))

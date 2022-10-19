@@ -50,34 +50,26 @@ Preprocess <- function() {
 #' pancreas1k <- RunKNNPredict(srt_query = pancreas1k, query_group = "SubCellType", bulk_ref = ref_scMCA)
 #' ClassDimPlot(pancreas1k, group.by = "knnpredict_classification", label = TRUE)
 #'
-#'
 #' # Annotate using single cell RNA-seq data
-#' if (!require("SeuratData", quietly = TRUE)) {
-#'   devtools::install_github("zhanghao-njmu/seurat-data")
-#' }
-#' library(stringr)
-#' library(SeuratData)
-#' suppressWarnings(InstallData("panc8"))
-#' data("panc8")
-#'
+#' data("panc8_sub")
 #' # Simply convert genes from human to mouse and preprocess the data
-#' genenm <- make.unique(str_to_title(rownames(panc8)))
-#' panc8 <- RenameFeatures(panc8, newnames = genenm)
-#' panc8 <- check_srtMerge(panc8, batch = "tech")[["srtMerge"]]
+#' genenames <- make.unique(stringr::str_to_title(rownames(panc8_sub)))
+#' panc8_sub <- RenameFeatures(panc8_sub, newnames = genenames)
+#' panc8_sub <- check_srtMerge(panc8_sub, batch = "tech")[["srtMerge"]]
 #'
-#' pancreas1k <- RunKNNPredict(srt_query = pancreas1k, srt_ref = panc8, ref_group = "celltype")
+#' pancreas1k <- RunKNNPredict(srt_query = pancreas1k, srt_ref = panc8_sub, ref_group = "celltype")
 #' ClassDimPlot(pancreas1k, group.by = "knnpredict_classification", label = TRUE)
 #' ExpDimPlot(pancreas1k, features = "knnpredict_simil")
 #'
 #' pancreas1k <- RunKNNPredict(
-#'   srt_query = pancreas1k, srt_ref = panc8,
+#'   srt_query = pancreas1k, srt_ref = panc8_sub,
 #'   ref_group = "celltype", ref_collapsing = FALSE
 #' )
 #' ClassDimPlot(pancreas1k, group.by = "knnpredict_classification", label = TRUE)
 #' ExpDimPlot(pancreas1k, features = "knnpredict_prob")
 #'
 #' pancreas1k <- RunKNNPredict(
-#'   srt_query = pancreas1k, srt_ref = panc8,
+#'   srt_query = pancreas1k, srt_ref = panc8_sub,
 #'   query_group = "SubCellType", ref_group = "celltype",
 #'   query_collapsing = TRUE, ref_collapsing = TRUE
 #' )
@@ -86,7 +78,7 @@ Preprocess <- function() {
 #'
 #' # Annotate with DE gene instead of HVF
 #' pancreas1k <- RunKNNPredict(
-#'   srt_query = pancreas1k, srt_ref = panc8,
+#'   srt_query = pancreas1k, srt_ref = panc8_sub,
 #'   ref_group = "celltype",
 #'   features_type = "DE", feature_source = "ref"
 #' )
@@ -94,7 +86,7 @@ Preprocess <- function() {
 #' ExpDimPlot(pancreas1k, features = "knnpredict_simil")
 #'
 #' pancreas1k <- RunKNNPredict(
-#'   srt_query = pancreas1k, srt_ref = panc8,
+#'   srt_query = pancreas1k, srt_ref = panc8_sub,
 #'   query_group = "SubCellType", ref_group = "celltype",
 #'   features_type = "DE", feature_source = "both"
 #' )
@@ -515,30 +507,23 @@ RunKNNPredict <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
 #' @param force
 #'
 #' @examples
-#' if (!require("SeuratData", quietly = TRUE)) {
-#'   devtools::install_github("zhanghao-njmu/seurat-data")
-#' }
-#' library(SeuratData)
-#' library(stringr)
-#' suppressWarnings(InstallData("panc8"))
-#' data("panc8")
-#'
+#' data("panc8_sub")
 #' # Simply convert genes from human to mouse and preprocess the data
-#' genenm <- make.unique(str_to_title(rownames(panc8)))
-#' panc8 <- RenameFeatures(panc8, newnames = genenm)
-#' panc8 <- check_srtMerge(panc8, batch = "tech")[["srtMerge"]]
+#' genenames <- make.unique(stringr::str_to_title(rownames(panc8_sub)))
+#' panc8_sub <- RenameFeatures(panc8_sub, newnames = genenames)
+#' panc8_sub <- check_srtMerge(panc8_sub, batch = "tech")[["srtMerge"]]
 #'
 #' # Annotation
 #' data("pancreas1k")
 #' pancreas1k <- Standard_SCP(pancreas1k)
 #' pancreas1k <- RunScmap(
-#'   srt_query = pancreas1k, srt_ref = panc8,
+#'   srt_query = pancreas1k, srt_ref = panc8_sub,
 #'   ref_group = "celltype", method = "scmapCluster"
 #' )
 #' ClassDimPlot(pancreas1k, group.by = "scmap_annotation")
 #'
 #' pancreas1k <- RunScmap(
-#'   srt_query = pancreas1k, srt_ref = panc8,
+#'   srt_query = pancreas1k, srt_ref = panc8_sub,
 #'   ref_group = "celltype", method = "scmapCell"
 #' )
 #' ClassDimPlot(pancreas1k, group.by = "scmap_annotation")
@@ -667,30 +652,23 @@ RunScmap <- function(srt_query, srt_ref, ref_group = NULL, method = "scmapCluste
 #' @param force
 #'
 #' @examples
-#' if (!require("SeuratData", quietly = TRUE)) {
-#'   devtools::install_github("zhanghao-njmu/seurat-data")
-#' }
-#' library(SeuratData)
-#' library(stringr)
-#' suppressWarnings(InstallData("panc8"))
-#' data("panc8")
-#'
+#' data("panc8_sub")
 #' # Simply convert genes from human to mouse and preprocess the data
-#' genenm <- make.unique(str_to_title(rownames(panc8)))
-#' panc8 <- RenameFeatures(panc8, newnames = genenm)
-#' panc8 <- check_srtMerge(panc8, batch = "tech")[["srtMerge"]]
+#' genenames <- make.unique(stringr::str_to_title(rownames(panc8_sub)))
+#' panc8_sub <- RenameFeatures(panc8_sub, newnames = genenames)
+#' panc8_sub <- check_srtMerge(panc8_sub, batch = "tech")[["srtMerge"]]
 #'
 #' # Annotation
 #' data("pancreas1k")
 #' pancreas1k <- Standard_SCP(pancreas1k)
 #' pancreas1k <- RunSingleR(
-#'   srt_query = pancreas1k, srt_ref = panc8,
+#'   srt_query = pancreas1k, srt_ref = panc8_sub,
 #'   query_group = "Standardclusters", ref_group = "celltype",
 #' )
 #' ClassDimPlot(pancreas1k, group.by = "singler_annotation")
 #'
 #' pancreas1k <- RunSingleR(
-#'   srt_query = pancreas1k, srt_ref = panc8,
+#'   srt_query = pancreas1k, srt_ref = panc8_sub,
 #'   query_group = NULL, ref_group = "celltype"
 #' )
 #' ClassDimPlot(pancreas1k, group.by = "singler_annotation")
