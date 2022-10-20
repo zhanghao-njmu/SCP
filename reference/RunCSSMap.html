@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">SCP</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.13</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -81,9 +81,9 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "A1bg"   "A1cf"   "A2m"    "A4galt" "Aaas"   "Aacs"  </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">panc8_sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="Integration_SCP.html">Integration_SCP</a></span><span class="op">(</span><span class="va">panc8_sub</span>, batch <span class="op">=</span> <span class="st">"tech"</span>, integration_method <span class="op">=</span> <span class="st">"CSS"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 09:30:27] Start CSS_integrate</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 09:30:27] Spliting srtMerge into srtList... ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 09:30:28] Checking srtList... ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 17:44:47] Start CSS_integrate</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 17:44:47] Spliting srtMerge into srtList... ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 17:44:48] Checking srtList... ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Data 1/5 of the srtList is normalized without log transformation. Perform log1p on the data...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform FindVariableFeatures on the data 1/5 of the srtList...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Data 2/5 of the srtList is normalized without log transformation. Perform log1p on the data...</span>
@@ -95,40 +95,40 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span> Data 5/5 of the srtList is raw counts. Perform NormalizeData(logCPM) on the data ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform FindVariableFeatures on the data 5/5 of the srtList...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Use the separate HVF from the existed HVF in srtList...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 09:30:35] Finished checking.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 09:30:36] Perform ScaleData on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 09:30:36] Perform linear dimension reduction (pca) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 17:44:54] Finished checking.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 17:44:55] Perform ScaleData on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 17:44:57] Perform linear dimension reduction (pca) on the data...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> dims_estimate is 1:10 for 'pca'</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 09:30:42] Perform integration(CSS) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 17:45:02] Perform integration(CSS) on the data...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Loading required package: Seurat</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Attaching SeuratObject</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Attaching sp</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 09:30:53] Perform FindClusters (louvain) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 09:30:53] Reorder clusters...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 17:45:16] Perform FindClusters (louvain) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 17:45:16] Reorder clusters...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform nonlinear dimension reduction (umap) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 09:31:05] CSS_integrate done</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 37.49 secs </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 17:45:30] CSS_integrate done</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 43.05 secs </span>
 <span class="r-in"><span><span class="fu"><a href="ClassDimPlot.html">ClassDimPlot</a></span><span class="op">(</span><span class="va">panc8_sub</span>, <span class="st">"celltype"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="RunCSSMap-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Projection</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"pancreas1k"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">pancreas1k</span> <span class="op">&lt;-</span> <span class="fu"><a href="Standard_SCP.html">Standard_SCP</a></span><span class="op">(</span><span class="va">pancreas1k</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 09:31:07] Start Standard_SCP</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 09:31:07] Checking srtList... ...</span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"pancreas_sub"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="Standard_SCP.html">Standard_SCP</a></span><span class="op">(</span><span class="va">pancreas_sub</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 17:45:32] Start Standard_SCP</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 17:45:32] Checking srtList... ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Data 1/1 of the srtList is raw counts. Perform NormalizeData(logCPM) on the data ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform FindVariableFeatures on the data 1/1 of the srtList...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Use the separate HVF from the existed HVF in srtList...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 09:31:09] Finished checking.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 09:31:09] Perform ScaleData on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 09:31:09] Perform linear dimension reduction (pca) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 17:45:34] Finished checking.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 17:45:34] Perform ScaleData on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 17:45:35] Perform linear dimension reduction (pca) on the data...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> dims_estimate is 1:18 for 'pca'</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 09:31:17] Perform FindClusters (louvain) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 09:31:17] Reorder clusters...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 09:31:18] Perform nonlinear dimension reduction (umap) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 09:31:27] Standard_SCP done</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 20.34 secs </span>
-<span class="r-in"><span><span class="va">pancreas1k</span> <span class="op">&lt;-</span> <span class="fu">RunCSSMap</span><span class="op">(</span>srt_query <span class="op">=</span> <span class="va">pancreas1k</span>, srt_ref <span class="op">=</span> <span class="va">panc8_sub</span>, ref_css <span class="op">=</span> <span class="st">"CSS"</span>, ref_umap <span class="op">=</span> <span class="st">"CSSUMAP2D"</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 17:45:42] Perform FindClusters (louvain) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 17:45:43] Reorder clusters...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 17:45:43] Perform nonlinear dimension reduction (umap) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 17:45:55] Standard_SCP done</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 22.53 secs </span>
+<span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu">RunCSSMap</span><span class="op">(</span>srt_query <span class="op">=</span> <span class="va">pancreas_sub</span>, srt_ref <span class="op">=</span> <span class="va">panc8_sub</span>, ref_css <span class="op">=</span> <span class="st">"CSS"</span>, ref_umap <span class="op">=</span> <span class="st">"CSSUMAP2D"</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Detected srt_query data type: log_normalized_counts</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Detected srt_ref data type: log_normalized_counts</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Run CSS projection</span>
@@ -136,14 +136,14 @@
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Use the reduction to calculate distance metric.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Use 'raw' method to find neighbors.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Running UMAP projection</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 09:31:30 Read 1000 rows</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 09:31:30 Processing block 1 of 1</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 09:31:30 Commencing smooth kNN distance calibration using 1 thread</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 17:45:59 Read 1000 rows</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 17:45:59 Processing block 1 of 1</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 17:45:59 Commencing smooth kNN distance calibration using 1 thread</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>  with target n_neighbors = 30</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 09:31:30 214 smooth knn distance failures</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 09:31:30 Initializing by weighted average of neighbor coordinates using 1 thread</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 17:45:59 214 smooth knn distance failures</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 17:45:59 Initializing by weighted average of neighbor coordinates using 1 thread</span>
 <span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in result[n_samples &gt; 0] &lt;- n_epochs/n_samples[n_samples &gt; 0]:</span> NAs are not allowed in subscripted assignments</span>
-<span class="r-in"><span><span class="fu"><a href="ProjectionPlot.html">ProjectionPlot</a></span><span class="op">(</span>srt_query <span class="op">=</span> <span class="va">pancreas1k</span>, srt_ref <span class="op">=</span> <span class="va">panc8_sub</span>, query_group <span class="op">=</span> <span class="st">"SubCellType"</span>, ref_group <span class="op">=</span> <span class="st">"celltype"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="ProjectionPlot.html">ProjectionPlot</a></span><span class="op">(</span>srt_query <span class="op">=</span> <span class="va">pancreas_sub</span>, srt_ref <span class="op">=</span> <span class="va">panc8_sub</span>, query_group <span class="op">=</span> <span class="st">"SubCellType"</span>, ref_group <span class="op">=</span> <span class="st">"celltype"</span><span class="op">)</span></span></span>
 <span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> Cannot find 'ref.umap' in this Seurat object</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>

@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">SCP</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.13</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -199,9 +199,9 @@
 <span class="r-in"><span>  <span class="op">)</span></span></span>
 <span class="r-in"><span>  <span class="va">plist1</span><span class="op">[[</span><span class="va">method</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="ClassDimPlot.html">ClassDimPlot</a></span><span class="op">(</span><span class="va">panc8_sub</span>, group.by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"tech"</span>, <span class="st">"celltype"</span><span class="op">)</span>, theme_use <span class="op">=</span> <span class="st">"theme_blank"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 08:50:46] Start Uncorrected_integrate</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 08:50:46] Spliting srtMerge into srtList... ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 08:50:46] Checking srtList... ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 17:04:55] Start Uncorrected_integrate</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 17:04:55] Spliting srtMerge into srtList... ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 17:04:56] Checking srtList... ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Data 1/5 of the srtList is normalized without log transformation. Perform log1p on the data...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform FindVariableFeatures on the data 1/5 of the srtList...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Data 2/5 of the srtList is normalized without log transformation. Perform log1p on the data...</span>
@@ -213,24 +213,24 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span> Data 5/5 of the srtList is raw counts. Perform NormalizeData(logCPM) on the data ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform FindVariableFeatures on the data 5/5 of the srtList...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Use the separate HVF from the existed HVF in srtList...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 08:50:53] Finished checking.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 08:50:54] Perform integration(Uncorrected) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 08:50:54] Start Standard_SCP</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 08:50:54] Checking srtList... ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 17:05:03] Finished checking.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 17:05:04] Perform integration(Uncorrected) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 17:05:04] Start Standard_SCP</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 17:05:04] Checking srtList... ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Data 1/1 of the srtList has been log-normalized.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 08:50:54] Finished checking.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 08:50:54] Perform ScaleData on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 08:50:54] Perform linear dimension reduction (pca) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 17:05:04] Finished checking.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 17:05:04] Perform ScaleData on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 17:05:05] Perform linear dimension reduction (pca) on the data...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> dims_estimate is 1:10 for 'pca'</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 08:51:01] Perform FindClusters (louvain) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 08:51:01] Reorder clusters...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 08:51:01] Perform nonlinear dimension reduction (umap) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 08:51:12] Standard_SCP done</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 18.19 secs </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 08:51:12] Uncorrected_integrate done</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 26.43 secs </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 08:51:13] Start Seurat_integrate</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 08:51:13] Checking srtList... ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 17:05:11] Perform FindClusters (louvain) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 17:05:11] Reorder clusters...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 17:05:12] Perform nonlinear dimension reduction (umap) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 17:05:25] Standard_SCP done</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 20.85 secs </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 17:05:25] Uncorrected_integrate done</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 29.6 secs </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 17:05:26] Start Seurat_integrate</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 17:05:27] Checking srtList... ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Data 1/5 of the srtList is normalized without log transformation. Perform log1p on the data...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform FindVariableFeatures on the data 1/5 of the srtList...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Data 2/5 of the srtList is normalized without log transformation. Perform log1p on the data...</span>
@@ -242,23 +242,23 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span> Data 5/5 of the srtList is raw counts. Perform NormalizeData(logCPM) on the data ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform FindVariableFeatures on the data 5/5 of the srtList...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Use the separate HVF from the existed HVF in srtList...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 08:51:19] Finished checking.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 08:51:19] Perform FindIntegrationAnchors on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 08:51:58] Perform integration(Seurat) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 08:52:14] Perform ScaleData on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 08:52:15] Perform linear dimension reduction (pca) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 17:05:33] Finished checking.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 17:05:33] Perform FindIntegrationAnchors on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 17:06:21] Perform integration(Seurat) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 17:06:42] Perform ScaleData on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 17:06:43] Perform linear dimension reduction (pca) on the data...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> dims_estimate is 1:15 for 'pca'</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 08:52:21] Perform FindClusters (louvain) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 08:52:21] Reorder clusters...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 08:52:21] Perform nonlinear dimension reduction (umap) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 08:52:32] Seurat_integrate done</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 1.33 mins </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 08:52:33] Start scVI_integrate</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 17:06:49] Perform FindClusters (louvain) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 17:06:49] Reorder clusters...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 17:06:49] Perform nonlinear dimension reduction (umap) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 17:07:02] Seurat_integrate done</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 1.61 mins </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 17:07:03] Start scVI_integrate</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Try to install 'scvi-tools==0.18.0' ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Using virtual environment 'SCP' ...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> + '/home/runner/.virtualenvs/SCP/bin/python' -m pip install --upgrade --no-user -i https://pypi.org/simple/ 'scvi-tools==0.18.0'</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 08:54:10] Spliting srtMerge into srtList... ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 08:54:14] Checking srtList... ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 17:08:52] Spliting srtMerge into srtList... ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 17:08:56] Checking srtList... ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Data 1/5 of the srtList is normalized without log transformation. Perform log1p on the data...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform FindVariableFeatures on the data 1/5 of the srtList...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Data 2/5 of the srtList is normalized without log transformation. Perform log1p on the data...</span>
@@ -270,14 +270,14 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span> Data 5/5 of the srtList is raw counts. Perform NormalizeData(logCPM) on the data ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform FindVariableFeatures on the data 5/5 of the srtList...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Use the separate HVF from the existed HVF in srtList...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 08:54:26] Finished checking.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 09:20:38] Perform FindClusters (louvain) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 09:20:38] Reorder clusters...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 09:20:39] Perform nonlinear dimension reduction (umap) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 09:20:50] scVI_integrate done</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 28.29 mins </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 09:20:51] Start MNN_integrate</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 09:20:53] Checking srtList... ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 17:09:07] Finished checking.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 17:33:55] Perform FindClusters (louvain) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 17:33:55] Reorder clusters...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 17:33:56] Perform nonlinear dimension reduction (umap) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 17:34:08] scVI_integrate done</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 27.09 mins </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 17:34:09] Start MNN_integrate</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 17:34:12] Checking srtList... ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Data 1/5 of the srtList is normalized without log transformation. Perform log1p on the data...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform FindVariableFeatures on the data 1/5 of the srtList...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Data 2/5 of the srtList is normalized without log transformation. Perform log1p on the data...</span>
@@ -289,8 +289,8 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span> Data 5/5 of the srtList is raw counts. Perform NormalizeData(logCPM) on the data ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform FindVariableFeatures on the data 5/5 of the srtList...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Use the separate HVF from the existed HVF in srtList...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 09:21:00] Finished checking.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 09:21:02] Perform integration(MNN) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 17:34:18] Finished checking.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 17:34:22] Perform integration(MNN) on the data...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |==============================================================================================================| 100%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |==============================================================================================================| 100%</span>
@@ -307,16 +307,16 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |==============================================================================================================| 100%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 09:22:12] Perform ScaleData on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 09:22:12] Perform linear dimension reduction (pca) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 17:35:26] Perform ScaleData on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 17:35:26] Perform linear dimension reduction (pca) on the data...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> dims_estimate is 1:10 for 'pca'</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 09:22:17] Perform FindClusters (louvain) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 09:22:17] Reorder clusters...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 09:22:17] Perform nonlinear dimension reduction (umap) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 09:22:29] MNN_integrate done</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 1.63 mins </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 09:22:29] Start fastMNN_integrate</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 09:22:30] Checking srtList... ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 17:35:31] Perform FindClusters (louvain) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 17:35:31] Reorder clusters...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 17:35:31] Perform nonlinear dimension reduction (umap) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 17:35:45] MNN_integrate done</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 1.6 mins </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 17:35:46] Start fastMNN_integrate</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 17:35:46] Checking srtList... ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Data 1/5 of the srtList is normalized without log transformation. Perform log1p on the data...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform FindVariableFeatures on the data 1/5 of the srtList...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Data 2/5 of the srtList is normalized without log transformation. Perform log1p on the data...</span>
@@ -328,8 +328,8 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span> Data 5/5 of the srtList is raw counts. Perform NormalizeData(logCPM) on the data ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform FindVariableFeatures on the data 5/5 of the srtList...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Use the separate HVF from the existed HVF in srtList...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 09:22:36] Finished checking.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 09:22:38] Perform integration(fastMNN) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 17:35:53] Finished checking.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 17:35:55] Perform integration(fastMNN) on the data...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |==============================================================================================================| 100%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |==============================================================================================================| 100%</span>
@@ -354,14 +354,14 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |==============================================================================================================| 100%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 09:22:47] Perform FindClusters (louvain) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 09:22:47] Reorder clusters...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 09:22:47] Perform nonlinear dimension reduction (umap) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 09:22:58] fastMNN_integrate done</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 28.96 secs </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 09:22:59] Start Harmony_integrate</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 09:22:59] Spliting srtMerge into srtList... ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 09:22:59] Checking srtList... ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 17:36:06] Perform FindClusters (louvain) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 17:36:06] Reorder clusters...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 17:36:06] Perform nonlinear dimension reduction (umap) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 17:36:19] fastMNN_integrate done</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 33.51 secs </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 17:36:20] Start Harmony_integrate</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 17:36:20] Spliting srtMerge into srtList... ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 17:36:21] Checking srtList... ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Data 1/5 of the srtList is normalized without log transformation. Perform log1p on the data...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform FindVariableFeatures on the data 1/5 of the srtList...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Data 2/5 of the srtList is normalized without log transformation. Perform log1p on the data...</span>
@@ -373,11 +373,11 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span> Data 5/5 of the srtList is raw counts. Perform NormalizeData(logCPM) on the data ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform FindVariableFeatures on the data 5/5 of the srtList...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Use the separate HVF from the existed HVF in srtList...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 09:23:05] Finished checking.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 09:23:06] Perform ScaleData on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 09:23:06] Perform linear dimension reduction (pca) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 17:36:27] Finished checking.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 17:36:28] Perform ScaleData on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 17:36:28] Perform linear dimension reduction (pca) on the data...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> dims_estimate is 1:10 for 'pca'</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 09:23:12] Perform integration(Harmony) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 17:36:34] Perform integration(Harmony) on the data...</span>
 <span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in harmonyObj$cluster_cpp():</span> element-wise pow(): incompatible matrix dimensions: 53x5 and 5x1</span>
 <span class="r-in"><span><span class="kw">for</span> <span class="op">(</span><span class="va">method</span> <span class="kw">in</span> <span class="va">methods</span><span class="op">)</span> <span class="op">{</span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">plist1</span><span class="op">[[</span><span class="va">method</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span></span>
@@ -400,7 +400,7 @@
 <span class="r-in"><span>  batch <span class="op">=</span> <span class="st">"tech"</span>, integration_method <span class="op">=</span> <span class="st">"Seurat"</span>,</span></span>
 <span class="r-in"><span>  nonliner_reduction <span class="op">=</span> <span class="va">reductions</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 09:23:14] Start Seurat_integrate</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 17:36:36] Start Seurat_integrate</span>
 <span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in nonliner_reduction %in% c("umap", "umap-naive", "tsne", "dm",     "phate", "pacmap", "trimap", "largevis"):</span> object 'reductions' not found</span>
 <span class="r-in"><span><span class="kw">for</span> <span class="op">(</span><span class="va">reduc</span> <span class="kw">in</span> <span class="va">reductions</span><span class="op">)</span> <span class="op">{</span></span></span>
 <span class="r-in"><span>  <span class="va">plist2</span><span class="op">[[</span><span class="va">reduc</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="ClassDimPlot.html">ClassDimPlot</a></span><span class="op">(</span><span class="va">panc8_sub</span>, group.by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"tech"</span>, <span class="st">"celltype"</span><span class="op">)</span>, reduction <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"Seurat"</span>, <span class="va">reduc</span>, <span class="st">"2D"</span><span class="op">)</span>, theme_use <span class="op">=</span> <span class="st">"theme_blank"</span><span class="op">)</span></span></span>

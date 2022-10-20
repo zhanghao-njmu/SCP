@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">SCP</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.13</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -170,16 +170,16 @@
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"pancreas1k"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">pancreas1k</span> <span class="op">&lt;-</span> <span class="fu">RunPAGA</span><span class="op">(</span>srt <span class="op">=</span> <span class="va">pancreas1k</span>, group_by <span class="op">=</span> <span class="st">"SubCellType"</span>, liner_reduction <span class="op">=</span> <span class="st">"PCA"</span>, nonliner_reduction <span class="op">=</span> <span class="st">"UMAP"</span>, return_seurat <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"pancreas_sub"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu">RunPAGA</span><span class="op">(</span>srt <span class="op">=</span> <span class="va">pancreas_sub</span>, group_by <span class="op">=</span> <span class="st">"SubCellType"</span>, liner_reduction <span class="op">=</span> <span class="st">"PCA"</span>, nonliner_reduction <span class="op">=</span> <span class="st">"UMAP"</span>, return_seurat <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> 'misc' slot in the srt object is not converted.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> 'tools' slot in the srt object is not converted.</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'uns: neighbors' will not be converted. You may need to convert it manually.</span>
-<span class="r-in"><span><span class="fu"><a href="PAGAPlot.html">PAGAPlot</a></span><span class="op">(</span><span class="va">pancreas1k</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="PAGAPlot.html">PAGAPlot</a></span><span class="op">(</span><span class="va">pancreas_sub</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="RunPAGA-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">pancreas1k</span> <span class="op">&lt;-</span> <span class="fu">RunPAGA</span><span class="op">(</span></span></span>
-<span class="r-in"><span>  srt <span class="op">=</span> <span class="va">pancreas1k</span>, group_by <span class="op">=</span> <span class="st">"SubCellType"</span>, liner_reduction <span class="op">=</span> <span class="st">"PCA"</span>, nonliner_reduction <span class="op">=</span> <span class="st">"UMAP"</span>,</span></span>
+<span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu">RunPAGA</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  srt <span class="op">=</span> <span class="va">pancreas_sub</span>, group_by <span class="op">=</span> <span class="st">"SubCellType"</span>, liner_reduction <span class="op">=</span> <span class="st">"PCA"</span>, nonliner_reduction <span class="op">=</span> <span class="st">"UMAP"</span>,</span></span>
 <span class="r-in"><span>  embedded_with_PAGA <span class="op">=</span> <span class="cn">TRUE</span>, infer_pseudotime <span class="op">=</span> <span class="cn">TRUE</span>, root_group <span class="op">=</span> <span class="st">"Ductal"</span>, return_seurat <span class="op">=</span> <span class="cn">TRUE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> 'misc' slot in the srt object is not converted.</span>
@@ -189,28 +189,28 @@
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Keys should be one or more alphanumeric characters followed by an underscore, setting key from X_diffmap_ to Xdiffmap_</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>All keys should be one or more alphanumeric characters followed by an underscore '_', setting key to Xdiffmap_</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'uns: neighbors' will not be converted. You may need to convert it manually.</span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">pancreas1k</span><span class="op">[[</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                  orig.ident nCount_RNA nFeature_RNA nCount_spliced nFeature_spliced nCount_unspliced nFeature_unspliced</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> CAGCCGAAGCGATATA   pancreas      10653         3295          10653             3295             1604               1078</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> AGTGTCATCGCCGTGA   pancreas       4596         2053           4596             2053             1202                805</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GATGAAAAGTTGTAGA   pancreas      14091         3864          14091             3864             2178               1391</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> CACAGTACATCCGTGG   pancreas       5484         2510           5484             2510             1353                869</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> CGGAGCTCATTGGGCC   pancreas       7357         2674           7357             2674              987                752</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> AGAGCTTGTGTGACCC   pancreas       6498         2516           6498             2516              829                597</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                      S_score   G2M_score Phase      CellType   SubCellType dpt_pseudotime</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> CAGCCGAAGCGATATA  0.33188155  0.54532743   G2M        Ductal        Ductal     0.08858810</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> AGTGTCATCGCCGTGA -0.07156909 -0.08865353    G1 Pre-endocrine Pre-endocrine     0.61145532</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GATGAAAAGTTGTAGA  0.08940628  0.77610326   G2M   Ngn3 low EP   Ngn3 low EP     0.10923140</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> CACAGTACATCCGTGG -0.25927997 -0.25941831    G1     Endocrine          Beta     0.86335427</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> CGGAGCTCATTGGGCC -0.11764368  0.46237856   G2M        Ductal        Ductal     0.03584586</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> AGAGCTTGTGTGACCC -0.11406432 -0.17830831    G1        Ductal        Ductal     0.03778159</span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">pancreas1k</span><span class="op">@</span><span class="va">reductions</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">pancreas_sub</span><span class="op">[[</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                     orig.ident nCount_RNA nFeature_RNA     S_score   G2M_score nCount_spliced nFeature_spliced</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> CAGCCGAAGCGATATA SeuratProject      10653         3295  0.33188155  0.54532743          10653             3295</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> AGTGTCATCGCCGTGA SeuratProject       4596         2053 -0.07156909 -0.08865353           4596             2053</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GATGAAAAGTTGTAGA SeuratProject      14091         3864  0.08940628  0.77610326          14091             3864</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> CACAGTACATCCGTGG SeuratProject       5484         2510 -0.25927997 -0.25941831           5484             2510</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> CGGAGCTCATTGGGCC SeuratProject       7357         2674 -0.11764368  0.46237856           7357             2674</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> AGAGCTTGTGTGACCC SeuratProject       6498         2516 -0.11406432 -0.17830831           6498             2516</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                  nCount_unspliced nFeature_unspliced      CellType   SubCellType Phase dpt_pseudotime</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> CAGCCGAAGCGATATA             1587               1063        Ductal        Ductal   G2M     0.08858818</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> AGTGTCATCGCCGTGA             1199                803 Pre-endocrine Pre-endocrine    G1     0.61145544</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GATGAAAAGTTGTAGA             2166               1379   Ngn3 low EP   Ngn3 low EP   G2M     0.10923151</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> CACAGTACATCCGTGG             1339                859     Endocrine          Beta    G1     0.86335444</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> CGGAGCTCATTGGGCC              976                745        Ductal        Ductal   G2M     0.03584588</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> AGAGCTTGTGTGACCC              822                591        Ductal        Ductal    G1     0.03778159</span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">pancreas_sub</span><span class="op">@</span><span class="va">reductions</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "PCA"             "UMAP"            "X_draw_graph_fr" "PAGAUMAP2D"      "X_diffmap"      </span>
-<span class="r-in"><span><span class="fu"><a href="ExpDimPlot.html">ExpDimPlot</a></span><span class="op">(</span><span class="va">pancreas1k</span>, <span class="st">"dpt_pseudotime"</span>, reduction <span class="op">=</span> <span class="st">"PAGAUMAP2D"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="ExpDimPlot.html">ExpDimPlot</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, <span class="st">"dpt_pseudotime"</span>, reduction <span class="op">=</span> <span class="st">"PAGAUMAP2D"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="RunPAGA-2.png" alt="" width="700" height="433"></span>
-<span class="r-in"><span><span class="fu"><a href="PAGAPlot.html">PAGAPlot</a></span><span class="op">(</span><span class="va">pancreas1k</span>, reduction <span class="op">=</span> <span class="st">"PAGAUMAP2D"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="PAGAPlot.html">PAGAPlot</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, reduction <span class="op">=</span> <span class="st">"PAGAUMAP2D"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="RunPAGA-3.png" alt="" width="700" height="433"></span>
-<span class="r-in"><span><span class="fu"><a href="ClassDimPlot.html">ClassDimPlot</a></span><span class="op">(</span><span class="va">pancreas1k</span>, group.by <span class="op">=</span> <span class="st">"SubCellType"</span>, reduction <span class="op">=</span> <span class="st">"PAGAUMAP2D"</span>, paga <span class="op">=</span> <span class="va">pancreas1k</span><span class="op">@</span><span class="va">misc</span><span class="op">$</span><span class="va">paga</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="ClassDimPlot.html">ClassDimPlot</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, group.by <span class="op">=</span> <span class="st">"SubCellType"</span>, reduction <span class="op">=</span> <span class="st">"PAGAUMAP2D"</span>, paga <span class="op">=</span> <span class="va">pancreas_sub</span><span class="op">@</span><span class="va">misc</span><span class="op">$</span><span class="va">paga</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="RunPAGA-4.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>

@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">SCP</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.13</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -60,14 +60,14 @@
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"pancreas1k"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">pancreas1k</span> <span class="op">&lt;-</span> <span class="fu">db_DoubletDetection</span><span class="op">(</span><span class="va">pancreas1k</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"pancreas_sub"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu">db_DoubletDetection</span><span class="op">(</span><span class="va">pancreas_sub</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Try to install 'doubletdetection' ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Using virtual environment 'SCP' ...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> + '/home/runner/.virtualenvs/SCP/bin/python' -m pip install --upgrade --no-user -i https://pypi.org/simple/ 'doubletdetection'</span>
-<span class="r-in"><span><span class="fu"><a href="ClassDimPlot.html">ClassDimPlot</a></span><span class="op">(</span><span class="va">pancreas1k</span>, reduction <span class="op">=</span> <span class="st">"umap"</span>, group.by <span class="op">=</span> <span class="st">"db.DoubletDetection_class"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="ClassDimPlot.html">ClassDimPlot</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, reduction <span class="op">=</span> <span class="st">"umap"</span>, group.by <span class="op">=</span> <span class="st">"db.DoubletDetection_class"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="db_DoubletDetection-1.png" alt="" width="700" height="433"></span>
-<span class="r-in"><span><span class="fu"><a href="ExpDimPlot.html">ExpDimPlot</a></span><span class="op">(</span><span class="va">pancreas1k</span>, reduction <span class="op">=</span> <span class="st">"umap"</span>, features <span class="op">=</span> <span class="st">"db.DoubletDetection_score"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="ExpDimPlot.html">ExpDimPlot</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, reduction <span class="op">=</span> <span class="st">"umap"</span>, features <span class="op">=</span> <span class="st">"db.DoubletDetection_score"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="db_DoubletDetection-2.png" alt="" width="700" height="433"></span>
 </code></pre></div>
     </div>

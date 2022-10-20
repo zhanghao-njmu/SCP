@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">SCP</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.13</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -112,53 +112,53 @@
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Annotate cells using bulk RNA-seq data</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"pancreas1k"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"pancreas_sub"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"ref_scMCA"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">pancreas1k</span> <span class="op">&lt;-</span> <span class="fu"><a href="Standard_SCP.html">Standard_SCP</a></span><span class="op">(</span><span class="va">pancreas1k</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 10:15:20] Start Standard_SCP</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 10:15:20] Checking srtList... ...</span>
+<span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="Standard_SCP.html">Standard_SCP</a></span><span class="op">(</span><span class="va">pancreas_sub</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 18:34:27] Start Standard_SCP</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 18:34:27] Checking srtList... ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Data 1/1 of the srtList is raw counts. Perform NormalizeData(logCPM) on the data ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform FindVariableFeatures on the data 1/1 of the srtList...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Use the separate HVF from the existed HVF in srtList...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 10:15:23] Finished checking.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 10:15:23] Perform ScaleData on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 10:15:23] Perform linear dimension reduction (pca) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 18:34:30] Finished checking.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 18:34:30] Perform ScaleData on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 18:34:30] Perform linear dimension reduction (pca) on the data...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> dims_estimate is 1:18 for 'pca'</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 10:15:31] Perform FindClusters (louvain) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 10:15:31] Reorder clusters...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 10:15:31] Perform nonlinear dimension reduction (umap) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 10:15:41] Standard_SCP done</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 20.9 secs </span>
-<span class="r-in"><span><span class="va">pancreas1k</span> <span class="op">&lt;-</span> <span class="fu">RunKNNPredict</span><span class="op">(</span>srt_query <span class="op">=</span> <span class="va">pancreas1k</span>, bulk_ref <span class="op">=</span> <span class="va">ref_scMCA</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 18:34:37] Perform FindClusters (louvain) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 18:34:37] Reorder clusters...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 18:34:37] Perform nonlinear dimension reduction (umap) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 18:34:50] Standard_SCP done</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 22.76 secs </span>
+<span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu">RunKNNPredict</span><span class="op">(</span>srt_query <span class="op">=</span> <span class="va">pancreas_sub</span>, bulk_ref <span class="op">=</span> <span class="va">ref_scMCA</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Use 535 common features to calculate distance.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Detected query data type: log_normalized_counts</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Detected reference data type: log_normalized_counts</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Calculate similarity...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Use 'raw' method to find neighbors.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Predict cell type...</span>
-<span class="r-in"><span><span class="fu"><a href="ClassDimPlot.html">ClassDimPlot</a></span><span class="op">(</span><span class="va">pancreas1k</span>, group.by <span class="op">=</span> <span class="st">"knnpredict_classification"</span>, label <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="ClassDimPlot.html">ClassDimPlot</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, group.by <span class="op">=</span> <span class="st">"knnpredict_classification"</span>, label <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="RunKNNPredict-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Removal of low credible cell types from the predicted results</span></span></span>
-<span class="r-in"><span><span class="va">pancreas1k</span> <span class="op">&lt;-</span> <span class="fu">RunKNNPredict</span><span class="op">(</span>srt_query <span class="op">=</span> <span class="va">pancreas1k</span>, bulk_ref <span class="op">=</span> <span class="va">ref_scMCA</span>, filter_lowfreq <span class="op">=</span> <span class="fl">30</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu">RunKNNPredict</span><span class="op">(</span>srt_query <span class="op">=</span> <span class="va">pancreas_sub</span>, bulk_ref <span class="op">=</span> <span class="va">ref_scMCA</span>, filter_lowfreq <span class="op">=</span> <span class="fl">30</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Use 535 common features to calculate distance.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Detected query data type: log_normalized_counts</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Detected reference data type: log_normalized_counts</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Calculate similarity...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Use 'raw' method to find neighbors.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Predict cell type...</span>
-<span class="r-in"><span><span class="fu"><a href="ClassDimPlot.html">ClassDimPlot</a></span><span class="op">(</span><span class="va">pancreas1k</span>, group.by <span class="op">=</span> <span class="st">"knnpredict_classification"</span>, label <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="ClassDimPlot.html">ClassDimPlot</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, group.by <span class="op">=</span> <span class="st">"knnpredict_classification"</span>, label <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="RunKNNPredict-2.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Annotate clusters using bulk RNA-seq data</span></span></span>
-<span class="r-in"><span><span class="va">pancreas1k</span> <span class="op">&lt;-</span> <span class="fu">RunKNNPredict</span><span class="op">(</span>srt_query <span class="op">=</span> <span class="va">pancreas1k</span>, query_group <span class="op">=</span> <span class="st">"SubCellType"</span>, bulk_ref <span class="op">=</span> <span class="va">ref_scMCA</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu">RunKNNPredict</span><span class="op">(</span>srt_query <span class="op">=</span> <span class="va">pancreas_sub</span>, query_group <span class="op">=</span> <span class="st">"SubCellType"</span>, bulk_ref <span class="op">=</span> <span class="va">ref_scMCA</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Use 535 common features to calculate distance.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Detected query data type: log_normalized_counts</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Detected reference data type: log_normalized_counts</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Calculate similarity...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Use 'raw' method to find neighbors.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Predict cell type...</span>
-<span class="r-in"><span><span class="fu"><a href="ClassDimPlot.html">ClassDimPlot</a></span><span class="op">(</span><span class="va">pancreas1k</span>, group.by <span class="op">=</span> <span class="st">"knnpredict_classification"</span>, label <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="ClassDimPlot.html">ClassDimPlot</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, group.by <span class="op">=</span> <span class="st">"knnpredict_classification"</span>, label <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="RunKNNPredict-3.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Annotate using single cell RNA-seq data</span></span></span>
@@ -168,8 +168,8 @@
 <span class="r-in"><span><span class="va">panc8_sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="RenameFeatures.html">RenameFeatures</a></span><span class="op">(</span><span class="va">panc8_sub</span>, newnames <span class="op">=</span> <span class="va">genenames</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Rename features for the assay: RNA</span>
 <span class="r-in"><span><span class="va">panc8_sub</span> <span class="op">&lt;-</span> <span class="fu">check_srtMerge</span><span class="op">(</span><span class="va">panc8_sub</span>, batch <span class="op">=</span> <span class="st">"tech"</span><span class="op">)</span><span class="op">[[</span><span class="st">"srtMerge"</span><span class="op">]</span><span class="op">]</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 10:15:47] Spliting srtMerge into srtList... ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 10:15:48] Checking srtList... ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 18:34:56] Spliting srtMerge into srtList... ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 18:34:57] Checking srtList... ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Data 1/5 of the srtList is normalized without log transformation. Perform log1p on the data...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform FindVariableFeatures on the data 1/5 of the srtList...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Data 2/5 of the srtList is normalized without log transformation. Perform log1p on the data...</span>
@@ -181,9 +181,9 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span> Data 5/5 of the srtList is raw counts. Perform NormalizeData(logCPM) on the data ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform FindVariableFeatures on the data 5/5 of the srtList...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Use the separate HVF from the existed HVF in srtList...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 10:15:54] Finished checking.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 18:35:03] Finished checking.</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">pancreas1k</span> <span class="op">&lt;-</span> <span class="fu">RunKNNPredict</span><span class="op">(</span>srt_query <span class="op">=</span> <span class="va">pancreas1k</span>, srt_ref <span class="op">=</span> <span class="va">panc8_sub</span>, ref_group <span class="op">=</span> <span class="st">"celltype"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu">RunKNNPredict</span><span class="op">(</span>srt_query <span class="op">=</span> <span class="va">pancreas_sub</span>, srt_ref <span class="op">=</span> <span class="va">panc8_sub</span>, ref_group <span class="op">=</span> <span class="st">"celltype"</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Use the HVF to calculate distance metric.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Use 631 common features to calculate distance.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Detected query data type: log_normalized_counts</span>
@@ -191,13 +191,13 @@
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Calculate similarity...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Use 'raw' method to find neighbors.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Predict cell type...</span>
-<span class="r-in"><span><span class="fu"><a href="ClassDimPlot.html">ClassDimPlot</a></span><span class="op">(</span><span class="va">pancreas1k</span>, group.by <span class="op">=</span> <span class="st">"knnpredict_classification"</span>, label <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="ClassDimPlot.html">ClassDimPlot</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, group.by <span class="op">=</span> <span class="st">"knnpredict_classification"</span>, label <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="RunKNNPredict-4.png" alt="" width="700" height="433"></span>
-<span class="r-in"><span><span class="fu"><a href="ExpDimPlot.html">ExpDimPlot</a></span><span class="op">(</span><span class="va">pancreas1k</span>, features <span class="op">=</span> <span class="st">"knnpredict_simil"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="ExpDimPlot.html">ExpDimPlot</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, features <span class="op">=</span> <span class="st">"knnpredict_simil"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="RunKNNPredict-5.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">pancreas1k</span> <span class="op">&lt;-</span> <span class="fu">RunKNNPredict</span><span class="op">(</span></span></span>
-<span class="r-in"><span>  srt_query <span class="op">=</span> <span class="va">pancreas1k</span>, srt_ref <span class="op">=</span> <span class="va">panc8_sub</span>,</span></span>
+<span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu">RunKNNPredict</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  srt_query <span class="op">=</span> <span class="va">pancreas_sub</span>, srt_ref <span class="op">=</span> <span class="va">panc8_sub</span>,</span></span>
 <span class="r-in"><span>  ref_group <span class="op">=</span> <span class="st">"celltype"</span>, ref_collapsing <span class="op">=</span> <span class="cn">FALSE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Use the HVF to calculate distance metric.</span>
@@ -207,13 +207,13 @@
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Calculate similarity...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Use 'raw' method to find neighbors.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Predict cell type...</span>
-<span class="r-in"><span><span class="fu"><a href="ClassDimPlot.html">ClassDimPlot</a></span><span class="op">(</span><span class="va">pancreas1k</span>, group.by <span class="op">=</span> <span class="st">"knnpredict_classification"</span>, label <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="ClassDimPlot.html">ClassDimPlot</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, group.by <span class="op">=</span> <span class="st">"knnpredict_classification"</span>, label <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="RunKNNPredict-6.png" alt="" width="700" height="433"></span>
-<span class="r-in"><span><span class="fu"><a href="ExpDimPlot.html">ExpDimPlot</a></span><span class="op">(</span><span class="va">pancreas1k</span>, features <span class="op">=</span> <span class="st">"knnpredict_prob"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="ExpDimPlot.html">ExpDimPlot</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, features <span class="op">=</span> <span class="st">"knnpredict_prob"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="RunKNNPredict-7.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">pancreas1k</span> <span class="op">&lt;-</span> <span class="fu">RunKNNPredict</span><span class="op">(</span></span></span>
-<span class="r-in"><span>  srt_query <span class="op">=</span> <span class="va">pancreas1k</span>, srt_ref <span class="op">=</span> <span class="va">panc8_sub</span>,</span></span>
+<span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu">RunKNNPredict</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  srt_query <span class="op">=</span> <span class="va">pancreas_sub</span>, srt_ref <span class="op">=</span> <span class="va">panc8_sub</span>,</span></span>
 <span class="r-in"><span>  query_group <span class="op">=</span> <span class="st">"SubCellType"</span>, ref_group <span class="op">=</span> <span class="st">"celltype"</span>,</span></span>
 <span class="r-in"><span>  query_collapsing <span class="op">=</span> <span class="cn">TRUE</span>, ref_collapsing <span class="op">=</span> <span class="cn">TRUE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
@@ -224,58 +224,58 @@
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Calculate similarity...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Use 'raw' method to find neighbors.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Predict cell type...</span>
-<span class="r-in"><span><span class="fu"><a href="ClassDimPlot.html">ClassDimPlot</a></span><span class="op">(</span><span class="va">pancreas1k</span>, group.by <span class="op">=</span> <span class="st">"knnpredict_classification"</span>, label <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="ClassDimPlot.html">ClassDimPlot</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, group.by <span class="op">=</span> <span class="st">"knnpredict_classification"</span>, label <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="RunKNNPredict-8.png" alt="" width="700" height="433"></span>
-<span class="r-in"><span><span class="fu"><a href="ExpDimPlot.html">ExpDimPlot</a></span><span class="op">(</span><span class="va">pancreas1k</span>, features <span class="op">=</span> <span class="st">"knnpredict_simil"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="ExpDimPlot.html">ExpDimPlot</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, features <span class="op">=</span> <span class="st">"knnpredict_simil"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="RunKNNPredict-9.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Annotate with DE gene instead of HVF</span></span></span>
-<span class="r-in"><span><span class="va">pancreas1k</span> <span class="op">&lt;-</span> <span class="fu">RunKNNPredict</span><span class="op">(</span></span></span>
-<span class="r-in"><span>  srt_query <span class="op">=</span> <span class="va">pancreas1k</span>, srt_ref <span class="op">=</span> <span class="va">panc8_sub</span>,</span></span>
+<span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu">RunKNNPredict</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  srt_query <span class="op">=</span> <span class="va">pancreas_sub</span>, srt_ref <span class="op">=</span> <span class="va">panc8_sub</span>,</span></span>
 <span class="r-in"><span>  ref_group <span class="op">=</span> <span class="st">"celltype"</span>,</span></span>
 <span class="r-in"><span>  features_type <span class="op">=</span> <span class="st">"DE"</span>, feature_source <span class="op">=</span> <span class="st">"ref"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 10:16:03] Start DEtest</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 18:35:17] Start DEtest</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Threads used for DE test: 1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform FindAllMarkers(wilcox)...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |==============================================================================================================| 100%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 10:19:50] DEtest done</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 3.78 mins </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 18:39:05] DEtest done</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 3.8 mins </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Use the DE features from AllMarkers_wilcox to calculate distance metric.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> DE features number of the ref data: 1997</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Use 1987 common features to calculate distance.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Use 1793 common features to calculate distance.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Detected query data type: log_normalized_counts</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Detected reference data type: log_normalized_counts</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Calculate similarity...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Use 'raw' method to find neighbors.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Predict cell type...</span>
-<span class="r-in"><span><span class="fu"><a href="ClassDimPlot.html">ClassDimPlot</a></span><span class="op">(</span><span class="va">pancreas1k</span>, group.by <span class="op">=</span> <span class="st">"knnpredict_classification"</span>, label <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="ClassDimPlot.html">ClassDimPlot</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, group.by <span class="op">=</span> <span class="st">"knnpredict_classification"</span>, label <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="RunKNNPredict-10.png" alt="" width="700" height="433"></span>
-<span class="r-in"><span><span class="fu"><a href="ExpDimPlot.html">ExpDimPlot</a></span><span class="op">(</span><span class="va">pancreas1k</span>, features <span class="op">=</span> <span class="st">"knnpredict_simil"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="ExpDimPlot.html">ExpDimPlot</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, features <span class="op">=</span> <span class="st">"knnpredict_simil"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="RunKNNPredict-11.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">pancreas1k</span> <span class="op">&lt;-</span> <span class="fu">RunKNNPredict</span><span class="op">(</span></span></span>
-<span class="r-in"><span>  srt_query <span class="op">=</span> <span class="va">pancreas1k</span>, srt_ref <span class="op">=</span> <span class="va">panc8_sub</span>,</span></span>
+<span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu">RunKNNPredict</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  srt_query <span class="op">=</span> <span class="va">pancreas_sub</span>, srt_ref <span class="op">=</span> <span class="va">panc8_sub</span>,</span></span>
 <span class="r-in"><span>  query_group <span class="op">=</span> <span class="st">"SubCellType"</span>, ref_group <span class="op">=</span> <span class="st">"celltype"</span>,</span></span>
 <span class="r-in"><span>  features_type <span class="op">=</span> <span class="st">"DE"</span>, feature_source <span class="op">=</span> <span class="st">"both"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 10:19:52] Start DEtest</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 18:39:08] Start DEtest</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Threads used for DE test: 1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform FindAllMarkers(wilcox)...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |==============================================================================================================| 100%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 10:20:00] DEtest done</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 7.26 secs </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 18:39:17] DEtest done</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 8.98 secs </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Use the DE features from AllMarkers_wilcox to calculate distance metric.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> DE features number of the query data: 1038</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 10:20:00] Start DEtest</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 18:39:17] Start DEtest</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Threads used for DE test: 1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform FindAllMarkers(wilcox)...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |==============================================================================================================| 100%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 10:23:47] DEtest done</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 3.79 mins </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-20 18:42:56] DEtest done</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 3.64 mins </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Use the DE features from AllMarkers_wilcox to calculate distance metric.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> DE features number of the ref data: 252</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Use 46 common features to calculate distance.</span>
@@ -284,9 +284,9 @@
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Calculate similarity...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Use 'raw' method to find neighbors.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Predict cell type...</span>
-<span class="r-in"><span><span class="fu"><a href="ClassDimPlot.html">ClassDimPlot</a></span><span class="op">(</span><span class="va">pancreas1k</span>, group.by <span class="op">=</span> <span class="st">"knnpredict_classification"</span>, label <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="ClassDimPlot.html">ClassDimPlot</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, group.by <span class="op">=</span> <span class="st">"knnpredict_classification"</span>, label <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="RunKNNPredict-12.png" alt="" width="700" height="433"></span>
-<span class="r-in"><span><span class="fu"><a href="ExpDimPlot.html">ExpDimPlot</a></span><span class="op">(</span><span class="va">pancreas1k</span>, features <span class="op">=</span> <span class="st">"knnpredict_simil"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="ExpDimPlot.html">ExpDimPlot</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, features <span class="op">=</span> <span class="st">"knnpredict_simil"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="RunKNNPredict-13.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
