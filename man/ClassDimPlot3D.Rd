@@ -59,11 +59,11 @@ ClassDimPlot3D(
 Plotting cell points on a reduced 3D space and coloring according to the groups of the cells.
 }
 \examples{
-data(pancreas1k)
-pancreas1k <- Standard_SCP(pancreas1k)
-ClassDimPlot3D(pancreas1k, group.by = "SubCellType", reduction = "StandardpcaUMAP3D")
+data(pancreas_sub)
+pancreas_sub <- Standard_SCP(pancreas_sub)
+ClassDimPlot3D(pancreas_sub, group.by = "SubCellType", reduction = "StandardpcaUMAP3D")
 
-pancreas1k <- Standard_SCP(pancreas1k)
-pancreas1k <- RunSlingshot(pancreas1k, group.by = "SubCellType", reduction = "StandardpcaUMAP3D")
-ClassDimPlot3D(pancreas1k, group.by = "SubCellType", reduction = "StandardpcaUMAP3D", lineages = paste0("Lineage", 1:2))
+pancreas_sub <- Standard_SCP(pancreas_sub)
+pancreas_sub <- RunSlingshot(pancreas_sub, group.by = "SubCellType", reduction = "StandardpcaUMAP3D")
+ClassDimPlot3D(pancreas_sub, group.by = "SubCellType", reduction = "StandardpcaUMAP3D", lineages = paste0("Lineage", 1:2))
 }

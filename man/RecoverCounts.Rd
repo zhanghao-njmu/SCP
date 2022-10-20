@@ -23,11 +23,11 @@ The tolerance is its difference from the integer.}
 Attempt to recover raw counts from the normalized matrix of the Seurat object.
 }
 \examples{
-data("pancreas1k")
-pancreas1k <- Seurat::NormalizeData(pancreas1k)
-raw_counts <- pancreas1k@assays$RNA@counts
-pancreas1k@assays$RNA@counts <- pancreas1k@assays$RNA@data
-pancreas1k <- RecoverCounts(pancreas1k)
-identical(raw_counts, pancreas1k@assays$RNA@counts)
+data("pancreas_sub")
+pancreas_sub <- Seurat::NormalizeData(pancreas_sub)
+raw_counts <- pancreas_sub@assays$RNA@counts
+pancreas_sub@assays$RNA@counts <- pancreas_sub@assays$RNA@data
+pancreas_sub <- RecoverCounts(pancreas_sub)
+identical(raw_counts, pancreas_sub@assays$RNA@counts)
 
 }

@@ -80,7 +80,7 @@ A \code{Seurat} object containing the result.
 Single cell pipeline for the single dataset.
 }
 \examples{
-data("pancreas1k")
-pancreas1k <- Standard_SCP(srt = pancreas1k)
-ClassDimPlot(pancreas1k, group.by = "CellType")
+data("pancreas_sub")
+pancreas_sub <- Standard_SCP(srt = pancreas_sub)
+ClassDimPlot(pancreas_sub, group.by = "CellType")
 }

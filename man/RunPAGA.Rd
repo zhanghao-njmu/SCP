@@ -84,18 +84,18 @@ A \code{anndata} object.
 Run PAGA analysis
 }
 \examples{
-data("pancreas1k")
-pancreas1k <- RunPAGA(srt = pancreas1k, group_by = "SubCellType", liner_reduction = "PCA", nonliner_reduction = "UMAP", return_seurat = TRUE)
-PAGAPlot(pancreas1k)
+data("pancreas_sub")
+pancreas_sub <- RunPAGA(srt = pancreas_sub, group_by = "SubCellType", liner_reduction = "PCA", nonliner_reduction = "UMAP", return_seurat = TRUE)
+PAGAPlot(pancreas_sub)
 
-pancreas1k <- RunPAGA(
-  srt = pancreas1k, group_by = "SubCellType", liner_reduction = "PCA", nonliner_reduction = "UMAP",
+pancreas_sub <- RunPAGA(
+  srt = pancreas_sub, group_by = "SubCellType", liner_reduction = "PCA", nonliner_reduction = "UMAP",
   embedded_with_PAGA = TRUE, infer_pseudotime = TRUE, root_group = "Ductal", return_seurat = TRUE
 )
-head(pancreas1k[[]])
-names(pancreas1k@reductions)
-ExpDimPlot(pancreas1k, "dpt_pseudotime", reduction = "PAGAUMAP2D")
-PAGAPlot(pancreas1k, reduction = "PAGAUMAP2D")
-ClassDimPlot(pancreas1k, group.by = "SubCellType", reduction = "PAGAUMAP2D", paga = pancreas1k@misc$paga)
+head(pancreas_sub[[]])
+names(pancreas_sub@reductions)
+ExpDimPlot(pancreas_sub, "dpt_pseudotime", reduction = "PAGAUMAP2D")
+PAGAPlot(pancreas_sub, reduction = "PAGAUMAP2D")
+ClassDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "PAGAUMAP2D", paga = pancreas_sub@misc$paga)
 
 }

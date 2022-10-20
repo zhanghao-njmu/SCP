@@ -537,22 +537,22 @@ def PAGA(adata=None, h5ad=None, group_by=None, liner_reduction=None, nonliner_re
     if save:
       plt.savefig('.'.join(filter(None, [fileprefix, "paga_compare.png"])), dpi=dpi)
     
-    if embedded_with_PAGA is True:
-      sc.pl.paga(adata, threshold = threshold, layout = paga_layout, title = "PAGA layout: " + paga_layout, frameon = False, save = False, show = False)
-      plt.axis(axis) 
-      if show_plot is True:
-        plt.show()
-      if save:
-        plt.savefig('.'.join(filter(None, [fileprefix, "paga_layout.png"])), dpi=dpi)
-        
-      sc.tl.draw_graph(adata, init_pos = "paga", layout = paga_layout)
-      sc.pl.draw_graph(adata, color=group_by, title = "PAGA layout: " + paga_layout, layout = paga_layout,  frameon = False, legend_loc="on data",show = False)
-      plt.axis(axis)
-      if show_plot is True:
-        plt.show()
-      if save:
-        plt.savefig('.'.join(filter(None, [fileprefix, "paga_graph.png"])), dpi=dpi)
+    sc.pl.paga(adata, threshold = threshold, layout = paga_layout, title = "PAGA layout: " + paga_layout, frameon = False, save = False, show = False)
+    plt.axis(axis) 
+    if show_plot is True:
+      plt.show()
+    if save:
+      plt.savefig('.'.join(filter(None, [fileprefix, "paga_layout.png"])), dpi=dpi)
       
+    sc.tl.draw_graph(adata, init_pos = "paga", layout = paga_layout)
+    sc.pl.draw_graph(adata, color=group_by, title = "PAGA layout: " + paga_layout, layout = paga_layout,  frameon = False, legend_loc="on data",show = False)
+    plt.axis(axis)
+    if show_plot is True:
+      plt.show()
+    if save:
+      plt.savefig('.'.join(filter(None, [fileprefix, "paga_graph.png"])), dpi=dpi)
+      
+    if embedded_with_PAGA is True:
       umap2d = sc.tl.umap(adata, init_pos = "paga", n_components=2, copy = True)
       adata.obsm["PAGAUMAP2D"] = umap2d.obsm["X_umap"]
       ax=sc.pl.paga_compare(adata, basis = "PAGAUMAP2D", threshold = threshold, size = point_size, title = "PAGA-initialized UMAP", edges = True, save = False, show = False)

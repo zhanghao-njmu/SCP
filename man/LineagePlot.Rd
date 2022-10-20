@@ -41,8 +41,8 @@ LineagePlot(
 LineagePlot
 }
 \examples{
-data("pancreas1k")
-pancreas1k <- RunSlingshot(pancreas1k, group.by = "SubCellType", reduction = "UMAP", show_plot = FALSE)
-LineagePlot(pancreas1k, lineages = paste0("Lineage", 1:3))
-LineagePlot(pancreas1k, lineages = paste0("Lineage", 1:3), whiskers = TRUE)
+data("pancreas_sub")
+pancreas_sub <- RunSlingshot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", show_plot = FALSE)
+LineagePlot(pancreas_sub, lineages = paste0("Lineage", 1:3))
+LineagePlot(pancreas_sub, lineages = paste0("Lineage", 1:3), whiskers = TRUE)
 }

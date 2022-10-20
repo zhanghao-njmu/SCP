@@ -39,18 +39,18 @@ panc8_sub <- RenameFeatures(panc8_sub, newnames = genenames)
 panc8_sub <- check_srtMerge(panc8_sub, batch = "tech")[["srtMerge"]]
 
 # Annotation
-data("pancreas1k")
-pancreas1k <- Standard_SCP(pancreas1k)
-pancreas1k <- RunSingleR(
-  srt_query = pancreas1k, srt_ref = panc8_sub,
+data("pancreas_sub")
+pancreas_sub <- Standard_SCP(pancreas_sub)
+pancreas_sub <- RunSingleR(
+  srt_query = pancreas_sub, srt_ref = panc8_sub,
   query_group = "Standardclusters", ref_group = "celltype",
 )
-ClassDimPlot(pancreas1k, group.by = "singler_annotation")
+ClassDimPlot(pancreas_sub, group.by = "singler_annotation")
 
-pancreas1k <- RunSingleR(
-  srt_query = pancreas1k, srt_ref = panc8_sub,
+pancreas_sub <- RunSingleR(
+  srt_query = pancreas_sub, srt_ref = panc8_sub,
   query_group = NULL, ref_group = "celltype"
 )
-ClassDimPlot(pancreas1k, group.by = "singler_annotation")
+ClassDimPlot(pancreas_sub, group.by = "singler_annotation")
 
 }

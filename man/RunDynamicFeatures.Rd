@@ -27,11 +27,11 @@ RunDynamicFeatures(
 RunDynamicFeatures
 }
 \examples{
-data("pancreas1k")
-pancreas1k <- RunSlingshot(pancreas1k, group.by = "SubCellType", reduction = "UMAP")
-pancreas1k <- RunDynamicFeatures(pancreas1k, lineages = c("Lineage1", "Lineage2"), n_candidates = 200)
+data("pancreas_sub")
+pancreas_sub <- RunSlingshot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP")
+pancreas_sub <- RunDynamicFeatures(pancreas_sub, lineages = c("Lineage1", "Lineage2"), n_candidates = 200)
 ht_result <- DynamicHeatmap(
-  srt = pancreas1k,
+  srt = pancreas_sub,
   lineages = c("Lineage1", "Lineage2"),
   cell_annotation = "SubCellType",
   n_split = 6, reverse_ht = "Lineage1",
@@ -40,7 +40,7 @@ ht_result <- DynamicHeatmap(
 ht_result$plot
 
 p <- DynamicPlot(
-  srt = pancreas1k,
+  srt = pancreas_sub,
   lineages = c("Lineage1", "Lineage2"),
   features = c("Nnat", "Irx1"),
   group.by = "SubCellType",

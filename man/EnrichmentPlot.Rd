@@ -63,13 +63,13 @@ EnrichmentPlot(
 EnrichmentPlot
 }
 \examples{
-data("pancreas1k")
-pancreas1k <- RunDEtest(pancreas1k, group_by = "CellType")
-pancreas1k <- RunEnrichment(srt = pancreas1k, group_by = "CellType", enrichment = "GO_BP", species = "Mus_musculus")
-EnrichmentPlot(pancreas1k, group_by = "CellType", plot_type = "bar")
-EnrichmentPlot(pancreas1k, group_by = "CellType", plot_type = "bar", character_width = 30, base_size = 10)
+data("pancreas_sub")
+pancreas_sub <- RunDEtest(pancreas_sub, group_by = "CellType")
+pancreas_sub <- RunEnrichment(srt = pancreas_sub, group_by = "CellType", enrichment = "GO_BP", species = "Mus_musculus")
+EnrichmentPlot(pancreas_sub, group_by = "CellType", plot_type = "bar")
+EnrichmentPlot(pancreas_sub, group_by = "CellType", plot_type = "bar", character_width = 30, base_size = 10)
 
-EnrichmentPlot(pancreas1k, group_by = "CellType", group_use = c("Ductal", "Endocrine"), plot_type = "lollipop", ncol = 1)
-EnrichmentPlot(pancreas1k, group_by = "CellType", group_use = c("Ductal", "Endocrine"), plot_type = "wordcloud")
-EnrichmentPlot(pancreas1k, group_by = "CellType", group_use = c("Ductal", "Endocrine"), plot_type = "wordcloud", word_type = "feature")
+EnrichmentPlot(pancreas_sub, group_by = "CellType", group_use = c("Ductal", "Endocrine"), plot_type = "lollipop", ncol = 1)
+EnrichmentPlot(pancreas_sub, group_by = "CellType", group_use = c("Ductal", "Endocrine"), plot_type = "wordcloud")
+EnrichmentPlot(pancreas_sub, group_by = "CellType", group_use = c("Ductal", "Endocrine"), plot_type = "wordcloud", word_type = "feature")
 }

@@ -90,6 +90,6 @@ however, ribo content in single cell data can also indicate whether the empty dr
 and the ribo content in empty droplets is usually high and the mito content is low instead.
 }
 \examples{
-data("pancreas1k")
-pancreas1k <- RunCellQC(pancreas1k)
+data("pancreas_sub")
+pancreas_sub <- RunCellQC(pancreas_sub)
 }

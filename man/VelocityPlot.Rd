@@ -55,12 +55,12 @@ VelocityPlot(
 Velocity Plot
 }
 \examples{
-data("pancreas1k")
-pancreas1k <- RunSCVELO(srt = pancreas1k, group_by = "SubCellType", liner_reduction = "PCA", nonliner_reduction = "UMAP", return_seurat = TRUE)
-VelocityPlot(pancreas1k, reduction = "UMAP")
-VelocityPlot(pancreas1k, reduction = "UMAP", group_by = "SubCellType")
-VelocityPlot(pancreas1k, reduction = "UMAP", plot_type = "grid")
-VelocityPlot(pancreas1k, reduction = "UMAP", plot_type = "stream")
-VelocityPlot(pancreas1k, reduction = "UMAP", plot_type = "stream", streamline_color = "black")
-VelocityPlot(pancreas1k, reduction = "UMAP", plot_type = "stream", streamline_color = "black", arrow_color = "red")
+data("pancreas_sub")
+pancreas_sub <- RunSCVELO(srt = pancreas_sub, group_by = "SubCellType", liner_reduction = "PCA", nonliner_reduction = "UMAP", return_seurat = TRUE)
+VelocityPlot(pancreas_sub, reduction = "UMAP")
+VelocityPlot(pancreas_sub, reduction = "UMAP", group_by = "SubCellType")
+VelocityPlot(pancreas_sub, reduction = "UMAP", plot_type = "grid")
+VelocityPlot(pancreas_sub, reduction = "UMAP", plot_type = "stream")
+VelocityPlot(pancreas_sub, reduction = "UMAP", plot_type = "stream", streamline_color = "black")
+VelocityPlot(pancreas_sub, reduction = "UMAP", plot_type = "stream", streamline_color = "black", arrow_color = "red")
 }

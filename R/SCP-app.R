@@ -230,9 +230,9 @@ CreateMetaFile <- function(srt, MetaFile, name = NULL, write_tools = FALSE, writ
 #'
 #' @examples
 #' if (interactive()) {
-#'   data("pancreas1k")
-#'   pancreas1k <- Standard_SCP(pancreas1k)
-#'   PrepareSCExplorer(pancreas1k, base_dir = "./SCExplorer")
+#'   data("pancreas_sub")
+#'   pancreas_sub <- Standard_SCP(pancreas_sub)
+#'   PrepareSCExplorer(pancreas_sub, base_dir = "./SCExplorer")
 #' }
 #' @importFrom Seurat Reductions Assays
 #' @export
@@ -302,10 +302,12 @@ PrepareSCExplorer <- function(object,
 #'
 #' @examples
 #' if (interactive()) {
-#'   data("pancreas1k")
-#'   pancreas1k <- Standard_SCP(pancreas1k)
-#'   PrepareSCExplorer(pancreas1k, base_dir = "./SCExplorer")
-#'   FetchH5("./SCExplorer/Data.hdf5", "./SCExplorer/Meta.hdf5", features = "Isl1", reduction = "UMAP")
+#'   data("pancreas_sub")
+#'   pancreas_sub <- Standard_SCP(pancreas_sub)
+#'   PrepareSCExplorer(pancreas_sub, base_dir = "./SCExplorer")
+#'   srt <- FetchH5(DataFile = "./SCExplorer/Data.hdf5", MetaFile = "./SCExplorer/Meta.hdf5", features = c("Ins1", "Ghrl"), metanames = c("SubCellType", "Phase"), reduction = "UMAP")
+#'   ClassDimPlot(srt, group.by = c("SubCellType", "Phase"), reduction = "UMAP")
+#'   ExpDimPlot(srt, features = c("Ins1", "Ghrl"), reduction = "UMAP")
 #' }
 #' @importFrom HDF5Array TENxMatrix
 #' @importFrom rhdf5 h5ls h5read h5readAttributes
@@ -387,6 +389,9 @@ FetchH5 <- function(DataFile, MetaFile, name = NULL,
       if ("levels" %in% names(meta_attr)) {
         meta <- factor(meta, levels = meta_attr$levels)
       }
+      if (is.array(meta)) {
+        meta <- as.numeric(meta)
+      }
       srt_tmp@meta.data[, i] <- meta
     }
   }
@@ -441,15 +446,32 @@ FetchH5 <- function(DataFile, MetaFile, name = NULL,
 #'
 #' @examples
 #' if (interactive()) {
-#'   data("pancreas1k")
-#'   pancreas1k <- Standard_SCP(pancreas1k)
-#'   PrepareSCExplorer(pancreas1k, base_dir = "./SCExplorer")
+#'   data("pancreas_sub")
+#'   pancreas_sub <- Standard_SCP(pancreas_sub)
+#'   PrepareSCExplorer(pancreas_sub, base_dir = "./SCExplorer")
 #'
 #'   # Create the app.R script
 #'   app <- RunSCExplorer(base_dir = "./SCExplorer", return_app = TRUE)
+#'   list.files("./SCExplorer")
 #'
 #'   # Run shiny app
 #'   shiny::runApp(app)
+#'
+#'   ########################################################################
+#'   # You can also deploy the app on the self-hosted shiny server(https://www.rstudio.com/products/shiny/shiny-server/)
+#'   # or deploy the app on the website(https://www.shinyapps.io) for free:
+#'
+#'   ## step1: set the repository URL for Bioconductor packages and update them to the latest version
+#'   options(repos = BiocManager::repositories())
+#'   BiocManager::install(ask = FALSE)
+#'
+#'   ## step2: install "rsconnect" package and authorize your account
+#'   install.packages("rsconnect")
+#'   library(rsconnect)
+#'   setAccountInfo(name = "<NAME>", token = "<TOKEN>", secret = "<SECRET>")
+#'
+#'   ## step3: deploy the app
+#'   deployApp("./SCExplorer")
 #' }
 #' @importFrom shiny shinyAppDir
 #' @export
@@ -482,12 +504,8 @@ RunSCExplorer <- function(base_dir = "SCExplorer",
   if (!file.exists(DataFile_full) || !file.exists(MetaFile_full)) {
     stop("Please create the DataFile and MetaFile using PrepareSCExplorer function first!")
   }
-  check_R(c("shiny", "shinycssloaders"))
 
   main_code <- '
-  check_R(c("shiny", "shinycssloaders"))
-  library(shiny)
-
   data_group <- rhdf5::h5ls(DataFile)$group
   meta_group <- rhdf5::h5ls(MetaFile)$group
   group <- intersect(data_group, meta_group)
@@ -1063,7 +1081,17 @@ RunSCExplorer <- function(base_dir = "SCExplorer",
   for (varnm in names(args)) {
     main_code <- c(paste0(varnm, "=", deparse(args[[varnm]])), main_code)
   }
-  main_code <- c("# !/usr/bin/env Rscript", "library(SCP)", main_code)
+  main_code <- c(
+    "# !/usr/bin/env Rscript",
+    "if (!require('SCP', quietly = TRUE)) {
+      if (!require('devtools', quietly = TRUE)) {install.packages('devtools')}
+      devtools::install_github('zhanghao-njmu/SCP')
+    }",
+    "library(SCP)",
+    "check_R(c('shiny', 'shinycssloaders'))",
+    "library(shiny)",
+    main_code
+  )
   main_code <- c(main_code, "shinyApp(ui = ui, server = server)")
   temp <- tempfile("SCExplorer")
   writeLines(main_code, temp)
@@ -1082,7 +1110,7 @@ RunSCExplorer <- function(base_dir = "SCExplorer",
         invisible(capture.output(styler::style_file(app_file)))
       }
     } else {
-      message("app.R already exists. You may regenerate it with 'overwrite=TRUE'.")
+      message("app.R already exists. You may regenerate it with 'overwrite = TRUE'.")
     }
   }
   unlink(temp)
