@@ -49,43 +49,43 @@ ClassStatPlot(
 Statistical plot of cell classification
 }
 \examples{
-data("pancreas1k")
-ClassStatPlot(pancreas1k, stat.by = "Phase", group.by = "CellType")
-ClassStatPlot(pancreas1k, stat.by = "Phase", group.by = "CellType", stat_type = "count", position = "dodge", label = TRUE)
+data("pancreas_sub")
+ClassStatPlot(pancreas_sub, stat.by = "Phase", group.by = "CellType")
+ClassStatPlot(pancreas_sub, stat.by = "Phase", group.by = "CellType", stat_type = "count", position = "dodge", label = TRUE)
 
-ClassStatPlot(pancreas1k, stat.by = "Phase", plot_type = "rose", label = TRUE)
-ClassStatPlot(pancreas1k, stat.by = "Phase", plot_type = "ring", label = TRUE)
-ClassStatPlot(pancreas1k, stat.by = "Phase", plot_type = "pie", label = TRUE)
+ClassStatPlot(pancreas_sub, stat.by = "Phase", plot_type = "rose", label = TRUE)
+ClassStatPlot(pancreas_sub, stat.by = "Phase", plot_type = "ring", label = TRUE)
+ClassStatPlot(pancreas_sub, stat.by = "Phase", plot_type = "pie", label = TRUE)
 
-ClassStatPlot(pancreas1k, stat.by = "Phase", group.by = "CellType")
-ClassStatPlot(pancreas1k, stat.by = "Phase", group.by = "CellType", plot_type = "rose", label = TRUE)
-ClassStatPlot(pancreas1k, stat.by = "Phase", group.by = "CellType", plot_type = "ring", label = TRUE)
-ClassStatPlot(pancreas1k, stat.by = "Phase", group.by = "CellType", plot_type = "area", label = TRUE)
+ClassStatPlot(pancreas_sub, stat.by = "Phase", group.by = "CellType")
+ClassStatPlot(pancreas_sub, stat.by = "Phase", group.by = "CellType", plot_type = "rose", label = TRUE)
+ClassStatPlot(pancreas_sub, stat.by = "Phase", group.by = "CellType", plot_type = "ring", label = TRUE)
+ClassStatPlot(pancreas_sub, stat.by = "Phase", group.by = "CellType", plot_type = "area", label = TRUE)
 
-ClassStatPlot(pancreas1k, stat.by = "Phase", group.by = "CellType", plot_type = "bar", label = TRUE, stat_single = TRUE)
+ClassStatPlot(pancreas_sub, stat.by = "Phase", group.by = "CellType", plot_type = "bar", label = TRUE, stat_single = TRUE)
 
-ClassStatPlot(pancreas1k, stat.by = "Phase", group.by = "CellType", stat_type = "count", plot_type = "rose", label = TRUE)
-ClassStatPlot(pancreas1k, stat.by = "Phase", group.by = "CellType", stat_type = "count", plot_type = "ring", label = TRUE)
-ClassStatPlot(pancreas1k, stat.by = "Phase", group.by = "CellType", stat_type = "count", plot_type = "area", label = TRUE)
+ClassStatPlot(pancreas_sub, stat.by = "Phase", group.by = "CellType", stat_type = "count", plot_type = "rose", label = TRUE)
+ClassStatPlot(pancreas_sub, stat.by = "Phase", group.by = "CellType", stat_type = "count", plot_type = "ring", label = TRUE)
+ClassStatPlot(pancreas_sub, stat.by = "Phase", group.by = "CellType", stat_type = "count", plot_type = "area", label = TRUE)
 
-ClassStatPlot(pancreas1k, stat.by = "Phase", group.by = "CellType", stat_type = "count", plot_type = "rose", position = "dodge", label = TRUE)
-ClassStatPlot(pancreas1k, stat.by = "Phase", group.by = "CellType", stat_type = "count", plot_type = "ring", position = "dodge", label = TRUE)
-ClassStatPlot(pancreas1k, stat.by = "Phase", group.by = "CellType", stat_type = "count", plot_type = "area", position = "dodge", label = TRUE, alpha = 0.8)
+ClassStatPlot(pancreas_sub, stat.by = "Phase", group.by = "CellType", stat_type = "count", plot_type = "rose", position = "dodge", label = TRUE)
+ClassStatPlot(pancreas_sub, stat.by = "Phase", group.by = "CellType", stat_type = "count", plot_type = "ring", position = "dodge", label = TRUE)
+ClassStatPlot(pancreas_sub, stat.by = "Phase", group.by = "CellType", stat_type = "count", plot_type = "area", position = "dodge", label = TRUE, alpha = 0.8)
 
-ClassStatPlot(pancreas1k, stat.by = c("CellType", "Phase"), plot_type = "chord")
-ClassStatPlot(pancreas1k, stat.by = c("CellType", "Phase"), plot_type = "sankey")
+ClassStatPlot(pancreas_sub, stat.by = c("CellType", "Phase"), plot_type = "chord")
+ClassStatPlot(pancreas_sub, stat.by = c("CellType", "Phase"), plot_type = "sankey")
 
-ClassStatPlot(pancreas1k,
+ClassStatPlot(pancreas_sub,
   stat.by = c("CellType", "Phase"), plot_type = "venn",
   stat_level = list(CellType = c("Ductal", "Ngn3 low EP", "Ngn3 high EP"), Phase = "G2M")
 )
 
-pancreas1k$Ductal <- ifelse(pancreas1k$CellType \%in\% c("Ductal", "Ngn3 low EP", "Ngn3 high EP"), TRUE, FALSE)
-pancreas1k$Endocrine <- ifelse(pancreas1k$CellType \%in\% c("Pre-endocrine", "Endocrine"), TRUE, FALSE)
-pancreas1k$G1S <- ifelse(pancreas1k$Phase \%in\% c("G1", "S"), TRUE, FALSE)
-pancreas1k$G2M <- ifelse(pancreas1k$Phase \%in\% c("G2M"), TRUE, FALSE)
-head(pancreas1k@meta.data[, c("Ductal", "Endocrine", "G1S", "G2M")])
-ClassStatPlot(pancreas1k, stat.by = c("Ductal", "Endocrine", "G1S", "G2M"), plot_type = "venn")
-ClassStatPlot(pancreas1k, stat.by = c("Ductal", "Endocrine", "G1S", "G2M"), plot_type = "upset")
+pancreas_sub$Ductal <- ifelse(pancreas_sub$CellType \%in\% c("Ductal", "Ngn3 low EP", "Ngn3 high EP"), TRUE, FALSE)
+pancreas_sub$Endocrine <- ifelse(pancreas_sub$CellType \%in\% c("Pre-endocrine", "Endocrine"), TRUE, FALSE)
+pancreas_sub$G1S <- ifelse(pancreas_sub$Phase \%in\% c("G1", "S"), TRUE, FALSE)
+pancreas_sub$G2M <- ifelse(pancreas_sub$Phase \%in\% c("G2M"), TRUE, FALSE)
+head(pancreas_sub@meta.data[, c("Ductal", "Endocrine", "G1S", "G2M")])
+ClassStatPlot(pancreas_sub, stat.by = c("Ductal", "Endocrine", "G1S", "G2M"), plot_type = "venn")
+ClassStatPlot(pancreas_sub, stat.by = c("Ductal", "Endocrine", "G1S", "G2M"), plot_type = "upset")
 
 }

@@ -40,10 +40,10 @@ panc8_sub <- Integration_SCP(panc8_sub, batch = "tech", integration_method = "Se
 ClassDimPlot(panc8_sub, "celltype")
 
 # Projection
-data("pancreas1k")
-pancreas1k <- Standard_SCP(pancreas1k)
-head(intersect(rownames(panc8_sub), rownames(pancreas1k)))
-pancreas1k <- RunKNNMap(srt_query = pancreas1k, srt_ref = panc8_sub, ref_umap = "SeuratUMAP2D")
-ProjectionPlot(srt_query = pancreas1k, srt_ref = panc8_sub, query_group = "SubCellType", ref_group = "celltype")
+data("pancreas_sub")
+pancreas_sub <- Standard_SCP(pancreas_sub)
+head(intersect(rownames(panc8_sub), rownames(pancreas_sub)))
+pancreas_sub <- RunKNNMap(srt_query = pancreas_sub, srt_ref = panc8_sub, ref_umap = "SeuratUMAP2D")
+ProjectionPlot(srt_query = pancreas_sub, srt_ref = panc8_sub, query_group = "SubCellType", ref_group = "celltype")
 
 }

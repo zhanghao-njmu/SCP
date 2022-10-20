@@ -53,7 +53,7 @@ ExpCorPlot(
 Features correlation plot
 }
 \examples{
-data("pancreas1k")
-pancreas1k <- Standard_SCP(pancreas1k)
-ExpCorPlot(pancreas1k, features = c("Ghrl", "Gcg", "Ins1", "Ins2"), group.by = "SubCellType")
+data("pancreas_sub")
+pancreas_sub <- Standard_SCP(pancreas_sub)
+ExpCorPlot(pancreas_sub, features = c("Ghrl", "Gcg", "Ins1", "Ins2"), group.by = "SubCellType")
 }

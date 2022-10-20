@@ -27,10 +27,10 @@ RunSlingshot(
 RunSlingshot
 }
 \examples{
-data("pancreas1k")
-pancreas1k <- RunSlingshot(pancreas1k, group.by = "SubCellType", reduction = "UMAP")
+data("pancreas_sub")
+pancreas_sub <- RunSlingshot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP")
 
 # 3D lineage
-pancreas1k <- Standard_SCP(pancreas1k)
-pancreas1k <- RunSlingshot(pancreas1k, group.by = "SubCellType", reduction = "StandardpcaUMAP3D")
+pancreas_sub <- Standard_SCP(pancreas_sub)
+pancreas_sub <- RunSlingshot(pancreas_sub, group.by = "SubCellType", reduction = "StandardpcaUMAP3D")
 }

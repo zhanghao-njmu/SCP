@@ -36,9 +36,9 @@ panc8_sub <- Integration_SCP(panc8_sub, batch = "tech", integration_method = "Se
 ClassDimPlot(panc8_sub, "celltype")
 
 # Projection
-data("pancreas1k")
-pancreas1k <- Standard_SCP(pancreas1k)
-pancreas1k <- RunPCAMap(srt_query = pancreas1k, srt_ref = panc8_sub, ref_pca = "Seuratpca", ref_umap = "SeuratUMAP2D")
-ProjectionPlot(srt_query = pancreas1k, srt_ref = panc8_sub, query_group = "SubCellType", ref_group = "celltype")
+data("pancreas_sub")
+pancreas_sub <- Standard_SCP(pancreas_sub)
+pancreas_sub <- RunPCAMap(srt_query = pancreas_sub, srt_ref = panc8_sub, ref_pca = "Seuratpca", ref_umap = "SeuratUMAP2D")
+ProjectionPlot(srt_query = pancreas_sub, srt_ref = panc8_sub, query_group = "SubCellType", ref_group = "celltype")
 
 }

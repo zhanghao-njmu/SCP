@@ -230,9 +230,9 @@ CreateMetaFile <- function(srt, MetaFile, name = NULL, write_tools = FALSE, writ
 #'
 #' @examples
 #' if (interactive()) {
-#'   data("pancreas1k")
-#'   pancreas1k <- Standard_SCP(pancreas1k)
-#'   PrepareSCExplorer(pancreas1k, base_dir = "./SCExplorer")
+#'   data("pancreas_sub")
+#'   pancreas_sub <- Standard_SCP(pancreas_sub)
+#'   PrepareSCExplorer(pancreas_sub, base_dir = "./SCExplorer")
 #' }
 #' @importFrom Seurat Reductions Assays
 #' @export
@@ -302,9 +302,9 @@ PrepareSCExplorer <- function(object,
 #'
 #' @examples
 #' if (interactive()) {
-#'   data("pancreas1k")
-#'   pancreas1k <- Standard_SCP(pancreas1k)
-#'   PrepareSCExplorer(pancreas1k, base_dir = "./SCExplorer")
+#'   data("pancreas_sub")
+#'   pancreas_sub <- Standard_SCP(pancreas_sub)
+#'   PrepareSCExplorer(pancreas_sub, base_dir = "./SCExplorer")
 #'   FetchH5("./SCExplorer/Data.hdf5", "./SCExplorer/Meta.hdf5", features = "Isl1", reduction = "UMAP")
 #' }
 #' @importFrom HDF5Array TENxMatrix
@@ -441,15 +441,28 @@ FetchH5 <- function(DataFile, MetaFile, name = NULL,
 #'
 #' @examples
 #' if (interactive()) {
-#'   data("pancreas1k")
-#'   pancreas1k <- Standard_SCP(pancreas1k)
-#'   PrepareSCExplorer(pancreas1k, base_dir = "./SCExplorer")
+#'   data("pancreas_sub")
+#'   pancreas_sub <- Standard_SCP(pancreas_sub)
+#'   PrepareSCExplorer(pancreas_sub, base_dir = "./SCExplorer")
 #'
 #'   # Create the app.R script
 #'   app <- RunSCExplorer(base_dir = "./SCExplorer", return_app = TRUE)
+#'   list.files("./SCExplorer")
 #'
 #'   # Run shiny app
 #'   shiny::runApp(app)
+#'
+#'   # You can also deploy the app on the self-hosted shiny server(https://www.rstudio.com/products/shiny/shiny-server/).
+#'
+#'   # Or deploy the app on the website(https://www.shinyapps.io) for free.
+#'   install.packages("rsconnect")
+#'   library(rsconnect)
+#'   setAccountInfo(name = "<NAME>", token = "<TOKEN>", secret = "<SECRET>")
+#'
+#'   library(BiocManager)
+#'   options(repos = BiocManager::repositories())
+#'
+#'   deployApp("./SCExplorer")
 #' }
 #' @importFrom shiny shinyAppDir
 #' @export
@@ -1063,7 +1076,15 @@ RunSCExplorer <- function(base_dir = "SCExplorer",
   for (varnm in names(args)) {
     main_code <- c(paste0(varnm, "=", deparse(args[[varnm]])), main_code)
   }
-  main_code <- c("# !/usr/bin/env Rscript", "library(SCP)", main_code)
+  main_code <- c(
+    "# !/usr/bin/env Rscript",
+    "if (!require('SCP', quietly = TRUE)) {
+      if (!require('devtools', quietly = TRUE)) {install.packages('devtools')}
+      devtools::install_github('zhanghao-njmu/SCP')
+    }",
+    "library(SCP)",
+    main_code
+  )
   main_code <- c(main_code, "shinyApp(ui = ui, server = server)")
   temp <- tempfile("SCExplorer")
   writeLines(main_code, temp)
@@ -1082,7 +1103,7 @@ RunSCExplorer <- function(base_dir = "SCExplorer",
         invisible(capture.output(styler::style_file(app_file)))
       }
     } else {
-      message("app.R already exists. You may regenerate it with 'overwrite=TRUE'.")
+      message("app.R already exists. You may regenerate it with 'overwrite = TRUE'.")
     }
   }
   unlink(temp)

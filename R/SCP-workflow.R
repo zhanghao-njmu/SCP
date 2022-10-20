@@ -333,12 +333,12 @@ check_final <- function(srt, HVF, do_normalization) {
 #'  The tolerance is its difference from the integer.
 #' @param verbose
 #' @examples
-#' data("pancreas1k")
-#' pancreas1k <- Seurat::NormalizeData(pancreas1k)
-#' raw_counts <- pancreas1k@assays$RNA@counts
-#' pancreas1k@assays$RNA@counts <- pancreas1k@assays$RNA@data
-#' pancreas1k <- RecoverCounts(pancreas1k)
-#' identical(raw_counts, pancreas1k@assays$RNA@counts)
+#' data("pancreas_sub")
+#' pancreas_sub <- Seurat::NormalizeData(pancreas_sub)
+#' raw_counts <- pancreas_sub@assays$RNA@counts
+#' pancreas_sub@assays$RNA@counts <- pancreas_sub@assays$RNA@data
+#' pancreas_sub <- RecoverCounts(pancreas_sub)
+#' identical(raw_counts, pancreas_sub@assays$RNA@counts)
 #'
 #' @importFrom Seurat GetAssayData SetAssayData
 #' @importFrom SeuratObject as.sparse
@@ -1220,8 +1220,11 @@ scVI_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE,
     "slm" = 3,
     "leiden" = 4
   )
+  if (.Platform$OS.type == "windows" && !exist_pkg(pkg = "scvi-tools", envname = "SCP")) {
+    suppressWarnings(system2(command = reticulate::virtualenv_python("SCP"), args = "-m pip install jax[cpu]===0.3.20 -f https://whls.blob.core.windows.net/unstable/index.html --use-deprecated legacy-resolver", stdout = TRUE))
+  }
 
-  check_Python(c("scvi-tools==0.18.0", "jaxlib==0.3.22"))
+  check_Python("scvi-tools")
   scvi <- import("scvi")
   scipy <- import("scipy")
   set.seed(seed)
@@ -3124,9 +3127,9 @@ ZINBWaVE_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = T
 #' @return A \code{Seurat} object containing the result.
 #'
 #' @examples
-#' data("pancreas1k")
-#' pancreas1k <- Standard_SCP(srt = pancreas1k)
-#' ClassDimPlot(pancreas1k, group.by = "CellType")
+#' data("pancreas_sub")
+#' pancreas_sub <- Standard_SCP(srt = pancreas_sub)
+#' ClassDimPlot(pancreas_sub, group.by = "CellType")
 #' @importFrom Seurat Assays GetAssayData NormalizeData SCTransform SCTResults ScaleData SetAssayData DefaultAssay DefaultAssay<- FindNeighbors FindClusters Idents VariableFeatures VariableFeatures<-
 #' @importFrom dplyr "%>%" filter arrange desc
 #' @importFrom Matrix rowSums

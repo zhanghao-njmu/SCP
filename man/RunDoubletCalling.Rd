@@ -30,8 +30,8 @@ Returns Seurat object with the doublet prediction results and prediction scores 
 Identification of heterotypic (or neotypic) doublets in single-cell RNAseq data.
 }
 \examples{
-data("pancreas1k")
-pancreas1k <- RunDoubletCalling(pancreas1k, db_method = "scDblFinder")
-ClassDimPlot(pancreas1k, reduction = "umap", group.by = "db.scDblFinder_class")
-ExpDimPlot(pancreas1k, reduction = "umap", features = "db.scDblFinder_score")
+data("pancreas_sub")
+pancreas_sub <- RunDoubletCalling(pancreas_sub, db_method = "scDblFinder")
+ClassDimPlot(pancreas_sub, reduction = "umap", group.by = "db.scDblFinder_class")
+ExpDimPlot(pancreas_sub, reduction = "umap", features = "db.scDblFinder_score")
 }

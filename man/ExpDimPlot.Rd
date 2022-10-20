@@ -140,41 +140,41 @@ A single ggplot object if combine = TRUE; otherwise, a list of ggplot objects
 Plotting cell points on a reduced 2D plane and coloring according to the expression of the features.
 }
 \examples{
-data("pancreas1k")
-ExpDimPlot(pancreas1k, features = "G2M_score", reduction = "UMAP")
-ExpDimPlot(pancreas1k, features = "G2M_score", reduction = "UMAP", hex = TRUE)
+data("pancreas_sub")
+ExpDimPlot(pancreas_sub, features = "G2M_score", reduction = "UMAP")
+ExpDimPlot(pancreas_sub, features = "G2M_score", reduction = "UMAP", hex = TRUE)
 
-pancreas1k <- RunSlingshot(pancreas1k, group.by = "SubCellType", reduction = "UMAP")
-ExpDimPlot(pancreas1k, features = "G2M_score", reduction = "UMAP", lineages = paste0("Lineage", 1:3))
+pancreas_sub <- RunSlingshot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP")
+ExpDimPlot(pancreas_sub, features = "G2M_score", reduction = "UMAP", lineages = paste0("Lineage", 1:3))
 
-ExpDimPlot(pancreas1k,
+ExpDimPlot(pancreas_sub,
   features = c("Ghrl", "Ins1", "Gcg", "Ins2"), pt.size = 1,
   compare_features = TRUE, color_blend_mode = "blend",
   label = TRUE, label_insitu = TRUE
 )
 
-ExpDimPlot(pancreas1k,
+ExpDimPlot(pancreas_sub,
   features = c("Ghrl", "Ins1", "Gcg", "Ins2"), pt.size = 1,
   compare_features = TRUE, color_blend_mode = "blend",
   label = TRUE, label_insitu = TRUE, label_repel = TRUE
 )
 
-ExpDimPlot(pancreas1k,
+ExpDimPlot(pancreas_sub,
   features = c("S_score", "G2M_score"), pt.size = 1, palcolor = c("red", "green"),
   compare_features = TRUE, color_blend_mode = "mix", title = "mix",
   label = TRUE, label_insitu = TRUE
 )
-ExpDimPlot(pancreas1k,
+ExpDimPlot(pancreas_sub,
   features = c("S_score", "G2M_score"), pt.size = 1, palcolor = c("red", "green"),
   compare_features = TRUE, color_blend_mode = "blend", title = "blend",
   label = TRUE, label_insitu = TRUE
 )
-ExpDimPlot(pancreas1k,
+ExpDimPlot(pancreas_sub,
   features = c("S_score", "G2M_score"), pt.size = 1, palcolor = c("red", "green"),
   compare_features = TRUE, color_blend_mode = "screen", title = "screen",
   label = TRUE, label_insitu = TRUE
 )
-ExpDimPlot(pancreas1k,
+ExpDimPlot(pancreas_sub,
   features = c("S_score", "G2M_score"), pt.size = 1, palcolor = c("red", "green"),
   compare_features = TRUE, color_blend_mode = "multiply", title = "multiply",
   label = TRUE, label_insitu = TRUE

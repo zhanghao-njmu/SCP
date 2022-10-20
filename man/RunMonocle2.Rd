@@ -30,24 +30,24 @@ Run Monocle2 analysis
 }
 \examples{
 if (interactive()) {
-  data("pancreas1k")
-  pancreas1k <- RunMonocle2(srt = pancreas1k, annotation = "CellType")
-  names(pancreas1k@tools$Monocle2)
-  trajectory <- pancreas1k@tools$Monocle2$trajectory
+  data("pancreas_sub")
+  pancreas_sub <- RunMonocle2(srt = pancreas_sub, annotation = "CellType")
+  names(pancreas_sub@tools$Monocle2)
+  trajectory <- pancreas_sub@tools$Monocle2$trajectory
 
-  p1 <- ClassDimPlot(pancreas1k, group.by = "Monocle2_State", reduction = "DDRTree", label = TRUE) + trajectory
-  p2 <- ClassDimPlot(pancreas1k, group.by = "Monocle2_State", reduction = "UMAP", label = TRUE)
-  p3 <- ExpDimPlot(pancreas1k, features = "Monocle2_Pseudotime", reduction = "UMAP")
+  p1 <- ClassDimPlot(pancreas_sub, group.by = "Monocle2_State", reduction = "DDRTree", label = TRUE) + trajectory
+  p2 <- ClassDimPlot(pancreas_sub, group.by = "Monocle2_State", reduction = "UMAP", label = TRUE)
+  p3 <- ExpDimPlot(pancreas_sub, features = "Monocle2_Pseudotime", reduction = "UMAP")
   print(p1 + p2 + p3)
 
-  pancreas1k <- RunMonocle2(
-    srt = pancreas1k, annotation = "CellType",
+  pancreas_sub <- RunMonocle2(
+    srt = pancreas_sub, annotation = "CellType",
     feature_type = "Disp", disp_filter = "mean_expression >= 0.01 & dispersion_empirical >= 1 * dispersion_fit"
   )
-  trajectory <- pancreas1k@tools$Monocle2$trajectory
-  p1 <- ClassDimPlot(pancreas1k, group.by = "Monocle2_State", reduction = "DDRTree", label = TRUE) + trajectory
-  p2 <- ClassDimPlot(pancreas1k, group.by = "Monocle2_State", reduction = "UMAP", label = TRUE)
-  p3 <- ExpDimPlot(pancreas1k, features = "Monocle2_Pseudotime", reduction = "UMAP")
+  trajectory <- pancreas_sub@tools$Monocle2$trajectory
+  p1 <- ClassDimPlot(pancreas_sub, group.by = "Monocle2_State", reduction = "DDRTree", label = TRUE) + trajectory
+  p2 <- ClassDimPlot(pancreas_sub, group.by = "Monocle2_State", reduction = "UMAP", label = TRUE)
+  p3 <- ExpDimPlot(pancreas_sub, features = "Monocle2_Pseudotime", reduction = "UMAP")
   print(p1 + p2 + p3)
 }
 }

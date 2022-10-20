@@ -39,14 +39,17 @@ RunSCExplorer
 }
 \examples{
 if (interactive()) {
-  data("pancreas1k")
-  pancreas1k <- Standard_SCP(pancreas1k)
-  PrepareSCExplorer(pancreas1k, base_dir = "./SCExplorer")
+  data("pancreas_sub")
+  pancreas_sub <- Standard_SCP(pancreas_sub)
+  PrepareSCExplorer(pancreas_sub, base_dir = "./SCExplorer")
 
   # Create the app.R script
   app <- RunSCExplorer(base_dir = "./SCExplorer", return_app = TRUE)
+  list.files("./SCExplorer")
 
   # Run shiny app
   shiny::runApp(app)
+
+  # You can also deploy the app on the self-hosted shiny server(https://www.rstudio.com/products/shiny/shiny-server/) or on the website(https://www.shinyapps.io) for free.
 }
 }

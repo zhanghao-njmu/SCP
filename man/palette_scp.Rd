@@ -183,7 +183,7 @@ if (interactive()) {
     }
     palette_list[[pal]] <- palcolor
   }
-  # save(palette_list, file = "R/sysdata.rda", version = 2)
+  # usethis::use_data(palette_list, internal = TRUE)
 }
 }
 }
