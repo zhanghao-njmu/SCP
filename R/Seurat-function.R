@@ -2196,6 +2196,7 @@ RunHarmony2.Seurat <- function(object,
                                assay.use = "RNA",
                                project.dim = TRUE,
                                ...) {
+  check_R("harmony")
   available.dimreduc <- names(methods::slot(object = object, name = "reductions"))
   if (!(reduction %in% available.dimreduc)) {
     stop("Requested dimension reduction is not present in the Seurat object")

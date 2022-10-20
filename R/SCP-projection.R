@@ -31,11 +31,11 @@ NULL
 #' ClassDimPlot(panc8_sub, "celltype")
 #'
 #' # Projection
-#' data("pancreas1k")
-#' pancreas1k <- Standard_SCP(pancreas1k)
-#' head(intersect(rownames(panc8_sub), rownames(pancreas1k)))
-#' pancreas1k <- RunKNNMap(srt_query = pancreas1k, srt_ref = panc8_sub, ref_umap = "SeuratUMAP2D")
-#' ProjectionPlot(srt_query = pancreas1k, srt_ref = panc8_sub, query_group = "SubCellType", ref_group = "celltype")
+#' data("pancreas_sub")
+#' pancreas_sub <- Standard_SCP(pancreas_sub)
+#' head(intersect(rownames(panc8_sub), rownames(pancreas_sub)))
+#' pancreas_sub <- RunKNNMap(srt_query = pancreas_sub, srt_ref = panc8_sub, ref_umap = "SeuratUMAP2D")
+#' ProjectionPlot(srt_query = pancreas_sub, srt_ref = panc8_sub, query_group = "SubCellType", ref_group = "celltype")
 #'
 #' @importFrom Seurat Reductions Embeddings FindVariableFeatures VariableFeatures GetAssayData FindNeighbors CreateDimReducObject DefaultAssay
 #' @importFrom SeuratObject as.sparse
@@ -293,10 +293,10 @@ RunKNNMap <- function(srt_query, srt_ref, ref_umap = NULL, force = FALSE,
 #' ClassDimPlot(panc8_sub, "celltype")
 #'
 #' # Projection
-#' data("pancreas1k")
-#' pancreas1k <- Standard_SCP(pancreas1k)
-#' pancreas1k <- RunPCAMap(srt_query = pancreas1k, srt_ref = panc8_sub, ref_pca = "Seuratpca", ref_umap = "SeuratUMAP2D")
-#' ProjectionPlot(srt_query = pancreas1k, srt_ref = panc8_sub, query_group = "SubCellType", ref_group = "celltype")
+#' data("pancreas_sub")
+#' pancreas_sub <- Standard_SCP(pancreas_sub)
+#' pancreas_sub <- RunPCAMap(srt_query = pancreas_sub, srt_ref = panc8_sub, ref_pca = "Seuratpca", ref_umap = "SeuratUMAP2D")
+#' ProjectionPlot(srt_query = pancreas_sub, srt_ref = panc8_sub, query_group = "SubCellType", ref_group = "celltype")
 #'
 #' @importFrom Seurat Reductions GetAssayData CreateDimReducObject ProjectUMAP
 #' @export
@@ -414,10 +414,10 @@ RunPCAMap <- function(srt_query, srt_ref, ref_pca = NULL, ref_dims = 1:30, ref_u
 #' ClassDimPlot(panc8_sub, "celltype")
 #'
 #' # Projection
-#' data("pancreas1k")
-#' pancreas1k <- Standard_SCP(pancreas1k)
-#' pancreas1k <- RunSeuratMap(srt_query = pancreas1k, srt_ref = panc8_sub, ref_pca = "Seuratpca", ref_umap = "SeuratUMAP2D", k.weight = 80)
-#' ProjectionPlot(srt_query = pancreas1k, srt_ref = panc8_sub, query_group = "SubCellType", ref_group = "celltype")
+#' data("pancreas_sub")
+#' pancreas_sub <- Standard_SCP(pancreas_sub)
+#' pancreas_sub <- RunSeuratMap(srt_query = pancreas_sub, srt_ref = panc8_sub, ref_pca = "Seuratpca", ref_umap = "SeuratUMAP2D", k.weight = 80)
+#' ProjectionPlot(srt_query = pancreas_sub, srt_ref = panc8_sub, query_group = "SubCellType", ref_group = "celltype")
 #'
 #' @importFrom Seurat Reductions FindTransferAnchors TransferData IntegrateEmbeddings ProjectUMAP
 #' @export
@@ -523,10 +523,10 @@ RunSeuratMap <- function(srt_query, srt_ref,
 #' ClassDimPlot(panc8_sub, "celltype")
 #'
 #' # Projection
-#' data("pancreas1k")
-#' pancreas1k <- Standard_SCP(pancreas1k)
-#' pancreas1k <- RunCSSMap(srt_query = pancreas1k, srt_ref = panc8_sub, ref_css = "CSS", ref_umap = "CSSUMAP2D")
-#' ProjectionPlot(srt_query = pancreas1k, srt_ref = panc8_sub, query_group = "SubCellType", ref_group = "celltype")
+#' data("pancreas_sub")
+#' pancreas_sub <- Standard_SCP(pancreas_sub)
+#' pancreas_sub <- RunCSSMap(srt_query = pancreas_sub, srt_ref = panc8_sub, ref_css = "CSS", ref_umap = "CSSUMAP2D")
+#' ProjectionPlot(srt_query = pancreas_sub, srt_ref = panc8_sub, query_group = "SubCellType", ref_group = "celltype")
 #'
 #' @importFrom Seurat Reductions CreateDimReducObject ProjectUMAP
 #' @export
@@ -630,10 +630,10 @@ RunCSSMap <- function(srt_query, srt_ref, ref_css = NULL, ref_umap = NULL, force
 #' ClassDimPlot(panc8_sub, "celltype")
 #'
 #' # Projection
-#' data("pancreas1k")
-#' pancreas1k <- Standard_SCP(pancreas1k)
-#' pancreas1k <- RunSymphonyMap(srt_query = pancreas1k, srt_ref = panc8_sub, ref_pca = "Harmonypca", ref_harmony = "Harmony", ref_umap = "HarmonyUMAP2D")
-#' ProjectionPlot(srt_query = pancreas1k, srt_ref = panc8_sub, query_group = "SubCellType", ref_group = "celltype")
+#' data("pancreas_sub")
+#' pancreas_sub <- Standard_SCP(pancreas_sub)
+#' pancreas_sub <- RunSymphonyMap(srt_query = pancreas_sub, srt_ref = panc8_sub, ref_pca = "Harmonypca", ref_harmony = "Harmony", ref_umap = "HarmonyUMAP2D")
+#' ProjectionPlot(srt_query = pancreas_sub, srt_ref = panc8_sub, query_group = "SubCellType", ref_group = "celltype")
 #'
 #' @importFrom Seurat Reductions GetAssayData DefaultAssay ProjectUMAP
 #' @export

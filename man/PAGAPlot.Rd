@@ -7,6 +7,7 @@
 PAGAPlot(
   srt,
   paga = srt@misc$paga,
+  type = "connectivities",
   reduction = NULL,
   dims = c(1, 2),
   show_transition = FALSE,
@@ -27,7 +28,6 @@ PAGAPlot(
   label_point_color = "black",
   label_segment_color = "black",
   edge_threshold = 0.01,
-  use_triangular = c("upper", "lower", "both"),
   edge_line = c("straight", "curved"),
   edge_line_curvature = 0.3,
   edge_line_angle = 90,
@@ -67,26 +67,27 @@ PAGAPlot(
 )
 }
 \arguments{
-\item{return_layer}{}
+\item{type}{}
 }
 \description{
 PAGA plot
 }
 \examples{
-data("pancreas1k")
-pancreas1k <- RunPAGA(srt = pancreas1k, group_by = "SubCellType", liner_reduction = "PCA", nonliner_reduction = "UMAP", return_seurat = TRUE)
-PAGAPlot(pancreas1k)
-PAGAPlot(pancreas1k, reduction = "PCA")
-PAGAPlot(pancreas1k, label = TRUE)
-PAGAPlot(pancreas1k, label = TRUE, label_insitu = TRUE)
-PAGAPlot(pancreas1k, label = TRUE, label_insitu = TRUE, label_repel = TRUE)
-PAGAPlot(pancreas1k, edge_line = "curved")
-PAGAPlot(pancreas1k, node_size = "GroupSize")
-PAGAPlot(pancreas1k, node_highlight = "Ductal")
-PAGAPlot(pancreas1k, edge_highlight = paste("Pre-endocrine", "Delta", sep = "-"))
-PAGAPlot(pancreas1k, edge_highlight = paste("Pre-endocrine", levels(pancreas1k$SubCellType), sep = "-"))
-PAGAPlot(pancreas1k, use_triangular = "both", edge_highlight = paste("Pre-endocrine", levels(pancreas1k$SubCellType), sep = "-"))
+data("pancreas_sub")
+pancreas_sub <- RunPAGA(srt = pancreas_sub, group_by = "SubCellType", liner_reduction = "PCA", nonliner_reduction = "UMAP", return_seurat = TRUE)
+PAGAPlot(pancreas_sub)
+PAGAPlot(pancreas_sub, type = "connectivities_tree")
+PAGAPlot(pancreas_sub, reduction = "PCA")
+PAGAPlot(pancreas_sub, reduction = "PAGAUMAP2D")
+PAGAPlot(pancreas_sub, label = TRUE)
+PAGAPlot(pancreas_sub, label = TRUE, label_insitu = TRUE)
+PAGAPlot(pancreas_sub, label = TRUE, label_insitu = TRUE, label_repel = TRUE)
+PAGAPlot(pancreas_sub, edge_line = "curved")
+PAGAPlot(pancreas_sub, node_size = "GroupSize")
+PAGAPlot(pancreas_sub, node_highlight = "Ductal")
+PAGAPlot(pancreas_sub, edge_highlight = paste("Pre-endocrine", levels(pancreas_sub$SubCellType), sep = "-"))
 
-pancreas1k <- RunSCVELO(srt = pancreas1k, group_by = "SubCellType", liner_reduction = "PCA", nonliner_reduction = "UMAP", return_seurat = TRUE)
-PAGAPlot(pancreas1k, show_transition = TRUE)
+pancreas_sub <- RunSCVELO(srt = pancreas_sub, group_by = "SubCellType", liner_reduction = "PCA", nonliner_reduction = "UMAP", return_seurat = TRUE)
+PAGAPlot(pancreas_sub, show_transition = TRUE)
+
 }

@@ -52,8 +52,8 @@ ExpDotPlot
 }
 \examples{
 library(dplyr)
-data(pancreas1k)
-ExpDotPlot(pancreas1k,
+data(pancreas_sub)
+ExpDotPlot(pancreas_sub,
   features = c(
     "Sox9", "Anxa2", "Bicc1", # Ductal
     "Neurog3", "Hes6", # EPs
@@ -64,12 +64,12 @@ ExpDotPlot(pancreas1k,
   cell_split_by = c("CellType", "SubCellType")
 )
 
-pancreas1k <- RunDEtest(pancreas1k, group_by = "CellType")
-de_filter <- filter(pancreas1k@tools$DEtest_CellType$AllMarkers_wilcox, p_val_adj < 0.05 & avg_log2FC > 1)
+pancreas_sub <- RunDEtest(pancreas_sub, group_by = "CellType")
+de_filter <- filter(pancreas_sub@tools$DEtest_CellType$AllMarkers_wilcox, p_val_adj < 0.05 & avg_log2FC > 1)
 de_top <- de_filter \%>\%
   group_by(gene) \%>\%
   top_n(1, avg_log2FC) \%>\%
   group_by(group1) \%>\%
   top_n(3, avg_log2FC)
-ExpDotPlot(pancreas1k, features = de_top$gene, feature_split = de_top$group1, cell_split_by = "CellType")
+ExpDotPlot(pancreas_sub, features = de_top$gene, feature_split = de_top$group1, cell_split_by = "CellType")
 }

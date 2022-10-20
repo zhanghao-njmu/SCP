@@ -6,10 +6,10 @@
 #' @param ...
 #'
 #' @examples
-#' data("pancreas1k")
-#' pancreas1k <- db_scDblFinder(pancreas1k)
-#' ClassDimPlot(pancreas1k, reduction = "umap", group.by = "db.scDblFinder_class")
-#' ExpDimPlot(pancreas1k, reduction = "umap", features = "db.scDblFinder_score")
+#' data("pancreas_sub")
+#' pancreas_sub <- db_scDblFinder(pancreas_sub)
+#' ClassDimPlot(pancreas_sub, reduction = "umap", group.by = "db.scDblFinder_class")
+#' ExpDimPlot(pancreas_sub, reduction = "umap", features = "db.scDblFinder_score")
 #' @importFrom Seurat as.SingleCellExperiment
 #' @export
 db_scDblFinder <- function(srt, assay = "RNA", db_rate = ncol(srt) / 1000 * 0.01, ...) {
@@ -37,10 +37,10 @@ db_scDblFinder <- function(srt, assay = "RNA", db_rate = ncol(srt) / 1000 * 0.01
 #' @param ...
 #'
 #' @examples
-#' data("pancreas1k")
-#' pancreas1k <- db_scds(pancreas1k, method = "hybrid")
-#' ClassDimPlot(pancreas1k, reduction = "umap", group.by = "db.scds_hybrid_class")
-#' ExpDimPlot(pancreas1k, reduction = "umap", features = "db.scds_hybrid_score")
+#' data("pancreas_sub")
+#' pancreas_sub <- db_scds(pancreas_sub, method = "hybrid")
+#' ClassDimPlot(pancreas_sub, reduction = "umap", group.by = "db.scds_hybrid_class")
+#' ExpDimPlot(pancreas_sub, reduction = "umap", features = "db.scds_hybrid_score")
 #' @importFrom Seurat as.SingleCellExperiment
 #' @export
 db_scds <- function(srt, assay = "RNA", db_rate = ncol(srt) / 1000 * 0.01, method = "hybrid", ...) {
@@ -72,10 +72,10 @@ db_scds <- function(srt, assay = "RNA", db_rate = ncol(srt) / 1000 * 0.01, metho
 #' @param ...
 #'
 #' @examples
-#' data("pancreas1k")
-#' pancreas1k <- db_Scrublet(pancreas1k)
-#' ClassDimPlot(pancreas1k, reduction = "umap", group.by = "db.Scrublet_class")
-#' ExpDimPlot(pancreas1k, reduction = "umap", features = "db.Scrublet_score")
+#' data("pancreas_sub")
+#' pancreas_sub <- db_Scrublet(pancreas_sub)
+#' ClassDimPlot(pancreas_sub, reduction = "umap", group.by = "db.Scrublet_class")
+#' ExpDimPlot(pancreas_sub, reduction = "umap", features = "db.Scrublet_score")
 #' @importFrom reticulate import
 #' @importFrom Seurat GetAssayData
 #' @export
@@ -113,10 +113,10 @@ db_Scrublet <- function(srt, assay = "RNA", db_rate = ncol(srt) / 1000 * 0.01, .
 #' @param ...
 #'
 #' @examples
-#' data("pancreas1k")
-#' pancreas1k <- db_DoubletDetection(pancreas1k)
-#' ClassDimPlot(pancreas1k, reduction = "umap", group.by = "db.DoubletDetection_class")
-#' ExpDimPlot(pancreas1k, reduction = "umap", features = "db.DoubletDetection_score")
+#' data("pancreas_sub")
+#' pancreas_sub <- db_DoubletDetection(pancreas_sub)
+#' ClassDimPlot(pancreas_sub, reduction = "umap", group.by = "db.DoubletDetection_class")
+#' ExpDimPlot(pancreas_sub, reduction = "umap", features = "db.DoubletDetection_score")
 #' @importFrom reticulate import
 #' @importFrom Seurat GetAssayData
 #' @export
@@ -164,10 +164,10 @@ db_DoubletDetection <- function(srt, assay = "RNA", db_rate = ncol(srt) / 1000 *
 #' @return Returns Seurat object with the doublet prediction results and prediction scores stored in the meta.data slot.
 #'
 #' @examples
-#' data("pancreas1k")
-#' pancreas1k <- RunDoubletCalling(pancreas1k, db_method = "scDblFinder")
-#' ClassDimPlot(pancreas1k, reduction = "umap", group.by = "db.scDblFinder_class")
-#' ExpDimPlot(pancreas1k, reduction = "umap", features = "db.scDblFinder_score")
+#' data("pancreas_sub")
+#' pancreas_sub <- RunDoubletCalling(pancreas_sub, db_method = "scDblFinder")
+#' ClassDimPlot(pancreas_sub, reduction = "umap", group.by = "db.scDblFinder_class")
+#' ExpDimPlot(pancreas_sub, reduction = "umap", features = "db.scDblFinder_score")
 #' @export
 #'
 RunDoubletCalling <- function(srt, assay = "RNA", db_method = "scDblFinder", db_rate = ncol(srt) / 1000 * 0.01, ...) {
@@ -271,8 +271,8 @@ isOutlier <- function(x, nmads = 2.5, constant = 1.4826, type = c("both", "lower
 #' @return Returns Seurat object with the QC results stored in the meta.data slot.
 #'
 #' @examples
-#' data("pancreas1k")
-#' pancreas1k <- RunCellQC(pancreas1k)
+#' data("pancreas_sub")
+#' pancreas_sub <- RunCellQC(pancreas_sub)
 #' @importFrom Seurat Assays as.SingleCellExperiment PercentageFeatureSet WhichCells
 #' @importFrom stats loess predict aggregate
 #' @importFrom Matrix colSums t

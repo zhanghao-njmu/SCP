@@ -29,12 +29,12 @@ A \code{anndata} object.
 Convert a seurat object to an anndata object using reticulate
 }
 \examples{
-data("pancreas1k")
-adata <- srt_to_adata(pancreas1k)
+data("pancreas_sub")
+adata <- srt_to_adata(pancreas_sub)
 adata
 
 ### Or save as an h5ad file or a loom file
-# adata$write_h5ad("pancreas1k.h5ad")
-# adata$write_loom("pancreas1k.loom", write_obsm_varm = TRUE)
+# adata$write_h5ad("pancreas_sub.h5ad")
+# adata$write_loom("pancreas_sub.loom", write_obsm_varm = TRUE)
 
 }

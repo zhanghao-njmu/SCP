@@ -13,8 +13,8 @@ adata_to_srt(adata)
 Convert an anndata object to a seurat object using reticulate
 }
 \examples{
-data("pancreas1k")
-adata <- srt_to_adata(pancreas1k)
+data("pancreas_sub")
+adata <- srt_to_adata(pancreas_sub)
 adata <- RunPAGA(adata = adata, group_by = "SubCellType", liner_reduction = "PCA", nonliner_reduction = "UMAP")
 srt <- adata_to_srt(adata)
 srt

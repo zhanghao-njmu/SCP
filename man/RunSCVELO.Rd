@@ -109,12 +109,12 @@ scVelo is a scalable toolkit for RNA velocity analysis in single cells.
 This function performs scVelo workflow in R by reticulate.
 }
 \examples{
-data("pancreas1k")
-pancreas1k <- RunSCVELO(srt = pancreas1k, group_by = "SubCellType", liner_reduction = "PCA", nonliner_reduction = "UMAP", return_seurat = TRUE)
-head(pancreas1k[[]])
-names(pancreas1k@assays)
-ExpDimPlot(pancreas1k, c("stochastic_length", "stochastic_confidence"))
-ExpDimPlot(pancreas1k, "stochastic_pseudotime")
-VelocityPlot(pancreas1k, reduction = "UMAP", plot_type = "stream")
-ClassDimPlot(pancreas1k, group.by = "SubCellType", reduction = "UMAP", pt.size = NA, velocity = "stochastic")
+data("pancreas_sub")
+pancreas_sub <- RunSCVELO(srt = pancreas_sub, group_by = "SubCellType", liner_reduction = "PCA", nonliner_reduction = "UMAP", return_seurat = TRUE)
+head(pancreas_sub[[]])
+names(pancreas_sub@assays)
+ExpDimPlot(pancreas_sub, c("stochastic_length", "stochastic_confidence"))
+ExpDimPlot(pancreas_sub, "stochastic_pseudotime")
+VelocityPlot(pancreas_sub, reduction = "UMAP", plot_type = "stream")
+ClassDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", pt.size = NA, velocity = "stochastic")
 }

@@ -229,10 +229,10 @@ CreateMetaFile <- function(srt, MetaFile, name = NULL, write_tools = FALSE, writ
 #' @param overwrite
 #'
 #' @examples
-#' if (interactive()) {
-#'   data("pancreas1k")
-#'   pancreas1k <- Standard_SCP(pancreas1k)
-#'   PrepareSCExplorer(pancreas1k, base_dir = "./SCExplorer")
+#' \dontrun{
+#' data("pancreas_sub")
+#' pancreas_sub <- Standard_SCP(pancreas_sub)
+#' PrepareSCExplorer(pancreas_sub, base_dir = "./SCExplorer")
 #' }
 #' @importFrom Seurat Reductions Assays
 #' @export
@@ -301,11 +301,13 @@ PrepareSCExplorer <- function(object,
 #' @param reduction
 #'
 #' @examples
-#' if (interactive()) {
-#'   data("pancreas1k")
-#'   pancreas1k <- Standard_SCP(pancreas1k)
-#'   PrepareSCExplorer(pancreas1k, base_dir = "./SCExplorer")
-#'   FetchH5("./SCExplorer/Data.hdf5", "./SCExplorer/Meta.hdf5", features = "Isl1", reduction = "UMAP")
+#' \dontrun{
+#' data("pancreas_sub")
+#' pancreas_sub <- Standard_SCP(pancreas_sub)
+#' PrepareSCExplorer(pancreas_sub, base_dir = "./SCExplorer")
+#' srt <- FetchH5(DataFile = "./SCExplorer/Data.hdf5", MetaFile = "./SCExplorer/Meta.hdf5", features = c("Ins1", "Ghrl"), metanames = c("SubCellType", "Phase"), reduction = "UMAP")
+#' ClassDimPlot(srt, group.by = c("SubCellType", "Phase"), reduction = "UMAP")
+#' ExpDimPlot(srt, features = c("Ins1", "Ghrl"), reduction = "UMAP")
 #' }
 #' @importFrom HDF5Array TENxMatrix
 #' @importFrom rhdf5 h5ls h5read h5readAttributes
@@ -356,7 +358,7 @@ FetchH5 <- function(DataFile, MetaFile, name = NULL,
   }
   metanames <- metanames[metanames %in% c(meta_features_name, meta_groups_name)]
 
-  if (length(gene_features) == 0 && length(meta_features) == 0 && metanames == 0) {
+  if (length(gene_features) == 0 && length(meta_features) == 0 && length(metanames) == 0) {
     stop("No features or meta information found.")
   }
 
@@ -386,6 +388,9 @@ FetchH5 <- function(DataFile, MetaFile, name = NULL,
       meta_attr <- h5readAttributes(MetaFile, name = paste0(name, "/metadata/", i))
       if ("levels" %in% names(meta_attr)) {
         meta <- factor(meta, levels = meta_attr$levels)
+      }
+      if (is.array(meta)) {
+        meta <- as.numeric(meta)
       }
       srt_tmp@meta.data[, i] <- meta
     }
@@ -440,16 +445,35 @@ FetchH5 <- function(DataFile, MetaFile, name = NULL,
 #' @param return_app
 #'
 #' @examples
+#' \dontrun{
+#' data("pancreas_sub")
+#' pancreas_sub <- Standard_SCP(pancreas_sub)
+#' PrepareSCExplorer(pancreas_sub, base_dir = "./SCExplorer")
+#'
+#' # Create the app.R script
+#' app <- RunSCExplorer(base_dir = "./SCExplorer", return_app = TRUE)
+#' list.files("./SCExplorer")
+#'
+#' # Run shiny app
 #' if (interactive()) {
-#'   data("pancreas1k")
-#'   pancreas1k <- Standard_SCP(pancreas1k)
-#'   PrepareSCExplorer(pancreas1k, base_dir = "./SCExplorer")
-#'
-#'   # Create the app.R script
-#'   app <- RunSCExplorer(base_dir = "./SCExplorer", return_app = TRUE)
-#'
-#'   # Run shiny app
 #'   shiny::runApp(app)
+#' }
+#'
+#' ####################################################################################################################
+#' # You can also deploy the app on the self-hosted shiny server(https://www.rstudio.com/products/shiny/shiny-server/)
+#' # or deploy the app on the website(https://www.shinyapps.io) for free:
+#'
+#' ### step1: set the repository URL for Bioconductor packages and update them to the latest version
+#' # options(repos = BiocManager::repositories())
+#' # BiocManager::install(ask = FALSE)
+#'
+#' ### step2: install "rsconnect" package and authorize your account
+#' # install.packages("rsconnect")
+#' # library(rsconnect)
+#' # setAccountInfo(name = "<NAME>", token = "<TOKEN>", secret = "<SECRET>")
+#'
+#' ### step3: deploy the app
+#' # deployApp("./SCExplorer")
 #' }
 #' @importFrom shiny shinyAppDir
 #' @export
@@ -482,12 +506,8 @@ RunSCExplorer <- function(base_dir = "SCExplorer",
   if (!file.exists(DataFile_full) || !file.exists(MetaFile_full)) {
     stop("Please create the DataFile and MetaFile using PrepareSCExplorer function first!")
   }
-  check_R(c("shiny", "shinycssloaders"))
 
   main_code <- '
-  check_R(c("shiny", "shinycssloaders"))
-  library(shiny)
-
   data_group <- rhdf5::h5ls(DataFile)$group
   meta_group <- rhdf5::h5ls(MetaFile)$group
   group <- intersect(data_group, meta_group)
@@ -540,38 +560,38 @@ RunSCExplorer <- function(base_dir = "SCExplorer",
     initial_feature <- meta_features_name[1]
   }
 
-  initial_srt_tmp <- FetchH5(
+  initial_srt_tmp <- SCP::FetchH5(
     DataFile = DataFile, MetaFile = MetaFile, name = initial_dataset,
     features = initial_feature, slot = initial_slot, assay = initial_assay,
     metanames = initial_metaname, reduction = initial_reduction
   )
 
-  initial_p1_dim <- ClassDimPlot(
+  initial_p1_dim <- SCP::ClassDimPlot(
     srt = initial_srt_tmp, group.by = initial_metaname, reduction = initial_reduction,
     label = ifelse(initial_label == "Yes", TRUE, FALSE), palette = initial_palette1, theme_use = initial_theme1,
     ncol = initial_ncol, byrow = ifelse(initial_arrange == "Row", TRUE, FALSE), force = TRUE
   )
-  initial_p1_dim <- panel_fix(initial_p1_dim, height = initial_size, raster = FALSE, verbose = FALSE)
-  initial_p2_dim <- ExpDimPlot(
+  initial_p1_dim <- SCP::panel_fix(initial_p1_dim, height = initial_size, raster = FALSE, verbose = FALSE)
+  initial_p2_dim <- SCP::ExpDimPlot(
     srt = initial_srt_tmp, features = initial_feature, reduction = initial_reduction, slot = "data",
     calculate_coexp = ifelse(initial_coExp == "Yes", TRUE, FALSE), palette = initial_palette2, theme_use = initial_theme2,
     ncol = initial_ncol, byrow = ifelse(initial_arrange == "Row", TRUE, FALSE)
   )
-  initial_p2_dim <- panel_fix(initial_p2_dim, height = initial_size, raster = FALSE, verbose = FALSE)
-  initial_p2_vln <- ExpVlnPlot(
+  initial_p2_dim <- SCP::panel_fix(initial_p2_dim, height = initial_size, raster = FALSE, verbose = FALSE)
+  initial_p2_vln <- SCP::ExpVlnPlot(
     srt = initial_srt_tmp, features = initial_feature, group.by = initial_metaname,
     calculate_coexp = ifelse(initial_coExp == "Yes", TRUE, FALSE), palette = initial_palette2,
     ncol = initial_ncol, byrow = ifelse(initial_arrange == "Row", TRUE, FALSE), force = TRUE
   )
-  initial_p2_vln <- panel_fix(initial_p2_vln, height = initial_size, raster = FALSE, verbose = FALSE)
+  initial_p2_vln <- SCP::panel_fix(initial_p2_vln, height = initial_size, raster = FALSE, verbose = FALSE)
 
   initial_plot3d <- max(sapply(names(initial_srt_tmp@reductions), function(r) dim(initial_srt_tmp[[r]])[2])) >= 3
   if (isTRUE(initial_plot3d)) {
-    initial_p1_3d <- ClassDimPlot3D(
+    initial_p1_3d <- SCP::ClassDimPlot3D(
       srt = initial_srt_tmp, group.by = initial_metaname, reduction = initial_reduction, palette = initial_palette1,
       force = TRUE
     )
-    initial_p2_3d <- ExpDimPlot3D(
+    initial_p2_3d <- SCP::ExpDimPlot3D(
       srt = initial_srt_tmp, features = initial_feature, reduction = initial_reduction,
       calculate_coexp = ifelse(initial_coExp == "Yes", TRUE, FALSE)
     )
@@ -934,18 +954,18 @@ RunSCExplorer <- function(base_dir = "SCExplorer",
       # message("c(input$class1, split1):", c(input$class1, split1))
       # message("input$reduction1:", input$reduction1)
 
-      srt_tmp <- FetchH5(
+      srt_tmp <- SCP::FetchH5(
         DataFile = DataFile, MetaFile = MetaFile, name = input$dataset1,
         features = NULL, slot = initial_slot, assay = NULL,
-        metanames = c(input$class1, split1), reduction = input$reduction1
+        metanames = unique(c(input$class1, split1)), reduction = input$reduction1
       )
 
-      p1_dim <- ClassDimPlot(
+      p1_dim <- SCP::ClassDimPlot(
         srt = srt_tmp, group.by = input$class1, split.by = split1, reduction = input$reduction1,
         label = ifelse(input$label1 == "Yes", TRUE, FALSE), palette = input$palette1, theme_use = input$theme1,
         ncol = input$ncol1, byrow = ifelse(input$arrange1 == "Row", TRUE, FALSE), force = TRUE
       )
-      p1_dim <- panel_fix(p1_dim, height = input$size1, raster = FALSE, verbose = FALSE)
+      p1_dim <- SCP::panel_fix(p1_dim, height = input$size1, raster = FALSE, verbose = FALSE)
 
       output$plot1 <- renderPlot(
         {
@@ -958,7 +978,7 @@ RunSCExplorer <- function(base_dir = "SCExplorer",
 
       plot3d <- max(sapply(names(srt_tmp@reductions), function(r) dim(srt_tmp[[r]])[2])) >= 3
       if (isTRUE(plot3d)) {
-        p1_3d <- ClassDimPlot3D(
+        p1_3d <- SCP::ClassDimPlot3D(
           srt = srt_tmp, group.by = input$class1, reduction = input$reduction1, palette = input$palette1,
           force = TRUE
         )
@@ -1000,18 +1020,18 @@ RunSCExplorer <- function(base_dir = "SCExplorer",
       # message("c(input$group2, split2):", c(input$group2, split2))
       # message("input$reduction2:", input$reduction2)
 
-      srt_tmp <- FetchH5(
+      srt_tmp <- SCP::FetchH5(
         DataFile = DataFile, MetaFile = MetaFile, name = input$dataset2,
         features = input_features, slot = input$slots2, assay = input$assays2,
-        metanames = c(input$group2, split2), reduction = input$reduction2
+        metanames = unique(c(input$group2, split2)), reduction = input$reduction2
       )
 
-      p2_dim <- ExpDimPlot(
+      p2_dim <- SCP::ExpDimPlot(
         srt = srt_tmp, features = input_features, split.by = split2, reduction = input$reduction2, slot = "data",
         calculate_coexp = ifelse(input$coExp2 == "Yes", TRUE, FALSE), palette = input$palette2, theme_use = input$theme2,
         ncol = input$ncol2, byrow = ifelse(input$arrange2 == "Row", TRUE, FALSE)
       )
-      p2_dim <- panel_fix(p2_dim, height = input$size2, raster = FALSE, verbose = FALSE)
+      p2_dim <- SCP::panel_fix(p2_dim, height = input$size2, raster = FALSE, verbose = FALSE)
 
       output$plot2 <- renderPlot(
         {
@@ -1022,12 +1042,12 @@ RunSCExplorer <- function(base_dir = "SCExplorer",
         res = input$plot_dpi2
       )
 
-      p2_vln <- ExpVlnPlot(
+      p2_vln <- SCP::ExpVlnPlot(
         srt = srt_tmp, features = input_features, group.by = input$group2, split.by = split2,
         calculate_coexp = ifelse(input$coExp2 == "Yes", TRUE, FALSE), palette = input$palette2,
         ncol = input$ncol2, byrow = ifelse(input$arrange2 == "Row", TRUE, FALSE), force = TRUE
       )
-      p2_vln <- panel_fix(p2_vln, height = input$size2, raster = FALSE, verbose = FALSE)
+      p2_vln <- SCP::panel_fix(p2_vln, height = input$size2, raster = FALSE, verbose = FALSE)
 
       output$plot2_vln <- renderPlot(
         {
@@ -1040,7 +1060,7 @@ RunSCExplorer <- function(base_dir = "SCExplorer",
 
       plot3d <- max(sapply(names(srt_tmp@reductions), function(r) dim(srt_tmp[[r]])[2])) >= 3
       if (isTRUE(plot3d)) {
-        p2_3d <- ExpDimPlot3D(
+        p2_3d <- SCP::ExpDimPlot3D(
           srt = srt_tmp, features = input_features, reduction = input$reduction2,
           calculate_coexp = ifelse(input$coExp2 == "Yes", TRUE, FALSE)
         )
@@ -1063,7 +1083,16 @@ RunSCExplorer <- function(base_dir = "SCExplorer",
   for (varnm in names(args)) {
     main_code <- c(paste0(varnm, "=", deparse(args[[varnm]])), main_code)
   }
-  main_code <- c("# !/usr/bin/env Rscript", "library(SCP)", main_code)
+  main_code <- c(
+    "# !/usr/bin/env Rscript",
+    "if (!requireNamespace('SCP', quietly = TRUE)) {
+      if (!requireNamespace('devtools', quietly = TRUE)) {install.packages('devtools')}
+      devtools::install_github('zhanghao-njmu/SCP')
+    }",
+    "SCP::check_R(c('shiny', 'shinycssloaders'))",
+    "library(shiny)",
+    main_code
+  )
   main_code <- c(main_code, "shinyApp(ui = ui, server = server)")
   temp <- tempfile("SCExplorer")
   writeLines(main_code, temp)
@@ -1082,7 +1111,7 @@ RunSCExplorer <- function(base_dir = "SCExplorer",
         invisible(capture.output(styler::style_file(app_file)))
       }
     } else {
-      message("app.R already exists. You may regenerate it with 'overwrite=TRUE'.")
+      message("app.R already exists. You may regenerate it with 'overwrite = TRUE'.")
     }
   }
   unlink(temp)
