@@ -79,13 +79,13 @@ A \code{anndata} object.
 Run Palantir analysis
 }
 \examples{
-data("pancreas1k")
-pancreas1k <- RunPalantir(
-  srt = pancreas1k, group_by = "SubCellType", liner_reduction = "PCA", nonliner_reduction = "UMAP",
+data("pancreas_sub")
+pancreas_sub <- RunPalantir(
+  srt = pancreas_sub, group_by = "SubCellType", liner_reduction = "PCA", nonliner_reduction = "UMAP",
   early_group = "Ductal", terminal_groups = c("Alpha", "Beta", "Delta", "Epsilon"), return_seurat = TRUE
 )
-head(pancreas1k[[]])
-ExpDimPlot(pancreas1k, c("palantir_pseudotime", "palantir_diff_potential"))
-ExpDimPlot(pancreas1k, paste0(c("Alpha", "Beta", "Delta", "Epsilon"), "_diff_potential"))
+head(pancreas_sub[[]])
+ExpDimPlot(pancreas_sub, c("palantir_pseudotime", "palantir_diff_potential"))
+ExpDimPlot(pancreas_sub, paste0(c("Alpha", "Beta", "Delta", "Epsilon"), "_diff_potential"))
 
 }

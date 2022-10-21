@@ -419,7 +419,70 @@ RunMDS.default <- function(object, assay = NULL, slot = "data",
   return(reduction.data)
 }
 
-
+#' Run GLMPCA
+#'
+#' @param object A Seurat object
+#' @param L The number of dimensions to return (defaults to 5)
+#' @param assay Assay to use, defaults to the default assay
+#' @param features A list of features to use when performing GLM-PCA. If null, defaults to variable features.
+#' @param reduction.name Name to store resulting DimReduc object as. Defaults to glmpca
+#' @param reduction.key Key for resulting DimReduc. Defaults to GLMPC_
+#' @param ... Extra parameters passed to \code{\link[glmpca]{glmpca}}
+#'
+#' @return A Seurat object containing the output of GLMPCA stored as a DimReduc object.
+#'
+#' @author Will Townes
+#' @references Townes, W., Hicks, SC, Aryee, MJ, Irizarry, RA. (2019). "Feature selection and dimension reduction for single-cell RNA-Seq based on a multinomial model."
+#' Genome Biology.
+#'
+#' @importFrom Seurat DefaultAssay DefaultAssay<- CreateDimReducObject Tool<- LogSeuratCommand
+#' @export
+#'
+RunGLMPCA <- function(object,
+                      L = 5,
+                      fam = c("poi", "nb", "nb2", "binom", "mult", "bern"),
+                      assay = NULL,
+                      slot = "counts",
+                      features = NULL,
+                      reduction.name = "glmpca",
+                      reduction.key = "GLMPC_",
+                      verbose = TRUE,
+                      ...) {
+  if (!inherits(x = object, what = "Seurat")) {
+    stop("'object' must be a Seurat object", call. = FALSE)
+  }
+  assay <- assay %||% DefaultAssay(object = object)
+  DefaultAssay(object = object) <- assay
+  features <- features %||% VariableFeatures(object)
+  data <- GetAssayData(object = object, slot = slot)
+  features <- intersect(x = features, y = rownames(x = data))
+  if (length(x = features) == 0) {
+    stop("Please specify a subset of features for GLM-PCA")
+  }
+  data <- data[features, ]
+  glmpca_results <- glmpca::glmpca(Y = data, L = L, fam = fam, ...)
+  glmpca_dimnames <- paste0(reduction.key, 1:L)
+  factors <- as.matrix(glmpca_results$factors)
+  loadings <- as.matrix(glmpca_results$loadings)
+  colnames(x = factors) <- glmpca_dimnames
+  colnames(x = loadings) <- glmpca_dimnames
+  factors_l2_norm <- sqrt(colSums(factors^2))
+  # strip S3 class "glmpca" to enable it to pass validObject()
+  class(glmpca_results) <- NULL
+  # save memory by removing factors and loadings since they are stored separately
+  glmpca_results$factors <- glmpca_results$loadings <- NULL
+  object[[reduction.name]] <- CreateDimReducObject(
+    embeddings = factors,
+    key = reduction.key,
+    loadings = loadings,
+    stdev = factors_l2_norm,
+    assay = assay,
+    global = TRUE,
+    misc = glmpca_results
+  )
+  object <- LogSeuratCommand(object = object)
+  return(object)
+}
 
 #' Run DiffusionMap(DM)
 #'
@@ -892,7 +955,7 @@ RunUMAP2.default <- function(object, assay = NULL,
       # rownames(x = graph) <- rownames(object$idx)
       # colnames(x = graph) <- rownames(object$idx)
       # object <- graph
-      knn <- umap:::umap.knn(indexes = object[["idx"]], distances = object[["dist"]])
+      knn <- umap::umap.knn(indexes = object[["idx"]], distances = object[["dist"]])
       out <- umap::umap(
         d = matrix(nrow = nrow(object[["idx"]])),
         config = umap.config, knn = knn
@@ -2112,7 +2175,6 @@ RunHarmony2 <- function(object, ...) {
 #' @rdname RunHarmony2
 #' @method RunHarmony2 Seurat
 #' @importFrom Seurat Embeddings RunPCA FetchData CreateDimReducObject ProjectDim LogSeuratCommand
-#' @importFrom harmony HarmonyMatrix
 RunHarmony2.Seurat <- function(object,
                                group.by.vars,
                                reduction = "pca",
@@ -2134,6 +2196,7 @@ RunHarmony2.Seurat <- function(object,
                                assay.use = "RNA",
                                project.dim = TRUE,
                                ...) {
+  check_R("harmony")
   available.dimreduc <- names(methods::slot(object = object, name = "reductions"))
   if (!(reduction %in% available.dimreduc)) {
     stop("Requested dimension reduction is not present in the Seurat object")
@@ -2152,7 +2215,7 @@ RunHarmony2.Seurat <- function(object,
   }
   metavars_df <- FetchData(object, group.by.vars)
 
-  harmonyObject <- HarmonyMatrix(
+  harmonyObject <- harmony::HarmonyMatrix(
     data_mat = embedding, meta_data = metavars_df, vars_use = group.by.vars,
     do_pca = FALSE, npcs = 0, theta = theta, lambda = lambda, sigma = sigma,
     nclust = nclust, tau = tau, block.size = block.size,

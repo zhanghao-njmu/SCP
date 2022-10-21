@@ -4,10 +4,10 @@
 #' @param pipy_mirror pipy mirrors. Default is "https://pypi.org/simple/". Options can be "https://pypi.tuna.tsinghua.edu.cn/simple", "http://mirrors.aliyun.com/pypi/simple/", "https://pypi.mirrors.ustc.edu.cn/simple/", etc.
 #' @param remove_old Whether to remove the old SCP virtual environment.
 #' @export
-PrepareVirtualEnv <- function(python = NULL, pipy_mirror = "https://pypi.org/simple/", remove_old = FALSE) {
+PrepareVirtualEnv <- function(python = NULL, pipy_mirror = "https://pypi.org/simple/", remove_old = FALSE, install_version = "3.8.8") {
   if (isTRUE(remove_old) || reticulate::virtualenv_exists("SCP")) {
     if (isTRUE(reticulate:::is_python_initialized())) {
-      warning("Package installation may fail because python is initialized in the current R session. You may run SCP::PrepareVirtualEnv() in a new R seesion to create SCP virtual environmenet. If you want to disable virtual environment initialization, you can set options(SCP_virtualenv_init = FALSE) before library(SCP).", immediate. = TRUE)
+      stop("Python is initialized in the current R session. You may run SCP::PrepareVirtualEnv() in a new R seesion to create SCP virtual environmenet. If you want to disable virtual environment initialization, you can set options(SCP_virtualenv_init = FALSE) before library(SCP).")
     }
   }
   if (isTRUE(remove_old)) {
@@ -52,16 +52,29 @@ PrepareVirtualEnv <- function(python = NULL, pipy_mirror = "https://pypi.org/sim
   }
 
   if (!reticulate::virtualenv_exists("SCP")) {
+    if (!is.null(python_path)) {
+      packageStartupMessage("Create SCP virtual environment. The path is: ", reticulate:::virtualenv_path("SCP"))
+      env_status <- tryCatch(reticulate::virtualenv_create(envname = "SCP", python = python_path, packages = FALSE), error = identity)
+      if (inherits(env_status, "error") || length(env_status) == 0) {
+        python_path <- NULL
+      }
+    }
     if (is.null(python_path)) {
-      packageStartupMessage("Python(3.7-3.9) is unavailable. Install python(3.8.8) automatically ...")
+      packageStartupMessage("Python(3.7-3.9) is unavailable. Install python(", install_version, ") automatically ...")
       git_exist <- suppressWarnings(system("git", ignore.stdout = TRUE, ignore.stderr = TRUE))
       if (git_exist == 127) {
         stop("You need to install git first! (http://git-scm.com/download/) or install python manually.")
       }
-      python_path <- reticulate::install_python(version = ifelse(sys_bit == "64bit", "3.8.8", "3.8.8-win32"))
+      python_path <- reticulate::install_python(version = ifelse(sys_bit == "64bit", install_version, paste0(install_version, "-win32")))
+      packageStartupMessage("Create SCP virtual environment. The path is: ", reticulate:::virtualenv_path("SCP"))
+      reticulate::virtualenv_create(envname = "SCP", python = python_path, packages = FALSE)
     }
-    packageStartupMessage("Create SCP virtual environment. The path is: ", reticulate:::virtualenv_path("SCP"))
-    reticulate::virtualenv_create(envname = "SCP", python = python_path, packages = FALSE)
+    if (!exist_pkg("pip", envname = "SCP")) {
+      temp <- tempfile()
+      download.file("https://bootstrap.pypa.io/get-pip.py", temp)
+      suppressWarnings(system2(command = reticulate::virtualenv_python("SCP"), args = temp, stdout = TRUE))
+      unlink(temp)
+    }
     check_Python(
       pkgs = c("pip", "setuptools", "wheel"),
       envname = "SCP",
@@ -84,7 +97,7 @@ PrepareVirtualEnv <- function(python = NULL, pipy_mirror = "https://pypi.org/sim
     } else {
       reticulate::use_virtualenv("SCP", required = TRUE)
 
-      if (!exist_pkg("pip")) {
+      if (!exist_pkg("pip", envname = "SCP")) {
         temp <- tempfile()
         download.file("https://bootstrap.pypa.io/get-pip.py", temp)
         suppressWarnings(system2(command = reticulate::virtualenv_python("SCP"), args = temp, stdout = TRUE))
@@ -94,7 +107,7 @@ PrepareVirtualEnv <- function(python = NULL, pipy_mirror = "https://pypi.org/sim
       # check_Python(pkgs = c("numba==0.53.1", "python-igraph==0.9.9", "pandas", "matplotlib", "versioned-hdf5", "scanpy", "scvelo", "palantir"), envname = "SCP")
       check_Python(
         pkgs = c(
-          "numpy==1.21.6", "numba==0.55.2", "python-igraph==0.9.11",
+          "numpy==1.21.6", "numba==0.55.2", "python-igraph==0.10.2",
           "pandas", "matplotlib", "versioned-hdf5", "scanpy", "scvelo", "palantir"
         ),
         envname = "SCP",

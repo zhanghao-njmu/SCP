@@ -90,11 +90,11 @@ DynamicHeatmap(
 Heatmap plot for dynamic features along lineages
 }
 \examples{
-data("pancreas1k")
-pancreas1k <- RunSlingshot(pancreas1k, group.by = "SubCellType", reduction = "UMAP")
-pancreas1k <- RunDynamicFeatures(pancreas1k, lineages = c("Lineage1", "Lineage2"), n_candidates = 200)
+data("pancreas_sub")
+pancreas_sub <- RunSlingshot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP")
+pancreas_sub <- RunDynamicFeatures(pancreas_sub, lineages = c("Lineage1", "Lineage2"), n_candidates = 200)
 ht_result1 <- DynamicHeatmap(
-  srt = pancreas1k,
+  srt = pancreas_sub,
   lineages = c("Lineage1"), order_by = "peaktime",
   cell_annotation = "SubCellType",
   n_split = 5, split_method = "kmeans-peaktime",
@@ -103,7 +103,7 @@ ht_result1 <- DynamicHeatmap(
 ht_result1$plot
 
 ht_result2 <- DynamicHeatmap(
-  srt = pancreas1k,
+  srt = pancreas_sub,
   lineages = c("Lineage1", "Lineage2"),
   cell_annotation = "SubCellType",
   n_split = 5, reverse_ht = "Lineage1",
@@ -112,7 +112,7 @@ ht_result2 <- DynamicHeatmap(
 ht_result2$plot
 
 ht_result3 <- DynamicHeatmap(
-  srt = pancreas1k,
+  srt = pancreas_sub,
   lineages = c("Lineage1", "Lineage2"),
   cell_annotation = "SubCellType",
   n_split = 5, reverse_ht = "Lineage1",

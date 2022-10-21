@@ -80,21 +80,21 @@ ExpHeatmap
 }
 \examples{
 library(dplyr)
-data(pancreas1k)
-pancreas1k <- RunDEtest(pancreas1k, group_by = "CellType")
-de_filter <- filter(pancreas1k@tools$DEtest_CellType$AllMarkers_wilcox, p_val_adj < 0.05 & avg_log2FC > 1)
+data(pancreas_sub)
+pancreas_sub <- RunDEtest(pancreas_sub, group_by = "CellType")
+de_filter <- filter(pancreas_sub@tools$DEtest_CellType$AllMarkers_wilcox, p_val_adj < 0.05 & avg_log2FC > 1)
 ht1 <- ExpHeatmap(
-  srt = pancreas1k, features = de_filter$gene, cell_split_by = "CellType"
+  srt = pancreas_sub, features = de_filter$gene, cell_split_by = "CellType"
 )
 ht1$plot
 
 ht2 <- ExpHeatmap(
-  srt = pancreas1k, features = de_filter$gene, n_split = 4, cell_split_by = "CellType"
+  srt = pancreas_sub, features = de_filter$gene, n_split = 4, cell_split_by = "CellType"
 )
 ht2$plot
 
 ht3 <- ExpHeatmap(
-  srt = pancreas1k, features = de_filter$gene, feature_split = de_filter$group1, cell_split_by = "CellType",
+  srt = pancreas_sub, features = de_filter$gene, feature_split = de_filter$group1, cell_split_by = "CellType",
   species = "Mus_musculus", anno_terms = TRUE, anno_keys = TRUE, anno_features = TRUE
 )
 ht3$plot

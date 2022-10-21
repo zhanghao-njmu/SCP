@@ -93,35 +93,29 @@ A \code{Seurat} object containing the result.
 Single cell pipeline for the integration of multiple datasets.
 }
 \examples{
-if (!require("SeuratData", quietly = TRUE)) {
-  devtools::install_github("zhanghao-njmu/seurat-data")
-}
-library(SeuratData)
-suppressWarnings(InstallData("panc8"))
-data("panc8")
-cell_sub <- unlist(lapply(split(colnames(panc8), panc8$tech), function(x) sample(x, size = 500)))
-panc8 <- subset(panc8, cells = cell_sub)
+data("panc8_sub")
 plist1 <- list()
 methods <- c("Uncorrected", "Seurat", "scVI", "MNN", "fastMNN", "Harmony", "Scanorama", "BBKNN", "CSS", "LIGER", "Conos")
 for (method in methods) {
-  panc8 <- Integration_SCP(panc8,
+  panc8_sub <- Integration_SCP(panc8_sub,
     batch = "tech", integration_method = method,
     nonliner_reduction = "umap"
   )
-  plist1[[method]] <- ClassDimPlot(panc8, group.by = c("tech", "celltype"), theme_use = "theme_blank")
+  plist1[[method]] <- ClassDimPlot(panc8_sub, group.by = c("tech", "celltype"), theme_use = "theme_blank")
 }
 for (method in methods) {
   print(plist1[[method]])
 }
 
+plist2 <- list()
 reductions <- c("umap", "tsne", "dm", "phate", "pacmap", "trimap", "largevis")
-panc8 <- Integration_SCP(panc8,
+panc8_sub <- Integration_SCP(panc8_sub,
   batch = "tech", integration_method = "Seurat",
   nonliner_reduction = reductions
 )
-plist2 <- list()
 for (reduc in reductions) {
-  plist2[[reduc]] <- ClassDimPlot(panc8, group.by = c("tech", "celltype"), reduction = paste0("Seurat", reduc, "2D"), theme_use = "theme_blank")
+  plist2[[reduc]] <- ClassDimPlot(panc8_sub, group.by = c("tech", "celltype"), reduction = paste0("Seurat", reduc, "2D"), theme_use = "theme_blank")
   print(plist2[[reduc]])
 }
+
 }

@@ -424,11 +424,11 @@ CC_GenePrefetch <- function(species, Ensembl_version = 103, mirror = NULL, attem
 #' @param ...
 #'
 #' @examples
-#' data("pancreas1k")
+#' data("pancreas_sub")
 #' ccgenes <- CC_GenePrefetch("Mus_musculus")
-#' pancreas1k <- CellScoring(srt = pancreas1k, features = list(S = ccgenes$cc_S_genes, G2M = ccgenes$cc_G2M_genes), nbin = 20)
-#' ClassDimPlot(pancreas1k, "CC_classification")
-#' ExpDimPlot(pancreas1k, "CC_G2M")
+#' pancreas_sub <- CellScoring(srt = pancreas_sub, features = list(S = ccgenes$cc_S_genes, G2M = ccgenes$cc_G2M_genes), nbin = 10)
+#' ClassDimPlot(pancreas_sub, "CC_classification")
+#' ExpDimPlot(pancreas_sub, "CC_G2M")
 #' @importFrom Seurat AddModuleScore AddMetaData
 #' @export
 CellScoring <- function(srt, features, ncores = 1, method = "Seurat", classification = TRUE,
@@ -529,12 +529,12 @@ CellScoring <- function(srt, features, ncores = 1, method = "Seurat", classifica
 #'
 #' @examples
 #' library(dplyr)
-#' data(pancreas1k)
-#' pancreas1k <- RunDEtest(pancreas1k, group_by = "CellType")
+#' data(pancreas_sub)
+#' pancreas_sub <- RunDEtest(pancreas_sub, group_by = "CellType")
 #'
 #' # Heatmap
-#' de_filter <- filter(pancreas1k@tools$DEtest_CellType$AllMarkers_wilcox, p_val_adj < 0.05 & avg_log2FC > 1)
-#' ExpHeatmap(pancreas1k, features = de_filter$gene, feature_split = de_filter$group1, cell_split_by = "CellType")
+#' de_filter <- filter(pancreas_sub@tools$DEtest_CellType$AllMarkers_wilcox, p_val_adj < 0.05 & avg_log2FC > 1)
+#' ExpHeatmap(pancreas_sub, features = de_filter$gene, feature_split = de_filter$group1, cell_split_by = "CellType")
 #'
 #' # Dot plot
 #' de_top <- de_filter %>%
@@ -542,7 +542,7 @@ CellScoring <- function(srt, features, ncores = 1, method = "Seurat", classifica
 #'   top_n(1, avg_log2FC) %>%
 #'   group_by(group1) %>%
 #'   top_n(3, avg_log2FC)
-#' ExpDotPlot(pancreas1k, features = de_top$gene, feature_split = de_top$group1, cell_split_by = "CellType")
+#' ExpDotPlot(pancreas_sub, features = de_top$gene, feature_split = de_top$group1, cell_split_by = "CellType")
 #' @export
 #'
 RunDEtest <- function(srt, group_by = NULL, group1 = NULL, group2 = NULL, cells1 = NULL, cells2 = NULL,
@@ -1195,10 +1195,16 @@ PrepareEnrichmentDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
 #' @param geneID_exclude
 #'
 #' @examples
-#' data("pancreas1k")
-#' pancreas1k <- RunDEtest(pancreas1k, group_by = "CellType")
-#' pancreas1k <- RunEnrichment(srt = pancreas1k, group_by = "CellType", enrichment = "GO_BP", species = "Mus_musculus")
-#' EnrichmentPlot(pancreas1k, group_by = "CellType", enrichment = "GO_BP", plot_type = "bar")
+#' data("pancreas_sub")
+#' pancreas_sub <- RunDEtest(pancreas_sub, group_by = "CellType")
+#' pancreas_sub <- RunEnrichment(srt = pancreas_sub, group_by = "CellType", enrichment = "GO_BP", species = "Mus_musculus")
+#' EnrichmentPlot(pancreas_sub, group_by = "CellType", enrichment = "GO_BP", plot_type = "bar")
+#'
+#' # Or run enrichment with "geneID" and "geneID_groups" as input
+#' de_df <- dplyr::filter(pancreas_sub@tools$DEtest_CellType$AllMarkers_wilcox, avg_log2FC > 0 & p_val_adj < 0.05)
+#' enrich_out <- RunEnrichment(geneID = de_df[["gene"]], geneID_groups = de_df[["group1"]], enrichment = "GO_BP", species = "Mus_musculus")
+#' EnrichmentPlot(res = enrich_out, group_use = c("Ngn3 low EP", "Endocrine"), enrichment = "GO_BP")
+#'
 #' @importFrom BiocParallel bplapply
 #' @export
 #'
@@ -1425,12 +1431,18 @@ RunEnrichment <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_t
 #'
 #' @importFrom BiocParallel bplapply
 #' @examples
-#' data("pancreas1k")
-#' pancreas1k <- RunDEtest(pancreas1k, group_by = "CellType", only.pos = FALSE, fc.threshold = 1)
-#' pancreas1k <- RunGSEA(pancreas1k, group_by = "CellType", enrichment = "GO_BP", species = "Mus_musculus")
-#' GSEAPlot(pancreas1k, group_by = "CellType")
-#' GSEAPlot(pancreas1k, group_by = "CellType", group_use = "Ductal", geneSetID = "GO:0006412")
-#' GSEAPlot(pancreas1k, group_by = "CellType", group_use = "Endocrine", geneSetID = c("GO:0046903", "GO:0015031", "GO:0007600"))
+#' data("pancreas_sub")
+#' pancreas_sub <- RunDEtest(pancreas_sub, group_by = "CellType", only.pos = FALSE, fc.threshold = 1)
+#' pancreas_sub <- RunGSEA(pancreas_sub, group_by = "CellType", enrichment = "GO_BP", species = "Mus_musculus")
+#' GSEAPlot(pancreas_sub, group_by = "CellType")
+#' GSEAPlot(pancreas_sub, group_by = "CellType", group_use = "Ductal", enrichment = "GO_BP", geneSetID = "GO:0006412")
+#' GSEAPlot(pancreas_sub, group_by = "CellType", group_use = "Endocrine", enrichment = "GO_BP", geneSetID = c("GO:0046903", "GO:0015031", "GO:0007600"))
+#'
+#' # Or run GSEA with "geneID", "geneScore" and "geneID_groups" as input
+#' de_df <- dplyr::filter(pancreas_sub@tools$DEtest_CellType$AllMarkers_wilcox, p_val_adj < 0.05)
+#' gsea_out <- RunGSEA(geneID = de_df[["gene"]], geneScore = de_df[["avg_log2FC"]], geneID_groups = de_df[["group1"]], enrichment = "GO_BP", species = "Mus_musculus")
+#' GSEAPlot(res = gsea_out, group_use = c("Ngn3 low EP", "Endocrine"), enrichment = "GO_BP")
+#'
 #' @export
 #'
 RunGSEA <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_threshold = "p_val_adj < 0.05",
@@ -1692,12 +1704,12 @@ RunGSEA <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_thresho
 #' @param ...
 #'
 #' @examples
-#' data("pancreas1k")
-#' pancreas1k <- RunSlingshot(pancreas1k, group.by = "SubCellType", reduction = "UMAP")
+#' data("pancreas_sub")
+#' pancreas_sub <- RunSlingshot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP")
 #'
 #' # 3D lineage
-#' pancreas1k <- Standard_SCP(pancreas1k)
-#' pancreas1k <- RunSlingshot(pancreas1k, group.by = "SubCellType", reduction = "StandardpcaUMAP3D")
+#' pancreas_sub <- Standard_SCP(pancreas_sub)
+#' pancreas_sub <- RunSlingshot(pancreas_sub, group.by = "SubCellType", reduction = "StandardpcaUMAP3D")
 #' @importFrom Seurat AddMetaData as.SingleCellExperiment
 #' @importFrom slingshot slingshot slingPseudotime slingBranchID
 #' @export
@@ -1797,24 +1809,24 @@ RunSlingshot <- function(srt, group.by, reduction = NULL, dims = NULL, start = N
 #'
 #' @examples
 #' if (interactive()) {
-#'   data("pancreas1k")
-#'   pancreas1k <- RunMonocle2(srt = pancreas1k, annotation = "CellType")
-#'   names(pancreas1k@tools$Monocle2)
-#'   trajectory <- pancreas1k@tools$Monocle2$trajectory
+#'   data("pancreas_sub")
+#'   pancreas_sub <- RunMonocle2(srt = pancreas_sub, annotation = "CellType")
+#'   names(pancreas_sub@tools$Monocle2)
+#'   trajectory <- pancreas_sub@tools$Monocle2$trajectory
 #'
-#'   p1 <- ClassDimPlot(pancreas1k, group.by = "Monocle2_State", reduction = "DDRTree", label = TRUE) + trajectory
-#'   p2 <- ClassDimPlot(pancreas1k, group.by = "Monocle2_State", reduction = "UMAP", label = TRUE)
-#'   p3 <- ExpDimPlot(pancreas1k, features = "Monocle2_Pseudotime", reduction = "UMAP")
+#'   p1 <- ClassDimPlot(pancreas_sub, group.by = "Monocle2_State", reduction = "DDRTree", label = TRUE) + trajectory
+#'   p2 <- ClassDimPlot(pancreas_sub, group.by = "Monocle2_State", reduction = "UMAP", label = TRUE)
+#'   p3 <- ExpDimPlot(pancreas_sub, features = "Monocle2_Pseudotime", reduction = "UMAP")
 #'   print(p1 + p2 + p3)
 #'
-#'   pancreas1k <- RunMonocle2(
-#'     srt = pancreas1k, annotation = "CellType",
+#'   pancreas_sub <- RunMonocle2(
+#'     srt = pancreas_sub, annotation = "CellType",
 #'     feature_type = "Disp", disp_filter = "mean_expression >= 0.01 & dispersion_empirical >= 1 * dispersion_fit"
 #'   )
-#'   trajectory <- pancreas1k@tools$Monocle2$trajectory
-#'   p1 <- ClassDimPlot(pancreas1k, group.by = "Monocle2_State", reduction = "DDRTree", label = TRUE) + trajectory
-#'   p2 <- ClassDimPlot(pancreas1k, group.by = "Monocle2_State", reduction = "UMAP", label = TRUE)
-#'   p3 <- ExpDimPlot(pancreas1k, features = "Monocle2_Pseudotime", reduction = "UMAP")
+#'   trajectory <- pancreas_sub@tools$Monocle2$trajectory
+#'   p1 <- ClassDimPlot(pancreas_sub, group.by = "Monocle2_State", reduction = "DDRTree", label = TRUE) + trajectory
+#'   p2 <- ClassDimPlot(pancreas_sub, group.by = "Monocle2_State", reduction = "UMAP", label = TRUE)
+#'   p3 <- ExpDimPlot(pancreas_sub, features = "Monocle2_Pseudotime", reduction = "UMAP")
 #'   print(p1 + p2 + p3)
 #' }
 #' @importFrom Seurat DefaultAssay CreateDimReducObject GetAssayData VariableFeatures FindVariableFeatures
@@ -1933,9 +1945,9 @@ orderCells <- function(cds, root_state = NULL, num_paths = NULL, reverse = NULL)
     dp_mst <- igraph::minimum.spanning.tree(gp)
     monocle::minSpanningTree(cds) <- dp_mst
     next_node <<- 0
-    res <- monocle::pq_helper(dp_mst, use_weights = FALSE, root_node = root_cell)
+    res <- monocle:::pq_helper(dp_mst, use_weights = FALSE, root_node = root_cell)
     cds@auxOrderingData[[cds@dim_reduce_type]]$root_cell <- root_cell
-    order_list <- monocle::extract_good_branched_ordering(res$subtree, res$root, monocle::cellPairwiseDistances(cds), num_paths, FALSE)
+    order_list <- monocle:::extract_good_branched_ordering(res$subtree, res$root, monocle::cellPairwiseDistances(cds), num_paths, FALSE)
     cc_ordering <- order_list$ordering_df
     row.names(cc_ordering) <- cc_ordering$sample_name
     monocle::minSpanningTree(cds) <- igraph::as.undirected(order_list$cell_ordering_tree)
@@ -2111,46 +2123,46 @@ extract_ddrtree_ordering <- function(cds, root_cell, verbose = T) {
 #'
 #' @examples
 #' if (interactive()) {
-#'   data("pancreas1k")
+#'   data("pancreas_sub")
 #'   # Use Monocle clusters to infer the trajectories
-#'   pancreas1k <- RunMonocle3(srt = pancreas1k, annotation = "CellType")
-#'   names(pancreas1k@tools$Monocle3)
-#'   trajectory <- pancreas1k@tools$Monocle3$trajectory
-#'   milestones <- pancreas1k@tools$Monocle3$milestones
+#'   pancreas_sub <- RunMonocle3(srt = pancreas_sub, annotation = "CellType")
+#'   names(pancreas_sub@tools$Monocle3)
+#'   trajectory <- pancreas_sub@tools$Monocle3$trajectory
+#'   milestones <- pancreas_sub@tools$Monocle3$milestones
 #'
-#'   p1 <- ClassDimPlot(pancreas1k, group.by = "Monocle3_partitions", reduction = "UMAP", label = TRUE) + trajectory + milestones
-#'   p2 <- ClassDimPlot(pancreas1k, group.by = "Monocle3_clusters", reduction = "UMAP", label = TRUE) + trajectory
-#'   p3 <- ExpDimPlot(pancreas1k, features = "Monocle3_Pseudotime", reduction = "UMAP") + trajectory
+#'   p1 <- ClassDimPlot(pancreas_sub, group.by = "Monocle3_partitions", reduction = "UMAP", label = TRUE) + trajectory + milestones
+#'   p2 <- ClassDimPlot(pancreas_sub, group.by = "Monocle3_clusters", reduction = "UMAP", label = TRUE) + trajectory
+#'   p3 <- ExpDimPlot(pancreas_sub, features = "Monocle3_Pseudotime", reduction = "UMAP") + trajectory
 #'   print(p1 + p2 + p3)
 #'
 #'   # Select the lineage using  monocle3::choose_graph_segments
-#'   cds <- pancreas1k@tools$Monocle3$cds
+#'   cds <- pancreas_sub@tools$Monocle3$cds
 #'   cds_sub <- monocle3::choose_graph_segments(cds, starting_pr_node = NULL, ending_pr_nodes = NULL)
-#'   pancreas1k$Lineages_1 <- NA
-#'   pancreas1k$Lineages_1[colnames(cds_sub)] <- pancreas1k$Monocle3_Pseudotime[colnames(cds_sub)]
-#'   ClassDimPlot(pancreas1k, group.by = "SubCellType", lineages = "Lineages_1", lineages_span = 0.1)
+#'   pancreas_sub$Lineages_1 <- NA
+#'   pancreas_sub$Lineages_1[colnames(cds_sub)] <- pancreas_sub$Monocle3_Pseudotime[colnames(cds_sub)]
+#'   ClassDimPlot(pancreas_sub, group.by = "SubCellType", lineages = "Lineages_1", lineages_span = 0.1)
 #'
 #'   # Use Seurat clusters to infer the trajectories
-#'   pancreas1k <- Standard_SCP(pancreas1k)
-#'   ClassDimPlot(pancreas1k, group.by = c("Standardclusters", "CellType"), label = TRUE)
-#'   pancreas1k <- RunMonocle3(srt = pancreas1k, annotation = "CellType", clusters = "Standardclusters")
-#'   trajectory <- pancreas1k@tools$Monocle3$trajectory
-#'   p1 <- ClassDimPlot(pancreas1k, group.by = "Monocle3_partitions", reduction = "StandardUMAP2D", label = TRUE) + trajectory
-#'   p2 <- ClassDimPlot(pancreas1k, group.by = "Monocle3_clusters", reduction = "StandardUMAP2D", label = TRUE) + trajectory
-#'   p3 <- ExpDimPlot(pancreas1k, features = "Monocle3_Pseudotime", reduction = "StandardUMAP2D") + trajectory
+#'   pancreas_sub <- Standard_SCP(pancreas_sub)
+#'   ClassDimPlot(pancreas_sub, group.by = c("Standardclusters", "CellType"), label = TRUE)
+#'   pancreas_sub <- RunMonocle3(srt = pancreas_sub, annotation = "CellType", clusters = "Standardclusters")
+#'   trajectory <- pancreas_sub@tools$Monocle3$trajectory
+#'   p1 <- ClassDimPlot(pancreas_sub, group.by = "Monocle3_partitions", reduction = "StandardUMAP2D", label = TRUE) + trajectory
+#'   p2 <- ClassDimPlot(pancreas_sub, group.by = "Monocle3_clusters", reduction = "StandardUMAP2D", label = TRUE) + trajectory
+#'   p3 <- ExpDimPlot(pancreas_sub, features = "Monocle3_Pseudotime", reduction = "StandardUMAP2D") + trajectory
 #'   print(p1 + p2 + p3)
 #'
 #'   # Use custom graphs and cell clusters to infer the partitions and trajectories, respectively
-#'   pancreas1k <- Standard_SCP(pancreas1k, cluster_resolution = 5)
-#'   ClassDimPlot(pancreas1k, group.by = c("Standardclusters", "CellType"), label = TRUE)
-#'   pancreas1k <- RunMonocle3(
-#'     srt = pancreas1k, annotation = "CellType",
+#'   pancreas_sub <- Standard_SCP(pancreas_sub, cluster_resolution = 5)
+#'   ClassDimPlot(pancreas_sub, group.by = c("Standardclusters", "CellType"), label = TRUE)
+#'   pancreas_sub <- RunMonocle3(
+#'     srt = pancreas_sub, annotation = "CellType",
 #'     clusters = "Standardclusters", graph = "Standardpca_SNN"
 #'   )
-#'   trajectory <- pancreas1k@tools$Monocle3$trajectory
-#'   p1 <- ClassDimPlot(pancreas1k, group.by = "Monocle3_partitions", reduction = "StandardUMAP2D", label = TRUE) + trajectory
-#'   p2 <- ClassDimPlot(pancreas1k, group.by = "Monocle3_clusters", reduction = "StandardUMAP2D", label = TRUE) + trajectory
-#'   p3 <- ExpDimPlot(pancreas1k, features = "Monocle3_Pseudotime", reduction = "StandardUMAP2D") + trajectory
+#'   trajectory <- pancreas_sub@tools$Monocle3$trajectory
+#'   p1 <- ClassDimPlot(pancreas_sub, group.by = "Monocle3_partitions", reduction = "StandardUMAP2D", label = TRUE) + trajectory
+#'   p2 <- ClassDimPlot(pancreas_sub, group.by = "Monocle3_clusters", reduction = "StandardUMAP2D", label = TRUE) + trajectory
+#'   p3 <- ExpDimPlot(pancreas_sub, features = "Monocle3_Pseudotime", reduction = "StandardUMAP2D") + trajectory
 #'   print(p1 + p2 + p3)
 #' }
 #' @importFrom SeuratObject as.sparse Embeddings Loadings Stdev
@@ -2343,11 +2355,11 @@ RunMonocle3 <- function(srt, annotation = NULL, assay = NULL, slot = "counts",
 #' @importFrom ggplot2 ggplot aes geom_point geom_abline labs
 #'
 #' @examples
-#' data("pancreas1k")
-#' pancreas1k <- RunSlingshot(pancreas1k, group.by = "SubCellType", reduction = "UMAP")
-#' pancreas1k <- RunDynamicFeatures(pancreas1k, lineages = c("Lineage1", "Lineage2"), n_candidates = 200)
+#' data("pancreas_sub")
+#' pancreas_sub <- RunSlingshot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP")
+#' pancreas_sub <- RunDynamicFeatures(pancreas_sub, lineages = c("Lineage1", "Lineage2"), n_candidates = 200)
 #' ht_result <- DynamicHeatmap(
-#'   srt = pancreas1k,
+#'   srt = pancreas_sub,
 #'   lineages = c("Lineage1", "Lineage2"),
 #'   cell_annotation = "SubCellType",
 #'   n_split = 6, reverse_ht = "Lineage1",
@@ -2356,7 +2368,7 @@ RunMonocle3 <- function(srt, annotation = NULL, assay = NULL, slot = "counts",
 #' ht_result$plot
 #'
 #' p <- DynamicPlot(
-#'   srt = pancreas1k,
+#'   srt = pancreas_sub,
 #'   lineages = c("Lineage1", "Lineage2"),
 #'   features = c("Nnat", "Irx1"),
 #'   group.by = "SubCellType",
@@ -2630,26 +2642,26 @@ RunDynamicFeatures <- function(srt, lineages, features = NULL, suffix = lineages
 #' @importFrom ggplot2 ggplot aes geom_point geom_abline labs
 #'
 #' @examples
-#' data("pancreas1k")
-#' pancreas1k <- RunSlingshot(pancreas1k, group.by = "SubCellType", reduction = "UMAP")
-#' pancreas1k <- RunDynamicFeatures(pancreas1k, lineages = c("Lineage1", "Lineage2"), n_candidates = 200)
+#' data("pancreas_sub")
+#' pancreas_sub <- RunSlingshot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP")
+#' pancreas_sub <- RunDynamicFeatures(pancreas_sub, lineages = c("Lineage1", "Lineage2"), n_candidates = 200)
 #' ht_result <- DynamicHeatmap(
-#'   srt = pancreas1k,
+#'   srt = pancreas_sub,
 #'   lineages = c("Lineage1", "Lineage2"),
 #'   cell_annotation = "SubCellType",
 #'   n_split = 6, reverse_ht = 1, use_raster = FALSE
 #' )
 #' ht_result$plot
 #'
-#' pancreas1k <- RunDynamicEnrichment(
-#'   srt = pancreas1k,
+#' pancreas_sub <- RunDynamicEnrichment(
+#'   srt = pancreas_sub,
 #'   lineages = c("Lineage1", "Lineage2"),
 #'   score_method = "AUCell",
 #'   enrichment = "GO_BP",
 #'   species = "Mus_musculus"
 #' )
 #' ht_result <- DynamicHeatmap(
-#'   srt = pancreas1k, assay = "GO_BP", use_fitted = TRUE,
+#'   srt = pancreas_sub, assay = "GO_BP", use_fitted = TRUE,
 #'   lineages = c("Lineage1_GO_BP", "Lineage2_GO_BP"),
 #'   cell_annotation = "SubCellType",
 #'   n_split = 6, reverse_ht = 1,
@@ -2763,13 +2775,13 @@ RunDynamicEnrichment <- function(srt, lineages,
 #'
 #' @return A \code{anndata} object.
 #' @examples
-#' data("pancreas1k")
-#' adata <- srt_to_adata(pancreas1k)
+#' data("pancreas_sub")
+#' adata <- srt_to_adata(pancreas_sub)
 #' adata
 #'
 #' ### Or save as an h5ad file or a loom file
-#' # adata$write_h5ad("pancreas1k.h5ad")
-#' # adata$write_loom("pancreas1k.loom", write_obsm_varm = TRUE)
+#' # adata$write_h5ad("pancreas_sub.h5ad")
+#' # adata$write_loom("pancreas_sub.loom", write_obsm_varm = TRUE)
 #'
 #' @importFrom reticulate import
 #' @importFrom Seurat GetAssayData
@@ -2910,8 +2922,8 @@ srt_to_adata <- function(srt,
 #' @param adata a connected python anndata object.
 #'
 #' @examples
-#' data("pancreas1k")
-#' adata <- srt_to_adata(pancreas1k)
+#' data("pancreas_sub")
+#' adata <- srt_to_adata(pancreas_sub)
 #' adata <- RunPAGA(adata = adata, group_by = "SubCellType", liner_reduction = "PCA", nonliner_reduction = "UMAP")
 #' srt <- adata_to_srt(adata)
 #' srt
@@ -3088,15 +3100,19 @@ check_python_element <- function(x, depth = maxDepth(x)) {
 #' @return A \code{anndata} object.
 #'
 #' @examples
-#' data("pancreas1k")
-#' pancreas1k <- RunPAGA(srt = pancreas1k, group_by = "SubCellType", liner_reduction = "PCA", nonliner_reduction = "UMAP", return_seurat = TRUE)
+#' data("pancreas_sub")
+#' pancreas_sub <- RunPAGA(srt = pancreas_sub, group_by = "SubCellType", liner_reduction = "PCA", nonliner_reduction = "UMAP", return_seurat = TRUE)
+#' PAGAPlot(pancreas_sub)
 #'
-#' pancreas1k <- RunPAGA(
-#'   srt = pancreas1k, group_by = "SubCellType", liner_reduction = "PCA", nonliner_reduction = "UMAP",
+#' pancreas_sub <- RunPAGA(
+#'   srt = pancreas_sub, group_by = "SubCellType", liner_reduction = "PCA", nonliner_reduction = "UMAP",
 #'   embedded_with_PAGA = TRUE, infer_pseudotime = TRUE, root_group = "Ductal", return_seurat = TRUE
 #' )
-#' head(pancreas1k[[]])
-#' ExpDimPlot(pancreas1k, "dpt_pseudotime")
+#' head(pancreas_sub[[]])
+#' names(pancreas_sub@reductions)
+#' ExpDimPlot(pancreas_sub, "dpt_pseudotime", reduction = "PAGAUMAP2D")
+#' PAGAPlot(pancreas_sub, reduction = "PAGAUMAP2D")
+#' ClassDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "PAGAUMAP2D", paga = pancreas_sub@misc$paga)
 #'
 #' @export
 #'
@@ -3213,13 +3229,14 @@ RunPAGA <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_layers
 #' @return A \code{anndata} object.
 #'
 #' @examples
-#' data("pancreas1k")
-#' pancreas1k <- RunSCVELO(srt = pancreas1k, group_by = "SubCellType", liner_reduction = "PCA", nonliner_reduction = "UMAP", return_seurat = TRUE)
-#' head(pancreas1k[[]])
-#' names(pancreas1k@assays)
-#' ExpDimPlot(pancreas1k, c("stochastic_length", "stochastic_confidence"))
-#' ExpDimPlot(pancreas1k, "stochastic_pseudotime")
-#'
+#' data("pancreas_sub")
+#' pancreas_sub <- RunSCVELO(srt = pancreas_sub, group_by = "SubCellType", liner_reduction = "PCA", nonliner_reduction = "UMAP", return_seurat = TRUE)
+#' head(pancreas_sub[[]])
+#' names(pancreas_sub@assays)
+#' ExpDimPlot(pancreas_sub, c("stochastic_length", "stochastic_confidence"))
+#' ExpDimPlot(pancreas_sub, "stochastic_pseudotime")
+#' VelocityPlot(pancreas_sub, reduction = "UMAP", plot_type = "stream")
+#' ClassDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", pt.size = NA, velocity = "stochastic")
 #' @export
 #'
 RunSCVELO <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_layers = c("spliced", "unspliced"), slot_layers = "counts",
@@ -3300,14 +3317,14 @@ RunSCVELO <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_laye
 #' @return A \code{anndata} object.
 #'
 #' @examples
-#' data("pancreas1k")
-#' pancreas1k <- RunPalantir(
-#'   srt = pancreas1k, group_by = "SubCellType", liner_reduction = "PCA", nonliner_reduction = "UMAP",
+#' data("pancreas_sub")
+#' pancreas_sub <- RunPalantir(
+#'   srt = pancreas_sub, group_by = "SubCellType", liner_reduction = "PCA", nonliner_reduction = "UMAP",
 #'   early_group = "Ductal", terminal_groups = c("Alpha", "Beta", "Delta", "Epsilon"), return_seurat = TRUE
 #' )
-#' head(pancreas1k[[]])
-#' ExpDimPlot(pancreas1k, c("palantir_pseudotime", "palantir_diff_potential"))
-#' ExpDimPlot(pancreas1k, paste0(c("Alpha", "Beta", "Delta", "Epsilon"), "_diff_potential"))
+#' head(pancreas_sub[[]])
+#' ExpDimPlot(pancreas_sub, c("palantir_pseudotime", "palantir_diff_potential"))
+#' ExpDimPlot(pancreas_sub, paste0(c("Alpha", "Beta", "Delta", "Epsilon"), "_diff_potential"))
 #'
 #' @export
 #'

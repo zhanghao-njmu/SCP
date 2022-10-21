@@ -43,8 +43,8 @@ A grob obejct with size attributes.
 SummaryPlot
 }
 \examples{
-data("pancreas1k")
-p <- SummaryPlot(pancreas1k,
+data("pancreas_sub")
+p <- SummaryPlot(pancreas_sub,
   group.by = c("CellType", "SubCellType"), group.split.by = "SubCellType",
   features = c("S_score", "G2M_score", "nFeature_RNA", "nCount_RNA")
 )

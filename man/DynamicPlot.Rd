@@ -47,10 +47,10 @@ DynamicPlot(
 Plot for dynamic features along lineages.
 }
 \examples{
-data("pancreas1k")
-pancreas1k <- RunSlingshot(pancreas1k, group.by = "SubCellType", reduction = "UMAP")
+data("pancreas_sub")
+pancreas_sub <- RunSlingshot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP")
 DynamicPlot(
-  srt = pancreas1k,
+  srt = pancreas_sub,
   lineages = c("Lineage1", "Lineage2"),
   features = c("Nnat", "Irx1"),
   group.by = "SubCellType",

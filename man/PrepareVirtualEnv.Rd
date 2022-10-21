@@ -7,7 +7,8 @@
 PrepareVirtualEnv(
   python = NULL,
   pipy_mirror = "https://pypi.org/simple/",
-  remove_old = FALSE
+  remove_old = FALSE,
+  install_version = "3.8.8"
 )
 }
 \arguments{

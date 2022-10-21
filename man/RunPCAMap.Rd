@@ -26,25 +26,19 @@ RunPCAMap(
 Single-cell reference mapping with PCA method
 }
 \examples{
-if (!require("SeuratData", quietly = TRUE)) {
-  devtools::install_github("zhanghao-njmu/seurat-data")
-}
-library(SeuratData)
-library(stringr)
-suppressWarnings(InstallData("panc8"))
-data("panc8")
-
+data("panc8_sub")
 # Simply convert genes from human to mouse and preprocess the data
-genenm <- make.unique(str_to_title(rownames(panc8)))
-panc8 <- RenameFeatures(panc8, newnames = genenm)
-head(rownames(panc8))
+genenames <- make.unique(stringr::str_to_title(rownames(panc8_sub)))
+panc8_sub <- RenameFeatures(panc8_sub, newnames = genenames)
+head(rownames(panc8_sub))
 
-panc8 <- Integration_SCP(panc8, batch = "tech", integration_method = "Seurat")
-ClassDimPlot(panc8, "celltype")
+panc8_sub <- Integration_SCP(panc8_sub, batch = "tech", integration_method = "Seurat")
+ClassDimPlot(panc8_sub, "celltype")
 
 # Projection
-data("pancreas1k")
-pancreas1k <- Standard_SCP(pancreas1k)
-pancreas1k <- RunPCAMap(srt_query = pancreas1k, srt_ref = panc8, ref_pca = "Seuratpca", ref_umap = "SeuratUMAP2D")
-ProjectionPlot(srt_query = pancreas1k, srt_ref = panc8, query_group = "SubCellType", ref_group = "celltype")
+data("pancreas_sub")
+pancreas_sub <- Standard_SCP(pancreas_sub)
+pancreas_sub <- RunPCAMap(srt_query = pancreas_sub, srt_ref = panc8_sub, ref_pca = "Seuratpca", ref_umap = "SeuratUMAP2D")
+ProjectionPlot(srt_query = pancreas_sub, srt_ref = panc8_sub, query_group = "SubCellType", ref_group = "celltype")
+
 }

@@ -24,32 +24,25 @@ RunScmap(
 Annotate single cells using scmap.
 }
 \examples{
-if (!require("SeuratData", quietly = TRUE)) {
-  devtools::install_github("zhanghao-njmu/seurat-data")
-}
-library(SeuratData)
-library(stringr)
-suppressWarnings(InstallData("panc8"))
-data("panc8")
-
+data("panc8_sub")
 # Simply convert genes from human to mouse and preprocess the data
-genenm <- make.unique(str_to_title(rownames(panc8)))
-panc8 <- RenameFeatures(panc8, newnames = genenm)
-panc8 <- check_srtMerge(panc8, batch = "tech")[["srtMerge"]]
+genenames <- make.unique(stringr::str_to_title(rownames(panc8_sub)))
+panc8_sub <- RenameFeatures(panc8_sub, newnames = genenames)
+panc8_sub <- check_srtMerge(panc8_sub, batch = "tech")[["srtMerge"]]
 
 # Annotation
-data("pancreas1k")
-pancreas1k <- Standard_SCP(pancreas1k)
-pancreas1k <- RunScmap(
-  srt_query = pancreas1k, srt_ref = panc8,
+data("pancreas_sub")
+pancreas_sub <- Standard_SCP(pancreas_sub)
+pancreas_sub <- RunScmap(
+  srt_query = pancreas_sub, srt_ref = panc8_sub,
   ref_group = "celltype", method = "scmapCluster"
 )
-ClassDimPlot(pancreas1k, group.by = "scmap_annotation")
+ClassDimPlot(pancreas_sub, group.by = "scmap_annotation")
 
-pancreas1k <- RunScmap(
-  srt_query = pancreas1k, srt_ref = panc8,
+pancreas_sub <- RunScmap(
+  srt_query = pancreas_sub, srt_ref = panc8_sub,
   ref_group = "celltype", method = "scmapCell"
 )
-ClassDimPlot(pancreas1k, group.by = "scmap_annotation")
+ClassDimPlot(pancreas_sub, group.by = "scmap_annotation")
 
 }

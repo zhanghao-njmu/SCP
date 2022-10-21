@@ -72,10 +72,16 @@ RunGSEA(
 Perform the enrichment analysis(GSEA) on the genes
 }
 \examples{
-data("pancreas1k")
-pancreas1k <- RunDEtest(pancreas1k, group_by = "CellType", only.pos = FALSE, fc.threshold = 1)
-pancreas1k <- RunGSEA(pancreas1k, group_by = "CellType", enrichment = "GO_BP", species = "Mus_musculus")
-GSEAPlot(pancreas1k, group_by = "CellType")
-GSEAPlot(pancreas1k, group_by = "CellType", group_use = "Ductal", geneSetID = "GO:0006412")
-GSEAPlot(pancreas1k, group_by = "CellType", group_use = "Endocrine", geneSetID = c("GO:0046903", "GO:0015031", "GO:0007600"))
+data("pancreas_sub")
+pancreas_sub <- RunDEtest(pancreas_sub, group_by = "CellType", only.pos = FALSE, fc.threshold = 1)
+pancreas_sub <- RunGSEA(pancreas_sub, group_by = "CellType", enrichment = "GO_BP", species = "Mus_musculus")
+GSEAPlot(pancreas_sub, group_by = "CellType")
+GSEAPlot(pancreas_sub, group_by = "CellType", group_use = "Ductal", enrichment = "GO_BP", geneSetID = "GO:0006412")
+GSEAPlot(pancreas_sub, group_by = "CellType", group_use = "Endocrine", enrichment = "GO_BP", geneSetID = c("GO:0046903", "GO:0015031", "GO:0007600"))
+
+# Or run GSEA with "geneID", "geneScore" and "geneID_groups" as input
+de_df <- dplyr::filter(pancreas_sub@tools$DEtest_CellType$AllMarkers_wilcox, p_val_adj < 0.05)
+gsea_out <- RunGSEA(geneID = de_df[["gene"]], geneScore = de_df[["avg_log2FC"]], geneID_groups = de_df[["group1"]], enrichment = "GO_BP", species = "Mus_musculus")
+GSEAPlot(res = gsea_out, group_use = c("Ngn3 low EP", "Endocrine"), enrichment = "GO_BP")
+
 }
