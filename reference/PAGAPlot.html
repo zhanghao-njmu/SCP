@@ -51,6 +51,7 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">PAGAPlot</span><span class="op">(</span></span>
 <span>  <span class="va">srt</span>,</span>
 <span>  paga <span class="op">=</span> <span class="va">srt</span><span class="op">@</span><span class="va">misc</span><span class="op">$</span><span class="va">paga</span>,</span>
+<span>  type <span class="op">=</span> <span class="st">"connectivities"</span>,</span>
 <span>  reduction <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  dims <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span>,</span>
 <span>  show_transition <span class="op">=</span> <span class="cn">FALSE</span>,</span>
@@ -71,7 +72,6 @@
 <span>  label_point_color <span class="op">=</span> <span class="st">"black"</span>,</span>
 <span>  label_segment_color <span class="op">=</span> <span class="st">"black"</span>,</span>
 <span>  edge_threshold <span class="op">=</span> <span class="fl">0.01</span>,</span>
-<span>  use_triangular <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"upper"</span>, <span class="st">"lower"</span>, <span class="st">"both"</span><span class="op">)</span>,</span>
 <span>  edge_line <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"straight"</span>, <span class="st">"curved"</span><span class="op">)</span>,</span>
 <span>  edge_line_curvature <span class="op">=</span> <span class="fl">0.3</span>,</span>
 <span>  edge_line_angle <span class="op">=</span> <span class="fl">90</span>,</span>
@@ -113,7 +113,7 @@
 
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
-    <dl><dt>return_layer</dt>
+    <dl><dt>type</dt>
 <dd></dd>
 
 </dl></div>
@@ -124,28 +124,30 @@
 <span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="RunPAGA.html">RunPAGA</a></span><span class="op">(</span>srt <span class="op">=</span> <span class="va">pancreas_sub</span>, group_by <span class="op">=</span> <span class="st">"SubCellType"</span>, liner_reduction <span class="op">=</span> <span class="st">"PCA"</span>, nonliner_reduction <span class="op">=</span> <span class="st">"UMAP"</span>, return_seurat <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> 'misc' slot in the srt object is not converted.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> 'tools' slot in the srt object is not converted.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Keys should be one or more alphanumeric characters followed by an underscore, setting key from X_draw_graph_fr_ to Xdrawgraphfr_</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>All keys should be one or more alphanumeric characters followed by an underscore '_', setting key to Xdrawgraphfr_</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'uns: neighbors' will not be converted. You may need to convert it manually.</span>
 <span class="r-in"><span><span class="fu">PAGAPlot</span><span class="op">(</span><span class="va">pancreas_sub</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="PAGAPlot-1.png" alt="" width="700" height="433"></span>
-<span class="r-in"><span><span class="fu">PAGAPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, reduction <span class="op">=</span> <span class="st">"PCA"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">PAGAPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, type <span class="op">=</span> <span class="st">"connectivities_tree"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="PAGAPlot-2.png" alt="" width="700" height="433"></span>
-<span class="r-in"><span><span class="fu">PAGAPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, label <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">PAGAPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, reduction <span class="op">=</span> <span class="st">"PCA"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="PAGAPlot-3.png" alt="" width="700" height="433"></span>
-<span class="r-in"><span><span class="fu">PAGAPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, label <span class="op">=</span> <span class="cn">TRUE</span>, label_insitu <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">PAGAPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, reduction <span class="op">=</span> <span class="st">"PAGAUMAP2D"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="PAGAPlot-4.png" alt="" width="700" height="433"></span>
-<span class="r-in"><span><span class="fu">PAGAPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, label <span class="op">=</span> <span class="cn">TRUE</span>, label_insitu <span class="op">=</span> <span class="cn">TRUE</span>, label_repel <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">PAGAPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, label <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="PAGAPlot-5.png" alt="" width="700" height="433"></span>
-<span class="r-in"><span><span class="fu">PAGAPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, edge_line <span class="op">=</span> <span class="st">"curved"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">PAGAPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, label <span class="op">=</span> <span class="cn">TRUE</span>, label_insitu <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="PAGAPlot-6.png" alt="" width="700" height="433"></span>
-<span class="r-in"><span><span class="fu">PAGAPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, node_size <span class="op">=</span> <span class="st">"GroupSize"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">PAGAPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, label <span class="op">=</span> <span class="cn">TRUE</span>, label_insitu <span class="op">=</span> <span class="cn">TRUE</span>, label_repel <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="PAGAPlot-7.png" alt="" width="700" height="433"></span>
-<span class="r-in"><span><span class="fu">PAGAPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, node_highlight <span class="op">=</span> <span class="st">"Ductal"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">PAGAPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, edge_line <span class="op">=</span> <span class="st">"curved"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="PAGAPlot-8.png" alt="" width="700" height="433"></span>
-<span class="r-in"><span><span class="fu">PAGAPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, edge_highlight <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="st">"Pre-endocrine"</span>, <span class="st">"Delta"</span>, sep <span class="op">=</span> <span class="st">"-"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">PAGAPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, node_size <span class="op">=</span> <span class="st">"GroupSize"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="PAGAPlot-9.png" alt="" width="700" height="433"></span>
-<span class="r-in"><span><span class="fu">PAGAPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, edge_highlight <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="st">"Pre-endocrine"</span>, <span class="fu"><a href="https://rdrr.io/r/base/levels.html" class="external-link">levels</a></span><span class="op">(</span><span class="va">pancreas_sub</span><span class="op">$</span><span class="va">SubCellType</span><span class="op">)</span>, sep <span class="op">=</span> <span class="st">"-"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">PAGAPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, node_highlight <span class="op">=</span> <span class="st">"Ductal"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="PAGAPlot-10.png" alt="" width="700" height="433"></span>
-<span class="r-in"><span><span class="fu">PAGAPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, use_triangular <span class="op">=</span> <span class="st">"both"</span>, edge_highlight <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="st">"Pre-endocrine"</span>, <span class="fu"><a href="https://rdrr.io/r/base/levels.html" class="external-link">levels</a></span><span class="op">(</span><span class="va">pancreas_sub</span><span class="op">$</span><span class="va">SubCellType</span><span class="op">)</span>, sep <span class="op">=</span> <span class="st">"-"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">PAGAPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, edge_highlight <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="st">"Pre-endocrine"</span>, <span class="fu"><a href="https://rdrr.io/r/base/levels.html" class="external-link">levels</a></span><span class="op">(</span><span class="va">pancreas_sub</span><span class="op">$</span><span class="va">SubCellType</span><span class="op">)</span>, sep <span class="op">=</span> <span class="st">"-"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="PAGAPlot-11.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="RunSCVELO.html">RunSCVELO</a></span><span class="op">(</span>srt <span class="op">=</span> <span class="va">pancreas_sub</span>, group_by <span class="op">=</span> <span class="st">"SubCellType"</span>, liner_reduction <span class="op">=</span> <span class="st">"PCA"</span>, nonliner_reduction <span class="op">=</span> <span class="st">"UMAP"</span>, return_seurat <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
@@ -155,6 +157,7 @@
 <span class="r-in"><span><span class="fu">PAGAPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, show_transition <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>transitions_confidence need to be calculated first.</span>
 <span class="r-plt img"><img src="PAGAPlot-12.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
