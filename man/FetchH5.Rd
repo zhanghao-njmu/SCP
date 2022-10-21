@@ -22,12 +22,12 @@ FetchH5(
 Fetch data from the hdf5 file
 }
 \examples{
-if (interactive()) {
-  data("pancreas_sub")
-  pancreas_sub <- Standard_SCP(pancreas_sub)
-  PrepareSCExplorer(pancreas_sub, base_dir = "./SCExplorer")
-  srt <- FetchH5(DataFile = "./SCExplorer/Data.hdf5", MetaFile = "./SCExplorer/Meta.hdf5", features = c("Ins1", "Ghrl"), metanames = c("SubCellType", "Phase"), reduction = "UMAP")
-  ClassDimPlot(srt, group.by = c("SubCellType", "Phase"), reduction = "UMAP")
-  ExpDimPlot(srt, features = c("Ins1", "Ghrl"), reduction = "UMAP")
+\dontrun{
+data("pancreas_sub")
+pancreas_sub <- Standard_SCP(pancreas_sub)
+PrepareSCExplorer(pancreas_sub, base_dir = "./SCExplorer")
+srt <- FetchH5(DataFile = "./SCExplorer/Data.hdf5", MetaFile = "./SCExplorer/Meta.hdf5", features = c("Ins1", "Ghrl"), metanames = c("SubCellType", "Phase"), reduction = "UMAP")
+ClassDimPlot(srt, group.by = c("SubCellType", "Phase"), reduction = "UMAP")
+ExpDimPlot(srt, features = c("Ins1", "Ghrl"), reduction = "UMAP")
 }
 }
