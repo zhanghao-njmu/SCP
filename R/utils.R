@@ -65,6 +65,7 @@ PrepareVirtualEnv <- function(python = NULL, pipy_mirror = "https://pypi.org/sim
       if (git_exist == 127) {
         stop("You need to install git first! (http://git-scm.com/download/) or install python manually.")
       }
+      options(timeout = 120)
       python_path <- reticulate::install_python(version = ifelse(sys_bit == "64bit", install_version, paste0(install_version, "-win32")))
       packageStartupMessage("Create SCP virtual environment. The path is: ", reticulate:::virtualenv_path("SCP"))
       reticulate::virtualenv_create(envname = "SCP", python = python_path, packages = FALSE)
@@ -327,13 +328,19 @@ kegg_get <- function(url) {
   ntry <- 0
   status <- NULL
   while (is.null(status)) {
-    status <- tryCatch(expr = {
-      download.file(url, destfile = temp, method = "wget", quiet = TRUE)
-    }, error = function(e) {
-      message("Get errors when connecting with KEGG...\nRetrying...")
-      Sys.sleep(1)
-      return(NULL)
-    })
+    methods <- c("auto", "wget", "libcurl", "curl", "internal", "wininet")
+    for (method in methods) {
+      status <- tryCatch(expr = {
+        download.file(url, destfile = temp, method = method, quiet = TRUE)
+      }, error = function(e) {
+        message("Get errors when connecting with KEGG...\nRetrying...")
+        Sys.sleep(1)
+        return(NULL)
+      })
+      if (!is.null(status)) {
+        break
+      }
+    }
     ntry <- ntry + 1
     if (is.null(status) && ntry >= 5) {
       stop("Stop connecting...")

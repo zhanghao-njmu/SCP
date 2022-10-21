@@ -906,18 +906,18 @@ PrepareEnrichmentDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
         check_R("httr")
         message("Preparing database: KEGG")
         kegg_db <- "pathway"
-        kegg_pathwaygene_url <- paste0("http://rest.kegg.jp/link/", kegg_sp, "/", kegg_db, collapse = "")
+        kegg_pathwaygene_url <- paste0("https://rest.kegg.jp/link/", kegg_sp, "/", kegg_db, collapse = "")
         TERM2GENE <- kegg_get(kegg_pathwaygene_url)
         TERM2GENE[, 1] <- gsub(pattern = "[^:]+:", replacement = "", x = TERM2GENE[, 1])
         TERM2GENE[, 2] <- gsub(pattern = "[^:]+:", replacement = "", x = TERM2GENE[, 2])
-        kegg_pathwayname_url <- paste0("http://rest.kegg.jp/list/", kegg_db, collapse = "")
+        kegg_pathwayname_url <- paste0("https://rest.kegg.jp/list/", kegg_db, collapse = "")
         TERM2NAME <- kegg_get(kegg_pathwayname_url)
         TERM2NAME[, 1] <- gsub(pattern = "path:map", replacement = kegg_sp, TERM2NAME[, 1])
         TERM2NAME <- TERM2NAME[TERM2NAME[, 1] %in% TERM2GENE[, 1], ]
         colnames(TERM2GENE) <- c("Term", "entrez_id")
         colnames(TERM2NAME) <- c("Term", "Name")
-        # kegg_info <- readLines("http://rest.kegg.jp/info/hsa")
-        kegg_info <- strsplit(httr::content(httr::GET("http://rest.kegg.jp/info/hsa")), split = "\n")[[1]]
+        # kegg_info <- readLines("https://rest.kegg.jp/info/hsa")
+        kegg_info <- strsplit(httr::content(httr::GET("https://rest.kegg.jp/info/hsa")), split = "\n")[[1]]
         version <- gsub(".*(?=Release)", replacement = "", x = kegg_info[grepl("Release", x = kegg_info)], perl = TRUE)
         db_list[[sps]][["KEGG"]][["TERM2GENE"]] <- unique(TERM2GENE)
         db_list[[sps]][["KEGG"]][["TERM2NAME"]] <- unique(TERM2NAME)
@@ -937,16 +937,45 @@ PrepareEnrichmentDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
         if (length(gmt_files) > 0) {
           file.remove(paste0(tempdir, "/", gmt_files))
         }
-        temp <- tempfile()
-        use_wget <- suppressWarnings(system2("wget", stdout = FALSE, stderr = FALSE))
-        download.file("https://wikipathways-data.wmcloud.org/current/gmt", destfile = temp, method = ifelse(use_wget == 1, "wget", "auto"))
 
+        temp <- tempfile()
+        methods <- c("auto", "wget", "libcurl", "curl", "internal", "wininet")
+        for (method in methods) {
+          status <- tryCatch(expr = {
+            download.file("https://wikipathways-data.wmcloud.org/current/gmt", destfile = temp, method = method, quiet = TRUE)
+          }, error = function(e) {
+            message("Get errors when connecting with wikipathways...\nRetrying...")
+            Sys.sleep(1)
+            return(NULL)
+          })
+          if (!is.null(status)) {
+            break
+          }
+        }
+        if (is.null(status)) {
+          stop("Error when try to download wikipathways.")
+        }
         lines <- readLines(temp)
         lines <- lines[grep("File</a></td>", lines, fixed = TRUE)]
         lines <- gsub("(.*<td><a href='./)|('> File</a></td>)", "", lines)
         gmtfile <- lines[grep(sps, lines, fixed = TRUE)]
         version <- strsplit(gmtfile, split = "-")[[1]][[2]]
-        download.file(paste0("https://wikipathways-data.wmcloud.org/current/gmt/", gmtfile), destfile = temp, method = ifelse(use_wget == 1, "wget", "auto"))
+        methods <- c("auto", "wget", "libcurl", "curl", "internal", "wininet")
+        for (method in methods) {
+          status <- tryCatch(expr = {
+            download.file(paste0("https://wikipathways-data.wmcloud.org/current/gmt/", gmtfile), destfile = temp, method = method, quiet = TRUE)
+          }, error = function(e) {
+            message("Get errors when connecting with wikipathways...\nRetrying...")
+            Sys.sleep(1)
+            return(NULL)
+          })
+          if (!is.null(status)) {
+            break
+          }
+        }
+        if (is.null(status)) {
+          stop("Error when try to download wikipathways data.")
+        }
         wiki_gmt <- clusterProfiler::read.gmt(temp)
         unlink(temp)
         wiki_gmt <- apply(wiki_gmt, 1, function(x) {
@@ -1004,8 +1033,22 @@ PrepareEnrichmentDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
         common_name <- paste(toupper(substr(common_name, 1, 1)), substr(common_name, 2, nchar(common_name)), sep = "")
 
         temp <- tempfile()
-        use_wget <- suppressWarnings(system2("wget", stdout = FALSE, stderr = FALSE))
-        download.file("http://mips.helmholtz-muenchen.de/corum/download/coreComplexes.txt.zip", temp, method = ifelse(use_wget == 1, "wget", "auto"))
+        methods <- c("auto", "wget", "libcurl", "curl", "internal", "wininet")
+        for (method in methods) {
+          status <- tryCatch(expr = {
+            download.file("https://mips.helmholtz-muenchen.de/corum/download/coreComplexes.txt.zip", destfile = temp, method = method, quiet = TRUE)
+          }, error = function(e) {
+            message("Get errors when connecting with CORUM...\nRetrying...")
+            Sys.sleep(1)
+            return(NULL)
+          })
+          if (!is.null(status)) {
+            break
+          }
+        }
+        if (is.null(status)) {
+          stop("Error when try to download protein complex data.")
+        }
         df <- read.table(unz(temp, "coreComplexes.txt"), header = TRUE, sep = "\t", stringsAsFactors = FALSE, fill = TRUE, quote = "")
         df <- df[which(df$Organism == common_name), ]
         s <- strsplit(df$subunits.Entrez.IDs., split = ";")
@@ -1017,7 +1060,22 @@ PrepareEnrichmentDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
         TERM2NAME <- complex[, c(3, 1)]
         colnames(TERM2GENE) <- c("Term", "entrez_id")
         colnames(TERM2NAME) <- c("Term", "Name")
-        download.file("https://mips.helmholtz-muenchen.de/corum/download.html", temp, method = ifelse(use_wget == 1, "wget", "auto"))
+        methods <- c("auto", "wget", "libcurl", "curl", "internal", "wininet")
+        for (method in methods) {
+          status <- tryCatch(expr = {
+            download.file("https://mips.helmholtz-muenchen.de/corum/download.html", destfile = temp, method = method, quiet = TRUE)
+          }, error = function(e) {
+            message("Get errors when connecting with CORUM...\nRetrying...")
+            Sys.sleep(1)
+            return(NULL)
+          })
+          if (!is.null(status)) {
+            break
+          }
+        }
+        if (is.null(status)) {
+          stop("Error when try to download protein complex data.")
+        }
         lines <- readLines(temp)
         lines <- lines[grep("current release", lines)]
         version <- gsub("(.*\"setLightFont\">)|(current release.*)", "", lines)
