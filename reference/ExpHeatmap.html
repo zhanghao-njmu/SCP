@@ -129,13 +129,13 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">pancreas_sub</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="RunDEtest.html">RunDEtest</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, group_by <span class="op">=</span> <span class="st">"CellType"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-21 09:14:48] Start DEtest</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-21 14:56:32] Start DEtest</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Threads used for DE test: 1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform FindAllMarkers(wilcox)...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |==============================================================================================================| 100%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-21 09:15:11] DEtest done</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 22.56 secs </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-21 14:56:51] DEtest done</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 19.17 secs </span>
 <span class="r-in"><span><span class="va">de_filter</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">pancreas_sub</span><span class="op">@</span><span class="va">tools</span><span class="op">$</span><span class="va">DEtest_CellType</span><span class="op">$</span><span class="va">AllMarkers_wilcox</span>, <span class="va">p_val_adj</span> <span class="op">&lt;</span> <span class="fl">0.05</span> <span class="op">&amp;</span> <span class="va">avg_log2FC</span> <span class="op">&gt;</span> <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">ht1</span> <span class="op">&lt;-</span> <span class="fu">ExpHeatmap</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  srt <span class="op">=</span> <span class="va">pancreas_sub</span>, features <span class="op">=</span> <span class="va">de_filter</span><span class="op">$</span><span class="va">gene</span>, cell_split_by <span class="op">=</span> <span class="st">"CellType"</span></span></span>
@@ -153,14 +153,14 @@
 <span class="r-in"><span>  srt <span class="op">=</span> <span class="va">pancreas_sub</span>, features <span class="op">=</span> <span class="va">de_filter</span><span class="op">$</span><span class="va">gene</span>, feature_split <span class="op">=</span> <span class="va">de_filter</span><span class="op">$</span><span class="va">group1</span>, cell_split_by <span class="op">=</span> <span class="st">"CellType"</span>,</span></span>
 <span class="r-in"><span>  species <span class="op">=</span> <span class="st">"Mus_musculus"</span>, anno_terms <span class="op">=</span> <span class="cn">TRUE</span>, anno_keys <span class="op">=</span> <span class="cn">TRUE</span>, anno_features <span class="op">=</span> <span class="cn">TRUE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-21 09:15:38] Start Enrichment</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-21 14:57:14] Start Enrichment</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Species: Mus_musculus</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Loaded cached db: GO_BP version:3.15.0 nterm:15985 created:2022-10-21 09:05:53</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Loaded cached db: GO_BP version:3.15.0 nterm:15985 created:2022-10-21 14:48:52</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Permform enrichment...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |==============================================================================================================| 100%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-21 09:16:52] Enrichment done</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 1.23 mins </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-21 14:58:20] Enrichment done</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 1.11 mins </span>
 <span class="r-in"><span><span class="va">ht3</span><span class="op">$</span><span class="va">plot</span></span></span>
 <span class="r-plt img"><img src="ExpHeatmap-3.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>

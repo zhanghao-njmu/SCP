@@ -97,7 +97,21 @@
 <span class="r-in"><span>  <span class="co"># Run shiny app</span></span></span>
 <span class="r-in"><span>  <span class="fu">shiny</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/shiny/man/runApp.html" class="external-link">runApp</a></span><span class="op">(</span><span class="va">app</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span>  <span class="co"># You can also deploy the app on the self-hosted shiny server(https://www.rstudio.com/products/shiny/shiny-server/) or on the website(https://www.shinyapps.io) for free.</span></span></span>
+<span class="r-in"><span>  <span class="co">########################################################################</span></span></span>
+<span class="r-in"><span>  <span class="co"># You can also deploy the app on the self-hosted shiny server(https://www.rstudio.com/products/shiny/shiny-server/)</span></span></span>
+<span class="r-in"><span>  <span class="co"># or deploy the app on the website(https://www.shinyapps.io) for free:</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co">## step1: set the repository URL for Bioconductor packages and update them to the latest version</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>repos <span class="op">=</span> <span class="fu">BiocManager</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/BiocManager/man/repositories.html" class="external-link">repositories</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu">BiocManager</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/BiocManager/man/install.html" class="external-link">install</a></span><span class="op">(</span>ask <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co">## step2: install "rsconnect" package and authorize your account</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"rsconnect"</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/rstudio/rsconnect" class="external-link">rsconnect</a></span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu">setAccountInfo</span><span class="op">(</span>name <span class="op">=</span> <span class="st">"&lt;NAME&gt;"</span>, token <span class="op">=</span> <span class="st">"&lt;TOKEN&gt;"</span>, secret <span class="op">=</span> <span class="st">"&lt;SECRET&gt;"</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co">## step3: deploy the app</span></span></span>
+<span class="r-in"><span>  <span class="fu">deployApp</span><span class="op">(</span><span class="st">"./SCExplorer"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span></span></span>
 </code></pre></div>
     </div>
