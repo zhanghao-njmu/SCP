@@ -25,9 +25,9 @@ PrepareSCExplorer(
 Prepare Seurat object data for the SCExplorer into hdf5 file
 }
 \examples{
-if (interactive()) {
-  data("pancreas_sub")
-  pancreas_sub <- Standard_SCP(pancreas_sub)
-  PrepareSCExplorer(pancreas_sub, base_dir = "./SCExplorer")
+\dontrun{
+data("pancreas_sub")
+pancreas_sub <- Standard_SCP(pancreas_sub)
+PrepareSCExplorer(pancreas_sub, base_dir = "./SCExplorer")
 }
 }

@@ -38,32 +38,35 @@ RunSCExplorer(
 RunSCExplorer
 }
 \examples{
+\dontrun{
+data("pancreas_sub")
+pancreas_sub <- Standard_SCP(pancreas_sub)
+PrepareSCExplorer(pancreas_sub, base_dir = "./SCExplorer")
+
+# Create the app.R script
+app <- RunSCExplorer(base_dir = "./SCExplorer", return_app = TRUE)
+list.files("./SCExplorer")
+
+# Run shiny app
 if (interactive()) {
-  data("pancreas_sub")
-  pancreas_sub <- Standard_SCP(pancreas_sub)
-  PrepareSCExplorer(pancreas_sub, base_dir = "./SCExplorer")
-
-  # Create the app.R script
-  app <- RunSCExplorer(base_dir = "./SCExplorer", return_app = TRUE)
-  list.files("./SCExplorer")
-
-  # Run shiny app
   shiny::runApp(app)
-
-  ########################################################################
-  # You can also deploy the app on the self-hosted shiny server(https://www.rstudio.com/products/shiny/shiny-server/)
-  # or deploy the app on the website(https://www.shinyapps.io) for free:
-
-  ## step1: set the repository URL for Bioconductor packages and update them to the latest version
-  options(repos = BiocManager::repositories())
-  BiocManager::install(ask = FALSE)
-
-  ## step2: install "rsconnect" package and authorize your account
-  install.packages("rsconnect")
-  library(rsconnect)
-  setAccountInfo(name = "<NAME>", token = "<TOKEN>", secret = "<SECRET>")
-
-  ## step3: deploy the app
-  deployApp("./SCExplorer")
 }
+
+####################################################################################################################
+# You can also deploy the app on the self-hosted shiny server(https://www.rstudio.com/products/shiny/shiny-server/)
+# or deploy the app on the website(https://www.shinyapps.io) for free:
+
+### step1: set the repository URL for Bioconductor packages and update them to the latest version
+# options(repos = BiocManager::repositories())
+# BiocManager::install(ask = FALSE)
+
+### step2: install "rsconnect" package and authorize your account
+# install.packages("rsconnect")
+# library(rsconnect)
+# setAccountInfo(name = "<NAME>", token = "<TOKEN>", secret = "<SECRET>")
+
+### step3: deploy the app
+# deployApp("./SCExplorer")
+}
+
 }
