@@ -533,6 +533,7 @@ RunKNNPredict <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
 RunScmap <- function(srt_query, srt_ref, ref_group = NULL, method = "scmapCluster",
                      n_features = 500, threshold = 0.5, k = 10,
                      query_assay = "RNA", ref_assay = "RNA", force = FALSE) {
+  check_R("scmap")
   if (!is.null(ref_group)) {
     if (length(ref_group) == ncol(srt_ref)) {
       srt_ref[["ref_group"]] <- ref_group
@@ -681,6 +682,7 @@ RunSingleR <- function(srt_query, srt_ref, query_group = NULL, ref_group = NULL,
                        quantile = 0.8, fine.tune = TRUE, tune.thresh = 0.05, prune = TRUE,
                        BPPARAM = BiocParallel::bpparam(),
                        query_assay = "RNA", ref_assay = "RNA", force = FALSE) {
+  check_R("SingleR")
   if (!is.null(ref_group)) {
     if (length(ref_group) == ncol(srt_ref)) {
       srt_ref[["ref_group"]] <- ref_group
