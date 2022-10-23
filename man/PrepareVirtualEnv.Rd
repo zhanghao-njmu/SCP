@@ -8,6 +8,7 @@ PrepareVirtualEnv(
   python = NULL,
   pipy_mirror = "https://pypi.org/simple/",
   remove_old = FALSE,
+  install_python = FALSE,
   install_version = "3.8.8"
 )
 }
@@ -16,7 +17,11 @@ PrepareVirtualEnv(
 
 \item{pipy_mirror}{pipy mirrors. Default is "https://pypi.org/simple/". Options can be "https://pypi.tuna.tsinghua.edu.cn/simple", "http://mirrors.aliyun.com/pypi/simple/", "https://pypi.mirrors.ustc.edu.cn/simple/", etc.}
 
-\item{remove_old}{Whether to remove the old SCP virtual environment.}
+\item{remove_old}{Whether to remove the old SCP virtual environment. Default is FALSE.}
+
+\item{install_python}{Whether to download and install a new python. Default is FALSE, which only installs automatically if no suitable version of python is found.}
+
+\item{install_version}{The version of python to install. Default is \code{3.8.8}}
 }
 \description{
 Prepare SCP python virtual environment
