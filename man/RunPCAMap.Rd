@@ -26,6 +26,9 @@ RunPCAMap(
 Single-cell reference mapping with PCA method
 }
 \examples{
+data("pancreas_sub")
+pancreas_sub <- Standard_SCP(pancreas_sub)
+
 data("panc8_sub")
 # Simply convert genes from human to mouse and preprocess the data
 genenames <- make.unique(stringr::str_to_title(rownames(panc8_sub)))
@@ -36,8 +39,6 @@ panc8_sub <- Integration_SCP(panc8_sub, batch = "tech", integration_method = "Se
 ClassDimPlot(panc8_sub, "celltype")
 
 # Projection
-data("pancreas_sub")
-pancreas_sub <- Standard_SCP(pancreas_sub)
 pancreas_sub <- RunPCAMap(srt_query = pancreas_sub, srt_ref = panc8_sub, ref_pca = "Seuratpca", ref_umap = "SeuratUMAP2D")
 ProjectionPlot(srt_query = pancreas_sub, srt_ref = panc8_sub, query_group = "SubCellType", ref_group = "celltype")
 

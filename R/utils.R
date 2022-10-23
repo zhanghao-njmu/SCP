@@ -2,9 +2,12 @@
 #'
 #' @param python Python path which is used to create the virtual environment.
 #' @param pipy_mirror pipy mirrors. Default is "https://pypi.org/simple/". Options can be "https://pypi.tuna.tsinghua.edu.cn/simple", "http://mirrors.aliyun.com/pypi/simple/", "https://pypi.mirrors.ustc.edu.cn/simple/", etc.
-#' @param remove_old Whether to remove the old SCP virtual environment.
+#' @param remove_old Whether to remove the old SCP virtual environment. Default is FALSE.
+#' @param install_python Whether to download and install a new python. Default is FALSE, which only installs automatically if no suitable version of python is found.
+#' @param install_version The version of python to install. Default is \code{3.8.8}
+#'
 #' @export
-PrepareVirtualEnv <- function(python = NULL, pipy_mirror = "https://pypi.org/simple/", remove_old = FALSE, install_version = "3.8.8") {
+PrepareVirtualEnv <- function(python = NULL, pipy_mirror = "https://pypi.org/simple/", remove_old = FALSE, install_python = FALSE, install_version = "3.8.8") {
   if (isTRUE(remove_old) || reticulate::virtualenv_exists("SCP")) {
     if (isTRUE(reticulate:::is_python_initialized())) {
       stop("Python is initialized in the current R session. You may run SCP::PrepareVirtualEnv() in a new R seesion to create SCP virtual environmenet. If you want to disable virtual environment initialization, you can set options(SCP_virtualenv_init = FALSE) before library(SCP).")
@@ -13,41 +16,44 @@ PrepareVirtualEnv <- function(python = NULL, pipy_mirror = "https://pypi.org/sim
   if (isTRUE(remove_old)) {
     unlink(reticulate:::virtualenv_path("SCP"), recursive = TRUE)
   }
-  if (!is.null(python) && file.exists(python)) {
-    pythons <- python
-  } else {
-    pythons <- unique(c(reticulate::virtualenv_python("SCP"), Sys.getenv("RETICULATE_PYTHON"), Sys.which("python3"), Sys.which("python")))
-  }
   python_path <- NULL
-  sys_bit <- ifelse(grepl("64", Sys.info()["machine"]), "64bit", "32bit")
-  for (py in pythons) {
-    if (py != "" && !file.exists(py)) {
-      # packageStartupMessage(py, " is not a Python executable file.")
-      next
-    }
-    # py <- file.path(normalizePath(dirname(py)), basename(py))
-    py_version <- tryCatch(suppressWarnings(reticulate:::python_version(py)),
-      error = identity
-    )
-    if (inherits(py_version, "error") || length(py_version) == 0) {
-      next
-    }
-    if (py_version < numeric_version("3.7.0") || py_version >= numeric_version("3.10.0")) {
-      next
-    }
-    py_bit <- tryCatch(suppressWarnings(system2(command = py, args = " -c \"import platform; print(platform.architecture()[0])\"", stdout = TRUE)),
-      error = identity
-    )
-    if (inherits(py_bit, "error") || length(py_bit) == 0) {
-      next
-    }
-    if (identical(py_bit, sys_bit)) {
-      python_path <- py
-      # packageStartupMessage("python path: ", python_path)
-      break
+  if (!isTRUE(install_python)) {
+    if (!is.null(python) && file.exists(python)) {
+      pythons <- python
     } else {
-      # packageStartupMessage("System architecture is ", sys_bit, " but ", py, " is ", py_bit)
-      next
+      pythons <- unique(c(reticulate::virtualenv_python("SCP"), Sys.getenv("RETICULATE_PYTHON"), Sys.which("python3"), Sys.which("python")))
+    }
+
+    sys_bit <- ifelse(grepl("64", Sys.info()["machine"]), "64bit", "32bit")
+    for (py in pythons) {
+      if (py != "" && !file.exists(py)) {
+        # packageStartupMessage(py, " is not a Python executable file.")
+        next
+      }
+      # py <- file.path(normalizePath(dirname(py)), basename(py))
+      py_version <- tryCatch(suppressWarnings(reticulate:::python_version(py)),
+        error = identity
+      )
+      if (inherits(py_version, "error") || length(py_version) == 0) {
+        next
+      }
+      if (py_version < numeric_version("3.7.0") || py_version >= numeric_version("3.10.0")) {
+        next
+      }
+      py_bit <- tryCatch(suppressWarnings(system2(command = py, args = " -c \"import platform; print(platform.architecture()[0])\"", stdout = TRUE)),
+        error = identity
+      )
+      if (inherits(py_bit, "error") || length(py_bit) == 0) {
+        next
+      }
+      if (identical(py_bit, sys_bit)) {
+        python_path <- py
+        # packageStartupMessage("python path: ", python_path)
+        break
+      } else {
+        # packageStartupMessage("System architecture is ", sys_bit, " but ", py, " is ", py_bit)
+        next
+      }
     }
   }
 
@@ -109,7 +115,7 @@ PrepareVirtualEnv <- function(python = NULL, pipy_mirror = "https://pypi.org/sim
       check_Python(
         pkgs = c(
           "numpy==1.21.6", "numba==0.55.2", "python-igraph==0.10.2",
-          "pandas", "matplotlib", "versioned-hdf5", "scanpy", "scvelo", "palantir"
+          "pandas", "matplotlib", "versioned-hdf5", "leidenalg", "scanpy", "scvelo", "palantir"
         ),
         envname = "SCP",
         pipy_mirror = pipy_mirror

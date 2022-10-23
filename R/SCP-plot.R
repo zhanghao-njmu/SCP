@@ -1583,7 +1583,8 @@ ClassDimPlot <- function(srt, group.by = "orig.ident", reduction = NULL, dims = 
 #' ExpDimPlot(pancreas_sub, features = "G2M_score", reduction = "UMAP", hex = TRUE)
 #'
 #' pancreas_sub <- RunSlingshot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP")
-#' ExpDimPlot(pancreas_sub, features = "G2M_score", reduction = "UMAP", lineages = paste0("Lineage", 1:3))
+#' ExpDimPlot(pancreas_sub, features = "Lineage3", reduction = "UMAP", lineages = "Lineage3")
+#' ExpDimPlot(pancreas_sub, features = "Lineage3", reduction = "UMAP", lineages = "Lineage3", lineages_span = 0.1)
 #'
 #' ExpDimPlot(pancreas_sub,
 #'   features = c("Ghrl", "Ins1", "Gcg", "Ins2"), pt.size = 1,
@@ -4947,8 +4948,8 @@ ClassStatPlot <- function(srt, stat.by = "orig.ident", group.by = NULL, split.by
     stop("'stat.by' must be provided.")
   }
   if (is.null(group.by)) {
-    group.by <- "group"
-    srt[["group"]] <- factor(paste0(stat.by, collapse = ","))
+    group.by <- "ClassStat_group"
+    srt[["ClassStat_group"]] <- factor(paste0(stat.by, collapse = ","))
   }
   if (is.null(split.by)) {
     split.by <- "All_cells"
@@ -5019,7 +5020,7 @@ ClassStatPlot <- function(srt, stat.by = "orig.ident", group.by = NULL, split.by
     }
   }
 
-  if (group.by != "group" && plot_type %in% c("sankey", "chord", "venn", "upset")) {
+  if (any(group.by != "ClassStat_group") && plot_type %in% c("sankey", "chord", "venn", "upset")) {
     warning("group.by is not used when plot sankey, chord, venn or upset")
   }
 
