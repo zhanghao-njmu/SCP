@@ -1019,7 +1019,7 @@ ClassDimPlot <- function(srt, group.by = "orig.ident", reduction = NULL, dims = 
                          stat.by = NULL, stat_type = "percent", stat_plot_type = "pie", stat_plot_size = 0.1,
                          stat_plot_palette = "Set1", stat_palcolor = NULL, stat_plot_alpha = 1, stat_plot_label = FALSE, stat_plot_label_size = 3,
                          graph = NULL, edge_size = c(0.05, 0.5), edge_alpha = 0.1, edge_color = "grey40",
-                         paga = NULL, paga_node_palette = "Paired", paga_node_size = 4,
+                         paga = NULL, paga_type = "connectivities", paga_node_palette = "Paired", paga_node_size = 4,
                          paga_edge_threshold = 0.01, paga_edge_size = c(0.2, 1), paga_edge_color = "grey40", paga_edge_alpha = 0.5,
                          paga_transition_threshold = 0.01, paga_transition_size = c(0.2, 1), paga_transition_color = "black", paga_transition_alpha = 1, paga_show_transition = FALSE,
                          velocity = NULL, velocity_plot_type = "raw", velocity_n_neighbors = ceiling(ncol(srt) / 50),
@@ -1134,7 +1134,7 @@ ClassDimPlot <- function(srt, group.by = "orig.ident", reduction = NULL, dims = 
       stop("paga can only plot on the non-split data")
     }
     paga_layers <- PAGAPlot(srt,
-      paga = paga, reduction = reduction, dims = dims,
+      paga = paga, type = paga_type, reduction = reduction, dims = dims,
       node_palette = paga_node_palette, node_size = paga_node_size,
       edge_threshold = paga_edge_threshold, edge_size = paga_edge_size, edge_color = paga_edge_color, edge_alpha = paga_edge_alpha,
       transition_threshold = paga_transition_threshold, transition_size = paga_transition_size, transition_color = paga_transition_color, transition_alpha = paga_transition_alpha, show_transition = paga_show_transition,
