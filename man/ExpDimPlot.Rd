@@ -145,7 +145,8 @@ ExpDimPlot(pancreas_sub, features = "G2M_score", reduction = "UMAP")
 ExpDimPlot(pancreas_sub, features = "G2M_score", reduction = "UMAP", hex = TRUE)
 
 pancreas_sub <- RunSlingshot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP")
-ExpDimPlot(pancreas_sub, features = "G2M_score", reduction = "UMAP", lineages = paste0("Lineage", 1:3))
+ExpDimPlot(pancreas_sub, features = "Lineage3", reduction = "UMAP", lineages = "Lineage3")
+ExpDimPlot(pancreas_sub, features = "Lineage3", reduction = "UMAP", lineages = "Lineage3", lineages_span = 0.1)
 
 ExpDimPlot(pancreas_sub,
   features = c("Ghrl", "Ins1", "Gcg", "Ins2"), pt.size = 1,

@@ -24,7 +24,7 @@ knitr::opts_chunk$set(
 
 <!-- badges: start -->
 
-[![version](https://img.shields.io/github/r-package/v/zhanghao-njmu/SCP)](https://github.com/zhanghao-njmu/SCP) [![R-CMD-check](https://github.com/zhanghao-njmu/SCP/workflows/R-CMD-check/badge.svg)](https://github.com/zhanghao-njmu/SCP/actions) [![codecov](https://codecov.io/gh/zhanghao-njmu/SCP/branch/main/graph/badge.svg)](https://codecov.io/gh/zhanghao-njmu/SCP?branch=main) [![codesize](https://img.shields.io/github/languages/code-size/zhanghao-njmu/SCP.svg)](https://github.com/zhanghao-njmu/SCP)
+[![version](https://img.shields.io/github/r-package/v/zhanghao-njmu/SCP)](https://github.com/zhanghao-njmu/SCP) [![R-CMD-check](https://github.com/zhanghao-njmu/SCP/workflows/R-CMD-check/badge.svg)](https://github.com/zhanghao-njmu/SCP/actions) [![codesize](https://img.shields.io/github/languages/code-size/zhanghao-njmu/SCP.svg)](https://github.com/zhanghao-njmu/SCP)
 
 <!-- badges: end -->
 
@@ -93,8 +93,17 @@ ClassDimPlot(
   srt = pancreas_sub, group.by = c("CellType", "SubCellType"),
   reduction = "UMAP", theme_use = "theme_blank"
 )
+ClassDimPlot(
+  srt = pancreas_sub, group.by = "SubCellType", stat.by = "Phase",
+  reduction = "UMAP", theme_use = "theme_blank"
+)
 ExpDimPlot(
   srt = pancreas_sub, features = c("Sox9", "Neurog3", "Fev", "Rbp4"),
+  reduction = "UMAP", theme_use = "theme_blank"
+)
+ExpDimPlot(
+  srt = pancreas_sub, features = c("Ins1", "Gcg", "Sst", "Ghrl"),
+  compare_features = TRUE, label = TRUE, label_insitu = TRUE,
   reduction = "UMAP", theme_use = "theme_blank"
 )
 ExpDotPlot(
@@ -266,14 +275,18 @@ GSEAPlot(srt = pancreas_sub, group_by = "CellType", group_use = "Endocrine")
 GSEAPlot(srt = pancreas_sub, group_by = "CellType", group_use = "Endocrine", geneSetID = "GO:0007186")
 ```
 
-### Dynamic features analysis
+### Trajectory inference
 
-```{r RunDynamicFeatures}
-pancreas_sub <- RunSlingshot(srt = pancreas_sub, group.by = "SubCellType", reduction = "UMAP", show_plot = TRUE)
-pancreas_sub <- RunDynamicFeatures(srt = pancreas_sub, lineages = c("Lineage1", "Lineage2"), n_candidates = 200)
+```{r RunSlingshot}
+pancreas_sub <- RunSlingshot(srt = pancreas_sub, group.by = "SubCellType", reduction = "UMAP")
+ExpDimPlot(pancreas_sub, features = paste0("Lineage", 1:3), reduction = "UMAP", theme_use = "theme_blank")
+ClassDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", lineages = paste0("Lineage", 1:3), lineages_span = 0.1)
 ```
 
+### Dynamic features
+
 ```{r DynamicHeatmap, fig.height=6, fig.width=17}
+pancreas_sub <- RunDynamicFeatures(srt = pancreas_sub, lineages = c("Lineage1", "Lineage2"), n_candidates = 200)
 ht <- DynamicHeatmap(
   srt = pancreas_sub, lineages = c("Lineage1", "Lineage2"), cell_annotation = "SubCellType",
   n_split = 5, reverse_ht = "Lineage1",

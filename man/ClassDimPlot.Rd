@@ -64,6 +64,7 @@ ClassDimPlot(
   edge_alpha = 0.1,
   edge_color = "grey40",
   paga = NULL,
+  paga_type = "connectivities",
   paga_node_palette = "Paired",
   paga_node_size = 4,
   paga_edge_threshold = 0.01,

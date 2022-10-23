@@ -3289,28 +3289,20 @@ Standard_SCP <- function(srt, prefix = "Standard",
 #'
 #' @examples
 #' data("panc8_sub")
-#' plist1 <- list()
-#' methods <- c("Uncorrected", "Seurat", "scVI", "MNN", "fastMNN", "Harmony", "Scanorama", "BBKNN", "CSS", "LIGER", "Conos")
-#' for (method in methods) {
+#' for (method in c("Uncorrected", "Seurat", "scVI", "MNN", "fastMNN", "Harmony", "Scanorama", "BBKNN", "CSS", "LIGER", "Conos")) {
 #'   panc8_sub <- Integration_SCP(panc8_sub,
 #'     batch = "tech", integration_method = method,
 #'     nonliner_reduction = "umap"
 #'   )
-#'   plist1[[method]] <- ClassDimPlot(panc8_sub, group.by = c("tech", "celltype"), theme_use = "theme_blank")
-#' }
-#' for (method in methods) {
-#'   print(plist1[[method]])
+#'   print(ClassDimPlot(panc8_sub, group.by = c("tech", "celltype"), reduction = paste0(method, "UMAP2D"), theme_use = "theme_blank"))
 #' }
 #'
-#' plist2 <- list()
-#' reductions <- c("umap", "tsne", "dm", "phate", "pacmap", "trimap", "largevis")
 #' panc8_sub <- Integration_SCP(panc8_sub,
 #'   batch = "tech", integration_method = "Seurat",
-#'   nonliner_reduction = reductions
+#'   nonliner_reduction = c("umap", "tsne", "dm", "phate", "pacmap", "trimap", "largevis")
 #' )
-#' for (reduc in reductions) {
-#'   plist2[[reduc]] <- ClassDimPlot(panc8_sub, group.by = c("tech", "celltype"), reduction = paste0("Seurat", reduc, "2D"), theme_use = "theme_blank")
-#'   print(plist2[[reduc]])
+#' for (reduc in c("umap", "tsne", "dm", "phate", "pacmap", "trimap", "largevis")) {
+#'   print(ClassDimPlot(panc8_sub, group.by = c("tech", "celltype"), reduction = paste0("Seurat", reduc, "2D"), theme_use = "theme_blank"))
 #' }
 #'
 #' @export

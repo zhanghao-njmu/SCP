@@ -25,6 +25,9 @@ RunCSSMap(
 Single-cell reference mapping with CSS method
 }
 \examples{
+data("pancreas_sub")
+pancreas_sub <- Standard_SCP(pancreas_sub)
+
 data("panc8_sub")
 # Simply convert genes from human to mouse and preprocess the data
 genenames <- make.unique(stringr::str_to_title(rownames(panc8_sub)))
@@ -35,8 +38,6 @@ panc8_sub <- Integration_SCP(panc8_sub, batch = "tech", integration_method = "CS
 ClassDimPlot(panc8_sub, "celltype")
 
 # Projection
-data("pancreas_sub")
-pancreas_sub <- Standard_SCP(pancreas_sub)
 pancreas_sub <- RunCSSMap(srt_query = pancreas_sub, srt_ref = panc8_sub, ref_css = "CSS", ref_umap = "CSSUMAP2D")
 ProjectionPlot(srt_query = pancreas_sub, srt_ref = panc8_sub, query_group = "SubCellType", ref_group = "celltype")
 

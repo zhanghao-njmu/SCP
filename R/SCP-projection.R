@@ -21,6 +21,9 @@ NULL
 #' @param vote_fun
 #'
 #' @examples
+#' data("pancreas_sub")
+#' pancreas_sub <- Standard_SCP(pancreas_sub)
+#'
 #' data("panc8_sub")
 #' # Simply convert genes from human to mouse and preprocess the data
 #' genenames <- make.unique(stringr::str_to_title(rownames(panc8_sub)))
@@ -31,9 +34,6 @@ NULL
 #' ClassDimPlot(panc8_sub, "celltype")
 #'
 #' # Projection
-#' data("pancreas_sub")
-#' pancreas_sub <- Standard_SCP(pancreas_sub)
-#' head(intersect(rownames(panc8_sub), rownames(pancreas_sub)))
 #' pancreas_sub <- RunKNNMap(srt_query = pancreas_sub, srt_ref = panc8_sub, ref_umap = "SeuratUMAP2D")
 #' ProjectionPlot(srt_query = pancreas_sub, srt_ref = panc8_sub, query_group = "SubCellType", ref_group = "celltype")
 #'
@@ -283,6 +283,9 @@ RunKNNMap <- function(srt_query, srt_ref, ref_umap = NULL, force = FALSE,
 #' @param vote_fun
 #'
 #' @examples
+#' data("pancreas_sub")
+#' pancreas_sub <- Standard_SCP(pancreas_sub)
+#'
 #' data("panc8_sub")
 #' # Simply convert genes from human to mouse and preprocess the data
 #' genenames <- make.unique(stringr::str_to_title(rownames(panc8_sub)))
@@ -293,8 +296,6 @@ RunKNNMap <- function(srt_query, srt_ref, ref_umap = NULL, force = FALSE,
 #' ClassDimPlot(panc8_sub, "celltype")
 #'
 #' # Projection
-#' data("pancreas_sub")
-#' pancreas_sub <- Standard_SCP(pancreas_sub)
 #' pancreas_sub <- RunPCAMap(srt_query = pancreas_sub, srt_ref = panc8_sub, ref_pca = "Seuratpca", ref_umap = "SeuratUMAP2D")
 #' ProjectionPlot(srt_query = pancreas_sub, srt_ref = panc8_sub, query_group = "SubCellType", ref_group = "celltype")
 #'
@@ -404,6 +405,9 @@ RunPCAMap <- function(srt_query, srt_ref, ref_pca = NULL, ref_dims = 1:30, ref_u
 #' @param vote_fun
 #'
 #' @examples
+#' data("pancreas_sub")
+#' pancreas_sub <- Standard_SCP(pancreas_sub)
+#'
 #' data("panc8_sub")
 #' # Simply convert genes from human to mouse and preprocess the data
 #' genenames <- make.unique(stringr::str_to_title(rownames(panc8_sub)))
@@ -414,8 +418,6 @@ RunPCAMap <- function(srt_query, srt_ref, ref_pca = NULL, ref_dims = 1:30, ref_u
 #' ClassDimPlot(panc8_sub, "celltype")
 #'
 #' # Projection
-#' data("pancreas_sub")
-#' pancreas_sub <- Standard_SCP(pancreas_sub)
 #' pancreas_sub <- RunSeuratMap(srt_query = pancreas_sub, srt_ref = panc8_sub, ref_pca = "Seuratpca", ref_umap = "SeuratUMAP2D", k.weight = 80)
 #' ProjectionPlot(srt_query = pancreas_sub, srt_ref = panc8_sub, query_group = "SubCellType", ref_group = "celltype")
 #'
@@ -513,6 +515,9 @@ RunSeuratMap <- function(srt_query, srt_ref,
 #' @param vote_fun
 #'
 #' @examples
+#' data("pancreas_sub")
+#' pancreas_sub <- Standard_SCP(pancreas_sub)
+#'
 #' data("panc8_sub")
 #' # Simply convert genes from human to mouse and preprocess the data
 #' genenames <- make.unique(stringr::str_to_title(rownames(panc8_sub)))
@@ -523,8 +528,6 @@ RunSeuratMap <- function(srt_query, srt_ref,
 #' ClassDimPlot(panc8_sub, "celltype")
 #'
 #' # Projection
-#' data("pancreas_sub")
-#' pancreas_sub <- Standard_SCP(pancreas_sub)
 #' pancreas_sub <- RunCSSMap(srt_query = pancreas_sub, srt_ref = panc8_sub, ref_css = "CSS", ref_umap = "CSSUMAP2D")
 #' ProjectionPlot(srt_query = pancreas_sub, srt_ref = panc8_sub, query_group = "SubCellType", ref_group = "celltype")
 #'
@@ -620,6 +623,9 @@ RunCSSMap <- function(srt_query, srt_ref, ref_css = NULL, ref_umap = NULL, force
 #' @param vote_fun
 #'
 #' @examples
+#' data("pancreas_sub")
+#' pancreas_sub <- Standard_SCP(pancreas_sub)
+#'
 #' data("panc8_sub")
 #' # Simply convert genes from human to mouse and preprocess the data
 #' genenames <- make.unique(stringr::str_to_title(rownames(panc8_sub)))
@@ -630,8 +636,6 @@ RunCSSMap <- function(srt_query, srt_ref, ref_css = NULL, ref_umap = NULL, force
 #' ClassDimPlot(panc8_sub, "celltype")
 #'
 #' # Projection
-#' data("pancreas_sub")
-#' pancreas_sub <- Standard_SCP(pancreas_sub)
 #' pancreas_sub <- RunSymphonyMap(srt_query = pancreas_sub, srt_ref = panc8_sub, ref_pca = "Harmonypca", ref_harmony = "Harmony", ref_umap = "HarmonyUMAP2D")
 #' ProjectionPlot(srt_query = pancreas_sub, srt_ref = panc8_sub, query_group = "SubCellType", ref_group = "celltype")
 #'
