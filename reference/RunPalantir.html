@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">SCP</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0.9000</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -162,7 +162,8 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"pancreas_sub"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu">RunPalantir</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  srt <span class="op">=</span> <span class="va">pancreas_sub</span>, group_by <span class="op">=</span> <span class="st">"SubCellType"</span>, liner_reduction <span class="op">=</span> <span class="st">"PCA"</span>, nonliner_reduction <span class="op">=</span> <span class="st">"UMAP"</span>,</span></span>
-<span class="r-in"><span>  early_group <span class="op">=</span> <span class="st">"Ductal"</span>, terminal_groups <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Alpha"</span>, <span class="st">"Beta"</span>, <span class="st">"Delta"</span>, <span class="st">"Epsilon"</span><span class="op">)</span>, return_seurat <span class="op">=</span> <span class="cn">TRUE</span></span></span>
+<span class="r-in"><span>  early_group <span class="op">=</span> <span class="st">"Ductal"</span>, use_early_cell_as_start <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
+<span class="r-in"><span>  terminal_groups <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Alpha"</span>, <span class="st">"Beta"</span>, <span class="st">"Delta"</span>, <span class="st">"Epsilon"</span><span class="op">)</span>, return_seurat <span class="op">=</span> <span class="cn">TRUE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> 'misc' slot in the srt object is not converted.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> 'tools' slot in the srt object is not converted.</span>
@@ -180,21 +181,21 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span> CAGCCGAAGCGATATA             1587               1063        Ductal        Ductal   G2M            0.3363345</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> AGTGTCATCGCCGTGA             1199                803 Pre-endocrine Pre-endocrine    G1            0.3362934</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> GATGAAAAGTTGTAGA             2166               1379   Ngn3 low EP   Ngn3 low EP   G2M            0.3363345</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> CACAGTACATCCGTGG             1339                859     Endocrine          Beta    G1            0.2798336</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> CACAGTACATCCGTGG             1339                859     Endocrine          Beta    G1            0.2798339</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> CGGAGCTCATTGGGCC              976                745        Ductal        Ductal   G2M            0.3363345</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> AGAGCTTGTGTGACCC              822                591        Ductal        Ductal    G1            0.3363345</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                  Epsilon_diff_potential Alpha_diff_potential Beta_diff_potential palantir_pseudotime</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> CAGCCGAAGCGATATA             0.09180835           0.10830487           0.4635523           0.1734301</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> AGTGTCATCGCCGTGA             0.08943488           0.10713286           0.4671389           0.4598954</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GATGAAAAGTTGTAGA             0.09180835           0.10830487           0.4635523           0.2071628</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> CACAGTACATCCGTGG             0.02801618           0.06885148           0.6232987           0.6654950</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> CGGAGCTCATTGGGCC             0.09180835           0.10830487           0.4635523           0.0270253</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> AGAGCTTGTGTGACCC             0.09180835           0.10830487           0.4635523           0.1452424</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> CAGCCGAAGCGATATA             0.09180837           0.10830487           0.4635523          0.25910808</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> AGTGTCATCGCCGTGA             0.08943487           0.10713285           0.4671389          0.49968980</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GATGAAAAGTTGTAGA             0.09180837           0.10830487           0.4635523          0.29036675</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> CACAGTACATCCGTGG             0.02801623           0.06885154           0.6232984          0.69014100</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> CGGAGCTCATTGGGCC             0.09180837           0.10830487           0.4635523          0.11107706</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> AGAGCTTGTGTGACCC             0.09180837           0.10830487           0.4635523          0.03843483</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                  palantir_diff_potential</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> CAGCCGAAGCGATATA               1.1828661</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> AGTGTCATCGCCGTGA               1.1772545</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> GATGAAAAGTTGTAGA               1.1828661</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> CACAGTACATCCGTGG               0.9354267</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> CACAGTACATCCGTGG               0.9354271</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> CGGAGCTCATTGGGCC               1.1828661</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> AGAGCTTGTGTGACCC               1.1828661</span>
 <span class="r-in"><span><span class="fu"><a href="ExpDimPlot.html">ExpDimPlot</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"palantir_pseudotime"</span>, <span class="st">"palantir_diff_potential"</span><span class="op">)</span><span class="op">)</span></span></span>
