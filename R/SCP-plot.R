@@ -946,6 +946,9 @@ DefaultReduction <- function(srt, pattern = NULL, min_dim = 2, max_distance = 0.
 #' @param align
 #' @param axis
 #' @param force
+#' @param stat_plot_position
+#' @param stat_palcolor
+#' @param paga_type
 #'
 #' @return A single ggplot object if combine = TRUE; otherwise, a list of ggplot objects
 #'
@@ -956,22 +959,32 @@ DefaultReduction <- function(srt, pattern = NULL, min_dim = 2, max_distance = 0.
 #'   cells.highlight = colnames(pancreas_sub)[pancreas_sub$SubCellType == "Delta"]
 #' )
 #'
+#' # Add statistical chart
 #' ClassDimPlot(pancreas_sub, group.by = "CellType", reduction = "UMAP", stat.by = "Phase")
-#' ClassDimPlot(pancreas_sub, group.by = "CellType", reduction = "UMAP", stat.by = "Phase", stat_plot_type = "bar", stat_plot_label = TRUE, stat_plot_size = 0.15)
+#' ClassDimPlot(pancreas_sub, group.by = "CellType", reduction = "UMAP", stat.by = "Phase", stat_plot_type = "ring", stat_plot_label = TRUE, stat_plot_size = 0.15)
+#' ClassDimPlot(pancreas_sub, group.by = "CellType", reduction = "UMAP", stat.by = "Phase", stat_type = "count", stat_plot_type = "bar", stat_plot_position = "dodge")
 #'
+#' # Chane the plot type from point to the hexagonal bin
 #' ClassDimPlot(pancreas_sub, group.by = "CellType", reduction = "UMAP", hex = TRUE)
+#' ClassDimPlot(pancreas_sub, group.by = "CellType", reduction = "UMAP", hex = TRUE, hex.bins = 20)
+#' ClassDimPlot(pancreas_sub, group.by = "CellType", reduction = "UMAP", hex = TRUE, hex.count = FALSE)
 #'
+#' # Show cell-cell graph on the plot
 #' pancreas_sub <- Standard_SCP(pancreas_sub)
 #' ClassDimPlot(pancreas_sub, group.by = "CellType", reduction = "UMAP", graph = "Standardpca_SNN")
+#' ClassDimPlot(pancreas_sub, group.by = "CellType", reduction = "UMAP", graph = "Standardpca_SNN", edge_color = "grey80")
 #'
+#' # Show the lineage on the plot based on the pseudotime
 #' pancreas_sub <- RunSlingshot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", show_plot = FALSE)
 #' ExpDimPlot(pancreas_sub, features = paste0("Lineage", 1:3), reduction = "UMAP")
 #' ClassDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", lineages = paste0("Lineage", 1:3))
 #' ClassDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", lineages = paste0("Lineage", 1:3), lineages_whiskers = TRUE)
 #' ClassDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", lineages = paste0("Lineage", 1:3), lineages_span = 0.1)
 #'
+#' # Show PAGA result on the plot
 #' pancreas_sub <- RunPAGA(srt = pancreas_sub, group_by = "SubCellType", liner_reduction = "PCA", nonliner_reduction = "UMAP", return_seurat = TRUE)
 #' ClassDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", paga = pancreas_sub@misc$paga)
+#' ClassDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", paga = pancreas_sub@misc$paga, paga_type = "connectivities_tree")
 #' ClassDimPlot(pancreas_sub,
 #'   group.by = "SubCellType", reduction = "UMAP", pt.size = 5, pt.alpha = 0.2,
 #'   label = TRUE, label_repel = TRUE, label_insitu = TRUE, label_segment_color = "transparent",
@@ -979,6 +992,7 @@ DefaultReduction <- function(srt, pattern = NULL, min_dim = 2, max_distance = 0.
 #'   show_stat = FALSE, legend.position = "none", theme_use = "theme_blank"
 #' )
 #'
+#' # Show RNA velocity result on the plot
 #' pancreas_sub <- RunSCVELO(srt = pancreas_sub, group_by = "SubCellType", liner_reduction = "PCA", nonliner_reduction = "UMAP", mode = "stochastic", return_seurat = TRUE)
 #' ClassDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", paga = pancreas_sub@misc$paga, paga_show_transition = TRUE)
 #' ClassDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", pt.size = NA, velocity = "stochastic")
@@ -1016,7 +1030,7 @@ ClassDimPlot <- function(srt, group.by = "orig.ident", reduction = NULL, dims = 
                          lineages_palette = "Dark2", lineages_palcolor = NULL, lineages_arrow = arrow(length = unit(0.1, "inches")),
                          lineages_line_size = 1, lineages_line_bg = "white", lineages_line_bg_r = 0.5,
                          lineages_whiskers = FALSE, lineages_whiskers_size = 0.5, lineages_whiskers_alpha = 0.5,
-                         stat.by = NULL, stat_type = "percent", stat_plot_type = "pie", stat_plot_size = 0.1,
+                         stat.by = NULL, stat_type = "percent", stat_plot_type = "pie", stat_plot_position = c("stack", "dodge"), stat_plot_size = 0.1,
                          stat_plot_palette = "Set1", stat_palcolor = NULL, stat_plot_alpha = 1, stat_plot_label = FALSE, stat_plot_label_size = 3,
                          graph = NULL, edge_size = c(0.05, 0.5), edge_alpha = 0.1, edge_color = "grey40",
                          paga = NULL, paga_type = "connectivities", paga_node_palette = "Paired", paga_node_size = 4,
@@ -1070,7 +1084,7 @@ ClassDimPlot <- function(srt, group.by = "orig.ident", reduction = NULL, dims = 
   if (!reduction %in% Reductions(srt)) {
     stop(paste0(reduction, " is not in the srt reduction names."))
   }
-  if (!is.null(cells.highlight)) {
+  if (!is.null(cells.highlight) && !isTRUE(cells.highlight)) {
     if (!any(cells.highlight %in% colnames(srt))) {
       stop("No cells in 'cells.highlight' found in srt.")
     }
@@ -1108,7 +1122,7 @@ ClassDimPlot <- function(srt, group.by = "orig.ident", reduction = NULL, dims = 
   if (!is.null(stat.by)) {
     subplots <- ClassStatPlot(srt,
       stat.by = stat.by, group.by = group.by, split.by = split.by,
-      stat_type = stat_type, plot_type = stat_plot_type,
+      stat_type = stat_type, plot_type = stat_plot_type, position = stat_plot_position,
       palette = stat_plot_palette, palcolor = stat_palcolor, alpha = stat_plot_alpha,
       label = stat_plot_label, label.size = stat_plot_label_size,
       legend.position = "bottom", legend.direction = legend.direction,
@@ -1173,6 +1187,10 @@ ClassDimPlot <- function(srt, group.by = "orig.ident", reduction = NULL, dims = 
       legend_list <- list()
       labels_tb <- table(dat[[g]])
       labels_tb <- labels_tb[labels_tb != 0]
+      cells.highlight_use <- cells.highlight
+      if (isTRUE(cells.highlight_use)) {
+        cells.highlight_use <- rownames(dat)[!is.na(dat[[g]])]
+      }
       if (isTRUE(label_insitu)) {
         if (isTRUE(show_stat)) {
           label_use <- paste0(names(labels_tb), "(", labels_tb, ")")
@@ -1286,9 +1304,9 @@ ClassDimPlot <- function(srt, group.by = "orig.ident", reduction = NULL, dims = 
           size = pt.size, alpha = pt.alpha
         ))
       }
-      if (!is.null(cells.highlight) && !isTRUE(hex)) {
-        p$data[, "cells.highlight"] <- rownames(p$data) %in% cells.highlight
-        cell_df <- subset(p$data, cells.highlight == TRUE)
+      if (!is.null(cells.highlight_use) && !isTRUE(hex)) {
+        p$data[, "cells.highlight_use"] <- rownames(p$data) %in% cells.highlight_use
+        cell_df <- subset(p$data, cells.highlight_use == TRUE)
         if (nrow(cell_df) > 0) {
           if (isTRUE(raster)) {
             p <- p + scattermore::geom_scattermore(
@@ -1698,7 +1716,7 @@ ExpDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), split.by
   if (!reduction %in% Reductions(srt)) {
     stop(paste0(reduction, " is not in the srt reduction names."))
   }
-  if (!is.null(cells.highlight)) {
+  if (!is.null(cells.highlight) && !isTRUE(cells.highlight)) {
     if (!any(cells.highlight %in% colnames(srt))) {
       stop("No cells in 'cells.highlight' found in srt.")
     }
@@ -1849,6 +1867,10 @@ ExpDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), split.by
       dat[rowSums(is.na(dat[, names(colors)])) == length(colors), "color_value"] <- NA
       dat <- dat[order(dat[, "color_value"], decreasing = TRUE, na.last = FALSE), ]
       dat[rowSums(is.na(dat[, names(colors)])) == length(colors), "color_blend"] <- bg_color
+      cells.highlight_use <- cells.highlight
+      if (isTRUE(cells.highlight_use)) {
+        cells.highlight_use <- rownames(dat)[dat[["color_blend"]] != bg_color]
+      }
       if (!is.null(graph)) {
         net_mat <- as.matrix(x = srt[[graph]])[rownames(dat), rownames(dat)]
         net_mat[net_mat == 0] <- NA
@@ -1919,9 +1941,9 @@ ExpDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), split.by
           new_scale_color()
       }
 
-      if (!is.null(cells.highlight)) {
-        p$data[, "cells.highlight"] <- rownames(p$data) %in% cells.highlight
-        cell_df <- subset(p$data, cells.highlight == TRUE)
+      if (!is.null(cells.highlight_use)) {
+        p$data[, "cells.highlight_use"] <- rownames(p$data) %in% cells.highlight_use
+        cell_df <- subset(p$data, cells.highlight_use == TRUE)
         if (nrow(cell_df) > 0) {
           if (isTRUE(raster)) {
             p <- p + scattermore::geom_scattermore(
@@ -2091,6 +2113,10 @@ ExpDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), split.by
         dat <- dat[cells_keep, ]
         dat <- dat[order(dat[, "value"], decreasing = FALSE, na.last = FALSE), ]
         colors <- palette_scp(dat[, f], type = "continuous", palette = palette, palcolor = palcolor)
+        cells.highlight_use <- cells.highlight
+        if (isTRUE(cells.highlight_use)) {
+          cells.highlight_use <- rownames(dat)[!is.na(dat[[f]])]
+        }
         legend_list <- list()
         if (isTRUE(show_stat)) {
           subtitle_use <- subtitle %||% paste0(s, " nPos:", sum(dat[["value"]] > 0, na.rm = TRUE), ", ", round(sum(dat[["value"]] > 0, na.rm = TRUE) / nrow(dat) * 100, 2), "%")
@@ -2202,9 +2228,9 @@ ExpDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), split.by
             size = pt.size, alpha = pt.alpha
           ))
         }
-        if (!is.null(cells.highlight) && !isTRUE(hex)) {
-          p$data[, "cells.highlight"] <- rownames(p$data) %in% cells.highlight
-          cell_df <- subset(p$data, cells.highlight == TRUE)
+        if (!is.null(cells.highlight_use) && !isTRUE(hex)) {
+          p$data[, "cells.highlight_use"] <- rownames(p$data) %in% cells.highlight_use
+          cell_df <- subset(p$data, cells.highlight_use == TRUE)
           if (nrow(cell_df) > 0) {
             if (isTRUE(raster)) {
               p <- p + scattermore::geom_scattermore(
@@ -2391,7 +2417,7 @@ ClassDimPlot3D <- function(srt, group.by = "orig.ident", reduction = NULL, dims 
   if (ncol(Embeddings(srt, reduction = reduction)) < 3) {
     stop("Reduction must be in three dimensions or higher.")
   }
-  if (!is.null(cells.highlight)) {
+  if (!is.null(cells.highlight) && !isTRUE(cells.highlight)) {
     if (!any(cells.highlight %in% colnames(srt))) {
       stop("No cells in 'cells.highlight' found in srt.")
     }
@@ -2438,11 +2464,6 @@ ClassDimPlot3D <- function(srt, group.by = "orig.ident", reduction = NULL, dims 
     dat_use[[group.by]] <- factor(dat_use[[group.by]], levels = unique(dat_use[[group.by]]))
   }
   dat_use[["group.by"]] <- dat_use[[group.by]]
-  if (!is.null(cells.highlight)) {
-    cells.highlight <- cells.highlight[cells.highlight %in% rownames(dat_use)]
-    dat_use_highlight <- dat_use[cells.highlight, ]
-    dat_use_highlight[["group.by"]] <- "highlight"
-  }
   if (any(is.na(dat_use[[group.by]]))) {
     n <- as.character(dat_use[[group.by]])
     n[is.na(n)] <- "NA"
@@ -2455,9 +2476,13 @@ ClassDimPlot3D <- function(srt, group.by = "orig.ident", reduction = NULL, dims 
   dat_use[[paste0(reduction_key, dims[1], "All_cells")]] <- dat_use[[paste0(reduction_key, dims[1])]]
   dat_use[[paste0(reduction_key, dims[2], "All_cells")]] <- dat_use[[paste0(reduction_key, dims[2])]]
   dat_use[[paste0(reduction_key, dims[3], "All_cells")]] <- dat_use[[paste0(reduction_key, dims[3])]]
-  if (!is.null(cells.highlight)) {
-    cells.highlight <- cells.highlight[cells.highlight %in% rownames(dat_use)]
-    dat_use_highlight <- dat_use[cells.highlight, ]
+  cells.highlight_use <- cells.highlight
+  if (isTRUE(cells.highlight_use)) {
+    cells.highlight_use <- rownames(dat_use)[dat_use[[group.by]] != "NA"]
+  }
+  if (!is.null(cells.highlight_use)) {
+    cells.highlight_use <- cells.highlight_use[cells.highlight_use %in% rownames(dat_use)]
+    dat_use_highlight <- dat_use[cells.highlight_use, ]
   }
 
   p <- plot_ly(data = dat_use, width = width, height = height)
@@ -2479,7 +2504,7 @@ ClassDimPlot3D <- function(srt, group.by = "orig.ident", reduction = NULL, dims 
     showlegend = TRUE,
     visible = TRUE
   )
-  if (!is.null(cells.highlight)) {
+  if (!is.null(cells.highlight_use)) {
     p <- p %>% add_trace(
       x = dat_use_highlight[[paste0(reduction_key, dims[1], "All_cells")]],
       y = dat_use_highlight[[paste0(reduction_key, dims[2], "All_cells")]],
@@ -2611,7 +2636,7 @@ ExpDimPlot3D <- function(srt, features = NULL, reduction = NULL, dims = c(1, 2, 
   if (ncol(Embeddings(srt, reduction = reduction)) < 3) {
     stop("Reduction must be in three dimensions or higher.")
   }
-  if (!is.null(cells.highlight)) {
+  if (!is.null(cells.highlight) && !isTRUE(cells.highlight)) {
     if (!any(cells.highlight %in% colnames(srt))) {
       stop("No cells in 'cells.highlight' found in srt.")
     }
@@ -2619,6 +2644,9 @@ ExpDimPlot3D <- function(srt, features = NULL, reduction = NULL, dims = c(1, 2, 
       warning("Some cells in 'cells.highlight' not found in srt.", immediate. = TRUE)
     }
     cells.highlight <- intersect(cells.highlight, colnames(srt))
+  }
+  if (isTRUE(cells.highlight)) {
+    cells.highlight <- colnames(srt)
   }
   reduction_key <- Key(srt[[reduction]])
   if (is.null(axis_labs) || length(axis_labs) != 3) {
@@ -2975,7 +3003,7 @@ geom_split_violin <- function(mapping = NULL, data = NULL, stat = "ydensity", po
 #' ExpVlnPlot(pancreas_sub, features = c("Rbp4", "Pyy"), group.by = "SubCellType", comparisons = list(c("Alpha", "Beta"), c("Alpha", "Delta")), multiplegroup_comparisons = TRUE)
 #' @importFrom Seurat DefaultAssay
 #' @importFrom gtable gtable_add_cols gtable_add_rows gtable_add_grob gtable_add_padding
-#' @importFrom ggplot2 geom_blank geom_violin geom_rect geom_boxplot layer_scales position_jitterdodge position_dodge2 stat_summary scale_x_discrete element_line annotate
+#' @importFrom ggplot2 geom_blank geom_violin geom_rect geom_boxplot layer_scales position_jitterdodge position_dodge2 stat_summary scale_x_discrete element_line element_text element_blank annotate
 #' @importFrom grid grobHeight grobWidth
 #' @importFrom rlang %||%
 #' @importFrom cowplot plot_grid
@@ -3035,7 +3063,7 @@ ExpVlnPlot <- function(srt, features = NULL, group.by = NULL, split.by = NULL, b
       stop("'group.by' must be a division of 'bg.by'")
     }
   }
-  if (!is.null(cells.highlight)) {
+  if (!is.null(cells.highlight) && !isTRUE(cells.highlight)) {
     if (!any(cells.highlight %in% colnames(srt))) {
       stop("No cells in 'cells.highlight' found in srt.")
     }
@@ -3043,6 +3071,9 @@ ExpVlnPlot <- function(srt, features = NULL, group.by = NULL, split.by = NULL, b
       warning("Some cells in 'cells.highlight' not found in srt.", immediate. = TRUE)
     }
     cells.highlight <- intersect(cells.highlight, colnames(srt))
+  }
+  if (isTRUE(cells.highlight)) {
+    cells.highlight <- colnames(srt)
   }
   if (!is.null(cells_subset)) {
     if (!any(cells_subset %in% colnames(srt))) {
@@ -3106,7 +3137,6 @@ ExpVlnPlot <- function(srt, features = NULL, group.by = NULL, split.by = NULL, b
   }
   dat_exp <- cbind(dat_gene, dat_meta)
   features <- unique(features[features %in% c(features_gene, features_meta)])
-
 
   if (!all(sapply(dat_exp, is.numeric))) {
     stop("'features' must be type of numeric variable.")
@@ -3262,14 +3292,7 @@ ExpVlnPlot <- function(srt, features = NULL, group.by = NULL, split.by = NULL, b
       scale_y_continuous(limits = c(y_min_use, y_max_use), trans = y.trans, n.breaks = y.nbreaks) +
       scale_fill_manual(name = paste0(keynm, ":"), values = colors, breaks = levels_order, drop = FALSE) +
       scale_color_manual(name = paste0(keynm, ":"), values = colors, breaks = levels_order, drop = FALSE) +
-      do.call(theme_use, list(
-        aspect.ratio = aspect.ratio,
-        axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1),
-        strip.text.y = element_text(angle = 0),
-        panel.grid.major.y = element_line(color = "grey", linetype = 2),
-        legend.position = legend.position,
-        legend.direction = legend.direction
-      )) + guides(fill = guide_legend(
+      guides(fill = guide_legend(
         title.hjust = 0,
         keywidth = 0.05,
         keyheight = 0.05,
@@ -3279,7 +3302,26 @@ ExpVlnPlot <- function(srt, features = NULL, group.by = NULL, split.by = NULL, b
       ))
 
     if (isTRUE(flip)) {
-      p <- p + coord_flip()
+      p <- p + do.call(theme_use, list(
+        aspect.ratio = aspect.ratio,
+        strip.text.x = element_text(angle = 0),
+        axis.text.x = if (isTRUE(stack)) element_blank() else element_text(),
+        axis.ticks.x = if (isTRUE(stack)) element_blank() else element_line(),
+        panel.grid.major.x = element_line(color = "grey", linetype = 2),
+        legend.position = legend.position,
+        legend.direction = legend.direction
+      )) + coord_flip()
+    } else {
+      p <- p + do.call(theme_use, list(
+        aspect.ratio = aspect.ratio,
+        axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1),
+        strip.text.y = element_text(angle = 0),
+        axis.text.y = if (isTRUE(stack)) element_blank() else element_text(),
+        axis.ticks.y = if (isTRUE(stack)) element_blank() else element_line(),
+        panel.grid.major.y = element_line(color = "grey", linetype = 2),
+        legend.position = legend.position,
+        legend.direction = legend.direction
+      ))
     }
     plist[[f]] <- p
   }
@@ -4484,7 +4526,7 @@ ExpCorPlot <- function(srt, features, group.by = NULL, split.by = NULL, slot = "
       srt[[i, drop = TRUE]] <- factor(srt[[i, drop = TRUE]], levels = unique(srt[[i, drop = TRUE]]))
     }
   }
-  if (!is.null(cells.highlight)) {
+  if (!is.null(cells.highlight) & !isTRUE(cells.highlight)) {
     if (!any(cells.highlight %in% colnames(srt))) {
       stop("No cells in 'cells.highlight' found in srt.")
     }
@@ -4492,6 +4534,9 @@ ExpCorPlot <- function(srt, features, group.by = NULL, split.by = NULL, slot = "
       warning("Some cells in 'cells.highlight' not found in srt.", immediate. = TRUE)
     }
     cells.highlight <- intersect(cells.highlight, colnames(srt))
+  }
+  if (isTRUE(cells.highlight)) {
+    cells.highlight <- colnames(srt)
   }
 
   features_drop <- features[!features %in% c(rownames(srt), colnames(srt@meta.data))]

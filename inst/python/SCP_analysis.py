@@ -696,7 +696,7 @@ def Palantir(adata=None, h5ad=None,group_by=None,
         dist=[]
         for i in range(diff.shape[1]):
           dist.append(hypot(diff[0,i],diff[1,i]))
-        terminal_cells_dict[cell[dist.index(min(dist))]]=terminal_group + "_diff_potential"
+        terminal_cells_dict[cell[dist.index(min(dist))]]=terminal_group.replace(" ", ".") + "_diff_potential"
         
       terminal_cells=list(terminal_cells_dict.keys())
 
@@ -724,18 +724,18 @@ def Palantir(adata=None, h5ad=None,group_by=None,
     pca_projections = pd.DataFrame(adata.obsm[liner_reduction][:,:n_pcs], index=adata.obs_names)
     dm_res = palantir.utils.run_diffusion_maps(pca_projections, n_components=dm_n_components, knn=n_neighbors, alpha=dm_alpha)
     ms_data = palantir.utils.determine_multiscale_space(dm_res,n_eigs=dm_n_eigs)
-    pr_res = palantir.core.run_palantir(ms_data=ms_data,early_cell=early_cell,terminal_states=terminal_cells, knn=n_neighbors,num_waypoints=num_waypoints,
-    scale_components=scale_components,use_early_cell_as_start=use_early_cell_as_start,max_iterations=max_iterations,n_jobs=n_jobs)
+    pr_res = palantir.core.run_palantir(ms_data = ms_data,early_cell = early_cell, terminal_states = terminal_cells, knn = n_neighbors, num_waypoints = num_waypoints,
+    scale_components = scale_components, use_early_cell_as_start = use_early_cell_as_start, max_iterations = max_iterations, n_jobs = n_jobs)
 
     adata.obsm["palantir_dm"]=dm_res["T"].toarray()
     adata.uns["dm_kernel"]=dm_res["kernel"]
+    if len(terminal_cells_dict)>0:
+      pr_res.branch_probs=pr_res.branch_probs.rename(columns = terminal_cells_dict)
     for term in np.append(pr_res.branch_probs.columns.values, np.array(["palantir_pseudotime","palantir_diff_potential"])):
       if term in adata.obs.columns:
         adata.obs.drop(term, axis=1, inplace=True)
     adata.obs=adata.obs.join(pr_res.pseudotime.to_frame("palantir_pseudotime"))
     adata.obs=adata.obs.join(pr_res.entropy.to_frame("palantir_diff_potential"))
-    if len(terminal_cells_dict)>0:
-      pr_res.branch_probs=pr_res.branch_probs.rename(columns=terminal_cells_dict)
     adata.obs=adata.obs.join(pr_res.branch_probs)
     
     sc.pl.embedding(adata,basis=basis,color="palantir_pseudotime",size = point_size)

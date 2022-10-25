@@ -27,15 +27,14 @@ NULL
 #' data("panc8_sub")
 #' # Simply convert genes from human to mouse and preprocess the data
 #' genenames <- make.unique(stringr::str_to_title(rownames(panc8_sub)))
-#' panc8_sub <- RenameFeatures(panc8_sub, newnames = genenames)
-#' head(rownames(panc8_sub))
-#'
-#' panc8_sub <- Integration_SCP(panc8_sub, batch = "tech", integration_method = "Seurat")
-#' ClassDimPlot(panc8_sub, "celltype")
+#' panc8_rename <- RenameFeatures(panc8_sub, newnames = genenames)
+#' head(rownames(panc8_rename))
+#' panc8_rename <- Integration_SCP(panc8_rename, batch = "tech", integration_method = "Seurat")
+#' ClassDimPlot(panc8_rename, "celltype")
 #'
 #' # Projection
-#' pancreas_sub <- RunKNNMap(srt_query = pancreas_sub, srt_ref = panc8_sub, ref_umap = "SeuratUMAP2D")
-#' ProjectionPlot(srt_query = pancreas_sub, srt_ref = panc8_sub, query_group = "SubCellType", ref_group = "celltype")
+#' pancreas_sub <- RunKNNMap(srt_query = pancreas_sub, srt_ref = panc8_rename, ref_umap = "SeuratUMAP2D")
+#' ProjectionPlot(srt_query = pancreas_sub, srt_ref = panc8_rename, query_group = "SubCellType", ref_group = "celltype")
 #'
 #' @importFrom Seurat Reductions Embeddings FindVariableFeatures VariableFeatures GetAssayData FindNeighbors CreateDimReducObject DefaultAssay
 #' @importFrom SeuratObject as.sparse
@@ -289,15 +288,14 @@ RunKNNMap <- function(srt_query, srt_ref, ref_umap = NULL, force = FALSE,
 #' data("panc8_sub")
 #' # Simply convert genes from human to mouse and preprocess the data
 #' genenames <- make.unique(stringr::str_to_title(rownames(panc8_sub)))
-#' panc8_sub <- RenameFeatures(panc8_sub, newnames = genenames)
-#' head(rownames(panc8_sub))
-#'
-#' panc8_sub <- Integration_SCP(panc8_sub, batch = "tech", integration_method = "Seurat")
-#' ClassDimPlot(panc8_sub, "celltype")
+#' panc8_rename <- RenameFeatures(panc8_sub, newnames = genenames)
+#' head(rownames(panc8_rename))
+#' panc8_rename <- Integration_SCP(panc8_rename, batch = "tech", integration_method = "Seurat")
+#' ClassDimPlot(panc8_rename, "celltype")
 #'
 #' # Projection
-#' pancreas_sub <- RunPCAMap(srt_query = pancreas_sub, srt_ref = panc8_sub, ref_pca = "Seuratpca", ref_umap = "SeuratUMAP2D")
-#' ProjectionPlot(srt_query = pancreas_sub, srt_ref = panc8_sub, query_group = "SubCellType", ref_group = "celltype")
+#' pancreas_sub <- RunPCAMap(srt_query = pancreas_sub, srt_ref = panc8_rename, ref_pca = "Seuratpca", ref_umap = "SeuratUMAP2D")
+#' ProjectionPlot(srt_query = pancreas_sub, srt_ref = panc8_rename, query_group = "SubCellType", ref_group = "celltype")
 #'
 #' @importFrom Seurat Reductions GetAssayData CreateDimReducObject ProjectUMAP
 #' @export
@@ -411,15 +409,14 @@ RunPCAMap <- function(srt_query, srt_ref, ref_pca = NULL, ref_dims = 1:30, ref_u
 #' data("panc8_sub")
 #' # Simply convert genes from human to mouse and preprocess the data
 #' genenames <- make.unique(stringr::str_to_title(rownames(panc8_sub)))
-#' panc8_sub <- RenameFeatures(panc8_sub, newnames = genenames)
-#' head(rownames(panc8_sub))
-#'
-#' panc8_sub <- Integration_SCP(panc8_sub, batch = "tech", integration_method = "Seurat")
-#' ClassDimPlot(panc8_sub, "celltype")
+#' panc8_rename <- RenameFeatures(panc8_sub, newnames = genenames)
+#' head(rownames(panc8_rename))
+#' panc8_rename <- Integration_SCP(panc8_rename, batch = "tech", integration_method = "Seurat")
+#' ClassDimPlot(panc8_rename, "celltype")
 #'
 #' # Projection
-#' pancreas_sub <- RunSeuratMap(srt_query = pancreas_sub, srt_ref = panc8_sub, ref_pca = "Seuratpca", ref_umap = "SeuratUMAP2D", k.weight = 80)
-#' ProjectionPlot(srt_query = pancreas_sub, srt_ref = panc8_sub, query_group = "SubCellType", ref_group = "celltype")
+#' pancreas_sub <- RunSeuratMap(srt_query = pancreas_sub, srt_ref = panc8_rename, ref_pca = "Seuratpca", ref_umap = "SeuratUMAP2D", k.weight = 80)
+#' ProjectionPlot(srt_query = pancreas_sub, srt_ref = panc8_rename, query_group = "SubCellType", ref_group = "celltype")
 #'
 #' @importFrom Seurat Reductions FindTransferAnchors TransferData IntegrateEmbeddings ProjectUMAP
 #' @export
@@ -521,15 +518,14 @@ RunSeuratMap <- function(srt_query, srt_ref,
 #' data("panc8_sub")
 #' # Simply convert genes from human to mouse and preprocess the data
 #' genenames <- make.unique(stringr::str_to_title(rownames(panc8_sub)))
-#' panc8_sub <- RenameFeatures(panc8_sub, newnames = genenames)
+#' panc8_rename <- RenameFeatures(panc8_sub, newnames = genenames)
 #' head(rownames(panc8_sub))
-#'
-#' panc8_sub <- Integration_SCP(panc8_sub, batch = "tech", integration_method = "CSS")
-#' ClassDimPlot(panc8_sub, "celltype")
+#' panc8_rename <- Integration_SCP(panc8_rename, batch = "tech", integration_method = "CSS")
+#' ClassDimPlot(panc8_rename, "celltype")
 #'
 #' # Projection
-#' pancreas_sub <- RunCSSMap(srt_query = pancreas_sub, srt_ref = panc8_sub, ref_css = "CSS", ref_umap = "CSSUMAP2D")
-#' ProjectionPlot(srt_query = pancreas_sub, srt_ref = panc8_sub, query_group = "SubCellType", ref_group = "celltype")
+#' pancreas_sub <- RunCSSMap(srt_query = pancreas_sub, srt_ref = panc8_rename, ref_css = "CSS", ref_umap = "CSSUMAP2D")
+#' ProjectionPlot(srt_query = pancreas_sub, srt_ref = panc8_rename, query_group = "SubCellType", ref_group = "celltype")
 #'
 #' @importFrom Seurat Reductions CreateDimReducObject ProjectUMAP
 #' @export
@@ -629,15 +625,14 @@ RunCSSMap <- function(srt_query, srt_ref, ref_css = NULL, ref_umap = NULL, force
 #' data("panc8_sub")
 #' # Simply convert genes from human to mouse and preprocess the data
 #' genenames <- make.unique(stringr::str_to_title(rownames(panc8_sub)))
-#' panc8_sub <- RenameFeatures(panc8_sub, newnames = genenames)
-#' head(rownames(panc8_sub))
-#'
-#' panc8_sub <- Integration_SCP(panc8_sub, batch = "tech", integration_method = "Harmony")
-#' ClassDimPlot(panc8_sub, "celltype")
+#' panc8_rename <- RenameFeatures(panc8_sub, newnames = genenames)
+#' head(rownames(panc8_rename))
+#' panc8_rename <- Integration_SCP(panc8_rename, batch = "tech", integration_method = "Harmony")
+#' ClassDimPlot(panc8_rename, "celltype")
 #'
 #' # Projection
-#' pancreas_sub <- RunSymphonyMap(srt_query = pancreas_sub, srt_ref = panc8_sub, ref_pca = "Harmonypca", ref_harmony = "Harmony", ref_umap = "HarmonyUMAP2D")
-#' ProjectionPlot(srt_query = pancreas_sub, srt_ref = panc8_sub, query_group = "SubCellType", ref_group = "celltype")
+#' pancreas_sub <- RunSymphonyMap(srt_query = pancreas_sub, srt_ref = panc8_rename, ref_pca = "Harmonypca", ref_harmony = "Harmony", ref_umap = "HarmonyUMAP2D")
+#' ProjectionPlot(srt_query = pancreas_sub, srt_ref = panc8_rename, query_group = "SubCellType", ref_group = "celltype")
 #'
 #' @importFrom Seurat Reductions GetAssayData DefaultAssay ProjectUMAP
 #' @export

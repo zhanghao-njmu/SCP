@@ -27,20 +27,20 @@ Annotate single cells using scmap.
 data("panc8_sub")
 # Simply convert genes from human to mouse and preprocess the data
 genenames <- make.unique(stringr::str_to_title(rownames(panc8_sub)))
-panc8_sub <- RenameFeatures(panc8_sub, newnames = genenames)
-panc8_sub <- check_srtMerge(panc8_sub, batch = "tech")[["srtMerge"]]
+panc8_rename <- RenameFeatures(panc8_sub, newnames = genenames)
+panc8_rename <- check_srtMerge(panc8_rename, batch = "tech")[["srtMerge"]]
 
 # Annotation
 data("pancreas_sub")
 pancreas_sub <- Standard_SCP(pancreas_sub)
 pancreas_sub <- RunScmap(
-  srt_query = pancreas_sub, srt_ref = panc8_sub,
+  srt_query = pancreas_sub, srt_ref = panc8_rename,
   ref_group = "celltype", method = "scmapCluster"
 )
 ClassDimPlot(pancreas_sub, group.by = "scmap_annotation")
 
 pancreas_sub <- RunScmap(
-  srt_query = pancreas_sub, srt_ref = panc8_sub,
+  srt_query = pancreas_sub, srt_ref = panc8_rename,
   ref_group = "celltype", method = "scmapCell"
 )
 ClassDimPlot(pancreas_sub, group.by = "scmap_annotation")

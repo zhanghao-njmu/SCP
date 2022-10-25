@@ -3378,7 +3378,8 @@ RunSCVELO <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_laye
 #' data("pancreas_sub")
 #' pancreas_sub <- RunPalantir(
 #'   srt = pancreas_sub, group_by = "SubCellType", liner_reduction = "PCA", nonliner_reduction = "UMAP",
-#'   early_group = "Ductal", terminal_groups = c("Alpha", "Beta", "Delta", "Epsilon"), return_seurat = TRUE
+#'   early_group = "Ductal", use_early_cell_as_start = TRUE,
+#'   terminal_groups = c("Alpha", "Beta", "Delta", "Epsilon"), return_seurat = TRUE
 #' )
 #' head(pancreas_sub[[]])
 #' ExpDimPlot(pancreas_sub, c("palantir_pseudotime", "palantir_diff_potential"))

@@ -402,21 +402,26 @@ RecoverCounts <- function(srt, assay = "RNA", min_count = c(1, 2, 3), tolerance 
 #' @param srt
 #'
 #' @param newnames
-#' @param oldnames
 #' @param assays
+#'
+#' @examples
+#' data("panc8_sub")
+#' # Simply convert genes from human to mouse and preprocess the data
+#' genenames <- make.unique(stringr::str_to_title(rownames(panc8_sub)))
+#' panc8_rename <- RenameFeatures(panc8_sub, newnames = genenames)
+#' head(rownames(panc8_rename))
 #'
 #' @importFrom Seurat Assays GetAssay
 #' @importFrom methods slot
 #' @export
-RenameFeatures <- function(srt, newnames = NULL, oldnames = NULL, assays = NULL) {
+RenameFeatures <- function(srt, newnames = NULL, assays = NULL) {
   assays <- assays[assays %in% Assays(srt)] %||% Assays(srt)
-  if (is.null(oldnames)) {
-    oldnames <- rownames(srt)
+  if (is.null(names(newnames))) {
+    if (!identical(length(newnames), nrow(srt))) {
+      stop("'newnames' must be named or the length of features in the srt.")
+    }
+    names(newnames) <- rownames(srt)
   }
-  if (!identical(length(newnames), length(oldnames))) {
-    stop("'newnames' must be the length of features in the srt or the length of oldnames.")
-  }
-  names(newnames) <- oldnames
   for (assay in assays) {
     message("Rename features for the assay: ", assay)
     assay_obj <- GetAssay(srt, assay)
@@ -432,6 +437,71 @@ RenameFeatures <- function(srt, newnames = NULL, oldnames = NULL, assays = NULL)
   }
   return(srt)
 }
+
+#' Rename clusters for the Seurat object
+#'
+#' @param srt
+#'
+#' @param newnames
+#' @param assays
+#' @examples
+#' data("pancreas_sub")
+#' levels(pancreas_sub@meta.data[["SubCellType"]])
+#'
+#' # Rename all clusters
+#' pancreas_sub <- RenameClusters(pancreas_sub, group.by = "SubCellType", newnames = letters[1:8], newgroup = "newclusters")
+#' pancreas_sub@meta.data[["newclusters"]] <- factor(pancreas_sub@meta.data[["newclusters"]], levels = letters[1:8])
+#' ClassDimPlot(pancreas_sub, "newclusters")
+#'
+#' # Rename specified clusters
+#' pancreas_sub <- RenameClusters(pancreas_sub, group.by = "SubCellType", newnames = c("Alpha" = "a", "Beta" = "b"), newgroup = "newclusters")
+#' ClassDimPlot(pancreas_sub, "newclusters")
+#'
+#' # Merge and rename clusters
+#' pancreas_sub <- RenameClusters(pancreas_sub, group.by = "SubCellType", nameslist = list("EndocrineClusters" = c("Alpha", "Beta", "Epsilon", "Delta")), newgroup = "newclusters")
+#' ClassDimPlot(pancreas_sub, "newclusters")
+#'
+#' @importFrom stats setNames
+#' @export
+RenameClusters <- function(srt, group.by, newnames = NULL, nameslist = list(), newgroup = NULL) {
+  if (missing(group.by)) {
+    stop("group.by must be provided")
+  }
+  if (!group.by %in% colnames(srt@meta.data)) {
+    stop(paste0(group.by, " is not in the meta.data of srt object."))
+  }
+  if (length(nameslist) > 0) {
+    names_assign <- setNames(rep(names(nameslist), sapply(nameslist, length)), nm = unlist(nameslist))
+  } else {
+    if (is.null(names(newnames))) {
+      if (!is.factor(srt@meta.data[[group.by]])) {
+        stop("'newnames' must be named when srt@meta.data[[group.by]] is not a factor")
+      }
+      if (!identical(length(newnames), length(unique(srt@meta.data[[group.by]])))) {
+        stop("'newnames' must be named or the length of ", length(unique(srt@meta.data[[group.by]])))
+      }
+      names(newnames) <- levels(srt@meta.data[[group.by]])
+    }
+    names_assign <- newnames
+  }
+  if (is.factor(srt@meta.data[[group.by]])) {
+    levels <- levels(srt@meta.data[[group.by]])
+  } else {
+    levels <- NULL
+  }
+  if (is.null(newgroup)) {
+    newgroup <- group.by
+  }
+  index <- which(as.character(srt@meta.data[[group.by]]) %in% names(names_assign))
+  srt@meta.data[[newgroup]] <- as.character(srt@meta.data[[group.by]])
+  srt@meta.data[[newgroup]][index] <- names_assign[srt@meta.data[[newgroup]][index]]
+  if (!is.null(levels)) {
+    levels[levels %in% names(names_assign)] <- names_assign[levels[levels %in% names(names_assign)]]
+    srt@meta.data[[newgroup]] <- factor(srt@meta.data[[newgroup]], levels = unique(levels))
+  }
+  return(srt)
+}
+
 
 #' Reorder idents by the gene expression
 #'
@@ -1136,7 +1206,7 @@ Seurat_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRU
   srtIntegrated <- FindNeighbors(object = srtIntegrated, reduction = paste0("Seurat", liner_reduction), dims = liner_reduction_dims_use, force.recalc = TRUE, graph.name = paste0("Seurat", liner_reduction, "_", c("KNN", "SNN")), verbose = FALSE)
   if (isTRUE(do_cluster_finding)) {
     cat(paste0("[", Sys.time(), "]", " Perform FindClusters (", cluster_algorithm, ") on the data...\n"))
-    srtIntegrated <- FindClusters(object = srtIntegrated, resolution = cluster_resolution, algorithm = cluster_algorithm_index, graph.name = paste0("Seurat", liner_reduction, "_SNN"), verbose = FALSE)
+    srtIntegrated <- FindClusters(object = srtIntegrated, resolution = cluster_resolution, algorithm = cluster_algorithm_index, method = "igraph", graph.name = paste0("Seurat", liner_reduction, "_SNN"), verbose = FALSE)
     if (isTRUE(cluster_reorder)) {
       cat(paste0("[", Sys.time(), "]", " Reorder clusters...\n"))
       srtIntegrated <- SrtReorder(srtIntegrated, features = HVF, reorder_by = "seurat_clusters", slot = "data")
@@ -1304,7 +1374,7 @@ scVI_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE,
   srtIntegrated <- FindNeighbors(object = srtIntegrated, reduction = "scVI", dims = scVI_dims_use, force.recalc = TRUE, graph.name = paste0("scVI", "_", c("KNN", "SNN")), verbose = FALSE)
   if (isTRUE(do_cluster_finding)) {
     cat(paste0("[", Sys.time(), "]", " Perform FindClusters (", cluster_algorithm, ") on the data...\n"))
-    srtIntegrated <- FindClusters(object = srtIntegrated, resolution = cluster_resolution, algorithm = cluster_algorithm_index, graph.name = paste0("scVI", "_SNN"), verbose = FALSE)
+    srtIntegrated <- FindClusters(object = srtIntegrated, resolution = cluster_resolution, algorithm = cluster_algorithm_index, method = "igraph", graph.name = paste0("scVI", "_SNN"), verbose = FALSE)
     if (isTRUE(cluster_reorder)) {
       cat(paste0("[", Sys.time(), "]", " Reorder clusters...\n"))
       srtIntegrated <- SrtReorder(srtIntegrated, features = HVF, reorder_by = "seurat_clusters", slot = "data")
@@ -1491,7 +1561,7 @@ MNN_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE, 
   srtIntegrated <- FindNeighbors(object = srtIntegrated, reduction = paste0("MNN", liner_reduction), dims = liner_reduction_dims_use, force.recalc = TRUE, graph.name = paste0("MNN", liner_reduction, "_", c("KNN", "SNN")), verbose = FALSE)
   if (isTRUE(do_cluster_finding)) {
     cat(paste0("[", Sys.time(), "]", " Perform FindClusters (", cluster_algorithm, ") on the data...\n"))
-    srtIntegrated <- FindClusters(object = srtIntegrated, resolution = cluster_resolution, algorithm = cluster_algorithm_index, graph.name = paste0("MNN", liner_reduction, "_SNN"), verbose = FALSE)
+    srtIntegrated <- FindClusters(object = srtIntegrated, resolution = cluster_resolution, algorithm = cluster_algorithm_index, method = "igraph", graph.name = paste0("MNN", liner_reduction, "_SNN"), verbose = FALSE)
     if (isTRUE(cluster_reorder)) {
       cat(paste0("[", Sys.time(), "]", " Reorder clusters...\n"))
       srtIntegrated <- SrtReorder(srtIntegrated, features = HVF, reorder_by = "seurat_clusters", slot = "data")
@@ -1676,7 +1746,7 @@ fastMNN_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TR
   srtIntegrated <- FindNeighbors(object = srtIntegrated, reduction = "fastMNN", dims = fastMNN_dims_use, force.recalc = TRUE, graph.name = paste0("fastMNN", "_", c("KNN", "SNN")), verbose = FALSE)
   if (isTRUE(do_cluster_finding)) {
     cat(paste0("[", Sys.time(), "]", " Perform FindClusters (", cluster_algorithm, ") on the data...\n"))
-    srtIntegrated <- FindClusters(object = srtIntegrated, resolution = cluster_resolution, algorithm = cluster_algorithm_index, graph.name = paste0("fastMNN", "_SNN"), verbose = FALSE)
+    srtIntegrated <- FindClusters(object = srtIntegrated, resolution = cluster_resolution, algorithm = cluster_algorithm_index, method = "igraph", graph.name = paste0("fastMNN", "_SNN"), verbose = FALSE)
     if (isTRUE(cluster_reorder)) {
       cat(paste0("[", Sys.time(), "]", " Reorder clusters...\n"))
       srtIntegrated <- SrtReorder(srtIntegrated, features = HVF, reorder_by = "seurat_clusters", slot = "data")
@@ -1889,7 +1959,7 @@ Harmony_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TR
   srtIntegrated <- FindNeighbors(object = srtIntegrated, reduction = "Harmony", dims = Harmony_dims_use, force.recalc = TRUE, graph.name = paste0("Harmony", "_", c("KNN", "SNN")), verbose = FALSE)
   if (isTRUE(do_cluster_finding)) {
     cat(paste0("[", Sys.time(), "]", " Perform FindClusters (", cluster_algorithm, ") on the data...\n"))
-    srtIntegrated <- FindClusters(object = srtIntegrated, resolution = cluster_resolution, algorithm = cluster_algorithm_index, graph.name = paste0("Harmony", "_SNN"), verbose = FALSE)
+    srtIntegrated <- FindClusters(object = srtIntegrated, resolution = cluster_resolution, algorithm = cluster_algorithm_index, method = "igraph", graph.name = paste0("Harmony", "_SNN"), verbose = FALSE)
     if (isTRUE(cluster_reorder)) {
       cat(paste0("[", Sys.time(), "]", " Reorder clusters...\n"))
       srtIntegrated <- SrtReorder(srtIntegrated, features = HVF, reorder_by = "seurat_clusters", slot = "data")
@@ -2098,7 +2168,7 @@ Scanorama_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = 
   srtIntegrated <- FindNeighbors(object = srtIntegrated, reduction = paste0("Scanorama", liner_reduction), dims = liner_reduction_dims_use, force.recalc = TRUE, graph.name = paste0("Scanorama", liner_reduction, "_", c("KNN", "SNN")), verbose = FALSE)
   if (isTRUE(do_cluster_finding)) {
     cat(paste0("[", Sys.time(), "]", " Perform FindClusters (", cluster_algorithm, ") on the data...\n"))
-    srtIntegrated <- FindClusters(object = srtIntegrated, resolution = cluster_resolution, algorithm = cluster_algorithm_index, graph.name = paste0("Scanorama", liner_reduction, "_SNN"), verbose = FALSE)
+    srtIntegrated <- FindClusters(object = srtIntegrated, resolution = cluster_resolution, algorithm = cluster_algorithm_index, method = "igraph", graph.name = paste0("Scanorama", liner_reduction, "_SNN"), verbose = FALSE)
     if (isTRUE(cluster_reorder)) {
       cat(paste0("[", Sys.time(), "]", " Reorder clusters...\n"))
       srtIntegrated <- SrtReorder(srtIntegrated, features = HVF, reorder_by = "seurat_clusters", slot = "data")
@@ -2293,7 +2363,7 @@ BBKNN_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE
 
   if (isTRUE(do_cluster_finding)) {
     cat(paste0("[", Sys.time(), "]", " Perform FindClusters (", cluster_algorithm, ") on the data...\n"))
-    srtIntegrated <- FindClusters(object = srtIntegrated, graph.name = "BBKNN", resolution = cluster_resolution, algorithm = cluster_algorithm_index, verbose = FALSE)
+    srtIntegrated <- FindClusters(object = srtIntegrated, graph.name = "BBKNN", resolution = cluster_resolution, algorithm = cluster_algorithm_index, method = "igraph", verbose = FALSE)
     if (isTRUE(cluster_reorder)) {
       cat(paste0("[", Sys.time(), "]", " Reorder clusters...\n"))
       srtIntegrated <- SrtReorder(srtIntegrated, features = HVF, reorder_by = "seurat_clusters", slot = "data")
@@ -2488,7 +2558,7 @@ CSS_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE, 
   srtIntegrated <- FindNeighbors(object = srtIntegrated, reduction = "CSS", dims = CSS_dims_use, force.recalc = TRUE, graph.name = paste0("CSS", "_", c("KNN", "SNN")), verbose = FALSE)
   if (isTRUE(do_cluster_finding)) {
     cat(paste0("[", Sys.time(), "]", " Perform FindClusters (", cluster_algorithm, ") on the data...\n"))
-    srtIntegrated <- FindClusters(object = srtIntegrated, resolution = cluster_resolution, algorithm = cluster_algorithm_index, graph.name = paste0("CSS", "_SNN"), verbose = FALSE)
+    srtIntegrated <- FindClusters(object = srtIntegrated, resolution = cluster_resolution, algorithm = cluster_algorithm_index, method = "igraph", graph.name = paste0("CSS", "_SNN"), verbose = FALSE)
     if (isTRUE(cluster_reorder)) {
       cat(paste0("[", Sys.time(), "]", " Reorder clusters...\n"))
       srtIntegrated <- SrtReorder(srtIntegrated, features = HVF, reorder_by = "seurat_clusters", slot = "data")
@@ -2690,7 +2760,7 @@ LIGER_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE
   srtIntegrated <- FindNeighbors(object = srtIntegrated, reduction = "LIGER", dims = LIGER_dims_use, force.recalc = TRUE, graph.name = paste0("LIGER", "_", c("KNN", "SNN")), verbose = FALSE)
   if (isTRUE(do_cluster_finding)) {
     cat(paste0("[", Sys.time(), "]", " Perform FindClusters (", cluster_algorithm, ") on the data...\n"))
-    srtIntegrated <- FindClusters(object = srtIntegrated, resolution = cluster_resolution, algorithm = cluster_algorithm_index, graph.name = paste0("LIGER", "_SNN"), verbose = FALSE)
+    srtIntegrated <- FindClusters(object = srtIntegrated, resolution = cluster_resolution, algorithm = cluster_algorithm_index, method = "igraph", graph.name = paste0("LIGER", "_SNN"), verbose = FALSE)
     if (isTRUE(cluster_reorder)) {
       cat(paste0("[", Sys.time(), "]", " Reorder clusters...\n"))
       srtIntegrated <- SrtReorder(srtIntegrated, features = HVF, reorder_by = "seurat_clusters", slot = "data")
@@ -2888,7 +2958,7 @@ Conos_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE
 
   if (isTRUE(do_cluster_finding)) {
     cat(paste0("[", Sys.time(), "]", " Perform FindClusters (", cluster_algorithm, ") on the data...\n"))
-    srtIntegrated <- FindClusters(object = srtIntegrated, graph.name = "Conos", resolution = cluster_resolution, algorithm = cluster_algorithm_index, verbose = FALSE)
+    srtIntegrated <- FindClusters(object = srtIntegrated, graph.name = "Conos", resolution = cluster_resolution, algorithm = cluster_algorithm_index, method = "igraph", verbose = FALSE)
     if (isTRUE(cluster_reorder)) {
       cat(paste0("[", Sys.time(), "]", " Reorder clusters...\n"))
       srtIntegrated <- SrtReorder(srtIntegrated, features = HVF, reorder_by = "seurat_clusters", slot = "data")
@@ -3082,7 +3152,7 @@ ZINBWaVE_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = T
   srtIntegrated <- FindNeighbors(object = srtIntegrated, reduction = "ZINBWaVE", dims = ZINBWaVE_dims_use, force.recalc = TRUE, graph.name = paste0("ZINBWaVE", "_", c("KNN", "SNN")), verbose = FALSE)
   if (isTRUE(do_cluster_finding)) {
     cat(paste0("[", Sys.time(), "]", " Perform FindClusters (", cluster_algorithm, ") on the data...\n"))
-    srtIntegrated <- FindClusters(object = srtIntegrated, resolution = cluster_resolution, algorithm = cluster_algorithm_index, graph.name = paste0("ZINBWaVE", "_SNN"), verbose = FALSE)
+    srtIntegrated <- FindClusters(object = srtIntegrated, resolution = cluster_resolution, algorithm = cluster_algorithm_index, method = "igraph", graph.name = paste0("ZINBWaVE", "_SNN"), verbose = FALSE)
     if (isTRUE(cluster_reorder)) {
       cat(paste0("[", Sys.time(), "]", " Reorder clusters...\n"))
       srtIntegrated <- SrtReorder(srtIntegrated, slot = "data", features = HVF, reorder_by = "seurat_clusters")
@@ -3207,7 +3277,7 @@ Standard_SCP <- function(srt, prefix = "Standard",
     srt <- FindNeighbors(object = srt, reduction = paste0(prefix, lr), dims = liner_reduction_dims_use, force.recalc = TRUE, graph.name = paste0(prefix, lr, "_", c("KNN", "SNN")), verbose = FALSE)
     if (isTRUE(do_cluster_finding)) {
       cat(paste0("[", Sys.time(), "]", " Perform FindClusters (", cluster_algorithm, ") on the data...\n"))
-      srt <- FindClusters(object = srt, resolution = cluster_resolution, algorithm = cluster_algorithm_index, graph.name = paste0(prefix, lr, "_SNN"), verbose = FALSE)
+      srt <- FindClusters(object = srt, resolution = cluster_resolution, algorithm = cluster_algorithm_index, method = "igraph", graph.name = paste0(prefix, lr, "_SNN"), verbose = FALSE)
       if (isTRUE(cluster_reorder)) {
         cat(paste0("[", Sys.time(), "]", " Reorder clusters...\n"))
         srt <- SrtReorder(srt, features = HVF, reorder_by = "seurat_clusters", slot = "data")
