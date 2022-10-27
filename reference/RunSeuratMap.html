@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">SCP</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.1</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -81,20 +81,20 @@
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"pancreas_sub"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="Standard_SCP.html">Standard_SCP</a></span><span class="op">(</span><span class="va">pancreas_sub</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-25 11:19:11] Start Standard_SCP</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-25 11:19:11] Checking srtList... ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-27 11:19:14] Start Standard_SCP</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-27 11:19:14] Checking srtList... ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Data 1/1 of the srtList is raw counts. Perform NormalizeData(logCPM) on the data ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform FindVariableFeatures on the data 1/1 of the srtList...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Use the separate HVF from the existed HVF in srtList...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-25 11:19:13] Finished checking.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-25 11:19:13] Perform ScaleData on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-25 11:19:14] Perform linear dimension reduction (pca) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-27 11:19:16] Finished checking.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-27 11:19:16] Perform ScaleData on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-27 11:19:17] Perform linear dimension reduction (pca) on the data...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> dims_estimate is 1:18 for 'pca'</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-25 11:19:20] Perform FindClusters (louvain) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-25 11:19:21] Reorder clusters...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-25 11:19:21] Perform nonlinear dimension reduction (umap) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-25 11:19:34] Standard_SCP done</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 23.39 secs </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-27 11:19:24] Perform FindClusters (louvain) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-27 11:19:25] Reorder clusters...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-27 11:19:25] Perform nonlinear dimension reduction (umap) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-27 11:19:37] Standard_SCP done</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 23.41 secs </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"panc8_sub"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co"># Simply convert genes from human to mouse and preprocess the data</span></span></span>
@@ -103,10 +103,9 @@
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Rename features for the assay: RNA</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">panc8_rename</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "A1bg"   "A1cf"   "A2m"    "A4galt" "Aaas"   "Aacs"  </span>
-<span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">panc8_rename</span> <span class="op">&lt;-</span> <span class="fu"><a href="Integration_SCP.html">Integration_SCP</a></span><span class="op">(</span><span class="va">panc8_rename</span>, batch <span class="op">=</span> <span class="st">"tech"</span>, integration_method <span class="op">=</span> <span class="st">"Seurat"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-25 11:19:37] Start Seurat_integrate</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in Seurat_integrate(srtMerge = panc8_rename, batch = "tech", append = TRUE,     srtList = NULL, do_normalization = NULL, normalization_method = "logCPM",     do_HVF_finding = TRUE, HVF_source = "separate", HVF_method = "vst",     nHVF = 2000, HVF = NULL, do_scaling = TRUE, vars_to_regress = NULL,     regression_model = "linear", liner_reduction = "pca", liner_reduction_dims = 100,     liner_reduction_dims_use = NULL, liner_reduction_params = list(),     force_liner_reduction = FALSE, nonliner_reduction = "umap",     nonliner_reduction_dims = c(2, 3), nonliner_reduction_params = list(),     force_nonliner_reduction = TRUE, do_cluster_finding = TRUE,     cluster_algorithm = "louvain", cluster_resolution = 0.6,     cluster_reorder = TRUE, seed = 11):</span> object 'panc8_rename' not found</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-27 11:19:39] Start Seurat_integrate</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in Seurat_integrate(srtMerge = panc8_rename, batch = "tech", append = TRUE,     srtList = NULL, do_normalization = NULL, normalization_method = "logCPM",     do_HVF_finding = TRUE, HVF_source = "separate", HVF_method = "vst",     nHVF = 2000, HVF = NULL, do_scaling = TRUE, vars_to_regress = NULL,     regression_model = "linear", linear_reduction = "pca", linear_reduction_dims = 100,     linear_reduction_dims_use = NULL, linear_reduction_params = list(),     force_linear_reduction = FALSE, nonlinear_reduction = "umap",     nonlinear_reduction_dims = c(2, 3), nonlinear_reduction_params = list(),     force_nonlinear_reduction = TRUE, do_cluster_finding = TRUE,     cluster_algorithm = "louvain", cluster_resolution = 0.6,     cluster_reorder = TRUE, seed = 11):</span> object 'panc8_rename' not found</span>
 <span class="r-in"><span><span class="fu"><a href="ClassDimPlot.html">ClassDimPlot</a></span><span class="op">(</span><span class="va">panc8_rename</span>, <span class="st">"celltype"</span><span class="op">)</span></span></span>
 <span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in DefaultReduction(srt):</span> Unable to find any reductions.</span>
 <span class="r-in"><span></span></span>

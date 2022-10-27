@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">SCP</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.1</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -57,8 +57,8 @@
 <span>  adata <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  h5ad <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  group_by <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  liner_reduction <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  nonliner_reduction <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  linear_reduction <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  nonlinear_reduction <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  basis <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  n_pcs <span class="op">=</span> <span class="fl">30</span>,</span>
 <span>  n_neighbors <span class="op">=</span> <span class="fl">30</span>,</span>
@@ -102,12 +102,12 @@
 <dd><p>group_by.</p></dd>
 
 
-<dt>liner_reduction</dt>
-<dd><p>liner_reduction.</p></dd>
+<dt>linear_reduction</dt>
+<dd><p>linear_reduction.</p></dd>
 
 
-<dt>nonliner_reduction</dt>
-<dd><p>nonliner_reduction.</p></dd>
+<dt>nonlinear_reduction</dt>
+<dd><p>nonlinear_reduction.</p></dd>
 
 
 <dt>basis</dt>
@@ -161,7 +161,7 @@
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"pancreas_sub"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu">RunPalantir</span><span class="op">(</span></span></span>
-<span class="r-in"><span>  srt <span class="op">=</span> <span class="va">pancreas_sub</span>, group_by <span class="op">=</span> <span class="st">"SubCellType"</span>, liner_reduction <span class="op">=</span> <span class="st">"PCA"</span>, nonliner_reduction <span class="op">=</span> <span class="st">"UMAP"</span>,</span></span>
+<span class="r-in"><span>  srt <span class="op">=</span> <span class="va">pancreas_sub</span>, group_by <span class="op">=</span> <span class="st">"SubCellType"</span>, linear_reduction <span class="op">=</span> <span class="st">"PCA"</span>, nonlinear_reduction <span class="op">=</span> <span class="st">"UMAP"</span>,</span></span>
 <span class="r-in"><span>  early_group <span class="op">=</span> <span class="st">"Ductal"</span>, use_early_cell_as_start <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
 <span class="r-in"><span>  terminal_groups <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Alpha"</span>, <span class="st">"Beta"</span>, <span class="st">"Delta"</span>, <span class="st">"Epsilon"</span><span class="op">)</span>, return_seurat <span class="op">=</span> <span class="cn">TRUE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>

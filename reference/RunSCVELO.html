@@ -12,7 +12,7 @@ This function performs scVelo workflow in R by reticulate."><!-- mathjax --><scr
     
     <a class="navbar-brand me-2" href="../index.html">SCP</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.1</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -61,8 +61,8 @@ This function performs scVelo workflow in R by reticulate.</p>
 <span>  h5ad <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  group_by <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  n_jobs <span class="op">=</span> <span class="fl">1</span>,</span>
-<span>  liner_reduction <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  nonliner_reduction <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  linear_reduction <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  nonlinear_reduction <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  basis <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  mode <span class="op">=</span> <span class="st">"stochastic"</span>,</span>
 <span>  fitting_by <span class="op">=</span> <span class="st">"stochastic"</span>,</span>
@@ -116,12 +116,12 @@ This function performs scVelo workflow in R by reticulate.</p>
 <dd><p>n_jobs.</p></dd>
 
 
-<dt>liner_reduction</dt>
-<dd><p>liner_reduction.</p></dd>
+<dt>linear_reduction</dt>
+<dd><p>linear_reduction.</p></dd>
 
 
-<dt>nonliner_reduction</dt>
-<dd><p>nonliner_reduction.</p></dd>
+<dt>nonlinear_reduction</dt>
+<dd><p>nonlinear_reduction.</p></dd>
 
 
 <dt>basis</dt>
@@ -214,7 +214,7 @@ This function performs scVelo workflow in R by reticulate.</p>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"pancreas_sub"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu">RunSCVELO</span><span class="op">(</span>srt <span class="op">=</span> <span class="va">pancreas_sub</span>, group_by <span class="op">=</span> <span class="st">"SubCellType"</span>, liner_reduction <span class="op">=</span> <span class="st">"PCA"</span>, nonliner_reduction <span class="op">=</span> <span class="st">"UMAP"</span>, return_seurat <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu">RunSCVELO</span><span class="op">(</span>srt <span class="op">=</span> <span class="va">pancreas_sub</span>, group_by <span class="op">=</span> <span class="st">"SubCellType"</span>, linear_reduction <span class="op">=</span> <span class="st">"PCA"</span>, nonlinear_reduction <span class="op">=</span> <span class="st">"UMAP"</span>, return_seurat <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> 'misc' slot in the srt object is not converted.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> 'tools' slot in the srt object is not converted.</span>
 <span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in py_call_impl(callable, dots$args, dots$keywords):</span> ImportError: IProgress not found. Please update jupyter and ipywidgets. See https://ipywidgets.readthedocs.io/en/stable/user_install.html</span>

@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">SCP</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.1</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -61,11 +61,24 @@
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
     <dl><dt>pkgs</dt>
-<dd></dd>
+<dd><p>Package to be installed. Package source can be CRAN, Bioconductor or Github, e.g. scmap, davidsjoberg/ggsankey.</p></dd>
+
+
+<dt>pkg_names</dt>
+<dd><p>The name of the package that corresponds to the <code>pkgs</code> parameter, used to check if the package is already installed.
+By default, the package name is extracted according to the <code>pkgs</code> parameter.</p></dd>
+
+
+<dt>install_methods</dt>
+<dd><p>Functions for installing R packages. The default is to try to install packages from CRAN, Bioconductor and Github.</p></dd>
+
+
+<dt>lib</dt>
+<dd><p>Character vector giving the library directories where to install the packages.</p></dd>
 
 
 <dt>force</dt>
-<dd></dd>
+<dd><p>Whether to force package installation. Default is FALSE.</p></dd>
 
 </dl></div>
 
