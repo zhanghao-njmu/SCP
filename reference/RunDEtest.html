@@ -115,13 +115,13 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">pancreas_sub</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu">RunDEtest</span><span class="op">(</span><span class="va">pancreas_sub</span>, group_by <span class="op">=</span> <span class="st">"CellType"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-27 10:17:52] Start DEtest</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-27 13:08:44] Start DEtest</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Threads used for DE test: 1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform FindAllMarkers(wilcox)...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |==============================================================================================================| 100%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-27 10:18:15] DEtest done</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 23.35 secs </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-10-27 13:09:02] DEtest done</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 17.65 secs </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Heatmap</span></span></span>
 <span class="r-in"><span><span class="va">de_filter</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">pancreas_sub</span><span class="op">@</span><span class="va">tools</span><span class="op">$</span><span class="va">DEtest_CellType</span><span class="op">$</span><span class="va">AllMarkers_wilcox</span>, <span class="va">p_val_adj</span> <span class="op">&lt;</span> <span class="fl">0.05</span> <span class="op">&amp;</span> <span class="va">avg_log2FC</span> <span class="op">&gt;</span> <span class="fl">1</span><span class="op">)</span></span></span>
