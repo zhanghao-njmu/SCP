@@ -76,7 +76,7 @@ reticulate:::python_version(py)
 Then run `PrepareVirtualEnv` to create a standalone python virtual environment for SCP and install the necessary packages.
 
 ```{r eval=FALSE}
-SCP::PrepareVirtualEnv(python = py, pipy_mirror = "https://pypi.tuna.tsinghua.edu.cn/simple", remove_old = TRUE)
+SCP::PrepareVirtualEnv(python = py, pypi_mirror = "https://pypi.tuna.tsinghua.edu.cn/simple", remove_old = TRUE)
 reticulate::virtualenv_python("SCP")
 ```
 
@@ -164,7 +164,7 @@ Example data for integration is a subsetted version of [panc8(eight human pancre
 ```{r Integration_SCP}
 data("panc8_sub")
 panc8_sub <- Integration_SCP(srtMerge = panc8_sub, batch = "tech", integration_method = "Seurat")
-panc8_sub <- Integration_SCP(srtMerge = panc8_sub, batch = "tech", integration_method = "fastMNN", nonliner_reduction = "pacmap")
+panc8_sub <- Integration_SCP(srtMerge = panc8_sub, batch = "tech", integration_method = "fastMNN", nonlinear_reduction = "pacmap")
 ClassDimPlot(
   srt = panc8_sub, group.by = c("celltype", "tech"), reduction = "SeuratUMAP2D",
   title = "Seurat", theme_use = "theme_blank"
@@ -209,7 +209,7 @@ ClassDimPlot(srt = pancreas_sub, group.by = "knnpredict_classification", reducti
 ```{r RunPAGA}
 pancreas_sub <- RunPAGA(
   srt = pancreas_sub, group_by = "SubCellType",
-  liner_reduction = "PCA", nonliner_reduction = "UMAP", return_seurat = TRUE
+  linear_reduction = "PCA", nonlinear_reduction = "UMAP", return_seurat = TRUE
 )
 PAGAPlot(srt = pancreas_sub, reduction = "UMAP", label = TRUE, label_insitu = TRUE, label_repel = TRUE)
 ```
@@ -219,7 +219,7 @@ PAGAPlot(srt = pancreas_sub, reduction = "UMAP", label = TRUE, label_insitu = TR
 ```{r RunSCVELO}
 pancreas_sub <- RunSCVELO(
   srt = pancreas_sub, group_by = "SubCellType",
-  liner_reduction = "PCA", nonliner_reduction = "UMAP", return_seurat = TRUE
+  linear_reduction = "PCA", nonlinear_reduction = "UMAP", return_seurat = TRUE
 )
 VelocityPlot(srt = pancreas_sub, reduction = "UMAP", group_by = "SubCellType")
 VelocityPlot(srt = pancreas_sub, reduction = "UMAP", plot_type = "stream")

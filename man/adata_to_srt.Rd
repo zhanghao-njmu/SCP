@@ -15,7 +15,7 @@ Convert an anndata object to a seurat object using reticulate
 \examples{
 data("pancreas_sub")
 adata <- srt_to_adata(pancreas_sub)
-adata <- RunPAGA(adata = adata, group_by = "SubCellType", liner_reduction = "PCA", nonliner_reduction = "UMAP")
+adata <- RunPAGA(adata = adata, group_by = "SubCellType", linear_reduction = "PCA", nonlinear_reduction = "UMAP")
 srt <- adata_to_srt(adata)
 srt
 

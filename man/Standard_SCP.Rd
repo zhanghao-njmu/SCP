@@ -16,15 +16,15 @@ Standard_SCP(
   do_scaling = TRUE,
   vars_to_regress = NULL,
   regression_model = "linear",
-  liner_reduction = "pca",
-  liner_reduction_dims = 100,
-  liner_reduction_dims_use = NULL,
-  liner_reduction_params = list(),
-  force_liner_reduction = FALSE,
-  nonliner_reduction = "umap",
-  nonliner_reduction_dims = c(2, 3),
-  nonliner_reduction_params = list(),
-  force_nonliner_reduction = TRUE,
+  linear_reduction = "pca",
+  linear_reduction_dims = 100,
+  linear_reduction_dims_use = NULL,
+  linear_reduction_params = list(),
+  force_linear_reduction = FALSE,
+  nonlinear_reduction = "umap",
+  nonlinear_reduction_dims = c(2, 3),
+  nonlinear_reduction_params = list(),
+  force_nonlinear_reduction = TRUE,
   do_cluster_finding = TRUE,
   cluster_algorithm = "louvain",
   cluster_resolution = 0.6,
@@ -53,17 +53,17 @@ Standard_SCP(
 
 \item{regression_model}{Use a linear model or generalized linear model (poisson, negative binomial) for the regression. Options are "linear" (default), "poisson", and "negbinom".}
 
-\item{liner_reduction}{Liner reduction method name. Can be one of "pca", "ica", "nmf", "mds", "glmpca".}
+\item{linear_reduction}{linear reduction method name. Can be one of "pca", "ica", "nmf", "mds", "glmpca".}
 
-\item{liner_reduction_dims}{Dimensions to calculate when performing liner reduction.}
+\item{linear_reduction_dims}{Dimensions to calculate when performing linear reduction.}
 
-\item{liner_reduction_dims_use}{Which dimensions to use when performing the nonliner reduction.}
+\item{linear_reduction_dims_use}{Which dimensions to use when performing the nonlinear reduction.}
 
-\item{nonliner_reduction}{Non-liner reduction method name. Can be one of "umap", "umap-naive", "tsne", "dm", "phate", "pacmap", "trimap", "largevis".}
+\item{nonlinear_reduction}{Non-linear reduction method name. Can be one of "umap", "umap-naive", "tsne", "dm", "phate", "pacmap", "trimap", "largevis".}
 
-\item{nonliner_reduction_dims}{Dimensions to calculate when performing non-liner reduction.}
+\item{nonlinear_reduction_dims}{Dimensions to calculate when performing non-linear reduction.}
 
-\item{force_nonliner_reduction}{}
+\item{force_nonlinear_reduction}{}
 
 \item{cluster_algorithm}{Algorithm for modularity optimization when finding clusters. Can be one of "louvain", "slm", "leiden".}
 
@@ -83,4 +83,13 @@ Single cell pipeline for the single dataset.
 data("pancreas_sub")
 pancreas_sub <- Standard_SCP(srt = pancreas_sub)
 ClassDimPlot(pancreas_sub, group.by = "CellType")
+
+# Use a combination of different linear or non-linear dimension reduction methods
+pancreas_sub <- Standard_SCP(
+  srt = pancreas_sub,
+  linear_reduction = c("pca", "ica", "nmf", "mds", "glmpca"),
+  nonlinear_reduction = c("umap", "tsne", "phate", "pacmap", "trimap")
+)
+names(pancreas_sub@reductions)
+
 }

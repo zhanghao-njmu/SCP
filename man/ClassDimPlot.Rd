@@ -206,7 +206,7 @@ ClassDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", lineage
 ClassDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", lineages = paste0("Lineage", 1:3), lineages_span = 0.1)
 
 # Show PAGA result on the plot
-pancreas_sub <- RunPAGA(srt = pancreas_sub, group_by = "SubCellType", liner_reduction = "PCA", nonliner_reduction = "UMAP", return_seurat = TRUE)
+pancreas_sub <- RunPAGA(srt = pancreas_sub, group_by = "SubCellType", linear_reduction = "PCA", nonlinear_reduction = "UMAP", return_seurat = TRUE)
 ClassDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", paga = pancreas_sub@misc$paga)
 ClassDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", paga = pancreas_sub@misc$paga, paga_type = "connectivities_tree")
 ClassDimPlot(pancreas_sub,
@@ -217,7 +217,7 @@ ClassDimPlot(pancreas_sub,
 )
 
 # Show RNA velocity result on the plot
-pancreas_sub <- RunSCVELO(srt = pancreas_sub, group_by = "SubCellType", liner_reduction = "PCA", nonliner_reduction = "UMAP", mode = "stochastic", return_seurat = TRUE)
+pancreas_sub <- RunSCVELO(srt = pancreas_sub, group_by = "SubCellType", linear_reduction = "PCA", nonlinear_reduction = "UMAP", mode = "stochastic", return_seurat = TRUE)
 ClassDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", paga = pancreas_sub@misc$paga, paga_show_transition = TRUE)
 ClassDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", pt.size = NA, velocity = "stochastic")
 ClassDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", pt.size = 5, pt.alpha = 0.2, velocity = "stochastic", velocity_plot_type = "grid")

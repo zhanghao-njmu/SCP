@@ -15,10 +15,30 @@
 #'
 #' @examples
 #' res <- GeneConvert(
-#'   geneID = c("CDK1", "MKI67", "TOP2A", "AURKA", "CTCF"), geneID_from_IDtype = "symbol", geneID_to_IDtype = "entrez_id",
-#'   species_from = "Homo_sapiens", species_to = "Mus_musculus", Ensembl_version = 103
+#'   geneID = c("CDK1", "MKI67", "TOP2A", "AURKA", "CTCF"),
+#'   geneID_from_IDtype = "symbol",
+#'   geneID_to_IDtype = "entrez_id",
+#'   species_from = "Homo_sapiens",
+#'   species_to = "Mus_musculus",
+#'   Ensembl_version = 103
 #' )
 #' str(res)
+#'
+#' # Convert the human genes to mouse homologs and replace the raw counts in a Seurat object.
+#' data("pancreas_sub")
+#' counts <- pancreas_sub@assays$RNA@counts
+#' res <- GeneConvert(
+#'   geneID = rownames(counts),
+#'   geneID_from_IDtype = "symbol",
+#'   geneID_to_IDtype = "symbol",
+#'   species_from = "Mus_musculus",
+#'   species_to = "Homo_sapiens",
+#'   Ensembl_version = 103
+#' )
+#' homologs_counts <- counts[res$geneID_expand[, "from_geneID"], ]
+#' rownames(homologs_counts) <- res$geneID_expand[, "symbol"]
+#' homologs_counts <- Matrix.utils::aggregate.Matrix(homologs_counts, row.names(homologs_counts))
+#' homologs_counts
 #'
 #' @importFrom dplyr "%>%" group_by mutate .data
 #' @importFrom reshape2 dcast melt
@@ -1764,10 +1784,13 @@ RunGSEA <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_thresho
 #' @examples
 #' data("pancreas_sub")
 #' pancreas_sub <- RunSlingshot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP")
+#' pancreas_sub <- RunSlingshot(pancreas_sub, group.by = "SubCellType", reduction = "PCA", dims = 1:10)
+#' ClassDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", lineages = paste0("Lineage", 1:2), lineages_span = 0.1)
 #'
 #' # 3D lineage
 #' pancreas_sub <- Standard_SCP(pancreas_sub)
 #' pancreas_sub <- RunSlingshot(pancreas_sub, group.by = "SubCellType", reduction = "StandardpcaUMAP3D")
+#' ClassDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", lineages = paste0("Lineage", 1:3), lineages_span = 0.1, lineages_trim = c(0.05, 0.95))
 #' @importFrom Seurat AddMetaData as.SingleCellExperiment
 #' @importFrom slingshot slingshot slingPseudotime slingBranchID
 #' @export
@@ -2982,7 +3005,7 @@ srt_to_adata <- function(srt,
 #' @examples
 #' data("pancreas_sub")
 #' adata <- srt_to_adata(pancreas_sub)
-#' adata <- RunPAGA(adata = adata, group_by = "SubCellType", liner_reduction = "PCA", nonliner_reduction = "UMAP")
+#' adata <- RunPAGA(adata = adata, group_by = "SubCellType", linear_reduction = "PCA", nonlinear_reduction = "UMAP")
 #' srt <- adata_to_srt(adata)
 #' srt
 #'
@@ -3159,11 +3182,11 @@ check_python_element <- function(x, depth = maxDepth(x)) {
 #'
 #' @examples
 #' data("pancreas_sub")
-#' pancreas_sub <- RunPAGA(srt = pancreas_sub, group_by = "SubCellType", liner_reduction = "PCA", nonliner_reduction = "UMAP", return_seurat = TRUE)
+#' pancreas_sub <- RunPAGA(srt = pancreas_sub, group_by = "SubCellType", linear_reduction = "PCA", nonlinear_reduction = "UMAP", return_seurat = TRUE)
 #' PAGAPlot(pancreas_sub)
 #'
 #' pancreas_sub <- RunPAGA(
-#'   srt = pancreas_sub, group_by = "SubCellType", liner_reduction = "PCA", nonliner_reduction = "UMAP",
+#'   srt = pancreas_sub, group_by = "SubCellType", linear_reduction = "PCA", nonlinear_reduction = "UMAP",
 #'   embedded_with_PAGA = TRUE, infer_pseudotime = TRUE, root_group = "Ductal", return_seurat = TRUE
 #' )
 #' head(pancreas_sub[[]])
@@ -3176,7 +3199,7 @@ check_python_element <- function(x, depth = maxDepth(x)) {
 #'
 RunPAGA <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_layers = c("spliced", "unspliced"), slot_layers = "counts",
                     adata = NULL, h5ad = NULL, group_by = NULL,
-                    liner_reduction = NULL, nonliner_reduction = NULL, basis = NULL,
+                    linear_reduction = NULL, nonlinear_reduction = NULL, basis = NULL,
                     n_pcs = 30, n_neighbors = 30, use_rna_velocity = FALSE, vkey = "stochastic",
                     embedded_with_PAGA = FALSE, paga_layout = "fr", threshold = 0.1, point_size = 20,
                     infer_pseudotime = FALSE, root_group = NULL, root_cell = NULL, n_dcs = 10, n_branchings = 0, min_group_size = 0.01,
@@ -3189,8 +3212,8 @@ RunPAGA <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_layers
   if (is.null(group_by)) {
     stop("'group_by' must be provided.")
   }
-  if (is.null(liner_reduction) && is.null(nonliner_reduction)) {
-    stop("'liner_reduction' or 'nonliner_reduction' must be provided at least one.")
+  if (is.null(linear_reduction) && is.null(nonlinear_reduction)) {
+    stop("'linear_reduction' or 'nonlinear_reduction' must be provided at least one.")
   }
   args <- mget(names(formals()))
   args <- lapply(args, function(x) {
@@ -3248,8 +3271,8 @@ RunPAGA <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_layers
 #' @param adata An \code{anndata} object. Can be created through \code{\link{srt_to_adata}}
 #' @param h5ad h5ad file path.
 #' @param group_by group_by.
-#' @param liner_reduction liner_reduction.
-#' @param nonliner_reduction nonliner_reduction.
+#' @param linear_reduction linear_reduction.
+#' @param nonlinear_reduction nonlinear_reduction.
 #' @param basis basis.
 #' @param mode mode.
 #' @param fitting_by fitting_by.
@@ -3288,7 +3311,7 @@ RunPAGA <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_layers
 #'
 #' @examples
 #' data("pancreas_sub")
-#' pancreas_sub <- RunSCVELO(srt = pancreas_sub, group_by = "SubCellType", liner_reduction = "PCA", nonliner_reduction = "UMAP", return_seurat = TRUE)
+#' pancreas_sub <- RunSCVELO(srt = pancreas_sub, group_by = "SubCellType", linear_reduction = "PCA", nonlinear_reduction = "UMAP", return_seurat = TRUE)
 #' head(pancreas_sub[[]])
 #' names(pancreas_sub@assays)
 #' ExpDimPlot(pancreas_sub, c("stochastic_length", "stochastic_confidence"))
@@ -3299,7 +3322,7 @@ RunPAGA <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_layers
 #'
 RunSCVELO <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_layers = c("spliced", "unspliced"), slot_layers = "counts",
                       adata = NULL, h5ad = NULL, group_by = NULL, n_jobs = 1,
-                      liner_reduction = NULL, nonliner_reduction = NULL, basis = NULL,
+                      linear_reduction = NULL, nonlinear_reduction = NULL, basis = NULL,
                       mode = "stochastic", fitting_by = "stochastic",
                       magic_impute = FALSE, knn = 5, t = 2,
                       min_shared_counts = 30, n_pcs = 30, n_neighbors = 30, approx = TRUE,
@@ -3319,8 +3342,8 @@ RunSCVELO <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_laye
   if (is.null(group_by)) {
     stop("'group_by' must be provided.")
   }
-  if (is.null(liner_reduction) && is.null(nonliner_reduction)) {
-    stop("'liner_reduction' or 'nonliner_reduction' must be provided at least one.")
+  if (is.null(linear_reduction) && is.null(nonlinear_reduction)) {
+    stop("'linear_reduction' or 'nonlinear_reduction' must be provided at least one.")
   }
   args <- mget(names(formals()))
   args <- lapply(args, function(x) {
@@ -3377,7 +3400,7 @@ RunSCVELO <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_laye
 #' @examples
 #' data("pancreas_sub")
 #' pancreas_sub <- RunPalantir(
-#'   srt = pancreas_sub, group_by = "SubCellType", liner_reduction = "PCA", nonliner_reduction = "UMAP",
+#'   srt = pancreas_sub, group_by = "SubCellType", linear_reduction = "PCA", nonlinear_reduction = "UMAP",
 #'   early_group = "Ductal", use_early_cell_as_start = TRUE,
 #'   terminal_groups = c("Alpha", "Beta", "Delta", "Epsilon"), return_seurat = TRUE
 #' )
@@ -3389,7 +3412,7 @@ RunSCVELO <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_laye
 #'
 RunPalantir <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_layers = c("spliced", "unspliced"), slot_layers = "counts",
                         adata = NULL, h5ad = NULL, group_by = NULL,
-                        liner_reduction = NULL, nonliner_reduction = NULL, basis = NULL,
+                        linear_reduction = NULL, nonlinear_reduction = NULL, basis = NULL,
                         n_pcs = 30, n_neighbors = 30, dm_n_components = 10, dm_alpha = 0, dm_n_eigs = NULL,
                         early_group = NULL, terminal_groups = NULL, early_cell = NULL, terminal_cells = NULL,
                         num_waypoints = 1200, scale_components = TRUE, use_early_cell_as_start = FALSE,
@@ -3403,8 +3426,8 @@ RunPalantir <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_la
   if (is.null(group_by) && any(!is.null(early_group), !is.null(terminal_groups))) {
     stop("'group_by' must be provided when early_group or terminal_groups provided.")
   }
-  if (is.null(liner_reduction) && is.null(nonliner_reduction)) {
-    stop("'liner_reduction' or 'nonliner_reduction' must be provided at least one.")
+  if (is.null(linear_reduction) && is.null(nonlinear_reduction)) {
+    stop("'linear_reduction' or 'nonlinear_reduction' must be provided at least one.")
   }
   if (is.null(early_cell) && is.null(early_group)) {
     stop("'early_cell' or 'early_group' must be provided.")
@@ -3457,7 +3480,7 @@ RunPalantir <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_la
 
 RunCellRank <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_layers = c("spliced", "unspliced"), slot_layers = "counts",
                         adata = NULL, h5ad = NULL, group_by = NULL, n_jobs = 1,
-                        liner_reduction = NULL, nonliner_reduction = NULL, basis = NULL,
+                        linear_reduction = NULL, nonlinear_reduction = NULL, basis = NULL,
                         mode = "stochastic", fitting_by = "stochastic",
                         magic_impute = FALSE, knn = 5, t = 2,
                         min_shared_counts = 30, n_pcs = 30, n_neighbors = 30, approx = TRUE,
@@ -3477,8 +3500,8 @@ RunCellRank <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_la
   if (is.null(group_by)) {
     stop("'group_by' must be provided.")
   }
-  if (is.null(liner_reduction) && is.null(nonliner_reduction)) {
-    stop("'liner_reduction' or 'nonliner_reduction' must be provided at least one.")
+  if (is.null(linear_reduction) && is.null(nonlinear_reduction)) {
+    stop("'linear_reduction' or 'nonlinear_reduction' must be provided at least one.")
   }
   mode <- as.list(mode)
   args <- mget(names(formals()))
@@ -3527,7 +3550,7 @@ RunCellRank <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_la
 
 RunDynamo <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_layers = c("spliced", "unspliced"), slot_layers = "counts",
                       adata = NULL, h5ad = NULL, group_by = NULL,
-                      liner_reduction = NULL, nonliner_reduction = NULL, basis = NULL,
+                      linear_reduction = NULL, nonlinear_reduction = NULL, basis = NULL,
                       n_pcs = 30, n_neighbors = 30, dm_n_components = 10, dm_alpha = 0, dm_n_eigs = NULL,
                       early_group = NULL, terminal_groups = NULL, early_cell = NULL, terminal_cells = NULL,
                       num_waypoints = 1200, scale_components = TRUE, use_early_cell_as_start = FALSE,
@@ -3541,8 +3564,8 @@ RunDynamo <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_laye
   if (is.null(group_by)) {
     stop("'group_by' must be provided.")
   }
-  if (is.null(liner_reduction) && is.null(nonliner_reduction)) {
-    stop("'liner_reduction' or 'nonliner_reduction' must be provided at least one.")
+  if (is.null(linear_reduction) && is.null(nonlinear_reduction)) {
+    stop("'linear_reduction' or 'nonlinear_reduction' must be provided at least one.")
   }
   args <- mget(names(formals()))
   args <- lapply(args, function(x) {

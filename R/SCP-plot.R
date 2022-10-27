@@ -154,15 +154,16 @@ theme_blank <- function(add_coord = TRUE, xlab = "Dim1", ylab = "Dim2", xlen_npc
 #'
 #' @examples
 #' x <- c(1:3, NA, 3:5)
-#' pal1 <- palette_scp(x, palette = "Spectral")
-#' pal2 <- palette_scp(x, palette = "Spectral", matched = TRUE)
-#' pal3 <- palette_scp(x, palette = "Spectral", matched = TRUE, NA_keep = TRUE)
-#' pal4 <- palette_scp(x, palette = "Paired", type = "discrete")
-#' list_palette(list(pal1, pal2, pal3, pal4))
+#' (pal1 <- palette_scp(x, palette = "Spectral"))
+#' (pal2 <- palette_scp(x, palette = "Spectral", matched = TRUE))
+#' (pal3 <- palette_scp(x, palette = "Spectral", matched = TRUE, NA_keep = TRUE))
+#' (pal4 <- palette_scp(x, palette = "Paired", type = "discrete"))
+#' show_palettes(list(pal1, pal2, pal3, pal4))
 #'
-#' names(SCP:::palette_list)
-#' list_palette(SCP:::palette_list)
+#' all_palettes <- show_palettes(return_palettes = TRUE)
+#' names(all_palettes)
 #'
+#' @seealso [show_palettes()]
 #' \dontrun{
 #' if (interactive()) {
 #'   check_R(c("stringr", "RColorBrewer", "ggsci", "Redmonder", "rcartocolor", "nord", "viridis", "pals", "oompaBase", "dichromat", "jcolors"))
@@ -391,6 +392,63 @@ palette_scp <- function(x, n = 100, palette = "Paired", palcolor = NULL, type = 
     color <- color[names(color) != "NA"]
   }
   return(color)
+}
+
+#' Show the palettes collected by SCP
+#' @param index The index of the palette in SCP palette list. Show all palettes in SCP by default.
+#' @param palette_names Name of the palettes to be shown
+#' @param return_names Whether to return the palette names.
+#' @param return_palettes Whether to return the palettes.
+#'
+#' @examples
+#' all_palettes <- show_palettes(return_palettes = TRUE)
+#' names(all_palettes)
+#' show_palettes(index = 1:10)
+#' show_palettes(palette_names = c("Paired", "nejm", "simspec", "Spectral", "jet"), return_palettes = TRUE)
+#'
+#' @importFrom rlang %||%
+#' @importFrom graphics par text rect
+#' @export
+show_palettes <- function(palettes = NULL, index = NULL, palette_names = NULL, return_names = TRUE, return_palettes = FALSE) {
+  if (!is.null(palettes)) {
+    palette_list <- palettes
+  }
+  index <- index[index %in% seq_along(palette_list)]
+  if (!is.null(index)) {
+    palette_list <- palette_list[index]
+  }
+  if (is.null(names(palette_list))) {
+    names(palette_list) <- seq_along(palette_list)
+  }
+  if (is.null(palette_names)) {
+    palette_names <- palette_names %||% names(palette_list)
+  }
+  if (any(!palette_names %in% names(palette_list))) {
+    stop(paste("Can not find the palettes: ", paste0(palette_names[!palette_names %in% names(palette_list)], collapse = ",")))
+  }
+  palette_list <- palette_list[palette_names]
+
+  par(mar = c(0, 0, 0, 0) + 0.1)
+  plot(0, 0,
+    type = "n", axes = FALSE, bty = "n", xlab = "", ylab = "",
+    xlim = c(0, 1), ylim = c(-length(palette_list) - 1, -1)
+  )
+  for (i in seq_len(length(palette_list))) {
+    colors_len <- length(palette_list[[i]])
+    breaks <- seq(from = 0, to = 1, length = colors_len + 1)
+    text(0, -i, palette_names[i], pos = 4)
+    rect(
+      xleft = breaks[1:colors_len], xright = breaks[1:colors_len + 1],
+      ytop = -0.15 - i, ybottom = -0.8 - i,
+      col = palette_list[[i]], border = NA
+    )
+  }
+  if (isTRUE(return_palettes)) {
+    return(palette_list)
+  }
+  if (isTRUE(return_names)) {
+    return(palette_names)
+  }
 }
 
 #' Set the panel width/height of a plot object to a fixed value.
@@ -982,7 +1040,7 @@ DefaultReduction <- function(srt, pattern = NULL, min_dim = 2, max_distance = 0.
 #' ClassDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", lineages = paste0("Lineage", 1:3), lineages_span = 0.1)
 #'
 #' # Show PAGA result on the plot
-#' pancreas_sub <- RunPAGA(srt = pancreas_sub, group_by = "SubCellType", liner_reduction = "PCA", nonliner_reduction = "UMAP", return_seurat = TRUE)
+#' pancreas_sub <- RunPAGA(srt = pancreas_sub, group_by = "SubCellType", linear_reduction = "PCA", nonlinear_reduction = "UMAP", return_seurat = TRUE)
 #' ClassDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", paga = pancreas_sub@misc$paga)
 #' ClassDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", paga = pancreas_sub@misc$paga, paga_type = "connectivities_tree")
 #' ClassDimPlot(pancreas_sub,
@@ -993,7 +1051,7 @@ DefaultReduction <- function(srt, pattern = NULL, min_dim = 2, max_distance = 0.
 #' )
 #'
 #' # Show RNA velocity result on the plot
-#' pancreas_sub <- RunSCVELO(srt = pancreas_sub, group_by = "SubCellType", liner_reduction = "PCA", nonliner_reduction = "UMAP", mode = "stochastic", return_seurat = TRUE)
+#' pancreas_sub <- RunSCVELO(srt = pancreas_sub, group_by = "SubCellType", linear_reduction = "PCA", nonlinear_reduction = "UMAP", mode = "stochastic", return_seurat = TRUE)
 #' ClassDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", paga = pancreas_sub@misc$paga, paga_show_transition = TRUE)
 #' ClassDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", pt.size = NA, velocity = "stochastic")
 #' ClassDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", pt.size = 5, pt.alpha = 0.2, velocity = "stochastic", velocity_plot_type = "grid")
@@ -5666,7 +5724,7 @@ LineagePlot <- function(srt, lineages, reduction = NULL, dims = c(1, 2),
 #'
 #' @examples
 #' data("pancreas_sub")
-#' pancreas_sub <- RunPAGA(srt = pancreas_sub, group_by = "SubCellType", liner_reduction = "PCA", nonliner_reduction = "UMAP", return_seurat = TRUE)
+#' pancreas_sub <- RunPAGA(srt = pancreas_sub, group_by = "SubCellType", linear_reduction = "PCA", nonlinear_reduction = "UMAP", return_seurat = TRUE)
 #' PAGAPlot(pancreas_sub)
 #' PAGAPlot(pancreas_sub, type = "connectivities_tree")
 #' PAGAPlot(pancreas_sub, reduction = "PCA")
@@ -5679,7 +5737,7 @@ LineagePlot <- function(srt, lineages, reduction = NULL, dims = c(1, 2),
 #' PAGAPlot(pancreas_sub, node_highlight = "Ductal")
 #' PAGAPlot(pancreas_sub, edge_highlight = paste("Pre-endocrine", levels(pancreas_sub$SubCellType), sep = "-"))
 #'
-#' pancreas_sub <- RunSCVELO(srt = pancreas_sub, group_by = "SubCellType", liner_reduction = "PCA", nonliner_reduction = "UMAP", return_seurat = TRUE)
+#' pancreas_sub <- RunSCVELO(srt = pancreas_sub, group_by = "SubCellType", linear_reduction = "PCA", nonlinear_reduction = "UMAP", return_seurat = TRUE)
 #' PAGAPlot(pancreas_sub, show_transition = TRUE)
 #'
 #' @importFrom Seurat Reductions Key Embeddings
@@ -6279,7 +6337,7 @@ segementsDf <- function(data, shorten_start, shorten_end, offset) {
 #'
 #' @examples
 #' data("pancreas_sub")
-#' pancreas_sub <- RunSCVELO(srt = pancreas_sub, group_by = "SubCellType", liner_reduction = "PCA", nonliner_reduction = "UMAP", return_seurat = TRUE)
+#' pancreas_sub <- RunSCVELO(srt = pancreas_sub, group_by = "SubCellType", linear_reduction = "PCA", nonlinear_reduction = "UMAP", return_seurat = TRUE)
 #' VelocityPlot(pancreas_sub, reduction = "UMAP")
 #' VelocityPlot(pancreas_sub, reduction = "UMAP", group_by = "SubCellType")
 #' VelocityPlot(pancreas_sub, reduction = "UMAP", plot_type = "grid")

@@ -1,5 +1,5 @@
 def SCVELO(adata=None, h5ad=None, group_by=None, n_jobs=1,
-          liner_reduction=None, nonliner_reduction=None,basis=None,
+          linear_reduction=None, nonlinear_reduction=None,basis=None,
           mode=["deterministic","stochastic","dynamical"],fitting_by="stochastic",
           magic_impute=False,knn=5, t=2,
           min_shared_counts=30, n_pcs=30, n_neighbors=30, approx=True, 
@@ -46,20 +46,20 @@ def SCVELO(adata=None, h5ad=None, group_by=None, n_jobs=1,
       print("group_by must be provided.")
       exit()
       
-    if liner_reduction is None and nonliner_reduction is None:
-      print("liner_reduction or nonliner_reduction must be provided at least one.")
+    if linear_reduction is None and nonlinear_reduction is None:
+      print("linear_reduction or nonlinear_reduction must be provided at least one.")
       exit()
       
-    if liner_reduction is None:
+    if linear_reduction is None:
       sc.pp.pca(adata, n_comps = n_pcs)
-      liner_reduction="X_pca"
+      linear_reduction="X_pca"
       
     if basis is None:
-      if nonliner_reduction is not None:
-        basis=nonliner_reduction
+      if nonlinear_reduction is not None:
+        basis=nonlinear_reduction
       else:
         basis="basis"
-        adata.obsm["basis"]=adata.obsm[liner_reduction][:,0:2]
+        adata.obsm["basis"]=adata.obsm[linear_reduction][:,0:2]
 
     if type(mode) is str:
       mode=[mode]
@@ -97,7 +97,7 @@ def SCVELO(adata=None, h5ad=None, group_by=None, n_jobs=1,
       adata.layers["spliced"] = magic_operator.fit_transform(adata.layers["spliced_raw"])
       adata.layers["unspliced"] = magic_operator.transform(adata.layers["unspliced_raw"])
 
-    scv.pp.moments(adata, n_pcs=n_pcs, n_neighbors = n_neighbors, use_rep=liner_reduction)
+    scv.pp.moments(adata, n_pcs=n_pcs, n_neighbors = n_neighbors, use_rep=linear_reduction)
 
     for m in mode:
       vkey_list=[m]
@@ -321,7 +321,7 @@ def SCVELO(adata=None, h5ad=None, group_by=None, n_jobs=1,
   return adata
 
 def CellRank(adata=None, h5ad=None, group_by=None, n_jobs=1,
-             liner_reduction=None, nonliner_reduction=None,basis=None,
+             linear_reduction=None, nonlinear_reduction=None,basis=None,
              mode=["deterministic","stochastic","dynamical"],fitting_by="stochastic",
              magic_impute=False,knn=5, t=2,
              min_shared_counts=30, n_pcs=30, n_neighbors=30, approx=True, 
@@ -369,20 +369,20 @@ def CellRank(adata=None, h5ad=None, group_by=None, n_jobs=1,
       print("group_by must be provided.")
       exit()
       
-    if liner_reduction is None and nonliner_reduction is None:
-      print("liner_reduction or nonliner_reduction must be provided at least one.")
+    if linear_reduction is None and nonlinear_reduction is None:
+      print("linear_reduction or nonlinear_reduction must be provided at least one.")
       exit()
       
-    if liner_reduction is None:
+    if linear_reduction is None:
       sc.pp.pca(adata, n_comps = n_pcs)
-      liner_reduction="X_pca"
+      linear_reduction="X_pca"
       
     if basis is None:
-      if nonliner_reduction is not None:
-        basis=nonliner_reduction
+      if nonlinear_reduction is not None:
+        basis=nonlinear_reduction
       else:
         basis="basis"
-        adata.obsm["basis"]=adata.obsm[liner_reduction][:,0:2]
+        adata.obsm["basis"]=adata.obsm[linear_reduction][:,0:2]
 
     mode.append(fitting_by)
     if kinetics is True or denoise is True:
@@ -404,7 +404,7 @@ def CellRank(adata=None, h5ad=None, group_by=None, n_jobs=1,
 
     if mode[-1]+"_graph" not in adata.obs.keys():
       adata=SCVELO(adata=adata,group_by=group_by, n_jobs=n_jobs,
-                   liner_reduction=liner_reduction, nonliner_reduction=nonliner_reduction,basis=basis,
+                   linear_reduction=linear_reduction, nonlinear_reduction=nonlinear_reduction,basis=basis,
                    mode=mode,fitting_by=fitting_by,magic_impute=magic_impute,knn=knn, t=t,
                    min_shared_counts=min_shared_counts, n_pcs=n_pcs, n_neighbors=n_neighbors, approx=approx, 
                    stream_smooth=stream_smooth, stream_density=stream_density,
@@ -444,7 +444,7 @@ def CellRank(adata=None, h5ad=None, group_by=None, n_jobs=1,
 
   return adata
 
-def PAGA(adata=None, h5ad=None, group_by=None, liner_reduction=None, nonliner_reduction=None,basis=None,
+def PAGA(adata=None, h5ad=None, group_by=None, linear_reduction=None, nonlinear_reduction=None,basis=None,
             n_pcs=30,n_neighbors=30, use_rna_velocity=False,vkey="stochastic",
             embedded_with_PAGA=False,paga_layout="fr", threshold=0.1, point_size=20, axis = "equal",
             infer_pseudotime = False,root_cell = None,root_group=None,n_dcs = 10, n_branchings = 0, min_group_size = 0.01,
@@ -487,20 +487,20 @@ def PAGA(adata=None, h5ad=None, group_by=None, liner_reduction=None, nonliner_re
       print("group_by must be provided.")
       exit()
       
-    if liner_reduction is None and nonliner_reduction is None:
-      print("liner_reduction or nonliner_reduction must be provided at least one.")
+    if linear_reduction is None and nonlinear_reduction is None:
+      print("linear_reduction or nonlinear_reduction must be provided at least one.")
       exit()
     
-    if liner_reduction is None:
+    if linear_reduction is None:
       sc.pp.pca(adata, n_comps = n_pcs)
-      liner_reduction="X_pca"
+      linear_reduction="X_pca"
       
     if basis is None:
-      if nonliner_reduction is not None:
-        basis=nonliner_reduction
+      if nonlinear_reduction is not None:
+        basis=nonlinear_reduction
       else:
         basis="basis"
-        adata.obsm["basis"]=adata.obsm[liner_reduction][:,0:2]
+        adata.obsm["basis"]=adata.obsm[linear_reduction][:,0:2]
         
     if point_size is None:
       point_size = min(100000 / adata.shape[0],20)  
@@ -518,10 +518,10 @@ def PAGA(adata=None, h5ad=None, group_by=None, liner_reduction=None, nonliner_re
     if "X_diffmap" in adata.obsm_keys():
       X_diffmap = adata.obsm['X_diffmap']
       del adata.obsm['X_diffmap']
-      sc.pp.neighbors(adata, n_pcs = n_pcs, use_rep = liner_reduction, n_neighbors = n_neighbors)
+      sc.pp.neighbors(adata, n_pcs = n_pcs, use_rep = linear_reduction, n_neighbors = n_neighbors)
       adata.obsm['X_diffmap'] = X_diffmap
     else:
-      sc.pp.neighbors(adata, n_pcs = n_pcs, use_rep = liner_reduction, n_neighbors = n_neighbors)
+      sc.pp.neighbors(adata, n_pcs = n_pcs, use_rep = linear_reduction, n_neighbors = n_neighbors)
     
     sc.tl.paga(adata, groups = group_by, use_rna_velocity = use_rna_velocity)
     
@@ -600,7 +600,7 @@ def PAGA(adata=None, h5ad=None, group_by=None, liner_reduction=None, nonliner_re
 
 
 def Palantir(adata=None, h5ad=None,group_by=None,
-             liner_reduction=None,nonliner_reduction=None,basis=None,
+             linear_reduction=None,nonlinear_reduction=None,basis=None,
              n_pcs=30,n_neighbors=30,dm_n_components=10,dm_alpha=0,dm_n_eigs=None,
              early_group = None, terminal_groups = None,early_cell=None,terminal_cells=None,
              num_waypoints=1200,scale_components=True,use_early_cell_as_start=False,
@@ -649,19 +649,19 @@ def Palantir(adata=None, h5ad=None,group_by=None,
       print("group_by must be provided.")
       exit()
     
-    if liner_reduction is None and nonliner_reduction is None:
-      print("liner_reduction or nonliner_reduction must be provided at least one.")
+    if linear_reduction is None and nonlinear_reduction is None:
+      print("linear_reduction or nonlinear_reduction must be provided at least one.")
       exit()
       
-    if liner_reduction is None:
+    if linear_reduction is None:
       sc.pp.pca(adata, n_comps = n_pcs)
-      liner_reduction="X_pca"
+      linear_reduction="X_pca"
       
     if basis is None:
-      if nonliner_reduction is not None:
-        basis=nonliner_reduction
+      if nonlinear_reduction is not None:
+        basis=nonlinear_reduction
       else:
-        basis=liner_reduction
+        basis=linear_reduction
       
     if point_size is None:
       point_size = min(100000 / adata.shape[0],20)  
@@ -721,7 +721,7 @@ def Palantir(adata=None, h5ad=None,group_by=None,
     # pca_projections=n_comps = np.where(np.cumsum(ad.uns['pca']['variance_ratio']) > 0.85)[0][0]
     # pca_projections, _ = palantir.utils.run_pca(adata, use_hvg=True)
 
-    pca_projections = pd.DataFrame(adata.obsm[liner_reduction][:,:n_pcs], index=adata.obs_names)
+    pca_projections = pd.DataFrame(adata.obsm[linear_reduction][:,:n_pcs], index=adata.obs_names)
     dm_res = palantir.utils.run_diffusion_maps(pca_projections, n_components=dm_n_components, knn=n_neighbors, alpha=dm_alpha)
     ms_data = palantir.utils.determine_multiscale_space(dm_res,n_eigs=dm_n_eigs)
     pr_res = palantir.core.run_palantir(ms_data = ms_data,early_cell = early_cell, terminal_states = terminal_cells, knn = n_neighbors, num_waypoints = num_waypoints,
@@ -762,7 +762,7 @@ def Palantir(adata=None, h5ad=None,group_by=None,
   return adata
 
 def Dynamo(adata=None, h5ad=None,group_by=None,
-           liner_reduction=None,nonliner_reduction=None,basis=None,
+           linear_reduction=None,nonlinear_reduction=None,basis=None,
            n_pcs=30,n_neighbors=30,dm_n_components=10,dm_alpha=0,dm_n_eigs=None,
            early_group = None, terminal_groups = None,early_cell=None,terminal_cells=None,
            num_waypoints=1200,scale_components=True,use_early_cell_as_start=False,
@@ -811,19 +811,19 @@ def Dynamo(adata=None, h5ad=None,group_by=None,
       print("group_by must be provided.")
       exit()
     
-    if liner_reduction is None and nonliner_reduction is None:
-      print("liner_reduction or nonliner_reduction must be provided at least one.")
+    if linear_reduction is None and nonlinear_reduction is None:
+      print("linear_reduction or nonlinear_reduction must be provided at least one.")
       exit()
       
-    if liner_reduction is None:
+    if linear_reduction is None:
       sc.pp.pca(adata, n_comps = n_pcs)
-      liner_reduction="X_pca"
+      linear_reduction="X_pca"
       
     if basis is None:
-      if nonliner_reduction is not None:
-        basis=nonliner_reduction
+      if nonlinear_reduction is not None:
+        basis=nonlinear_reduction
       else:
-        basis=liner_reduction
+        basis=linear_reduction
       
     if point_size is None:
       point_size = min(100000 / adata.shape[0],20)  
@@ -864,7 +864,7 @@ def Dynamo(adata=None, h5ad=None,group_by=None,
     else:  
       print("terminal_cells: ",terminal_cells)
 
-    pca_projections = pd.DataFrame(adata.obsm[liner_reduction][:,:n_pcs], index=adata.obs_names)
+    pca_projections = pd.DataFrame(adata.obsm[linear_reduction][:,:n_pcs], index=adata.obs_names)
     dm_res = palantir.utils.run_diffusion_maps(pca_projections, n_components=dm_n_components, knn=n_neighbors, alpha=dm_alpha)
     ms_data = palantir.utils.determine_multiscale_space(dm_res,n_eigs=dm_n_eigs)
     pr_res = palantir.core.run_palantir(ms_data=ms_data,early_cell=early_cell,terminal_states=terminal_cells, knn=n_neighbors,num_waypoints=num_waypoints,

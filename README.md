@@ -85,7 +85,7 @@ Then run `PrepareVirtualEnv` to create a standalone python virtual
 environment for SCP and install the necessary packages.
 
 ``` r
-SCP::PrepareVirtualEnv(python = py, pipy_mirror = "https://pypi.tuna.tsinghua.edu.cn/simple", remove_old = TRUE)
+SCP::PrepareVirtualEnv(python = py, pypi_mirror = "https://pypi.tuna.tsinghua.edu.cn/simple", remove_old = TRUE)
 reticulate::virtualenv_python("SCP")
 ```
 
@@ -211,7 +211,7 @@ human pancreas datasets)](https://github.com/satijalab/seurat-data)
 ``` r
 data("panc8_sub")
 panc8_sub <- Integration_SCP(srtMerge = panc8_sub, batch = "tech", integration_method = "Seurat")
-panc8_sub <- Integration_SCP(srtMerge = panc8_sub, batch = "tech", integration_method = "fastMNN", nonliner_reduction = "pacmap")
+panc8_sub <- Integration_SCP(srtMerge = panc8_sub, batch = "tech", integration_method = "fastMNN", nonlinear_reduction = "pacmap")
 ClassDimPlot(
   srt = panc8_sub, group.by = c("celltype", "tech"), reduction = "SeuratUMAP2D",
   title = "Seurat", theme_use = "theme_blank"
@@ -232,10 +232,10 @@ ClassDimPlot(
 ### Cell projection between single-cell datasets
 
 ``` r
-panc8_sub <- RenameFeatures(srt = panc8_sub, newnames = make.unique(stringr::str_to_title(rownames(panc8_sub))))
-pancreas_sub <- RunKNNMap(srt_query = pancreas_sub, srt_ref = panc8_sub, ref_umap = "SeuratUMAP2D")
+panc8_rename <- RenameFeatures(srt = panc8_sub, newnames = make.unique(stringr::str_to_title(rownames(panc8_sub))))
+pancreas_sub <- RunKNNMap(srt_query = pancreas_sub, srt_ref = panc8_rename, ref_umap = "SeuratUMAP2D")
 ProjectionPlot(
-  srt_query = pancreas_sub, srt_ref = panc8_sub,
+  srt_query = pancreas_sub, srt_ref = panc8_rename,
   query_group = "SubCellType", ref_group = "celltype"
 )
 ```
@@ -256,7 +256,7 @@ ClassDimPlot(srt = pancreas_sub, group.by = "knnpredict_classification", reducti
 
 ``` r
 pancreas_sub <- RunKNNPredict(
-  srt_query = pancreas_sub, srt_ref = panc8_sub,
+  srt_query = pancreas_sub, srt_ref = panc8_rename,
   ref_group = "celltype", filter_lowfreq = 20
 )
 ClassDimPlot(srt = pancreas_sub, group.by = "knnpredict_classification", reduction = "UMAP", label = TRUE)
@@ -269,7 +269,7 @@ ClassDimPlot(srt = pancreas_sub, group.by = "knnpredict_classification", reducti
 ``` r
 pancreas_sub <- RunPAGA(
   srt = pancreas_sub, group_by = "SubCellType",
-  liner_reduction = "PCA", nonliner_reduction = "UMAP", return_seurat = TRUE
+  linear_reduction = "PCA", nonlinear_reduction = "UMAP", return_seurat = TRUE
 )
 PAGAPlot(srt = pancreas_sub, reduction = "UMAP", label = TRUE, label_insitu = TRUE, label_repel = TRUE)
 ```
@@ -281,7 +281,7 @@ PAGAPlot(srt = pancreas_sub, reduction = "UMAP", label = TRUE, label_insitu = TR
 ``` r
 pancreas_sub <- RunSCVELO(
   srt = pancreas_sub, group_by = "SubCellType",
-  liner_reduction = "PCA", nonliner_reduction = "UMAP", return_seurat = TRUE
+  linear_reduction = "PCA", nonlinear_reduction = "UMAP", return_seurat = TRUE
 )
 VelocityPlot(srt = pancreas_sub, reduction = "UMAP", group_by = "SubCellType")
 ```

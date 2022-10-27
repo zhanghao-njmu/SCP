@@ -74,7 +74,7 @@ PAGA plot
 }
 \examples{
 data("pancreas_sub")
-pancreas_sub <- RunPAGA(srt = pancreas_sub, group_by = "SubCellType", liner_reduction = "PCA", nonliner_reduction = "UMAP", return_seurat = TRUE)
+pancreas_sub <- RunPAGA(srt = pancreas_sub, group_by = "SubCellType", linear_reduction = "PCA", nonlinear_reduction = "UMAP", return_seurat = TRUE)
 PAGAPlot(pancreas_sub)
 PAGAPlot(pancreas_sub, type = "connectivities_tree")
 PAGAPlot(pancreas_sub, reduction = "PCA")
@@ -87,7 +87,7 @@ PAGAPlot(pancreas_sub, node_size = "GroupSize")
 PAGAPlot(pancreas_sub, node_highlight = "Ductal")
 PAGAPlot(pancreas_sub, edge_highlight = paste("Pre-endocrine", levels(pancreas_sub$SubCellType), sep = "-"))
 
-pancreas_sub <- RunSCVELO(srt = pancreas_sub, group_by = "SubCellType", liner_reduction = "PCA", nonliner_reduction = "UMAP", return_seurat = TRUE)
+pancreas_sub <- RunSCVELO(srt = pancreas_sub, group_by = "SubCellType", linear_reduction = "PCA", nonlinear_reduction = "UMAP", return_seurat = TRUE)
 PAGAPlot(pancreas_sub, show_transition = TRUE)
 
 }
