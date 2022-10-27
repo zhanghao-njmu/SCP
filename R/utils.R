@@ -1,13 +1,13 @@
 #' Prepare SCP python virtual environment
 #'
 #' @param python Python path which is used to create the virtual environment.
-#' @param pipy_mirror pipy mirrors. Default is "https://pypi.org/simple/". Options can be "https://pypi.tuna.tsinghua.edu.cn/simple", "http://mirrors.aliyun.com/pypi/simple/", "https://pypi.mirrors.ustc.edu.cn/simple/", etc.
+#' @param pypi_mirror PyPI mirror used to install the Python packages. Default is "https://pypi.org/simple/". Options can be "https://pypi.tuna.tsinghua.edu.cn/simple", "http://mirrors.aliyun.com/pypi/simple/", "https://pypi.mirrors.ustc.edu.cn/simple/", etc.
 #' @param remove_old Whether to remove the old SCP virtual environment. Default is FALSE.
 #' @param install_python Whether to download and install a new python. Default is FALSE, which only installs automatically if no suitable version of python is found.
 #' @param install_version The version of python to install. Default is \code{3.8.8}
 #'
 #' @export
-PrepareVirtualEnv <- function(python = NULL, pipy_mirror = "https://pypi.org/simple/", remove_old = FALSE, install_python = FALSE, install_version = "3.8.8") {
+PrepareVirtualEnv <- function(python = NULL, pypi_mirror = "https://pypi.org/simple/", remove_old = FALSE, install_python = FALSE, install_version = "3.8.8") {
   if (isTRUE(remove_old) || reticulate::virtualenv_exists("SCP")) {
     if (isTRUE(reticulate:::is_python_initialized())) {
       stop("Python is initialized in the current R session. You may run SCP::PrepareVirtualEnv() in a new R seesion to create SCP virtual environmenet. If you want to disable virtual environment initialization, you can set options(SCP_virtualenv_init = FALSE) before library(SCP).")
@@ -76,7 +76,7 @@ PrepareVirtualEnv <- function(python = NULL, pipy_mirror = "https://pypi.org/sim
       packageStartupMessage("Create SCP virtual environment. The path is: ", reticulate:::virtualenv_path("SCP"))
       reticulate::virtualenv_create(envname = "SCP", python = python_path, packages = FALSE)
     }
-    if (!exist_pkg("pip", envname = "SCP")) {
+    if (!exist_Python_pkg(pkg = "pip", envname = "SCP", show_pkg_info = FALSE)) {
       temp <- tempfile()
       download.file("https://bootstrap.pypa.io/get-pip.py", temp)
       suppressWarnings(system2(command = reticulate::virtualenv_python("SCP"), args = temp, stdout = TRUE))
@@ -85,7 +85,7 @@ PrepareVirtualEnv <- function(python = NULL, pipy_mirror = "https://pypi.org/sim
     check_Python(
       pkgs = c("pip", "setuptools", "wheel"),
       envname = "SCP",
-      pipy_mirror = pipy_mirror,
+      pypi_mirror = pypi_mirror,
       force = TRUE
     )
   }
@@ -104,7 +104,7 @@ PrepareVirtualEnv <- function(python = NULL, pipy_mirror = "https://pypi.org/sim
     } else {
       reticulate::use_virtualenv("SCP", required = TRUE)
 
-      if (!exist_pkg("pip", envname = "SCP")) {
+      if (!exist_Python_pkg(pkg = "pip", envname = "SCP", show_pkg_info = FALSE)) {
         temp <- tempfile()
         download.file("https://bootstrap.pypa.io/get-pip.py", temp)
         suppressWarnings(system2(command = reticulate::virtualenv_python("SCP"), args = temp, stdout = TRUE))
@@ -118,7 +118,7 @@ PrepareVirtualEnv <- function(python = NULL, pipy_mirror = "https://pypi.org/sim
           "pandas", "matplotlib", "versioned-hdf5", "leidenalg", "scanpy", "scvelo", "palantir"
         ),
         envname = "SCP",
-        pipy_mirror = pipy_mirror
+        pypi_mirror = pypi_mirror
       )
 
       pyinfo <- utils::capture.output(reticulate::py_config())
@@ -140,12 +140,12 @@ PrepareVirtualEnv <- function(python = NULL, pipy_mirror = "https://pypi.org/sim
 
 #' Check and install R packages
 #'
-#' @param pkgs
-#'
-#' @param pkg_names
-#' @param install_methods
-#' @param lib
-#' @param force
+#' @param pkgs Package to be installed. Package source can be CRAN, Bioconductor or Github, e.g. scmap, davidsjoberg/ggsankey.
+#' @param pkg_names The name of the package that corresponds to the \code{pkgs} parameter, used to check if the package is already installed.
+#' By default, the package name is extracted according to the \code{pkgs} parameter.
+#' @param install_methods Functions for installing R packages. The default is to try to install packages from CRAN, Bioconductor and Github.
+#' @param lib Character vector giving the library directories where to install the packages.
+#' @param force Whether to force package installation. Default is FALSE.
 #'
 #' @importFrom rlang %||%
 #' @importFrom utils packageVersion
@@ -179,15 +179,15 @@ check_R <- function(pkgs, pkg_names = NULL, install_methods = c("BiocManager::in
       while (!isTRUE(status_list[[pkg]])) {
         tryCatch(expr = {
           if (grepl("BiocManager", install_methods[i])) {
-            if (!require("BiocManager", quietly = TRUE)) {
+            if (!requireNamespace("BiocManager", quietly = TRUE)) {
               install.packages("BiocManager", lib = lib)
             }
             eval(str2lang(paste0(install_methods[i], "('", pkg, "', lib='", lib, "', update = FALSE, upgrade = 'never', ask = FALSE, force = TRUE)")))
           } else if (grepl("devtools", install_methods[i])) {
-            if (!require("devtools", quietly = TRUE)) {
+            if (!requireNamespace("devtools", quietly = TRUE)) {
               install.packages("devtools", lib = lib)
             }
-            if (!require("withr", quietly = TRUE)) {
+            if (!requireNamespace("withr", quietly = TRUE)) {
               install.packages("withr", lib = lib)
             }
             eval(str2lang(paste0("withr::with_libpaths(new = '", lib, "', ", install_methods[i], "('", pkg, "', upgrade = 'never', force = TRUE))")))
@@ -216,8 +216,12 @@ check_R <- function(pkgs, pkg_names = NULL, install_methods = c("BiocManager::in
   }
 }
 
+#' Check if the python package exists in the environment
+#' @param pkg Python package name.
+#' @param envname The name of, or path to, a Python virtual environment.
+#' @param show_pkg_info Whether to display information about installed packages.
 #' @export
-exist_pkg <- function(pkg, envname = "SCP") {
+exist_Python_pkg <- function(pkg, envname = "SCP", show_pkg_info = TRUE) {
   pkg_info <- strsplit(pkg, split = "==")[[1]]
   pkg_name <- pkg_info[1]
   pkg_version <- pkg_info[2]
@@ -225,6 +229,9 @@ exist_pkg <- function(pkg, envname = "SCP") {
   if (length(pkg_exist) == 0 || isTRUE(attr(pkg_exist, "status") == 1)) {
     return(FALSE)
   } else {
+    if (show_pkg_info) {
+      message(paste(pkg_exist, collapse = "\n"))
+    }
     if (!is.na(pkg_version)) {
       pkg_installed_version <- strsplit(pkg_exist, split = "Version: ")[[2]][2]
       if (pkg_installed_version == pkg_version) {
@@ -240,17 +247,19 @@ exist_pkg <- function(pkg, envname = "SCP") {
 
 #' Check and install python packages
 #'
-#' @param pkgs
-#' @param pkg_names
-#' @param envname
-#' @param force
+#' @param pkgs Package to be installed.
+#' @param pkg_names The name of the package that corresponds to the \code{pkgs} parameter, used to check if the package is already installed.
+#' By default, the package name is extracted according to the \code{pkgs} parameter.
+#' @param envname The name of, or path to, a Python virtual environment.
+#' @param pypi_mirror Default is "https://pypi.org/simple/". Options can be "https://pypi.tuna.tsinghua.edu.cn/simple", "http://mirrors.aliyun.com/pypi/simple/", "https://pypi.mirrors.ustc.edu.cn/simple/", etc.
+#' @param force Whether to force package installation. Default is FALSE.
 #'
 #' @importFrom rlang %||%
 #' @export
-check_Python <- function(pkgs, pkg_names = NULL, envname = "SCP", pipy_mirror = "https://pypi.org/simple/", force = FALSE) {
+check_Python <- function(pkgs, pkg_names = NULL, envname = "SCP", pypi_mirror = "https://pypi.org/simple/", force = FALSE) {
   if (!reticulate::virtualenv_exists("SCP")) {
     warning("SCP python virtual environment do not exist. Create it with the PrepareVirtualEnv function...", immediate. = TRUE)
-    PrepareVirtualEnv(pipy_mirror = pipy_mirror)
+    PrepareVirtualEnv(pypi_mirror = pypi_mirror)
   }
   if (length(pkg_names) != 0 && length(pkg_names) != length(pkgs)) {
     stop("pkg_names must be NULL or a vector of the same length with pkgs")
@@ -259,11 +268,11 @@ check_Python <- function(pkgs, pkg_names = NULL, envname = "SCP", pipy_mirror = 
   for (n in seq_along(pkgs)) {
     pkg <- pkgs[n]
     pkg_name <- pkg_names[n] %||% gsub("(.*)(\\[.*\\])", "\\1", pkg)
-    exist <- exist_pkg(pkg_name, envname)
+    exist <- exist_Python_pkg(pkg = pkg_name, envname = envname, show_pkg_info = FALSE)
     if (!isTRUE(exist) || isTRUE(force)) {
       message("Try to install '", pkg, "' ...")
       tryCatch(expr = {
-        reticulate::py_install(pkg, envname = envname, pip_options = paste("-i", pipy_mirror))
+        reticulate::py_install(pkg, envname = envname, pip_options = paste("-i", pypi_mirror))
       }, error = function(e) {
         warning("Something went wrong when installing the package ", pkg)
       })
@@ -272,7 +281,7 @@ check_Python <- function(pkgs, pkg_names = NULL, envname = "SCP", pipy_mirror = 
   for (n in seq_along(pkgs)) {
     pkg <- pkgs[n]
     pkg_name <- pkg_names[n] %||% gsub("(.*)(\\[.*\\])", "\\1", pkg)
-    exist <- exist_pkg(pkg_name, envname)
+    exist <- exist_Python_pkg(pkg = pkg_name, envname = envname, show_pkg_info = FALSE)
     if (isTRUE(exist)) {
       status_list[[pkg_name]] <- TRUE
     } else {
@@ -283,33 +292,6 @@ check_Python <- function(pkgs, pkg_names = NULL, envname = "SCP", pipy_mirror = 
   out <- out[!out]
   if (length(out) > 0) {
     stop("Failed to install the module(s): ", paste0(names(out), collapse = ","), " into the environment '", envname, "'. Please install manually.")
-  }
-}
-
-#' @importFrom rlang %||%
-#' @export
-list_palette <- function(palette_list, names = NULL) {
-  if (is.null(names)) {
-    names <- names %||% names(palette_list) %||% seq_along(palette_list)
-  }
-  par(mar = c(0, 0, 0, 0) + 0.1)
-
-  plot(0, 0,
-    type = "n", axes = FALSE, bty = "n", xlab = "", ylab = "",
-    xlim = c(0, 1), ylim = c(-length(palette_list) - 1, -1)
-  )
-
-  for (i in seq_len(length(palette_list))) {
-    colors_len <- length(palette_list[[i]])
-    breaks <- seq(from = 0, to = 1, length = colors_len + 1)
-
-
-    text(0, -i, names[i], pos = 4)
-    rect(
-      xleft = breaks[1:colors_len], xright = breaks[1:colors_len + 1],
-      ytop = -0.15 - i, ybottom = -0.8 - i,
-      col = palette_list[[i]], border = NA
-    )
   }
 }
 

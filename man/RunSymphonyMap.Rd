@@ -32,14 +32,13 @@ pancreas_sub <- Standard_SCP(pancreas_sub)
 data("panc8_sub")
 # Simply convert genes from human to mouse and preprocess the data
 genenames <- make.unique(stringr::str_to_title(rownames(panc8_sub)))
-panc8_sub <- RenameFeatures(panc8_sub, newnames = genenames)
-head(rownames(panc8_sub))
-
-panc8_sub <- Integration_SCP(panc8_sub, batch = "tech", integration_method = "Harmony")
-ClassDimPlot(panc8_sub, "celltype")
+panc8_rename <- RenameFeatures(panc8_sub, newnames = genenames)
+head(rownames(panc8_rename))
+panc8_rename <- Integration_SCP(panc8_rename, batch = "tech", integration_method = "Harmony")
+ClassDimPlot(panc8_rename, "celltype")
 
 # Projection
-pancreas_sub <- RunSymphonyMap(srt_query = pancreas_sub, srt_ref = panc8_sub, ref_pca = "Harmonypca", ref_harmony = "Harmony", ref_umap = "HarmonyUMAP2D")
-ProjectionPlot(srt_query = pancreas_sub, srt_ref = panc8_sub, query_group = "SubCellType", ref_group = "celltype")
+pancreas_sub <- RunSymphonyMap(srt_query = pancreas_sub, srt_ref = panc8_rename, ref_pca = "Harmonypca", ref_harmony = "Harmony", ref_umap = "HarmonyUMAP2D")
+ProjectionPlot(srt_query = pancreas_sub, srt_ref = panc8_rename, query_group = "SubCellType", ref_group = "celltype")
 
 }

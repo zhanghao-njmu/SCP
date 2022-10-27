@@ -14,9 +14,16 @@ check_R(
 )
 }
 \arguments{
-\item{pkgs}{}
+\item{pkgs}{Package to be installed. Package source can be CRAN, Bioconductor or Github, e.g. scmap, davidsjoberg/ggsankey.}
 
-\item{force}{}
+\item{pkg_names}{The name of the package that corresponds to the \code{pkgs} parameter, used to check if the package is already installed.
+By default, the package name is extracted according to the \code{pkgs} parameter.}
+
+\item{install_methods}{Functions for installing R packages. The default is to try to install packages from CRAN, Bioconductor and Github.}
+
+\item{lib}{Character vector giving the library directories where to install the packages.}
+
+\item{force}{Whether to force package installation. Default is FALSE.}
 }
 \description{
 Check and install R packages

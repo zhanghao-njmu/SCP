@@ -40,7 +40,7 @@
 #' @examples
 #' \dontrun{
 #' if (interactive()) {
-#'   data("pancreas1k")
+#'   data("pancreas_sub")
 #'   if (!require("SeuratData", quietly = TRUE)) {
 #'     devtools::install_github("satijalab/seurat-data")
 #'   }
@@ -52,7 +52,7 @@
 #'   cells_sub <- unlist(lapply(split(colnames(panc8), panc8$dataset), function(x) sample(x, size = 200)))
 #'   panc8_sub <- subset(panc8, cells = cells_sub)
 #'   panc8_sub <- panc8_sub[rowSums(panc8_sub@assays$RNA@counts) > 0, ]
-#'   panc8_sub <- panc8_sub[toupper(rownames(panc8_sub)) %in% toupper(rownames(pancreas1k)), ]
+#'   panc8_sub <- panc8_sub[toupper(rownames(panc8_sub)) %in% toupper(rownames(pancreas_sub)), ]
 #'   panc8_sub <- UpdateSeuratObject(panc8_sub)
 #'   # usethis::use_data(panc8_sub, compress = "xz")
 #' }

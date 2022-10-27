@@ -13,8 +13,8 @@ RunPalantir(
   adata = NULL,
   h5ad = NULL,
   group_by = NULL,
-  liner_reduction = NULL,
-  nonliner_reduction = NULL,
+  linear_reduction = NULL,
+  nonlinear_reduction = NULL,
   basis = NULL,
   n_pcs = 30,
   n_neighbors = 30,
@@ -48,9 +48,9 @@ RunPalantir(
 
 \item{group_by}{group_by.}
 
-\item{liner_reduction}{liner_reduction.}
+\item{linear_reduction}{linear_reduction.}
 
-\item{nonliner_reduction}{nonliner_reduction.}
+\item{nonlinear_reduction}{nonlinear_reduction.}
 
 \item{basis}{basis.}
 
@@ -81,8 +81,9 @@ Run Palantir analysis
 \examples{
 data("pancreas_sub")
 pancreas_sub <- RunPalantir(
-  srt = pancreas_sub, group_by = "SubCellType", liner_reduction = "PCA", nonliner_reduction = "UMAP",
-  early_group = "Ductal", terminal_groups = c("Alpha", "Beta", "Delta", "Epsilon"), return_seurat = TRUE
+  srt = pancreas_sub, group_by = "SubCellType", linear_reduction = "PCA", nonlinear_reduction = "UMAP",
+  early_group = "Ductal", use_early_cell_as_start = TRUE,
+  terminal_groups = c("Alpha", "Beta", "Delta", "Epsilon"), return_seurat = TRUE
 )
 head(pancreas_sub[[]])
 ExpDimPlot(pancreas_sub, c("palantir_pseudotime", "palantir_diff_potential"))

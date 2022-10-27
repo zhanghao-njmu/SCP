@@ -10,29 +10,29 @@ RunDimReduction(
   features = NULL,
   assay = NULL,
   slot = "data",
-  liner_reduction = NULL,
-  liner_reduction_dims = 100,
-  liner_reduction_params = list(),
-  force_liner_reduction = FALSE,
-  nonliner_reduction = NULL,
-  nonliner_reduction_dims = 2,
+  linear_reduction = NULL,
+  linear_reduction_dims = 100,
+  linear_reduction_params = list(),
+  force_linear_reduction = FALSE,
+  nonlinear_reduction = NULL,
+  nonlinear_reduction_dims = 2,
   reduction_use = NULL,
   reduction_dims = NULL,
   neighbor_use = NULL,
   graph_use = NULL,
   distance_use = NULL,
-  nonliner_reduction_params = list(),
-  force_nonliner_reduction = TRUE,
+  nonlinear_reduction_params = list(),
+  force_nonlinear_reduction = TRUE,
   verbose = TRUE,
   seed = 11
 )
 }
 \arguments{
-\item{liner_reduction}{"pca", "ica", "nmf", "mds", "glmpca"}
+\item{linear_reduction}{"pca", "ica", "nmf", "mds", "glmpca"}
 
-\item{nonliner_reduction}{"umap", "umap-naive", "tsne", "dm", "phate", "pacmap", "trimap", "largevis"}
+\item{nonlinear_reduction}{"umap", "umap-naive", "tsne", "dm", "phate", "pacmap", "trimap", "largevis"}
 
-\item{force_nonliner_reduction}{}
+\item{force_nonlinear_reduction}{}
 }
 \description{
 RunDimReduction

@@ -52,8 +52,6 @@ ClassDimPlot3D(
 \item{width}{Width in pixels, defaults to automatic sizing.}
 
 \item{height}{Height in pixels, defaults to automatic sizing.}
-
-\item{force}{}
 }
 \description{
 Plotting cell points on a reduced 3D space and coloring according to the groups of the cells.

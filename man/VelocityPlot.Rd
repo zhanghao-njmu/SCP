@@ -56,7 +56,7 @@ Velocity Plot
 }
 \examples{
 data("pancreas_sub")
-pancreas_sub <- RunSCVELO(srt = pancreas_sub, group_by = "SubCellType", liner_reduction = "PCA", nonliner_reduction = "UMAP", return_seurat = TRUE)
+pancreas_sub <- RunSCVELO(srt = pancreas_sub, group_by = "SubCellType", linear_reduction = "PCA", nonlinear_reduction = "UMAP", return_seurat = TRUE)
 VelocityPlot(pancreas_sub, reduction = "UMAP")
 VelocityPlot(pancreas_sub, reduction = "UMAP", group_by = "SubCellType")
 VelocityPlot(pancreas_sub, reduction = "UMAP", plot_type = "grid")

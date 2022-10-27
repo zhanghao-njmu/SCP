@@ -40,9 +40,29 @@ This function can convert different gene ID types within one species or bewteen 
 }
 \examples{
 res <- GeneConvert(
-  geneID = c("CDK1", "MKI67", "TOP2A", "AURKA", "CTCF"), geneID_from_IDtype = "symbol", geneID_to_IDtype = "entrez_id",
-  species_from = "Homo_sapiens", species_to = "Mus_musculus", Ensembl_version = 103
+  geneID = c("CDK1", "MKI67", "TOP2A", "AURKA", "CTCF"),
+  geneID_from_IDtype = "symbol",
+  geneID_to_IDtype = "entrez_id",
+  species_from = "Homo_sapiens",
+  species_to = "Mus_musculus",
+  Ensembl_version = 103
 )
 str(res)
+
+# Convert the human genes to mouse homologs and replace the raw counts in a Seurat object.
+data("pancreas_sub")
+counts <- pancreas_sub@assays$RNA@counts
+res <- GeneConvert(
+  geneID = rownames(counts),
+  geneID_from_IDtype = "symbol",
+  geneID_to_IDtype = "symbol",
+  species_from = "Mus_musculus",
+  species_to = "Homo_sapiens",
+  Ensembl_version = 103
+)
+homologs_counts <- counts[res$geneID_expand[, "from_geneID"], ]
+rownames(homologs_counts) <- res$geneID_expand[, "symbol"]
+homologs_counts <- Matrix.utils::aggregate.Matrix(homologs_counts, row.names(homologs_counts))
+homologs_counts
 
 }

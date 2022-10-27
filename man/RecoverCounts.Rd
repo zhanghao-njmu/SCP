@@ -2,7 +2,7 @@
 % Please edit documentation in R/SCP-workflow.R
 \name{RecoverCounts}
 \alias{RecoverCounts}
-\title{Attempt to recover raw counts from the normalized matrix of the Seurat object.}
+\title{Attempt to recover raw counts from the normalized matrix.}
 \usage{
 RecoverCounts(
   srt,
@@ -13,20 +13,30 @@ RecoverCounts(
 )
 }
 \arguments{
+\item{srt}{A Seurat object.}
+
+\item{assay}{Name of assay to recover counts.}
+
 \item{min_count}{Minimum UMI count of genes.}
 
-\item{tolerance}{When restoring the original count, the nCount of each cell is theoretically calculated as an integer.
+\item{tolerance}{When recovering the raw counts, the nCount of each cell is theoretically calculated as an integer.
 However, due to decimal point preservation during normalization, the calculated nCount is usually a floating point number close to the integer.
-The tolerance is its difference from the integer.}
+The tolerance is its difference from the integer. Default is 0.1}
 }
 \description{
-Attempt to recover raw counts from the normalized matrix of the Seurat object.
+Attempt to recover raw counts from the normalized matrix.
 }
 \examples{
 data("pancreas_sub")
-pancreas_sub <- Seurat::NormalizeData(pancreas_sub)
 raw_counts <- pancreas_sub@assays$RNA@counts
+
+# Normalized the data
+pancreas_sub <- Seurat::NormalizeData(pancreas_sub)
+
+# Now replace counts with the log-normalized data matrix
 pancreas_sub@assays$RNA@counts <- pancreas_sub@assays$RNA@data
+
+# Recover the counts and compare with the raw counts matrix
 pancreas_sub <- RecoverCounts(pancreas_sub)
 identical(raw_counts, pancreas_sub@assays$RNA@counts)
 

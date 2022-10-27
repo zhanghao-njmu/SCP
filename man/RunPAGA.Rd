@@ -13,8 +13,8 @@ RunPAGA(
   adata = NULL,
   h5ad = NULL,
   group_by = NULL,
-  liner_reduction = NULL,
-  nonliner_reduction = NULL,
+  linear_reduction = NULL,
+  nonlinear_reduction = NULL,
   basis = NULL,
   n_pcs = 30,
   n_neighbors = 30,
@@ -47,9 +47,9 @@ RunPAGA(
 
 \item{group_by}{group_by.}
 
-\item{liner_reduction}{liner_reduction.}
+\item{linear_reduction}{linear_reduction.}
 
-\item{nonliner_reduction}{nonliner_reduction.}
+\item{nonlinear_reduction}{nonlinear_reduction.}
 
 \item{basis}{basis.}
 
@@ -85,11 +85,11 @@ Run PAGA analysis
 }
 \examples{
 data("pancreas_sub")
-pancreas_sub <- RunPAGA(srt = pancreas_sub, group_by = "SubCellType", liner_reduction = "PCA", nonliner_reduction = "UMAP", return_seurat = TRUE)
+pancreas_sub <- RunPAGA(srt = pancreas_sub, group_by = "SubCellType", linear_reduction = "PCA", nonlinear_reduction = "UMAP", return_seurat = TRUE)
 PAGAPlot(pancreas_sub)
 
 pancreas_sub <- RunPAGA(
-  srt = pancreas_sub, group_by = "SubCellType", liner_reduction = "PCA", nonliner_reduction = "UMAP",
+  srt = pancreas_sub, group_by = "SubCellType", linear_reduction = "PCA", nonlinear_reduction = "UMAP",
   embedded_with_PAGA = TRUE, infer_pseudotime = TRUE, root_group = "Ductal", return_seurat = TRUE
 )
 head(pancreas_sub[[]])

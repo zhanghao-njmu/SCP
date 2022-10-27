@@ -14,8 +14,8 @@ RunSCVELO(
   h5ad = NULL,
   group_by = NULL,
   n_jobs = 1,
-  liner_reduction = NULL,
-  nonliner_reduction = NULL,
+  linear_reduction = NULL,
+  nonlinear_reduction = NULL,
   basis = NULL,
   mode = "stochastic",
   fitting_by = "stochastic",
@@ -57,9 +57,9 @@ RunSCVELO(
 
 \item{n_jobs}{n_jobs.}
 
-\item{liner_reduction}{liner_reduction.}
+\item{linear_reduction}{linear_reduction.}
 
-\item{nonliner_reduction}{nonliner_reduction.}
+\item{nonlinear_reduction}{nonlinear_reduction.}
 
 \item{basis}{basis.}
 
@@ -110,7 +110,7 @@ This function performs scVelo workflow in R by reticulate.
 }
 \examples{
 data("pancreas_sub")
-pancreas_sub <- RunSCVELO(srt = pancreas_sub, group_by = "SubCellType", liner_reduction = "PCA", nonliner_reduction = "UMAP", return_seurat = TRUE)
+pancreas_sub <- RunSCVELO(srt = pancreas_sub, group_by = "SubCellType", linear_reduction = "PCA", nonlinear_reduction = "UMAP", return_seurat = TRUE)
 head(pancreas_sub[[]])
 names(pancreas_sub@assays)
 ExpDimPlot(pancreas_sub, c("stochastic_length", "stochastic_confidence"))
