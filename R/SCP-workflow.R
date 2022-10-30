@@ -523,7 +523,6 @@ RenameClusters <- function(srt, group.by, newnames = NULL, nameslist = list(), n
 #' @importFrom Seurat VariableFeatures DefaultAssay DefaultAssay<- AverageExpression Idents<-
 #' @importFrom SeuratObject as.sparse
 #' @importFrom stats hclust reorder as.dendrogram as.dist
-#' @importFrom proxyC dist simil
 #' @importFrom Matrix t colMeans
 #' @export
 SrtReorder <- function(srt, features = NULL, reorder_by = NULL, slot = "data", assay = NULL, log = TRUE,
@@ -572,9 +571,9 @@ SrtReorder <- function(srt, features = NULL, reorder_by = NULL, slot = "data", a
       }
       distance_metric <- "correlation"
     }
-    d <- 1 - simil(as.sparse(mat[1:nrow(mat), ]), method = distance_metric)
+    d <- 1 - proxyC::simil(as.sparse(mat[1:nrow(mat), ]), method = distance_metric)
   } else if (distance_metric %in% dist_method) {
-    d <- dist(as.sparse(mat[1:nrow(mat), ]), method = distance_metric)
+    d <- proxyC::dist(as.sparse(mat[1:nrow(mat), ]), method = distance_metric)
   }
   data.dist <- as.dist(d)
   hc <- hclust(d = data.dist)

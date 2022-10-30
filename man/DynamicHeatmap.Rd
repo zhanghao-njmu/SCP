@@ -23,6 +23,7 @@ DynamicHeatmap(
   decreasing = FALSE,
   feature_split = NULL,
   row_title_size = 12,
+  row_title_rot = 90,
   n_split = NULL,
   heatmap_split_by = lineages,
   split_method = c("mfuzz", "kmeans", "kmeans-peaktime", "hclust", "hclust-peaktime"),
