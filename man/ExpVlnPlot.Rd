@@ -22,7 +22,7 @@ ExpVlnPlot(
   bg_apha = 0.5,
   add_box = TRUE,
   box_fill = "black",
-  box_width = 0.2,
+  box_width = 0.1,
   add_point = FALSE,
   pt.color = "black",
   pt.size = NULL,
@@ -74,6 +74,10 @@ Violin plot for cell expression.
 }
 \examples{
 data("pancreas_sub")
+ExpVlnPlot(pancreas_sub, features = c("G2M_score", "S_score"), group.by = "SubCellType")
+ExpVlnPlot(pancreas_sub, features = c("G2M_score", "S_score"), group.by = "SubCellType", split.by = "Phase")
+ExpVlnPlot(pancreas_sub, features = c("Neurog3", "Fev"), group.by = "SubCellType", bg.by = "CellType", stack = TRUE)
+ExpVlnPlot(pancreas_sub, features = c("Rbp4", "Pyy"), group.by = "SubCellType", comparisons = list(c("Alpha", "Beta"), c("Alpha", "Delta")), multiplegroup_comparisons = TRUE)
 ExpVlnPlot(pancreas_sub,
   features = c(
     "Sox9", "Anxa2", "Bicc1", # Ductal
@@ -84,7 +88,4 @@ ExpVlnPlot(pancreas_sub,
   ),
   group.by = "SubCellType", bg.by = "CellType", stack = TRUE, flip = TRUE
 )
-ExpVlnPlot(pancreas_sub, features = c("G2M_score", "S_score"), group.by = "SubCellType")
-ExpVlnPlot(pancreas_sub, features = c("Neurog3", "Fev"), group.by = "SubCellType", bg.by = "CellType", stack = TRUE)
-ExpVlnPlot(pancreas_sub, features = c("Rbp4", "Pyy"), group.by = "SubCellType", comparisons = list(c("Alpha", "Beta"), c("Alpha", "Delta")), multiplegroup_comparisons = TRUE)
 }

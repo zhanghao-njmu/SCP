@@ -25,6 +25,7 @@
 #' str(res)
 #'
 #' # Convert the human genes to mouse homologs and replace the raw counts in a Seurat object.
+#' check_R("cvarrichio/Matrix.utils")
 #' data("pancreas_sub")
 #' counts <- pancreas_sub@assays$RNA@counts
 #' res <- GeneConvert(
@@ -3415,7 +3416,8 @@ RunPalantir <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_la
                         linear_reduction = NULL, nonlinear_reduction = NULL, basis = NULL,
                         n_pcs = 30, n_neighbors = 30, dm_n_components = 10, dm_alpha = 0, dm_n_eigs = NULL,
                         early_group = NULL, terminal_groups = NULL, early_cell = NULL, terminal_cells = NULL,
-                        num_waypoints = 1200, scale_components = TRUE, use_early_cell_as_start = FALSE,
+                        num_waypoints = 1200, scale_components = TRUE, use_early_cell_as_start = TRUE,
+                        adjust_early_cell = FALSE, adjust_terminal_cells = FALSE,
                         max_iterations = 25, n_jobs = 8, point_size = 20,
                         show_plot = TRUE, dpi = 300, save = FALSE, dirpath = "./", fileprefix = "",
                         return_seurat = FALSE) {

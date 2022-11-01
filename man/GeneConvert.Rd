@@ -50,6 +50,7 @@ res <- GeneConvert(
 str(res)
 
 # Convert the human genes to mouse homologs and replace the raw counts in a Seurat object.
+check_R("cvarrichio/Matrix.utils")
 data("pancreas_sub")
 counts <- pancreas_sub@assays$RNA@counts
 res <- GeneConvert(

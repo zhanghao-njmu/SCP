@@ -604,6 +604,7 @@ def Palantir(adata=None, h5ad=None,group_by=None,
              n_pcs=30,n_neighbors=30,dm_n_components=10,dm_alpha=0,dm_n_eigs=None,
              early_group = None, terminal_groups = None,early_cell=None,terminal_cells=None,
              num_waypoints=1200,scale_components=True,use_early_cell_as_start=False,
+             adjust_early_cell=False,adjust_terminal_cells=False,
              max_iterations=25,n_jobs=1,
              point_size=20,axis="equal",
              show_plot=True, dpi=300, save=False, dirpath="./", fileprefix=""):
@@ -725,6 +726,23 @@ def Palantir(adata=None, h5ad=None,group_by=None,
     dm_res = palantir.utils.run_diffusion_maps(pca_projections, n_components=dm_n_components, knn=n_neighbors, alpha=dm_alpha)
     ms_data = palantir.utils.determine_multiscale_space(dm_res,n_eigs=dm_n_eigs)
     pr_res = palantir.core.run_palantir(ms_data = ms_data,early_cell = early_cell, terminal_states = terminal_cells, knn = n_neighbors, num_waypoints = num_waypoints,
+    scale_components = scale_components, use_early_cell_as_start = use_early_cell_as_start, max_iterations = max_iterations, n_jobs = n_jobs)
+    
+    if adjust_early_cell is True or adjust_terminal_cells is True:
+      if adjust_early_cell is True:
+        early_cell_group=adata.obs[group_by][early_cell]
+        cells = adata.obs[group_by].index.values[adata.obs[group_by]==early_cell_group]
+        early_cell = pr_res.pseudotime[cells].index.values[pr_res.pseudotime[cells]==min(pr_res.pseudotime[cells])][0]
+      if adjust_terminal_cells is True:
+        terminal_cells_dict=dict()
+        for n in range(len(terminal_cells)):
+          terminal_cell=terminal_cells[n]
+          terminal_cell_group=adata.obs[group_by][terminal_cell]
+          cells = adata.obs[group_by].index.values[adata.obs[group_by]==terminal_cell_group]
+          terminal_cells_dict[pr_res.pseudotime[cells].index.values[pr_res.pseudotime[cells]==max(pr_res.pseudotime[cells])][0]]=terminal_cell_group.replace(" ", ".") + "_diff_potential"
+        terminal_cells=list(terminal_cells_dict.keys())
+        
+      pr_res = palantir.core.run_palantir(ms_data = ms_data,early_cell = early_cell, terminal_states = terminal_cells, knn = n_neighbors, num_waypoints = num_waypoints,
     scale_components = scale_components, use_early_cell_as_start = use_early_cell_as_start, max_iterations = max_iterations, n_jobs = n_jobs)
 
     adata.obsm["palantir_dm"]=dm_res["T"].toarray()

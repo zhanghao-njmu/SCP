@@ -9,7 +9,7 @@ RenameClusters(
   group.by,
   newnames = NULL,
   nameslist = list(),
-  newgroup = NULL
+  createnew = NULL
 )
 }
 \arguments{
@@ -23,16 +23,16 @@ data("pancreas_sub")
 levels(pancreas_sub@meta.data[["SubCellType"]])
 
 # Rename all clusters
-pancreas_sub <- RenameClusters(pancreas_sub, group.by = "SubCellType", newnames = letters[1:8], newgroup = "newclusters")
+pancreas_sub <- RenameClusters(pancreas_sub, group.by = "SubCellType", newnames = letters[1:8], createnew = "newclusters")
 pancreas_sub@meta.data[["newclusters"]] <- factor(pancreas_sub@meta.data[["newclusters"]], levels = letters[1:8])
 ClassDimPlot(pancreas_sub, "newclusters")
 
 # Rename specified clusters
-pancreas_sub <- RenameClusters(pancreas_sub, group.by = "SubCellType", newnames = c("Alpha" = "a", "Beta" = "b"), newgroup = "newclusters")
+pancreas_sub <- RenameClusters(pancreas_sub, group.by = "SubCellType", newnames = c("Alpha" = "a", "Beta" = "b"), createnew = "newclusters")
 ClassDimPlot(pancreas_sub, "newclusters")
 
 # Merge and rename clusters
-pancreas_sub <- RenameClusters(pancreas_sub, group.by = "SubCellType", nameslist = list("EndocrineClusters" = c("Alpha", "Beta", "Epsilon", "Delta")), newgroup = "newclusters")
+pancreas_sub <- RenameClusters(pancreas_sub, group.by = "SubCellType", nameslist = list("EndocrineClusters" = c("Alpha", "Beta", "Epsilon", "Delta")), createnew = "newclusters")
 ClassDimPlot(pancreas_sub, "newclusters")
 
 }

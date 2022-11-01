@@ -3046,6 +3046,10 @@ geom_split_violin <- function(mapping = NULL, data = NULL, stat = "ydensity", po
 #'
 #' @examples
 #' data("pancreas_sub")
+#' ExpVlnPlot(pancreas_sub, features = c("G2M_score", "S_score"), group.by = "SubCellType")
+#' ExpVlnPlot(pancreas_sub, features = c("G2M_score", "S_score"), group.by = "SubCellType", split.by = "Phase")
+#' ExpVlnPlot(pancreas_sub, features = c("Neurog3", "Fev"), group.by = "SubCellType", bg.by = "CellType", stack = TRUE)
+#' ExpVlnPlot(pancreas_sub, features = c("Rbp4", "Pyy"), group.by = "SubCellType", comparisons = list(c("Alpha", "Beta"), c("Alpha", "Delta")), multiplegroup_comparisons = TRUE)
 #' ExpVlnPlot(pancreas_sub,
 #'   features = c(
 #'     "Sox9", "Anxa2", "Bicc1", # Ductal
@@ -3056,12 +3060,9 @@ geom_split_violin <- function(mapping = NULL, data = NULL, stat = "ydensity", po
 #'   ),
 #'   group.by = "SubCellType", bg.by = "CellType", stack = TRUE, flip = TRUE
 #' )
-#' ExpVlnPlot(pancreas_sub, features = c("G2M_score", "S_score"), group.by = "SubCellType")
-#' ExpVlnPlot(pancreas_sub, features = c("Neurog3", "Fev"), group.by = "SubCellType", bg.by = "CellType", stack = TRUE)
-#' ExpVlnPlot(pancreas_sub, features = c("Rbp4", "Pyy"), group.by = "SubCellType", comparisons = list(c("Alpha", "Beta"), c("Alpha", "Delta")), multiplegroup_comparisons = TRUE)
 #' @importFrom Seurat DefaultAssay
 #' @importFrom gtable gtable_add_cols gtable_add_rows gtable_add_grob gtable_add_padding
-#' @importFrom ggplot2 geom_blank geom_violin geom_rect geom_boxplot layer_scales position_jitterdodge position_dodge2 stat_summary scale_x_discrete element_line element_text element_blank annotate
+#' @importFrom ggplot2 geom_blank geom_violin geom_rect geom_boxplot layer_scales position_jitterdodge position_dodge stat_summary scale_x_discrete element_line element_text element_blank annotate
 #' @importFrom grid grobHeight grobWidth
 #' @importFrom rlang %||%
 #' @importFrom cowplot plot_grid
@@ -3071,7 +3072,7 @@ ExpVlnPlot <- function(srt, features = NULL, group.by = NULL, split.by = NULL, b
                        slot = "data", assay = DefaultAssay(srt),
                        palette = "Paired", palcolor = NULL, alpha = 1,
                        bg_palette = "Paired", bg_palcolor = NULL, bg_apha = 0.5,
-                       add_box = TRUE, box_fill = "black", box_width = 0.2,
+                       add_box = TRUE, box_fill = "black", box_width = 0.1,
                        add_point = FALSE, pt.color = "black", pt.size = NULL, pt.alpha = 1, jitter.width = 1,
                        cells.highlight = NULL, cols.highlight = "red", sizes.highlight = 1, alpha.highlight = 1,
                        calculate_coexp = FALSE, compare_features = FALSE,
@@ -3236,6 +3237,14 @@ ExpVlnPlot <- function(srt, features = NULL, group.by = NULL, split.by = NULL, b
     dat[, "group.by"] <- dat[, group.by]
     dat[, "split.by"] <- dat[, split.by]
     dat[, "bg.by"] <- dat[, bg.by]
+    stat <- table(dat[, "group.by"], dat[, "split.by"])
+    stat_drop <- which(stat == 1, arr.ind = T)
+    if (nrow(stat_drop) > 0) {
+      for (i in 1:nrow(stat_drop)) {
+        dat <- dat[!(dat[, "group.by"] == rownames(stat)[stat_drop[i, 1]] & dat[, "split.by"] == colnames(stat)[stat_drop[i, 2]]), ]
+        rownames(stat)[stat_drop[i, 1]]
+      }
+    }
     if ((is.character(x = sort) && nchar(x = sort) > 0) || sort) {
       df_sort <- aggregate(dat[, "value", drop = FALSE], by = list(dat[["group.by"]]), mean)
       if (is.character(sort) && sort == "increasing") {
@@ -3260,6 +3269,9 @@ ExpVlnPlot <- function(srt, features = NULL, group.by = NULL, split.by = NULL, b
     y_min_use <- min(dat[, "value"][is.finite(x = dat[, "value"])])
 
     levels_order <- levels(dat[["group.by"]])
+    if (split.by != group.by) {
+      levels_order <- levels(dat[["split.by"]])
+    }
     if (isTRUE(flip)) {
       dat[["group.by"]] <- factor(dat[["group.by"]], levels = rev(levels(dat[["group.by"]])))
       aspect.ratio <- 1 / aspect.ratio
@@ -3288,9 +3300,9 @@ ExpVlnPlot <- function(srt, features = NULL, group.by = NULL, split.by = NULL, b
       p <- p + bg_list
     }
     if (isTRUE(split.plot)) {
-      p <- p + geom_split_violin(scale = "width", adjust = adjust, trim = TRUE, alpha = alpha)
+      p <- p + geom_split_violin(scale = "width", adjust = adjust, trim = TRUE, alpha = alpha, position = position_dodge())
     } else {
-      p <- p + geom_violin(scale = "width", adjust = adjust, trim = TRUE, alpha = alpha)
+      p <- p + geom_violin(scale = "width", adjust = adjust, trim = TRUE, alpha = alpha, position = position_dodge())
     }
     if (length(comparisons) > 0) {
       check_R("ggpubr")
@@ -3332,11 +3344,11 @@ ExpVlnPlot <- function(srt, features = NULL, group.by = NULL, split.by = NULL, b
     }
     if (isTRUE(add_box)) {
       p <- p + geom_boxplot(aes(group = .data[["group"]]),
-        position = position_dodge2(width = 0.9), color = "black", fill = box_fill, width = box_width, show.legend = FALSE, outlier.shape = NA
+        position = position_dodge(width = 0.9), color = "black", fill = box_fill, width = box_width, show.legend = FALSE, outlier.shape = NA
       ) +
         stat_summary(
           fun = median, geom = "point", mapping = aes(group = .data[["split.by"]]),
-          position = position_dodge2(width = 0.9), color = "black", fill = "white", size = 1.5, shape = 21,
+          position = position_dodge(width = 0.9), color = "black", fill = "white", size = 1.5, shape = 21,
         )
     }
     if (isTRUE(stack) && !isTRUE(flip)) {
@@ -3811,7 +3823,7 @@ ExpDotPlot <- function(srt, features = NULL, feature_split = NULL, cell_split_by
 #' pancreas_sub <- RunDEtest(pancreas_sub, group_by = "CellType")
 #' de_filter <- filter(pancreas_sub@tools$DEtest_CellType$AllMarkers_wilcox, p_val_adj < 0.05 & avg_log2FC > 1)
 #' ht1 <- ExpHeatmap(
-#'   srt = pancreas_sub, features = de_filter$gene, cell_split_by = "CellType"
+#'   srt = pancreas_sub, features = de_filter$gene, cell_split_by = "CellType", cluster_features = TRUE
 #' )
 #' ht1$plot
 #'
@@ -3832,13 +3844,13 @@ ExpDotPlot <- function(srt, features = NULL, feature_split = NULL, cell_split_by
 #' @importFrom cowplot plot_grid
 #' @importFrom dplyr "%>%"
 #' @importFrom Seurat GetAssayData
-#'
+#' @importFrom stats hclust order.dendrogram as.dendrogram reorder
 #' @export
 ExpHeatmap <- function(srt, features = NULL, feature_split = NULL, cluster_features = FALSE,
                        cell_split_by = "orig.ident", cluster_cells = FALSE, max_cells = 100,
                        slot = "counts", assay = "RNA", exp_method = c("zscore", "raw", "log2fc", "log1p"),
                        n_split = NULL, heatmap_split_by = cell_split_by[1], split_method = c("kmeans", "hclust", "mfuzz"),
-                       row_title_size = 12, decreasing = TRUE,
+                       row_title_size = 12, row_title_rot = 90, decreasing = TRUE,
                        lib_normalize = TRUE, libsize = NULL,
                        anno_terms = FALSE, anno_keys = FALSE, anno_features = FALSE,
                        IDtype = "symbol", species = "Homo_sapiens", db_IDtype = "symbol", db_update = FALSE, db_version = "latest", Ensembl_version = 103, mirror = NULL,
@@ -4092,7 +4104,7 @@ ExpHeatmap <- function(srt, features = NULL, feature_split = NULL, cluster_featu
           row_split <- feature_split <- km$cluster
         }
         if (split_method == "hclust") {
-          hc <- hclust(dist(mat_split))
+          hc <- hclust(stats::dist(mat_split))
           row_split <- feature_split <- cutree(hc, k = n_split)
         }
       }
@@ -4121,7 +4133,7 @@ ExpHeatmap <- function(srt, features = NULL, feature_split = NULL, cluster_featu
     clusters <- row_split %||% setNames(rep(1, nrow(mat_split)), rownames(mat_split))
     dend_list <- lapply(levels(factor(clusters)), function(x) {
       feat <- names(clusters)[clusters == x]
-      row_dend <- as.dendrogram(hclust(dist(mat_split[feat, ])))
+      row_dend <- as.dendrogram(hclust(stats::dist(mat_split[feat, ])))
       return(row_dend)
     })
     order_list <- split(clusters, clusters)
@@ -4426,6 +4438,7 @@ ExpHeatmap <- function(srt, features = NULL, feature_split = NULL, cluster_featu
       column_split = cell_groups[[cell_split_var]],
       row_split = row_split,
       row_title_gp = gpar(fontsize = row_title_size),
+      row_title_rot = row_title_rot,
       cluster_rows = cluster_features,
       cluster_columns = cluster_cells,
       cluster_row_slices = FALSE,
@@ -7563,7 +7576,7 @@ DynamicHeatmap <- function(srt, lineages, feature_from = lineages,
                            use_fitted = FALSE, lib_normalize = TRUE, libsize = NULL,
                            min_expcells = 20, r.sq = 0.2, dev.expl = 0.2, padjust = 0.05,
                            cell_density = 1, order_by = c("peaktime", "valleytime"), decreasing = FALSE,
-                           feature_split = NULL, row_title_size = 12,
+                           feature_split = NULL, row_title_size = 12, row_title_rot = 90,
                            n_split = NULL, heatmap_split_by = lineages,
                            split_method = c("mfuzz", "kmeans", "kmeans-peaktime", "hclust", "hclust-peaktime"), fuzzification = NULL, show_fuzzification = FALSE,
                            anno_terms = FALSE, anno_keys = FALSE, anno_features = FALSE,
@@ -7898,13 +7911,13 @@ DynamicHeatmap <- function(srt, lineages, feature_from = lineages,
           row_split <- feature_split <- km$cluster
         }
         if (split_method == "hclust") {
-          hc <- hclust(dist(mat_split))
+          hc <- hclust(stats::dist(mat_split))
           row_split <- feature_split <- cutree(hc, k = n_split)
         }
         if (split_method == "hclust-peaktime") {
           feature_y <- feature_metadata[rownames(mat_split), order_by]
           names(feature_y) <- rownames(mat_split)
-          hc <- hclust(dist(feature_y))
+          hc <- hclust(stats::dist(feature_y))
           row_split <- feature_split <- cutree(hc, k = n_split)
         }
       }
@@ -8220,6 +8233,7 @@ DynamicHeatmap <- function(srt, lineages, feature_from = lineages,
       column_title = l,
       row_split = row_split,
       row_title_gp = gpar(fontsize = row_title_size),
+      row_title_rot = row_title_rot,
       cluster_rows = FALSE,
       cluster_row_slices = FALSE,
       cluster_columns = FALSE,

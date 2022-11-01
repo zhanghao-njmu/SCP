@@ -19,6 +19,7 @@ ExpHeatmap(
   heatmap_split_by = cell_split_by[1],
   split_method = c("kmeans", "hclust", "mfuzz"),
   row_title_size = 12,
+  row_title_rot = 90,
   decreasing = TRUE,
   lib_normalize = TRUE,
   libsize = NULL,
@@ -84,7 +85,7 @@ data(pancreas_sub)
 pancreas_sub <- RunDEtest(pancreas_sub, group_by = "CellType")
 de_filter <- filter(pancreas_sub@tools$DEtest_CellType$AllMarkers_wilcox, p_val_adj < 0.05 & avg_log2FC > 1)
 ht1 <- ExpHeatmap(
-  srt = pancreas_sub, features = de_filter$gene, cell_split_by = "CellType"
+  srt = pancreas_sub, features = de_filter$gene, cell_split_by = "CellType", cluster_features = TRUE
 )
 ht1$plot
 
