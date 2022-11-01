@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">SCP</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.1.9001</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -66,7 +66,7 @@
 <span>  bg_apha <span class="op">=</span> <span class="fl">0.5</span>,</span>
 <span>  add_box <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  box_fill <span class="op">=</span> <span class="st">"black"</span>,</span>
-<span>  box_width <span class="op">=</span> <span class="fl">0.2</span>,</span>
+<span>  box_width <span class="op">=</span> <span class="fl">0.1</span>,</span>
 <span>  add_point <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  pt.color <span class="op">=</span> <span class="st">"black"</span>,</span>
 <span>  pt.size <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -121,6 +121,22 @@
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"pancreas_sub"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">ExpVlnPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, features <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"G2M_score"</span>, <span class="st">"S_score"</span><span class="op">)</span>, group.by <span class="op">=</span> <span class="st">"SubCellType"</span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="ExpVlnPlot-1.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span><span class="fu">ExpVlnPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, features <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"G2M_score"</span>, <span class="st">"S_score"</span><span class="op">)</span>, group.by <span class="op">=</span> <span class="st">"SubCellType"</span>, split.by <span class="op">=</span> <span class="st">"Phase"</span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="ExpVlnPlot-2.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span><span class="fu">ExpVlnPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, features <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Neurog3"</span>, <span class="st">"Fev"</span><span class="op">)</span>, group.by <span class="op">=</span> <span class="st">"SubCellType"</span>, bg.by <span class="op">=</span> <span class="st">"CellType"</span>, stack <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="ExpVlnPlot-3.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span><span class="fu">ExpVlnPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, features <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Rbp4"</span>, <span class="st">"Pyy"</span><span class="op">)</span>, group.by <span class="op">=</span> <span class="st">"SubCellType"</span>, comparisons <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Alpha"</span>, <span class="st">"Beta"</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Alpha"</span>, <span class="st">"Delta"</span><span class="op">)</span><span class="op">)</span>, multiplegroup_comparisons <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Install package: 'ggpubr' ...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 'getOption("repos")' replaces Bioconductor standard repositories, see '?repositories' for details</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> replacement repositories:</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>     CRAN: https://cloud.r-project.org</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Bioconductor version 3.15 (BiocManager 1.30.19), R 4.2.2 (2022-10-31)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Installing package(s) 'ggpubr'</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> also installing the dependencies ‘corrplot’, ‘ggsci’, ‘polynom’, ‘rstatix’</span>
+<span class="r-plt img"><img src="ExpVlnPlot-4.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="fu">ExpVlnPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>,</span></span>
 <span class="r-in"><span>  features <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>    <span class="st">"Sox9"</span>, <span class="st">"Anxa2"</span>, <span class="st">"Bicc1"</span>, <span class="co"># Ductal</span></span></span>
@@ -131,13 +147,7 @@
 <span class="r-in"><span>  <span class="op">)</span>,</span></span>
 <span class="r-in"><span>  group.by <span class="op">=</span> <span class="st">"SubCellType"</span>, bg.by <span class="op">=</span> <span class="st">"CellType"</span>, stack <span class="op">=</span> <span class="cn">TRUE</span>, flip <span class="op">=</span> <span class="cn">TRUE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="ExpVlnPlot-1.png" alt="" width="700" height="433"></span>
-<span class="r-in"><span><span class="fu">ExpVlnPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, features <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"G2M_score"</span>, <span class="st">"S_score"</span><span class="op">)</span>, group.by <span class="op">=</span> <span class="st">"SubCellType"</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="ExpVlnPlot-2.png" alt="" width="700" height="433"></span>
-<span class="r-in"><span><span class="fu">ExpVlnPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, features <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Neurog3"</span>, <span class="st">"Fev"</span><span class="op">)</span>, group.by <span class="op">=</span> <span class="st">"SubCellType"</span>, bg.by <span class="op">=</span> <span class="st">"CellType"</span>, stack <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="ExpVlnPlot-3.png" alt="" width="700" height="433"></span>
-<span class="r-in"><span><span class="fu">ExpVlnPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, features <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Rbp4"</span>, <span class="st">"Pyy"</span><span class="op">)</span>, group.by <span class="op">=</span> <span class="st">"SubCellType"</span>, comparisons <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Alpha"</span>, <span class="st">"Beta"</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Alpha"</span>, <span class="st">"Delta"</span><span class="op">)</span><span class="op">)</span>, multiplegroup_comparisons <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="ExpVlnPlot-4.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="ExpVlnPlot-5.png" alt="" width="700" height="433"></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
