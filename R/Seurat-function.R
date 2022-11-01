@@ -169,6 +169,7 @@ RunNMF.default <- function(object, assay = NULL, slot = "data", nbes = 50,
   }
   nbes <- min(nbes, nrow(x = object) - 1)
   if (nmf.method == "RcppML") {
+    require("Matrix", quietly = TRUE)
     nmf.results <- nmf(
       A = t(object), k = nbes, tol = tol, maxit = maxit,
       seed = seed.use, verbose = verbose, ...
