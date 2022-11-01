@@ -73,7 +73,8 @@ Remotes:
     carmonalab/UCell,
     jokergoo/ComplexHeatmap,
     jokergoo/simplifyEnrichment,
-    immunogenomics/harmony
+    immunogenomics/harmony,
+    immunogenomics/symphony
 Suggests:
     AUCell,
     covr,

@@ -169,7 +169,6 @@ RunNMF.default <- function(object, assay = NULL, slot = "data", nbes = 50,
   }
   nbes <- min(nbes, nrow(x = object) - 1)
   if (nmf.method == "RcppML") {
-    require("Matrix", quietly = TRUE)
     nmf.results <- nmf(
       A = t(object), k = nbes, tol = tol, maxit = maxit,
       seed = seed.use, verbose = verbose, ...
@@ -2197,7 +2196,7 @@ RunHarmony2.Seurat <- function(object,
                                assay.use = "RNA",
                                project.dim = TRUE,
                                ...) {
-  check_R("harmony")
+  check_R("immunogenomics/harmony")
   available.dimreduc <- names(methods::slot(object = object, name = "reductions"))
   if (!(reduction %in% available.dimreduc)) {
     stop("Requested dimension reduction is not present in the Seurat object")
