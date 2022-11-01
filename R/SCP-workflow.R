@@ -455,21 +455,21 @@ RenameFeatures <- function(srt, newnames = NULL, assays = NULL) {
 #' levels(pancreas_sub@meta.data[["SubCellType"]])
 #'
 #' # Rename all clusters
-#' pancreas_sub <- RenameClusters(pancreas_sub, group.by = "SubCellType", newnames = letters[1:8], newgroup = "newclusters")
+#' pancreas_sub <- RenameClusters(pancreas_sub, group.by = "SubCellType", newnames = letters[1:8], createnew = "newclusters")
 #' pancreas_sub@meta.data[["newclusters"]] <- factor(pancreas_sub@meta.data[["newclusters"]], levels = letters[1:8])
 #' ClassDimPlot(pancreas_sub, "newclusters")
 #'
 #' # Rename specified clusters
-#' pancreas_sub <- RenameClusters(pancreas_sub, group.by = "SubCellType", newnames = c("Alpha" = "a", "Beta" = "b"), newgroup = "newclusters")
+#' pancreas_sub <- RenameClusters(pancreas_sub, group.by = "SubCellType", newnames = c("Alpha" = "a", "Beta" = "b"), createnew = "newclusters")
 #' ClassDimPlot(pancreas_sub, "newclusters")
 #'
 #' # Merge and rename clusters
-#' pancreas_sub <- RenameClusters(pancreas_sub, group.by = "SubCellType", nameslist = list("EndocrineClusters" = c("Alpha", "Beta", "Epsilon", "Delta")), newgroup = "newclusters")
+#' pancreas_sub <- RenameClusters(pancreas_sub, group.by = "SubCellType", nameslist = list("EndocrineClusters" = c("Alpha", "Beta", "Epsilon", "Delta")), createnew = "newclusters")
 #' ClassDimPlot(pancreas_sub, "newclusters")
 #'
 #' @importFrom stats setNames
 #' @export
-RenameClusters <- function(srt, group.by, newnames = NULL, nameslist = list(), newgroup = NULL) {
+RenameClusters <- function(srt, group.by, newnames = NULL, nameslist = list(), createnew = NULL) {
   if (missing(group.by)) {
     stop("group.by must be provided")
   }
@@ -495,15 +495,15 @@ RenameClusters <- function(srt, group.by, newnames = NULL, nameslist = list(), n
   } else {
     levels <- NULL
   }
-  if (is.null(newgroup)) {
-    newgroup <- group.by
+  if (is.null(createnew)) {
+    createnew <- group.by
   }
   index <- which(as.character(srt@meta.data[[group.by]]) %in% names(names_assign))
-  srt@meta.data[[newgroup]] <- as.character(srt@meta.data[[group.by]])
-  srt@meta.data[[newgroup]][index] <- names_assign[srt@meta.data[[newgroup]][index]]
+  srt@meta.data[[createnew]] <- as.character(srt@meta.data[[group.by]])
+  srt@meta.data[[createnew]][index] <- names_assign[srt@meta.data[[createnew]][index]]
   if (!is.null(levels)) {
     levels[levels %in% names(names_assign)] <- names_assign[levels[levels %in% names(names_assign)]]
-    srt@meta.data[[newgroup]] <- factor(srt@meta.data[[newgroup]], levels = unique(levels))
+    srt@meta.data[[createnew]] <- factor(srt@meta.data[[createnew]], levels = unique(levels))
   }
   return(srt)
 }

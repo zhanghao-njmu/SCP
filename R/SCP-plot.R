@@ -3062,7 +3062,7 @@ geom_split_violin <- function(mapping = NULL, data = NULL, stat = "ydensity", po
 #' )
 #' @importFrom Seurat DefaultAssay
 #' @importFrom gtable gtable_add_cols gtable_add_rows gtable_add_grob gtable_add_padding
-#' @importFrom ggplot2 geom_blank geom_violin geom_rect geom_boxplot layer_scales position_jitterdodge position_dodge2 stat_summary scale_x_discrete element_line element_text element_blank annotate
+#' @importFrom ggplot2 geom_blank geom_violin geom_rect geom_boxplot layer_scales position_jitterdodge position_dodge stat_summary scale_x_discrete element_line element_text element_blank annotate
 #' @importFrom grid grobHeight grobWidth
 #' @importFrom rlang %||%
 #' @importFrom cowplot plot_grid
