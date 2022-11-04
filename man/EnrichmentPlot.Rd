@@ -6,7 +6,7 @@
 \usage{
 EnrichmentPlot(
   srt,
-  enrichment = "GO_BP",
+  db = "GO_BP",
   group_by = NULL,
   group_use = NULL,
   test.use = "wilcox",
@@ -20,8 +20,9 @@ EnrichmentPlot(
   word_type = c("term", "feature"),
   word_size = c(2, 8),
   min_word_length = 3,
-  exclude_words = c("cell", "cellular", "dna", "rna", "protein", "development", "system",
-    "regulation", "positive", "negative", "response", "process"),
+  exclude_words = c("cell", "cellular", "dna", "rna", "protein", "development",
+    "organization", "system", "regulation", "positive", "negative", "response",
+    "process"),
   aspect.ratio = 1,
   base_size = 12,
   character_width = 50,
@@ -65,11 +66,15 @@ EnrichmentPlot
 \examples{
 data("pancreas_sub")
 pancreas_sub <- RunDEtest(pancreas_sub, group_by = "CellType")
-pancreas_sub <- RunEnrichment(srt = pancreas_sub, group_by = "CellType", enrichment = "GO_BP", species = "Mus_musculus")
+pancreas_sub <- RunEnrichment(srt = pancreas_sub, group_by = "CellType", db = "GO_BP", species = "Mus_musculus")
 EnrichmentPlot(pancreas_sub, group_by = "CellType", plot_type = "bar")
 EnrichmentPlot(pancreas_sub, group_by = "CellType", plot_type = "bar", character_width = 30, base_size = 10)
 
 EnrichmentPlot(pancreas_sub, group_by = "CellType", group_use = c("Ductal", "Endocrine"), plot_type = "lollipop", ncol = 1)
 EnrichmentPlot(pancreas_sub, group_by = "CellType", group_use = c("Ductal", "Endocrine"), plot_type = "wordcloud")
 EnrichmentPlot(pancreas_sub, group_by = "CellType", group_use = c("Ductal", "Endocrine"), plot_type = "wordcloud", word_type = "feature")
+
+pancreas_sub <- RunEnrichment(srt = pancreas_sub, group_by = "CellType", db = c("MP", "DO", "DGI"), convert_species = TRUE, species = "Mus_musculus")
+EnrichmentPlot(pancreas_sub, db = c("MP", "DO", "DGI"), group_by = "CellType", group_use = c("Ductal", "Endocrine"), plot_type = "lollipop")
+
 }

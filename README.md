@@ -320,7 +320,7 @@ print(ht$plot)
 
 ``` r
 pancreas_sub <- RunEnrichment(
-  srt = pancreas_sub, group_by = "CellType", enrichment = "GO_BP", species = "Mus_musculus",
+  srt = pancreas_sub, group_by = "CellType", db = "GO_BP", species = "Mus_musculus",
   DE_threshold = "avg_log2FC > 1 & p_val_adj < 0.05"
 )
 EnrichmentPlot(
@@ -353,7 +353,7 @@ EnrichmentPlot(
 
 ``` r
 pancreas_sub <- RunGSEA(
-  srt = pancreas_sub, group_by = "CellType", enrichment = "GO_BP", species = "Mus_musculus",
+  srt = pancreas_sub, group_by = "CellType", db = "GO_BP", species = "Mus_musculus",
   DE_threshold = "p_val_adj < 0.05"
 )
 GSEAPlot(srt = pancreas_sub, group_by = "CellType", group_use = "Endocrine")

@@ -1785,7 +1785,7 @@ ExpDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), split.by
   }
 
   features <- unique(features)
-  features_drop <- features[!features %in% c(rownames(srt), colnames(srt@meta.data))]
+  features_drop <- features[!features %in% c(rownames(srt[[assay]]), colnames(srt@meta.data))]
   if (length(features_drop) > 0) {
     warning(paste0(features_drop, collapse = ","), " are not in the features of srt.", immediate. = TRUE)
     features <- features[!features %in% features_drop]
@@ -2724,7 +2724,7 @@ ExpDimPlot3D <- function(srt, features = NULL, reduction = NULL, dims = c(1, 2, 
   }
 
   features <- unique(features)
-  features_drop <- features[!features %in% c(rownames(srt), colnames(srt@meta.data))]
+  features_drop <- features[!features %in% c(rownames(srt[[assay]]), colnames(srt@meta.data))]
   if (length(features_drop) > 0) {
     warning(paste0(features_drop, collapse = ","), " are not in the features of srt.", immediate. = TRUE)
     features <- features[!features %in% features_drop]
@@ -3152,7 +3152,7 @@ ExpVlnPlot <- function(srt, features = NULL, group.by = NULL, split.by = NULL, b
   }
 
   features <- unique(features)
-  features_drop <- features[!features %in% c(rownames(srt), colnames(srt@meta.data))]
+  features_drop <- features[!features %in% c(rownames(srt[[assay]]), colnames(srt@meta.data))]
   if (length(features_drop) > 0) {
     warning(paste0(features_drop, collapse = ","), " are not in the features of srt.", immediate. = TRUE)
     features <- features[!features %in% features_drop]
@@ -3577,7 +3577,7 @@ ExpDotPlot <- function(srt, features = NULL, feature_split = NULL, cell_split_by
     }
   }
 
-  index <- features %in% rownames(srt)
+  index <- features %in% rownames(srt[[assay]])
   features <- features[index]
   feature_split <- feature_split[index]
   if (length(features) > 500) {
@@ -3781,7 +3781,7 @@ ExpDotPlot <- function(srt, features = NULL, feature_split = NULL, cell_split_by
 #' @param db_version
 #' @param Ensembl_version
 #' @param mirror
-#' @param enrichment
+#' @param db
 #' @param TERM2GENE
 #' @param TERM2NAME
 #' @param minGSSize
@@ -3842,7 +3842,7 @@ ExpDotPlot <- function(srt, features = NULL, feature_split = NULL, cell_split_by
 #' @importFrom ComplexHeatmap Heatmap Legend HeatmapAnnotation anno_empty anno_mark anno_simple anno_textbox draw decorate_heatmap_body width.HeatmapAnnotation height.HeatmapAnnotation
 #' @importFrom grid gpar grid.grabExpr
 #' @importFrom cowplot plot_grid
-#' @importFrom dplyr "%>%"
+#' @importFrom dplyr "%>%" filter
 #' @importFrom Seurat GetAssayData
 #' @importFrom stats hclust order.dendrogram as.dendrogram reorder
 #' @export
@@ -3853,10 +3853,11 @@ ExpHeatmap <- function(srt, features = NULL, feature_split = NULL, cluster_featu
                        row_title_size = 12, row_title_rot = 90, decreasing = TRUE,
                        lib_normalize = TRUE, libsize = NULL,
                        anno_terms = FALSE, anno_keys = FALSE, anno_features = FALSE,
-                       IDtype = "symbol", species = "Homo_sapiens", db_IDtype = "symbol", db_update = FALSE, db_version = "latest", Ensembl_version = 103, mirror = NULL,
-                       enrichment = "GO_BP", TERM2GENE = NULL, TERM2NAME = NULL, minGSSize = 10, maxGSSize = 500, universe = NULL,
+                       IDtype = "symbol", species = "Homo_sapiens", db_update = FALSE, db_version = "latest", convert_species = FALSE, Ensembl_version = 103, mirror = NULL,
+                       db = "GO_BP", TERM2GENE = NULL, TERM2NAME = NULL, minGSSize = 10, maxGSSize = 500, universe = NULL,
                        GO_simplify = FALSE, GO_simplify_padjustCutoff = 0.2, simplify_method = "Rel", simplify_similarityCutoff = 0.7,
-                       pvalueCutoff = NULL, padjustCutoff = 0.05, topTerm = 5, show_id = TRUE, topWord = 20, min_word_length = 3, exclude_words = c("cell", "cellular", "dna", "rna", "protein", "development", "system", "regulation", "positive", "negative", "response", "process"),
+                       pvalueCutoff = NULL, padjustCutoff = 0.05, topTerm = 5, show_id = TRUE, topWord = 20, min_word_length = 3,
+                       exclude_words = c("cell", "cellular", "dna", "rna", "protein", "development", "organization", "system", "regulation", "positive", "negative", "response", "process"),
                        anno_width = unit(c(4, 2, 2), "in"), anno_size = c(6, 10),
                        nlabel = 20, features_label = NULL, label_size = 10, label_color = "black",
                        heatmap_palette = "RdBu", cell_split_palette = "Paired", feature_split_palette = "jama",
@@ -3930,7 +3931,7 @@ ExpHeatmap <- function(srt, features = NULL, feature_split = NULL, cluster_featu
   if (is.null(features)) {
     features <- VariableFeatures(srt)
   }
-  index <- features %in% rownames(srt)
+  index <- features %in% rownames(srt[[assay]])
   features <- features[index]
   features_unique <- make.unique(features)
   if (!is.null(feature_split)) {
@@ -4250,10 +4251,13 @@ ExpHeatmap <- function(srt, features = NULL, feature_split = NULL, cluster_featu
     }
     res <- RunEnrichment(
       geneID = geneID, geneID_groups = geneID_groups, IDtype = IDtype, species = species,
-      db_IDtype = db_IDtype, db_update = db_update, db_version = db_version, Ensembl_version = Ensembl_version, mirror = mirror,
-      enrichment = enrichment, TERM2GENE = TERM2GENE, TERM2NAME = TERM2NAME, minGSSize = minGSSize, maxGSSize = maxGSSize, universe = universe,
+      db_update = db_update, db_version = db_version, convert_species = convert_species, Ensembl_version = Ensembl_version, mirror = mirror,
+      db = db, TERM2GENE = TERM2GENE, TERM2NAME = TERM2NAME, minGSSize = minGSSize, maxGSSize = maxGSSize, universe = universe,
       GO_simplify = GO_simplify, GO_simplify_padjustCutoff = GO_simplify_padjustCutoff, simplify_method = simplify_method, simplify_similarityCutoff = simplify_similarityCutoff
     )
+    if (isTRUE(GO_simplify) && any(db %in% c("GO_BP", "GO_CC", "GO_MF"))) {
+      db[db %in% c("GO_BP", "GO_CC", "GO_MF")] <- paste0(db[db %in% c("GO_BP", "GO_CC", "GO_MF")], "_sim")
+    }
     if (nrow(res$enrichment) == 0) {
       stop("No enrichment result found.")
     }
@@ -4262,15 +4266,15 @@ ExpHeatmap <- function(srt, features = NULL, feature_split = NULL, cluster_featu
     padjustCutoff <- ifelse(is.null(padjustCutoff), 1, padjustCutoff)
 
     df <- res$enrichment %>%
-      filter(Enrichment %in% enrichment) %>%
-      group_by(Enrichment, Groups) %>%
+      filter(Database %in% db) %>%
+      group_by(Database, Groups) %>%
       filter(.data[["pvalue"]] <= pvalueCutoff & .data[["p.adjust"]] <= padjustCutoff) %>%
       arrange(desc(-.data[["pvalue"]])) %>%
       as.data.frame()
-    df_list <- split.data.frame(df, ~ Enrichment + Groups)
+    df_list <- split.data.frame(df, ~ Database + Groups)
     df_list <- df_list[lapply(df_list, nrow) > 0]
 
-    for (enrich in enrichment) {
+    for (enrich in db) {
       nm <- strsplit(names(df_list), "\\.")
       subdf_list <- df_list[unlist(lapply(nm, function(x) x[[1]])) %in% enrich]
 
@@ -4308,13 +4312,13 @@ ExpHeatmap <- function(srt, features = NULL, feature_split = NULL, cluster_featu
       ha_keys <- NULL
       if (isTRUE(anno_keys)) {
         term_list <- lapply(subdf_list, function(df) {
-          if (df$Enrichment[1] %in% c("GO_BP", "GO_CC", "GO_MF")) {
+          if (df$Database[1] %in% c("GO_BP", "GO_CC", "GO_MF")) {
             df <- simplifyEnrichment::keyword_enrichment_from_GO(df[["ID"]]) %>%
               summarise(
                 keyword = .data[["keyword"]],
                 score = -(log10(.data[["padj"]])),
                 count = .data[["n_term"]],
-                Enrichment = df[["Enrichment"]][1],
+                Database = df[["Database"]][1],
                 Groups = df[["Groups"]][1]
               ) %>%
               filter(nchar(.data[["keyword"]]) >= min_word_length) %>%
@@ -4327,12 +4331,12 @@ ExpHeatmap <- function(srt, features = NULL, feature_split = NULL, cluster_featu
             df <- df %>%
               mutate(keyword = strsplit(as.character(.data[["Description"]]), " ")) %>%
               unnest(cols = "keyword") %>%
-              group_by(.data[["keyword"]], Enrichment, Groups) %>%
+              group_by(.data[["keyword"]], Database, Groups) %>%
               summarise(
                 keyword = .data[["keyword"]],
                 score = sum(-(log10(.data[[metric]]))),
                 count = n(),
-                Enrichment = .data[["Enrichment"]],
+                Database = .data[["Database"]],
                 Groups = .data[["Groups"]],
                 .groups = "keep"
               ) %>%
@@ -4369,12 +4373,12 @@ ExpHeatmap <- function(srt, features = NULL, feature_split = NULL, cluster_featu
           df <- df %>%
             mutate(keyword = strsplit(as.character(.data[["geneID"]]), "/")) %>%
             unnest(cols = "keyword") %>%
-            group_by(.data[["keyword"]], Enrichment, Groups) %>%
+            group_by(.data[["keyword"]], Database, Groups) %>%
             summarise(
               keyword = .data[["keyword"]],
               score = sum(-(log10(.data[[metric]]))),
               count = n(),
-              Enrichment = .data[["Enrichment"]],
+              Database = .data[["Database"]],
               Groups = .data[["Groups"]],
               .groups = "keep"
             ) %>%
@@ -4610,7 +4614,7 @@ ExpCorPlot <- function(srt, features, group.by = NULL, split.by = NULL, slot = "
     cells.highlight <- colnames(srt)
   }
 
-  features_drop <- features[!features %in% c(rownames(srt), colnames(srt@meta.data))]
+  features_drop <- features[!features %in% c(rownames(srt[[assay]]), colnames(srt@meta.data))]
   if (length(features_drop) > 0) {
     warning(paste0(features_drop, collapse = ","), " are not in the features of srt.", immediate. = TRUE)
     features <- features[!features %in% features_drop]
@@ -6896,7 +6900,7 @@ SummaryPlot <- function(srt,
       }
     }
   }
-  features_drop <- features[!features %in% c(rownames(srt), colnames(srt@meta.data))]
+  features_drop <- features[!features %in% c(rownames(srt[[DefaultAssay(srt)]]), colnames(srt@meta.data))]
   if (length(features_drop) > 0) {
     warning(paste0(features_drop, collapse = ","), " are not in the features of srt.", immediate. = TRUE)
     features <- features[!features %in% features_drop]
@@ -7568,7 +7572,7 @@ DynamicPlot <- function(srt, features, lineages, slot = "counts", assay = "RNA",
 #' @importFrom cowplot ggdraw draw_grob
 #' @importFrom ggplot2 ggplotGrob
 #' @importFrom grid grid.lines convertUnit
-#' @importFrom dplyr group_by filter arrange desc across mutate summarise distinct n .data
+#' @importFrom dplyr group_by filter arrange desc across mutate summarise distinct n .data "%>%"
 #' @export
 DynamicHeatmap <- function(srt, lineages, feature_from = lineages,
                            exp_method = c("zscore", "raw", "log2fc", "log1p"),
@@ -7580,10 +7584,11 @@ DynamicHeatmap <- function(srt, lineages, feature_from = lineages,
                            n_split = NULL, heatmap_split_by = lineages,
                            split_method = c("mfuzz", "kmeans", "kmeans-peaktime", "hclust", "hclust-peaktime"), fuzzification = NULL, show_fuzzification = FALSE,
                            anno_terms = FALSE, anno_keys = FALSE, anno_features = FALSE,
-                           IDtype = "symbol", species = "Homo_sapiens", db_IDtype = "symbol", db_update = FALSE, db_version = "latest", Ensembl_version = 103, mirror = NULL,
-                           enrichment = "GO_BP", TERM2GENE = NULL, TERM2NAME = NULL, minGSSize = 10, maxGSSize = 500, universe = NULL,
+                           IDtype = "symbol", species = "Homo_sapiens", db_update = FALSE, db_version = "latest", convert_species = FALSE, Ensembl_version = 103, mirror = NULL,
+                           db = "GO_BP", TERM2GENE = NULL, TERM2NAME = NULL, minGSSize = 10, maxGSSize = 500, universe = NULL,
                            GO_simplify = FALSE, GO_simplify_padjustCutoff = 0.2, simplify_method = "Rel", simplify_similarityCutoff = 0.7,
-                           pvalueCutoff = NULL, padjustCutoff = 0.05, topTerm = 5, show_id = TRUE, topWord = 20, min_word_length = 3, exclude_words = c("cell", "cellular", "dna", "rna", "protein", "development", "system", "regulation", "positive", "negative", "response", "process"),
+                           pvalueCutoff = NULL, padjustCutoff = 0.05, topTerm = 5, show_id = TRUE, topWord = 20, min_word_length = 3,
+                           exclude_words = c("cell", "cellular", "dna", "rna", "protein", "development", "organization", "system", "regulation", "positive", "negative", "response", "process"),
                            anno_width = unit(c(4, 2, 2), "in"), anno_size = c(6, 10),
                            nlabel = 20, features_label = NULL, label_size = 10, label_color = "black",
                            pseudotime_label = NULL, pseudotime_label_color = "black",
@@ -8046,10 +8051,13 @@ DynamicHeatmap <- function(srt, lineages, feature_from = lineages,
     clusters <- row_split %||% setNames(rep(1, nrow(mat_split)), rownames(mat_split))
     res <- RunEnrichment(
       geneID = names(clusters), geneID_groups = clusters, IDtype = IDtype, species = species,
-      db_IDtype = db_IDtype, db_update = db_update, db_version = db_version, Ensembl_version = Ensembl_version, mirror = mirror,
-      enrichment = enrichment, TERM2GENE = TERM2GENE, TERM2NAME = TERM2NAME, minGSSize = minGSSize, maxGSSize = maxGSSize, universe = universe,
+      db_update = db_update, db_version = db_version, convert_species = convert_species, Ensembl_version = Ensembl_version, mirror = mirror,
+      db = db, TERM2GENE = TERM2GENE, TERM2NAME = TERM2NAME, minGSSize = minGSSize, maxGSSize = maxGSSize, universe = universe,
       GO_simplify = GO_simplify, GO_simplify_padjustCutoff = GO_simplify_padjustCutoff, simplify_method = simplify_method, simplify_similarityCutoff = simplify_similarityCutoff
     )
+    if (isTRUE(GO_simplify) && any(db %in% c("GO_BP", "GO_CC", "GO_MF"))) {
+      db[db %in% c("GO_BP", "GO_CC", "GO_MF")] <- paste0(db[db %in% c("GO_BP", "GO_CC", "GO_MF")], "_sim")
+    }
     if (nrow(res$enrichment) == 0) {
       stop("No enrichment result found.")
     }
@@ -8058,15 +8066,15 @@ DynamicHeatmap <- function(srt, lineages, feature_from = lineages,
     padjustCutoff <- ifelse(is.null(padjustCutoff), 1, padjustCutoff)
 
     df <- res$enrichment %>%
-      filter(Enrichment %in% enrichment) %>%
-      group_by(Enrichment, Groups) %>%
+      filter(Database %in% db) %>%
+      group_by(Database, Groups) %>%
       filter(.data[["pvalue"]] <= pvalueCutoff & .data[["p.adjust"]] <= padjustCutoff) %>%
       arrange(desc(-.data[["pvalue"]])) %>%
       as.data.frame()
-    df_list <- split.data.frame(df, ~ Enrichment + Groups)
+    df_list <- split.data.frame(df, ~ Database + Groups)
     df_list <- df_list[lapply(df_list, nrow) > 0]
 
-    for (enrich in enrichment) {
+    for (enrich in db) {
       nm <- strsplit(names(df_list), "\\.")
       subdf_list <- df_list[unlist(lapply(nm, function(x) x[[1]])) %in% enrich]
 
@@ -8104,13 +8112,13 @@ DynamicHeatmap <- function(srt, lineages, feature_from = lineages,
       ha_keys <- NULL
       if (isTRUE(anno_keys)) {
         term_list <- lapply(subdf_list, function(df) {
-          if (df$Enrichment[1] %in% c("GO_BP", "GO_CC", "GO_MF")) {
+          if (df$Database[1] %in% c("GO_BP", "GO_CC", "GO_MF")) {
             df <- simplifyEnrichment::keyword_enrichment_from_GO(df[["ID"]]) %>%
               summarise(
                 keyword = .data[["keyword"]],
                 score = -(log10(.data[["padj"]])),
                 count = .data[["n_term"]],
-                Enrichment = df[["Enrichment"]][1],
+                Database = df[["Database"]][1],
                 Groups = df[["Groups"]][1]
               ) %>%
               filter(nchar(.data[["keyword"]]) >= min_word_length) %>%
@@ -8123,12 +8131,12 @@ DynamicHeatmap <- function(srt, lineages, feature_from = lineages,
             df <- df %>%
               mutate(keyword = strsplit(as.character(.data[["Description"]]), " ")) %>%
               unnest(cols = "keyword") %>%
-              group_by(.data[["keyword"]], Enrichment, Groups) %>%
+              group_by(.data[["keyword"]], Database, Groups) %>%
               summarise(
                 keyword = .data[["keyword"]],
                 score = sum(-(log10(.data[[metric]]))),
                 count = n(),
-                Enrichment = .data[["Enrichment"]],
+                Database = .data[["Database"]],
                 Groups = .data[["Groups"]],
                 .groups = "keep"
               ) %>%
@@ -8165,12 +8173,12 @@ DynamicHeatmap <- function(srt, lineages, feature_from = lineages,
           df <- df %>%
             mutate(keyword = strsplit(as.character(.data[["geneID"]]), "/")) %>%
             unnest(cols = "keyword") %>%
-            group_by(.data[["keyword"]], Enrichment, Groups) %>%
+            group_by(.data[["keyword"]], Database, Groups) %>%
             summarise(
               keyword = .data[["keyword"]],
               score = sum(-(log10(.data[[metric]]))),
               count = n(),
-              Enrichment = .data[["Enrichment"]],
+              Database = .data[["Database"]],
               Groups = .data[["Groups"]],
               .groups = "keep"
             ) %>%
@@ -8431,7 +8439,7 @@ ProjectionPlot <- function(srt_query, srt_ref,
 #' @param nrow nrow
 #' @param ncol ncol
 #' @param byrow byrow
-#' @param enrichment
+#' @param db
 #' @param base_size
 #' @param character_width
 #' @param line_height
@@ -8449,13 +8457,17 @@ ProjectionPlot <- function(srt_query, srt_ref,
 #' @examples
 #' data("pancreas_sub")
 #' pancreas_sub <- RunDEtest(pancreas_sub, group_by = "CellType")
-#' pancreas_sub <- RunEnrichment(srt = pancreas_sub, group_by = "CellType", enrichment = "GO_BP", species = "Mus_musculus")
+#' pancreas_sub <- RunEnrichment(srt = pancreas_sub, group_by = "CellType", db = "GO_BP", species = "Mus_musculus")
 #' EnrichmentPlot(pancreas_sub, group_by = "CellType", plot_type = "bar")
 #' EnrichmentPlot(pancreas_sub, group_by = "CellType", plot_type = "bar", character_width = 30, base_size = 10)
 #'
 #' EnrichmentPlot(pancreas_sub, group_by = "CellType", group_use = c("Ductal", "Endocrine"), plot_type = "lollipop", ncol = 1)
 #' EnrichmentPlot(pancreas_sub, group_by = "CellType", group_use = c("Ductal", "Endocrine"), plot_type = "wordcloud")
 #' EnrichmentPlot(pancreas_sub, group_by = "CellType", group_use = c("Ductal", "Endocrine"), plot_type = "wordcloud", word_type = "feature")
+#'
+#' pancreas_sub <- RunEnrichment(srt = pancreas_sub, group_by = "CellType", db = c("MP", "DO", "DGI"), convert_species = TRUE, species = "Mus_musculus")
+#' EnrichmentPlot(pancreas_sub, db = c("MP", "DO", "DGI"), group_by = "CellType", group_use = c("Ductal", "Endocrine"), plot_type = "lollipop")
+#'
 #' @importFrom ggplot2 ggplot geom_bar geom_text labs scale_fill_manual scale_y_continuous facet_grid coord_flip scale_color_gradientn scale_fill_gradientn scale_size guides geom_segment expansion guide_colorbar
 #' @importFrom scales breaks_extended
 #' @importFrom dplyr group_by filter arrange desc across mutate summarise distinct n .data
@@ -8463,11 +8475,11 @@ ProjectionPlot <- function(srt_query, srt_ref,
 #' @importFrom stats formula
 #' @export
 #'
-EnrichmentPlot <- function(srt, enrichment = "GO_BP", group_by = NULL, group_use = NULL, test.use = "wilcox",
+EnrichmentPlot <- function(srt, db = "GO_BP", group_by = NULL, group_use = NULL, test.use = "wilcox",
                            res = NULL, pvalueCutoff = NULL, padjustCutoff = 0.05,
                            plot_type = c("bar", "lollipop", "wordcloud"), palette = "Spectral",
-                           topTerm = 6, topWord = 100, word_type = c("term", "feature"), word_size = c(2, 8),
-                           min_word_length = 3, exclude_words = c("cell", "cellular", "dna", "rna", "protein", "development", "system", "regulation", "positive", "negative", "response", "process"),
+                           topTerm = 6, topWord = 100, word_type = c("term", "feature"), word_size = c(2, 8), min_word_length = 3,
+                           exclude_words = c("cell", "cellular", "dna", "rna", "protein", "development", "organization", "system", "regulation", "positive", "negative", "response", "process"),
                            aspect.ratio = 1, base_size = 12, character_width = 50, line_height = 0.7,
                            legend.position = "right", legend.direction = "vertical",
                            combine = TRUE, nrow = NULL, ncol = NULL, byrow = TRUE, align = "hv", axis = "lr") {
@@ -8490,14 +8502,14 @@ EnrichmentPlot <- function(srt, enrichment = "GO_BP", group_by = NULL, group_use
   if (is.null(pvalueCutoff) && is.null(padjustCutoff)) {
     stop("One of 'pvalueCutoff' or 'padjustCutoff' must be specified")
   }
-  if (!is.factor(res[["Enrichment"]])) {
-    res[["Enrichment"]] <- factor(res[["Enrichment"]], levels = unique(res[["Enrichment"]]))
+  if (!is.factor(res[["Database"]])) {
+    res[["Database"]] <- factor(res[["Database"]], levels = unique(res[["Database"]]))
   }
   if (!is.factor(res["Groups"])) {
     res[["Groups"]] <- factor(res[["Groups"]], levels = unique(res[["Groups"]]))
   }
-  if (length(enrichment[!enrichment %in% res[["Enrichment"]]]) > 0) {
-    stop(paste0(enrichment[!enrichment %in% res[["Enrichment"]]], " is not in the enrichment result."))
+  if (length(db[!db %in% res[["Database"]]]) > 0) {
+    stop(paste0(db[!db %in% res[["Database"]]], " is not in the enrichment result."))
   }
   if (!is.null(group_use)) {
     res <- res[res[["Groups"]] %in% group_use, ]
@@ -8508,12 +8520,12 @@ EnrichmentPlot <- function(srt, enrichment = "GO_BP", group_by = NULL, group_use
   padjustCutoff <- ifelse(is.null(padjustCutoff), 1, padjustCutoff)
 
   df <- res %>%
-    filter(Enrichment %in% enrichment) %>%
-    group_by(Enrichment, Groups) %>%
+    filter(Database %in% db) %>%
+    group_by(Database, Groups) %>%
     filter(.data[["pvalue"]] <= pvalueCutoff & .data[["p.adjust"]] <= padjustCutoff) %>%
     arrange(desc(-.data[["pvalue"]])) %>%
     as.data.frame()
-  df_list <- split.data.frame(df, ~ Enrichment + Groups)
+  df_list <- split.data.frame(df, ~ Database + Groups)
   df_list <- df_list[lapply(df_list, nrow) > 0]
 
   if (plot_type == "bar") {
@@ -8525,20 +8537,19 @@ EnrichmentPlot <- function(srt, enrichment = "GO_BP", group_by = NULL, group_use
 
       p <- ggplot(df, aes(
         x = .data[["Description"]], y = .data[["metric"]],
-        fill = .data[["Enrichment"]],
+        fill = .data[["Database"]],
         label = str_extract(.data[["GeneRatio"]], pattern = "\\d+(?=\\/)")
       )) +
         geom_bar(stat = "identity", color = "black") +
         geom_text(hjust = -0.5, size = 3.5 * base_size / 12) +
         labs(x = "", y = paste0("-log10(", metric, ")")) +
         scale_fill_manual(
-          name = "Enrichment:",
-          values = palette_scp(levels(df[["Enrichment"]]), palette = palette),
+          values = palette_scp(levels(df[["Database"]]), palette = palette),
           na.value = "grey80",
           guide = "none"
         ) +
         scale_y_continuous(limits = c(0, 1.3 * max(df[["metric"]])), expand = expansion(0, 0)) +
-        facet_grid(Enrichment ~ Groups, scales = "free") +
+        facet_grid(Database ~ Groups, scales = "free") +
         theme_scp(
           aspect.ratio = aspect.ratio,
           base_size = base_size,
@@ -8598,7 +8609,7 @@ EnrichmentPlot <- function(srt, enrichment = "GO_BP", group_by = NULL, group_use
           na.value = "grey80",
           guide = guide_colorbar(frame.colour = "black", ticks.colour = "black", barheight = 4)
         ) +
-        facet_grid(Enrichment ~ Groups, scales = "free") +
+        facet_grid(Database ~ Groups, scales = "free") +
         theme_scp(
           aspect.ratio = aspect.ratio,
           panel.background = element_rect(fill = "#1A365C"),
@@ -8623,13 +8634,13 @@ EnrichmentPlot <- function(srt, enrichment = "GO_BP", group_by = NULL, group_use
     check_R("simplifyEnrichment")
     plist <- lapply(df_list, function(df) {
       if (word_type == "term") {
-        if (df$Enrichment[1] %in% c("GO_BP", "GO_CC", "GO_MF")) {
+        if (df$Database[1] %in% c("GO_BP", "GO_CC", "GO_MF")) {
           df <- simplifyEnrichment::keyword_enrichment_from_GO(df[["ID"]]) %>%
             summarise(
               keyword = .data[["keyword"]],
               score = -(log10(.data[["padj"]])),
               count = .data[["n_term"]],
-              Enrichment = df[["Enrichment"]][1],
+              Database = df[["Database"]][1],
               Groups = df[["Groups"]][1]
             ) %>%
             filter(nchar(.data[["keyword"]]) >= min_word_length) %>%
@@ -8642,12 +8653,12 @@ EnrichmentPlot <- function(srt, enrichment = "GO_BP", group_by = NULL, group_use
           df <- df %>%
             mutate(keyword = strsplit(as.character(.data[["Description"]]), " ")) %>%
             unnest(cols = "keyword") %>%
-            group_by(.data[["keyword"]], Enrichment, Groups) %>%
+            group_by(.data[["keyword"]], Database, Groups) %>%
             summarise(
               keyword = .data[["keyword"]],
               score = sum(-(log10(.data[[metric]]))),
               count = n(),
-              Enrichment = .data[["Enrichment"]],
+              Database = .data[["Database"]],
               Groups = .data[["Groups"]],
               .groups = "keep"
             ) %>%
@@ -8662,12 +8673,12 @@ EnrichmentPlot <- function(srt, enrichment = "GO_BP", group_by = NULL, group_use
         df <- df %>%
           mutate(keyword = strsplit(as.character(.data[["geneID"]]), "/")) %>%
           unnest(cols = "keyword") %>%
-          group_by(.data[["keyword"]], Enrichment, Groups) %>%
+          group_by(.data[["keyword"]], Database, Groups) %>%
           summarise(
             keyword = .data[["keyword"]],
             score = sum(-(log10(.data[[metric]]))),
             count = n(),
-            Enrichment = .data[["Enrichment"]],
+            Database = .data[["Database"]],
             Groups = .data[["Groups"]],
             .groups = "keep"
           ) %>%
@@ -8687,7 +8698,7 @@ EnrichmentPlot <- function(srt, enrichment = "GO_BP", group_by = NULL, group_use
         ) +
         scale_size(name = "Count", range = word_size, breaks = ceiling(seq(min(df[["count"]]), max(df[["count"]]), length.out = 3))) +
         guides(size = guide_legend(override.aes = list(colour = "black", label = "G"), order = 1)) +
-        facet_grid(Enrichment ~ Groups, scales = "free") +
+        facet_grid(Database ~ Groups, scales = "free") +
         coord_flip() +
         theme_scp(
           aspect.ratio = aspect.ratio,
@@ -8737,7 +8748,7 @@ EnrichmentPlot <- function(srt, enrichment = "GO_BP", group_by = NULL, group_use
 #' @examples
 #' data("pancreas_sub")
 #' pancreas_sub <- RunDEtest(pancreas_sub, group_by = "CellType", only.pos = FALSE, fc.threshold = 1)
-#' pancreas_sub <- RunGSEA(pancreas_sub, group_by = "CellType", enrichment = "GO_BP", species = "Mus_musculus")
+#' pancreas_sub <- RunGSEA(pancreas_sub, group_by = "CellType", db = "GO_BP", species = "Mus_musculus")
 #' GSEAPlot(pancreas_sub, group_by = "CellType", group_use = c("Ngn3 low EP", "Endocrine"))
 #' GSEAPlot(pancreas_sub, group_by = "CellType", group_use = "Ductal", geneSetID = "GO:0006412")
 #' GSEAPlot(pancreas_sub, group_by = "CellType", group_use = "Endocrine", geneSetID = c("GO:0046903", "GO:0015031", "GO:0007600"))
@@ -8751,7 +8762,7 @@ EnrichmentPlot <- function(srt, enrichment = "GO_BP", group_by = NULL, group_use
 #' @importFrom gtable gtable_add_rows gtable_add_grob
 #' @importFrom grid textGrob
 #' @export
-GSEAPlot <- function(srt, enrichment = "GO_BP", group_by = NULL, group_use = NULL, test.use = "wilcox",
+GSEAPlot <- function(srt, db = "GO_BP", group_by = NULL, group_use = NULL, test.use = "wilcox",
                      res = NULL, pvalueCutoff = NULL, padjustCutoff = 0.05,
                      topTerm = 6, geneSetID = NULL, ES_geom = c("line", "dot"),
                      subplots = 1:3, rel_heights = c(1.5, 0.5, 1), rel_width = 3,
@@ -8774,13 +8785,13 @@ GSEAPlot <- function(srt, enrichment = "GO_BP", group_by = NULL, group_use = NUL
     res <- res[["results"]]
   }
   if (is.null(group_use)) {
-    use <- grep(pattern = paste0("-", paste(enrichment, collapse = "|"), "$"), x = names(res))
+    use <- grep(pattern = paste0("-", paste(db, collapse = "|"), "$"), x = names(res))
   } else {
-    comb <- expand.grid(group_use, enrichment)
+    comb <- expand.grid(group_use, db)
     use <- names(res)[names(res) %in% paste(comb$Var1, comb$Var2, sep = "-")]
   }
   if (length(use) == 0) {
-    stop(paste0(enrichment, " is not in the enrichment result."))
+    stop(paste0(db, " is not in the enrichment result."))
   }
   res <- res[use]
 

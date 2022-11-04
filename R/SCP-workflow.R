@@ -426,6 +426,9 @@ RenameFeatures <- function(srt, newnames = NULL, assays = NULL) {
     if (!identical(length(newnames), nrow(srt))) {
       stop("'newnames' must be named or the length of features in the srt.")
     }
+    if (length(unique(sapply(pancreas_sub@assays, nrow))) > 1) {
+      stop("Assays in the srt object have different number of features. Please use a named vectors.")
+    }
     names(newnames) <- rownames(srt)
   }
   for (assay in assays) {

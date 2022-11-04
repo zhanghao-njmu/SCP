@@ -74,7 +74,7 @@ CreateDataFile <- function(srt, DataFile, name = NULL, assays = "RNA", slots = "
   if (paste0(name, "/features") %in% h5ls(DataFile)$group) {
     message("Group ", paste0(name, "/features"), " already exists in the ", DataFile)
   } else {
-    h5write(obj = rownames(srt), file = DataFile, name = paste0(name, "/features"), level = compression_level)
+    h5write(obj = unique(unlist(lapply(srt@assays, rownames))), file = DataFile, name = paste0(name, "/features"), level = compression_level)
   }
   return(invisible(NULL))
 }
@@ -123,6 +123,11 @@ CreateMetaFile <- function(srt, MetaFile, name = NULL, write_tools = FALSE, writ
     meta <- srt[[var, drop = TRUE]][colnames(srt)]
     if (inherits(meta, "factor")) {
       levels <- levels(meta)
+      meta <- as.character(meta)
+      attr(meta, "levels") <- levels
+      write.attributes <- TRUE
+    } else if (inherits(meta, "logical")) {
+      levels <- c("TRUE", "FALSE")
       meta <- as.character(meta)
       attr(meta, "levels") <- levels
       write.attributes <- TRUE
@@ -374,6 +379,7 @@ FetchH5 <- function(DataFile, MetaFile, name = NULL,
       stop("There is no ", paste0(name, "/", assay, "/", slot), " in DataFile, please write it first using the PrepareSCExplorer function")
     }
     data <- TENxMatrix(filepath = DataFile, group = paste0(name, "/", assay, "/", slot))
+    gene_features <- gene_features[gene_features %in% colnames(data)]
   }
 
   if (length(gene_features) > 0) {
@@ -385,12 +391,18 @@ FetchH5 <- function(DataFile, MetaFile, name = NULL,
   if (length(c(metanames, meta_features)) > 0) {
     for (i in unique(c(metanames, meta_features))) {
       meta <- h5read(MetaFile, name = paste0(name, "/metadata/", i))
+      if (is.array(meta)) {
+        if (is.integer(meta)) {
+          meta <- as.integer(meta)
+        } else if (is.numeric(meta)) {
+          meta <- as.numeric(meta)
+        } else if (is.character(meta)) {
+          meta <- as.character(meta)
+        }
+      }
       meta_attr <- h5readAttributes(MetaFile, name = paste0(name, "/metadata/", i))
       if ("levels" %in% names(meta_attr)) {
         meta <- factor(meta, levels = meta_attr$levels)
-      }
-      if (is.array(meta)) {
-        meta <- as.numeric(meta)
       }
       srt_tmp@meta.data[, i] <- meta
     }

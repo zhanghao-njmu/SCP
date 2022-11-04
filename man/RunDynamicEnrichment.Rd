@@ -18,9 +18,10 @@ RunDynamicEnrichment(
   geneID = NULL,
   IDtype = "symbol",
   species = "Homo_sapiens",
-  enrichment = "GO_BP",
+  db = "GO_BP",
   db_update = FALSE,
   db_version = "latest",
+  convert_species = FALSE,
   Ensembl_version = 103,
   mirror = NULL,
   TERM2GENE = NULL,
@@ -54,11 +55,11 @@ pancreas_sub <- RunDynamicEnrichment(
   srt = pancreas_sub,
   lineages = c("Lineage1", "Lineage2"),
   score_method = "AUCell",
-  enrichment = "GO_BP",
+  db = "GO_BP",
   species = "Mus_musculus"
 )
 ht_result <- DynamicHeatmap(
-  srt = pancreas_sub, assay = "GO_BP", use_fitted = TRUE,
+  srt = pancreas_sub, db = "GO_BP", use_fitted = TRUE,
   lineages = c("Lineage1_GO_BP", "Lineage2_GO_BP"),
   cell_annotation = "SubCellType",
   n_split = 6, reverse_ht = 1,

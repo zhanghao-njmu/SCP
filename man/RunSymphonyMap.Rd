@@ -6,6 +6,7 @@
 \usage{
 RunSymphonyMap(
   srt_query,
+  query_assay = NULL,
   srt_ref,
   ref_pca = NULL,
   ref_harmony = NULL,
