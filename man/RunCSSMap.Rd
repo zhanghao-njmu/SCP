@@ -6,6 +6,7 @@
 \usage{
 RunCSSMap(
   srt_query,
+  query_assay = NULL,
   srt_ref,
   ref_css = NULL,
   ref_umap = NULL,

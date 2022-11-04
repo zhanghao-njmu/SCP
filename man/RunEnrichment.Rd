@@ -15,10 +15,10 @@ RunEnrichment(
   IDtype = "symbol",
   result_IDtype = "symbol",
   species = "Homo_sapiens",
-  enrichment = "GO_BP",
-  db_IDtype = "symbol",
+  db = "GO_BP",
   db_update = FALSE,
   db_version = "latest",
+  convert_species = FALSE,
   Ensembl_version = 103,
   mirror = NULL,
   TERM2GENE = NULL,
@@ -47,7 +47,7 @@ RunEnrichment(
 
 \item{species}{species}
 
-\item{enrichment}{enrichment}
+\item{db}{enrichment database}
 
 \item{db_update}{db_update}
 
@@ -75,12 +75,12 @@ Perform the enrichment analysis(over-representation) on the genes
 \examples{
 data("pancreas_sub")
 pancreas_sub <- RunDEtest(pancreas_sub, group_by = "CellType")
-pancreas_sub <- RunEnrichment(srt = pancreas_sub, group_by = "CellType", enrichment = "GO_BP", species = "Mus_musculus")
-EnrichmentPlot(pancreas_sub, group_by = "CellType", enrichment = "GO_BP", plot_type = "bar")
+pancreas_sub <- RunEnrichment(srt = pancreas_sub, group_by = "CellType", db = "GO_BP", species = "Mus_musculus")
+EnrichmentPlot(pancreas_sub, group_by = "CellType", db = "GO_BP", plot_type = "bar")
 
-# Or run enrichment with "geneID" and "geneID_groups" as input
+# Or use "geneID" and "geneID_groups" as input to run enrichment
 de_df <- dplyr::filter(pancreas_sub@tools$DEtest_CellType$AllMarkers_wilcox, avg_log2FC > 0 & p_val_adj < 0.05)
-enrich_out <- RunEnrichment(geneID = de_df[["gene"]], geneID_groups = de_df[["group1"]], enrichment = "GO_BP", species = "Mus_musculus")
-EnrichmentPlot(res = enrich_out, group_use = c("Ngn3 low EP", "Endocrine"), enrichment = "GO_BP")
+enrich_out <- RunEnrichment(geneID = de_df[["gene"]], geneID_groups = de_df[["group1"]], db = "GO_BP", species = "Mus_musculus")
+EnrichmentPlot(res = enrich_out, group_use = c("Ngn3 low EP", "Endocrine"), db = "GO_BP")
 
 }

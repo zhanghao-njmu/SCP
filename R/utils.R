@@ -304,24 +304,29 @@ run_Python <- function(command, envir = .GlobalEnv) {
       },
       envir = envir
     )
-  }, error = function(e) {
-    message(e)
+  }, error = function(error) {
+    message(error)
     stop("Failed to run '", command, "'. Please check manually.")
   })
 }
 
 #' @importFrom utils download.file
-kegg_get <- function(url) {
-  temp <- tempfile()
-  ntry <- 0
+#' @export
+download <- function(url, destfile, methods = c("auto", "wget", "libcurl", "curl", "wininet", "internal"), quiet = FALSE, attempts = 3) {
+  if (missing(url) || missing(destfile)) {
+    stop("'url' and 'destfile' must be both provided.")
+  }
+  attempts <- 0
   status <- NULL
   while (is.null(status)) {
-    methods <- c("auto", "wget", "libcurl", "curl", "internal", "wininet")
     for (method in methods) {
       status <- tryCatch(expr = {
-        download.file(url, destfile = temp, method = method, quiet = TRUE)
-      }, error = function(e) {
-        message("Get errors when connecting with KEGG...\nRetrying...")
+        suppressWarnings(download.file(url, destfile = destfile, method = method, quiet = quiet))
+        status <- 1
+      }, error = function(error) {
+        message(error)
+        message("Cannot download from the url: ", url)
+        message("Retrying...")
         Sys.sleep(1)
         return(NULL)
       })
@@ -329,17 +334,22 @@ kegg_get <- function(url) {
         break
       }
     }
-    ntry <- ntry + 1
-    if (is.null(status) && ntry >= 5) {
-      stop("Stop connecting...")
+    attempts <- attempts + 1
+    if (is.null(status) && attempts >= attempts) {
+      stop("Download failed.")
     }
   }
+  return(invisible(NULL))
+}
+
+kegg_get <- function(url) {
+  temp <- tempfile()
+  download(url = url, destfile = temp)
   content <- readLines(temp) %>%
     strsplit(., "\t") %>%
-    do.call("rbind", .)
-  res <- data.frame(from = content[, 1], to = content[, 2])
+    do.call("rbind.data.frame", .)
   unlink(temp)
-  return(res)
+  return(content)
 }
 
 rescale <- function(x, to = c(0, 1), from = range(x, na.rm = TRUE, finite = TRUE)) {

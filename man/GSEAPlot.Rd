@@ -6,7 +6,7 @@
 \usage{
 GSEAPlot(
   srt,
-  enrichment = "GO_BP",
+  db = "GO_BP",
   group_by = NULL,
   group_use = NULL,
   test.use = "wilcox",
@@ -48,7 +48,7 @@ GSEA Plot
 \examples{
 data("pancreas_sub")
 pancreas_sub <- RunDEtest(pancreas_sub, group_by = "CellType", only.pos = FALSE, fc.threshold = 1)
-pancreas_sub <- RunGSEA(pancreas_sub, group_by = "CellType", enrichment = "GO_BP", species = "Mus_musculus")
+pancreas_sub <- RunGSEA(pancreas_sub, group_by = "CellType", db = "GO_BP", species = "Mus_musculus")
 GSEAPlot(pancreas_sub, group_by = "CellType", group_use = c("Ngn3 low EP", "Endocrine"))
 GSEAPlot(pancreas_sub, group_by = "CellType", group_use = "Ductal", geneSetID = "GO:0006412")
 GSEAPlot(pancreas_sub, group_by = "CellType", group_use = "Endocrine", geneSetID = c("GO:0046903", "GO:0015031", "GO:0007600"))

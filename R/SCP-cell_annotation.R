@@ -1,10 +1,6 @@
 # StemID
 NULL
 
-Preprocess <- function() {
-
-}
-
 #' Annotate single cells using similarity.
 #'
 #' @param srt_query A seurat object.
@@ -111,6 +107,7 @@ RunKNNPredict <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
                           nn_method = NULL, distance_metric = "cosine", k = 30,
                           filter_lowfreq = 0, prefix = "knnpredict", force = FALSE) {
   check_R(c("RcppParallel", "proxyC"))
+  query_assay <- query_assay %||% DefaultAssay(srt_query)
   features_type <- match.arg(features_type, choices = c("HVF", "DE"))
   if (is.null(query_reduction) + is.null(ref_reduction) == 1) {
     stop("query_reduction and ref_reduction must be both provided")
@@ -170,7 +167,7 @@ RunKNNPredict <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
         message("DE features number of the query data: ", length(features_query))
       }
     } else {
-      features_query <- rownames(srt_query)
+      features_query <- rownames(srt_query[[query_assay]])
     }
   }
 
@@ -182,6 +179,7 @@ RunKNNPredict <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
     message("Use ", length(features_common), " common features to calculate distance.")
     ref <- t(bulk_ref[features_common, ])
   } else if (!is.null(srt_ref)) {
+    ref_assay <- ref_assay %||% DefaultAssay(srt_ref)
     if (!is.null(ref_group)) {
       if (length(ref_group) == ncol(srt_ref)) {
         srt_ref[["ref_group"]] <- ref_group
@@ -213,7 +211,6 @@ RunKNNPredict <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
         stop("query_dims and ref_dims must be provided with the same length.")
       }
     } else {
-      ref_assay <- ref_assay %||% DefaultAssay(srt_ref)
       if (length(features) == 0) {
         if (features_type == "HVF" && feature_source %in% c("both", "ref")) {
           message("Use the HVF to calculate distance metric.")
@@ -265,7 +262,7 @@ RunKNNPredict <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
         }
         features <- intersect(features_ref, features_query)
       }
-      features_common <- Reduce(intersect, list(features, rownames(srt_query), rownames(srt_ref)))
+      features_common <- Reduce(intersect, list(features, rownames(srt_query[[query_assay]]), rownames(srt_ref[[ref_assay]])))
       message("Use ", length(features_common), " common features to calculate distance.")
       if (isTRUE(ref_collapsing)) {
         ref <- AverageExpression(object = srt_ref, features = features_common, slot = "data", assays = ref_assay, group.by = "ref_group", verbose = FALSE)[[1]]

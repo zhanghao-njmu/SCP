@@ -6,13 +6,17 @@
 \usage{
 ListEnrichmentDB(
   species = c("Homo_sapiens", "Mus_musculus"),
-  enrichment = c("GO_BP", "GO_CC", "GO_MF", "KEGG", "WikiPathway", "Reactome",
-    "ProteinComplex", "PFAM", "Chromosome")
+  db = c("GO_BP", "GO_CC", "GO_MF", "KEGG", "WikiPathway", "Reactome", "ProteinComplex",
+    "DGI", "MP", "DO", "PFAM", "Chromosome", "GeneType", "Enzyme")
 )
 }
 \arguments{
-\item{enrichment}{}
+\item{db}{}
 }
 \description{
 ListEnrichmentDB
+}
+\examples{
+ListEnrichmentDB(species = "Homo_sapiens")
+
 }

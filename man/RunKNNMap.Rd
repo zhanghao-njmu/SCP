@@ -6,6 +6,7 @@
 \usage{
 RunKNNMap(
   srt_query,
+  query_assay = NULL,
   srt_ref,
   ref_umap = NULL,
   force = FALSE,
