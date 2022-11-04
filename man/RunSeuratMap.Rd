@@ -6,6 +6,7 @@
 \usage{
 RunSeuratMap(
   srt_query,
+  query_assay = NULL,
   srt_ref,
   ref_pca = NULL,
   ref_dims = 1:30,

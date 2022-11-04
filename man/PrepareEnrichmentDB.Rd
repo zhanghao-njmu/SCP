@@ -6,11 +6,12 @@
 \usage{
 PrepareEnrichmentDB(
   species = c("Homo_sapiens", "Mus_musculus"),
-  enrichment = c("GO_BP", "GO_CC", "GO_MF", "KEGG", "WikiPathway", "Reactome",
-    "ProteinComplex", "PFAM", "Chromosome"),
+  db = c("GO_BP", "GO_CC", "GO_MF", "KEGG", "WikiPathway", "Reactome", "ProteinComplex",
+    "DGI", "MP", "DO", "PFAM", "Chromosome", "GeneType", "Enzyme"),
   db_IDtypes = c("symbol", "entrez_id", "ensembl_id"),
   db_version = "latest",
   db_update = FALSE,
+  convert_species = FALSE,
   Ensembl_version = 103,
   mirror = NULL
 )
@@ -18,11 +19,11 @@ PrepareEnrichmentDB(
 \arguments{
 \item{species}{species}
 
-\item{enrichment}{Enrichment database name.}
+\item{db}{Enrichment database name.}
 
-\item{db_update}{Whether update the database.}
+\item{db_update}{Whether update the database to the latest version.}
 
-\item{mirror}{}
+\item{convert_species}{}
 }
 \value{
 A list containing the database.
@@ -31,5 +32,20 @@ A list containing the database.
 Prepare the database for enrichment analysis
 }
 \examples{
-db_list <- PrepareEnrichmentDB(species = "Homo_sapiens", enrichment = "GO_BP")
+db_list <- PrepareEnrichmentDB(species = "Homo_sapiens", db = "GO_BP", db_update = TRUE)
+ListEnrichmentDB(species = "Homo_sapiens", db = "GO_BP")
+head(db_list[["Homo_sapiens"]][["GO_BP"]][["TERM2GENE"]])
+
+db_list <- PrepareEnrichmentDB(species = "Homo_sapiens", db = "MP", convert_species = TRUE, db_update = TRUE)
+ListEnrichmentDB(species = "Homo_sapiens", db = "MP")
+head(db_list[["Homo_sapiens"]][["MP"]][["TERM2GENE"]])
+
+db_list <- PrepareEnrichmentDB(species = "Mus_musculus", db = "DGI", convert_species = TRUE, db_update = TRUE)
+ListEnrichmentDB(species = "Mus_musculus", db = "DGI")
+head(db_list[["Mus_musculus"]][["DGI"]][["TERM2GENE"]])
+
+db_list <- PrepareEnrichmentDB(species = "Macaca_fascicularis", db = "GO_BP", convert_species = TRUE, db_update = TRUE)
+ListEnrichmentDB(species = "Macaca_fascicularis", db = "GO_BP")
+head(db_list[["Macaca_fascicularis"]][["GO_BP"]][["TERM2GENE"]])
+
 }

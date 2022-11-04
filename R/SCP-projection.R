@@ -40,11 +40,12 @@ NULL
 #' @importFrom SeuratObject as.sparse
 #' @importFrom Matrix t
 #' @export
-RunKNNMap <- function(srt_query, srt_ref, ref_umap = NULL, force = FALSE,
+RunKNNMap <- function(srt_query, query_assay = NULL, srt_ref, ref_umap = NULL, force = FALSE,
                       ref_group = NULL,
                       features = NULL, nfeatures = 2000,
                       query_reduction = NULL, ref_reduction = NULL, query_dims = 1:30, ref_dims = 1:30,
                       projection_method = "model", nn_method = NULL, k = 30, distance_metric = "cosine", vote_fun = "mean") {
+  query_assay <- query_assay %||% DefaultAssay(srt_query)
   if (!is.null(ref_group)) {
     if (length(ref_group) == ncol(srt_ref)) {
       srt_ref[["ref_group"]] <- ref_group
@@ -114,7 +115,7 @@ RunKNNMap <- function(srt_query, srt_ref, ref_umap = NULL, force = FALSE,
   } else {
     message("Use the features to calculate distance metric.")
     ref_assay <- srt_ref[[ref_umap]]@assay.used
-    status_query <- check_DataType(data = GetAssayData(srt_query, slot = "data"))
+    status_query <- check_DataType(data = GetAssayData(srt_query, slot = "data", assay = query_assay))
     message("Detected srt_query data type: ", status_query)
     status_ref <- check_DataType(data = GetAssayData(srt_ref, slot = "data", assay = ref_assay))
     message("Detected srt_ref data type: ", status_ref)
@@ -130,18 +131,18 @@ RunKNNMap <- function(srt_query, srt_ref, ref_umap = NULL, force = FALSE,
         srt_ref <- FindVariableFeatures(srt_ref, nfeatures = nfeatures, assay = ref_assay)
       }
       if (length(VariableFeatures(srt_query)) == 0) {
-        srt_query <- FindVariableFeatures(srt_query, nfeatures = nfeatures)
+        srt_query <- FindVariableFeatures(srt_query, nfeatures = nfeatures, assay = query_assay)
       }
-      features <- intersect(VariableFeatures(srt_query), VariableFeatures(srt_ref, assay = ref_assay))
+      features <- intersect(VariableFeatures(srt_query, assay = query_assay), VariableFeatures(srt_ref, assay = ref_assay))
     }
-    features_common <- Reduce(intersect, list(features, rownames(srt_query), rownames(srt_ref)))
+    features_common <- Reduce(intersect, list(features, rownames(srt_query[[query_assay]]), rownames(srt_ref[[ref_assay]])))
     message("Use ", length(features_common), " common features to calculate distance.")
-    query <- t(GetAssayData(srt_query, slot = "data")[features_common, ])
+    query <- t(GetAssayData(srt_query, slot = "data", assay = query_assay)[features_common, ])
     ref <- t(GetAssayData(srt_ref, slot = "data", assay = ref_assay)[features_common, ])
   }
 
   if (projection_method == "model" && "layout" %in% names(model) && is.null(ref_group)) {
-    srt_query[["ref.umap"]] <- RunUMAP2(object = query, reduction.model = srt_ref[[ref_umap]], assay = DefaultAssay(srt_query))
+    srt_query[["ref.umap"]] <- RunUMAP2(object = query, reduction.model = srt_ref[[ref_umap]], assay = query_assay)
     srt_query[["ref.umap"]]@misc[["reduction.model"]] <- ref_umap
     return(srt_query)
   }
@@ -217,11 +218,11 @@ RunKNNMap <- function(srt_query, srt_ref, ref_umap = NULL, force = FALSE,
 
   if (projection_method == "model") {
     if ("layout" %in% names(model)) {
-      srt_query[["ref.umap"]] <- RunUMAP2(object = query, reduction.model = srt_ref[[ref_umap]], assay = DefaultAssay(srt_query))
+      srt_query[["ref.umap"]] <- RunUMAP2(object = query, reduction.model = srt_ref[[ref_umap]], assay = query_assay)
       srt_query[["ref.umap"]]@misc[["reduction.model"]] <- ref_umap
     } else if ("embedding" %in% names(model)) {
       neighborlist <- list(idx = match_k, dist = match_k_distance)
-      srt_query[["ref.umap"]] <- RunUMAP2(object = neighborlist, reduction.model = srt_ref[[ref_umap]], assay = DefaultAssay(srt_query))
+      srt_query[["ref.umap"]] <- RunUMAP2(object = neighborlist, reduction.model = srt_ref[[ref_umap]], assay = query_assay)
       srt_query[["ref.umap"]]@misc[["reduction.model"]] <- ref_umap
     }
   } else {
@@ -230,7 +231,7 @@ RunKNNMap <- function(srt_query, srt_ref, ref_umap = NULL, force = FALSE,
     refumap[, 1] <- NULL
     colnames(refumap) <- paste0("refUMAP_", seq_len(ncol(refumap)))
     refumap <- as.matrix(refumap)
-    srt_query[["ref.umap"]] <- CreateDimReducObject(embeddings = refumap, key = "refUMAP_", assay = DefaultAssay(srt_query), misc = list(reduction.model = ref_umap))
+    srt_query[["ref.umap"]] <- CreateDimReducObject(embeddings = refumap, key = "refUMAP_", assay = query_assay, misc = list(reduction.model = ref_umap))
   }
 
   if (!is.null(ref_group)) {
@@ -299,9 +300,10 @@ RunKNNMap <- function(srt_query, srt_ref, ref_umap = NULL, force = FALSE,
 #'
 #' @importFrom Seurat Reductions GetAssayData CreateDimReducObject ProjectUMAP
 #' @export
-RunPCAMap <- function(srt_query, srt_ref, ref_pca = NULL, ref_dims = 1:30, ref_umap = NULL, force = FALSE,
+RunPCAMap <- function(srt_query, query_assay = NULL, srt_ref, ref_pca = NULL, ref_dims = 1:30, ref_umap = NULL, force = FALSE,
                       ref_group = NULL,
                       projection_method = "model", nn_method = NULL, k = 30, distance_metric = "cosine", vote_fun = "mean") {
+  query_assay <- query_assay %||% DefaultAssay(srt_query)
   check_R("MatrixGenerics")
   if (!is.null(ref_group)) {
     if (length(ref_group) == ncol(srt_ref)) {
@@ -345,9 +347,10 @@ RunPCAMap <- function(srt_query, srt_ref, ref_pca = NULL, ref_dims = 1:30, ref_u
   }
 
   pca.out <- srt_ref[[ref_pca]]
-  status_query <- check_DataType(data = GetAssayData(srt_query, slot = "data"))
+  ref_assay <- pca.out@assay.used
+  status_query <- check_DataType(data = GetAssayData(srt_query, slot = "data", assay = query_assay))
   message("Detected srt_query data type: ", status_query)
-  status_ref <- check_DataType(data = GetAssayData(srt_ref, slot = "data", assay = pca.out@assay.used))
+  status_ref <- check_DataType(data = GetAssayData(srt_ref, slot = "data", assay = ref_assay))
   message("Detected srt_ref data type: ", status_ref)
   if (status_ref != status_query || any(status_query == "unknown", status_ref == "unknown")) {
     if (isTRUE(force)) {
@@ -359,22 +362,22 @@ RunPCAMap <- function(srt_query, srt_ref, ref_pca = NULL, ref_dims = 1:30, ref_u
 
   message("Run PCA projection")
   features <- rownames(pca.out@feature.loadings)
-  center <- MatrixGenerics::rowMeans2(GetAssayData(object = srt_ref, slot = "data", assay = pca.out@assay.used)[features, ])
+  center <- MatrixGenerics::rowMeans2(GetAssayData(object = srt_ref, slot = "data", assay = ref_assay)[features, ])
   names(center) <- features
-  sds <- MatrixGenerics::rowSds(GetAssayData(object = srt_ref, slot = "data", assay = pca.out@assay.used)[features, ])
+  sds <- MatrixGenerics::rowSds(GetAssayData(object = srt_ref, slot = "data", assay = ref_assay)[features, ])
   names(sds) <- features
   rotation <- pca.out@feature.loadings
 
-  features_common <- Reduce(intersect, list(features, rownames(srt_query), rownames(srt_ref)))
+  features_common <- Reduce(intersect, list(features, rownames(srt_query[[query_assay]]), rownames(srt_ref[[ref_assay]])))
   message("Use ", length(features_common), " common features to calculate PC.")
-  query_data <- t(GetAssayData(srt_query, slot = "data")[features_common, ])
+  query_data <- t(GetAssayData(srt_query, slot = "data", assay = query_assay)[features_common, ])
   query_pca <- scale(query_data[, features_common], center[features_common], sds[features_common]) %*% rotation[features_common, ]
   # ggplot(data = as.data.frame(pca.out@cell.embeddings))+geom_point(aes(x=StandardPC_1,y=StandardPC_2 ))+geom_point(data = as.data.frame(query_pca),mapping = aes(x=StandardPC_1,y=StandardPC_2),color="red")
-  srt_query[["ref.pca"]] <- CreateDimReducObject(embeddings = query_pca, key = pca.out@key, assay = DefaultAssay(srt_query))
+  srt_query[["ref.pca"]] <- CreateDimReducObject(embeddings = query_pca, key = pca.out@key, assay = query_assay)
 
   message("Run UMAP projection")
   srt_query <- RunKNNMap(
-    srt_query = srt_query, srt_ref = srt_ref, ref_group = ref_group, ref_umap = ref_umap, force = force,
+    srt_query = srt_query, query_assay = query_assay, srt_ref = srt_ref, ref_group = ref_group, ref_umap = ref_umap, force = force,
     query_reduction = "ref.pca", ref_reduction = ref_pca, query_dims = ref_dims, ref_dims = ref_dims,
     projection_method = projection_method, nn_method = nn_method, k = k, distance_metric = distance_metric, vote_fun = vote_fun
   )
@@ -420,12 +423,13 @@ RunPCAMap <- function(srt_query, srt_ref, ref_pca = NULL, ref_dims = 1:30, ref_u
 #'
 #' @importFrom Seurat Reductions FindTransferAnchors TransferData IntegrateEmbeddings ProjectUMAP
 #' @export
-RunSeuratMap <- function(srt_query, srt_ref,
+RunSeuratMap <- function(srt_query, query_assay = NULL, srt_ref,
                          ref_pca = NULL, ref_dims = 1:30, ref_umap = NULL, force = FALSE,
                          ref_group = NULL,
                          normalization.method = "LogNormalize", reduction_project_method = "pcaproject",
                          k.anchor = 5, k.filter = 200, k.score = 30, k.weight = 100,
                          projection_method = "model", nn_method = NULL, k = 30, distance_metric = "cosine", vote_fun = "mean") {
+  query_assay <- query_assay %||% DefaultAssay(srt_query)
   weight.reduction <- switch(reduction_project_method,
     "pcaproject" = "pcaproject",
     "lsiproject" = "lsiproject",
@@ -461,9 +465,10 @@ RunSeuratMap <- function(srt_query, srt_ref,
     stop("distance_metric must be one of euclidean, cosine, manhattan, and hamming when projection_method='model'")
   }
 
-  status_query <- check_DataType(data = GetAssayData(srt_query, slot = "data"))
+  ref_assay <- srt_ref[[ref_pca]]@assay.used
+  status_query <- check_DataType(data = GetAssayData(srt_query, slot = "data", assay = query_assay))
   message("Detected srt_query data type: ", status_query)
-  status_ref <- check_DataType(data = GetAssayData(srt_ref, slot = "data", assay = srt_ref[[ref_pca]]@assay.used))
+  status_ref <- check_DataType(data = GetAssayData(srt_ref, slot = "data", assay = ref_assay))
   message("Detected srt_ref data type: ", status_ref)
   if (status_ref != status_query || any(status_query == "unknown", status_ref == "unknown")) {
     if (isTRUE(force)) {
@@ -475,8 +480,8 @@ RunSeuratMap <- function(srt_query, srt_ref,
 
   message("Run FindTransferAnchors")
   anchors <- FindTransferAnchors(
-    query = srt_query, reference = srt_ref, normalization.method = normalization.method, dims = ref_dims,
-    reference.reduction = ref_pca, reduction = reduction_project_method, reference.assay = srt_ref[[ref_pca]]@assay.used,
+    query = srt_query, query.assay = query_assay, reference = srt_ref, normalization.method = normalization.method, dims = ref_dims,
+    reference.reduction = ref_pca, reduction = reduction_project_method, reference.assay = ref_assay,
     k.anchor = k.anchor, k.filter = k.filter, k.score = k.score
   )
   if (reduction_project_method != "cca") {
@@ -489,7 +494,7 @@ RunSeuratMap <- function(srt_query, srt_ref,
 
   message("Run UMAP projection")
   srt_query <- RunKNNMap(
-    srt_query = srt_query, srt_ref = srt_ref, ref_group = ref_group, ref_umap = ref_umap, force = force,
+    srt_query = srt_query, query_assay = query_assay, srt_ref = srt_ref, ref_group = ref_group, ref_umap = ref_umap, force = force,
     query_reduction = "ref.pca", ref_reduction = ref_pca, query_dims = ref_dims, ref_dims = ref_dims,
     projection_method = projection_method, nn_method = nn_method, k = k, distance_metric = distance_metric, vote_fun = vote_fun
   )
@@ -529,9 +534,10 @@ RunSeuratMap <- function(srt_query, srt_ref,
 #'
 #' @importFrom Seurat Reductions CreateDimReducObject ProjectUMAP
 #' @export
-RunCSSMap <- function(srt_query, srt_ref, ref_css = NULL, ref_umap = NULL, force = FALSE,
+RunCSSMap <- function(srt_query, query_assay = NULL, srt_ref, ref_css = NULL, ref_umap = NULL, force = FALSE,
                       ref_group = NULL,
                       projection_method = "model", nn_method = NULL, k = 30, distance_metric = "cosine", vote_fun = "mean") {
+  query_assay <- query_assay %||% DefaultAssay(srt_query)
   if (!is.null(ref_group)) {
     if (length(ref_group) == ncol(srt_ref)) {
       srt_ref[["ref_group"]] <- ref_group
@@ -576,9 +582,10 @@ RunCSSMap <- function(srt_query, srt_ref, ref_css = NULL, ref_umap = NULL, force
     stop("distance_metric must be one of euclidean, cosine, manhattan, and hamming when projection_method='model'")
   }
 
-  status_query <- check_DataType(data = GetAssayData(srt_query, slot = "data"))
+  ref_assay <- srt_ref[[ref_css]]@assay.used
+  status_query <- check_DataType(data = GetAssayData(srt_query, slot = "data", assay = query_assay))
   message("Detected srt_query data type: ", status_query)
-  status_ref <- check_DataType(data = GetAssayData(srt_ref, slot = "data", assay = srt_ref[[ref_css]]@assay.used))
+  status_ref <- check_DataType(data = GetAssayData(srt_ref, slot = "data", assay = ref_assay))
   message("Detected srt_ref data type: ", status_ref)
   if (status_ref != status_query || any(status_query == "unknown", status_ref == "unknown")) {
     if (isTRUE(force)) {
@@ -590,12 +597,15 @@ RunCSSMap <- function(srt_query, srt_ref, ref_css = NULL, ref_umap = NULL, force
 
   message("Run CSS projection")
   CSSmodel <- srt_ref[[ref_css]]@misc$model
+  raw_assay <- DefaultAssay(srt_query)
+  DefaultAssay(srt_query) <- query_assay
   srt_query <- simspec::css_project(object = srt_query, model = CSSmodel)
+  DefaultAssay(srt_query) <- raw_assay
 
   message("Run UMAP projection")
   ref_dims <- seq_len(dim(srt_ref[[ref_css]])[2])
   srt_query <- RunKNNMap(
-    srt_query = srt_query, srt_ref = srt_ref, ref_group = ref_group, ref_umap = ref_umap, force = force,
+    srt_query = srt_query, query_assay = query_assay, srt_ref = srt_ref, ref_group = ref_group, ref_umap = ref_umap, force = force,
     query_reduction = "css_proj", ref_reduction = ref_css, query_dims = ref_dims, ref_dims = ref_dims,
     projection_method = projection_method, nn_method = nn_method, k = k, distance_metric = distance_metric, vote_fun = vote_fun
   )
@@ -636,9 +646,10 @@ RunCSSMap <- function(srt_query, srt_ref, ref_css = NULL, ref_umap = NULL, force
 #'
 #' @importFrom Seurat Reductions GetAssayData DefaultAssay ProjectUMAP
 #' @export
-RunSymphonyMap <- function(srt_query, srt_ref, ref_pca = NULL, ref_harmony = NULL, ref_umap = NULL, force = FALSE,
+RunSymphonyMap <- function(srt_query, query_assay = NULL, srt_ref, ref_pca = NULL, ref_harmony = NULL, ref_umap = NULL, force = FALSE,
                            ref_group = NULL,
                            projection_method = "model", nn_method = NULL, k = 30, distance_metric = "cosine", vote_fun = "mean") {
+  query_assay <- query_assay %||% DefaultAssay(srt_query)
   check_R("immunogenomics/symphony")
   if (!is.null(ref_group)) {
     if (length(ref_group) == ncol(srt_ref)) {
@@ -689,9 +700,10 @@ RunSymphonyMap <- function(srt_query, srt_ref, ref_pca = NULL, ref_harmony = NUL
     stop("distance_metric must be one of euclidean, cosine, manhattan, and hamming when projection_method='model'")
   }
 
-  status_query <- check_DataType(data = GetAssayData(srt_query, slot = "data"))
+  ref_assay <- srt_ref[[ref_pca]]@assay.used
+  status_query <- check_DataType(data = GetAssayData(srt_query, slot = "data", assay = query_assay))
   message("Detected srt_query data type: ", status_query)
-  status_ref <- check_DataType(data = GetAssayData(srt_ref, slot = "data", assay = srt_ref[[ref_pca]]@assay.used))
+  status_ref <- check_DataType(data = GetAssayData(srt_ref, slot = "data", assay = ref_assay))
   message("Detected srt_ref data type: ", status_ref)
   if (status_ref != status_query || any(status_query == "unknown", status_ref == "unknown")) {
     if (isTRUE(force)) {
@@ -709,7 +721,7 @@ RunSymphonyMap <- function(srt_query, srt_ref, ref_pca = NULL, ref_harmony = NUL
   )
   message("Run mapQuery")
   res <- mapQuery(
-    exp_query = GetAssayData(srt_query, slot = "data"),
+    exp_query = GetAssayData(srt_query, slot = "data", assay = query_assay),
     metadata_query = srt_query@meta.data,
     ref_obj = ref,
     vars = NULL,
@@ -724,13 +736,13 @@ RunSymphonyMap <- function(srt_query, srt_ref, ref_pca = NULL, ref_harmony = NUL
     embeddings = t(Z_pca_query),
     loadings = ref$loadings,
     stdev = as.numeric(apply(Z_pca_query, 1, stats::sd)),
-    assay = DefaultAssay(srt_query),
+    assay = query_assay,
     key = "refpca_"
   )
   srt_query[["ref.harmony"]] <- CreateDimReducObject(
     embeddings = t(Zq_corr),
     stdev = as.numeric(apply(Zq_corr, 1, stats::sd)),
-    assay = DefaultAssay(srt_query),
+    assay = query_assay,
     key = "refharmony_",
     misc = list(R = R_query)
   )
@@ -738,7 +750,7 @@ RunSymphonyMap <- function(srt_query, srt_ref, ref_pca = NULL, ref_harmony = NUL
   message("Run UMAP projection")
   ref_dims <- seq_len(dim(srt_ref[[ref_harmony]])[2])
   srt_query <- RunKNNMap(
-    srt_query = srt_query, srt_ref = srt_ref, ref_group = ref_group, ref_umap = ref_umap, force = force,
+    srt_query = srt_query, query_assay = query_assay, srt_ref = srt_ref, ref_group = ref_group, ref_umap = ref_umap, force = force,
     query_reduction = "ref.harmony", ref_reduction = ref_harmony, query_dims = ref_dims, ref_dims = ref_dims,
     projection_method = projection_method, nn_method = nn_method, k = k, distance_metric = distance_metric, vote_fun = vote_fun
   )
