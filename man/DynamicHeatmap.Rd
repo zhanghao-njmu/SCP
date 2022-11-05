@@ -104,11 +104,13 @@ ht_result1 <- DynamicHeatmap(
 )
 ht_result1$plot
 
+pancreas_sub <- AnnotateFeatures(pancreas_sub, species = "Mus_musculus", anno_TF = TRUE)
 ht_result2 <- DynamicHeatmap(
   srt = pancreas_sub,
   lineages = c("Lineage1", "Lineage2"),
   cell_annotation = "SubCellType",
   n_split = 5, reverse_ht = "Lineage1",
+  feature_annotation = c("TF", "TF_cofactors"), feature_palcolor = list(c("black", "transparent")),
   height = 6, width = 7, use_raster = FALSE
 )
 ht_result2$plot

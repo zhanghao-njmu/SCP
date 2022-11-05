@@ -50,7 +50,6 @@ res <- GeneConvert(
 str(res)
 
 # Convert the human genes to mouse homologs and replace the raw counts in a Seurat object.
-check_R("cvarrichio/Matrix.utils")
 data("pancreas_sub")
 counts <- pancreas_sub@assays$RNA@counts
 res <- GeneConvert(
@@ -63,7 +62,7 @@ res <- GeneConvert(
 )
 homologs_counts <- counts[res$geneID_expand[, "from_geneID"], ]
 rownames(homologs_counts) <- res$geneID_expand[, "symbol"]
-homologs_counts <- Matrix.utils::aggregate.Matrix(homologs_counts, row.names(homologs_counts))
+homologs_counts <- aggregate(homologs_counts, row.names(homologs_counts))
 homologs_counts
 
 }

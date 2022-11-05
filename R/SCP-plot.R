@@ -3827,8 +3827,10 @@ ExpDotPlot <- function(srt, features = NULL, feature_split = NULL, cell_split_by
 #' )
 #' ht1$plot
 #'
+#' pancreas_sub <- AnnotateFeatures(pancreas_sub, species = "Mus_musculus", anno_TF = TRUE)
 #' ht2 <- ExpHeatmap(
-#'   srt = pancreas_sub, features = de_filter$gene, n_split = 4, cell_split_by = "CellType"
+#'   srt = pancreas_sub, features = de_filter$gene, n_split = 4, cell_split_by = "CellType",
+#'   feature_annotation = c("TF", "TF_cofactors"), feature_palcolor = list(c("black", "transparent"))
 #' )
 #' ht2$plot
 #'
@@ -4219,7 +4221,11 @@ ExpHeatmap <- function(srt, features = NULL, feature_split = NULL, cluster_featu
       palcolor <- feature_palcolor[[i]]
       feature_class <- feature_metadata[features_unique, featurean]
       if (!is.factor(feature_class)) {
-        feature_class <- factor(feature_class, levels = unique(feature_class))
+        if (is.logical(feature_class)) {
+          feature_class <- factor(feature_class, levels = c(TRUE, FALSE))
+        } else {
+          feature_class <- factor(feature_class, levels = unique(feature_class))
+        }
       }
       ha_feature <- list()
       ha_feature[[featurean]] <- anno_simple(
@@ -7547,11 +7553,13 @@ DynamicPlot <- function(srt, features, lineages, slot = "counts", assay = "RNA",
 #' )
 #' ht_result1$plot
 #'
+#' pancreas_sub <- AnnotateFeatures(pancreas_sub, species = "Mus_musculus", anno_TF = TRUE)
 #' ht_result2 <- DynamicHeatmap(
 #'   srt = pancreas_sub,
 #'   lineages = c("Lineage1", "Lineage2"),
 #'   cell_annotation = "SubCellType",
 #'   n_split = 5, reverse_ht = "Lineage1",
+#'   feature_annotation = c("TF", "TF_cofactors"), feature_palcolor = list(c("black", "transparent")),
 #'   height = 6, width = 7, use_raster = FALSE
 #' )
 #' ht_result2$plot
@@ -7669,8 +7677,8 @@ DynamicHeatmap <- function(srt, lineages, feature_from = lineages,
     if (length(unique(length(feature_palette), length(feature_palcolor), length(feature_annotation))) != 1) {
       stop("feature_palette and feature_palcolor must be the same length as feature_annotation")
     }
-    if (any(!feature_annotation %in% colnames(srt[[assay]]@meta.data))) {
-      stop("feature_annotation: ", feature_annotation[!feature_annotation %in% colnames(srt[[assay]]@meta.data)], " is not in the meta data of the ", assay, " assay in the Seurat object.")
+    if (any(!feature_annotation %in% colnames(srt[[assay]]@meta.features))) {
+      stop("feature_annotation: ", feature_annotation[!feature_annotation %in% colnames(srt[[assay]]@meta.features)], " is not in the meta data of the ", assay, " assay in the Seurat object.")
     }
   }
 
@@ -8023,7 +8031,11 @@ DynamicHeatmap <- function(srt, lineages, feature_from = lineages,
       palcolor <- feature_palcolor[[i]]
       feature_class <- feature_metadata[rownames(mat), featurean]
       if (!is.factor(feature_class)) {
-        feature_class <- factor(feature_class, levels = unique(feature_class))
+        if (is.logical(feature_class)) {
+          feature_class <- factor(feature_class, levels = c(TRUE, FALSE))
+        } else {
+          feature_class <- factor(feature_class, levels = unique(feature_class))
+        }
       }
       ha_feature <- list()
       ha_feature[[featurean]] <- anno_simple(

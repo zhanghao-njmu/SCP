@@ -25,7 +25,6 @@
 #' str(res)
 #'
 #' # Convert the human genes to mouse homologs and replace the raw counts in a Seurat object.
-#' check_R("cvarrichio/Matrix.utils")
 #' data("pancreas_sub")
 #' counts <- pancreas_sub@assays$RNA@counts
 #' res <- GeneConvert(
@@ -38,7 +37,7 @@
 #' )
 #' homologs_counts <- counts[res$geneID_expand[, "from_geneID"], ]
 #' rownames(homologs_counts) <- res$geneID_expand[, "symbol"]
-#' homologs_counts <- Matrix.utils::aggregate.Matrix(homologs_counts, row.names(homologs_counts))
+#' homologs_counts <- aggregate(homologs_counts, row.names(homologs_counts))
 #' homologs_counts
 #'
 #' @importFrom dplyr "%>%" group_by mutate .data
@@ -452,7 +451,10 @@ CC_GenePrefetch <- function(species, Ensembl_version = 103, mirror = NULL, attem
 #' @examples
 #' data("pancreas_sub")
 #' ccgenes <- CC_GenePrefetch("Mus_musculus")
-#' pancreas_sub <- CellScoring(srt = pancreas_sub, features = list(S = ccgenes$cc_S_genes, G2M = ccgenes$cc_G2M_genes), nbin = 10, name = "CC")
+#' pancreas_sub <- CellScoring(
+#'   srt = pancreas_sub, nbin = 10, name = "CC",
+#'   features = list(S = ccgenes$cc_S_genes, G2M = ccgenes$cc_G2M_genes)
+#' )
 #' ClassDimPlot(pancreas_sub, "CC_classification")
 #' ExpDimPlot(pancreas_sub, "CC_G2M")
 #' @importFrom Seurat AddModuleScore AddMetaData
@@ -1205,13 +1207,21 @@ PrepareEnrichmentDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
         colnames(gene_id) <- gene_id[1, ]
         gene_id <- gene_id[gene_id[, 2] %in% c("Gene", "Pseudogene"), ]
         rownames(gene_id) <- gene_id[, 1]
-        download(url = "http://www.informatics.jax.org/downloads/reports/MGI_GenePheno.rpt", destfile = temp)
+
+        # download(url = "http://www.informatics.jax.org/downloads/reports/MGI_PhenoGenoMP.rpt", destfile = temp) # 43.0 MB
+        # mp_gene <- read.table(temp, header = FALSE, sep = "\t", fill = TRUE, quote = "")
+        # mp_gene[["symbol"]]<- gene_id[mp_gene[["V6"]], "3. marker symbol"]
+        # mp_gene[["MP"]] <- mp_name[mp_gene[, "V4"], 2]
+        # TERM2GENE <- mp_gene[, c("V4", "symbol")]
+        # TERM2NAME <- mp_gene[, c("V4", "MP")]
+
+        download(url = "http://www.informatics.jax.org/downloads/reports/MGI_GenePheno.rpt", destfile = temp) # 32.4 MB
         mp_gene <- read.table(temp, header = FALSE, sep = "\t", fill = TRUE, quote = "")
         mp_gene[["symbol"]] <- gene_id[mp_gene[["V7"]], "3. marker symbol"]
         mp_gene[["MP"]] <- mp_name[mp_gene[, "V5"], 2]
+        TERM2GENE <- mp_gene[, c("V5", "symbol")]
+        TERM2NAME <- mp_gene[, c("V5", "MP")]
 
-        TERM2GENE <- mp_gene[, c("V4", "symbol")]
-        TERM2NAME <- mp_gene[, c("V4", "MP")]
         colnames(TERM2GENE) <- c("Term", default_IDtypes["MP"])
         colnames(TERM2NAME) <- c("Term", "Name")
         TERM2GENE <- na.omit(unique(TERM2GENE))
@@ -3295,6 +3305,7 @@ adata_to_srt <- function(adata) {
   metadata <- NULL
   if (length(adata$obs_keys()) > 0) {
     metadata <- as.data.frame(adata$obs)
+    colnames(metadata) <- make.names(colnames(metadata))
   }
 
   srt <- CreateSeuratObject(counts = x, meta.data = metadata)
@@ -3467,7 +3478,7 @@ RunPAGA <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_layers
                     embedded_with_PAGA = FALSE, paga_layout = "fr", threshold = 0.1, point_size = 20,
                     infer_pseudotime = FALSE, root_group = NULL, root_cell = NULL, n_dcs = 10, n_branchings = 0, min_group_size = 0.01,
                     show_plot = TRUE, dpi = 300, save = FALSE, dirpath = "./", fileprefix = "",
-                    return_seurat = FALSE) {
+                    return_seurat = !is.null(srt)) {
   check_Python("scanpy")
   if (all(is.null(srt), is.null(adata), is.null(h5ad))) {
     stop("One of 'srt', 'adata' or 'h5ad' must be provided.")
@@ -3516,7 +3527,7 @@ RunPAGA <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_layers
       return(srt_out)
     } else {
       srt_out1 <- SrtAppend(srt_raw = srt, srt_append = srt_out)
-      srt_out2 <- SrtAppend(srt_raw = srt_out1, srt_append = srt_out, pattern = "(paga)|(distances)|(connectivities)", overwrite = TRUE, verbose = FALSE)
+      srt_out2 <- SrtAppend(srt_raw = srt_out1, srt_append = srt_out, pattern = "(paga)|(distances)|(connectivities)|(draw_graph)", overwrite = TRUE, verbose = FALSE)
       return(srt_out2)
     }
   } else {
@@ -3599,7 +3610,7 @@ RunSCVELO <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_laye
                       denoise = FALSE, denoise_topn = 3, kinetics = FALSE, kinetics_topn = 100,
                       calculate_velocity_genes = FALSE, s_genes = NULL, g2m_genes = NULL,
                       show_plot = TRUE, dpi = 300, save = FALSE, dirpath = "./", fileprefix = "",
-                      return_seurat = FALSE) {
+                      return_seurat = !is.null(srt)) {
   check_Python("scvelo")
   if (isTRUE(magic_impute)) {
     check_Python("magic-impute")
@@ -3651,7 +3662,7 @@ RunSCVELO <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_laye
       return(srt_out)
     } else {
       srt_out1 <- SrtAppend(srt_raw = srt, srt_append = srt_out)
-      srt_out2 <- SrtAppend(srt_raw = srt_out1, srt_append = srt_out, pattern = paste0("(Ms)|(Mu)|(velocity)|", paste(mode, collapse = "|"), "|(paga)"), overwrite = TRUE, verbose = FALSE)
+      srt_out2 <- SrtAppend(srt_raw = srt_out1, srt_append = srt_out, pattern = paste0("(velocity)|(distances)|(connectivities)|(Ms)|(Mu)|(", paste(mode, collapse = ")|("), ")|(paga)"), overwrite = TRUE, verbose = FALSE)
       return(srt_out2)
     }
   } else {
@@ -3687,7 +3698,7 @@ RunPalantir <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_la
                         adjust_early_cell = FALSE, adjust_terminal_cells = FALSE,
                         max_iterations = 25, n_jobs = 8, point_size = 20,
                         show_plot = TRUE, dpi = 300, save = FALSE, dirpath = "./", fileprefix = "",
-                        return_seurat = FALSE) {
+                        return_seurat = !is.null(srt)) {
   check_Python("palantir")
   if (all(is.null(srt), is.null(adata), is.null(h5ad))) {
     stop("One of 'srt', 'adata' or 'h5ad' must be provided.")
@@ -3739,7 +3750,7 @@ RunPalantir <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_la
       return(srt_out)
     } else {
       srt_out1 <- SrtAppend(srt_raw = srt, srt_append = srt_out)
-      srt_out2 <- SrtAppend(srt_raw = srt_out1, srt_append = srt_out, pattern = "(dm_kernel)|(palantir)", overwrite = TRUE, verbose = FALSE)
+      srt_out2 <- SrtAppend(srt_raw = srt_out1, srt_append = srt_out, pattern = "(palantir)|(dm_kernel)|(_diff_potential)", overwrite = TRUE, verbose = FALSE)
       return(srt_out2)
     }
   } else {
@@ -3758,7 +3769,7 @@ RunCellRank <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_la
                         s_genes = NULL, g2m_genes = NULL, calculate_velocity_genes = FALSE,
                         denoise = FALSE, kinetics = FALSE, axis = "equal",
                         show_plot = TRUE, dpi = 300, save = FALSE, dirpath = "./", fileprefix = "",
-                        return_seurat = FALSE) {
+                        return_seurat = !is.null(srt)) {
   check_Python("cellrank")
   if (isTRUE(magic_impute)) {
     check_Python("magic-impute")
@@ -3825,7 +3836,7 @@ RunDynamo <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_laye
                       num_waypoints = 1200, scale_components = TRUE, use_early_cell_as_start = FALSE,
                       max_iterations = 25, n_jobs = 1, point_size = 20,
                       show_plot = TRUE, dpi = 300, save = FALSE, dirpath = "./", fileprefix = "",
-                      return_seurat = FALSE) {
+                      return_seurat = !is.null(srt)) {
   check_Python("dynamo-release")
   if (all(is.null(srt), is.null(adata), is.null(h5ad))) {
     stop("One of 'srt', 'adata' or 'h5ad' must be provided.")

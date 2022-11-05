@@ -35,7 +35,7 @@ RunPAGA(
   save = FALSE,
   dirpath = "./",
   fileprefix = "",
-  return_seurat = FALSE
+  return_seurat = !is.null(srt)
 )
 }
 \arguments{
