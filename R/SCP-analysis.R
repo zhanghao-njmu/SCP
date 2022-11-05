@@ -1205,13 +1205,21 @@ PrepareEnrichmentDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
         colnames(gene_id) <- gene_id[1, ]
         gene_id <- gene_id[gene_id[, 2] %in% c("Gene", "Pseudogene"), ]
         rownames(gene_id) <- gene_id[, 1]
-        download(url = "http://www.informatics.jax.org/downloads/reports/MGI_GenePheno.rpt", destfile = temp)
+        
+        # download(url = "http://www.informatics.jax.org/downloads/reports/MGI_PhenoGenoMP.rpt", destfile = temp) # 43.0 MB
+        # mp_gene <- read.table(temp, header = FALSE, sep = "\t", fill = TRUE, quote = "")
+        # mp_gene[["symbol"]]<- gene_id[mp_gene[["V6"]], "3. marker symbol"]
+        # mp_gene[["MP"]] <- mp_name[mp_gene[, "V4"], 2]
+        # TERM2GENE <- mp_gene[, c("V4", "symbol")]
+        # TERM2NAME <- mp_gene[, c("V4", "MP")]
+
+        download(url = "http://www.informatics.jax.org/downloads/reports/MGI_GenePheno.rpt", destfile = temp) # 32.4 MB
         mp_gene <- read.table(temp, header = FALSE, sep = "\t", fill = TRUE, quote = "")
         mp_gene[["symbol"]] <- gene_id[mp_gene[["V7"]], "3. marker symbol"]
         mp_gene[["MP"]] <- mp_name[mp_gene[, "V5"], 2]
+        TERM2GENE <- mp_gene[, c("V5", "symbol")]
+        TERM2NAME <- mp_gene[, c("V5", "MP")]
 
-        TERM2GENE <- mp_gene[, c("V4", "symbol")]
-        TERM2NAME <- mp_gene[, c("V4", "MP")]
         colnames(TERM2GENE) <- c("Term", default_IDtypes["MP"])
         colnames(TERM2NAME) <- c("Term", "Name")
         TERM2GENE <- na.omit(unique(TERM2GENE))
