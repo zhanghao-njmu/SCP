@@ -90,8 +90,10 @@ ht1 <- ExpHeatmap(
 )
 ht1$plot
 
+pancreas_sub <- AnnotateFeatures(pancreas_sub, species = "Mus_musculus", anno_TF = TRUE)
 ht2 <- ExpHeatmap(
-  srt = pancreas_sub, features = de_filter$gene, n_split = 4, cell_split_by = "CellType"
+  srt = pancreas_sub, features = de_filter$gene, n_split = 4, cell_split_by = "CellType",
+  feature_annotation = c("TF", "TF_cofactors"), feature_palcolor = list(c("black", "transparent"))
 )
 ht2$plot
 
