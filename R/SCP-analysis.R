@@ -1205,7 +1205,7 @@ PrepareEnrichmentDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
         colnames(gene_id) <- gene_id[1, ]
         gene_id <- gene_id[gene_id[, 2] %in% c("Gene", "Pseudogene"), ]
         rownames(gene_id) <- gene_id[, 1]
-
+        
         # download(url = "http://www.informatics.jax.org/downloads/reports/MGI_PhenoGenoMP.rpt", destfile = temp) # 43.0 MB
         # mp_gene <- read.table(temp, header = FALSE, sep = "\t", fill = TRUE, quote = "")
         # mp_gene[["symbol"]]<- gene_id[mp_gene[["V6"]], "3. marker symbol"]
