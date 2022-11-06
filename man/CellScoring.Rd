@@ -26,7 +26,10 @@ Cell classification
 \examples{
 data("pancreas_sub")
 ccgenes <- CC_GenePrefetch("Mus_musculus")
-pancreas_sub <- CellScoring(srt = pancreas_sub, features = list(S = ccgenes$cc_S_genes, G2M = ccgenes$cc_G2M_genes), nbin = 10, name = "CC")
+pancreas_sub <- CellScoring(
+  srt = pancreas_sub, nbin = 10, name = "CC",
+  features = list(S = ccgenes$cc_S_genes, G2M = ccgenes$cc_G2M_genes)
+)
 ClassDimPlot(pancreas_sub, "CC_classification")
 ExpDimPlot(pancreas_sub, "CC_G2M")
 }
