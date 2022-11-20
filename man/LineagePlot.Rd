@@ -9,6 +9,7 @@ LineagePlot(
   lineages,
   reduction = NULL,
   dims = c(1, 2),
+  cells = NULL,
   trim = c(0.01, 0.99),
   span = 0.75,
   palette = "Dark2",

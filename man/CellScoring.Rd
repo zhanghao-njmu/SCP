@@ -14,6 +14,7 @@ CellScoring(
   slot = "data",
   assay = "RNA",
   new_assay = FALSE,
+  seed = 11,
   ...
 )
 }

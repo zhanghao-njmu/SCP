@@ -36,8 +36,6 @@ RunSCVELO(
   kinetics = FALSE,
   kinetics_topn = 100,
   calculate_velocity_genes = FALSE,
-  s_genes = NULL,
-  g2m_genes = NULL,
   show_plot = TRUE,
   dpi = 300,
   save = FALSE,
@@ -87,10 +85,6 @@ RunSCVELO(
 
 \item{calculate_velocity_genes}{calculate_velocity_genes.}
 
-\item{s_genes}{s_genes.}
-
-\item{g2m_genes}{g2m_genes.}
-
 \item{dpi}{dpi.}
 
 \item{save}{save.}
@@ -100,6 +94,10 @@ RunSCVELO(
 \item{fileprefix}{fileprefix.}
 
 \item{return_seurat}{}
+
+\item{s_genes}{s_genes.}
+
+\item{g2m_genes}{g2m_genes.}
 }
 \value{
 A \code{anndata} object.

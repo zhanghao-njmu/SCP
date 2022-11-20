@@ -118,56 +118,58 @@ RunKNNPredict <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
     use_reduction <- TRUE
   }
   if (!isTRUE(use_reduction)) {
-    if (features_type == "HVF" && feature_source %in% c("both", "query")) {
-      if (length(VariableFeatures(srt_query)) == 0) {
-        srt_query <- FindVariableFeatures(srt_query, nfeatures = nfeatures)
-      }
-      features_query <- VariableFeatures(srt_query)
-    } else if (features_type == "DE" && feature_source %in% c("both", "query")) {
-      if (is.null(query_group)) {
-        stop("'query_group' must be provided when 'features_type' is 'DE' and 'feature_source' is 'both' or 'query'")
+    if (length(features) == 0) {
+      if (features_type == "HVF" && feature_source %in% c("both", "query")) {
+        if (length(VariableFeatures(srt_query)) == 0) {
+          srt_query <- FindVariableFeatures(srt_query, nfeatures = nfeatures)
+        }
+        features_query <- VariableFeatures(srt_query)
+      } else if (features_type == "DE" && feature_source %in% c("both", "query")) {
+        if (is.null(query_group)) {
+          stop("'query_group' must be provided when 'features_type' is 'DE' and 'feature_source' is 'both' or 'query'")
+        } else {
+          slot <- paste0("DEtest_", query_group)
+          DEtest_param[["force"]] <- TRUE
+          if (!slot %in% names(srt_query@tools) || length(grep(pattern = "AllMarkers", names(srt_query@tools[[slot]]))) == 0) {
+            srt_query <- do.call(RunDEtest, c(list(srt = srt_query, group_by = query_group), DEtest_param))
+          }
+          if ("test.use" %in% names(DEtest_param)) {
+            test.use <- DEtest_param[["test.use"]]
+          } else {
+            test.use <- "wilcox"
+          }
+          index <- grep(pattern = paste0("AllMarkers_", test.use), names(srt_query@tools[[slot]]))[1]
+          de <- names(srt_query@tools[[slot]])[index]
+          message("Use the DE features from ", de, " to calculate distance metric.")
+          de_df <- srt_query@tools[[slot]][[de]]
+          de_df <- filter(de_df, eval(rlang::parse_expr(DE_threshold)))
+          de_top <- de_df %>%
+            group_by(gene) %>%
+            top_n(1, avg_log2FC)
+          stat <- sort(table(de_top$group1))
+          stat <- stat[stat > 0]
+          mat <- matrix(FALSE, nrow = max(stat), ncol = length(stat))
+          colnames(mat) <- names(stat)
+          for (g in names(stat)) {
+            mat[1:stat[g], g] <- TRUE
+          }
+          nfeatures <- sum(cumsum(rowSums(mat)) <= nfeatures)
+          if (test.use == "roc") {
+            features_query <- de_top %>%
+              group_by(group1) %>%
+              top_n(nfeatures, power) %>%
+              pull("gene")
+          } else {
+            features_query <- de_top %>%
+              group_by(group1) %>%
+              top_n(nfeatures, -p_val) %>%
+              pull("gene")
+          }
+          message("DE features number of the query data: ", length(features_query))
+        }
       } else {
-        slot <- paste0("DEtest_", query_group)
-        DEtest_param[["force"]] <- TRUE
-        if (!slot %in% names(srt_query@tools) || length(grep(pattern = "AllMarkers", names(srt_query@tools[[slot]]))) == 0) {
-          srt_query <- do.call(RunDEtest, c(list(srt = srt_query, group_by = query_group), DEtest_param))
-        }
-        if ("test.use" %in% names(DEtest_param)) {
-          test.use <- DEtest_param[["test.use"]]
-        } else {
-          test.use <- "wilcox"
-        }
-        index <- grep(pattern = paste0("AllMarkers_", test.use), names(srt_query@tools[[slot]]))[1]
-        de <- names(srt_query@tools[[slot]])[index]
-        message("Use the DE features from ", de, " to calculate distance metric.")
-        de_df <- srt_query@tools[[slot]][[de]]
-        de_df <- filter(de_df, eval(rlang::parse_expr(DE_threshold)))
-        de_top <- de_df %>%
-          group_by(gene) %>%
-          top_n(1, avg_log2FC)
-        stat <- sort(table(de_top$group1))
-        stat <- stat[stat > 0]
-        mat <- matrix(FALSE, nrow = max(stat), ncol = length(stat))
-        colnames(mat) <- names(stat)
-        for (g in names(stat)) {
-          mat[1:stat[g], g] <- TRUE
-        }
-        nfeatures <- sum(cumsum(rowSums(mat)) <= nfeatures)
-        if (test.use == "roc") {
-          features_query <- de_top %>%
-            group_by(group1) %>%
-            top_n(nfeatures, power) %>%
-            pull("gene")
-        } else {
-          features_query <- de_top %>%
-            group_by(group1) %>%
-            top_n(nfeatures, -p_val) %>%
-            pull("gene")
-        }
-        message("DE features number of the query data: ", length(features_query))
+        features_query <- rownames(srt_query[[query_assay]])
       }
-    } else {
-      features_query <- rownames(srt_query[[query_assay]])
     }
   }
 

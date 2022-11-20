@@ -11,6 +11,7 @@ GraphPlot(
   node_coord = c("x", "y"),
   node_group = NULL,
   node_palette = "Paired",
+  node_palcolor = NULL,
   node_size = 4,
   node_alpha = 1,
   node_highlight = NULL,

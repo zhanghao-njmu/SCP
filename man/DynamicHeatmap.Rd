@@ -7,31 +7,44 @@
 DynamicHeatmap(
   srt,
   lineages,
+  features = NULL,
   feature_from = lineages,
-  exp_method = c("zscore", "raw", "log2fc", "log1p"),
-  slot = "counts",
-  assay = "RNA",
   use_fitted = FALSE,
-  lib_normalize = TRUE,
-  libsize = NULL,
+  border = TRUE,
   min_expcells = 20,
   r.sq = 0.2,
   dev.expl = 0.2,
   padjust = 0.05,
   cell_density = 1,
   order_by = c("peaktime", "valleytime"),
-  decreasing = FALSE,
+  slot = "counts",
+  assay = "RNA",
+  exp_method = c("zscore", "raw", "fc", "log2fc", "log1p"),
+  lib_normalize = TRUE,
+  libsize = NULL,
+  family = NULL,
+  cluster_rows = FALSE,
+  cluster_row_slices = FALSE,
+  show_row_names = FALSE,
+  show_column_names = FALSE,
+  row_title_rot = 0,
+  column_title_rot = 0,
   feature_split = NULL,
-  row_title_size = 12,
-  row_title_rot = 90,
+  feature_split_by = NULL,
   n_split = NULL,
-  heatmap_split_by = lineages,
   split_method = c("mfuzz", "kmeans", "kmeans-peaktime", "hclust", "hclust-peaktime"),
+  decreasing = FALSE,
   fuzzification = NULL,
   show_fuzzification = FALSE,
   anno_terms = FALSE,
   anno_keys = FALSE,
   anno_features = FALSE,
+  terms_width = unit(4, "in"),
+  terms_fontsize = 8,
+  keys_width = unit(2, "in"),
+  keys_fontsize = c(6, 10),
+  features_width = unit(2, "in"),
+  features_fontsize = c(6, 10),
   IDtype = "symbol",
   species = "Homo_sapiens",
   db_update = FALSE,
@@ -52,14 +65,12 @@ DynamicHeatmap(
   pvalueCutoff = NULL,
   padjustCutoff = 0.05,
   topTerm = 5,
-  show_id = TRUE,
+  show_termid = FALSE,
   topWord = 20,
   min_word_length = 3,
   exclude_words = c("cell", "cellular", "dna", "rna", "protein", "development",
     "organization", "system", "regulation", "positive", "negative", "response",
     "process"),
-  anno_width = unit(c(4, 2, 2), "in"),
-  anno_size = c(6, 10),
   nlabel = 20,
   features_label = NULL,
   label_size = 10,
@@ -67,22 +78,29 @@ DynamicHeatmap(
   pseudotime_label = NULL,
   pseudotime_label_color = "black",
   pseudotime_label_linetype = 2,
-  pseudotime_label_linewidth = 2,
+  pseudotime_label_linewidth = 3,
   heatmap_palette = "RdBu",
+  heatmap_palcolor = NULL,
   pseudotime_palette = "cividis",
+  pseudotime_palcolor = NULL,
   feature_split_palette = "jama",
+  feature_split_palcolor = NULL,
   cell_annotation = NULL,
   cell_palette = "Paired",
   cell_palcolor = NULL,
+  cell_annotation_params = list(),
   feature_annotation = NULL,
   feature_palette = "Dark2",
   feature_palcolor = NULL,
+  feature_annotation_params = list(),
   reverse_ht = NULL,
   use_raster = NULL,
+  raster_device = "png",
   height = NULL,
   width = NULL,
   units = "inch",
-  seed = 11
+  seed = 11,
+  ht_params = list()
 )
 }
 \arguments{
@@ -97,21 +115,17 @@ pancreas_sub <- RunSlingshot(pancreas_sub, group.by = "SubCellType", reduction =
 pancreas_sub <- RunDynamicFeatures(pancreas_sub, lineages = c("Lineage1", "Lineage2"), n_candidates = 200)
 ht_result1 <- DynamicHeatmap(
   srt = pancreas_sub,
-  lineages = c("Lineage1"), order_by = "peaktime",
+  lineages = "Lineage1",
   cell_annotation = "SubCellType",
-  n_split = 5, split_method = "kmeans-peaktime",
-  height = 6, width = 7, use_raster = FALSE
+  n_split = 5, split_method = "kmeans-peaktime"
 )
 ht_result1$plot
 
-pancreas_sub <- AnnotateFeatures(pancreas_sub, species = "Mus_musculus", anno_TF = TRUE)
 ht_result2 <- DynamicHeatmap(
   srt = pancreas_sub,
-  lineages = c("Lineage1", "Lineage2"),
-  cell_annotation = "SubCellType",
-  n_split = 5, reverse_ht = "Lineage1",
-  feature_annotation = c("TF", "TF_cofactors"), feature_palcolor = list(c("black", "transparent")),
-  height = 6, width = 7, use_raster = FALSE
+  lineages = "Lineage1",
+  features = c("Sox9", "Neurod2", "Isl1", "Rbp4", "S_score", "G2M_score"),
+  cell_annotation = "SubCellType"
 )
 ht_result2$plot
 
@@ -119,9 +133,33 @@ ht_result3 <- DynamicHeatmap(
   srt = pancreas_sub,
   lineages = c("Lineage1", "Lineage2"),
   cell_annotation = "SubCellType",
-  n_split = 5, reverse_ht = "Lineage1",
-  species = "Mus_musculus", anno_terms = TRUE, anno_keys = TRUE, anno_features = TRUE,
-  height = 6, width = 7, use_raster = FALSE
+  n_split = 5, split_method = "kmeans",
+  cluster_rows = TRUE
 )
 ht_result3$plot
+
+pancreas_sub <- AnnotateFeatures(pancreas_sub, species = "Mus_musculus", db = c("TF", "SP"))
+ht_result3 <- DynamicHeatmap(
+  srt = pancreas_sub,
+  lineages = c("Lineage1", "Lineage2"),
+  use_fitted = TRUE, heatmap_palette = "viridis",
+  cell_annotation = "SubCellType",
+  n_split = 5, split_method = "mfuzz",
+  reverse_ht = "Lineage1",
+  feature_annotation = c("TF", "SP"),
+  feature_palcolor = list(c("gold", "steelblue"), c("forestgreen"))
+)
+ht_result3$plot
+
+ht_result5 <- DynamicHeatmap(
+  srt = pancreas_sub,
+  lineages = c("Lineage1", "Lineage2"),
+  cell_annotation = "SubCellType",
+  n_split = 5, reverse_ht = "Lineage1",
+  species = "Mus_musculus", db = "GO_BP",
+  anno_terms = TRUE, anno_keys = TRUE, anno_features = TRUE,
+  pseudotime_label = max(pancreas_sub$Lineage1[pancreas_sub$SubCellType == "Pre-endocrine"], na.rm = TRUE)
+)
+ht_result5$plot
+
 }

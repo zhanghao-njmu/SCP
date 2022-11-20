@@ -10,8 +10,9 @@ ExpDimPlot(
   reduction = NULL,
   dims = c(1, 2),
   split.by = NULL,
+  cells = NULL,
   slot = "data",
-  assay = DefaultAssay(srt),
+  assay = "RNA",
   show_stat = TRUE,
   palette = ifelse(isTRUE(compare_features), "Set1", "Spectral"),
   palcolor = NULL,
@@ -149,17 +150,10 @@ ExpDimPlot(pancreas_sub, features = "Lineage3", reduction = "UMAP", lineages = "
 ExpDimPlot(pancreas_sub, features = "Lineage3", reduction = "UMAP", lineages = "Lineage3", lineages_span = 0.1)
 
 ExpDimPlot(pancreas_sub,
-  features = c("Ghrl", "Ins1", "Gcg", "Ins2"), pt.size = 1,
+  features = c("Ins1", "Gcg", "Sst", "Ghrl"), pt.size = 1,
   compare_features = TRUE, color_blend_mode = "blend",
   label = TRUE, label_insitu = TRUE
 )
-
-ExpDimPlot(pancreas_sub,
-  features = c("Ghrl", "Ins1", "Gcg", "Ins2"), pt.size = 1,
-  compare_features = TRUE, color_blend_mode = "blend",
-  label = TRUE, label_insitu = TRUE, label_repel = TRUE
-)
-
 ExpDimPlot(pancreas_sub,
   features = c("S_score", "G2M_score"), pt.size = 1, palcolor = c("red", "green"),
   compare_features = TRUE, color_blend_mode = "mix", title = "mix",

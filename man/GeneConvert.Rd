@@ -62,7 +62,9 @@ res <- GeneConvert(
 )
 homologs_counts <- counts[res$geneID_expand[, "from_geneID"], ]
 rownames(homologs_counts) <- res$geneID_expand[, "symbol"]
-homologs_counts <- aggregate(homologs_counts, row.names(homologs_counts))
+homologs_counts <- aggregate(homologs_counts, by = list(row.names(homologs_counts)), FUN = sum)
+rownames(homologs_counts) <- homologs_counts[, 1]
+homologs_counts <- as(as.matrix(homologs_counts[, -1]), "dgCMatrix")
 homologs_counts
 
 }
