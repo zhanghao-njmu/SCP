@@ -9,17 +9,16 @@
 #' @param compression_level
 #' @param overwrite
 #'
-#' @importFrom HDF5Array writeTENxMatrix
 #' @importFrom Seurat GetAssayData
 #' @importFrom SeuratObject as.sparse
-#' @importFrom rhdf5 h5createFile h5delete h5createGroup h5write
 #' @export
 CreateDataFile <- function(srt, DataFile, name = NULL, assays = "RNA", slots = "data", compression_level = 0, overwrite = FALSE) {
+  check_R("HDF5Array")
   if (missing(DataFile) || is.null(DataFile)) {
     DataFile <- "Data.hdf5"
   }
   if (!file.exists(DataFile)) {
-    h5createFile(DataFile)
+    rhdf5::h5createFile(DataFile)
   }
   if (is.null(name)) {
     name <- srt@project.name
@@ -28,8 +27,8 @@ CreateDataFile <- function(srt, DataFile, name = NULL, assays = "RNA", slots = "
   if (substr(name, 1, 1) != "/") {
     name <- paste0("/", name)
   }
-  if (!name %in% h5ls(DataFile)$group) {
-    h5createGroup(file = DataFile, group = name)
+  if (!name %in% rhdf5::h5ls(DataFile)$group) {
+    rhdf5::h5createGroup(file = DataFile, group = name)
   }
 
   message("Write the expression matrix to hdf5 file: ", DataFile)
@@ -37,44 +36,44 @@ CreateDataFile <- function(srt, DataFile, name = NULL, assays = "RNA", slots = "
     for (slot in slots) {
       data <- t(GetAssayData(srt, slot = slot, assay = assay))
       if (isTRUE(overwrite)) {
-        try(h5delete(file = DataFile, name = paste0(name, "/", assay, "/", slot)), silent = TRUE)
+        try(rhdf5::h5delete(file = DataFile, name = paste0(name, "/", assay, "/", slot)), silent = TRUE)
       }
-      if (paste0(name, "/", assay, "/", slot) %in% h5ls(DataFile)$group) {
+      if (paste0(name, "/", assay, "/", slot) %in% rhdf5::h5ls(DataFile)$group) {
         message("Group ", paste0(name, "/", assay, "/", slot), " already exists in the ", DataFile)
       } else {
-        if (!paste0(name, "/", assay) %in% h5ls(DataFile)$group) {
-          h5createGroup(file = DataFile, group = paste0(name, "/", assay))
+        if (!paste0(name, "/", assay) %in% rhdf5::h5ls(DataFile)$group) {
+          rhdf5::h5createGroup(file = DataFile, group = paste0(name, "/", assay))
         }
         if (!inherits(data, "dgCMatrix")) {
           data <- as.sparse(data[1:nrow(data), ])
         }
-        writeTENxMatrix(x = data, filepath = DataFile, group = paste0(name, "/", assay, "/", slot), level = compression_level)
+        HDF5Array::writeTENxMatrix(x = data, filepath = DataFile, group = paste0(name, "/", assay, "/", slot), level = compression_level)
       }
     }
   }
   if (isTRUE(overwrite)) {
-    try(h5delete(file = DataFile, name = paste0(name, "/Default_assay")), silent = TRUE)
+    try(rhdf5::h5delete(file = DataFile, name = paste0(name, "/Default_assay")), silent = TRUE)
   }
-  if (paste0(name, "/Default_assay") %in% h5ls(DataFile)$group) {
+  if (paste0(name, "/Default_assay") %in% rhdf5::h5ls(DataFile)$group) {
     message("Group ", paste0(name, "/Default_assay"), " already exists in the ", DataFile)
   } else {
-    h5write(obj = DefaultAssay(srt), file = DataFile, name = paste0(name, "/Default_assay"), level = compression_level)
+    rhdf5::h5write(obj = DefaultAssay(srt), file = DataFile, name = paste0(name, "/Default_assay"), level = compression_level)
   }
   if (isTRUE(overwrite)) {
-    try(h5delete(file = DataFile, name = paste0(name, "/cells")), silent = TRUE)
+    try(rhdf5::h5delete(file = DataFile, name = paste0(name, "/cells")), silent = TRUE)
   }
-  if (paste0(name, "/cells") %in% h5ls(DataFile)$group) {
+  if (paste0(name, "/cells") %in% rhdf5::h5ls(DataFile)$group) {
     message("Group ", paste0(name, "/cells"), " already exists in the ", DataFile)
   } else {
-    h5write(obj = colnames(srt), file = DataFile, name = paste0(name, "/cells"), level = compression_level)
+    rhdf5::h5write(obj = colnames(srt), file = DataFile, name = paste0(name, "/cells"), level = compression_level)
   }
   if (isTRUE(overwrite)) {
-    try(h5delete(file = DataFile, name = paste0(name, "/features")), silent = TRUE)
+    try(rhdf5::h5delete(file = DataFile, name = paste0(name, "/features")), silent = TRUE)
   }
-  if (paste0(name, "/features") %in% h5ls(DataFile)$group) {
+  if (paste0(name, "/features") %in% rhdf5::h5ls(DataFile)$group) {
     message("Group ", paste0(name, "/features"), " already exists in the ", DataFile)
   } else {
-    h5write(obj = unique(unlist(lapply(srt@assays, rownames))), file = DataFile, name = paste0(name, "/features"), level = compression_level)
+    rhdf5::h5write(obj = unique(unlist(lapply(srt@assays, rownames))), file = DataFile, name = paste0(name, "/features"), level = compression_level)
   }
   return(invisible(NULL))
 }
@@ -91,7 +90,6 @@ CreateDataFile <- function(srt, DataFile, name = NULL, assays = "RNA", slots = "
 #' @param compression_level
 #' @param overwrite
 #'
-#' @importFrom rhdf5 h5createFile h5createGroup h5write h5createDataset
 #' @importFrom Seurat Key Reductions Embeddings
 #' @importFrom Matrix sparseMatrix
 #' @export
@@ -100,7 +98,7 @@ CreateMetaFile <- function(srt, MetaFile, name = NULL, write_tools = FALSE, writ
     MetaFile <- "Meta.hdf5"
   }
   if (!file.exists(MetaFile)) {
-    h5createFile(MetaFile)
+    rhdf5::h5createFile(MetaFile)
   }
   if (is.null(name)) {
     name <- srt@project.name
@@ -109,13 +107,13 @@ CreateMetaFile <- function(srt, MetaFile, name = NULL, write_tools = FALSE, writ
   if (substr(name, 1, 1) != "/") {
     name <- paste0("/", name)
   }
-  if (!name %in% h5ls(MetaFile)$group) {
-    h5createGroup(file = MetaFile, group = name)
+  if (!name %in% rhdf5::h5ls(MetaFile)$group) {
+    rhdf5::h5createGroup(file = MetaFile, group = name)
   }
 
   message("Write the meta information to hdf5 file: ", MetaFile)
-  if (!paste0(name, "/metadata") %in% h5ls(MetaFile)$group) {
-    h5createGroup(file = MetaFile, group = paste0(name, "/metadata"))
+  if (!paste0(name, "/metadata") %in% rhdf5::h5ls(MetaFile)$group) {
+    rhdf5::h5createGroup(file = MetaFile, group = paste0(name, "/metadata"))
   }
   meta_asfeatures <- c()
   meta_asgroups <- c()
@@ -140,79 +138,79 @@ CreateMetaFile <- function(srt, MetaFile, name = NULL, write_tools = FALSE, writ
     }
     if (!is.numeric(meta)) {
       if (length(unique(meta)) > ignore_nlevel) {
-        warning("The classification in ", var, " is greater than ", ignore_nlevel, ", it will be ignored.", immediate. = TRUE)
+        warning("The number of categories in ", var, " is greater than ", ignore_nlevel, ", it will be ignored.", immediate. = TRUE)
       } else {
         meta_asgroups <- c(meta_asgroups, var)
       }
     }
     if (isTRUE(overwrite)) {
-      try(h5delete(file = MetaFile, name = paste0(name, "/metadata/", var)), silent = TRUE)
+      try(rhdf5::h5delete(file = MetaFile, name = paste0(name, "/metadata/", var)), silent = TRUE)
     }
-    if (paste0(name, "/metadata/", var) %in% paste0(h5ls(MetaFile)$group, "/", h5ls(MetaFile)$name)) {
+    if (paste0(name, "/metadata/", var) %in% paste0(rhdf5::h5ls(MetaFile)$group, "/", rhdf5::h5ls(MetaFile)$name)) {
       message("Group ", paste0(name, "/metadata/", var), " already exists in the ", MetaFile)
     } else {
-      h5write(obj = meta, file = MetaFile, name = paste0(name, "/metadata/", var), write.attributes = write.attributes, level = compression_level)
+      rhdf5::h5write(obj = meta, file = MetaFile, name = paste0(name, "/metadata/", var), write.attributes = write.attributes, level = compression_level)
     }
   }
 
   if (isTRUE(overwrite)) {
-    try(h5delete(file = MetaFile, name = paste0(name, "/metadata.stat")), silent = TRUE)
+    try(rhdf5::h5delete(file = MetaFile, name = paste0(name, "/metadata.stat")), silent = TRUE)
   }
-  if (paste0(name, "/metadata.stat") %in% h5ls(MetaFile)$group) {
+  if (paste0(name, "/metadata.stat") %in% rhdf5::h5ls(MetaFile)$group) {
     message("Group ", paste0(name, "/metadata.stat"), " already exists in the ", MetaFile)
   } else {
-    h5createGroup(file = MetaFile, group = paste0(name, "/metadata.stat"))
-    h5write(obj = meta_asfeatures, file = MetaFile, name = paste0(name, "/metadata.stat/asfeatures"), level = compression_level)
-    h5write(obj = meta_asgroups, file = MetaFile, name = paste0(name, "/metadata.stat/asgroups"), level = compression_level)
+    rhdf5::h5createGroup(file = MetaFile, group = paste0(name, "/metadata.stat"))
+    rhdf5::h5write(obj = meta_asfeatures, file = MetaFile, name = paste0(name, "/metadata.stat/asfeatures"), level = compression_level)
+    rhdf5::h5write(obj = meta_asgroups, file = MetaFile, name = paste0(name, "/metadata.stat/asgroups"), level = compression_level)
   }
 
-  if (!paste0(name, "/reductions") %in% h5ls(MetaFile)$group) {
-    h5createGroup(file = MetaFile, group = paste0(name, "/reductions"))
+  if (!paste0(name, "/reductions") %in% rhdf5::h5ls(MetaFile)$group) {
+    rhdf5::h5createGroup(file = MetaFile, group = paste0(name, "/reductions"))
   }
   for (reduction in Reductions(srt)) {
     emb <- Embeddings(srt, reduction)[colnames(srt), ]
     attr(emb, "key") <- as.character(Key(srt[[reduction]]))
     if (isTRUE(overwrite)) {
-      try(h5delete(file = MetaFile, name = paste0(name, "/reductions/", reduction)), silent = TRUE)
+      try(rhdf5::h5delete(file = MetaFile, name = paste0(name, "/reductions/", reduction)), silent = TRUE)
     }
-    if (paste0(name, "/reductions/", reduction) %in% paste0(h5ls(MetaFile)$group, "/", h5ls(MetaFile)$name)) {
+    if (paste0(name, "/reductions/", reduction) %in% paste0(rhdf5::h5ls(MetaFile)$group, "/", rhdf5::h5ls(MetaFile)$name)) {
       message("Group ", paste0(name, "/reductions/", reduction), " already exists in the ", MetaFile)
     } else {
-      h5createDataset(
+      rhdf5::h5createDataset(
         file = MetaFile, dataset = paste0(name, "/reductions/", reduction),
         dims = dim(emb), chunk = c(nrow(emb), min(10, ncol(emb))), level = compression_level
       )
-      suppressWarnings(h5write(obj = emb, file = MetaFile, name = paste0(name, "/reductions/", reduction), write.attributes = TRUE, level = compression_level))
+      suppressWarnings(rhdf5::h5write(obj = emb, file = MetaFile, name = paste0(name, "/reductions/", reduction), write.attributes = TRUE, level = compression_level))
     }
   }
   if (isTRUE(overwrite)) {
-    try(h5delete(file = MetaFile, name = paste0(name, "/reductions.stat")), silent = TRUE)
+    try(rhdf5::h5delete(file = MetaFile, name = paste0(name, "/reductions.stat")), silent = TRUE)
   }
-  if (paste0(name, "/reductions.stat") %in% h5ls(MetaFile)$group) {
+  if (paste0(name, "/reductions.stat") %in% rhdf5::h5ls(MetaFile)$group) {
     message("Group ", paste0(name, "/reductions.stat"), " already exists in the ", MetaFile)
   } else {
-    h5createGroup(file = MetaFile, group = paste0(name, "/reductions.stat"))
-    h5write(obj = DefaultReduction(srt), file = MetaFile, name = paste0(name, "/reductions.stat/Default_reduction"), level = compression_level)
+    rhdf5::h5createGroup(file = MetaFile, group = paste0(name, "/reductions.stat"))
+    rhdf5::h5write(obj = DefaultReduction(srt), file = MetaFile, name = paste0(name, "/reductions.stat/Default_reduction"), level = compression_level)
   }
 
   if (isTRUE(write_misc)) {
     if (isTRUE(overwrite)) {
-      try(h5delete(file = MetaFile, name = paste0(name, "/misc")), silent = TRUE)
+      try(rhdf5::h5delete(file = MetaFile, name = paste0(name, "/misc")), silent = TRUE)
     }
-    if (paste0(name, "/misc") %in% h5ls(MetaFile)$group) {
+    if (paste0(name, "/misc") %in% rhdf5::h5ls(MetaFile)$group) {
       message("Group ", paste0(name, "/misc"), " already exists in the ", MetaFile)
     } else {
-      h5write(obj = srt@misc, file = MetaFile, name = paste0(name, "/misc"), level = compression_level)
+      rhdf5::h5write(obj = srt@misc, file = MetaFile, name = paste0(name, "/misc"), level = compression_level)
     }
   }
   if (isTRUE(write_tools)) {
     if (isTRUE(overwrite)) {
-      try(h5delete(file = MetaFile, name = paste0(name, "/tools")), silent = TRUE)
+      try(rhdf5::h5delete(file = MetaFile, name = paste0(name, "/tools")), silent = TRUE)
     }
-    if (paste0(name, "/tools") %in% h5ls(MetaFile)$group) {
+    if (paste0(name, "/tools") %in% rhdf5::h5ls(MetaFile)$group) {
       message("Group ", paste0(name, "/tools"), " already exists in the ", MetaFile)
     } else {
-      h5write(obj = srt@tools, file = MetaFile, name = paste0(name, "/tools"), level = compression_level)
+      rhdf5::h5write(obj = srt@tools, file = MetaFile, name = paste0(name, "/tools"), level = compression_level)
     }
   }
 
@@ -314,8 +312,6 @@ PrepareSCExplorer <- function(object,
 #' ClassDimPlot(srt, group.by = c("SubCellType", "Phase"), reduction = "UMAP")
 #' ExpDimPlot(srt, features = c("Ins1", "Ghrl"), reduction = "UMAP")
 #' }
-#' @importFrom HDF5Array TENxMatrix
-#' @importFrom rhdf5 h5ls h5read h5readAttributes
 #' @importFrom Seurat CreateSeuratObject CreateDimReducObject
 #' @importFrom Matrix sparseMatrix
 #' @importFrom rlang %||%
@@ -324,11 +320,12 @@ FetchH5 <- function(DataFile, MetaFile, name = NULL,
                     features = NULL, slot = NULL, assay = NULL,
                     metanames = NULL,
                     reduction = NULL) {
+  check_R(c("HDF5Array", "rhdf5"))
   if (missing(DataFile) || missing(MetaFile)) {
     stop("'DataFile', 'MetaFile' must be provided.")
   }
-  data_group <- h5ls(DataFile)$group
-  meta_group <- h5ls(MetaFile)$group
+  data_group <- rhdf5::h5ls(DataFile)$group
+  meta_group <- rhdf5::h5ls(MetaFile)$group
 
   if (is.null(name)) {
     group <- intersect(data_group, meta_group)
@@ -345,11 +342,11 @@ FetchH5 <- function(DataFile, MetaFile, name = NULL,
     name <- paste0("/", name)
   }
 
-  all_features <- h5read(DataFile, name = paste0(name, "/features"))
-  all_cells <- h5read(DataFile, name = paste0(name, "/cells"))
-  meta_struc <- h5ls(MetaFile)
-  meta_features_name <- h5read(MetaFile, name = paste0(name, "/metadata.stat/asfeatures"))
-  meta_groups_name <- h5read(MetaFile, name = paste0(name, "/metadata.stat/asgroups"))
+  all_features <- rhdf5::h5read(DataFile, name = paste0(name, "/features"))
+  all_cells <- rhdf5::h5read(DataFile, name = paste0(name, "/cells"))
+  meta_struc <- rhdf5::h5ls(MetaFile)
+  meta_features_name <- rhdf5::h5read(MetaFile, name = paste0(name, "/metadata.stat/asfeatures"))
+  meta_groups_name <- rhdf5::h5read(MetaFile, name = paste0(name, "/metadata.stat/asgroups"))
   reduction_name <- meta_struc[meta_struc$group == paste0(name, "/reductions"), "name"]
 
   if (!is.null(features) && any(!features %in% c(all_features, meta_features_name))) {
@@ -369,16 +366,16 @@ FetchH5 <- function(DataFile, MetaFile, name = NULL,
 
   if (length(gene_features) > 0) {
     if (is.null(assay)) {
-      assay <- as.character(h5read(DataFile, name = paste0(name, "/Default_assay")))
+      assay <- as.character(rhdf5::h5read(DataFile, name = paste0(name, "/Default_assay")))
     }
     if (is.null(slot)) {
       slots <- as.character(unique(na.omit(sapply(strsplit(data_group[grep(name, data_group)], "/"), function(x) x[4]))))
       slot <- ifelse("data" %in% slots, "data", slots[1])
     }
-    if (!paste0(name, "/", assay, "/", slot) %in% h5ls(DataFile)[["group"]]) {
+    if (!paste0(name, "/", assay, "/", slot) %in% rhdf5::h5ls(DataFile)[["group"]]) {
       stop("There is no ", paste0(name, "/", assay, "/", slot), " in DataFile, please write it first using the PrepareSCExplorer function")
     }
-    data <- TENxMatrix(filepath = DataFile, group = paste0(name, "/", assay, "/", slot))
+    data <- HDF5Array::TENxMatrix(filepath = DataFile, group = paste0(name, "/", assay, "/", slot))
     gene_features <- gene_features[gene_features %in% colnames(data)]
   }
 
@@ -390,7 +387,7 @@ FetchH5 <- function(DataFile, MetaFile, name = NULL,
 
   if (length(c(metanames, meta_features)) > 0) {
     for (i in unique(c(metanames, meta_features))) {
-      meta <- h5read(MetaFile, name = paste0(name, "/metadata/", i))
+      meta <- rhdf5::h5read(MetaFile, name = paste0(name, "/metadata/", i))
       if (is.array(meta)) {
         if (is.integer(meta)) {
           meta <- as.integer(meta)
@@ -400,7 +397,7 @@ FetchH5 <- function(DataFile, MetaFile, name = NULL,
           meta <- as.character(meta)
         }
       }
-      meta_attr <- h5readAttributes(MetaFile, name = paste0(name, "/metadata/", i))
+      meta_attr <- rhdf5::h5readAttributes(MetaFile, name = paste0(name, "/metadata/", i))
       if ("levels" %in% names(meta_attr)) {
         meta <- factor(meta, levels = meta_attr$levels)
       }
@@ -414,8 +411,8 @@ FetchH5 <- function(DataFile, MetaFile, name = NULL,
       stop("Can not find the reduction: ", as.character(reduction))
     }
     for (i in reduction) {
-      reduction <- as.matrix(h5read(MetaFile, name = paste0(name, "/reductions/", i)))
-      reduction_attr <- h5readAttributes(MetaFile, name = paste0(name, "/reductions/", i))
+      reduction <- as.matrix(rhdf5::h5read(MetaFile, name = paste0(name, "/reductions/", i)))
+      reduction_attr <- rhdf5::h5readAttributes(MetaFile, name = paste0(name, "/reductions/", i))
       rownames(reduction) <- all_cells
       colnames(reduction) <- paste0(as.character(reduction_attr$key), seq_len(ncol(reduction)))
       srt_tmp@reductions[[i]] <- CreateDimReducObject(
@@ -488,7 +485,6 @@ FetchH5 <- function(DataFile, MetaFile, name = NULL,
 #' # deployApp("./SCExplorer")
 #' }
 #'
-#' @importFrom shiny shinyAppDir
 #' @export
 RunSCExplorer <- function(base_dir = "SCExplorer",
                           DataFile = "Data.hdf5",
@@ -514,6 +510,7 @@ RunSCExplorer <- function(base_dir = "SCExplorer",
                           style_script = require("styler", quietly = TRUE),
                           overwrite = FALSE,
                           return_app = TRUE) {
+  check_R(c("shiny", "shinycssloaders"))
   DataFile_full <- paste0(base_dir, "/", DataFile)
   MetaFile_full <- paste0(base_dir, "/", MetaFile)
   if (!file.exists(DataFile_full) || !file.exists(MetaFile_full)) {
@@ -1102,6 +1099,7 @@ RunSCExplorer <- function(base_dir = "SCExplorer",
       if (!requireNamespace('devtools', quietly = TRUE)) {install.packages('devtools')}
       devtools::install_github('zhanghao-njmu/SCP')
     }",
+    "options(SCP_virtualenv_init = FALSE)",
     "SCP::check_R(c('shiny', 'shinycssloaders'))",
     "library(shiny)",
     main_code
@@ -1130,7 +1128,7 @@ RunSCExplorer <- function(base_dir = "SCExplorer",
   unlink(temp)
 
   if (isTRUE(return_app)) {
-    app <- shinyAppDir(base_dir)
+    app <- shiny::shinyAppDir(base_dir)
     return(app)
   } else {
     return(invisible(NULL))

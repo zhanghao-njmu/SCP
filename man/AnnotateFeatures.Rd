@@ -8,12 +8,10 @@ AnnotateFeatures(
   srt,
   species = "Homo_sapiens",
   IDtype = c("symbol", "ensembl_id", "entrez_id"),
-  anno_TF = FALSE,
-  anno_LR = FALSE,
-  anno_db = FALSE,
-  db = "GO_BP",
+  db = "TF",
   db_update = FALSE,
   db_version = "latest",
+  convert_species = FALSE,
   Ensembl_version = 103,
   mirror = NULL,
   gtf = NULL,
@@ -24,18 +22,21 @@ AnnotateFeatures(
 )
 }
 \arguments{
+\item{mirror}{}
+
 \item{anno_TF}{Whether to add the transcription factor/cofactor annotation.}
 
 \item{anno_LR}{Whether to add the ligand/receptor annotation.}
-
-\item{mirror}{}
 }
 \description{
 AnnotateFeatures
 }
 \examples{
 data("pancreas_sub")
-pancreas_sub <- AnnotateFeatures(pancreas_sub, species = "Mus_musculus", anno_TF = TRUE, anno_LR = TRUE, anno_db = TRUE, db = "PFAM")
+pancreas_sub <- AnnotateFeatures(pancreas_sub,
+  species = "Mus_musculus", IDtype = "symbol",
+  db = c("Chromosome", "GeneType", "Enzyme", "TF", "SP", "CellTalk", "PFAM")
+)
 head(pancreas_sub[["RNA"]]@meta.features)
 
 ## Annotate features using a GTF file

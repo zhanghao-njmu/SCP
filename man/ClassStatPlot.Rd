@@ -9,7 +9,8 @@ ClassStatPlot(
   stat.by = "orig.ident",
   group.by = NULL,
   split.by = NULL,
-  cells_subset = NULL,
+  cells = NULL,
+  NA_color = "grey",
   keep_empty = FALSE,
   stat_single = FALSE,
   stat_level = NULL,
@@ -57,17 +58,19 @@ ClassStatPlot(pancreas_sub, stat.by = "Phase", plot_type = "rose", label = TRUE)
 ClassStatPlot(pancreas_sub, stat.by = "Phase", plot_type = "ring", label = TRUE)
 ClassStatPlot(pancreas_sub, stat.by = "Phase", plot_type = "pie", label = TRUE)
 
-ClassStatPlot(pancreas_sub, stat.by = "Phase", group.by = "CellType")
+ClassStatPlot(pancreas_sub, stat.by = "Phase", group.by = "CellType", plot_type = "bar", label = TRUE)
 ClassStatPlot(pancreas_sub, stat.by = "Phase", group.by = "CellType", plot_type = "rose", label = TRUE)
 ClassStatPlot(pancreas_sub, stat.by = "Phase", group.by = "CellType", plot_type = "ring", label = TRUE)
 ClassStatPlot(pancreas_sub, stat.by = "Phase", group.by = "CellType", plot_type = "area", label = TRUE)
 
 ClassStatPlot(pancreas_sub, stat.by = "Phase", group.by = "CellType", plot_type = "bar", label = TRUE, stat_single = TRUE)
 
+ClassStatPlot(pancreas_sub, stat.by = "Phase", group.by = "CellType", stat_type = "count", plot_type = "bar", label = TRUE)
 ClassStatPlot(pancreas_sub, stat.by = "Phase", group.by = "CellType", stat_type = "count", plot_type = "rose", label = TRUE)
 ClassStatPlot(pancreas_sub, stat.by = "Phase", group.by = "CellType", stat_type = "count", plot_type = "ring", label = TRUE)
 ClassStatPlot(pancreas_sub, stat.by = "Phase", group.by = "CellType", stat_type = "count", plot_type = "area", label = TRUE)
 
+ClassStatPlot(pancreas_sub, stat.by = "Phase", group.by = "CellType", stat_type = "count", plot_type = "bar", position = "dodge", label = TRUE)
 ClassStatPlot(pancreas_sub, stat.by = "Phase", group.by = "CellType", stat_type = "count", plot_type = "rose", position = "dodge", label = TRUE)
 ClassStatPlot(pancreas_sub, stat.by = "Phase", group.by = "CellType", stat_type = "count", plot_type = "ring", position = "dodge", label = TRUE)
 ClassStatPlot(pancreas_sub, stat.by = "Phase", group.by = "CellType", stat_type = "count", plot_type = "area", position = "dodge", label = TRUE, alpha = 0.8)
@@ -77,7 +80,7 @@ ClassStatPlot(pancreas_sub, stat.by = c("CellType", "Phase"), plot_type = "sanke
 
 ClassStatPlot(pancreas_sub,
   stat.by = c("CellType", "Phase"), plot_type = "venn",
-  stat_level = list(CellType = c("Ductal", "Ngn3 low EP", "Ngn3 high EP"), Phase = "G2M")
+  stat_level = list(CellType = c("Ductal", "Ngn3 low EP"), Phase = "S")
 )
 
 pancreas_sub$Ductal <- ifelse(pancreas_sub$CellType \%in\% c("Ductal", "Ngn3 low EP", "Ngn3 high EP"), TRUE, FALSE)

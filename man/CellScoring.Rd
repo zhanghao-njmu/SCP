@@ -6,7 +6,18 @@
 \usage{
 CellScoring(
   srt,
-  features,
+  features = NULL,
+  IDtype = "symbol",
+  species = "Homo_sapiens",
+  db = "GO_BP",
+  termnames = NULL,
+  db_update = FALSE,
+  db_version = "latest",
+  convert_species = FALSE,
+  Ensembl_version = 103,
+  mirror = NULL,
+  minGSSize = 10,
+  maxGSSize = 500,
   ncores = 1,
   method = "Seurat",
   classification = TRUE,
@@ -14,6 +25,7 @@ CellScoring(
   slot = "data",
   assay = "RNA",
   new_assay = FALSE,
+  seed = 11,
   ...
 )
 }
@@ -27,9 +39,18 @@ Cell classification
 data("pancreas_sub")
 ccgenes <- CC_GenePrefetch("Mus_musculus")
 pancreas_sub <- CellScoring(
-  srt = pancreas_sub, nbin = 10, name = "CC",
-  features = list(S = ccgenes$cc_S_genes, G2M = ccgenes$cc_G2M_genes)
+  srt = pancreas_sub,
+  features = list(S = ccgenes$cc_S_genes, G2M = ccgenes$cc_G2M_genes),
+  method = "Seurat", nbin = 10, name = "CC"
 )
 ClassDimPlot(pancreas_sub, "CC_classification")
 ExpDimPlot(pancreas_sub, "CC_G2M")
+
+pancreas_sub <- CellScoring(
+  srt = pancreas_sub,
+  db = "GO_BP", species = "Mus_musculus",
+  minGSSize = 50, maxGSSize = 100,
+  method = "AUCell", name = "GO_BP", new_assay = TRUE
+)
+
 }

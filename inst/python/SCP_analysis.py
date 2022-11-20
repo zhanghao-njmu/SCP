@@ -7,8 +7,7 @@ def SCVELO(adata=None, h5ad=None, group_by=None, n_jobs=1,
           arrow_size=5, arrow_length=5,arrow_density=0.5,
           denoise=False,denoise_topn=3,kinetics=False,kinetics_topn=100,
           calculate_velocity_genes=False,
-          s_genes=None, g2m_genes=None, axis="equal",
-          show_plot=True, dpi=300, save=False, dirpath="./", fileprefix=""):
+          show_plot=True, axis="equal", dpi=300, save=False, dirpath="./", fileprefix=""):
   import matplotlib.pyplot as plt
   import scvelo as scv
   import scanpy as sc
@@ -294,20 +293,19 @@ def SCVELO(adata=None, h5ad=None, group_by=None, n_jobs=1,
     
     # Cell cycle  
     # if s_genes is not None and g2m_genes is not None:
-    scv.tl.score_genes_cell_cycle(adata, s_genes=s_genes, g2m_genes=g2m_genes)
+    # scv.tl.score_genes_cell_cycle(adata, s_genes=s_genes, g2m_genes=g2m_genes)
     # scv.pl.scatter(adata, basis=basis, color_gradients=('S_score', 'G2M_score'), smooth=True, legend_loc="best", save=False, show=False)
     # plt.axis(axis);
     # if show_plot is True:
     #  plt.show() 
     # if save:
     #  plt.savefig('.'.join(filter(None, [fileprefix, "cycle_score.png"])), dpi=dpi)
-          
-    scv.pl.scatter(adata, basis=basis, color='phase',legend_loc="best",save=False, show=False)
-    plt.axis(axis) 
-    if show_plot is True:
-      plt.show()
-    if save:    
-      plt.savefig('.'.join(filter(None, [fileprefix, "cycle_phase.png"])), dpi=dpi)
+    # scv.pl.scatter(adata, basis=basis, color='phase',legend_loc="best",save=False, show=False)
+    # plt.axis(axis) 
+    # if show_plot is True:
+    #   plt.show()
+    # if save:    
+    #   plt.savefig('.'.join(filter(None, [fileprefix, "cycle_phase.png"])), dpi=dpi)
 
   finally:
       os.chdir(prevdir)

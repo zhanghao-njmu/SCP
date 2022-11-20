@@ -147,7 +147,6 @@ RunNMF.Assay <- function(object, assay = NULL, slot = "data", features = NULL, n
 #' @param maxit
 #' @param ...
 #'
-#' @importFrom RcppML nmf
 #' @importFrom utils capture.output
 #' @importFrom Matrix t
 #' @importFrom Seurat CreateDimReducObject
@@ -169,8 +168,9 @@ RunNMF.default <- function(object, assay = NULL, slot = "data", nbes = 50,
   }
   nbes <- min(nbes, nrow(x = object) - 1)
   if (nmf.method == "RcppML") {
+    check_R("RcppML")
     require("Matrix", quietly = TRUE)
-    nmf.results <- nmf(
+    nmf.results <- RcppML::nmf(
       A = t(object), k = nbes, tol = tol, maxit = maxit,
       seed = seed.use, verbose = verbose, ...
     )
@@ -592,19 +592,19 @@ RunDM.Seurat <- function(object,
 #' @importFrom utils capture.output
 #' @importFrom Seurat CreateDimReducObject
 #' @importFrom rlang "%||%"
-#' @importFrom destiny DiffusionMap
 #' @export
 #' @method RunDM matrix
 #'
 RunDM.matrix <- function(object, ndcs = 2, sigma = "local", k = 30, dist.method = "euclidean",
                          assay = NULL, slot = "data",
                          reduction.key = "DM_", seed.use = 42, verbose = TRUE, ...) {
+  check_R("destiny")
   if (!is.null(x = seed.use)) {
     set.seed(seed = seed.use)
   }
   ndcs <- min(ndcs, nrow(x = object) - 1)
   x <- as.matrix(object)
-  dm.results <- DiffusionMap(data = x, n_eigs = ndcs, sigma = sigma, k = k, distance = dist.method, verbose = verbose)
+  dm.results <- destiny::DiffusionMap(data = x, n_eigs = ndcs, sigma = sigma, k = k, distance = dist.method, verbose = verbose)
   # set.seed(11);plot(dm.results)
   # knn <- get_knn(NULL, dists, k, distance, knn_params,verbose)
   # gene.relevance <- gene_relevance(coords=dm.results@eigenvectors,verbose=verbose)
@@ -663,11 +663,11 @@ RunDM.matrix <- function(object, ndcs = 2, sigma = "local", k = 30, dist.method 
 #' @importFrom utils capture.output
 #' @importFrom Seurat CreateDimReducObject
 #' @importFrom rlang "%||%"
-#' @importFrom destiny DiffusionMap
 #' @export
 RunDM.dist <- function(object,
                        ndcs = 2, sigma = "local", k = 30, slot = "data",
                        assay = NULL, reduction.key = "DM_", verbose = TRUE, seed.use = 42, ...) {
+  check_R("destiny")
   if (!is.null(x = seed.use)) {
     set.seed(seed = seed.use)
   }

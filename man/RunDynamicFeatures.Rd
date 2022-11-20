@@ -34,8 +34,7 @@ ht_result <- DynamicHeatmap(
   srt = pancreas_sub,
   lineages = c("Lineage1", "Lineage2"),
   cell_annotation = "SubCellType",
-  n_split = 6, reverse_ht = "Lineage1",
-  height = 5, width = 7, use_raster = FALSE
+  n_split = 6, reverse_ht = "Lineage1"
 )
 ht_result$plot
 

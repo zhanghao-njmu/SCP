@@ -65,6 +65,7 @@ EnrichmentPlot
 }
 \examples{
 data("pancreas_sub")
+pancreas_sub <- Standard_SCP(pancreas_sub)
 pancreas_sub <- RunDEtest(pancreas_sub, group_by = "CellType")
 pancreas_sub <- RunEnrichment(srt = pancreas_sub, group_by = "CellType", db = "GO_BP", species = "Mus_musculus")
 EnrichmentPlot(pancreas_sub, group_by = "CellType", plot_type = "bar")
@@ -74,7 +75,7 @@ EnrichmentPlot(pancreas_sub, group_by = "CellType", group_use = c("Ductal", "End
 EnrichmentPlot(pancreas_sub, group_by = "CellType", group_use = c("Ductal", "Endocrine"), plot_type = "wordcloud")
 EnrichmentPlot(pancreas_sub, group_by = "CellType", group_use = c("Ductal", "Endocrine"), plot_type = "wordcloud", word_type = "feature")
 
-pancreas_sub <- RunEnrichment(srt = pancreas_sub, group_by = "CellType", db = c("MP", "DO", "DGI"), convert_species = TRUE, species = "Mus_musculus")
-EnrichmentPlot(pancreas_sub, db = c("MP", "DO", "DGI"), group_by = "CellType", group_use = c("Ductal", "Endocrine"), plot_type = "lollipop")
+pancreas_sub <- RunEnrichment(srt = pancreas_sub, group_by = "CellType", db = c("MP", "DO"), convert_species = TRUE, species = "Mus_musculus")
+EnrichmentPlot(pancreas_sub, db = c("MP", "DO"), group_by = "CellType", group_use = c("Ductal", "Endocrine"), plot_type = "lollipop")
 
 }
