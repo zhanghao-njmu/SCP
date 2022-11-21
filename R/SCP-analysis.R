@@ -37,7 +37,9 @@
 #' )
 #' homologs_counts <- counts[res$geneID_expand[, "from_geneID"], ]
 #' rownames(homologs_counts) <- res$geneID_expand[, "symbol"]
-#' homologs_counts <- aggregate(homologs_counts, row.names(homologs_counts))
+#' homologs_counts <- aggregate(homologs_counts, by = list(row.names(homologs_counts)), FUN = sum)
+#' rownames(homologs_counts) <- homologs_counts[, 1]
+#' homologs_counts <- as(as.matrix(homologs_counts[, -1]), "dgCMatrix")
 #' homologs_counts
 #'
 #' @importFrom dplyr "%>%" group_by mutate .data
@@ -460,7 +462,8 @@ CC_GenePrefetch <- function(species, Ensembl_version = 103, mirror = NULL, attem
 #' @importFrom Seurat AddModuleScore AddMetaData
 #' @export
 CellScoring <- function(srt, features, ncores = 1, method = "Seurat", classification = TRUE,
-                        name = "", slot = "data", assay = "RNA", new_assay = FALSE, ...) {
+                        name = "", slot = "data", assay = "RNA", new_assay = FALSE, seed = 11, ...) {
+  set.seed(seed)
   if (!is.list(features) || length(names(features)) == 0) {
     stop("'features' must be named list")
   }
@@ -480,7 +483,11 @@ CellScoring <- function(srt, features, ncores = 1, method = "Seurat", classifica
       assay = assay,
       ...
     )
-    scores <- srt_tmp[[paste0(name, seq_along(features))]]
+    if (name != "") {
+      scores <- srt_tmp[[paste0(name, seq_along(features))]]
+    } else {
+      scores <- srt_tmp[[paste0("X", seq_along(features))]]
+    }
   } else if (method == "UCell") {
     check_R(pkgs = "UCell")
     srt_tmp <- UCell::AddModuleScore_UCell(
@@ -524,6 +531,165 @@ CellScoring <- function(srt, features, ncores = 1, method = "Seurat", classifica
   return(srt)
 }
 
+#' @importFrom SeuratObject PackageCheck FetchData WhichCells SetIdent Idents
+#' @importFrom Seurat FindMarkers FoldChange
+FindConservedMarkers2 <- function(object, grouping.var, ident.1, ident.2 = NULL, cells.1 = NULL, cells.2 = NULL,
+                                  test.use = "wilcox", logfc.threshold = 0.25, base = 2, pseudocount.use = 1, mean.fxn = NULL,
+                                  min.pct = 0.1, min.diff.pct = -Inf, max.cells.per.ident = Inf, latent.vars = NULL, only.pos = FALSE,
+                                  assay = "RNA", slot = "data", min.cells.group = 3, min.cells.feature = 3, meta.method = metap::maximump,
+                                  norm.method = "LogNormalize", verbose = TRUE, ...) {
+  metap.installed <- PackageCheck("metap", error = FALSE)
+  if (!metap.installed[1]) {
+    stop("Please install the metap package to use FindConservedMarkers.",
+      "\nThis can be accomplished with the following commands: ",
+      "\n----------------------------------------", "\ninstall.packages('BiocManager')",
+      "\nBiocManager::install('multtest')", "\ninstall.packages('metap')",
+      "\n----------------------------------------",
+      call. = FALSE
+    )
+  }
+  if (!is.function(x = meta.method)) {
+    stop("meta.method should be a function from the metap package. Please see https://cran.r-project.org/web/packages/metap/metap.pdf for a detailed description of the available functions.")
+  }
+  object.var <- FetchData(object = object, vars = grouping.var)
+  levels.split <- names(x = sort(x = table(object.var[, 1])))
+  num.groups <- length(levels.split)
+  cells <- list()
+  for (i in 1:num.groups) {
+    cells[[i]] <- rownames(x = object.var[object.var[, 1] == levels.split[i], , drop = FALSE])
+  }
+  marker.test <- list()
+  if (is.null(cells.1)) {
+    cells.1 <- WhichCells(object = object, idents = ident.1)
+    if (!is.null(ident.2)) {
+      cells.2 <- cells.2 %||% WhichCells(object = object, idents = ident.2)
+    } else {
+      cells.2 <- setdiff(colnames(object), cells.1)
+    }
+    object <- SetIdent(object = object, cells = colnames(x = object), value = paste(Idents(object = object), object.var[, 1], sep = "_"))
+    ident.2.save <- ident.2
+    for (i in 1:num.groups) {
+      level.use <- levels.split[i]
+      ident.use.1 <- paste(ident.1, level.use, sep = "_")
+      ident.use.1.exists <- ident.use.1 %in% Idents(object = object)
+      if (!all(ident.use.1.exists)) {
+        bad.ids <- ident.1[!ident.use.1.exists]
+        warning("Identity: ", paste(bad.ids, collapse = ", "), " not present in group ", level.use, ". Skipping ", level.use, call. = FALSE, immediate. = TRUE)
+        next
+      }
+      ident.2 <- ident.2.save
+      cells.1.use <- WhichCells(object = object, idents = ident.use.1)
+      if (length(cells.1.use) < min.cells.group) {
+        warning(level.use, " has fewer than ", min.cells.group, " cells in Identity: ", paste(ident.1, collapse = ", "), ". Skipping ", level.use, call. = FALSE, immediate. = TRUE)
+        next
+      }
+      if (is.null(x = ident.2)) {
+        cells.2.use <- setdiff(x = cells[[i]], y = cells.1.use)
+        ident.use.2 <- names(x = which(x = table(Idents(object = object)[cells.2.use]) > 0))
+        ident.2 <- gsub(pattern = paste0("_", level.use), replacement = "", x = ident.use.2)
+        if (length(x = ident.use.2) == 0) {
+          stop(paste("Only one identity class present:", ident.1))
+        }
+      } else {
+        ident.use.2 <- paste(ident.2, level.use, sep = "_")
+        cells.2.use <- WhichCells(object = object, idents = ident.use.2)
+      }
+      if (verbose) {
+        message("Testing group ", level.use, ": (", paste(ident.1, collapse = ", "), ") vs (", paste(ident.2, collapse = ", "), ")")
+      }
+      ident.use.2.exists <- ident.use.2 %in% Idents(object = object)
+      if (!all(ident.use.2.exists)) {
+        bad.ids <- ident.2[!ident.use.2.exists]
+        warning("Identity: ", paste(bad.ids, collapse = ", "),
+          " not present in group ", level.use, ". Skipping ",
+          level.use,
+          call. = FALSE, immediate. = TRUE
+        )
+        next
+      }
+      marker.test[[i]] <- FindMarkers(
+        object = Assays(object, assay), slot = slot, cells.1 = cells.1.use, cells.2 = cells.2.use,
+        test.use = test.use, logfc.threshold = logfc.threshold,
+        min.pct = min.pct, min.diff.pct = min.diff.pct, max.cells.per.ident = max.cells.per.ident,
+        min.cells.group = min.cells.group, min.cells.feature = min.cells.feature,
+        norm.method = norm.method, base = base, pseudocount.use = pseudocount.use, mean.fxn = mean.fxn,
+        latent.vars = latent.vars, only.pos = only.pos,
+        verbose = verbose, ...
+      )
+      names(x = marker.test)[i] <- levels.split[i]
+    }
+  } else {
+    for (i in 1:num.groups) {
+      level.use <- levels.split[i]
+      cells.1.use <- intersect(cells[[i]], cells.1)
+      if (length(cells.1.use) < min.cells.group) {
+        warning(level.use, " has fewer than ", min.cells.group, " cells. Skipping ", level.use, call. = FALSE, immediate. = TRUE)
+        next
+      }
+      if (is.null(x = cells.2)) {
+        cells.2.use <- setdiff(x = cells[[i]], y = cells.1.use)
+      } else {
+        cells.2.use <- intersect(cells[[i]], cells.2)
+      }
+      if (verbose) {
+        message("Testing group ", level.use, ": (", paste("cells.1", collapse = ", "), ") vs (", paste("cells.2", collapse = ", "), ")")
+      }
+      marker.test[[i]] <- FindMarkers(
+        object = Assays(object, assay), slot = slot, cells.1 = cells.1.use, cells.2 = cells.2.use,
+        test.use = test.use, logfc.threshold = logfc.threshold,
+        min.pct = min.pct, min.diff.pct = min.diff.pct, max.cells.per.ident = max.cells.per.ident,
+        min.cells.group = min.cells.group, min.cells.feature = min.cells.feature,
+        norm.method = norm.method, base = base, pseudocount.use = pseudocount.use, mean.fxn = mean.fxn,
+        latent.vars = latent.vars, only.pos = only.pos,
+        verbose = verbose, ...
+      )
+      names(x = marker.test)[i] <- levels.split[i]
+    }
+  }
+  marker.test <- marker.test[!sapply(marker.test, is.null)]
+  if (length(marker.test) == 0) {
+    warning("No group was tested", call. = FALSE, immediate. = TRUE)
+    return(NULL)
+  }
+  genes.conserved <- Reduce(f = intersect, x = lapply(X = marker.test, FUN = function(x) {
+    return(rownames(x = x))
+  }))
+  markers.conserved <- list()
+  for (i in 1:length(x = marker.test)) {
+    markers.conserved[[i]] <- marker.test[[i]][genes.conserved, ]
+    colnames(x = markers.conserved[[i]]) <- paste(names(x = marker.test)[i], colnames(x = markers.conserved[[i]]), sep = "_")
+  }
+  markers.combined <- Reduce(cbind, markers.conserved)
+  fc <- FoldChange(Assays(object, assay), slot = slot, cells.1 = cells.1, cells.2 = cells.2, features = genes.conserved, norm.method = norm.method, base = base, pseudocount.use = pseudocount.use, mean.fxn = mean.fxn)
+  markers.combined <- cbind(markers.combined, fc[genes.conserved, ])
+  logFC.codes <- colnames(x = markers.combined)[grepl(pattern = "*avg_log.*FC$", x = colnames(x = markers.combined))]
+  if (isTRUE(only.pos)) {
+    markers.combined <- markers.combined[apply(markers.combined[, logFC.codes] > 0, 1, all), ]
+  } else {
+    markers.combined <- markers.combined[apply(markers.combined[, logFC.codes] < 0, 1, all) | apply(markers.combined[, logFC.codes] > 0, 1, all), ]
+  }
+  pval.codes <- colnames(x = markers.combined)[grepl(pattern = "*_p_val$", x = colnames(x = markers.combined))]
+  if (length(x = pval.codes) > 1) {
+    markers.combined$max_pval <- apply(X = markers.combined[, pval.codes, drop = FALSE], MARGIN = 1, FUN = max)
+    combined.pval <- data.frame(cp = apply(X = markers.combined[, pval.codes, drop = FALSE], MARGIN = 1, FUN = function(x) {
+      return(meta.method(x)$p)
+    }))
+    meta.method.name <- as.character(x = formals()$meta.method)
+    if (length(x = meta.method.name) == 3) {
+      meta.method.name <- meta.method.name[3]
+    }
+    colnames(x = combined.pval) <- paste0(meta.method.name, "_p_val")
+    markers.combined <- cbind(markers.combined, combined.pval)
+    markers.combined[, "p_val"] <- markers.combined[, paste0(meta.method.name, "_p_val")]
+    markers.combined <- markers.combined[order(markers.combined[, paste0(meta.method.name, "_p_val")]), ]
+  } else {
+    markers.combined[, "max_pval"] <- markers.combined[, "p_val"] <- markers.combined[, pval.codes]
+    warning("Only a single group was tested", call. = FALSE, immediate. = TRUE)
+  }
+  return(markers.combined)
+}
+
+
 #' Differential gene test
 #'
 #' @param srt A \code{Seurat} object
@@ -549,6 +715,14 @@ CellScoring <- function(srt, features, ncores = 1, method = "Seurat", classifica
 #' @param base
 #' @param min.diff.pct
 #' @param norm.method
+#' @param FindConservedMarkers
+#' @param grouping.var
+#' @param meta.method
+#' @param pseudocount.use
+#' @param mean.fxn
+#' @param min.cells.feature
+#' @param min.cells.group
+#' @param p.adjust.method
 #'
 #' @importFrom BiocParallel bplapply
 #' @importFrom dplyr bind_rows
@@ -558,11 +732,13 @@ CellScoring <- function(srt, features, ncores = 1, method = "Seurat", classifica
 #' @examples
 #' library(dplyr)
 #' data(pancreas_sub)
+#' pancreas_sub <- Standard_SCP(pancreas_sub)
 #' pancreas_sub <- RunDEtest(pancreas_sub, group_by = "CellType")
 #'
 #' # Heatmap
 #' de_filter <- filter(pancreas_sub@tools$DEtest_CellType$AllMarkers_wilcox, p_val_adj < 0.05 & avg_log2FC > 1)
-#' ExpHeatmap(pancreas_sub, features = de_filter$gene, feature_split = de_filter$group1, cell_split_by = "CellType")
+#' ht_result <- ExpHeatmap(pancreas_sub, features = de_filter$gene, feature_split = de_filter$group1, group.by = "CellType")
+#' ht_result$plot
 #'
 #' # Dot plot
 #' de_top <- de_filter %>%
@@ -570,15 +746,60 @@ CellScoring <- function(srt, features, ncores = 1, method = "Seurat", classifica
 #'   top_n(1, avg_log2FC) %>%
 #'   group_by(group1) %>%
 #'   top_n(3, avg_log2FC)
-#' ExpDotPlot(pancreas_sub, features = de_top$gene, feature_split = de_top$group1, cell_split_by = "CellType")
+#' GroupHeatmap(pancreas_sub, features = de_top$gene, feature_split = de_top$group1, group.by = "CellType")
+#'
+#' data("panc8_sub")
+#' panc8_sub <- Integration_SCP(panc8_sub, batch = "tech", integration_method = "Seurat")
+#' ClassDimPlot(panc8_sub, group.by = c("tech", "celltype"))
+#' panc8_sub <- RunDEtest(panc8_sub, group_by = "celltype", FindConservedMarkers = TRUE, grouping.var = "tech")
+#'
+#' # Heatmap
+#'
+#' # Dot plot
+#' conserved_filter <- filter(panc8_sub@tools$DEtest_celltype$ConservedMarkers_wilcox, p_val_adj < 0.05 & avg_log2FC > 1)
+#' conserved_top <- conserved_filter %>%
+#'   group_by(gene) %>%
+#'   top_n(1, avg_log2FC) %>%
+#'   group_by(group1) %>%
+#'   top_n(3, avg_log2FC)
+#'
+#' ExpDimPlot(panc8_sub,
+#'   features = conserved_top$gene[1], split.by = "tech",
+#'   cells.highlight = colnames(panc8_sub)[panc8_sub$celltype == conserved_top$group1[1]]
+#' )
+#'
 #' @export
 #'
 RunDEtest <- function(srt, group_by = NULL, group1 = NULL, group2 = NULL, cells1 = NULL, cells2 = NULL,
-                      FindAllMarkers = TRUE, FindPairedMarkers = FALSE,
-                      test.use = "wilcox", only.pos = TRUE,
-                      fc.threshold = 1.5, base = 2, min.pct = 0.1, min.diff.pct = -Inf, max.cells.per.ident = Inf, latent.vars = NULL,
-                      norm.method = "LogNormalize",
-                      slot = "data", assay = "RNA", BPPARAM = BiocParallel::bpparam(), progressbar = TRUE, force = FALSE, ...) {
+                      FindAllMarkers = TRUE, FindPairedMarkers = FALSE, FindConservedMarkers = FALSE,
+                      grouping.var = NULL, meta.method = metap::maximump,
+                      test.use = "wilcox", only.pos = TRUE, fc.threshold = 1.5, base = 2, pseudocount.use = 1, mean.fxn = NULL,
+                      min.pct = 0.1, min.diff.pct = -Inf, max.cells.per.ident = Inf, latent.vars = NULL,
+                      min.cells.feature = 3, min.cells.group = 3,
+                      norm.method = "LogNormalize", p.adjust.method = "bonferroni", slot = "data", assay = "RNA",
+                      BPPARAM = BiocParallel::bpparam(), progressbar = TRUE, force = FALSE, ...) {
+  if (isTRUE(FindConservedMarkers)) {
+    check_R(c("multtest", "metap"))
+    if (is.null(grouping.var)) {
+      stop("'grouping.var' must be provided when performing FindConservedMarkers")
+    }
+  }
+  status <- check_DataType(srt, slot = slot, assay = assay)
+  if (slot == "counts" && status != "raw_counts") {
+    stop("Data in the 'counts' slot is not raw counts.")
+  }
+  if (slot == "data" && status != "log_normalized_counts") {
+    if (status == "raw_normalized_counts") {
+      warning("Data in the 'data' slot is raw_normalized_counts. Perform log1p on it.", immediate. = TRUE)
+      srt[[assay]]@data <- log1p(srt[[assay]]@data)
+    }
+    if (status == "raw_counts") {
+      stop("Data in the 'data' slot is raw counts. You need to perform NormalizeData before testing.")
+    }
+    if (status == "unknown") {
+      stop("Data in the 'data' slot is unknown. Please check the data type.")
+    }
+  }
   if ("progressbar" %in% names(BPPARAM)) {
     BPPARAM[["progressbar"]] <- progressbar
   }
@@ -598,14 +819,13 @@ RunDEtest <- function(srt, group_by = NULL, group1 = NULL, group2 = NULL, cells1
       }
       cells1 <- colnames(srt)[srt[[group_by, drop = TRUE]] %in% group1]
     }
-    if (is.null(cells2) & !is.null(group2)) {
+    if (is.null(cells2) && !is.null(group2)) {
       cells2 <- colnames(srt)[srt[[group_by, drop = TRUE]] %in% group2]
     }
     if (!all(cells1 %in% colnames(srt))) {
       stop("cells1 has some cells not in the Seurat object.")
     }
     if (is.null(cells2)) {
-      message("Use the remaining cells to compare with.")
       cells2 <- colnames(srt)[!colnames(srt) %in% cells1]
       group2 <- "others"
     }
@@ -616,41 +836,93 @@ RunDEtest <- function(srt, group_by = NULL, group1 = NULL, group2 = NULL, cells1
       stop("Cell groups must have more than 3 cells")
     }
 
-    cat("Perform FindMarkers(", test.use, ") for custom cell groups...\n", sep = "")
-    markers <- FindMarkers(
-      object = Assays(srt, assay), slot = slot,
-      cells.1 = cells1,
-      cells.2 = cells2,
-      test.use = test.use,
-      logfc.threshold = log(fc.threshold, base = base),
-      min.pct = min.pct,
-      min.diff.pct = min.diff.pct,
-      max.cells.per.ident = max.cells.per.ident,
-      latent.vars = latent.vars,
-      only.pos = only.pos,
-      norm.method = norm.method,
-      verbose = FALSE,
-      ...
-    )
-    if (nrow(markers) > 0) {
-      markers[, "gene"] <- rownames(markers)
-      markers[, "group1"] <- group1 %||% "group1"
-      markers[, "group2"] <- group2 %||% "group2"
-      rownames(markers) <- NULL
-      markers[, "group1"] <- factor(markers[, "group1"], levels = unique(markers[, "group1"]))
-      if ("p_val" %in% colnames(markers)) {
-        markers[, "p_val_adj"] <- p.adjust(markers[, "p_val"], method = "BH")
+    if (isTRUE(FindAllMarkers)) {
+      cat("Perform FindMarkers(", test.use, ") for custom cell groups...\n", sep = "")
+      markers <- FindMarkers(
+        object = Assays(srt, assay), slot = slot,
+        cells.1 = cells1,
+        cells.2 = cells2,
+        test.use = test.use,
+        logfc.threshold = log(fc.threshold, base = base),
+        base = base,
+        min.pct = min.pct,
+        min.diff.pct = min.diff.pct,
+        max.cells.per.ident = max.cells.per.ident,
+        min.cells.feature = min.cells.feature,
+        min.cells.group = min.cells.group,
+        latent.vars = latent.vars,
+        only.pos = only.pos,
+        norm.method = norm.method,
+        pseudocount.use = pseudocount.use,
+        mean.fxn = mean.fxn,
+        verbose = FALSE,
+        ...
+      )
+      if (!is.null(markers) && nrow(markers) > 0) {
+        markers[, "gene"] <- rownames(markers)
+        markers[, "group1"] <- group1 %||% "group1"
+        markers[, "group2"] <- group2 %||% "group2"
+        rownames(markers) <- NULL
+        markers[, "group1"] <- factor(markers[, "group1"], levels = unique(markers[, "group1"]))
+        if ("p_val" %in% colnames(markers)) {
+          markers[, "p_val_adj"] <- p.adjust(markers[, "p_val"], method = p.adjust.method)
+        }
+        markers[, "test_group_number"] <- as.integer(table(markers[["gene"]])[markers[, "gene"]])
+        MarkersMatrix <- as.data.frame.matrix(table(markers[, c("gene", "group1")]))
+        markers[, "test_group"] <- apply(MarkersMatrix, 1, function(x) {
+          paste0(colnames(MarkersMatrix)[x > 0], collapse = ";")
+        })[markers[, "gene"]]
+        srt@tools[["DEtest_custom"]][[paste0("AllMarkers_", test.use)]] <- markers
+        srt@tools[["DEtest_custom"]][["cells1"]] <- cells1
+        srt@tools[["DEtest_custom"]][["cells2"]] <- cells2
+      } else {
+        warning("No markers found.", immediate. = TRUE)
       }
-      markers[, "test_group_number"] <- as.integer(table(markers[["gene"]])[markers[, "gene"]])
-      MarkersMatrix <- as.data.frame.matrix(table(markers[, c("gene", "group1")]))
-      markers[, "test_group"] <- apply(MarkersMatrix, 1, function(x) {
-        paste0(colnames(MarkersMatrix)[x > 0], collapse = ";")
-      })[markers[, "gene"]]
-      srt@tools[["DEtest_custom"]][[paste0("AllMarkers_", test.use)]] <- markers
-      srt@tools[["DEtest_custom"]][["cells1"]] <- cells1
-      srt@tools[["DEtest_custom"]][["cells2"]] <- cells2
-    } else {
-      warning("No markers found.", immediate. = TRUE)
+    }
+    if (isTRUE(FindConservedMarkers)) {
+      cat("Perform FindConservedMarkers(", test.use, ") for custom cell groups...\n", sep = "")
+      markers <- FindConservedMarkers2(
+        object = srt, assay = assay, slot = slot,
+        cells.1 = cells1,
+        cells.2 = cells2,
+        grouping.var = grouping.var,
+        test.use = test.use,
+        logfc.threshold = log(fc.threshold, base = base),
+        base = base,
+        min.pct = min.pct,
+        min.diff.pct = min.diff.pct,
+        max.cells.per.ident = max.cells.per.ident,
+        min.cells.feature = min.cells.feature,
+        min.cells.group = min.cells.group,
+        latent.vars = latent.vars,
+        only.pos = only.pos,
+        norm.method = norm.method,
+        meta.method = meta.method,
+        pseudocount.use = pseudocount.use,
+        mean.fxn = mean.fxn,
+        verbose = FALSE,
+        ...
+      )
+      if (!is.null(markers) && nrow(markers) > 0) {
+        markers[, "gene"] <- rownames(markers)
+        markers[, "group1"] <- group1 %||% "group1"
+        markers[, "group2"] <- group2 %||% "group2"
+        rownames(markers) <- NULL
+        markers[, "group1"] <- factor(markers[, "group1"], levels = unique(markers[, "group1"]))
+        if ("p_val" %in% colnames(markers)) {
+          markers[, "p_val_adj"] <- p.adjust(markers[, "p_val"], method = p.adjust.method)
+        }
+        markers[, "test_group_number"] <- as.integer(table(markers[["gene"]])[markers[, "gene"]])
+        MarkersMatrix <- as.data.frame.matrix(table(markers[, c("gene", "group1")]))
+        markers[, "test_group"] <- apply(MarkersMatrix, 1, function(x) {
+          paste0(colnames(MarkersMatrix)[x > 0], collapse = ";")
+        })[markers[, "gene"]]
+        srt@tools[["DEtest_custom"]][[paste0("ConservedMarkers_", test.use)]] <- markers
+        srt@tools[["DEtest_custom"]][["cells1"]] <- cells1
+        srt@tools[["DEtest_custom"]][["cells2"]] <- cells2
+      } else {
+        warning("No markers found.", immediate. = TRUE)
+      }
     }
   } else {
     if (is.null(group_by)) {
@@ -674,18 +946,20 @@ RunDEtest <- function(srt, group_by = NULL, group1 = NULL, group2 = NULL, cells1
       slot = slot,
       test.use = test.use,
       logfc.threshold = log(fc.threshold, base = base),
+      base = base,
       min.pct = min.pct,
       min.diff.pct = min.diff.pct,
-      max.cells.per.ident = Inf,
+      max.cells.per.ident = max.cells.per.ident,
+      min.cells.feature = min.cells.feature,
+      min.cells.group = min.cells.group,
       latent.vars = latent.vars,
       only.pos = only.pos,
       norm.method = norm.method,
-      verbose = FALSE
+      pseudocount.use = pseudocount.use,
+      mean.fxn = mean.fxn,
+      verbose = FALSE,
+      ...
     )
-    args2 <- as.list(match.call())[-1]
-    for (n in names(args2)[!names(args2) %in% names(formals())]) {
-      args1[[n]] <- args2[[n]]
-    }
 
     if (isTRUE(FindAllMarkers)) {
       cat("Perform FindAllMarkers(", test.use, ")...\n", sep = "")
@@ -693,13 +967,13 @@ RunDEtest <- function(srt, group_by = NULL, group1 = NULL, group2 = NULL, cells1
         cells.1 <- names(cell_group)[which(cell_group == group)]
         cells.2 <- names(cell_group)[which(cell_group != group)]
         # print(paste0(group," cells.1:",length(cells.1)," cells.2:",length(cells.2)))
-        if (length(cells.1) < 3 | length(cells.2) < 3) {
+        if (length(cells.1) < 3 || length(cells.2) < 3) {
           return(NULL)
         } else {
           args1[["cells.1"]] <- cells.1
           args1[["cells.2"]] <- cells.2
           markers <- do.call(FindMarkers, args1)
-          if (nrow(markers) > 0) {
+          if (!is.null(markers) && nrow(markers) > 0) {
             markers[, "gene"] <- rownames(markers)
             markers[, "group1"] <- as.character(group)
             markers[, "group2"] <- "others"
@@ -713,7 +987,7 @@ RunDEtest <- function(srt, group_by = NULL, group1 = NULL, group2 = NULL, cells1
       rownames(AllMarkers) <- NULL
       AllMarkers[, "group1"] <- factor(AllMarkers[, "group1"], levels = levels(cell_group))
       if ("p_val" %in% colnames(AllMarkers)) {
-        AllMarkers[, "p_val_adj"] <- p.adjust(AllMarkers[, "p_val"], method = "BH")
+        AllMarkers[, "p_val_adj"] <- p.adjust(AllMarkers[, "p_val"], method = p.adjust.method)
       }
       AllMarkers[, "test_group_number"] <- as.integer(table(AllMarkers[["gene"]])[AllMarkers[, "gene"]])
       AllMarkersMatrix <- as.data.frame.matrix(table(AllMarkers[, c("gene", "group1")]))
@@ -733,13 +1007,13 @@ RunDEtest <- function(srt, group_by = NULL, group1 = NULL, group2 = NULL, cells1
         PairedMarkers <- bplapply(seq_len(nrow(pair)), function(i) {
           cells.1 <- names(cell_group)[which(cell_group == pair[i, 1])]
           cells.2 <- names(cell_group)[which(cell_group == pair[i, 2])]
-          if (length(cells.1) < 3 | length(cells.2) < 3) {
+          if (length(cells.1) < 3 || length(cells.2) < 3) {
             return(NULL)
           } else {
             args1[["cells.1"]] <- cells.1
             args1[["cells.2"]] <- cells.2
             markers <- do.call(FindMarkers, args1)
-            if (nrow(markers) > 0) {
+            if (!is.null(markers) && nrow(markers) > 0) {
               markers[, "gene"] <- rownames(markers)
               markers[, "group1"] <- as.character(pair[i, 1])
               markers[, "group2"] <- as.character(pair[i, 2])
@@ -753,7 +1027,7 @@ RunDEtest <- function(srt, group_by = NULL, group1 = NULL, group2 = NULL, cells1
         rownames(PairedMarkers) <- NULL
         PairedMarkers[, "group1"] <- factor(PairedMarkers[, "group1"], levels = levels(cell_group))
         if ("p_val" %in% colnames(PairedMarkers)) {
-          PairedMarkers[, "p_val_adj"] <- p.adjust(PairedMarkers[, "p_val"], method = "BH")
+          PairedMarkers[, "p_val_adj"] <- p.adjust(PairedMarkers[, "p_val"], method = p.adjust.method)
         }
         PairedMarkers[, "test_group_number"] <- as.integer(table(PairedMarkers[["gene"]])[PairedMarkers[, "gene"]])
         PairedMarkersMatrix <- as.data.frame.matrix(table(PairedMarkers[, c("gene", "group1")]))
@@ -764,6 +1038,47 @@ RunDEtest <- function(srt, group_by = NULL, group1 = NULL, group2 = NULL, cells1
         srt@tools[[paste0("DEtest_", group_by)]][[paste0("PairedMarkersMatrix_", test.use)]] <- PairedMarkersMatrix
       }
     }
+
+    if (isTRUE(FindConservedMarkers)) {
+      cat("Perform FindConservedMarkers(", test.use, ")...\n", sep = "")
+      ConservedMarkers <- bplapply(levels(cell_group), FUN = function(group) {
+        cells.1 <- names(cell_group)[which(cell_group == group)]
+        cells.2 <- names(cell_group)[which(cell_group != group)]
+        # print(paste0(group," cells.1:",length(cells.1)," cells.2:",length(cells.2)))
+        if (length(cells.1) < 3 || length(cells.2) < 3) {
+          return(NULL)
+        } else {
+          args1[["cells.1"]] <- cells.1
+          args1[["cells.2"]] <- cells.2
+          args1[["object"]] <- srt
+          args1[["assay"]] <- assay
+          args1[["grouping.var"]] <- grouping.var
+          args1[["meta.method"]] <- meta.method
+          markers <- do.call(FindConservedMarkers2, args1)
+          if (!is.null(markers) && nrow(markers) > 0) {
+            markers[, "gene"] <- rownames(markers)
+            markers[, "group1"] <- as.character(group)
+            markers[, "group2"] <- "others"
+            return(markers)
+          } else {
+            return(NULL)
+          }
+        }
+      }, BPPARAM = BPPARAM)
+      ConservedMarkers <- do.call(rbind.data.frame, lapply(ConservedMarkers, function(x) x[, c("avg_log2FC", "pct.1", "pct.2", "max_pval", "p_val", "gene", "group1", "group2")]))
+      rownames(ConservedMarkers) <- NULL
+      ConservedMarkers[, "group1"] <- factor(ConservedMarkers[, "group1"], levels = levels(cell_group))
+      if ("p_val" %in% colnames(ConservedMarkers)) {
+        ConservedMarkers[, "p_val_adj"] <- p.adjust(ConservedMarkers[, "p_val"], method = p.adjust.method)
+      }
+      ConservedMarkers[, "test_group_number"] <- as.integer(table(ConservedMarkers[["gene"]])[ConservedMarkers[, "gene"]])
+      ConservedMarkersMatrix <- as.data.frame.matrix(table(ConservedMarkers[, c("gene", "group1")]))
+      ConservedMarkers[, "test_group"] <- apply(ConservedMarkersMatrix, 1, function(x) {
+        paste0(colnames(ConservedMarkersMatrix)[x > 0], collapse = ";")
+      })[ConservedMarkers[, "gene"]]
+      ConservedMarkers <- ConservedMarkers[, c("avg_log2FC", "pct.1", "pct.2", "max_pval", "p_val", "p_val_adj", "gene", "group1", "group2", "test_group_number", "test_group")]
+      srt@tools[[paste0("DEtest_", group_by)]][[paste0("ConservedMarkers_", test.use)]] <- ConservedMarkers
+    }
   }
   time_end <- Sys.time()
   cat(paste0("[", time_end, "] ", "DEtest done\n"))
@@ -771,7 +1086,7 @@ RunDEtest <- function(srt, group_by = NULL, group1 = NULL, group2 = NULL, cells1
   return(srt)
 }
 
-#' ListEnrichmentDB
+#' ListDB
 #'
 #' @param species
 #' @param db
@@ -779,13 +1094,13 @@ RunDEtest <- function(srt, group_by = NULL, group1 = NULL, group2 = NULL, cells1
 #' @importFrom R.cache getCacheRootPath readCacheHeader
 #' @export
 #' @examples
-#' ListEnrichmentDB(species = "Homo_sapiens")
+#' ListDB(species = "Homo_sapiens")
 #'
-ListEnrichmentDB <- function(species = c("Homo_sapiens", "Mus_musculus"), db = c(
-                               "GO_BP", "GO_CC", "GO_MF", "KEGG", "WikiPathway", "Reactome",
-                               "ProteinComplex", "DGI", "MP", "DO", "PFAM",
-                               "Chromosome", "GeneType", "Enzyme"
-                             )) {
+ListDB <- function(species = c("Homo_sapiens", "Mus_musculus"), db = c(
+                     "GO_BP", "GO_CC", "GO_MF", "KEGG", "WikiPathway", "Reactome",
+                     "ProteinComplex", "DGI", "MP", "DO", "PFAM",
+                     "Chromosome", "GeneType", "Enzyme"
+                   )) {
   pathnames <- dir(path = getCacheRootPath(), pattern = "[.]Rcache$", full.names = TRUE)
   if (length(pathnames) == 0) {
     return(NULL)
@@ -819,20 +1134,16 @@ ListEnrichmentDB <- function(species = c("Homo_sapiens", "Mus_musculus"), db = c
 #' @return A list containing the database.
 #'
 #' @examples
-#' db_list <- PrepareEnrichmentDB(species = "Homo_sapiens", db = "GO_BP", db_update = TRUE)
-#' ListEnrichmentDB(species = "Homo_sapiens", db = "GO_BP")
+#' db_list <- PrepareDB(species = "Homo_sapiens", db = "GO_BP", db_update = TRUE)
+#' ListDB(species = "Homo_sapiens", db = "GO_BP")
 #' head(db_list[["Homo_sapiens"]][["GO_BP"]][["TERM2GENE"]])
 #'
-#' db_list <- PrepareEnrichmentDB(species = "Homo_sapiens", db = "MP", convert_species = TRUE, db_update = TRUE)
-#' ListEnrichmentDB(species = "Homo_sapiens", db = "MP")
+#' db_list <- PrepareDB(species = "Homo_sapiens", db = "MP", convert_species = TRUE, db_update = TRUE)
+#' ListDB(species = "Homo_sapiens", db = "MP")
 #' head(db_list[["Homo_sapiens"]][["MP"]][["TERM2GENE"]])
 #'
-#' db_list <- PrepareEnrichmentDB(species = "Mus_musculus", db = "DGI", convert_species = TRUE, db_update = TRUE)
-#' ListEnrichmentDB(species = "Mus_musculus", db = "DGI")
-#' head(db_list[["Mus_musculus"]][["DGI"]][["TERM2GENE"]])
-#'
-#' db_list <- PrepareEnrichmentDB(species = "Macaca_fascicularis", db = "GO_BP", convert_species = TRUE, db_update = TRUE)
-#' ListEnrichmentDB(species = "Macaca_fascicularis", db = "GO_BP")
+#' db_list <- PrepareDB(species = "Macaca_fascicularis", db = "GO_BP", convert_species = TRUE, db_update = TRUE)
+#' ListDB(species = "Macaca_fascicularis", db = "GO_BP")
 #' head(db_list[["Macaca_fascicularis"]][["GO_BP"]][["TERM2GENE"]])
 #'
 #' @importFrom R.cache loadCache saveCache readCacheHeader
@@ -840,16 +1151,16 @@ ListEnrichmentDB <- function(species = c("Homo_sapiens", "Mus_musculus"), db = c
 #' @importFrom stats na.omit
 #' @export
 #'
-PrepareEnrichmentDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
-                                db = c(
-                                  "GO_BP", "GO_CC", "GO_MF", "KEGG", "WikiPathway", "Reactome",
-                                  "ProteinComplex", "DGI", "MP", "DO", "PFAM",
-                                  "Chromosome", "GeneType", "Enzyme"
-                                ),
-                                db_IDtypes = c("symbol", "entrez_id", "ensembl_id"),
-                                db_version = "latest", db_update = FALSE,
-                                convert_species = FALSE,
-                                Ensembl_version = 103, mirror = NULL) {
+PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
+                      db = c(
+                        "GO_BP", "GO_CC", "GO_MF", "KEGG", "WikiPathway", "Reactome",
+                        "ProteinComplex", "DGI", "MP", "DO", "PFAM",
+                        "Chromosome", "GeneType", "Enzyme", "TF", "SP", "LR"
+                      ),
+                      db_IDtypes = c("symbol", "entrez_id", "ensembl_id"),
+                      db_version = "latest", db_update = FALSE,
+                      convert_species = FALSE,
+                      Ensembl_version = 103, mirror = NULL) {
   db_list <- list()
   for (sps in species) {
     message("Species: ", sps)
@@ -857,7 +1168,7 @@ PrepareEnrichmentDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
       "GO_BP" = "entrez_id", "GO_CC" = "entrez_id", "GO_MF" = "entrez_id", "KEGG" = "entrez_id",
       "WikiPathway" = "entrez_id", "Reactome" = "entrez_id", "ProteinComplex" = "entrez_id",
       "DGI" = "entrez_id", "MP" = "symbol", "DO" = "symbol", "PFAM" = "entrez_id", "Chromosome" = "entrez_id",
-      "GeneType" = "entrez_id", "Enzyme" = "entrez_id"
+      "GeneType" = "entrez_id", "Enzyme" = "entrez_id", "TF" = "symbol", "SP" = "symbol", "LR" = "symbol"
     )
     if (!any(db %in% names(default_IDtypes))) {
       stop("'db' is invalid.")
@@ -865,7 +1176,7 @@ PrepareEnrichmentDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
     if (!isTRUE(db_update)) {
       for (term in db) {
         # Try to load cached database, if already generated.
-        dbinfo <- ListEnrichmentDB(species = sps, db = term)
+        dbinfo <- ListDB(species = sps, db = term)
         if (nrow(dbinfo) > 0 && !is.null(dbinfo)) {
           if (db_version == "latest") {
             pathname <- dbinfo[order(dbinfo[["timestamp"]], decreasing = TRUE)[1], "file"]
@@ -1166,6 +1477,7 @@ PrepareEnrichmentDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
         unlink(temp)
         dgi <- dgi[!is.na(dgi[["entrez_id"]]), ]
         dgi <- dgi[, c("entrez_id", "drug_claim_name")]
+        dgi[, "drug_claim_name"] <- toupper(dgi[, "drug_claim_name"])
         TERM2GENE <- dgi[, c("drug_claim_name", "entrez_id")]
         TERM2NAME <- dgi[, c("drug_claim_name", "drug_claim_name")]
         colnames(TERM2GENE) <- c("Term", default_IDtypes["DGI"])
@@ -1355,7 +1667,7 @@ PrepareEnrichmentDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
         enzyme[, 2] <- gsub(pattern = "(^ )|(\\.$)", replacement = "", enzyme[, 2])
         rownames(enzyme) <- enzyme[, 1]
         for (i in seq_len(nrow(enzyme))) {
-          if (!grepl("-", enzyme[i, 1])) {
+          if (grepl(".", enzyme[i, 1], fixed = TRUE)) {
             enzyme[i, 2] <- paste0(enzyme[strsplit(enzyme[i, 1], ".", fixed = TRUE)[[1]][1], 2], "(", enzyme[i, 2], ")")
           }
         }
@@ -1374,6 +1686,129 @@ PrepareEnrichmentDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
         saveCache(db_list[[db_species["Enzyme"]]][["Enzyme"]],
           key = list(version, db_species["Enzyme"], "Enzyme"),
           comment = paste0(version, " nterm:", length(TERM2NAME[[1]]), "|", db_species["Enzyme"], "-Enzyme")
+        )
+      }
+
+      ## TF ---------------------------------------------------------------------------
+      if (any(db == "TF") && (!"TF" %in% names(db_list[[sps]]))) {
+        message("Preparing database: TF")
+        temp <- tempfile()
+        url <- paste0("http://bioinfo.life.hust.edu.cn/AnimalTFDB4/static/download/TF_list_final/", sps, "_TF")
+        download(url = url, destfile = temp)
+        tf <- read.table(temp, header = TRUE, sep = "\t", stringsAsFactors = FALSE, fill = TRUE, quote = "")
+        url <- paste0("http://bioinfo.life.hust.edu.cn/AnimalTFDB4/static/download/Cof_list_final/", sps, "_Cof")
+        download(url = url, destfile = temp)
+        tfco <- read.table(temp, header = TRUE, sep = "\t", stringsAsFactors = FALSE, fill = TRUE, quote = "")
+        if (!"Symbol" %in% colnames(tf)) {
+          if (isTRUE(convert_species) && db_species["TF"] != "Homo_sapiens") {
+            warning("Use the human annotation to create the TF database for ", sps, immediate. = TRUE)
+            db_species["TF"] <- "Homo_sapiens"
+            url <- paste0("http://bioinfo.life.hust.edu.cn/AnimalTFDB4/static/download/TF_list_final/Homo_sapiens_TF")
+            download(url = url, destfile = temp)
+            tf <- read.table(temp, header = TRUE, sep = "\t", stringsAsFactors = FALSE, fill = TRUE, quote = "")
+            url <- paste0("http://bioinfo.life.hust.edu.cn/AnimalTFDB4/static/download/Cof_list_final/Homo_sapiens_Cof")
+            download(url = url, destfile = temp)
+            tfco <- read.table(temp, header = TRUE, sep = "\t", stringsAsFactors = FALSE, fill = TRUE, quote = "")
+          } else {
+            stop("Stop the preparation.")
+          }
+        }
+        unlink(temp)
+        TERM2GENE <- rbind(data.frame("Term" = "TF", "symbol" = tf[["Symbol"]]), data.frame("Term" = "TF cofactor", "symbol" = tfco[["Symbol"]]))
+        TERM2NAME <- data.frame("Term" = c("TF", "TF cofactor"), "Name" = c("TF", "TF cofactor"))
+        colnames(TERM2GENE) <- c("Term", default_IDtypes["TF"])
+        colnames(TERM2NAME) <- c("Term", "Name")
+        TERM2GENE <- na.omit(unique(TERM2GENE))
+        TERM2NAME <- na.omit(unique(TERM2NAME))
+        version <- "AnimalTFDB4"
+        db_list[[db_species["TF"]]][["TF"]][["TERM2GENE"]] <- TERM2GENE
+        db_list[[db_species["TF"]]][["TF"]][["TERM2NAME"]] <- TERM2NAME
+        db_list[[db_species["TF"]]][["TF"]][["version"]] <- version
+        saveCache(db_list[[db_species["TF"]]][["TF"]],
+          key = list(version, db_species["TF"], "TF"),
+          comment = paste0(version, " nterm:", length(TERM2NAME[[1]]), "|", db_species["TF"], "-TF")
+        )
+      }
+
+      ## SP ---------------------------------------------------------------------------
+      if (any(db == "SP") && (!"SP" %in% names(db_list[[sps]]))) {
+        if (!sps %in% c("Homo_sapiens", "Mus_musculus")) {
+          if (isTRUE(convert_species)) {
+            warning("Use the human annotation to create the SP database for ", sps, immediate. = TRUE)
+            db_species["SP"] <- "Homo_sapiens"
+          } else {
+            warning("SP database only support Homo_sapiens and Mus_musculus. Consider using convert_species=TRUE", immediate. = TRUE)
+            stop("Stop the preparation.")
+          }
+        }
+        check_R("openxlsx")
+        message("Preparing database: SP")
+        temp <- paste0(tempfile(), ".xlsx")
+        url <- "https://wlab.ethz.ch/cspa/data/S1_File.xlsx"
+        download(url = url, destfile = temp)
+        surfacepro <- openxlsx::read.xlsx(temp, sheet = 1)
+        unlink(temp)
+        surfacepro <- surfacepro[surfacepro[["organism"]] == switch(sps,
+          "Homo_sapiens" = "Human",
+          "Mus_musculus" = "Mouse"
+        ), ]
+        TERM2GENE <- data.frame("Term" = "SurfaceProtein", "symbol" = surfacepro[["ENTREZ.gene.symbol"]])
+        TERM2NAME <- data.frame("Term" = "SurfaceProtein", "Name" = "SurfaceProtein")
+        colnames(TERM2GENE) <- c("Term", default_IDtypes["SP"])
+        colnames(TERM2NAME) <- c("Term", "Name")
+        TERM2GENE <- na.omit(unique(TERM2GENE))
+        TERM2NAME <- na.omit(unique(TERM2NAME))
+        version <- "cspa"
+        db_list[[db_species["SP"]]][["SP"]][["TERM2GENE"]] <- TERM2GENE
+        db_list[[db_species["SP"]]][["SP"]][["TERM2NAME"]] <- TERM2NAME
+        db_list[[db_species["SP"]]][["SP"]][["version"]] <- version
+        saveCache(db_list[[db_species["SP"]]][["SP"]],
+          key = list(version, db_species["SP"], "SP"),
+          comment = paste0(version, " nterm:", length(TERM2NAME[[1]]), "|", db_species["SP"], "-SP")
+        )
+      }
+
+      ## LR ---------------------------------------------------------------------------
+      if (any(db == "LR") && (!"LR" %in% names(db_list[[sps]]))) {
+        if (!sps %in% c("Homo_sapiens", "Mus_musculus")) {
+          if (isTRUE(convert_species)) {
+            warning("Use the human annotation to create the LR database for ", sps, immediate. = TRUE)
+            db_species["LR"] <- "Homo_sapiens"
+          } else {
+            warning("LR database only support Homo_sapiens and Mus_musculus. Consider using convert_species=TRUE", immediate. = TRUE)
+            stop("Stop the preparation.")
+          }
+        }
+        message("Preparing database: LR")
+        url <- paste0("http://tcm.zju.edu.cn/celltalkdb/download/processed_data/", switch(sps,
+          "Homo_sapiens" = "human_lr_pair.txt",
+          "Mus_musculus" = "mouse_lr_pair.txt"
+        ))
+        temp <- tempfile()
+        download(url = url, destfile = temp)
+        lr <- read.table(temp, header = TRUE, sep = "\t", stringsAsFactors = FALSE, fill = TRUE, quote = "")
+        download(url = "http://tcm.zju.edu.cn/celltalkdb/index.php", destfile = temp)
+        version <- grep(pattern = "Latest update", x = readLines(temp), value = T)
+        version <- gsub(pattern = "(.*Latest update: )|(</span>)", replacement = "", x = version)
+        unlink(temp)
+
+        lr[["ligand_gene_symbol2"]] <- paste0("ligand_", lr[["ligand_gene_symbol"]])
+        lr[["receptor_gene_symbol2"]] <- paste0("receptor_", lr[["receptor_gene_symbol"]])
+        TERM2GENE <- rbind(
+          data.frame("Term" = lr[["ligand_gene_symbol2"]], "symbol" = lr[["receptor_gene_symbol"]]),
+          data.frame("Term" = lr[["receptor_gene_symbol2"]], "symbol" = lr[["ligand_gene_symbol"]])
+        )
+        TERM2NAME <- TERM2GENE[, c(1, 1)]
+        colnames(TERM2GENE) <- c("Term", default_IDtypes["LR"])
+        colnames(TERM2NAME) <- c("Term", "Name")
+        TERM2GENE <- na.omit(unique(TERM2GENE))
+        TERM2NAME <- na.omit(unique(TERM2NAME))
+        db_list[[db_species["LR"]]][["LR"]][["TERM2GENE"]] <- TERM2GENE
+        db_list[[db_species["LR"]]][["LR"]][["TERM2NAME"]] <- TERM2NAME
+        db_list[[db_species["LR"]]][["LR"]][["version"]] <- version
+        saveCache(db_list[[db_species["LR"]]][["LR"]],
+          key = list(version, db_species["LR"], "LR"),
+          comment = paste0(version, " nterm:", length(TERM2NAME[[1]]), "|", db_species["LR"], "-LR")
         )
       }
 
@@ -1536,6 +1971,7 @@ PrepareEnrichmentDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
 #'
 #' @examples
 #' data("pancreas_sub")
+#' pancreas_sub <- Standard_SCP(pancreas_sub)
 #' pancreas_sub <- RunDEtest(pancreas_sub, group_by = "CellType")
 #' pancreas_sub <- RunEnrichment(srt = pancreas_sub, group_by = "CellType", db = "GO_BP", species = "Mus_musculus")
 #' EnrichmentPlot(pancreas_sub, group_by = "CellType", db = "GO_BP", plot_type = "bar")
@@ -1598,7 +2034,7 @@ RunEnrichment <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_t
   input <- input[!geneID %in% geneID_exclude, ]
 
   if (is.null(TERM2GENE)) {
-    db_list <- PrepareEnrichmentDB(
+    db_list <- PrepareDB(
       species = species, db = db, db_update = db_update, db_version = db_version,
       db_IDtypes = IDtype, convert_species = convert_species, Ensembl_version = Ensembl_version, mirror = mirror
     )
@@ -1771,6 +2207,7 @@ RunEnrichment <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_t
 #' @importFrom BiocParallel bplapply
 #' @examples
 #' data("pancreas_sub")
+#' pancreas_sub <- Standard_SCP(pancreas_sub)
 #' pancreas_sub <- RunDEtest(pancreas_sub, group_by = "CellType", only.pos = FALSE, fc.threshold = 1)
 #' pancreas_sub <- RunGSEA(pancreas_sub, group_by = "CellType", db = "GO_BP", species = "Mus_musculus")
 #' GSEAPlot(pancreas_sub, group_by = "CellType")
@@ -1857,7 +2294,7 @@ RunGSEA <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_thresho
   names(geneScore) <- paste(geneID, geneID_groups, sep = ".")
 
   if (is.null(TERM2GENE)) {
-    db_list <- PrepareEnrichmentDB(
+    db_list <- PrepareDB(
       species = species, db = db, db_update = db_update, db_version = db_version,
       db_IDtypes = IDtype, convert_species = convert_species, Ensembl_version = Ensembl_version, mirror = mirror
     )
@@ -2156,9 +2593,9 @@ RunSlingshot <- function(srt, group.by, reduction = NULL, dims = NULL, start = N
 #'   names(pancreas_sub@tools$Monocle2)
 #'   trajectory <- pancreas_sub@tools$Monocle2$trajectory
 #'
-#'   p1 <- ClassDimPlot(pancreas_sub, group.by = "Monocle2_State", reduction = "DDRTree", label = TRUE) + trajectory
-#'   p2 <- ClassDimPlot(pancreas_sub, group.by = "Monocle2_State", reduction = "UMAP", label = TRUE)
-#'   p3 <- ExpDimPlot(pancreas_sub, features = "Monocle2_Pseudotime", reduction = "UMAP")
+#'   p1 <- ClassDimPlot(pancreas_sub, group.by = "Monocle2_State", reduction = "DDRTree", label = TRUE, theme = "theme_blank") + trajectory
+#'   p2 <- ClassDimPlot(pancreas_sub, group.by = "Monocle2_State", reduction = "UMAP", label = TRUE, theme = "theme_blank")
+#'   p3 <- ExpDimPlot(pancreas_sub, features = "Monocle2_Pseudotime", reduction = "UMAP", theme = "theme_blank")
 #'   print(p1 + p2 + p3)
 #'
 #'   pancreas_sub <- RunMonocle2(
@@ -2166,9 +2603,9 @@ RunSlingshot <- function(srt, group.by, reduction = NULL, dims = NULL, start = N
 #'     feature_type = "Disp", disp_filter = "mean_expression >= 0.01 & dispersion_empirical >= 1 * dispersion_fit"
 #'   )
 #'   trajectory <- pancreas_sub@tools$Monocle2$trajectory
-#'   p1 <- ClassDimPlot(pancreas_sub, group.by = "Monocle2_State", reduction = "DDRTree", label = TRUE) + trajectory
-#'   p2 <- ClassDimPlot(pancreas_sub, group.by = "Monocle2_State", reduction = "UMAP", label = TRUE)
-#'   p3 <- ExpDimPlot(pancreas_sub, features = "Monocle2_Pseudotime", reduction = "UMAP")
+#'   p1 <- ClassDimPlot(pancreas_sub, group.by = "Monocle2_State", reduction = "DDRTree", label = TRUE, theme = "theme_blank") + trajectory
+#'   p2 <- ClassDimPlot(pancreas_sub, group.by = "Monocle2_State", reduction = "UMAP", label = TRUE, theme = "theme_blank")
+#'   p3 <- ExpDimPlot(pancreas_sub, features = "Monocle2_Pseudotime", reduction = "UMAP", theme = "theme_blank")
 #'   print(p1 + p2 + p3)
 #' }
 #' @importFrom Seurat DefaultAssay CreateDimReducObject GetAssayData VariableFeatures FindVariableFeatures
@@ -2472,26 +2909,26 @@ extract_ddrtree_ordering <- function(cds, root_cell, verbose = T) {
 #'   trajectory <- pancreas_sub@tools$Monocle3$trajectory
 #'   milestones <- pancreas_sub@tools$Monocle3$milestones
 #'
-#'   p1 <- ClassDimPlot(pancreas_sub, group.by = "Monocle3_partitions", reduction = "UMAP", label = TRUE) + trajectory + milestones
-#'   p2 <- ClassDimPlot(pancreas_sub, group.by = "Monocle3_clusters", reduction = "UMAP", label = TRUE) + trajectory
-#'   p3 <- ExpDimPlot(pancreas_sub, features = "Monocle3_Pseudotime", reduction = "UMAP") + trajectory
+#'   p1 <- ClassDimPlot(pancreas_sub, group.by = "Monocle3_partitions", reduction = "UMAP", label = TRUE, theme = "theme_blank") + trajectory + milestones
+#'   p2 <- ClassDimPlot(pancreas_sub, group.by = "Monocle3_clusters", reduction = "UMAP", label = TRUE, theme = "theme_blank") + trajectory
+#'   p3 <- ExpDimPlot(pancreas_sub, features = "Monocle3_Pseudotime", reduction = "UMAP", theme = "theme_blank") + trajectory
 #'   print(p1 + p2 + p3)
 #'
-#'   # Select the lineage using  monocle3::choose_graph_segments
+#'   # Select the lineage using monocle3::choose_graph_segments
 #'   cds <- pancreas_sub@tools$Monocle3$cds
 #'   cds_sub <- monocle3::choose_graph_segments(cds, starting_pr_node = NULL, ending_pr_nodes = NULL)
 #'   pancreas_sub$Lineages_1 <- NA
 #'   pancreas_sub$Lineages_1[colnames(cds_sub)] <- pancreas_sub$Monocle3_Pseudotime[colnames(cds_sub)]
-#'   ClassDimPlot(pancreas_sub, group.by = "SubCellType", lineages = "Lineages_1", lineages_span = 0.1)
+#'   ClassDimPlot(pancreas_sub, group.by = "SubCellType", lineages = "Lineages_1", lineages_span = 0.1, theme = "theme_blank")
 #'
 #'   # Use Seurat clusters to infer the trajectories
 #'   pancreas_sub <- Standard_SCP(pancreas_sub)
-#'   ClassDimPlot(pancreas_sub, group.by = c("Standardclusters", "CellType"), label = TRUE)
+#'   ClassDimPlot(pancreas_sub, group.by = c("Standardclusters", "CellType"), label = TRUE, theme = "theme_blank")
 #'   pancreas_sub <- RunMonocle3(srt = pancreas_sub, annotation = "CellType", clusters = "Standardclusters")
 #'   trajectory <- pancreas_sub@tools$Monocle3$trajectory
-#'   p1 <- ClassDimPlot(pancreas_sub, group.by = "Monocle3_partitions", reduction = "StandardUMAP2D", label = TRUE) + trajectory
-#'   p2 <- ClassDimPlot(pancreas_sub, group.by = "Monocle3_clusters", reduction = "StandardUMAP2D", label = TRUE) + trajectory
-#'   p3 <- ExpDimPlot(pancreas_sub, features = "Monocle3_Pseudotime", reduction = "StandardUMAP2D") + trajectory
+#'   p1 <- ClassDimPlot(pancreas_sub, group.by = "Monocle3_partitions", reduction = "StandardUMAP2D", label = TRUE, theme = "theme_blank") + trajectory
+#'   p2 <- ClassDimPlot(pancreas_sub, group.by = "Monocle3_clusters", reduction = "StandardUMAP2D", label = TRUE, theme = "theme_blank") + trajectory
+#'   p3 <- ExpDimPlot(pancreas_sub, features = "Monocle3_Pseudotime", reduction = "StandardUMAP2D", theme = "theme_blank") + trajectory
 #'   print(p1 + p2 + p3)
 #'
 #'   # Use custom graphs and cell clusters to infer the partitions and trajectories, respectively
@@ -2502,9 +2939,9 @@ extract_ddrtree_ordering <- function(cds, root_cell, verbose = T) {
 #'     clusters = "Standardclusters", graph = "Standardpca_SNN"
 #'   )
 #'   trajectory <- pancreas_sub@tools$Monocle3$trajectory
-#'   p1 <- ClassDimPlot(pancreas_sub, group.by = "Monocle3_partitions", reduction = "StandardUMAP2D", label = TRUE) + trajectory
-#'   p2 <- ClassDimPlot(pancreas_sub, group.by = "Monocle3_clusters", reduction = "StandardUMAP2D", label = TRUE) + trajectory
-#'   p3 <- ExpDimPlot(pancreas_sub, features = "Monocle3_Pseudotime", reduction = "StandardUMAP2D") + trajectory
+#'   p1 <- ClassDimPlot(pancreas_sub, group.by = "Monocle3_partitions", reduction = "StandardUMAP2D", label = TRUE, theme = "theme_blank") + trajectory
+#'   p2 <- ClassDimPlot(pancreas_sub, group.by = "Monocle3_clusters", reduction = "StandardUMAP2D", label = TRUE, theme = "theme_blank") + trajectory
+#'   p3 <- ExpDimPlot(pancreas_sub, features = "Monocle3_Pseudotime", reduction = "StandardUMAP2D", theme = "theme_blank") + trajectory
 #'   print(p1 + p2 + p3)
 #' }
 #' @importFrom SeuratObject as.sparse Embeddings Loadings Stdev
@@ -2674,8 +3111,6 @@ RunMonocle3 <- function(srt, annotation = NULL, assay = NULL, slot = "counts",
   return(srt)
 }
 
-
-
 #' RunDynamicFeatures
 #'
 #' @param srt
@@ -2704,8 +3139,7 @@ RunMonocle3 <- function(srt, annotation = NULL, assay = NULL, slot = "counts",
 #'   srt = pancreas_sub,
 #'   lineages = c("Lineage1", "Lineage2"),
 #'   cell_annotation = "SubCellType",
-#'   n_split = 6, reverse_ht = "Lineage1",
-#'   height = 5, width = 7, use_raster = FALSE
+#'   n_split = 6, reverse_ht = "Lineage1"
 #' )
 #' ht_result$plot
 #'
@@ -2721,7 +3155,7 @@ RunMonocle3 <- function(srt, annotation = NULL, assay = NULL, slot = "counts",
 #' @export
 RunDynamicFeatures <- function(srt, lineages, features = NULL, suffix = lineages,
                                n_candidates = 1000, minfreq = 5,
-                               family = NULL, # c("nb", "gaussian", "poisson", "binomial"),
+                               family = NULL,
                                slot = "counts", assay = "RNA", libsize = NULL,
                                BPPARAM = BiocParallel::bpparam(), progressbar = TRUE, seed = 11) {
   set.seed(seed)
@@ -2738,7 +3172,7 @@ RunDynamicFeatures <- function(srt, lineages, features = NULL, suffix = lineages
   if (!is.null(features)) {
     gene <- features[features %in% rownames(srt[[assay]])]
     meta <- features[features %in% colnames(srt@meta.data)]
-    isnum <- sapply(srt@meta.data[, meta], is.numeric)
+    isnum <- sapply(srt@meta.data[, meta, drop = FALSE], is.numeric)
     if (!all(isnum)) {
       warning(paste0(meta[!isnum], collapse = ","), " is not numeric and will be dropped.", immediate. = TRUE)
       meta <- meta[isnum]
@@ -2768,7 +3202,7 @@ RunDynamicFeatures <- function(srt, lineages, features = NULL, suffix = lineages
   }
 
   if (length(meta) > 0) {
-    Y <- rbind(Y, t(srt@meta.data[, meta]))
+    Y <- rbind(Y, t(srt@meta.data[, meta, drop = FALSE]))
   }
 
   features_list <- c()
@@ -2986,30 +3420,30 @@ RunDynamicFeatures <- function(srt, lineages, features = NULL, suffix = lineages
 #' @examples
 #' data("pancreas_sub")
 #' pancreas_sub <- RunSlingshot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP")
-#' pancreas_sub <- RunDynamicFeatures(pancreas_sub, lineages = c("Lineage1", "Lineage2"), n_candidates = 200)
-#' ht_result <- DynamicHeatmap(
+#' pancreas_sub <- RunDynamicFeatures(pancreas_sub, lineages = "Lineage1", n_candidates = 200)
+#' ht_result1 <- DynamicHeatmap(
 #'   srt = pancreas_sub,
-#'   lineages = c("Lineage1", "Lineage2"),
+#'   lineages = "Lineage1",
 #'   cell_annotation = "SubCellType",
-#'   n_split = 6, reverse_ht = 1, use_raster = FALSE
+#'   n_split = 6
 #' )
-#' ht_result$plot
+#' ht_result1$plot
 #'
 #' pancreas_sub <- RunDynamicEnrichment(
 #'   srt = pancreas_sub,
-#'   lineages = c("Lineage1", "Lineage2"),
+#'   lineages = "Lineage1",
 #'   score_method = "AUCell",
 #'   db = "GO_BP",
 #'   species = "Mus_musculus"
 #' )
-#' ht_result <- DynamicHeatmap(
-#'   srt = pancreas_sub, db = "GO_BP", use_fitted = TRUE,
-#'   lineages = c("Lineage1_GO_BP", "Lineage2_GO_BP"),
+#' ht_result2 <- DynamicHeatmap(
+#'   srt = pancreas_sub,
+#'   assay = "GO_BP",
+#'   lineages = "Lineage1_GO_BP",
 #'   cell_annotation = "SubCellType",
-#'   n_split = 6, reverse_ht = 1,
-#'   height = 5, width = 7, use_raster = FALSE
+#'   n_split = 6
 #' )
-#' ht_result$plot
+#' ht_result2$plot
 #' @export
 RunDynamicEnrichment <- function(srt, lineages,
                                  score_method = "AUCell", ncore = 1,
@@ -3041,7 +3475,7 @@ RunDynamicEnrichment <- function(srt, lineages,
   feature_union <- unique(feature_union)
 
   if (is.null(TERM2GENE)) {
-    db_list <- PrepareEnrichmentDB(
+    db_list <- PrepareDB(
       species = species, db = db, db_update = db_update, db_version = db_version,
       db_IDtypes = IDtype, convert_species = convert_species, Ensembl_version = Ensembl_version, mirror = mirror
     )
@@ -3608,7 +4042,7 @@ RunSCVELO <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_laye
                       stream_smooth = NULL, stream_density = 2,
                       arrow_length = 5, arrow_size = 5, arrow_density = 0.5,
                       denoise = FALSE, denoise_topn = 3, kinetics = FALSE, kinetics_topn = 100,
-                      calculate_velocity_genes = FALSE, s_genes = NULL, g2m_genes = NULL,
+                      calculate_velocity_genes = FALSE,
                       show_plot = TRUE, dpi = 300, save = FALSE, dirpath = "./", fileprefix = "",
                       return_seurat = !is.null(srt)) {
   check_Python("scvelo")

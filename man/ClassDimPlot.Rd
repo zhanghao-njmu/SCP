@@ -10,6 +10,7 @@ ClassDimPlot(
   reduction = NULL,
   dims = c(1, 2),
   split.by = NULL,
+  cells = NULL,
   show_na = FALSE,
   show_stat = TRUE,
   palette = "Paired",
@@ -66,7 +67,6 @@ ClassDimPlot(
   edge_color = "grey40",
   paga = NULL,
   paga_type = "connectivities",
-  paga_node_palette = "Paired",
   paga_node_size = 4,
   paga_edge_threshold = 0.01,
   paga_edge_size = c(0.2, 1),
@@ -179,8 +179,12 @@ Plotting cell points on a reduced 2D plane and coloring according to the groups 
 \examples{
 data("pancreas_sub")
 ClassDimPlot(pancreas_sub,
-  group.by = "CellType", reduction = "UMAP", label = TRUE,
+  group.by = "CellType", reduction = "UMAP", label = TRUE, add_density = TRUE,
   cells.highlight = colnames(pancreas_sub)[pancreas_sub$SubCellType == "Delta"]
+)
+ClassDimPlot(pancreas_sub,
+  group.by = "SubCellType", split.by = "Phase", cells.highlight = TRUE,
+  theme_use = "theme_blank", legend.position = "none"
 )
 
 # Add statistical chart

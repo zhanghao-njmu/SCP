@@ -1,7 +1,7 @@
 #' Prepare SCP python virtual environment
 #'
 #' @param python Python path which is used to create the virtual environment.
-#' @param pypi_mirror PyPI mirror used to install the Python packages. Default is "https://pypi.org/simple/". Options can be "https://pypi.tuna.tsinghua.edu.cn/simple", "http://mirrors.aliyun.com/pypi/simple/", "https://pypi.mirrors.ustc.edu.cn/simple/", etc.
+#' @param pypi_mirror PyPI mirror used to install the Python packages. Default is "https://pypi.org/simple/". Options are "https://pypi.tuna.tsinghua.edu.cn/simple", "http://mirrors.aliyun.com/pypi/simple/", "https://pypi.mirrors.ustc.edu.cn/simple/", etc.
 #' @param remove_old Whether to remove the old SCP virtual environment. Default is FALSE.
 #' @param install_python Whether to download and install a new python. Default is FALSE, which only installs automatically if no suitable version of python is found.
 #' @param install_version The version of python to install. Default is \code{3.8.8}
@@ -312,7 +312,7 @@ run_Python <- function(command, envir = .GlobalEnv) {
 
 #' @importFrom utils download.file
 #' @export
-download <- function(url, destfile, methods = c("auto", "wget", "libcurl", "curl", "wininet", "internal"), quiet = FALSE, attempts = 3) {
+download <- function(url, destfile, methods = c("auto", "wget", "libcurl", "curl", "wininet", "internal"), quiet = FALSE, attempts = 3, return_status = FALSE) {
   if (missing(url) || missing(destfile)) {
     stop("'url' and 'destfile' must be both provided.")
   }
@@ -339,7 +339,11 @@ download <- function(url, destfile, methods = c("auto", "wget", "libcurl", "curl
       stop("Download failed.")
     }
   }
-  return(invisible(NULL))
+  if (isTRUE(return_status)) {
+    return(status)
+  } else {
+    return(invisible(NULL))
+  }
 }
 
 kegg_get <- function(url) {

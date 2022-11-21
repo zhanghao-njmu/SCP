@@ -1180,6 +1180,7 @@ Seurat_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRU
       "logCPM" = "LogNormalize",
       "SCT" = "SCT"
     ),
+    anchor.features = HVF,
     verbose = FALSE
   )
   for (nm in names(FindIntegrationAnchors_params)) {

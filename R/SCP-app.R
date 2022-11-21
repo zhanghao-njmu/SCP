@@ -1102,6 +1102,7 @@ RunSCExplorer <- function(base_dir = "SCExplorer",
       if (!requireNamespace('devtools', quietly = TRUE)) {install.packages('devtools')}
       devtools::install_github('zhanghao-njmu/SCP')
     }",
+    "options(SCP_virtualenv_init = FALSE)",
     "SCP::check_R(c('shiny', 'shinycssloaders'))",
     "library(shiny)",
     main_code

@@ -11,7 +11,7 @@ DynamicPlot(
   slot = "counts",
   assay = "RNA",
   family = NULL,
-  exp_method = c("log1p", "zscore", "log2fc", "raw"),
+  exp_method = c("log1p", "raw", "zscore", "fc", "log2fc"),
   lib_normalize = TRUE,
   libsize = NULL,
   order.by = "pseudotime",
@@ -52,7 +52,7 @@ pancreas_sub <- RunSlingshot(pancreas_sub, group.by = "SubCellType", reduction =
 DynamicPlot(
   srt = pancreas_sub,
   lineages = c("Lineage1", "Lineage2"),
-  features = c("Nnat", "Irx1"),
+  features = c("Nnat", "Irx1", "G2M_score"),
   group.by = "SubCellType",
   compare_lineages = TRUE,
   compare_features = FALSE

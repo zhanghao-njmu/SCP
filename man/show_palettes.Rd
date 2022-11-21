@@ -6,6 +6,7 @@
 \usage{
 show_palettes(
   palettes = NULL,
+  type = c("discrete", "continuous"),
   index = NULL,
   palette_names = NULL,
   return_names = TRUE,
@@ -27,7 +28,10 @@ Show the palettes collected by SCP
 \examples{
 all_palettes <- show_palettes(return_palettes = TRUE)
 names(all_palettes)
-show_palettes(index = 1:10)
+show_palettes(index = 1:20)
 show_palettes(palette_names = c("Paired", "nejm", "simspec", "Spectral", "jet"), return_palettes = TRUE)
+
+show_palettes(type = "discrete", index = 1:20)
+show_palettes(type = "continuous", index = 1:20)
 
 }

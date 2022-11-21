@@ -13,15 +13,23 @@ RunDEtest(
   cells2 = NULL,
   FindAllMarkers = TRUE,
   FindPairedMarkers = FALSE,
+  FindConservedMarkers = FALSE,
+  grouping.var = NULL,
+  meta.method = metap::maximump,
   test.use = "wilcox",
   only.pos = TRUE,
   fc.threshold = 1.5,
   base = 2,
+  pseudocount.use = 1,
+  mean.fxn = NULL,
   min.pct = 0.1,
   min.diff.pct = -Inf,
   max.cells.per.ident = Inf,
   latent.vars = NULL,
+  min.cells.feature = 3,
+  min.cells.group = 3,
   norm.method = "LogNormalize",
+  p.adjust.method = "bonferroni",
   slot = "data",
   assay = "RNA",
   BPPARAM = BiocParallel::bpparam(),
@@ -43,7 +51,7 @@ RunDEtest(
 
 \item{min.pct}{min.pct}
 
-\item{norm.method}{}
+\item{p.adjust.method}{}
 
 \item{force}{force}
 }
@@ -53,11 +61,13 @@ Differential gene test
 \examples{
 library(dplyr)
 data(pancreas_sub)
+pancreas_sub <- Standard_SCP(pancreas_sub)
 pancreas_sub <- RunDEtest(pancreas_sub, group_by = "CellType")
 
 # Heatmap
 de_filter <- filter(pancreas_sub@tools$DEtest_CellType$AllMarkers_wilcox, p_val_adj < 0.05 & avg_log2FC > 1)
-ExpHeatmap(pancreas_sub, features = de_filter$gene, feature_split = de_filter$group1, cell_split_by = "CellType")
+ht_result <- ExpHeatmap(pancreas_sub, features = de_filter$gene, feature_split = de_filter$group1, group.by = "CellType")
+ht_result$plot
 
 # Dot plot
 de_top <- de_filter \%>\%
@@ -65,5 +75,26 @@ de_top <- de_filter \%>\%
   top_n(1, avg_log2FC) \%>\%
   group_by(group1) \%>\%
   top_n(3, avg_log2FC)
-ExpDotPlot(pancreas_sub, features = de_top$gene, feature_split = de_top$group1, cell_split_by = "CellType")
+GroupHeatmap(pancreas_sub, features = de_top$gene, feature_split = de_top$group1, group.by = "CellType")
+
+data("panc8_sub")
+panc8_sub <- Integration_SCP(panc8_sub, batch = "tech", integration_method = "Seurat")
+ClassDimPlot(panc8_sub, group.by = c("tech", "celltype"))
+panc8_sub <- RunDEtest(panc8_sub, group_by = "celltype", FindConservedMarkers = TRUE, grouping.var = "tech")
+
+# Heatmap
+
+# Dot plot
+conserved_filter <- filter(panc8_sub@tools$DEtest_celltype$ConservedMarkers_wilcox, p_val_adj < 0.05 & avg_log2FC > 1)
+conserved_top <- conserved_filter \%>\%
+  group_by(gene) \%>\%
+  top_n(1, avg_log2FC) \%>\%
+  group_by(group1) \%>\%
+  top_n(3, avg_log2FC)
+
+ExpDimPlot(panc8_sub,
+  features = conserved_top$gene[1], split.by = "tech",
+  cells.highlight = colnames(panc8_sub)[panc8_sub$celltype == conserved_top$group1[1]]
+)
+
 }

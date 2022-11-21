@@ -73,6 +73,7 @@ Perform the enrichment analysis(GSEA) on the genes
 }
 \examples{
 data("pancreas_sub")
+pancreas_sub <- Standard_SCP(pancreas_sub)
 pancreas_sub <- RunDEtest(pancreas_sub, group_by = "CellType", only.pos = FALSE, fc.threshold = 1)
 pancreas_sub <- RunGSEA(pancreas_sub, group_by = "CellType", db = "GO_BP", species = "Mus_musculus")
 GSEAPlot(pancreas_sub, group_by = "CellType")

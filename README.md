@@ -136,7 +136,7 @@ ExpDimPlot(
 <img src="README/README-library-4.png" width="100%" style="display: block; margin: auto;" />
 
 ``` r
-ExpDotPlot(
+ht <- GroupHeatmap(
   srt = pancreas_sub,
   features = c(
     "Sox9", "Anxa2", "Bicc1", # Ductal
@@ -145,8 +145,10 @@ ExpDotPlot(
     "Rbp4", "Pyy", # Endocrine
     "Ins1", "Gcg", "Sst", "Ghrl" # Beta, Alpha, Delta, Epsilon
   ),
-  cell_split_by = c("CellType", "SubCellType")
+  group.by = c("CellType", "SubCellType"),
+  add_dot = TRUE, add_reticle = TRUE
 )
+print(ht$plot)
 ```
 
 <img src="README/README-library-5.png" width="100%" style="display: block; margin: auto;" />
@@ -297,7 +299,7 @@ VelocityPlot(srt = pancreas_sub, reduction = "UMAP", plot_type = "stream")
 ### Differential expression analysis
 
 ``` r
-pancreas_sub <- RunDEtest(srt = pancreas_sub, group_by = "CellType", only.pos = FALSE, fc.threshold = 1)
+pancreas_sub <- RunDEtest(srt = pancreas_sub, group_by = "CellType", fc.threshold = 1, only.pos = FALSE)
 VolcanoPlot(srt = pancreas_sub, group_by = "CellType")
 ```
 
@@ -307,9 +309,9 @@ VolcanoPlot(srt = pancreas_sub, group_by = "CellType")
 DEGs <- pancreas_sub@tools$DEtest_CellType$AllMarkers_wilcox
 DEGs <- DEGs[with(DEGs, avg_log2FC > 1 & p_val_adj < 0.05), ]
 ht <- ExpHeatmap(
-  srt = pancreas_sub, features = DEGs$gene, feature_split = DEGs$group1, cell_split_by = "CellType",
+  srt = pancreas_sub, group.by = "CellType", features = DEGs$gene, feature_split = DEGs$group1,
   species = "Mus_musculus", anno_terms = TRUE, anno_keys = TRUE, anno_features = TRUE,
-  row_title_size = 0, height = 5, width = 7
+  height = 5, width = 5
 )
 print(ht$plot)
 ```
@@ -395,7 +397,7 @@ ht <- DynamicHeatmap(
   srt = pancreas_sub, lineages = c("Lineage1", "Lineage2"), cell_annotation = "SubCellType",
   n_split = 5, reverse_ht = "Lineage1",
   species = "Mus_musculus", anno_terms = TRUE, anno_keys = TRUE, anno_features = TRUE,
-  height = 5, width = 7, use_raster = FALSE
+  height = 5, width = 5
 )
 print(ht$plot)
 ```
@@ -430,9 +432,9 @@ ExpVlnPlot(
 More examples of SCP can be found in the documentation of the individual
 functions, such as
 [Integration_SCP](https://zhanghao-njmu.github.io/SCP/reference/Integration_SCP.html),
-[RunGSEA](https://zhanghao-njmu.github.io/SCP/reference/RunGSEA.html),
 [RunKNNMap](https://zhanghao-njmu.github.io/SCP/reference/RunKNNMap.html),
 [RunMonocle3](https://zhanghao-njmu.github.io/SCP/reference/RunMonocle3.html),
 [ClassDimPlot](https://zhanghao-njmu.github.io/SCP/reference/ClassDimPlot.html),
+[ExpHeatmap](https://zhanghao-njmu.github.io/SCP/reference/ExpHeatmap.html),
 [RunSCExplorer](https://zhanghao-njmu.github.io/SCP/reference/RunSCExplorer.html),
 etc.
