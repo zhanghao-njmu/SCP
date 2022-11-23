@@ -7,7 +7,8 @@
 ListDB(
   species = c("Homo_sapiens", "Mus_musculus"),
   db = c("GO_BP", "GO_CC", "GO_MF", "KEGG", "WikiPathway", "Reactome", "ProteinComplex",
-    "DGI", "MP", "DO", "PFAM", "Chromosome", "GeneType", "Enzyme")
+    "DGI", "MP", "DO", "PFAM", "Chromosome", "GeneType", "Enzyme", "TF", "SP",
+    "CellTalk", "CellChat")
 )
 }
 \arguments{

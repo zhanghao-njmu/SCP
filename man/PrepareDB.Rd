@@ -7,7 +7,8 @@
 PrepareDB(
   species = c("Homo_sapiens", "Mus_musculus"),
   db = c("GO_BP", "GO_CC", "GO_MF", "KEGG", "WikiPathway", "Reactome", "ProteinComplex",
-    "DGI", "MP", "DO", "PFAM", "Chromosome", "GeneType", "Enzyme", "TF", "SP", "LR"),
+    "DGI", "MP", "DO", "PFAM", "Chromosome", "GeneType", "Enzyme", "TF", "SP",
+    "CellTalk", "CellChat"),
   db_IDtypes = c("symbol", "entrez_id", "ensembl_id"),
   db_version = "latest",
   db_update = FALSE,

@@ -312,7 +312,7 @@ run_Python <- function(command, envir = .GlobalEnv) {
 
 #' @importFrom utils download.file
 #' @export
-download <- function(url, destfile, methods = c("auto", "wget", "libcurl", "curl", "wininet", "internal"), quiet = FALSE, attempts = 3, return_status = FALSE) {
+download <- function(url, destfile, methods = c("auto", "wget", "libcurl", "curl", "wininet", "internal"), quiet = FALSE, attempts = 2, return_status = FALSE) {
   if (missing(url) || missing(destfile)) {
     stop("'url' and 'destfile' must be both provided.")
   }
@@ -326,7 +326,7 @@ download <- function(url, destfile, methods = c("auto", "wget", "libcurl", "curl
       }, error = function(error) {
         message(error)
         message("Cannot download from the url: ", url)
-        message("Retrying...")
+        message("Failed to download using '", method, "'. Retry...")
         Sys.sleep(1)
         return(NULL)
       })

@@ -15,7 +15,6 @@ RunDynamicEnrichment(
   r.sq = 0.2,
   dev.expl = 0.2,
   padjust = 0.05,
-  geneID = NULL,
   IDtype = "symbol",
   species = "Homo_sapiens",
   db = "GO_BP",
@@ -47,7 +46,7 @@ ht_result1 <- DynamicHeatmap(
   srt = pancreas_sub,
   lineages = "Lineage1",
   cell_annotation = "SubCellType",
-  n_split = 6
+  n_split = 4
 )
 ht_result1$plot
 
@@ -63,7 +62,8 @@ ht_result2 <- DynamicHeatmap(
   assay = "GO_BP",
   lineages = "Lineage1_GO_BP",
   cell_annotation = "SubCellType",
-  n_split = 6
+  n_split = 4,
+  split_method = "kmeans-peaktime",
 )
 ht_result2$plot
 }

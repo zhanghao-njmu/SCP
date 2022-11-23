@@ -87,7 +87,11 @@ GroupHeatmap(
   cell_annotation = NULL,
   cell_palette = "Paired",
   cell_palcolor = NULL,
+<<<<<<< HEAD
+  cell_annotation_params = list(height = grid::unit(10, "mm")),
+=======
   cell_annotation_params = list(),
+>>>>>>> b2884608a841abf5ec18e858457f9a9bf438c377
   feature_annotation = NULL,
   feature_palette = "Dark2",
   feature_palcolor = NULL,
@@ -166,23 +170,21 @@ de_top <- de_filter \%>\%
   top_n(1, avg_log2FC) \%>\%
   group_by(group1) \%>\%
   top_n(3, avg_log2FC)
-library(grid)
 ht4 <- GroupHeatmap(pancreas_sub,
   features = de_top$gene, feature_split = de_top$group1, group.by = "CellType",
-  cell_annotation = c("G2M_score", "Phase"), cell_palette = c("Paired", "Dark2"),
-  cell_annotation_params = list(height = unit(0.5, "in")),
+  cell_annotation = c("Phase", "G2M_score", "Neurod2"), cell_palette = c("Dark2", "Paired", "Paired"),
+  cell_annotation_params = list(height = grid::unit(0.5, "in")),
   feature_annotation = c("TF", "SP"),
   feature_palcolor = list(c("gold", "steelblue"), c("forestgreen")),
   add_dot = TRUE, add_bg = TRUE
 )
 ht4$plot
 
-library(grid)
 ht5 <- GroupHeatmap(pancreas_sub,
   features = de_top$gene, group.by = "CellType", split.by = "Phase", n_split = 4,
   cluster_rows = TRUE, cluster_columns = TRUE, cluster_row_slices = TRUE, cluster_column_slices = TRUE,
   add_dot = TRUE, add_reticle = TRUE, heatmap_palette = "viridis",
-  ht_params = list(row_gap = unit(0, "mm"))
+  ht_params = list(row_gap = grid::unit(0, "mm"))
 )
 ht5$plot
 

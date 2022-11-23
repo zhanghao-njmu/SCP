@@ -235,7 +235,7 @@ RunKNNMap <- function(srt_query, query_assay = NULL, srt_ref, ref_umap = NULL, f
   }
 
   if (!is.null(ref_group)) {
-    message("Predicting cell types based on ref_group: ", ref_group) ## slow
+    message("Predicting cell types based on ref_group.") ## slow
     level <- as.character(unique(srt_ref[["ref_group", drop = TRUE]]))
     if (k == 1) {
       match_best <- srt_ref[["ref_group", drop = TRUE]][match_k_cell[, 1]]

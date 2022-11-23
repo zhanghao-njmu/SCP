@@ -113,11 +113,10 @@ ht1 <- ExpHeatmap(
 )
 ht1$plot
 
-library(grid)
 ht2 <- ExpHeatmap(
   srt = pancreas_sub, features = de_filter$gene, group.by = c("CellType", "SubCellType"), n_split = 4,
   cluster_rows = TRUE, cluster_row_slices = TRUE, cluster_columns = TRUE, cluster_column_slices = TRUE,
-  ht_params = list(row_gap = unit(0, "mm"))
+  ht_params = list(row_gap = grid::unit(0, "mm"))
 )
 ht2$plot
 

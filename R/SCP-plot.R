@@ -1900,8 +1900,10 @@ ExpDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), split.by
       dat <- cbind(dat_use, dat_exp[row.names(dat_use), features, drop = FALSE])
       for (f in features) {
         dat[, f][dat[, f] <= bg_cutoff] <- NA
-        dat[, f][which(dat[, f] == max(dat[, f], na.rm = TRUE))] <- max(dat[, f][is.finite(dat[, f])], na.rm = TRUE)
-        dat[, f][which(dat[, f] == min(dat[, f], na.rm = TRUE))] <- min(dat[, f][is.finite(dat[, f])], na.rm = TRUE)
+        if (any(is.infinite(dat[, f]))) {
+          dat[, f][which(dat[, f] == max(dat[, f], na.rm = TRUE))] <- max(dat[, f][is.finite(dat[, f])], na.rm = TRUE)
+          dat[, f][which(dat[, f] == min(dat[, f], na.rm = TRUE))] <- min(dat[, f][is.finite(dat[, f])], na.rm = TRUE)
+        }
       }
       dat[, "cell"] <- rownames(dat)
       dat[, "x"] <- dat[, paste0(reduction_key, dims[1])]
@@ -2184,8 +2186,10 @@ ExpDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), split.by
       for (s in levels(dat_sp[[split.by]])) {
         dat <- cbind(dat_use, dat_exp[row.names(dat_use), f, drop = FALSE])
         dat[, f][dat[, f] <= bg_cutoff] <- NA
-        dat[, f][dat[, f] == max(dat[, f])] <- max(dat[, f][is.finite(dat[, f])])
-        dat[, f][dat[, f] == min(dat[, f])] <- min(dat[, f][is.finite(dat[, f])])
+        if (any(is.infinite(dat[, f]))) {
+          dat[, f][dat[, f] == max(dat[, f])] <- max(dat[, f][is.finite(dat[, f])])
+          dat[, f][dat[, f] == min(dat[, f])] <- min(dat[, f][is.finite(dat[, f])])
+        }
         dat[, "cell"] <- rownames(dat)
         dat[, "x"] <- dat[, paste0(reduction_key, dims[1])]
         dat[, "y"] <- dat[, paste0(reduction_key, dims[2])]
@@ -2462,7 +2466,6 @@ ExpDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), split.by
 #' pancreas_sub <- Standard_SCP(pancreas_sub)
 #' pancreas_sub <- RunSlingshot(pancreas_sub, group.by = "SubCellType", reduction = "StandardpcaUMAP3D")
 #' ClassDimPlot3D(pancreas_sub, group.by = "SubCellType", reduction = "StandardpcaUMAP3D", lineages = paste0("Lineage", 1:2))
-#' @importFrom plotly plot_ly add_trace layout
 #' @importFrom Seurat Reductions Embeddings Key
 #' @importFrom utils askYesNo
 #' @importFrom stringr str_replace
@@ -2472,6 +2475,7 @@ ClassDimPlot3D <- function(srt, group.by = "orig.ident", reduction = NULL, dims 
                            cells.highlight = NULL, cols.highlight = "black", shape.highlight = "circle-open", sizes.highlight = 2,
                            lineages = NULL, lineage_palette = "Dark2", span = 0.75, arrow_reverse = FALSE,
                            width = NULL, height = NULL, save = NULL, force = FALSE) {
+  check_R("plotly")
   bg_color <- col2hex(bg_color)
   cols.highlight <- col2hex(cols.highlight)
 
@@ -2567,8 +2571,8 @@ ClassDimPlot3D <- function(srt, group.by = "orig.ident", reduction = NULL, dims 
     dat_use_highlight <- dat_use[cells.highlight_use, ]
   }
 
-  p <- plot_ly(data = dat_use, width = width, height = height)
-  p <- p %>% add_trace(
+  p <- plotly::plot_ly(data = dat_use, width = width, height = height)
+  p <- p %>% plotly::add_trace(
     data = dat_use,
     x = dat_use[[paste0(reduction_key, dims[1], "All_cells")]],
     y = dat_use[[paste0(reduction_key, dims[2], "All_cells")]],
@@ -2587,7 +2591,7 @@ ClassDimPlot3D <- function(srt, group.by = "orig.ident", reduction = NULL, dims 
     visible = TRUE
   )
   if (!is.null(cells.highlight_use)) {
-    p <- p %>% add_trace(
+    p <- p %>% plotly::add_trace(
       x = dat_use_highlight[[paste0(reduction_key, dims[1], "All_cells")]],
       y = dat_use_highlight[[paste0(reduction_key, dims[2], "All_cells")]],
       z = dat_use_highlight[[paste0(reduction_key, dims[3], "All_cells")]],
@@ -2617,7 +2621,7 @@ ClassDimPlot3D <- function(srt, group.by = "orig.ident", reduction = NULL, dims 
       dat_smooth <- dat_smooth[dat_smooth[["y"]] <= max(dat_use[[paste0(reduction_key, dims[2], "All_cells")]]) & dat_smooth[["y"]] >= min(dat_use[[paste0(reduction_key, dims[2], "All_cells")]]), ]
       dat_smooth <- dat_smooth[dat_smooth[["z"]] <= max(dat_use[[paste0(reduction_key, dims[3], "All_cells")]]) & dat_smooth[["z"]] >= min(dat_use[[paste0(reduction_key, dims[3], "All_cells")]]), ]
       dat_smooth <- unique(na.omit(dat_smooth))
-      p <- add_trace(
+      p <- plotly::add_trace(
         p = p,
         x = dat_smooth[, "x"],
         y = dat_smooth[, "y"],
@@ -2681,7 +2685,6 @@ ClassDimPlot3D <- function(srt, group.by = "orig.ident", reduction = NULL, dims 
 #' @inheritParams ExpDimPlot
 #' @inheritParams ClassDimPlot3D
 #'
-#' @importFrom plotly plot_ly add_trace layout
 #' @importFrom rlang "%||%"
 #' @importFrom stringr str_replace
 #' @export
@@ -2690,6 +2693,7 @@ ExpDimPlot3D <- function(srt, features = NULL, reduction = NULL, dims = c(1, 2, 
                          calculate_coexp = FALSE,
                          pt.size = 1.5, cells.highlight = NULL, cols.highlight = "black", shape.highlight = "circle-open", sizes.highlight = 2,
                          width = NULL, height = NULL, save = NULL, force = FALSE) {
+  check_R("plotly")
   cols.highlight <- col2hex(cols.highlight)
 
   if (is.null(features)) {
@@ -2828,8 +2832,8 @@ ExpDimPlot3D <- function(srt, features = NULL, reduction = NULL, dims = c(1, 2, 
     }
   }
 
-  p <- plot_ly(data = dat_use, width = width, height = height)
-  p <- p %>% add_trace(
+  p <- plotly::plot_ly(data = dat_use, width = width, height = height)
+  p <- p %>% plotly::add_trace(
     data = dat_use,
     x = dat_use[[paste0(reduction_key, dims[1], "All_cells")]],
     y = dat_use[[paste0(reduction_key, dims[2], "All_cells")]],
@@ -2852,7 +2856,7 @@ ExpDimPlot3D <- function(srt, features = NULL, reduction = NULL, dims = c(1, 2, 
     visible = TRUE
   )
   if (!is.null(cells.highlight)) {
-    p <- p %>% add_trace(
+    p <- p %>% plotly::add_trace(
       x = dat_use_highlight[[paste0(reduction_key, dims[1], "All_cells")]],
       y = dat_use_highlight[[paste0(reduction_key, dims[2], "All_cells")]],
       z = dat_use_highlight[[paste0(reduction_key, dims[3], "All_cells")]],
@@ -3534,19 +3538,31 @@ ExpVlnPlot <- function(srt, features = NULL, group.by = NULL, split.by = NULL, b
   }
 }
 
+fc_matrix <- function(matrix) {
+  matrix / rowMeans(matrix)
+}
+zscore_matrix <- function(matrix, ...) {
+  t(scale(t(matrix), ...))
+}
+log2fc_matrix <- function(matrix) {
+  log2(matrix / rowMeans(matrix))
+}
+log1p_matrix <- function(matrix) {
+  log1p(matrix)
+}
 matrix_process <- function(matrix, method = c("raw", "zscore", "fc", "log2fc", "log1p"), ...) {
   if (is.function(method)) {
-    matrix_processed <- exp_method(matrix, ...)
+    matrix_processed <- method(matrix, ...)
   } else if (method == "raw") {
     matrix_processed <- matrix
   } else if (method == "fc") {
-    matrix_processed <- matrix / rowMeans(matrix)
+    matrix_processed <- fc_matrix(matrix)
   } else if (method == "zscore") {
-    matrix_processed <- t(scale(t(matrix), ...))
+    matrix_processed <- zscore_matrix(matrix, ...)
   } else if (method == "log2fc") {
-    matrix_processed <- log2(matrix / rowMeans(matrix))
+    matrix_processed <- log2fc_matrix(matrix)
   } else if (method == "log1p") {
-    matrix_processed <- log1p(matrix)
+    matrix_processed <- log1p_matrix(matrix)
   }
   if (!identical(dim(matrix_processed), dim(matrix))) {
     stop("The dimensions of the matrix are changed after processing")
@@ -3613,23 +3629,21 @@ matrix_process <- function(matrix, method = c("raw", "zscore", "fc", "log2fc", "
 #'   top_n(1, avg_log2FC) %>%
 #'   group_by(group1) %>%
 #'   top_n(3, avg_log2FC)
-#' library(grid)
 #' ht4 <- GroupHeatmap(pancreas_sub,
 #'   features = de_top$gene, feature_split = de_top$group1, group.by = "CellType",
-#'   cell_annotation = c("G2M_score", "Phase"), cell_palette = c("Paired", "Dark2"),
-#'   cell_annotation_params = list(height = unit(0.5, "in")),
+#'   cell_annotation = c("Phase", "G2M_score", "Neurod2"), cell_palette = c("Dark2", "Paired", "Paired"),
+#'   cell_annotation_params = list(height = grid::unit(0.5, "in")),
 #'   feature_annotation = c("TF", "SP"),
 #'   feature_palcolor = list(c("gold", "steelblue"), c("forestgreen")),
 #'   add_dot = TRUE, add_bg = TRUE
 #' )
 #' ht4$plot
 #'
-#' library(grid)
 #' ht5 <- GroupHeatmap(pancreas_sub,
 #'   features = de_top$gene, group.by = "CellType", split.by = "Phase", n_split = 4,
 #'   cluster_rows = TRUE, cluster_columns = TRUE, cluster_row_slices = TRUE, cluster_column_slices = TRUE,
 #'   add_dot = TRUE, add_reticle = TRUE, heatmap_palette = "viridis",
-#'   ht_params = list(row_gap = unit(0, "mm"))
+#'   ht_params = list(row_gap = grid::unit(0, "mm"))
 #' )
 #' ht5$plot
 #'
@@ -3660,7 +3674,7 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
                          add_dot = FALSE, dot_size = unit(8, "mm"), add_bg = FALSE, bg_alpha = 0.5, add_reticle = FALSE, reticle_color = "grey",
                          heatmap_palette = "YlOrRd", heatmap_palcolor = NULL, group_palette = "Paired", group_palcolor = NULL,
                          cell_split_palette = "jco", cell_split_palcolor = NULL, feature_split_palette = "jama", feature_split_palcolor = NULL,
-                         cell_annotation = NULL, cell_palette = "Paired", cell_palcolor = NULL, cell_annotation_params = list(),
+                         cell_annotation = NULL, cell_palette = "Paired", cell_palcolor = NULL, cell_annotation_params = list(height = grid::unit(10, "mm")),
                          feature_annotation = NULL, feature_palette = "Dark2", feature_palcolor = NULL, feature_annotation_params = list(),
                          use_raster = NULL, raster_device = "png", height = NULL, width = NULL, units = "inch",
                          seed = 11, ht_params = list()) {
@@ -3727,7 +3741,7 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
     if (length(unique(length(cell_palette), length(cell_palcolor), length(cell_annotation))) != 1) {
       stop("cell_palette and cell_palcolor must be the same length as cell_annotation")
     }
-    if (any(!cell_annotation %in% colnames(srt@meta.data))) {
+    if (any(!cell_annotation %in% c(colnames(srt@meta.data), rownames(srt[[assay]])))) {
       stop("cell_annotation: ", cell_annotation[!cell_annotation %in% colnames(srt@meta.data)], " is not in the meta data of the Seurat object.")
     }
   }
@@ -3869,11 +3883,14 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
 
   cell_metadata <- cbind.data.frame(
     data.frame(row.names = cells, cells = cells),
-    srt@meta.data[cells, c(group.by, cell_annotation), drop = FALSE]
+    cbind.data.frame(
+      srt@meta.data[cells, c(group.by, intersect(cell_annotation, colnames(srt@meta.data))), drop = FALSE],
+      t(srt[[assay]]@data[intersect(cell_annotation, rownames(srt[[assay]])) %||% integer(), cells, drop = FALSE])
+    )
   )
   feature_metadata <- cbind.data.frame(
     data.frame(row.names = features_unique, features = features, features_uique = features_unique),
-    srt[[assay]]@meta.features[features, c(feature_annotation), drop = FALSE]
+    srt[[assay]]@meta.features[features, intersect(feature_annotation, colnames(srt[[assay]]@meta.features)), drop = FALSE]
   )
   feature_metadata[, "duplicated"] <- feature_metadata[["features"]] %in% features[duplicated(features)]
 
@@ -4305,7 +4322,6 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
 
   res <- NULL
   if (isTRUE(anno_keys) || isTRUE(anno_features) || isTRUE(anno_terms)) {
-    check_R("ggwordcloud")
     check_R("simplifyEnrichment")
     geneID <- feature_metadata[, "features"]
     geneID_groups <- feature_metadata[, "feature_split"]
@@ -4755,11 +4771,10 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
 #' )
 #' ht1$plot
 #'
-#' library(grid)
 #' ht2 <- ExpHeatmap(
 #'   srt = pancreas_sub, features = de_filter$gene, group.by = c("CellType", "SubCellType"), n_split = 4,
 #'   cluster_rows = TRUE, cluster_row_slices = TRUE, cluster_columns = TRUE, cluster_column_slices = TRUE,
-#'   ht_params = list(row_gap = unit(0, "mm"))
+#'   ht_params = list(row_gap = grid::unit(0, "mm"))
 #' )
 #' ht2$plot
 #'
@@ -4886,7 +4901,7 @@ ExpHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, spli
     if (length(unique(length(cell_palette), length(cell_palcolor), length(cell_annotation))) != 1) {
       stop("cell_palette and cell_palcolor must be the same length as cell_annotation")
     }
-    if (any(!cell_annotation %in% colnames(srt@meta.data))) {
+    if (any(!cell_annotation %in% c(colnames(srt@meta.data), rownames(srt[[assay]])))) {
       stop("cell_annotation: ", cell_annotation[!cell_annotation %in% colnames(srt@meta.data)], " is not in the meta data of the Seurat object.")
     }
   }
@@ -5018,7 +5033,10 @@ ExpHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, spli
 
   cell_metadata <- cbind.data.frame(
     data.frame(row.names = colnames(mat_raw), cells = colnames(mat_raw)),
-    srt@meta.data[colnames(mat_raw), c(group.by, cell_annotation), drop = FALSE]
+    cbind.data.frame(
+      srt@meta.data[colnames(mat_raw), c(group.by, intersect(cell_annotation, colnames(srt@meta.data))), drop = FALSE],
+      t(srt[[assay]]@data[intersect(cell_annotation, rownames(srt[[assay]])) %||% integer(), colnames(mat_raw), drop = FALSE])
+    )
   )
   feature_metadata <- cbind.data.frame(
     data.frame(row.names = features_unique, features = features, features_uique = features_unique),
@@ -5383,7 +5401,6 @@ ExpHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, spli
 
   res <- NULL
   if (isTRUE(anno_keys) || isTRUE(anno_features) || isTRUE(anno_terms)) {
-    check_R("ggwordcloud")
     check_R("simplifyEnrichment")
     geneID <- feature_metadata[, "features"]
     geneID_groups <- feature_metadata[, "feature_split"]
@@ -6176,7 +6193,11 @@ ExpCorPlot <- function(srt, features, group.by = NULL, split.by = NULL, cells = 
 }
 
 
-SimilHeatmap <- function(srt_query, srt_ref) {
+ExpCorHeatmap <- function(srt, features, cells) {
+
+}
+
+CellSimilHeatmap <- function(srt_query, srt_ref) {
 
 }
 
@@ -8926,7 +8947,7 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineag
     if (length(unique(length(cell_palette), length(cell_palcolor), length(cell_annotation))) != 1) {
       stop("cell_palette and cell_palcolor must be the same length as cell_annotation")
     }
-    if (any(!cell_annotation %in% colnames(srt@meta.data))) {
+    if (any(!cell_annotation %in% c(colnames(srt@meta.data), rownames(srt[[assay]])))) {
       stop("cell_annotation: ", cell_annotation[!cell_annotation %in% colnames(srt@meta.data)], " is not in the meta data of the Seurat object.")
     }
   }
@@ -8974,7 +8995,13 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineag
     cell_order_list[[l]] <- paste0(rownames(cell_metadata_sub), l)
   }
   if (!is.null(cell_annotation)) {
-    cell_metadata <- cbind.data.frame(cell_metadata, srt@meta.data[rownames(cell_metadata), cell_annotation, drop = FALSE])
+    cell_metadata <- cbind.data.frame(
+      cell_metadata,
+      cbind.data.frame(
+        srt@meta.data[rownames(cell_metadata), c(intersect(cell_annotation, colnames(srt@meta.data))), drop = FALSE],
+        t(srt[[assay]]@data[intersect(cell_annotation, rownames(srt[[assay]])) %||% integer(), rownames(cell_metadata), drop = FALSE])
+      )
+    )
   }
 
   dynamic <- list()
@@ -9408,7 +9435,6 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineag
 
   res <- NULL
   if (isTRUE(anno_keys) || isTRUE(anno_features) || isTRUE(anno_terms)) {
-    check_R("ggwordcloud")
     check_R("simplifyEnrichment")
     geneID <- feature_metadata[, "features"]
     geneID_groups <- feature_metadata[, "feature_split"]

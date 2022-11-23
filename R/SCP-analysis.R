@@ -454,19 +454,29 @@ CC_GenePrefetch <- function(species, Ensembl_version = 103, mirror = NULL, attem
 #' data("pancreas_sub")
 #' ccgenes <- CC_GenePrefetch("Mus_musculus")
 #' pancreas_sub <- CellScoring(
-#'   srt = pancreas_sub, nbin = 10, name = "CC",
-#'   features = list(S = ccgenes$cc_S_genes, G2M = ccgenes$cc_G2M_genes)
+#'   srt = pancreas_sub,
+#'   features = list(S = ccgenes$cc_S_genes, G2M = ccgenes$cc_G2M_genes),
+#'   method = "Seurat", nbin = 10, name = "CC"
 #' )
 #' ClassDimPlot(pancreas_sub, "CC_classification")
 #' ExpDimPlot(pancreas_sub, "CC_G2M")
+#'
+#' pancreas_sub <- CellScoring(
+#'   srt = pancreas_sub,
+#'   db = "GO_BP", species = "Mus_musculus",
+#'   minGSSize = 50, maxGSSize = 100,
+#'   method = "AUCell", name = "GO_BP", new_assay = TRUE
+#' )
+#'
 #' @importFrom Seurat AddModuleScore AddMetaData
 #' @export
-CellScoring <- function(srt, features, ncores = 1, method = "Seurat", classification = TRUE,
+CellScoring <- function(srt, features = NULL,
+                        IDtype = "symbol", species = "Homo_sapiens",
+                        db = "GO_BP", termnames = NULL, db_update = FALSE, db_version = "latest", convert_species = FALSE,
+                        Ensembl_version = 103, mirror = NULL, minGSSize = 10, maxGSSize = 500,
+                        ncores = 1, method = "Seurat", classification = TRUE,
                         name = "", slot = "data", assay = "RNA", new_assay = FALSE, seed = 11, ...) {
   set.seed(seed)
-  if (!is.list(features) || length(names(features)) == 0) {
-    stop("'features' must be named list")
-  }
   if (!method %in% c("Seurat", "AUCell", "UCell")) {
     stop("method must be 'Seurat', 'AUCell'or 'UCell'.")
   }
@@ -474,6 +484,50 @@ CellScoring <- function(srt, features, ncores = 1, method = "Seurat", classifica
   if (status != "log_normalized_counts") {
     warning("object is not log normalized")
   }
+  if (name == "" && isTRUE(new_assay)) {
+    stop("name must be specified when new_assay=TRUE")
+  }
+  if (is.null(features)) {
+    if (length(db) > 1) {
+      stop("Only one database is supported per run.")
+    }
+    db_list <- PrepareDB(
+      species = species, db = db, db_update = db_update, db_version = db_version,
+      db_IDtypes = IDtype, convert_species = convert_species, Ensembl_version = Ensembl_version, mirror = mirror
+    )
+    TERM2GENE_tmp <- db_list[[species]][[db]][["TERM2GENE"]][, c("Term", IDtype)]
+    TERM2NAME_tmp <- db_list[[species]][[db]][["TERM2NAME"]]
+    dup <- duplicated(TERM2GENE_tmp)
+    na <- rowSums(is.na(TERM2GENE_tmp)) > 0
+    TERM2GENE_tmp <- TERM2GENE_tmp[!(dup | na), ]
+    TERM2NAME_tmp <- TERM2NAME_tmp[TERM2NAME_tmp[, "Term"] %in% TERM2GENE_tmp[, "Term"], ]
+
+    TERM2GENE_tmp <- unique(TERM2GENE_tmp)
+    TERM2NAME_tmp <- unique(TERM2NAME_tmp)
+    rownames(TERM2NAME_tmp) <- TERM2NAME_tmp[, "Term"]
+    features <- split(TERM2GENE_tmp[, IDtype], TERM2NAME_tmp[TERM2GENE_tmp[, "Term"], "Name"])
+    if (is.null(termnames)) {
+      GSSize <- sapply(features, length)
+      features <- features[GSSize >= minGSSize & GSSize <= maxGSSize]
+      message("Number of feature lists to be scored: ", length(features))
+    } else {
+      if (length(intersect(termnames, names(features)) > 0)) {
+        features <- features[intersect(termnames, names(features))]
+      } else {
+        stop("None of termnames found in the db: ", db)
+      }
+    }
+  }
+
+  if (!is.list(features) || length(names(features)) == 0) {
+    stop("'features' must be named list")
+  }
+  features <- lapply(setNames(names(features), names(features)), function(x) features[[x]][features[[x]] %in% rownames(srt[[assay]])])
+  filtered_none <- names(which(sapply(features, length) == 0))
+  if (length(filtered_none) > 0) {
+    warning("The following list of features were filtered because none of features were found in the srt assay:\n", paste0(filtered_none, collapse = ", "))
+  }
+  features <- features[!names(features) %in% filtered_none]
   if (method == "Seurat") {
     ## need to add a 'slot' parameter
     srt_tmp <- AddModuleScore(
@@ -489,7 +543,7 @@ CellScoring <- function(srt, features, ncores = 1, method = "Seurat", classifica
       scores <- srt_tmp[[paste0("X", seq_along(features))]]
     }
   } else if (method == "UCell") {
-    check_R(pkgs = "UCell")
+    check_R("UCell")
     srt_tmp <- UCell::AddModuleScore_UCell(
       srt,
       features = features,
@@ -499,15 +553,25 @@ CellScoring <- function(srt, features, ncores = 1, method = "Seurat", classifica
       assay = assay,
       ...
     )
+    filtered <- names(features)[!paste0(names(features), name) %in% colnames(srt_tmp@meta.data)]
+    if (length(filtered) > 0) {
+      warning("The following list of features were filtered:\n", paste0(filtered, collapse = ", "))
+    }
+    features <- features[!names(features) %in% filtered]
     scores <- srt_tmp[[paste0(names(features), name)]]
   } else if (method == "AUCell") {
-    check_R(pkgs = "AUCell")
+    check_R("AUCell")
     CellRank <- AUCell::AUCell_buildRankings(as.matrix(GetAssayData(srt, slot = slot, assay = assay)), plotStats = FALSE)
     cells_AUC <- AUCell::AUCell_calcAUC(geneSets = features, rankings = CellRank, nCores = ncores)
+    filtered <- names(features)[!names(features) %in% rownames(AUCell::getAUC(cells_AUC))]
+    if (length(filtered) > 0) {
+      warning("The following list of features were filtered:", paste0(filtered, collapse = ", "))
+    }
+    features <- features[!names(features) %in% filtered]
     scores <- as.data.frame(t(AUCell::getAUC(cells_AUC)))[, names(features)]
   }
   if (isTRUE(new_assay)) {
-    srt[[name]] <- CreateAssayObject(counts = t(scores))
+    srt[[name]] <- CreateAssayObject(counts = t(as.matrix(scores)))
   } else {
     colnames(scores) <- make.names(paste(name, names(features), sep = "_"))
     srt <- AddMetaData(object = srt, metadata = scores)
@@ -1099,7 +1163,7 @@ RunDEtest <- function(srt, group_by = NULL, group1 = NULL, group2 = NULL, cells1
 ListDB <- function(species = c("Homo_sapiens", "Mus_musculus"), db = c(
                      "GO_BP", "GO_CC", "GO_MF", "KEGG", "WikiPathway", "Reactome",
                      "ProteinComplex", "DGI", "MP", "DO", "PFAM",
-                     "Chromosome", "GeneType", "Enzyme"
+                     "Chromosome", "GeneType", "Enzyme", "TF", "SP", "CellTalk", "CellChat"
                    )) {
   pathnames <- dir(path = getCacheRootPath(), pattern = "[.]Rcache$", full.names = TRUE)
   if (length(pathnames) == 0) {
@@ -1155,7 +1219,7 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
                       db = c(
                         "GO_BP", "GO_CC", "GO_MF", "KEGG", "WikiPathway", "Reactome",
                         "ProteinComplex", "DGI", "MP", "DO", "PFAM",
-                        "Chromosome", "GeneType", "Enzyme", "TF", "SP", "LR"
+                        "Chromosome", "GeneType", "Enzyme", "TF", "SP", "CellTalk", "CellChat"
                       ),
                       db_IDtypes = c("symbol", "entrez_id", "ensembl_id"),
                       db_version = "latest", db_update = FALSE,
@@ -1168,7 +1232,8 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
       "GO_BP" = "entrez_id", "GO_CC" = "entrez_id", "GO_MF" = "entrez_id", "KEGG" = "entrez_id",
       "WikiPathway" = "entrez_id", "Reactome" = "entrez_id", "ProteinComplex" = "entrez_id",
       "DGI" = "entrez_id", "MP" = "symbol", "DO" = "symbol", "PFAM" = "entrez_id", "Chromosome" = "entrez_id",
-      "GeneType" = "entrez_id", "Enzyme" = "entrez_id", "TF" = "symbol", "SP" = "symbol", "LR" = "symbol"
+      "GeneType" = "entrez_id", "Enzyme" = "entrez_id", "TF" = "symbol", "SP" = "symbol",
+      "CellTalk" = "symbol", "CellChat" = "symbol"
     )
     if (!any(db %in% names(default_IDtypes))) {
       stop("'db' is invalid.")
@@ -1768,22 +1833,25 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
         )
       }
 
-      ## LR ---------------------------------------------------------------------------
-      if (any(db == "LR") && (!"LR" %in% names(db_list[[sps]]))) {
+      ## CellTalk ---------------------------------------------------------------------------
+      if (any(db == "CellTalk") && (!"CellTalk" %in% names(db_list[[sps]]))) {
         if (!sps %in% c("Homo_sapiens", "Mus_musculus")) {
           if (isTRUE(convert_species)) {
-            warning("Use the human annotation to create the LR database for ", sps, immediate. = TRUE)
-            db_species["LR"] <- "Homo_sapiens"
+            warning("Use the human annotation to create the CellTalk database for ", sps, immediate. = TRUE)
+            db_species["CellTalk"] <- "Homo_sapiens"
           } else {
-            warning("LR database only support Homo_sapiens and Mus_musculus. Consider using convert_species=TRUE", immediate. = TRUE)
+            warning("CellTalk database only support Homo_sapiens and Mus_musculus. Consider using convert_species=TRUE", immediate. = TRUE)
             stop("Stop the preparation.")
           }
         }
-        message("Preparing database: LR")
-        url <- paste0("http://tcm.zju.edu.cn/celltalkdb/download/processed_data/", switch(sps,
-          "Homo_sapiens" = "human_lr_pair.txt",
-          "Mus_musculus" = "mouse_lr_pair.txt"
-        ))
+        message("Preparing database: CellTalk")
+        url <- paste0(
+          "http://tcm.zju.edu.cn/celltalkdb/download/processed_data/",
+          switch(sps,
+            "Homo_sapiens" = "human_lr_pair.txt",
+            "Mus_musculus" = "mouse_lr_pair.txt"
+          )
+        )
         temp <- tempfile()
         download(url = url, destfile = temp)
         lr <- read.table(temp, header = TRUE, sep = "\t", stringsAsFactors = FALSE, fill = TRUE, quote = "")
@@ -1799,16 +1867,71 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
           data.frame("Term" = lr[["receptor_gene_symbol2"]], "symbol" = lr[["ligand_gene_symbol"]])
         )
         TERM2NAME <- TERM2GENE[, c(1, 1)]
-        colnames(TERM2GENE) <- c("Term", default_IDtypes["LR"])
+        colnames(TERM2GENE) <- c("Term", default_IDtypes["CellTalk"])
         colnames(TERM2NAME) <- c("Term", "Name")
         TERM2GENE <- na.omit(unique(TERM2GENE))
         TERM2NAME <- na.omit(unique(TERM2NAME))
-        db_list[[db_species["LR"]]][["LR"]][["TERM2GENE"]] <- TERM2GENE
-        db_list[[db_species["LR"]]][["LR"]][["TERM2NAME"]] <- TERM2NAME
-        db_list[[db_species["LR"]]][["LR"]][["version"]] <- version
-        saveCache(db_list[[db_species["LR"]]][["LR"]],
-          key = list(version, db_species["LR"], "LR"),
-          comment = paste0(version, " nterm:", length(TERM2NAME[[1]]), "|", db_species["LR"], "-LR")
+        db_list[[db_species["CellTalk"]]][["CellTalk"]][["TERM2GENE"]] <- TERM2GENE
+        db_list[[db_species["CellTalk"]]][["CellTalk"]][["TERM2NAME"]] <- TERM2NAME
+        db_list[[db_species["CellTalk"]]][["CellTalk"]][["version"]] <- version
+        saveCache(db_list[[db_species["CellTalk"]]][["CellTalk"]],
+          key = list(version, db_species["CellTalk"], "CellTalk"),
+          comment = paste0(version, " nterm:", length(TERM2NAME[[1]]), "|", db_species["CellTalk"], "-CellTalk")
+        )
+      }
+
+      ## CellChat ---------------------------------------------------------------------------
+      if (any(db == "CellChat") && (!"CellChat" %in% names(db_list[[sps]]))) {
+        if (!sps %in% c("Homo_sapiens", "Mus_musculus")) {
+          if (isTRUE(convert_species)) {
+            warning("Use the human annotation to create the CellChat database for ", sps, immediate. = TRUE)
+            db_species["CellChat"] <- "Homo_sapiens"
+          } else {
+            warning("CellChat database only support Homo_sapiens and Mus_musculus. Consider using convert_species=TRUE", immediate. = TRUE)
+            stop("Stop the preparation.")
+          }
+        }
+        message("Preparing database: CellChat")
+        url <- paste0(
+          "https://raw.githubusercontent.com/sqjin/CellChat/master/data/CellChatDB.",
+          switch(sps,
+            "Homo_sapiens" = "human.rda",
+            "Mus_musculus" = "mouse.rda",
+            "Danio_rerio" = "zebrafish.rda"
+          )
+        )
+        temp <- tempfile()
+        download(url = url, destfile = temp)
+        load(temp)
+        lr <- get(paste0("CellChatDB.", switch(sps,
+          "Homo_sapiens" = "human",
+          "Mus_musculus" = "mouse",
+          "Danio_rerio" = "zebrafish"
+        )))[["interaction"]]
+        download(url = "https://github.com/sqjin/CellChat/blob/master/DESCRIPTION", destfile = temp)
+        version <- grep(pattern = "Version", x = readLines(temp), value = T)
+        version <- gsub(pattern = "(.*Version: )|(</td>)", replacement = "", x = version)
+        unlink(temp)
+
+        lr_list <- strsplit(lr$interaction_name, split = "_")
+        lr[["ligand_gene_symbol"]] <- paste0("ligand_", sapply(lr_list, function(x) x[[1]]))
+        lr[["receptor_list"]] <- lapply(lr_list, function(x) paste0("receptor_", x[2:length(x)]))
+        lr <- unnest(data = lr, cols = "receptor_list", keep_empty = FALSE)
+        TERM2GENE <- rbind(
+          data.frame("Term" = lr[["ligand_gene_symbol"]], "symbol" = gsub(pattern = "receptor_", replacement = "", lr[["receptor_list"]])),
+          data.frame("Term" = lr[["receptor_list"]], "symbol" = gsub(pattern = "ligand_", replacement = "", lr[["ligand_gene_symbol"]]))
+        )
+        TERM2NAME <- TERM2GENE[, c(1, 1)]
+        colnames(TERM2GENE) <- c("Term", default_IDtypes["CellChat"])
+        colnames(TERM2NAME) <- c("Term", "Name")
+        TERM2GENE <- na.omit(unique(TERM2GENE))
+        TERM2NAME <- na.omit(unique(TERM2NAME))
+        db_list[[db_species["CellChat"]]][["CellChat"]][["TERM2GENE"]] <- TERM2GENE
+        db_list[[db_species["CellChat"]]][["CellChat"]][["TERM2NAME"]] <- TERM2NAME
+        db_list[[db_species["CellChat"]]][["CellChat"]][["version"]] <- version
+        saveCache(db_list[[db_species["CellChat"]]][["CellChat"]],
+          key = list(version, db_species["CellChat"], "CellChat"),
+          comment = paste0(version, " nterm:", length(TERM2NAME[[1]]), "|", db_species["CellChat"], "-CellChat")
         )
       }
 
@@ -3425,7 +3548,7 @@ RunDynamicFeatures <- function(srt, lineages, features = NULL, suffix = lineages
 #'   srt = pancreas_sub,
 #'   lineages = "Lineage1",
 #'   cell_annotation = "SubCellType",
-#'   n_split = 6
+#'   n_split = 4
 #' )
 #' ht_result1$plot
 #'
@@ -3441,7 +3564,8 @@ RunDynamicFeatures <- function(srt, lineages, features = NULL, suffix = lineages
 #'   assay = "GO_BP",
 #'   lineages = "Lineage1_GO_BP",
 #'   cell_annotation = "SubCellType",
-#'   n_split = 6
+#'   n_split = 4,
+#'   split_method = "kmeans-peaktime",
 #' )
 #' ht_result2$plot
 #' @export
@@ -3449,7 +3573,7 @@ RunDynamicEnrichment <- function(srt, lineages,
                                  score_method = "AUCell", ncore = 1,
                                  slot = "data", assay = "RNA",
                                  min_expcells = 20, r.sq = 0.2, dev.expl = 0.2, padjust = 0.05,
-                                 geneID = NULL, IDtype = "symbol", species = "Homo_sapiens",
+                                 IDtype = "symbol", species = "Homo_sapiens",
                                  db = "GO_BP", db_update = FALSE, db_version = "latest", convert_species = FALSE,
                                  Ensembl_version = 103, mirror = NULL,
                                  TERM2GENE = NULL, TERM2NAME = NULL, minGSSize = 10, maxGSSize = 500,
@@ -3622,7 +3746,10 @@ srt_to_adata <- function(srt,
         if (all(colnames(X) %in% colnames(layer))) {
           layer <- layer[, colnames(X)]
         } else {
-          stop("Matrix in assay '", assay, "' should contain the same features with assay '", assay_X, "'")
+          stop(
+            "The following features in the '", assay_X, "' assay can not be found in the '", assay, "' assay:\n  ",
+            paste0(head(colnames(X)[!colnames(X) %in% colnames(layer)], 10), collapse = ","), "..."
+          )
         }
       }
       layer_list[[assay]] <- layer
