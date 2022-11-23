@@ -70,12 +70,14 @@ GroupHeatmap(
   features_label = NULL,
   label_size = 10,
   label_color = "black",
-  add_dot = FALSE,
-  dot_size = unit(8, "mm"),
   add_bg = FALSE,
   bg_alpha = 0.5,
+  add_dot = FALSE,
+  dot_size = unit(8, "mm"),
   add_reticle = FALSE,
   reticle_color = "grey",
+  add_violin = FALSE,
+  fill.by = "feature",
   heatmap_palette = "YlOrRd",
   heatmap_palcolor = NULL,
   group_palette = "Paired",
@@ -149,7 +151,7 @@ de_filter <- filter(pancreas_sub@tools$DEtest_CellType$AllMarkers_wilcox, p_val_
 ht2 <- GroupHeatmap(
   srt = pancreas_sub, features = de_filter$gene, group.by = "CellType",
   split.by = "Phase", cell_split_palcolor = list(c("grey", "gold", "deeppink")),
-  nlabel = 20, show_row_names = FALSE
+  nlabel = 10, show_row_names = FALSE
 )
 ht2$plot
 
@@ -177,11 +179,17 @@ ht4 <- GroupHeatmap(pancreas_sub,
 ht4$plot
 
 ht5 <- GroupHeatmap(pancreas_sub,
+  features = de_top$gene, feature_split = de_top$group1, group.by = "CellType",
+  add_violin = TRUE, cluster_rows = TRUE
+)
+ht5$plot
+
+ht6 <- GroupHeatmap(pancreas_sub,
   features = de_top$gene, group.by = "CellType", split.by = "Phase", n_split = 4,
   cluster_rows = TRUE, cluster_columns = TRUE, cluster_row_slices = TRUE, cluster_column_slices = TRUE,
   add_dot = TRUE, add_reticle = TRUE, heatmap_palette = "viridis",
   ht_params = list(row_gap = grid::unit(0, "mm"))
 )
-ht5$plot
+ht6$plot
 
 }
