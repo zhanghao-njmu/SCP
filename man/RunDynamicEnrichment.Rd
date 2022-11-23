@@ -63,7 +63,7 @@ ht_result2 <- DynamicHeatmap(
   lineages = "Lineage1_GO_BP",
   cell_annotation = "SubCellType",
   n_split = 4,
-  split_method = "kmeans-peaktime",
+  split_method = "kmeans-peaktime"
 )
 ht_result2$plot
 }

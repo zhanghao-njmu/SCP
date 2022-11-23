@@ -90,7 +90,6 @@ Suggests:
     scDblFinder,
     scmap,
     styler,
-    symphony,
     SingleR,
     testthat (>= 3.0.0),
     UCell,
