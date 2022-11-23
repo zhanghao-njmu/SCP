@@ -87,7 +87,11 @@ GroupHeatmap(
   cell_annotation = NULL,
   cell_palette = "Paired",
   cell_palcolor = NULL,
+<<<<<<< HEAD
   cell_annotation_params = list(height = grid::unit(10, "mm")),
+=======
+  cell_annotation_params = list(),
+>>>>>>> b2884608a841abf5ec18e858457f9a9bf438c377
   feature_annotation = NULL,
   feature_palette = "Dark2",
   feature_palcolor = NULL,
