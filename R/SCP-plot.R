@@ -1443,7 +1443,7 @@ ClassDimPlot <- function(srt, group.by = "orig.ident", reduction = NULL, dims = 
         colnames(coor_df)[1] <- "group"
         x_range <- diff(layer_scales(p)$x$range$range)
         y_range <- diff(layer_scales(p)$y$range$range)
-        stat_plot <- subplots[paste0(g, ":", s, ":", levels(dat[, "group.by"]))]
+        stat_plot <- subplots[paste0(g, ":", levels(dat[, "group.by"]), ":", s)]
         names(stat_plot) <- levels(dat[, "group.by"])
 
         stat_plot_list <- list()
@@ -4084,10 +4084,11 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
       } else {
         for (cell_group in group.by) {
           subplots <- ExpVlnPlot(srt,
+            assay = assay, slot = slot,
             features = cellan, cells = names(cell_groups[[cell_group]]),
             group.by = cell_group, split.by = split.by,
             palette = palette, palcolor = palcolor,
-            same.y.lims = TRUE,
+            fill.by = "group", same.y.lims = TRUE,
             stat_single = TRUE, combine = FALSE
           )
           subplots_list[[paste0(cellan, ":", cell_group)]] <- subplots
@@ -4583,6 +4584,7 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
 
     if (isTRUE(add_violin)) {
       vlnplots <- ExpVlnPlot(srt,
+        assay = assay, slot = slot,
         features = rownames(mat_list[[cell_group]]),
         cells = names(cell_groups[[cell_group]]),
         group.by = cell_group, split.by = split.by,
