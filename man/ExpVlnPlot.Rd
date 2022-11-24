@@ -36,6 +36,7 @@ ExpVlnPlot(
   calculate_coexp = FALSE,
   compare_features = FALSE,
   y.nbreaks = 3,
+  y.min = NULL,
   y.max = NULL,
   same.y.lims = FALSE,
   y.trans = "identity",

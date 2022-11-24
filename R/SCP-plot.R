@@ -3104,7 +3104,7 @@ ExpVlnPlot <- function(srt, features = NULL, group.by = NULL, split.by = NULL, b
                        add_point = FALSE, pt.color = "black", pt.size = NULL, pt.alpha = 1, jitter.width = 1,
                        cells.highlight = NULL, cols.highlight = "red", sizes.highlight = 1, alpha.highlight = 1,
                        calculate_coexp = FALSE, compare_features = FALSE,
-                       y.nbreaks = 3, y.max = NULL, same.y.lims = FALSE, y.trans = "identity",
+                       y.nbreaks = 3, y.min = NULL, y.max = NULL, same.y.lims = FALSE, y.trans = "identity",
                        sort = FALSE, adjust = 1, split.plot = FALSE,
                        stack = FALSE, fill.by = "group", flip = FALSE,
                        comparisons = list(), ref_group = NULL, pairwise_method = "wilcox.test",
@@ -3237,8 +3237,12 @@ ExpVlnPlot <- function(srt, features = NULL, group.by = NULL, split.by = NULL, b
     }
   }
   if (isTRUE(same.y.lims) && is.null(y.max)) {
-    y.max <- max(unlist(dat_exp[, features])[is.finite(unlist(dat_exp[, features]))])
+    y.max <- max(as.matrix(dat_exp[, features])[is.finite(as.matrix(dat_exp[, features]))])
   }
+  if (isTRUE(same.y.lims) && is.null(y.min)) {
+    y.min <- min(as.matrix(dat_exp[, features])[is.finite(as.matrix(dat_exp[, features]))])
+  }
+
   if (!is.null(bg.by)) {
     bg_color <- palette_scp(levels(dat_use[[bg.by]]), palette = bg_palette, palcolor = bg_palcolor)
   }
@@ -3248,7 +3252,7 @@ ExpVlnPlot <- function(srt, features = NULL, group.by = NULL, split.by = NULL, b
   xlab <- xlab %||% group.by
   ylab <- ylab %||% "Expression level"
   for (g in group.by) {
-    if ((isTRUE(stack) || split.by != "No.split.by") && (fill.by == "feature")) {
+    if (fill.by == "feature") {
       colors <- palette_scp(features, palette = palette, palcolor = palcolor)
     } else if (split.by != "No.split.by") {
       colors <- palette_scp(levels(dat_use[[split.by]]), palette = palette, palcolor = palcolor)
@@ -3282,11 +3286,8 @@ ExpVlnPlot <- function(srt, features = NULL, group.by = NULL, split.by = NULL, b
               rownames(stat)[stat_drop[i, 1]]
             }
           }
-          if (nrow(dat) == 0) {
-            next
-          }
-          dat[, "features"] <- f
-          if ((is.character(x = sort) && nchar(x = sort) > 0) || sort) {
+          dat[, "features"] <- rep(f, nrow(dat))
+          if (nrow(dat) > 0 && ((is.character(x = sort) && nchar(x = sort) > 0) || sort)) {
             df_sort <- aggregate(dat[, "value", drop = FALSE], by = list(dat[["group.by"]]), mean)
             if (is.character(sort) && sort == "increasing") {
               decreasing <- FALSE
@@ -3297,7 +3298,7 @@ ExpVlnPlot <- function(srt, features = NULL, group.by = NULL, split.by = NULL, b
             dat[, "group.by"] <- factor(dat[, "group.by"], levels = sortlevel)
           }
           if (fill.by == "feature") {
-            dat[, "fill.by"] <- f
+            dat[, "fill.by"] <- rep(f, nrow(dat))
             keynm <- "Features"
           } else {
             dat[, "fill.by"] <- dat[, "group.by"]
@@ -3305,16 +3306,15 @@ ExpVlnPlot <- function(srt, features = NULL, group.by = NULL, split.by = NULL, b
           }
           if (split.by != "No.split.by") {
             levels_order <- levels(dat[["split.by"]])
-            dat[, "fill.by"] <- dat[, "split.by"]
           } else {
             levels_order <- levels(dat[["group.by"]])
           }
 
           comb <- expand.grid(x = levels(dat[["split.by"]]), y = levels(dat[["group.by"]]))
-          dat[, "group"] <- factor(paste("a", dat[["split.by"]], "b", dat[["group.by"]], sep = "-"), levels = paste("a", comb[[1]], "b", comb[[2]], sep = "-"))
+          dat[, "group"] <- head(factor(paste("a", dat[["split.by"]], "b", dat[["group.by"]], sep = "-"), levels = paste("a", comb[[1]], "b", comb[[2]], sep = "-")), nrow(dat))
 
-          y_max_use <- y.max %||% max(dat[, "value"][is.finite(x = dat[, "value"])])
-          y_min_use <- min(dat[, "value"][is.finite(x = dat[, "value"])])
+          y_max_use <- y.max %||% suppressWarnings(max(dat[, "value"][is.finite(x = dat[, "value"])]))
+          y_min_use <- y.min %||% suppressWarnings(min(dat[, "value"][is.finite(x = dat[, "value"])]))
 
           if (isTRUE(flip)) {
             dat[["group.by"]] <- factor(dat[["group.by"]], levels = rev(levels(dat[["group.by"]])))
@@ -3396,15 +3396,21 @@ ExpVlnPlot <- function(srt, features = NULL, group.by = NULL, split.by = NULL, b
               )
           }
 
-          if (isTRUE(stack) && !isTRUE(flip)) {
-            p <- p + facet_grid(features ~ .) + theme(strip.text.y = element_text(angle = 0))
+          if (nrow(dat) == 0) {
+            p <- p + facet_null()
           } else {
-            p <- p + facet_grid(. ~ features)
+            if (isTRUE(stack) && !isTRUE(flip)) {
+              p <- p + facet_grid(features ~ .) + theme(strip.text.y = element_text(angle = 0))
+            } else {
+              p <- p + facet_grid(. ~ features)
+            }
+          }
+          p <- p + labs(title = title, subtitle = subtitle, x = xlab, y = ylab)
+          if (nrow(dat) != 0) {
+            p <- p + scale_x_discrete(drop = !keep_empty)
           }
 
-          p <- p + labs(title = title, subtitle = subtitle, x = xlab, y = ylab) +
-            scale_x_discrete(drop = !keep_empty) +
-            scale_y_continuous(limits = c(y_min_use, y_max_use), trans = y.trans, n.breaks = y.nbreaks) +
+          p <- p + scale_y_continuous(limits = c(y_min_use, y_max_use), trans = y.trans, n.breaks = y.nbreaks) +
             scale_fill_manual(name = paste0(keynm, ":"), values = colors, breaks = levels_order, drop = FALSE) +
             scale_color_manual(name = paste0(keynm, ":"), values = colors, breaks = levels_order, drop = FALSE) +
             guides(fill = guide_legend(
@@ -3438,7 +3444,7 @@ ExpVlnPlot <- function(srt, features = NULL, group.by = NULL, split.by = NULL, b
               legend.direction = legend.direction
             ))
           }
-          plist[[paste0(f, ":", g, ":", paste0(sp, collapse = ","), ":", paste0(single_group, collapse = ","))]] <- p
+          plist[[paste0(f, ":", g, ":", paste0(single_group, collapse = ","), ":", paste0(sp, collapse = ","))]] <- p
         }
       }
     }
@@ -3570,6 +3576,25 @@ matrix_process <- function(matrix, method = c("raw", "zscore", "fc", "log2fc", "
   return(matrix_processed)
 }
 
+extractgrobs <- function(vlnplots, x_nm, y_nm, x, y) {
+  grobs <- vlnplots[paste0(x_nm[x], ":", y_nm[y])]
+  if (length(grobs) == 1) {
+    grobs <- grobs[[1]]
+  }
+  return(grobs)
+}
+
+#' @importFrom grid viewport grid.draw
+grid_draw <- function(groblist, x, y, width, height) {
+  if (is.grob(groblist)) {
+    groblist <- list(groblist)
+  }
+  for (i in seq_along(groblist)) {
+    groblist[[i]]$vp <- viewport(x = x[i], y = y[i], width = width[i], height = height[i])
+    grid.draw(groblist[[i]])
+  }
+}
+
 #' GroupHeatmap
 #'
 #' @param srt A \code{Seurat} object.
@@ -3612,7 +3637,7 @@ matrix_process <- function(matrix, method = c("raw", "zscore", "fc", "log2fc", "
 #' ht2 <- GroupHeatmap(
 #'   srt = pancreas_sub, features = de_filter$gene, group.by = "CellType",
 #'   split.by = "Phase", cell_split_palcolor = list(c("grey", "gold", "deeppink")),
-#'   nlabel = 20, show_row_names = FALSE
+#'   nlabel = 10, show_row_names = FALSE
 #' )
 #' ht2$plot
 #'
@@ -3640,17 +3665,23 @@ matrix_process <- function(matrix, method = c("raw", "zscore", "fc", "log2fc", "
 #' ht4$plot
 #'
 #' ht5 <- GroupHeatmap(pancreas_sub,
+#'   features = de_top$gene, feature_split = de_top$group1, group.by = "CellType",
+#'   add_violin = TRUE, cluster_rows = TRUE
+#' )
+#' ht5$plot
+#'
+#' ht6 <- GroupHeatmap(pancreas_sub,
 #'   features = de_top$gene, group.by = "CellType", split.by = "Phase", n_split = 4,
 #'   cluster_rows = TRUE, cluster_columns = TRUE, cluster_row_slices = TRUE, cluster_column_slices = TRUE,
 #'   add_dot = TRUE, add_reticle = TRUE, heatmap_palette = "viridis",
 #'   ht_params = list(row_gap = grid::unit(0, "mm"))
 #' )
-#' ht5$plot
+#' ht6$plot
 #'
 #' @importFrom circlize colorRamp2
 #' @importFrom stats aggregate formula quantile
 #' @importFrom ComplexHeatmap Legend HeatmapAnnotation anno_block anno_simple anno_customize Heatmap draw pindex restore_matrix
-#' @importFrom grid gpar grid.grabExpr grid.rect grid.points grid.draw
+#' @importFrom grid gpar grid.grabExpr grid.lines grid.rect grid.points grid.draw
 #' @importFrom ggplot2 ggplotGrob theme_void theme facet_null
 #' @importFrom cowplot plot_grid
 #' @importFrom scales alpha
@@ -3671,7 +3702,10 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
                          pvalueCutoff = NULL, padjustCutoff = 0.05, topTerm = 5, show_termid = FALSE, topWord = 20, min_word_length = 3,
                          exclude_words = c("cell", "cellular", "dna", "rna", "protein", "development", "organization", "system", "regulation", "positive", "negative", "response", "process"),
                          nlabel = 0, features_label = NULL, label_size = 10, label_color = "black",
-                         add_dot = FALSE, dot_size = unit(8, "mm"), add_bg = FALSE, bg_alpha = 0.5, add_reticle = FALSE, reticle_color = "grey",
+                         add_bg = FALSE, bg_alpha = 0.5,
+                         add_dot = FALSE, dot_size = unit(8, "mm"),
+                         add_reticle = FALSE, reticle_color = "grey",
+                         add_violin = FALSE, fill.by = "feature",
                          heatmap_palette = "YlOrRd", heatmap_palcolor = NULL, group_palette = "Paired", group_palcolor = NULL,
                          cell_split_palette = "jco", cell_split_palcolor = NULL, feature_split_palette = "jama", feature_split_palcolor = NULL,
                          cell_annotation = NULL, cell_palette = "Paired", cell_palcolor = NULL, cell_annotation_params = list(height = grid::unit(10, "mm")),
@@ -4070,9 +4104,9 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
           }
           x_nm <- sapply(strsplit(levels(cell_groups[[cell_group]]), "_split_by_"), function(x) {
             if (length(x) == 2) {
-              paste0(c(cellan, cell_group, x[2], x[1]), collapse = ":")
+              paste0(c(cellan, cell_group, x[1], x[2]), collapse = ":")
             } else {
-              paste0(c(cellan, cell_group, "", x[1]), collapse = ":")
+              paste0(c(cellan, cell_group, x[1], ""), collapse = ":")
             }
           })
           ha_cell <- list()
@@ -4525,6 +4559,16 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
     use_raster <- ifelse(max(sapply(mat_list, ncol)) * length(features) > 1e7, TRUE, FALSE)
   }
   ht_list <- NULL
+  vlnplots_list <- NULL
+  x_nm_list <- NULL
+  y_nm_list <- NULL
+  if (fill.by == "group") {
+    palette <- group_palette
+    palcolor <- group_palcolor
+  } else {
+    palette <- feature_palette
+    palcolor <- feature_palcolor
+  }
   for (cell_group in group.by) {
     if (cell_group == group.by[1]) {
       left_annotation <- ha_left
@@ -4536,8 +4580,42 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
     } else {
       right_annotation <- NULL
     }
+
+    if (isTRUE(add_violin)) {
+      vlnplots <- ExpVlnPlot(srt,
+        features = rownames(mat_list[[cell_group]]),
+        cells = names(cell_groups[[cell_group]]),
+        group.by = cell_group, split.by = split.by,
+        palette = palette, palcolor = palcolor,
+        fill.by = fill.by, same.y.lims = TRUE,
+        stat_single = TRUE, combine = FALSE
+      )
+      for (nm in names(vlnplots)) {
+        vlnplots[[nm]] <- ggplotGrob(vlnplots[[nm]] + facet_null() + theme_void() + theme(legend.position = "none"))
+      }
+      vlnplots_list[[paste0("heatmap_group:", cell_group)]] <- vlnplots
+      x_nm <- rownames(mat_list[[cell_group]])
+      x_nm_list[[paste0("heatmap_group:", cell_group)]] <- x_nm
+      y_nm <- sapply(strsplit(levels(cell_groups[[cell_group]]), "_split_by_"), function(x) {
+        if (length(x) == 2) {
+          paste0(c(cell_group, x[1], x[2]), collapse = ":")
+        } else {
+          paste0(c(cell_group, x[1], ""), collapse = ":")
+        }
+      })
+      y_nm_list[[paste0("heatmap_group:", cell_group)]] <- y_nm
+
+      # popViewport()
+      # grid.draw(roundrectGrob())
+      # groblist <- extractgrobs(vlnplots = vlnplots_list[[paste0('heatmap_group:' ,cell_group)]],
+      #                          x_nm =  x_nm_list[[paste0('heatmap_group:', cell_group)]],
+      #                          y_nm= y_nm_list[[paste0('heatmap_group:',cell_group)]],
+      #                          x = 1:4,y = 1:4);
+      # grid_draw(groblist, x = unit(c(0.33,0.67,0.33,0.67),'npc'), y = unit(c(0.67,0.67,0.67,0.67),'npc'));
+    }
+
     funbody <- paste0(
-      if (isTRUE(add_dot)) {
+      if (isTRUE(add_dot) || isTRUE(add_violin)) {
         "grid.rect(x, y,
           width = width, height = height,
           gp = gpar(col = 'white', lwd = 1, fill = 'white')
@@ -4572,8 +4650,33 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
           gp = gpar(col = 'black', lwd = 1, fill = fill)
         );
         ")
+      },
+      if (isTRUE(add_violin)) {
+        paste0("
+        groblist <- extractgrobs(vlnplots = vlnplots_list[[paste0('heatmap_group:', '", cell_group, "')]],
+               x_nm =  x_nm_list[[paste0('heatmap_group:', '", cell_group, "')]],
+               y_nm= y_nm_list[[paste0('heatmap_group:', '", cell_group, "')]],
+               x = i,y = j);
+        grid_draw(groblist, x = x, y = y, width = width, height = height);
+        ")
       }
     )
+    # groblist <- extractgrobs(vlnplots = vlnplots_list[[paste0("heatmap_group:", cell_group)]],
+    #                          x_nm =  x_nm_list[[paste0("heatmap_group:", cell_group)]],
+    #                          y_nm= y_nm_list[[paste0("heatmap_group:", cell_group)]],
+    #                          x = 1:3,y = 1:3)
+    #
+    #
+    #
+    # grob <- groblist[[paste0(
+    #   x_nm_list[[paste0("heatmap_group:", cell_group)]][1],
+    #   ":",
+    #   y_nm_list[[paste0("heatmap_group:", cell_group)]][1]
+    # )]]
+    # ind_mat = restore_matrix(j, i, x, y);
+    # ind = unique(ind_mat);
+    # grid_draw(groblist,x=x[ind],y= y[ind]);
+
     funbody <- gsub(pattern = "\n", replacement = "", x = funbody)
     eval(parse(text = paste("layer_fun <- function(j, i, x, y, width, height, fill) {", funbody, "}", sep = "")), envir = environment())
 
@@ -4650,6 +4753,7 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
   # print(paste0("lgd_sum_height:",paste0(round(sum(lgd_height),3),collapse = ",")))
   # print(paste0("lgd_height:",paste0(round(lgd_height,3),collapse = ",")))
   # print(paste0("lgd_split:",paste0(round(lgd_split,3),collapse = ",")))
+
   lgd_width_split <- split(lgd_width, lgd_split)
   width <- convertUnit(unit(width, units = units) + do.call(sum, lapply(lgd_width_split, max)), units)
 
@@ -6550,7 +6654,7 @@ ClassStatPlot <- function(srt, stat.by = "orig.ident", group.by = NULL, split.by
               order = 1,
               override.aes = list(size = 4.5, color = "black", alpha = 1)
             ))
-          plist[[paste0(g, ":", sp, ":", paste0(single_group, collapse = ","))]] <- p
+          plist[[paste0(g, ":", paste0(single_group, collapse = ","), ":", sp)]] <- p
         }
       }
     }
