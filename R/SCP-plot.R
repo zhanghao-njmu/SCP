@@ -4055,9 +4055,9 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
           }
           x_nm <- sapply(strsplit(levels(cell_groups[[cell_group]]), "_split_by_"), function(x) {
             if (length(x) == 2) {
-              paste0(c(cell_group, x[2], x[1]), collapse = ":")
+              paste0(c(cell_group, x[1], x[2]), collapse = ":")
             } else {
-              paste0(c(cell_group, "", x[1]), collapse = ":")
+              paste0(c(cell_group, x[1], ""), collapse = ":")
             }
           })
 
