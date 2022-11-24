@@ -4084,7 +4084,7 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
       } else {
         for (cell_group in group.by) {
           subplots <- ExpVlnPlot(srt,
-            assay = assay, slot = slot,
+            assay = assay, slot = "data",
             features = cellan, cells = names(cell_groups[[cell_group]]),
             group.by = cell_group, split.by = split.by,
             palette = palette, palcolor = palcolor,
@@ -4584,7 +4584,7 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
 
     if (isTRUE(add_violin)) {
       vlnplots <- ExpVlnPlot(srt,
-        assay = assay, slot = slot,
+        assay = assay, slot = "data",
         features = rownames(mat_list[[cell_group]]),
         cells = names(cell_groups[[cell_group]]),
         group.by = cell_group, split.by = split.by,
