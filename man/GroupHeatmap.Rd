@@ -78,6 +78,8 @@ GroupHeatmap(
   reticle_color = "grey",
   add_violin = FALSE,
   fill.by = "feature",
+  fill_palette = "Dark2",
+  fill_palcolor = NULL,
   heatmap_palette = "YlOrRd",
   heatmap_palcolor = NULL,
   group_palette = "Paired",
@@ -185,11 +187,17 @@ ht5 <- GroupHeatmap(pancreas_sub,
 ht5$plot
 
 ht6 <- GroupHeatmap(pancreas_sub,
+  features = de_top$gene, feature_split = de_top$group1, group.by = "CellType",
+  add_violin = TRUE, fill.by = "expression", fill_palette = "Blues", cluster_rows = TRUE
+)
+ht6$plot
+
+ht7 <- GroupHeatmap(pancreas_sub,
   features = de_top$gene, group.by = "CellType", split.by = "Phase", n_split = 4,
   cluster_rows = TRUE, cluster_columns = TRUE, cluster_row_slices = TRUE, cluster_column_slices = TRUE,
   add_dot = TRUE, add_reticle = TRUE, heatmap_palette = "viridis",
   ht_params = list(row_gap = grid::unit(0, "mm"))
 )
-ht6$plot
+ht7$plot
 
 }

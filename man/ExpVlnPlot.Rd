@@ -10,6 +10,7 @@ ExpVlnPlot(
   group.by = NULL,
   split.by = NULL,
   bg.by = NULL,
+  fill.by = c("group", "feature", "expression"),
   cells = NULL,
   slot = "data",
   assay = "RNA",
@@ -44,7 +45,6 @@ ExpVlnPlot(
   adjust = 1,
   split.plot = FALSE,
   stack = FALSE,
-  fill.by = "group",
   flip = FALSE,
   comparisons = list(),
   ref_group = NULL,
@@ -78,6 +78,7 @@ Violin plot for cell expression.
 data("pancreas_sub")
 ExpVlnPlot(pancreas_sub, features = c("G2M_score", "S_score"), group.by = "SubCellType")
 ExpVlnPlot(pancreas_sub, features = c("G2M_score", "S_score"), group.by = "SubCellType", split.by = "Phase")
+ExpVlnPlot(pancreas_sub, features = c("G2M_score", "S_score"), group.by = "SubCellType", fill.by = "expression", palette = "Blues")
 ExpVlnPlot(pancreas_sub, features = c("Neurog3", "Fev"), group.by = "SubCellType", bg.by = "CellType", stack = TRUE)
 ExpVlnPlot(pancreas_sub, features = c("Rbp4", "Pyy"), group.by = "SubCellType", comparisons = list(c("Alpha", "Beta"), c("Alpha", "Delta")), multiplegroup_comparisons = TRUE)
 ExpVlnPlot(pancreas_sub,

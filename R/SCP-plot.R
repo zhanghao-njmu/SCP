@@ -3076,6 +3076,7 @@ geom_split_violin <- function(mapping = NULL, data = NULL, stat = "ydensity", po
 #' data("pancreas_sub")
 #' ExpVlnPlot(pancreas_sub, features = c("G2M_score", "S_score"), group.by = "SubCellType")
 #' ExpVlnPlot(pancreas_sub, features = c("G2M_score", "S_score"), group.by = "SubCellType", split.by = "Phase")
+#' ExpVlnPlot(pancreas_sub, features = c("G2M_score", "S_score"), group.by = "SubCellType", fill.by = "expression", palette = "Blues")
 #' ExpVlnPlot(pancreas_sub, features = c("Neurog3", "Fev"), group.by = "SubCellType", bg.by = "CellType", stack = TRUE)
 #' ExpVlnPlot(pancreas_sub, features = c("Rbp4", "Pyy"), group.by = "SubCellType", comparisons = list(c("Alpha", "Beta"), c("Alpha", "Delta")), multiplegroup_comparisons = TRUE)
 #' ExpVlnPlot(pancreas_sub,
@@ -3095,7 +3096,7 @@ geom_split_violin <- function(mapping = NULL, data = NULL, stat = "ydensity", po
 #' @importFrom rlang %||%
 #' @importFrom cowplot plot_grid
 #' @export
-ExpVlnPlot <- function(srt, features = NULL, group.by = NULL, split.by = NULL, bg.by = NULL,
+ExpVlnPlot <- function(srt, features = NULL, group.by = NULL, split.by = NULL, bg.by = NULL, fill.by = c("group", "feature", "expression"),
                        cells = NULL, slot = "data", assay = "RNA",
                        keep_empty = FALSE, stat_single = FALSE,
                        palette = "Paired", palcolor = NULL, alpha = 1,
@@ -3106,7 +3107,7 @@ ExpVlnPlot <- function(srt, features = NULL, group.by = NULL, split.by = NULL, b
                        calculate_coexp = FALSE, compare_features = FALSE,
                        y.nbreaks = 3, y.min = NULL, y.max = NULL, same.y.lims = FALSE, y.trans = "identity",
                        sort = FALSE, adjust = 1, split.plot = FALSE,
-                       stack = FALSE, fill.by = "group", flip = FALSE,
+                       stack = FALSE, flip = FALSE,
                        comparisons = list(), ref_group = NULL, pairwise_method = "wilcox.test",
                        multiplegroup_comparisons = FALSE, multiple_method = "kruskal.test",
                        theme_use = "theme_scp", aspect.ratio = NULL, title = NULL, subtitle = NULL, xlab = group.by, ylab = "Expression level",
@@ -3121,13 +3122,8 @@ ExpVlnPlot <- function(srt, features = NULL, group.by = NULL, split.by = NULL, b
   if (is.null(group.by)) {
     stop("'group.by' must be provided.")
   }
-  if (!(fill.by %in% c("feature", "group"))) {
-    stop("`fill.by` must be either `feature` or `group`")
-  }
+  fill.by <- match.arg(fill.by)
   if (isTRUE(stack)) {
-    if (fill.by == "feature" && !is.null(split.by)) {
-      warning("split.by is not used when stacking violin plots with fill.by='feature'")
-    }
     split.by <- NULL
     if (isTRUE(sort)) {
       sort <- FALSE
@@ -3252,15 +3248,24 @@ ExpVlnPlot <- function(srt, features = NULL, group.by = NULL, split.by = NULL, b
   xlab <- xlab %||% group.by
   ylab <- ylab %||% "Expression level"
   for (g in group.by) {
+    dat_all <- cbind(dat_use, dat_exp[row.names(dat_use), , drop = FALSE])
     if (fill.by == "feature") {
       colors <- palette_scp(features, palette = palette, palcolor = palcolor)
-    } else if (split.by != "No.split.by") {
-      colors <- palette_scp(levels(dat_use[[split.by]]), palette = palette, palcolor = palcolor)
-    } else {
-      colors <- palette_scp(levels(dat_use[[g]]), palette = palette, palcolor = palcolor)
+    }
+    if (fill.by == "group") {
+      if (split.by != "No.split.by") {
+        colors <- palette_scp(levels(dat_all[[split.by]]), palette = palette, palcolor = palcolor)
+      } else {
+        colors <- palette_scp(levels(dat_all[[g]]), palette = palette, palcolor = palcolor)
+      }
+    }
+    if (fill.by == "expression") {
+      median_values <- aggregate(dat_all[, features, drop = FALSE], by = list(dat_all[[g]], dat_all[[split.by]]), FUN = median)
+      rownames(median_values) <- paste0(median_values[, 1], "-", median_values[, 2])
+      colors <- palette_scp(unlist(median_values[, features]), type = "continuous", palette = palette, palcolor = palcolor)
+      colors_limits <- range(median_values[, features])
     }
     for (f in features) {
-      dat_all <- cbind(dat_use, dat_exp[row.names(dat_use), f, drop = FALSE])
       if (isTRUE(stat_single)) {
         groups <- levels(dat_all[[g]])
         splits <- levels(dat_all[[split.by]])
@@ -3270,7 +3275,7 @@ ExpVlnPlot <- function(srt, features = NULL, group.by = NULL, split.by = NULL, b
       }
       for (single_group in groups) {
         for (sp in splits) {
-          dat <- dat_all[dat_all[[g]] %in% single_group & dat_all[[split.by]] %in% sp, ]
+          dat <- dat_all[dat_all[[g]] %in% single_group & dat_all[[split.by]] %in% sp, c(colnames(dat_use), f)]
           dat[[g]] <- factor(dat[[g]], levels = levels(dat[[g]])[levels(dat[[g]]) %in% dat[[g]]])
           # dat[[split.by]] <- factor(dat[[split.by]], levels = levels(dat[[split.by]])[levels(dat[[split.by]]) %in% dat[[split.by]]])
           dat[, "cell"] <- rownames(dat)
@@ -3300,10 +3305,16 @@ ExpVlnPlot <- function(srt, features = NULL, group.by = NULL, split.by = NULL, b
           if (fill.by == "feature") {
             dat[, "fill.by"] <- rep(f, nrow(dat))
             keynm <- "Features"
-          } else {
+          }
+          if (fill.by == "group") {
             dat[, "fill.by"] <- dat[, "group.by"]
             keynm <- ifelse(split.by == "No.split.by", g, split.by)
           }
+          if (fill.by == "expression") {
+            dat[, "fill.by"] <- median_values[paste0(dat[["group.by"]], "-", dat[["split.by"]]), f]
+            keynm <- "Median expression"
+          }
+
           if (split.by != "No.split.by") {
             levels_order <- levels(dat[["split.by"]])
           } else {
@@ -3327,6 +3338,28 @@ ExpVlnPlot <- function(srt, features = NULL, group.by = NULL, split.by = NULL, b
             x = .data[["group.by"]], y = .data[["value"]], fill = .data[["fill.by"]]
           )) +
             geom_blank()
+          if (isTRUE(flip)) {
+            p <- p + do.call(theme_use, list(
+              aspect.ratio = aspect.ratio,
+              strip.text.x = element_text(angle = 45),
+              axis.text.x = if (isTRUE(stack)) element_blank() else element_text(),
+              axis.ticks.x = if (isTRUE(stack)) element_blank() else element_line(),
+              panel.grid.major.x = element_line(color = "grey", linetype = 2),
+              legend.position = legend.position,
+              legend.direction = legend.direction
+            )) + coord_flip()
+          } else {
+            p <- p + do.call(theme_use, list(
+              aspect.ratio = aspect.ratio,
+              axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1),
+              strip.text.y = element_text(angle = 0),
+              axis.text.y = if (isTRUE(stack)) element_blank() else element_text(),
+              axis.ticks.y = if (isTRUE(stack)) element_blank() else element_line(),
+              panel.grid.major.y = element_line(color = "grey", linetype = 2),
+              legend.position = legend.position,
+              legend.direction = legend.direction
+            ))
+          }
           if (!is.null(bg.by)) {
             bg_df <- unique(dat[, c("group.by", "bg.by")])
             bg_list <- list()
@@ -3394,6 +3427,10 @@ ExpVlnPlot <- function(srt, features = NULL, group.by = NULL, split.by = NULL, b
                 fun = median, geom = "point", mapping = aes(group = .data[["split.by"]]),
                 position = position_dodge(width = 0.9), color = "black", fill = "white", size = 1.5, shape = 21,
               )
+            # stat_summary(
+            #   fun = median, geom = "text", mapping = aes(group = .data[["split.by"]],label=round(.data[["fill.by"]],3)),
+            #   position = position_dodge(width = 0.9), color = "red", fill = "white", size = 5, shape = 21,
+            # )
           }
 
           if (nrow(dat) == 0) {
@@ -3410,40 +3447,26 @@ ExpVlnPlot <- function(srt, features = NULL, group.by = NULL, split.by = NULL, b
             p <- p + scale_x_discrete(drop = !keep_empty)
           }
 
-          p <- p + scale_y_continuous(limits = c(y_min_use, y_max_use), trans = y.trans, n.breaks = y.nbreaks) +
-            scale_fill_manual(name = paste0(keynm, ":"), values = colors, breaks = levels_order, drop = FALSE) +
-            scale_color_manual(name = paste0(keynm, ":"), values = colors, breaks = levels_order, drop = FALSE) +
-            guides(fill = guide_legend(
-              title.hjust = 0,
-              keywidth = 0.05,
-              keyheight = 0.05,
-              default.unit = "inch",
-              order = 1,
-              override.aes = list(size = 4.5, color = "black", alpha = 1)
-            ))
-
-          if (isTRUE(flip)) {
-            p <- p + do.call(theme_use, list(
-              aspect.ratio = aspect.ratio,
-              strip.text.x = element_text(angle = 45),
-              axis.text.x = if (isTRUE(stack)) element_blank() else element_text(),
-              axis.ticks.x = if (isTRUE(stack)) element_blank() else element_line(),
-              panel.grid.major.x = element_line(color = "grey", linetype = 2),
-              legend.position = legend.position,
-              legend.direction = legend.direction
-            )) + coord_flip()
+          p <- p + scale_y_continuous(limits = c(y_min_use, y_max_use), trans = y.trans, n.breaks = y.nbreaks)
+          if (fill.by != "expression") {
+            p <- p + scale_fill_manual(name = paste0(keynm, ":"), values = colors, breaks = levels_order, drop = FALSE) +
+              scale_color_manual(name = paste0(keynm, ":"), values = colors, breaks = levels_order, drop = FALSE) +
+              guides(fill = guide_legend(
+                title.hjust = 0,
+                keywidth = 0.05,
+                keyheight = 0.05,
+                default.unit = "inch",
+                order = 1,
+                override.aes = list(size = 4.5, color = "black", alpha = 1)
+              ))
           } else {
-            p <- p + do.call(theme_use, list(
-              aspect.ratio = aspect.ratio,
-              axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1),
-              strip.text.y = element_text(angle = 0),
-              axis.text.y = if (isTRUE(stack)) element_blank() else element_text(),
-              axis.ticks.y = if (isTRUE(stack)) element_blank() else element_line(),
-              panel.grid.major.y = element_line(color = "grey", linetype = 2),
-              legend.position = legend.position,
-              legend.direction = legend.direction
-            ))
+            p <- p + scale_fill_gradientn(
+              name = paste0(keynm, ":"), colours = colors, limits = colors_limits
+            ) + guides(
+              fill = guide_colorbar(frame.colour = "black", ticks.colour = "black", title.hjust = 0, order = 1)
+            )
           }
+
           plist[[paste0(f, ":", g, ":", paste0(single_group, collapse = ","), ":", paste0(sp, collapse = ","))]] <- p
         }
       }
@@ -3584,7 +3607,7 @@ extractgrobs <- function(vlnplots, x_nm, y_nm, x, y) {
   return(grobs)
 }
 
-#' @importFrom grid viewport grid.draw
+#' @importFrom grid viewport grid.draw is.grob
 grid_draw <- function(groblist, x, y, width, height) {
   if (is.grob(groblist)) {
     groblist <- list(groblist)
@@ -3671,12 +3694,18 @@ grid_draw <- function(groblist, x, y, width, height) {
 #' ht5$plot
 #'
 #' ht6 <- GroupHeatmap(pancreas_sub,
+#'   features = de_top$gene, feature_split = de_top$group1, group.by = "CellType",
+#'   add_violin = TRUE, fill.by = "expression", fill_palette = "Blues", cluster_rows = TRUE
+#' )
+#' ht6$plot
+#'
+#' ht7 <- GroupHeatmap(pancreas_sub,
 #'   features = de_top$gene, group.by = "CellType", split.by = "Phase", n_split = 4,
 #'   cluster_rows = TRUE, cluster_columns = TRUE, cluster_row_slices = TRUE, cluster_column_slices = TRUE,
 #'   add_dot = TRUE, add_reticle = TRUE, heatmap_palette = "viridis",
 #'   ht_params = list(row_gap = grid::unit(0, "mm"))
 #' )
-#' ht6$plot
+#' ht7$plot
 #'
 #' @importFrom circlize colorRamp2
 #' @importFrom stats aggregate formula quantile
@@ -3705,7 +3734,7 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
                          add_bg = FALSE, bg_alpha = 0.5,
                          add_dot = FALSE, dot_size = unit(8, "mm"),
                          add_reticle = FALSE, reticle_color = "grey",
-                         add_violin = FALSE, fill.by = "feature",
+                         add_violin = FALSE, fill.by = "feature", fill_palette = "Dark2", fill_palcolor = NULL,
                          heatmap_palette = "YlOrRd", heatmap_palcolor = NULL, group_palette = "Paired", group_palcolor = NULL,
                          cell_split_palette = "jco", cell_split_palcolor = NULL, feature_split_palette = "jama", feature_split_palcolor = NULL,
                          cell_annotation = NULL, cell_palette = "Paired", cell_palcolor = NULL, cell_annotation_params = list(height = grid::unit(10, "mm")),
@@ -4588,10 +4617,26 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
         features = rownames(mat_list[[cell_group]]),
         cells = names(cell_groups[[cell_group]]),
         group.by = cell_group, split.by = split.by,
-        palette = palette, palcolor = palcolor,
+        palette = fill_palette, palcolor = fill_palcolor,
         fill.by = fill.by, same.y.lims = TRUE,
         stat_single = TRUE, combine = FALSE
       )
+      lgd[["ht"]] <- NULL
+      # legend <- get_legend(vlnplots[[1]])
+      # funbody <- paste0(
+      #   "
+      #         g <- ggplotGrob(subplots_list[['", cellan, ":", cell_group, "']]", "[['", nm, "']] + theme_void() + theme(legend.position = 'none'));
+      #         grid.draw(g)
+      #         "
+      # )
+      # funbody <- gsub(pattern = "\n", replacement = "", x = funbody)
+      # eval(parse(text = paste("graphics[[nm]] <- function(x, y, w, h) {", funbody, "}", sep = "")), envir = environment())
+      # graphics = list(
+      #   " " = function(x, y, w, h) {
+      #     grid_draw(legend,x = x,y = y,width = w,height = h)
+      # })
+      # lgd[["ht"]] <- Legend(title = " ", at = names(graphics), graphics = graphics, border = TRUE)
+
       for (nm in names(vlnplots)) {
         vlnplots[[nm]] <- ggplotGrob(vlnplots[[nm]] + facet_null() + theme_void() + theme(legend.position = "none"))
       }
