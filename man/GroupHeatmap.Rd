@@ -24,6 +24,7 @@ GroupHeatmap(
   split_method = c("kmeans", "hclust", "mfuzz"),
   decreasing = FALSE,
   cluster_rows = FALSE,
+  cluster_rows_by = NULL,
   cluster_columns = FALSE,
   cluster_row_slices = FALSE,
   cluster_column_slices = FALSE,
