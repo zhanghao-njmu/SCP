@@ -52,7 +52,7 @@ check_DataType <- function(srt, data = NULL, slot = "data", assay = NULL) {
 #'
 check_srtList <- function(srtList, batch = "orig.ident",
                           do_normalization = NULL, normalization_method = "logCPM",
-                          do_HVF_finding = TRUE, HVF_source = "separate", HVF_method = "vst", nHVF = 2000, HVF = NULL,
+                          do_HVF_finding = TRUE, HVF_source = "separate", HVF_method = "vst", nHVF = 2000, HVF_intersect = FALSE, HVF_min_intersection = 1, HVF = NULL,
                           vars_to_regress = NULL, seed = 11, ...) {
   cat(paste0("[", Sys.time(), "]", " Checking srtList... ...\n"))
   set.seed(seed)
@@ -198,7 +198,16 @@ check_srtList <- function(srtList, batch = "orig.ident",
       cat("Use the separate HVF from the existed HVF in srtList...\n")
       # HVF_merge <- unlist(lapply(srtList, VariableFeatures))
       # HVF <- names(sort(table(HVF_merge), decreasing = TRUE))[1:nHVF]
-      HVF <- SelectIntegrationFeatures(object.list = srtList, nfeatures = nHVF, verbose = FALSE)
+      if (isTRUE(HVF_intersect)) {
+        HVF_sort <- sort(table(unlist(lapply(srtList, VariableFeatures))), decreasing = TRUE)
+        HVF_sort <- HVF_sort[HVF_sort >= HVF_min_intersection]
+        HVF <- names(head(HVF_sort, nHVF))
+      } else {
+        HVF <- SelectIntegrationFeatures(object.list = srtList, nfeatures = nHVF, verbose = FALSE)
+      }
+      if (length(HVF) == 0) {
+        stop("No HVF available.")
+      }
     }
   } else {
     cf <- Reduce(intersect, lapply(srtList, function(x) {
@@ -206,6 +215,7 @@ check_srtList <- function(srtList, batch = "orig.ident",
     }))
     HVF <- HVF[HVF %in% cf]
   }
+  message("Number of available HVF: ", length(HVF))
 
   hvf_sum <- lapply(srtList, function(x) {
     colSums(GetAssayData(x, slot = "counts")[HVF, ])
@@ -245,7 +255,7 @@ check_srtList <- function(srtList, batch = "orig.ident",
 #' @export
 check_srtMerge <- function(srtMerge, batch = "orig.ident",
                            do_normalization = NULL, normalization_method = "logCPM",
-                           do_HVF_finding = TRUE, HVF_source = "separate", HVF_method = "vst", nHVF = 2000, HVF = NULL,
+                           do_HVF_finding = TRUE, HVF_source = "separate", HVF_method = "vst", nHVF = 2000, HVF_intersect = FALSE, HVF_min_intersection = 1, HVF = NULL,
                            vars_to_regress = NULL, seed = 11, ...) {
   if (!inherits(srtMerge, "Seurat")) {
     stop("'srtMerge' is not a Seurat object.")
@@ -270,7 +280,7 @@ check_srtMerge <- function(srtMerge, batch = "orig.ident",
     srtList = srtList, batch = batch,
     do_normalization = do_normalization, do_HVF_finding = do_HVF_finding,
     normalization_method = normalization_method,
-    HVF_source = HVF_source, HVF_method = HVF_method, nHVF = nHVF, HVF = HVF,
+    HVF_source = HVF_source, HVF_method = HVF_method, nHVF = nHVF, HVF_intersect = HVF_intersect, HVF_min_intersection = HVF_min_intersection, HVF = HVF,
     vars_to_regress = vars_to_regress, seed = seed
   )
   srtList <- checked[["srtList"]]
@@ -918,7 +928,7 @@ RunDimReduction <- function(srt, prefix = "", features = NULL, assay = NULL, slo
 #' @export
 Uncorrected_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE, srtList = NULL,
                                   do_normalization = NULL, normalization_method = "logCPM",
-                                  do_HVF_finding = TRUE, HVF_source = "separate", HVF_method = "vst", nHVF = 2000, HVF = NULL,
+                                  do_HVF_finding = TRUE, HVF_source = "separate", HVF_method = "vst", nHVF = 2000, HVF_intersect = FALSE, HVF_min_intersection = 1, HVF = NULL,
                                   do_scaling = TRUE, vars_to_regress = NULL, regression_model = "linear",
                                   linear_reduction = "pca", linear_reduction_dims = 100, linear_reduction_dims_use = NULL, linear_reduction_params = list(), force_linear_reduction = FALSE,
                                   nonlinear_reduction = "umap", nonlinear_reduction_dims = c(2, 3), nonlinear_reduction_params = list(), force_nonlinear_reduction = TRUE,
@@ -977,7 +987,7 @@ Uncorrected_integrate <- function(srtMerge = NULL, batch = "orig.ident", append 
       srtList = srtList, batch = batch,
       do_normalization = do_normalization, do_HVF_finding = do_HVF_finding,
       normalization_method = normalization_method,
-      HVF_source = HVF_source, nHVF = nHVF, HVF = HVF, HVF_method = HVF_method,
+      HVF_source = HVF_source, HVF_method = HVF_method, nHVF = nHVF, HVF_intersect = HVF_intersect, HVF_min_intersection = HVF_min_intersection, HVF = HVF,
       vars_to_regress = vars_to_regress, seed = seed
     )
     srtList <- checked[["srtList"]]
@@ -990,7 +1000,7 @@ Uncorrected_integrate <- function(srtMerge = NULL, batch = "orig.ident", append 
       srtMerge = srtMerge, batch = batch,
       do_normalization = do_normalization, do_HVF_finding = do_HVF_finding, do_scaling = do_scaling,
       normalization_method = normalization_method,
-      HVF_source = HVF_source, nHVF = nHVF, HVF = HVF, HVF_method = HVF_method,
+      HVF_source = HVF_source, HVF_method = HVF_method, nHVF = nHVF, HVF_intersect = HVF_intersect, HVF_min_intersection = HVF_min_intersection, HVF = HVF,
       vars_to_regress = vars_to_regress, seed = seed
     )
     srtMerge <- checked[["srtMerge"]]
@@ -1069,7 +1079,7 @@ Uncorrected_integrate <- function(srtMerge = NULL, batch = "orig.ident", append 
 #' @export
 Seurat_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE, srtList = NULL,
                              do_normalization = NULL, normalization_method = "logCPM",
-                             do_HVF_finding = TRUE, HVF_source = "separate", HVF_method = "vst", nHVF = 2000, HVF = NULL,
+                             do_HVF_finding = TRUE, HVF_source = "separate", HVF_method = "vst", nHVF = 2000, HVF_intersect = FALSE, HVF_min_intersection = 1, HVF = NULL,
                              do_scaling = TRUE, vars_to_regress = NULL, regression_model = "linear",
                              linear_reduction = "pca", linear_reduction_dims = 100, linear_reduction_dims_use = NULL, linear_reduction_params = list(), force_linear_reduction = FALSE,
                              nonlinear_reduction = "umap", nonlinear_reduction_dims = c(2, 3), nonlinear_reduction_params = list(), force_nonlinear_reduction = TRUE,
@@ -1133,7 +1143,7 @@ Seurat_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRU
       srtList = srtList, batch = batch,
       do_normalization = do_normalization, do_HVF_finding = do_HVF_finding,
       normalization_method = normalization_method,
-      HVF_source = HVF_source, nHVF = nHVF, HVF = HVF, HVF_method = HVF_method,
+      HVF_source = HVF_source, HVF_method = HVF_method, nHVF = nHVF, HVF_intersect = HVF_intersect, HVF_min_intersection = HVF_min_intersection, HVF = HVF,
       vars_to_regress = vars_to_regress, seed = seed
     )
     srtList <- checked[["srtList"]]
@@ -1145,7 +1155,7 @@ Seurat_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRU
       srtList = srtList, batch = batch,
       do_normalization = do_normalization, do_HVF_finding = do_HVF_finding,
       normalization_method = normalization_method,
-      HVF_source = HVF_source, nHVF = nHVF, HVF = HVF, HVF_method = HVF_method,
+      HVF_source = HVF_source, HVF_method = HVF_method, nHVF = nHVF, HVF_intersect = HVF_intersect, HVF_min_intersection = HVF_min_intersection, HVF = HVF,
       vars_to_regress = vars_to_regress, seed = seed
     )
     srtList <- checked[["srtList"]]
@@ -1309,7 +1319,7 @@ Seurat_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRU
 #' @export
 scVI_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE, srtList = NULL,
                            do_normalization = NULL, normalization_method = "logCPM",
-                           do_HVF_finding = TRUE, HVF_source = "separate", HVF_method = "vst", nHVF = 2000, HVF = NULL,
+                           do_HVF_finding = TRUE, HVF_source = "separate", HVF_method = "vst", nHVF = 2000, HVF_intersect = FALSE, HVF_min_intersection = 1, HVF = NULL,
                            nonlinear_reduction = "umap", nonlinear_reduction_dims = c(2, 3), nonlinear_reduction_params = list(), force_nonlinear_reduction = TRUE,
                            do_cluster_finding = TRUE, cluster_algorithm = "louvain", cluster_resolution = 0.6, cluster_reorder = TRUE,
                            SCVI_params = list(), num_threads = 8, seed = 11) {
@@ -1366,7 +1376,7 @@ scVI_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE,
       srtList = srtList, batch = batch,
       do_normalization = do_normalization, do_HVF_finding = do_HVF_finding,
       normalization_method = normalization_method,
-      HVF_source = HVF_source, nHVF = nHVF, HVF = HVF, HVF_method = HVF_method,
+      HVF_source = HVF_source, HVF_method = HVF_method, nHVF = nHVF, HVF_intersect = HVF_intersect, HVF_min_intersection = HVF_min_intersection, HVF = HVF,
       vars_to_regress = vars_to_regress, seed = seed
     )
     srtList <- checked[["srtList"]]
@@ -1379,7 +1389,7 @@ scVI_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE,
       srtMerge = srtMerge, batch = batch,
       do_normalization = do_normalization, do_HVF_finding = do_HVF_finding, do_scaling = do_scaling,
       normalization_method = normalization_method,
-      HVF_source = HVF_source, nHVF = nHVF, HVF = HVF, HVF_method = HVF_method,
+      HVF_source = HVF_source, HVF_method = HVF_method, nHVF = nHVF, HVF_intersect = HVF_intersect, HVF_min_intersection = HVF_min_intersection, HVF = HVF,
       vars_to_regress = vars_to_regress, seed = seed
     )
     srtMerge <- checked[["srtMerge"]]
@@ -1506,7 +1516,7 @@ scVI_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE,
 #' @export
 MNN_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE, srtList = NULL,
                           do_normalization = NULL, normalization_method = "logCPM",
-                          do_HVF_finding = TRUE, HVF_source = "separate", HVF_method = "vst", nHVF = 2000, HVF = NULL,
+                          do_HVF_finding = TRUE, HVF_source = "separate", HVF_method = "vst", nHVF = 2000, HVF_intersect = FALSE, HVF_min_intersection = 1, HVF = NULL,
                           do_scaling = TRUE, vars_to_regress = NULL, regression_model = "linear",
                           linear_reduction = "pca", linear_reduction_dims = 100, linear_reduction_dims_use = NULL, linear_reduction_params = list(), force_linear_reduction = FALSE,
                           nonlinear_reduction = "umap", nonlinear_reduction_dims = c(2, 3), nonlinear_reduction_params = list(), force_nonlinear_reduction = TRUE,
@@ -1558,7 +1568,7 @@ MNN_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE, 
       srtList = srtList, batch = batch,
       do_normalization = do_normalization, do_HVF_finding = do_HVF_finding,
       normalization_method = normalization_method,
-      HVF_source = HVF_source, nHVF = nHVF, HVF = HVF, HVF_method = HVF_method,
+      HVF_source = HVF_source, HVF_method = HVF_method, nHVF = nHVF, HVF_intersect = HVF_intersect, HVF_min_intersection = HVF_min_intersection, HVF = HVF,
       vars_to_regress = vars_to_regress, seed = seed
     )
     srtList <- checked[["srtList"]]
@@ -1570,7 +1580,7 @@ MNN_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE, 
       srtList = srtList, batch = batch,
       do_normalization = do_normalization, do_HVF_finding = do_HVF_finding,
       normalization_method = normalization_method,
-      HVF_source = HVF_source, nHVF = nHVF, HVF = HVF, HVF_method = HVF_method,
+      HVF_source = HVF_source, HVF_method = HVF_method, nHVF = nHVF, HVF_intersect = HVF_intersect, HVF_min_intersection = HVF_min_intersection, HVF = HVF,
       vars_to_regress = vars_to_regress, seed = seed
     )
     srtList <- checked[["srtList"]]
@@ -1707,7 +1717,7 @@ MNN_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE, 
 #' @export
 fastMNN_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE, srtList = NULL,
                               do_normalization = NULL, normalization_method = "logCPM",
-                              do_HVF_finding = TRUE, HVF_source = "separate", HVF_method = "vst", nHVF = 2000, HVF = NULL,
+                              do_HVF_finding = TRUE, HVF_source = "separate", HVF_method = "vst", nHVF = 2000, HVF_intersect = FALSE, HVF_min_intersection = 1, HVF = NULL,
                               fastMNN_dims_use = NULL,
                               nonlinear_reduction = "umap", nonlinear_reduction_dims = c(2, 3), nonlinear_reduction_params = list(), force_nonlinear_reduction = TRUE,
                               do_cluster_finding = TRUE, cluster_algorithm = "louvain", cluster_resolution = 0.6, cluster_reorder = TRUE,
@@ -1758,7 +1768,7 @@ fastMNN_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TR
       srtList = srtList, batch = batch,
       do_normalization = do_normalization, do_HVF_finding = do_HVF_finding,
       normalization_method = normalization_method,
-      HVF_source = HVF_source, nHVF = nHVF, HVF = HVF, HVF_method = HVF_method,
+      HVF_source = HVF_source, HVF_method = HVF_method, nHVF = nHVF, HVF_intersect = HVF_intersect, HVF_min_intersection = HVF_min_intersection, HVF = HVF,
       vars_to_regress = vars_to_regress, seed = seed
     )
     srtList <- checked[["srtList"]]
@@ -1770,7 +1780,7 @@ fastMNN_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TR
       srtList = srtList, batch = batch,
       do_normalization = do_normalization, do_HVF_finding = do_HVF_finding,
       normalization_method = normalization_method,
-      HVF_source = HVF_source, nHVF = nHVF, HVF = HVF, HVF_method = HVF_method,
+      HVF_source = HVF_source, HVF_method = HVF_method, nHVF = nHVF, HVF_intersect = HVF_intersect, HVF_min_intersection = HVF_min_intersection, HVF = HVF,
       vars_to_regress = vars_to_regress, seed = seed
     )
     srtList <- checked[["srtList"]]
@@ -1921,7 +1931,7 @@ fastMNN_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TR
 #' @export
 Harmony_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE, srtList = NULL,
                               do_normalization = NULL, normalization_method = "logCPM",
-                              do_HVF_finding = TRUE, HVF_source = "separate", HVF_method = "vst", nHVF = 2000, HVF = NULL,
+                              do_HVF_finding = TRUE, HVF_source = "separate", HVF_method = "vst", nHVF = 2000, HVF_intersect = FALSE, HVF_min_intersection = 1, HVF = NULL,
                               do_scaling = TRUE, vars_to_regress = NULL, regression_model = "linear",
                               linear_reduction = "pca", linear_reduction_dims = 100, linear_reduction_dims_use = NULL, linear_reduction_params = list(), force_linear_reduction = FALSE,
                               Harmony_dims_use = NULL,
@@ -1988,7 +1998,7 @@ Harmony_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TR
       srtList = srtList, batch = batch,
       do_normalization = do_normalization, do_HVF_finding = do_HVF_finding,
       normalization_method = normalization_method,
-      HVF_source = HVF_source, nHVF = nHVF, HVF = HVF, HVF_method = HVF_method,
+      HVF_source = HVF_source, HVF_method = HVF_method, nHVF = nHVF, HVF_intersect = HVF_intersect, HVF_min_intersection = HVF_min_intersection, HVF = HVF,
       vars_to_regress = vars_to_regress, seed = seed
     )
     srtList <- checked[["srtList"]]
@@ -2001,7 +2011,7 @@ Harmony_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TR
       srtMerge = srtMerge, batch = batch,
       do_normalization = do_normalization, do_HVF_finding = do_HVF_finding, do_scaling = do_scaling,
       normalization_method = normalization_method,
-      HVF_source = HVF_source, nHVF = nHVF, HVF = HVF, HVF_method = HVF_method,
+      HVF_source = HVF_source, HVF_method = HVF_method, nHVF = nHVF, HVF_intersect = HVF_intersect, HVF_min_intersection = HVF_min_intersection, HVF = HVF,
       vars_to_regress = vars_to_regress, seed = seed
     )
     srtMerge <- checked[["srtMerge"]]
@@ -2156,7 +2166,7 @@ Harmony_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TR
 #' @export
 Scanorama_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE, srtList = NULL,
                                 do_normalization = NULL, normalization_method = "logCPM",
-                                do_HVF_finding = TRUE, HVF_source = "separate", HVF_method = "vst", nHVF = 2000, HVF = NULL,
+                                do_HVF_finding = TRUE, HVF_source = "separate", HVF_method = "vst", nHVF = 2000, HVF_intersect = FALSE, HVF_min_intersection = 1, HVF = NULL,
                                 do_scaling = TRUE, vars_to_regress = NULL, regression_model = "linear",
                                 linear_reduction = "pca", linear_reduction_dims = 100, linear_reduction_dims_use = NULL, linear_reduction_params = list(), force_linear_reduction = FALSE,
                                 nonlinear_reduction = "umap", nonlinear_reduction_dims = c(2, 3), nonlinear_reduction_params = list(), force_nonlinear_reduction = TRUE,
@@ -2223,7 +2233,7 @@ Scanorama_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = 
       srtList = srtList, batch = batch,
       do_normalization = do_normalization, do_HVF_finding = do_HVF_finding,
       normalization_method = normalization_method,
-      HVF_source = HVF_source, nHVF = nHVF, HVF = HVF, HVF_method = HVF_method,
+      HVF_source = HVF_source, HVF_method = HVF_method, nHVF = nHVF, HVF_intersect = HVF_intersect, HVF_min_intersection = HVF_min_intersection, HVF = HVF,
       vars_to_regress = vars_to_regress, seed = seed
     )
     srtList <- checked[["srtList"]]
@@ -2235,7 +2245,7 @@ Scanorama_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = 
       srtList = srtList, batch = batch,
       do_normalization = do_normalization, do_HVF_finding = do_HVF_finding,
       normalization_method = normalization_method,
-      HVF_source = HVF_source, nHVF = nHVF, HVF = HVF, HVF_method = HVF_method,
+      HVF_source = HVF_source, HVF_method = HVF_method, nHVF = nHVF, HVF_intersect = HVF_intersect, HVF_min_intersection = HVF_min_intersection, HVF = HVF,
       vars_to_regress = vars_to_regress, seed = seed
     )
     srtList <- checked[["srtList"]]
@@ -2385,7 +2395,7 @@ Scanorama_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = 
 #' @export
 BBKNN_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE, srtList = NULL,
                             do_normalization = NULL, normalization_method = "logCPM",
-                            do_HVF_finding = TRUE, HVF_source = "separate", HVF_method = "vst", nHVF = 2000, HVF = NULL,
+                            do_HVF_finding = TRUE, HVF_source = "separate", HVF_method = "vst", nHVF = 2000, HVF_intersect = FALSE, HVF_min_intersection = 1, HVF = NULL,
                             do_scaling = TRUE, vars_to_regress = NULL, regression_model = "linear",
                             linear_reduction = "pca", linear_reduction_dims = 100, linear_reduction_dims_use = NULL, linear_reduction_params = list(), force_linear_reduction = FALSE,
                             nonlinear_reduction = "umap", nonlinear_reduction_dims = c(2, 3), nonlinear_reduction_params = list(), force_nonlinear_reduction = TRUE,
@@ -2452,7 +2462,7 @@ BBKNN_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE
       srtList = srtList, batch = batch,
       do_normalization = do_normalization, do_HVF_finding = do_HVF_finding,
       normalization_method = normalization_method,
-      HVF_source = HVF_source, nHVF = nHVF, HVF = HVF, HVF_method = HVF_method,
+      HVF_source = HVF_source, HVF_method = HVF_method, nHVF = nHVF, HVF_intersect = HVF_intersect, HVF_min_intersection = HVF_min_intersection, HVF = HVF,
       vars_to_regress = vars_to_regress, seed = seed
     )
     srtList <- checked[["srtList"]]
@@ -2465,7 +2475,7 @@ BBKNN_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE
       srtMerge = srtMerge, batch = batch,
       do_normalization = do_normalization, do_HVF_finding = do_HVF_finding, do_scaling = do_scaling,
       normalization_method = normalization_method,
-      HVF_source = HVF_source, nHVF = nHVF, HVF = HVF, HVF_method = HVF_method,
+      HVF_source = HVF_source, HVF_method = HVF_method, nHVF = nHVF, HVF_intersect = HVF_intersect, HVF_min_intersection = HVF_min_intersection, HVF = HVF,
       vars_to_regress = vars_to_regress, seed = seed
     )
     srtMerge <- checked[["srtMerge"]]
@@ -2599,7 +2609,7 @@ BBKNN_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE
 #' @export
 CSS_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE, srtList = NULL,
                           do_normalization = NULL, normalization_method = "logCPM",
-                          do_HVF_finding = TRUE, HVF_source = "separate", HVF_method = "vst", nHVF = 2000, HVF = NULL,
+                          do_HVF_finding = TRUE, HVF_source = "separate", HVF_method = "vst", nHVF = 2000, HVF_intersect = FALSE, HVF_min_intersection = 1, HVF = NULL,
                           do_scaling = TRUE, vars_to_regress = NULL, regression_model = "linear",
                           linear_reduction = "pca", linear_reduction_dims = 100, linear_reduction_dims_use = NULL, linear_reduction_params = list(), force_linear_reduction = FALSE,
                           nonlinear_reduction = "umap", nonlinear_reduction_dims = c(2, 3), nonlinear_reduction_params = list(), force_nonlinear_reduction = TRUE,
@@ -2663,7 +2673,7 @@ CSS_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE, 
       srtList = srtList, batch = batch,
       do_normalization = do_normalization, do_HVF_finding = do_HVF_finding,
       normalization_method = normalization_method,
-      HVF_source = HVF_source, nHVF = nHVF, HVF = HVF, HVF_method = HVF_method,
+      HVF_source = HVF_source, HVF_method = HVF_method, nHVF = nHVF, HVF_intersect = HVF_intersect, HVF_min_intersection = HVF_min_intersection, HVF = HVF,
       vars_to_regress = vars_to_regress, seed = seed
     )
     srtList <- checked[["srtList"]]
@@ -2676,7 +2686,7 @@ CSS_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE, 
       srtMerge = srtMerge, batch = batch,
       do_normalization = do_normalization, do_HVF_finding = do_HVF_finding, do_scaling = do_scaling,
       normalization_method = normalization_method,
-      HVF_source = HVF_source, nHVF = nHVF, HVF = HVF, HVF_method = HVF_method,
+      HVF_source = HVF_source, HVF_method = HVF_method, nHVF = nHVF, HVF_intersect = HVF_intersect, HVF_min_intersection = HVF_min_intersection, HVF = HVF,
       vars_to_regress = vars_to_regress, seed = seed
     )
     srtMerge <- checked[["srtMerge"]]
@@ -2811,7 +2821,7 @@ CSS_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE, 
 #' @export
 LIGER_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE, srtList = NULL,
                             do_normalization = NULL, normalization_method = "logCPM",
-                            do_HVF_finding = TRUE, HVF_source = "separate", HVF_method = "vst", nHVF = 2000, HVF = NULL,
+                            do_HVF_finding = TRUE, HVF_source = "separate", HVF_method = "vst", nHVF = 2000, HVF_intersect = FALSE, HVF_min_intersection = 1, HVF = NULL,
                             do_scaling = TRUE, vars_to_regress = NULL, regression_model = "linear",
                             nonlinear_reduction = "umap", nonlinear_reduction_dims = c(2, 3), nonlinear_reduction_params = list(), force_nonlinear_reduction = TRUE,
                             do_cluster_finding = TRUE, cluster_algorithm = "louvain", cluster_resolution = 0.6, cluster_reorder = TRUE,
@@ -2862,7 +2872,7 @@ LIGER_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE
       srtList = srtList, batch = batch,
       do_normalization = do_normalization, do_HVF_finding = do_HVF_finding,
       normalization_method = normalization_method,
-      HVF_source = HVF_source, nHVF = nHVF, HVF = HVF, HVF_method = HVF_method,
+      HVF_source = HVF_source, HVF_method = HVF_method, nHVF = nHVF, HVF_intersect = HVF_intersect, HVF_min_intersection = HVF_min_intersection, HVF = HVF,
       vars_to_regress = vars_to_regress, seed = seed
     )
     srtList <- checked[["srtList"]]
@@ -2875,7 +2885,7 @@ LIGER_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE
       srtMerge = srtMerge, batch = batch,
       do_normalization = do_normalization, do_HVF_finding = do_HVF_finding, do_scaling = do_scaling,
       normalization_method = normalization_method,
-      HVF_source = HVF_source, nHVF = nHVF, HVF = HVF, HVF_method = HVF_method,
+      HVF_source = HVF_source, HVF_method = HVF_method, nHVF = nHVF, HVF_intersect = HVF_intersect, HVF_min_intersection = HVF_min_intersection, HVF = HVF,
       vars_to_regress = vars_to_regress, seed = seed
     )
     srtMerge <- checked[["srtMerge"]]
@@ -3040,7 +3050,7 @@ LIGER_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE
 #' @export
 Conos_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE, srtList = NULL,
                             do_normalization = NULL, normalization_method = "logCPM",
-                            do_HVF_finding = TRUE, HVF_source = "separate", HVF_method = "vst", nHVF = 2000, HVF = NULL,
+                            do_HVF_finding = TRUE, HVF_source = "separate", HVF_method = "vst", nHVF = 2000, HVF_intersect = FALSE, HVF_min_intersection = 1, HVF = NULL,
                             do_scaling = TRUE, vars_to_regress = NULL, regression_model = "linear",
                             linear_reduction = "pca", linear_reduction_dims = 100, linear_reduction_dims_use = NULL, linear_reduction_params = list(), force_linear_reduction = FALSE,
                             nonlinear_reduction = "umap", nonlinear_reduction_dims = c(2, 3), nonlinear_reduction_params = list(), force_nonlinear_reduction = TRUE,
@@ -3103,7 +3113,7 @@ Conos_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE
       srtList = srtList, batch = batch,
       do_normalization = do_normalization, do_HVF_finding = do_HVF_finding,
       normalization_method = normalization_method,
-      HVF_source = HVF_source, nHVF = nHVF, HVF = HVF, HVF_method = HVF_method,
+      HVF_source = HVF_source, HVF_method = HVF_method, nHVF = nHVF, HVF_intersect = HVF_intersect, HVF_min_intersection = HVF_min_intersection, HVF = HVF,
       vars_to_regress = vars_to_regress, seed = seed
     )
     srtList <- checked[["srtList"]]
@@ -3115,7 +3125,7 @@ Conos_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE
       srtList = srtList, batch = batch,
       do_normalization = do_normalization, do_HVF_finding = do_HVF_finding,
       normalization_method = normalization_method,
-      HVF_source = HVF_source, nHVF = nHVF, HVF = HVF, HVF_method = HVF_method,
+      HVF_source = HVF_source, HVF_method = HVF_method, nHVF = nHVF, HVF_intersect = HVF_intersect, HVF_min_intersection = HVF_min_intersection, HVF = HVF,
       vars_to_regress = vars_to_regress, seed = seed
     )
     srtList <- checked[["srtList"]]
@@ -3251,7 +3261,7 @@ Conos_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE
 #' @importFrom dplyr "%>%"
 ZINBWaVE_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE, srtList = NULL,
                                do_normalization = NULL, normalization_method = "logCPM",
-                               do_HVF_finding = TRUE, HVF_source = "separate", HVF_method = "vst", nHVF = 2000, HVF = NULL,
+                               do_HVF_finding = TRUE, HVF_source = "separate", HVF_method = "vst", nHVF = 2000, HVF_intersect = FALSE, HVF_min_intersection = 1, HVF = NULL,
                                do_scaling = TRUE, vars_to_regress = NULL, regression_model = "linear",
                                nonlinear_reduction = "umap", nonlinear_reduction_dims = c(2, 3), nonlinear_reduction_params = list(), force_nonlinear_reduction = TRUE,
                                do_cluster_finding = TRUE, cluster_algorithm = "louvain", cluster_resolution = 0.6, cluster_reorder = TRUE,
@@ -3305,7 +3315,7 @@ ZINBWaVE_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = T
       srtList = srtList, batch = batch,
       do_normalization = do_normalization, do_HVF_finding = do_HVF_finding,
       normalization_method = normalization_method,
-      HVF_source = HVF_source, nHVF = nHVF, HVF = HVF, HVF_method = HVF_method,
+      HVF_source = HVF_source, HVF_method = HVF_method, nHVF = nHVF, HVF_intersect = HVF_intersect, HVF_min_intersection = HVF_min_intersection, HVF = HVF,
       vars_to_regress = vars_to_regress, seed = seed
     )
     srtList <- checked[["srtList"]]
@@ -3318,7 +3328,7 @@ ZINBWaVE_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = T
       srtMerge = srtMerge, batch = batch,
       do_normalization = do_normalization, do_HVF_finding = do_HVF_finding, do_scaling = do_scaling,
       normalization_method = normalization_method,
-      HVF_source = HVF_source, nHVF = nHVF, HVF = HVF, HVF_method = HVF_method,
+      HVF_source = HVF_source, HVF_method = HVF_method, nHVF = nHVF, HVF_intersect = HVF_intersect, HVF_min_intersection = HVF_min_intersection, HVF = HVF,
       vars_to_regress = vars_to_regress, seed = seed
     )
     srtMerge <- checked[["srtMerge"]]
@@ -3641,6 +3651,29 @@ Standard_SCP <- function(srt, prefix = "Standard",
 #'
 #' @examples
 #' data("panc8_sub")
+#' panc8_sub <- Integration_SCP(panc8_sub,
+#'   batch = "tech", integration_method = "Uncorrected"
+#' )
+#' ClassDimPlot(panc8_sub, group.by = c("tech", "celltype"))
+#'
+#' panc8_sub <- Integration_SCP(panc8_sub,
+#'   batch = "tech", integration_method = "Seurat"
+#' )
+#' ClassDimPlot(panc8_sub, group.by = c("tech", "celltype"))
+#'
+#' panc8_sub <- Integration_SCP(panc8_sub,
+#'   batch = "tech", integration_method = "Seurat",
+#'   HVF_intersect = TRUE
+#' )
+#' ClassDimPlot(panc8_sub, group.by = c("tech", "celltype"))
+#'
+#' panc8_sub <- Integration_SCP(panc8_sub,
+#'   batch = "tech", integration_method = "Seurat",
+#'   HVF_intersect = TRUE, HVF_min_intersection = length(unique(panc8_sub$tech))
+#' )
+#' ClassDimPlot(panc8_sub, group.by = c("tech", "celltype"))
+#'
+#' \dontrun{
 #' for (method in c("Uncorrected", "Seurat", "scVI", "MNN", "fastMNN", "Harmony", "Scanorama", "BBKNN", "CSS", "LIGER", "Conos")) {
 #'   panc8_sub <- Integration_SCP(panc8_sub,
 #'     batch = "tech", integration_method = method,
@@ -3656,12 +3689,13 @@ Standard_SCP <- function(srt, prefix = "Standard",
 #' for (reduc in c("umap", "tsne", "dm", "phate", "pacmap", "trimap", "largevis")) {
 #'   print(ClassDimPlot(panc8_sub, group.by = c("tech", "celltype"), reduction = paste0("Seurat", reduc, "2D"), theme_use = "theme_blank"))
 #' }
+#' }
 #'
 #' @export
 Integration_SCP <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE, srtList = NULL,
                             integration_method = "Uncorrected",
                             do_normalization = NULL, normalization_method = "logCPM",
-                            do_HVF_finding = TRUE, HVF_source = "separate", HVF_method = "vst", nHVF = 2000, HVF = NULL,
+                            do_HVF_finding = TRUE, HVF_source = "separate", HVF_method = "vst", nHVF = 2000, HVF_intersect = FALSE, HVF_min_intersection = 1, HVF = NULL,
                             do_scaling = TRUE, vars_to_regress = NULL, regression_model = "linear",
                             linear_reduction = "pca", linear_reduction_dims = 100, linear_reduction_dims_use = NULL, linear_reduction_params = list(), force_linear_reduction = FALSE,
                             nonlinear_reduction = "umap", nonlinear_reduction_dims = c(2, 3), nonlinear_reduction_params = list(), force_nonlinear_reduction = TRUE,

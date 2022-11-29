@@ -15,6 +15,8 @@ fastMNN_integrate(
   HVF_source = "separate",
   HVF_method = "vst",
   nHVF = 2000,
+  HVF_intersect = FALSE,
+  HVF_min_intersection = 1,
   HVF = NULL,
   fastMNN_dims_use = NULL,
   nonlinear_reduction = "umap",
