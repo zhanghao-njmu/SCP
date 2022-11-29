@@ -23,6 +23,7 @@ Imports:
     dplyr,
     ggnewscale,
     ggplot2,
+    ggtree (>= 3.6.1),
     ggrepel,
     GO.db,
     GOSemSim,
@@ -59,7 +60,8 @@ Imports:
     uwot
 Remotes:
     jokergoo/ComplexHeatmap,
-    jokergoo/simplifyEnrichment
+    jokergoo/simplifyEnrichment,
+    YuLab-SMU/ggtree
 Suggests:
     AUCell,
     covr,

@@ -9,6 +9,7 @@ Integration_SCP(
   batch = "orig.ident",
   append = TRUE,
   srtList = NULL,
+  assay = "RNA",
   integration_method = "Uncorrected",
   do_normalization = NULL,
   normalization_method = "logCPM",
@@ -16,6 +17,8 @@ Integration_SCP(
   HVF_source = "separate",
   HVF_method = "vst",
   nHVF = 2000,
+  HVF_intersect = FALSE,
+  HVF_min_intersection = 1,
   HVF = NULL,
   do_scaling = TRUE,
   vars_to_regress = NULL,
@@ -94,6 +97,29 @@ Single cell pipeline for the integration of multiple datasets.
 }
 \examples{
 data("panc8_sub")
+panc8_sub <- Integration_SCP(panc8_sub,
+  batch = "tech", integration_method = "Uncorrected"
+)
+ClassDimPlot(panc8_sub, group.by = c("tech", "celltype"))
+
+panc8_sub <- Integration_SCP(panc8_sub,
+  batch = "tech", integration_method = "Seurat"
+)
+ClassDimPlot(panc8_sub, group.by = c("tech", "celltype"))
+
+panc8_sub <- Integration_SCP(panc8_sub,
+  batch = "tech", integration_method = "Seurat",
+  HVF_intersect = TRUE
+)
+ClassDimPlot(panc8_sub, group.by = c("tech", "celltype"))
+
+panc8_sub <- Integration_SCP(panc8_sub,
+  batch = "tech", integration_method = "Seurat",
+  HVF_intersect = TRUE, HVF_min_intersection = length(unique(panc8_sub$tech))
+)
+ClassDimPlot(panc8_sub, group.by = c("tech", "celltype"))
+
+\dontrun{
 for (method in c("Uncorrected", "Seurat", "scVI", "MNN", "fastMNN", "Harmony", "Scanorama", "BBKNN", "CSS", "LIGER", "Conos")) {
   panc8_sub <- Integration_SCP(panc8_sub,
     batch = "tech", integration_method = method,
@@ -108,6 +134,7 @@ panc8_sub <- Integration_SCP(panc8_sub,
 )
 for (reduc in c("umap", "tsne", "dm", "phate", "pacmap", "trimap", "largevis")) {
   print(ClassDimPlot(panc8_sub, group.by = c("tech", "celltype"), reduction = paste0("Seurat", reduc, "2D"), theme_use = "theme_blank"))
+}
 }
 
 }
