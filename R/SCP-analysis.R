@@ -1238,7 +1238,7 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
     if (!any(db %in% names(default_IDtypes))) {
       stop("'db' is invalid.")
     }
-    if (!isTRUE(db_update)) {
+    if (isFALSE(db_update)) {
       for (term in db) {
         # Try to load cached database, if already generated.
         dbinfo <- ListDB(species = sps, db = term)
@@ -1272,7 +1272,7 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
       if (any(orgdb_dependent %in% db)) {
         status <- tryCatch(
           {
-            check_R(c("AnnotationDbi", org_sp, "GO.db", "GOSemSim"))
+            check_R(c(org_sp, "GO.db", "GOSemSim"))
           },
           error = identity
         )
@@ -1291,13 +1291,10 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
         orgdbCHR <- get(paste0(gsub(pattern = ".db", "", org_sp), "CHR"))
       }
       if ("PFAM" %in% db) {
-        check_R(c("PFAM.db", "AnnotationDbi"))
+        check_R(c("PFAM.db"))
       }
       if ("Reactome" %in% db) {
-        check_R(c("reactome.db", "AnnotationDbi"))
-      }
-      if ("WikiPathway" %in% db) {
-        check_R(c("clusterProfiler"))
+        check_R(c("reactome.db"))
       }
       # if ("MeSH" %in% db) {
       #   check_R(c("AHMeSHDbs", "MeSHDbi", "MeSH.db", "AnnotationHub"))

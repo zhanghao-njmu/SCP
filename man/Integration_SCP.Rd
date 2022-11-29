@@ -9,6 +9,7 @@ Integration_SCP(
   batch = "orig.ident",
   append = TRUE,
   srtList = NULL,
+  assay = "RNA",
   integration_method = "Uncorrected",
   do_normalization = NULL,
   normalization_method = "logCPM",

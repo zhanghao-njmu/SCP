@@ -4447,7 +4447,6 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
 
   res <- NULL
   if (isTRUE(anno_keys) || isTRUE(anno_features) || isTRUE(anno_terms)) {
-    check_R("simplifyEnrichment")
     geneID <- feature_metadata[, "features"]
     geneID_groups <- feature_metadata[, "feature_split"]
     if (all(is.na(geneID_groups))) {
@@ -4534,6 +4533,7 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
 
           ha_keys <- NULL
           if (isTRUE(anno_keys)) {
+            check_R("jokergoo/simplifyEnrichment")
             keys_list <- lapply(subdf_list, function(df) {
               if (df$Database[1] %in% c("GO_BP", "GO_CC", "GO_MF")) {
                 df <- simplifyEnrichment::keyword_enrichment_from_GO(df[["ID"]]) %>%
@@ -4827,13 +4827,13 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
     fix <- TRUE
   }
   if (is.null(height)) {
-    height <- convertHeight(unit(1, "npc"), units)
+    height <- convertHeight(unit(0.9, "npc"), units)
   }
   if (length(ha_top_list) > 0) {
     height <- convertUnit(unit(height, units) + height.HeatmapAnnotation(ha_top_list[[1]]), units)
   }
   if (is.null(width)) {
-    width <- convertWidth(unit(1, "npc"), units)
+    width <- convertWidth(unit(0.9, "npc"), units)
   }
   if (!is.null(ha_left)) {
     width <- convertUnit(unit(width, units) + width.HeatmapAnnotation(ha_left), units)
@@ -5628,7 +5628,6 @@ ExpHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, spli
 
   res <- NULL
   if (isTRUE(anno_keys) || isTRUE(anno_features) || isTRUE(anno_terms)) {
-    check_R("simplifyEnrichment")
     geneID <- feature_metadata[, "features"]
     geneID_groups <- feature_metadata[, "feature_split"]
     if (all(is.na(geneID_groups))) {
@@ -5715,6 +5714,7 @@ ExpHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, spli
 
           ha_keys <- NULL
           if (isTRUE(anno_keys)) {
+            check_R("jokergoo/simplifyEnrichment")
             keys_list <- lapply(subdf_list, function(df) {
               if (df$Database[1] %in% c("GO_BP", "GO_CC", "GO_MF")) {
                 df <- simplifyEnrichment::keyword_enrichment_from_GO(df[["ID"]]) %>%
@@ -5885,13 +5885,13 @@ ExpHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, spli
     fix <- TRUE
   }
   if (is.null(height)) {
-    height <- convertHeight(unit(1, "npc"), units)
+    height <- convertHeight(unit(0.9, "npc"), units)
   }
   if (length(ha_top_list) > 0) {
     height <- convertUnit(unit(height, units) + height.HeatmapAnnotation(ha_top_list[[1]]), units)
   }
   if (is.null(width)) {
-    width <- convertWidth(unit(1, "npc"), units)
+    width <- convertWidth(unit(0.9, "npc"), units)
   }
   if (!is.null(ha_left)) {
     width <- convertUnit(unit(width, units) + width.HeatmapAnnotation(ha_left), units)
@@ -9736,7 +9736,6 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineag
 
   res <- NULL
   if (isTRUE(anno_keys) || isTRUE(anno_features) || isTRUE(anno_terms)) {
-    check_R("simplifyEnrichment")
     geneID <- feature_metadata[, "features"]
     geneID_groups <- feature_metadata[, "feature_split"]
     if (all(is.na(geneID_groups))) {
@@ -9823,6 +9822,7 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineag
 
           ha_keys <- NULL
           if (isTRUE(anno_keys)) {
+            check_R("jokergoo/simplifyEnrichment")
             keys_list <- lapply(subdf_list, function(df) {
               if (df$Database[1] %in% c("GO_BP", "GO_CC", "GO_MF")) {
                 df <- simplifyEnrichment::keyword_enrichment_from_GO(df[["ID"]]) %>%
@@ -9986,13 +9986,13 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineag
     fix <- TRUE
   }
   if (is.null(height)) {
-    height <- convertHeight(unit(1, "npc"), units)
+    height <- convertHeight(unit(0.9, "npc"), units)
   }
   if (length(ha_top_list) > 0) {
     height <- convertUnit(unit(height, units) + height.HeatmapAnnotation(ha_top_list[[1]]), units)
   }
   if (is.null(width)) {
-    width <- convertWidth(unit(1, "npc"), units)
+    width <- convertWidth(unit(0.9, "npc"), units)
   }
   if (!is.null(ha_left)) {
     width <- convertUnit(unit(width, units) + width.HeatmapAnnotation(ha_left), units)
@@ -10393,7 +10393,7 @@ EnrichmentPlot <- function(srt, db = "GO_BP", group_by = NULL, group_use = NULL,
     }))
   } else if (plot_type == "wordcloud") {
     check_R("ggwordcloud")
-    check_R("simplifyEnrichment")
+    check_R("jokergoo/simplifyEnrichment")
     plist <- lapply(df_list, function(df) {
       if (word_type == "term") {
         if (df$Database[1] %in% c("GO_BP", "GO_CC", "GO_MF")) {

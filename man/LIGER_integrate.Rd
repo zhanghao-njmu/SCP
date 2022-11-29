@@ -9,6 +9,7 @@ LIGER_integrate(
   batch = "orig.ident",
   append = TRUE,
   srtList = NULL,
+  assay = "RNA",
   do_normalization = NULL,
   normalization_method = "logCPM",
   do_HVF_finding = TRUE,
