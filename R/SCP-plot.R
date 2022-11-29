@@ -3618,6 +3618,52 @@ grid_draw <- function(groblist, x, y, width, height) {
   }
 }
 
+#' @importFrom stats hclust dist as.dendrogram order.dendrogram
+#' @importFrom ComplexHeatmap merge_dendrogram
+cluster_within_group2 <- function(mat, factor) {
+  require("dendextend", quietly = TRUE)
+  if (!is.factor(factor)) {
+    factor <- factor(factor, levels = unique(factor))
+  }
+  dend_list <- list()
+  order_list <- list()
+  for (le in unique(levels(factor))) {
+    m <- mat[, factor == le, drop = FALSE]
+    if (ncol(m) == 1) {
+      order_list[[le]] <- which(factor == le)
+      dend_list[[le]] <- structure(which(factor == le),
+        class = "dendrogram", leaf = TRUE, # height = 0,
+        label = 1, members = 1
+      )
+    } else if (ncol(m) > 1) {
+      hc1 <- hclust(dist(t(m)))
+      dend_list[[le]] <- as.dendrogram(hc1)
+      order_list[[le]] <- which(factor == le)[order.dendrogram(dend_list[[le]])]
+      order.dendrogram(dend_list[[le]]) <- order_list[[le]]
+    }
+    attr(dend_list[[le]], ".class_label") <- le
+  }
+  parent <- as.dendrogram(hclust(dist(t(sapply(
+    order_list,
+    function(x) rowMeans(mat[, x, drop = FALSE])
+  )))))
+  dend_list <- lapply(dend_list, function(dend) {
+    dendrapply(
+      dend,
+      function(node) {
+        if (is.null(attr(node, "height"))) {
+          attr(node, "height") <- 0
+        }
+        node
+      }
+    )
+  })
+  # print(sapply(dend_list, function(x) attr(x, "height")))
+  dend <- merge_dendrogram(parent, dend_list)
+  order.dendrogram(dend) <- unlist(order_list[order.dendrogram(parent)])
+  return(dend)
+}
+
 #' GroupHeatmap
 #'
 #' @param srt A \code{Seurat} object.
@@ -3719,7 +3765,7 @@ grid_draw <- function(groblist, x, y, width, height) {
 GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL, cells = NULL, aggregate_fun = mean, exp_cutoff = 0, border = TRUE,
                          slot = "counts", assay = "RNA", exp_method = c("zscore", "raw", "fc", "log2fc", "log1p"), lib_normalize = TRUE, libsize = NULL,
                          feature_split = NULL, feature_split_by = NULL, n_split = NULL, split_method = c("kmeans", "hclust", "mfuzz"), decreasing = FALSE,
-                         cluster_rows = FALSE, cluster_columns = FALSE, cluster_row_slices = FALSE, cluster_column_slices = FALSE,
+                         cluster_rows = FALSE, cluster_rows_by = NULL, cluster_columns = FALSE, cluster_row_slices = FALSE, cluster_column_slices = FALSE,
                          show_row_names = TRUE, show_column_names = FALSE, row_title_rot = 0, column_title_rot = 0,
                          anno_terms = FALSE, anno_keys = FALSE, anno_features = FALSE,
                          terms_width = unit(4, "in"), terms_fontsize = 8,
@@ -3776,6 +3822,7 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
   if (length(group_palette) != length(group.by)) {
     stop("'group_palette' must be the same length as 'group.by'")
   }
+  group_palette <- setNames(group_palette, nm = group.by)
   if (length(split.by) > 1) {
     stop("'split.by' only support one variable.")
   }
@@ -3857,7 +3904,8 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
         out <- setNames(rep(x, length(cells_sub)), cells_sub)
         return(out)
       }) %>% unlist(use.names = TRUE)
-      cell_groups[[cell_group]] <- factor(cell_groups[[cell_group]], levels = levels(srt[[cell_group, drop = TRUE]]))
+      levels <- levels(srt[[cell_group, drop = TRUE]])
+      cell_groups[[cell_group]] <- factor(cell_groups[[cell_group]], levels = levels[levels %in% cell_groups[[cell_group]]])
     } else {
       if (!is.factor(srt[[split.by, drop = TRUE]])) {
         srt[[split.by, drop = TRUE]] <- factor(srt[[split.by, drop = TRUE]], levels = unique(srt[[split.by, drop = TRUE]]))
@@ -3930,8 +3978,9 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
   if (length(feature_split_by) == 1) {
     mat_split <- mat_list[[feature_split_by]]
   } else {
-    mat_split <- do.call(cbind, mat_raw_list[feature_split_by])
-    mat_split <- matrix_process(mat_split, method = exp_method)
+    # mat_split <- do.call(cbind, mat_raw_list[feature_split_by])
+    # mat_split <- matrix_process(mat_split, method = exp_method)
+    mat_split <- do.call(cbind, mat_list[feature_split_by])
     mat_split[is.infinite(mat_split)] <- max(abs(mat_split[!is.infinite(mat_split)])) * ifelse(mat_split[is.infinite(mat_split)] > 0, 1, -1)
     mat_split[is.na(mat_split)] <- mean(mat_split, na.rm = TRUE)
   }
@@ -4116,7 +4165,7 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
             assay = assay, slot = "data",
             features = cellan, cells = names(cell_groups[[cell_group]]),
             group.by = cell_group, split.by = split.by,
-            palette = palette, palcolor = palcolor,
+            palette = group_palette[cell_group], palcolor = group_palcolor[cell_group],
             fill.by = "group", same.y.lims = TRUE,
             stat_single = TRUE, combine = FALSE
           )
@@ -4269,6 +4318,18 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
     )
   }
 
+  if (isTRUE(cluster_rows) && !is.null(cluster_rows_by)) {
+    mat_cluster <- do.call(cbind, mat_list[cluster_rows_by])
+    if (is.null(row_split)) {
+      dend <- as.dendrogram(hclust(dist(mat_cluster)))
+      dend_ordered <- reorder(dend, wts = colMeans(mat_cluster), agglo.FUN = mean)
+      cluster_rows <- dend_ordered
+    } else {
+      row_split <- length(unique(row_split_raw))
+      dend <- cluster_within_group2(t(mat_cluster), row_split_raw)
+      cluster_rows <- dend
+    }
+  }
 
   cell_group <- group.by[1]
   ht_args <- list(
@@ -4969,7 +5030,7 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
 ExpHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, split.by = NULL, max_cells = 100, cell_order = NULL, border = TRUE,
                        slot = "counts", assay = "RNA", exp_method = c("zscore", "raw", "fc", "log2fc", "log1p"), lib_normalize = TRUE, libsize = NULL,
                        feature_split = NULL, feature_split_by = NULL, n_split = NULL, split_method = c("kmeans", "hclust", "mfuzz"), decreasing = FALSE,
-                       cluster_rows = FALSE, cluster_columns = FALSE, cluster_row_slices = FALSE, cluster_column_slices = FALSE,
+                       cluster_rows = FALSE, cluster_rows_by = NULL, cluster_columns = FALSE, cluster_row_slices = FALSE, cluster_column_slices = FALSE,
                        show_row_names = FALSE, show_column_names = FALSE, row_title_rot = 0, column_title_rot = 0,
                        anno_terms = FALSE, anno_keys = FALSE, anno_features = FALSE,
                        terms_width = unit(4, "in"), terms_fontsize = 8,
@@ -5107,7 +5168,8 @@ ExpHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, spli
         out <- setNames(rep(x, size), cells_sample)
         return(out)
       }) %>% unlist(use.names = TRUE)
-      cell_groups[[cell_group]] <- factor(cell_groups[[cell_group]], levels = levels(srt[[cell_group, drop = TRUE]]))
+      levels <- levels(srt[[cell_group, drop = TRUE]])
+      cell_groups[[cell_group]] <- factor(cell_groups[[cell_group]], levels = levels[levels %in% cell_groups[[cell_group]]])
     } else {
       if (!is.factor(srt[[split.by, drop = TRUE]])) {
         srt[[split.by, drop = TRUE]] <- factor(srt[[split.by, drop = TRUE]], levels = unique(srt[[split.by, drop = TRUE]]))
@@ -5168,8 +5230,9 @@ ExpHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, spli
   if (length(feature_split_by) == 1) {
     mat_split <- mat_list[[feature_split_by]]
   } else {
-    mat_split <- mat_raw[, unlist(lapply(cell_groups[feature_split_by], names))]
-    mat_split <- matrix_process(mat_split, method = exp_method)
+    # mat_split <- mat_list[, unlist(lapply(cell_groups[feature_split_by], names))]
+    # mat_split <- matrix_process(mat_split, method = exp_method)
+    mat_split <- do.call(cbind, mat_list[feature_split_by])
     mat_split[is.infinite(mat_split)] <- max(abs(mat_split[!is.infinite(mat_split)])) * ifelse(mat_split[is.infinite(mat_split)] > 0, 1, -1)
     mat_split[is.na(mat_split)] <- mean(mat_split, na.rm = TRUE)
   }
@@ -5434,6 +5497,19 @@ ExpHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, spli
       title = "Cluster", labels = levels(factor(row_split_raw)),
       legend_gp = gpar(fill = palette_scp(row_split_raw, type = "discrete", palette = feature_split_palette, palcolor = feature_split_palcolor)), border = TRUE
     )
+  }
+
+  if (isTRUE(cluster_rows) && !is.null(cluster_rows_by)) {
+    mat_cluster <- do.call(cbind, mat_list[cluster_rows_by])
+    if (is.null(row_split)) {
+      dend <- as.dendrogram(hclust(dist(mat_cluster)))
+      dend_ordered <- reorder(dend, wts = colMeans(mat_cluster), agglo.FUN = mean)
+      cluster_rows <- dend_ordered
+    } else {
+      row_split <- length(unique(row_split_raw))
+      dend <- cluster_within_group2(t(mat_cluster), row_split_raw)
+      cluster_rows <- dend
+    }
   }
 
   cell_group <- group.by[1]
@@ -6344,12 +6420,86 @@ ExpCorPlot <- function(srt, features, group.by = NULL, split.by = NULL, cells = 
 }
 
 
-ExpCorHeatmap <- function(srt, features, cells) {
+FeatureCorHeatmap <- function(srt, features, cells) {
 
 }
 
-CellSimilHeatmap <- function(srt_query, srt_ref) {
-
+#' CellCorHeatmap
+#'
+#' @importFrom ComplexHeatmap Heatmap draw
+#' @importFrom circlize colorRamp2
+#' @importFrom grid grid.text gpar unit grid.grabExpr
+#' @export
+CellCorHeatmap <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
+                           query_group = NULL, ref_group = NULL,
+                           query_assay = NULL, ref_assay = NULL,
+                           query_reduction = NULL, ref_reduction = NULL, query_dims = ref_dims, ref_dims = 1:30,
+                           query_collapsing = !is.null(query_group), ref_collapsing = TRUE,
+                           features = NULL, features_type = c("HVF", "DE"), feature_source = "both", nfeatures = 2000,
+                           DEtest_param = list(max.cells.per.ident = 200, test.use = "wilcox"),
+                           DE_threshold = "p_val_adj < 0.05",
+                           distance_metric = "cosine", k = 30,
+                           filter_lowfreq = 0, prefix = "knnpredict", force = FALSE,
+                           cluster_columns = TRUE, cluster_rows = TRUE,
+                           nlabel = 3, label_by = "row") {
+  if (is.null(srt@tools$knnpredict$distance_matrix)) {
+    srt <- RunKNNPredict(
+      srt_query = srt_query, srt_ref = srt_ref, bulk_ref = bulk_ref,
+      query_group = query_group, ref_group = ref_group,
+      query_assay = query_assay, ref_assay = ref_assay,
+      query_reduction = query_reduction, ref_reduction = ref_reduction, query_dims = query_dims, ref_dims = ref_dims,
+      query_collapsing = query_collapsing, ref_collapsing = ref_collapsing,
+      features = features, features_type = features_type, feature_source = feature_source, nfeatures = nfeatures,
+      DEtest_param = DEtest_param,
+      DE_threshold = DE_threshold,
+      distance_metric = distance_metric, k = k,
+      filter_lowfreq = filter_lowfreq, prefix = prefix, force = force,
+      nn_method = "raw", return_full_distance_matrix = TRUE
+    )
+  }
+  d <- t(as.matrix(1 - srt@tools$knnpredict$distance_matrix))
+  ht <- Heatmap(d,
+    name = "Cosine similarity", cluster_columns = cluster_columns, cluster_rows = cluster_rows,
+    col = colorRamp2(seq(min(d), max(d), length.out = 3), c("#27408B", "white", "#EE0000")),
+    cell_fun = function(j, i, x, y, w, h, fill) {
+      grid.rect(x, y,
+        width = w, height = h,
+        gp = gpar(col = "white", lwd = 1, fill = "white")
+      )
+      grid.rect(x, y,
+        width = w, height = h,
+        gp = gpar(col = fill, lwd = 1, fill = alpha(fill, 0.5))
+      )
+      if (label_by == "row") {
+        if (d[i, j] >= sort(d[i, ], decreasing = T)[nlabel]) {
+          # grid.text("*", x, y, gp = gpar(fontsize = 20))
+          grid.text(round(d[i, j], 2), x, y, gp = gpar(fontsize = 10))
+        }
+      }
+      if (label_by == "column") {
+        if (d[i, j] >= sort(d[, j], decreasing = T)[nlabel]) {
+          # grid.text("*", x, y, gp = gpar(fontsize = 20))
+          grid.text(round(d[i, j], 2), x, y, gp = gpar(fontsize = 10))
+        }
+      }
+      if (label_by == "both") {
+        if (d[i, j] >= sort(d[, j], decreasing = T)[nlabel] & d[i, j] >= sort(d[i, ], decreasing = T)[nlabel]) {
+          # grid.text("*", x, y, gp = gpar(fontsize = 20))
+          grid.text(round(d[i, j], 2), x, y, gp = gpar(fontsize = 10))
+        }
+      }
+    },
+    border = TRUE,
+    width = unit(ncol(d) * 0.8, "cm"),
+    height = unit(nrow(d) * 0.8, "cm"),
+  )
+  gTree <- grid.grabExpr({
+    draw(ht,
+      padding = unit(c(1, 1, 1, 1), "cm")
+    )
+  })
+  p <- plot_grid(gTree)
+  return(p)
 }
 
 
