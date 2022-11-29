@@ -50,22 +50,22 @@ NULL
 #' data("panc8_sub")
 #' # Simply convert genes from human to mouse and preprocess the data
 #' genenames <- make.unique(stringr::str_to_title(rownames(panc8_sub)))
-#' panc8_rename <- RenameFeatures(panc8_sub, newnames = genenames)
-#' panc8_rename <- check_srtMerge(panc8_rename, batch = "tech")[["srtMerge"]]
+#' panc8_sub <- RenameFeatures(panc8_sub, newnames = genenames)
+#' panc8_sub <- check_srtMerge(panc8_sub, batch = "tech")[["srtMerge"]]
 #'
-#' pancreas_sub <- RunKNNPredict(srt_query = pancreas_sub, srt_ref = panc8_rename, ref_group = "celltype")
+#' pancreas_sub <- RunKNNPredict(srt_query = pancreas_sub, srt_ref = panc8_sub, ref_group = "celltype")
 #' ClassDimPlot(pancreas_sub, group.by = "knnpredict_classification", label = TRUE)
 #' ExpDimPlot(pancreas_sub, features = "knnpredict_simil")
 #'
 #' pancreas_sub <- RunKNNPredict(
-#'   srt_query = pancreas_sub, srt_ref = panc8_rename,
+#'   srt_query = pancreas_sub, srt_ref = panc8_sub,
 #'   ref_group = "celltype", ref_collapsing = FALSE
 #' )
 #' ClassDimPlot(pancreas_sub, group.by = "knnpredict_classification", label = TRUE)
 #' ExpDimPlot(pancreas_sub, features = "knnpredict_prob")
 #'
 #' pancreas_sub <- RunKNNPredict(
-#'   srt_query = pancreas_sub, srt_ref = panc8_rename,
+#'   srt_query = pancreas_sub, srt_ref = panc8_sub,
 #'   query_group = "SubCellType", ref_group = "celltype",
 #'   query_collapsing = TRUE, ref_collapsing = TRUE
 #' )
@@ -74,7 +74,7 @@ NULL
 #'
 #' # Annotate with DE gene instead of HVF
 #' pancreas_sub <- RunKNNPredict(
-#'   srt_query = pancreas_sub, srt_ref = panc8_rename,
+#'   srt_query = pancreas_sub, srt_ref = panc8_sub,
 #'   ref_group = "celltype",
 #'   features_type = "DE", feature_source = "ref"
 #' )
@@ -82,7 +82,7 @@ NULL
 #' ExpDimPlot(pancreas_sub, features = "knnpredict_simil")
 #'
 #' pancreas_sub <- RunKNNPredict(
-#'   srt_query = pancreas_sub, srt_ref = panc8_rename,
+#'   srt_query = pancreas_sub, srt_ref = panc8_sub,
 #'   query_group = "SubCellType", ref_group = "celltype",
 #'   features_type = "DE", feature_source = "both"
 #' )
@@ -120,10 +120,10 @@ RunKNNPredict <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
   if (!isTRUE(use_reduction)) {
     if (length(features) == 0) {
       if (features_type == "HVF" && feature_source %in% c("both", "query")) {
-        if (length(VariableFeatures(srt_query)) == 0) {
-          srt_query <- FindVariableFeatures(srt_query, nfeatures = nfeatures)
+        if (length(VariableFeatures(srt_query, assay = query_assay)) == 0) {
+          srt_query <- FindVariableFeatures(srt_query, nfeatures = nfeatures, assay = query_assay)
         }
-        features_query <- VariableFeatures(srt_query)
+        features_query <- VariableFeatures(srt_query, assay = query_assay)
       } else if (features_type == "DE" && feature_source %in% c("both", "query")) {
         if (is.null(query_group)) {
           stop("'query_group' must be provided when 'features_type' is 'DE' and 'feature_source' is 'both' or 'query'")
@@ -216,7 +216,7 @@ RunKNNPredict <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
       if (length(features) == 0) {
         if (features_type == "HVF" && feature_source %in% c("both", "ref")) {
           message("Use the HVF to calculate distance metric.")
-          if (length(VariableFeatures(srt_ref)) == 0) {
+          if (length(VariableFeatures(srt_ref, assay = ref_assay)) == 0) {
             srt_ref <- FindVariableFeatures(srt_ref, nfeatures = nfeatures, assay = ref_assay)
           }
           features_ref <- VariableFeatures(srt_ref, assay = ref_assay)
@@ -509,20 +509,20 @@ RunKNNPredict <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
 #' data("panc8_sub")
 #' # Simply convert genes from human to mouse and preprocess the data
 #' genenames <- make.unique(stringr::str_to_title(rownames(panc8_sub)))
-#' panc8_rename <- RenameFeatures(panc8_sub, newnames = genenames)
-#' panc8_rename <- check_srtMerge(panc8_rename, batch = "tech")[["srtMerge"]]
+#' panc8_sub <- RenameFeatures(panc8_sub, newnames = genenames)
+#' panc8_sub <- check_srtMerge(panc8_sub, batch = "tech")[["srtMerge"]]
 #'
 #' # Annotation
 #' data("pancreas_sub")
 #' pancreas_sub <- Standard_SCP(pancreas_sub)
 #' pancreas_sub <- RunScmap(
-#'   srt_query = pancreas_sub, srt_ref = panc8_rename,
+#'   srt_query = pancreas_sub, srt_ref = panc8_sub,
 #'   ref_group = "celltype", method = "scmapCluster"
 #' )
 #' ClassDimPlot(pancreas_sub, group.by = "scmap_annotation")
 #'
 #' pancreas_sub <- RunScmap(
-#'   srt_query = pancreas_sub, srt_ref = panc8_rename,
+#'   srt_query = pancreas_sub, srt_ref = panc8_sub,
 #'   ref_group = "celltype", method = "scmapCell"
 #' )
 #' ClassDimPlot(pancreas_sub, group.by = "scmap_annotation")
@@ -655,20 +655,20 @@ RunScmap <- function(srt_query, srt_ref, ref_group = NULL, method = "scmapCluste
 #' data("panc8_sub")
 #' # Simply convert genes from human to mouse and preprocess the data
 #' genenames <- make.unique(stringr::str_to_title(rownames(panc8_sub)))
-#' panc8_rename <- RenameFeatures(panc8_sub, newnames = genenames)
-#' panc8_rename <- check_srtMerge(panc8_rename, batch = "tech")[["srtMerge"]]
+#' panc8_sub <- RenameFeatures(panc8_sub, newnames = genenames)
+#' panc8_sub <- check_srtMerge(panc8_sub, batch = "tech")[["srtMerge"]]
 #'
 #' # Annotation
 #' data("pancreas_sub")
 #' pancreas_sub <- Standard_SCP(pancreas_sub)
 #' pancreas_sub <- RunSingleR(
-#'   srt_query = pancreas_sub, srt_ref = panc8_rename,
+#'   srt_query = pancreas_sub, srt_ref = panc8_sub,
 #'   query_group = "Standardclusters", ref_group = "celltype",
 #' )
 #' ClassDimPlot(pancreas_sub, group.by = "singler_annotation")
 #'
 #' pancreas_sub <- RunSingleR(
-#'   srt_query = pancreas_sub, srt_ref = panc8_rename,
+#'   srt_query = pancreas_sub, srt_ref = panc8_sub,
 #'   query_group = NULL, ref_group = "celltype"
 #' )
 #' ClassDimPlot(pancreas_sub, group.by = "singler_annotation")

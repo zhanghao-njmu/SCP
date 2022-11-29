@@ -17,16 +17,22 @@ check_DataType <- function(srt, data = NULL, slot = "data", assay = NULL) {
     isfloat <- any(data[, sample(seq_len(ncol(data)), min(ncol(data), 1000))] %% 1 != 0, na.rm = TRUE)
   }
   islog <- is.finite(expm1(x = max(data, na.rm = TRUE)))
+  isnegative <- any(data < 0)
 
   if (!isTRUE(isfinite)) {
     warning("Infinite values detected!", immediate. = TRUE)
     return("unknown")
-  } else if (!isfloat) {
-    return("raw_counts")
-  } else if (isfloat && islog) {
-    return("log_normalized_counts")
-  } else if (isfloat && !islog) {
-    return("raw_normalized_counts")
+  } else if (isTRUE(isnegative)) {
+    warning("Negative values detected!", immediate. = TRUE)
+    return("unknown")
+  } else {
+    if (!isfloat) {
+      return("raw_counts")
+    } else if (isfloat && islog) {
+      return("log_normalized_counts")
+    } else if (isfloat && !islog) {
+      return("raw_normalized_counts")
+    }
   }
 }
 
@@ -50,7 +56,7 @@ check_DataType <- function(srt, data = NULL, slot = "data", assay = NULL) {
 #' @importFrom utils head
 #' @export
 #'
-check_srtList <- function(srtList, batch = "orig.ident",
+check_srtList <- function(srtList, batch = "orig.ident", assay = "RNA",
                           do_normalization = NULL, normalization_method = "logCPM",
                           do_HVF_finding = TRUE, HVF_source = "separate", HVF_method = "vst", nHVF = 2000, HVF_intersect = FALSE, HVF_min_intersection = 1, HVF = NULL,
                           vars_to_regress = NULL, seed = 11, ...) {
@@ -69,18 +75,21 @@ check_srtList <- function(srtList, batch = "orig.ident",
   if (!HVF_source %in% c("global", "separate")) {
     stop("'HVF_source' must be one of: 'global','separate'")
   }
-  if (any(sapply(srtList, ncol) < 10)) {
-    stop(paste0("Seurat objects in srtList contain less than 10 cells. srtList index: ", which(sapply(srtList, ncol) < 10)))
+  if (any(sapply(srtList, ncol) < 3)) {
+    stop(paste0(
+      "Seurat objects in srtList contain less than 3 cells. srtList index: ",
+      paste0(which(sapply(srtList, ncol) < 3), collapse = ",")
+    ))
   }
 
   genelist <- lapply(srtList, function(x) {
-    sort(rownames(GetAssayData(x, slot = "counts")))
+    sort(rownames(GetAssayData(x, slot = "counts", assay = assay)))
   })
   if (length(unique(genelist)) != 1) {
     warning("'srtList' have different feature names! Will subset the common features for downstream analysis!", immediate. = TRUE)
-    cf <- lapply(srtList, rownames) %>% Reduce(intersect, .)
+    cf <- lapply(srtList, function(x) rownames(x[[assay]])) %>% Reduce(intersect, .)
     for (i in seq_along(srtList)) {
-      srtList[[i]] <- subset(srtList[[i]], features = cf)
+      srtList[[i]][[assay]] <- subset(srtList[[i]][[assay]], features = cf)
     }
   }
 
@@ -114,39 +123,35 @@ check_srtList <- function(srtList, batch = "orig.ident",
     }
   }
 
-  status_i <- c()
   for (i in seq_along(srtList)) {
-    if (!"RNA" %in% Assays(srtList[[i]])) {
-      stop(paste("srtList", i, "does not contain 'RNA' assay."))
+    if (!assay %in% Assays(srtList[[i]])) {
+      stop(paste0("srtList ", i, " does not contain '", assay, "' assay."))
     }
-    DefaultAssay(srtList[[i]]) <- "RNA"
+    DefaultAssay(srtList[[i]]) <- assay
     if (isTRUE(do_normalization)) {
       cat("Perform NormalizeData(logCPM) on the data ", i, "/", length(srtList), " of the srtList...\n", sep = "")
-      srtList[[i]] <- suppressWarnings(NormalizeData(object = srtList[[i]], normalization.method = "LogNormalize", verbose = FALSE))
+      srtList[[i]] <- suppressWarnings(NormalizeData(object = srtList[[i]], assay = assay, normalization.method = "LogNormalize", verbose = FALSE))
     } else if (is.null(do_normalization)) {
-      status <- check_DataType(srtList[[i]], slot = "data")
-      if (length(status_i) > 0 && status != status_i) {
-        stop("The normalization method for the data slot of srt ", i, " is detected as '", status, "', which is inconsistent with the previous.\nYou can manually set the 'do_normalization' parameter to TRUE or FALSE.")
-      }
+      status <- check_DataType(srtList[[i]], slot = "data", assay = assay)
       if (status == "raw_counts") {
         cat("Data ", i, "/", length(srtList), " of the srtList is raw counts. Perform NormalizeData(logCPM) on the data ...\n", sep = "")
-        srtList[[i]] <- suppressWarnings(NormalizeData(object = srtList[[i]], normalization.method = "LogNormalize", verbose = FALSE))
+        srtList[[i]] <- suppressWarnings(NormalizeData(object = srtList[[i]], assay = assay, normalization.method = "LogNormalize", verbose = FALSE))
       }
       if (status == "log_normalized_counts") {
         cat("Data ", i, "/", length(srtList), " of the srtList has been log-normalized.\n", sep = "")
       }
       if (status == "raw_normalized_counts") {
         cat("Data ", i, "/", length(srtList), " of the srtList is normalized without log transformation. Perform log1p on the data...\n", sep = "")
-        srtList[[i]][["RNA"]]@data <- log1p(srtList[[i]][["RNA"]]@data)
+        srtList[[i]][[assay]]@data <- log1p(srtList[[i]][[assay]]@data)
       }
       if (status == "unknown") {
-        stop("Can not determine whether data ", i, " is log-normalized")
+        warning("Can not determine whether data ", i, " is log-normalized", immediate. = TRUE)
       }
     }
     if (is.null(HVF)) {
-      if (isTRUE(do_HVF_finding) || is.null(do_HVF_finding) || length(VariableFeatures(srtList[[i]])) == 0) {
+      if (isTRUE(do_HVF_finding) || is.null(do_HVF_finding) || length(VariableFeatures(srtList[[i]], assay = assay)) == 0) {
         cat("Perform FindVariableFeatures on the data ", i, "/", length(srtList), " of the srtList...\n", sep = "")
-        srtList[[i]] <- FindVariableFeatures(srtList[[i]], nfeatures = nHVF, selection.method = HVF_method, verbose = FALSE)
+        srtList[[i]] <- FindVariableFeatures(srtList[[i]], assay = assay, nfeatures = nHVF, selection.method = HVF_method, verbose = FALSE)
       }
     }
 
@@ -157,8 +162,9 @@ check_srtList <- function(srtList, batch = "orig.ident",
           object = srtList[[i]],
           variable.features.n = nHVF,
           vars.to.regress = vars_to_regress,
-          assay = "RNA",
+          assay = assay,
           method = "glmGamPoi",
+          new.assay.name = "SCT",
           verbose = FALSE
         )
       } else {
@@ -176,10 +182,10 @@ check_srtList <- function(srtList, batch = "orig.ident",
         top.features <- rownames(x = feature.attr)[head(order(feature.attr$residual_variance,
           decreasing = TRUE
         ), n = nfeatures)]
-        VariableFeatures(object = srtList[[i]]) <- top.features
+        VariableFeatures(object = srtList[[i]], assay = DefaultAssay(srtList[[i]])) <- top.features
         srtList[[i]]@assays$SCT@meta.features <- feature.attr
       } else {
-        VariableFeatures(srtList[[i]]) <- srtList[[i]]@assays$SCT@meta.features %>%
+        VariableFeatures(srtList[[i]], assay = DefaultAssay(srtList[[i]])) <- srtList[[i]]@assays$SCT@meta.features %>%
           arrange(desc(.data[["residual_variance"]])) %>%
           rownames() %>%
           head(n = nHVF)
@@ -191,7 +197,7 @@ check_srtList <- function(srtList, batch = "orig.ident",
     if (HVF_source == "global") {
       cat("Perform global HVF calculation on the merged datasets from the srtList...\n")
       srtMerge <- Reduce(merge, srtList)
-      srtMerge <- FindVariableFeatures(srtMerge, nfeatures = nHVF, selection.method = HVF_method, verbose = FALSE)
+      srtMerge <- FindVariableFeatures(srtMerge, assay = DefaultAssay(srtMerge), nfeatures = nHVF, selection.method = HVF_method, verbose = FALSE)
       HVF <- VariableFeatures(srtMerge)
     }
     if (HVF_source == "separate") {
@@ -211,14 +217,14 @@ check_srtList <- function(srtList, batch = "orig.ident",
     }
   } else {
     cf <- Reduce(intersect, lapply(srtList, function(x) {
-      rownames(GetAssayData(x, slot = "counts"))
+      rownames(GetAssayData(x, slot = "counts", assay = DefaultAssay(x)))
     }))
     HVF <- HVF[HVF %in% cf]
   }
   message("Number of available HVF: ", length(HVF))
 
   hvf_sum <- lapply(srtList, function(x) {
-    colSums(GetAssayData(x, slot = "counts")[HVF, ])
+    colSums(GetAssayData(x, slot = "counts", assay = DefaultAssay(x))[HVF, ])
   })
   cell_all <- unlist(unname(hvf_sum))
   cell_abnormal <- names(cell_all)[cell_all == 0]
@@ -253,7 +259,7 @@ check_srtList <- function(srtList, batch = "orig.ident",
 #'
 #' @importFrom Seurat GetAssayData SplitObject SetAssayData VariableFeatures VariableFeatures<-
 #' @export
-check_srtMerge <- function(srtMerge, batch = "orig.ident",
+check_srtMerge <- function(srtMerge, batch = "orig.ident", assay = "RNA",
                            do_normalization = NULL, normalization_method = "logCPM",
                            do_HVF_finding = TRUE, HVF_source = "separate", HVF_method = "vst", nHVF = 2000, HVF_intersect = FALSE, HVF_min_intersection = 1, HVF = NULL,
                            vars_to_regress = NULL, seed = 11, ...) {
@@ -271,13 +277,14 @@ check_srtMerge <- function(srtMerge, batch = "orig.ident",
       levels = unique(srtMerge[[batch, drop = TRUE]])
     )
   }
+  assay <- assay %||% DefaultAssay(srtMerge)
   srtMerge_raw <- srtMerge
 
   cat(paste0("[", Sys.time(), "]", " Spliting srtMerge into srtList... ...\n"))
   srtList <- SplitObject(object = srtMerge_raw, split.by = batch)
 
   checked <- check_srtList(
-    srtList = srtList, batch = batch,
+    srtList = srtList, batch = batch, assay = assay,
     do_normalization = do_normalization, do_HVF_finding = do_HVF_finding,
     normalization_method = normalization_method,
     HVF_source = HVF_source, HVF_method = HVF_method, nHVF = nHVF, HVF_intersect = HVF_intersect, HVF_min_intersection = HVF_min_intersection, HVF = HVF,
@@ -286,12 +293,18 @@ check_srtMerge <- function(srtMerge, batch = "orig.ident",
   srtList <- checked[["srtList"]]
   HVF <- checked[["HVF"]]
   srtMerge <- Reduce(merge, srtList)
-  VariableFeatures(srtMerge) <- HVF
+  VariableFeatures(srtMerge, assay = DefaultAssay(srtMerge)) <- HVF
 
   srtMerge <- SrtAppend(
     srt_raw = srtMerge, srt_append = srtMerge_raw, pattern = "",
     slots = "reductions", overwrite = TRUE, verbose = FALSE
   )
+  if (normalization_method == "SCT") {
+    DefaultAssay(srtMerge) <- "SCT"
+  } else {
+    DefaultAssay(srtMerge) <- assay
+  }
+
   return(list(
     srtMerge = srtMerge,
     srtList = srtList,
@@ -305,28 +318,28 @@ check_srtMerge <- function(srtMerge, batch = "orig.ident",
 #' @param do_normalization
 #'
 #' @importFrom Seurat DefaultAssay DefaultAssay<- GetAssayData NormalizeData VariableFeatures VariableFeatures<-
-check_final <- function(srt, HVF, do_normalization) {
+check_final <- function(srt, HVF, assay, do_normalization) {
   raw_DefaultAssay <- DefaultAssay(object = srt)
-  DefaultAssay(object = srt) <- "RNA"
+  DefaultAssay(object = srt) <- assay
   if (isTRUE(do_normalization)) {
     cat("Perform NormalizeData(logCPM) on the data [Final check]...\n", sep = "")
-    srt <- suppressWarnings(NormalizeData(object = srt, normalization.method = "LogNormalize", verbose = FALSE))
+    srt <- suppressWarnings(NormalizeData(object = srt, assay = assay, normalization.method = "LogNormalize", verbose = FALSE))
   } else if (is.null(do_normalization)) {
-    status <- check_DataType(srt, slot = "data")
+    status <- check_DataType(srt, slot = "data", assay = assay)
     if (status == "raw_counts") {
       cat("Perform NormalizeData(logCPM) on the data [Final check]...\n")
-      srt <- suppressWarnings(NormalizeData(object = srt, normalization.method = "LogNormalize", verbose = FALSE))
+      srt <- suppressWarnings(NormalizeData(object = srt, assay = assay, normalization.method = "LogNormalize", verbose = FALSE))
     }
     if (status == "raw_normalized_counts") {
       cat("Data is normalized without log transformation. Perform log1p on the data [Final check]...\n")
-      srt[["RNA"]]@data <- log1p(srt[["RNA"]]@data)
+      srt[[assay]]@data <- log1p(srt[[assay]]@data)
     }
     if (status == "unknown") {
       warning("Unable to determine if data is log-normalized [Final check].", immediate. = TRUE)
     }
   }
   if (length(VariableFeatures(srt)) == 0) {
-    HVF <- HVF[HVF %in% rownames(GetAssayData(srt, slot = "counts"))]
+    HVF <- HVF[HVF %in% rownames(GetAssayData(srt, slot = "counts", assay = assay))]
     VariableFeatures(srt) <- HVF
   }
   DefaultAssay(object = srt) <- raw_DefaultAssay
@@ -359,7 +372,8 @@ check_final <- function(srt, HVF, do_normalization) {
 #' @importFrom Seurat GetAssayData SetAssayData
 #' @importFrom SeuratObject as.sparse
 #' @export
-RecoverCounts <- function(srt, assay = "RNA", min_count = c(1, 2, 3), tolerance = 0.1, verbose = TRUE) {
+RecoverCounts <- function(srt, assay = NULL, min_count = c(1, 2, 3), tolerance = 0.1, verbose = TRUE) {
+  assay <- assay %||% DefaultAssay(srt)
   counts <- GetAssayData(srt, assay = assay, slot = "counts")
   if (!inherits(counts, "dgCMatrix")) {
     counts <- as.sparse(counts[1:nrow(counts), ])
@@ -436,10 +450,10 @@ RenameFeatures <- function(srt, newnames = NULL, assays = NULL) {
     if (!identical(length(newnames), nrow(srt))) {
       stop("'newnames' must be named or the length of features in the srt.")
     }
-    if (length(unique(sapply(pancreas_sub@assays, nrow))) > 1) {
+    if (length(unique(sapply(pancreas_sub@assays[assays], nrow))) > 1) {
       stop("Assays in the srt object have different number of features. Please use a named vectors.")
     }
-    names(newnames) <- rownames(srt)
+    names(newnames) <- rownames(srt[[assays[1]]])
   }
   for (assay in assays) {
     message("Rename features for the assay: ", assay)
@@ -468,59 +482,79 @@ RenameFeatures <- function(srt, newnames = NULL, assays = NULL) {
 #' levels(pancreas_sub@meta.data[["SubCellType"]])
 #'
 #' # Rename all clusters
-#' pancreas_sub <- RenameClusters(pancreas_sub, group.by = "SubCellType", newnames = letters[1:8], createnew = "newclusters")
-#' pancreas_sub@meta.data[["newclusters"]] <- factor(pancreas_sub@meta.data[["newclusters"]], levels = letters[1:8])
+#' pancreas_sub <- RenameClusters(pancreas_sub, group.by = "SubCellType", nameslist = letters[1:8])
 #' ClassDimPlot(pancreas_sub, "newclusters")
 #'
 #' # Rename specified clusters
-#' pancreas_sub <- RenameClusters(pancreas_sub, group.by = "SubCellType", newnames = c("Alpha" = "a", "Beta" = "b"), createnew = "newclusters")
+#' pancreas_sub <- RenameClusters(pancreas_sub,
+#'   group.by = "SubCellType",
+#'   nameslist = list("a" = "Alpha", "b" = "Beta")
+#' )
 #' ClassDimPlot(pancreas_sub, "newclusters")
 #'
 #' # Merge and rename clusters
-#' pancreas_sub <- RenameClusters(pancreas_sub, group.by = "SubCellType", nameslist = list("EndocrineClusters" = c("Alpha", "Beta", "Epsilon", "Delta")), createnew = "newclusters")
-#' ClassDimPlot(pancreas_sub, "newclusters")
+#' pancreas_sub <- RenameClusters(pancreas_sub,
+#'   group.by = "SubCellType",
+#'   nameslist = list("EndocrineClusters" = c("Alpha", "Beta", "Epsilon", "Delta")),
+#'   name = "Merged", keep_levels = TRUE
+#' )
+#' ClassDimPlot(pancreas_sub, "Merged")
 #'
 #' @importFrom stats setNames
 #' @export
-RenameClusters <- function(srt, group.by, newnames = NULL, nameslist = list(), createnew = NULL) {
+RenameClusters <- function(srt, group.by, nameslist = list(), new_name = TRUE, name = "newclusters", keep_levels = FALSE) {
   if (missing(group.by)) {
     stop("group.by must be provided")
   }
   if (!group.by %in% colnames(srt@meta.data)) {
     stop(paste0(group.by, " is not in the meta.data of srt object."))
   }
-  if (length(nameslist) > 0) {
+  if (length(nameslist) > 0 && is.null(names(nameslist))) {
+    names(nameslist) <- levels(srt@meta.data[[group.by]])
+  }
+  if (is.list(nameslist) && length(nameslist) > 0) {
     names_assign <- setNames(rep(names(nameslist), sapply(nameslist, length)), nm = unlist(nameslist))
   } else {
-    if (is.null(names(newnames))) {
+    if (is.null(names(nameslist))) {
       if (!is.factor(srt@meta.data[[group.by]])) {
-        stop("'newnames' must be named when srt@meta.data[[group.by]] is not a factor")
+        stop("'nameslist' must be named when srt@meta.data[[group.by]] is not a factor")
       }
-      if (!identical(length(newnames), length(unique(srt@meta.data[[group.by]])))) {
-        stop("'newnames' must be named or the length of ", length(unique(srt@meta.data[[group.by]])))
+      if (!identical(length(nameslist), length(unique(srt@meta.data[[group.by]])))) {
+        stop("'nameslist' must be named or the length of ", length(unique(srt@meta.data[[group.by]])))
       }
-      names(newnames) <- levels(srt@meta.data[[group.by]])
+      names(nameslist) <- levels(srt@meta.data[[group.by]])
     }
-    names_assign <- newnames
+    names_assign <- nameslist
+  }
+  if (all(!names(names_assign) %in% srt@meta.data[[group.by]])) {
+    stop("No group name mapped.")
   }
   if (is.factor(srt@meta.data[[group.by]])) {
     levels <- levels(srt@meta.data[[group.by]])
   } else {
     levels <- NULL
   }
-  if (is.null(createnew)) {
-    createnew <- group.by
+  if (isFALSE(new_name)) {
+    name <- group.by
+  } else {
+    if (is.null(name)) {
+      stop("'name' is not provided.")
+    }
   }
   index <- which(as.character(srt@meta.data[[group.by]]) %in% names(names_assign))
-  srt@meta.data[[createnew]] <- as.character(srt@meta.data[[group.by]])
-  srt@meta.data[[createnew]][index] <- names_assign[srt@meta.data[[createnew]][index]]
+  srt@meta.data[[name]] <- as.character(srt@meta.data[[group.by]])
+  srt@meta.data[[name]][index] <- names_assign[srt@meta.data[[name]][index]]
   if (!is.null(levels)) {
     levels[levels %in% names(names_assign)] <- names_assign[levels[levels %in% names(names_assign)]]
-    srt@meta.data[[createnew]] <- factor(srt@meta.data[[createnew]], levels = unique(levels))
+    if (isFALSE(keep_levels)) {
+      levels <- unique(c(names_assign, levels))
+    } else {
+      levels <- unique(levels)
+    }
+    srt@meta.data[[name]] <- factor(srt@meta.data[[name]], levels = levels)
   }
   return(srt)
 }
-
 
 #' Reorder idents by the gene expression
 #'
@@ -540,11 +574,9 @@ RenameClusters <- function(srt, group.by, newnames = NULL, nameslist = list(), c
 #' @export
 SrtReorder <- function(srt, features = NULL, reorder_by = NULL, slot = "data", assay = NULL, log = TRUE,
                        distance_metric = "euclidean", reorder_FUN = "mean") {
-  if (is.null(assay)) {
-    assay <- DefaultAssay(srt)
-  }
+  assay <- assay %||% DefaultAssay(srt)
   if (is.null(features)) {
-    features <- VariableFeatures(srt)
+    features <- VariableFeatures(srt, assay = assay)
   }
   features <- intersect(x = features, y = rownames(x = srt))
   if (is.null(reorder_by)) {
@@ -644,6 +676,20 @@ SrtAppend <- function(srt_raw, srt_append,
         if (slot_nm %in% c("assays", "graphs", "neighbors", "reductions", "images")) {
           if (identical(slot_nm, "graphs")) {
             srt_raw@graphs[[info]] <- srt_append[[info]]
+          } else if (identical(slot_nm, "assays")) {
+            if (!info %in% Assays(srt_raw)) {
+              srt_raw[[info]] <- srt_append[[info]]
+            } else {
+              srt_raw[[info]]@counts <- srt_append[[info]]@counts
+              srt_raw[[info]]@data <- srt_append[[info]]@data
+              srt_raw[[info]]@key <- srt_append[[info]]@key
+              srt_raw[[info]]@var.features <- srt_append[[info]]@var.features
+              srt_raw[[info]]@misc <- srt_append[[info]]@misc
+              srt_raw[[info]]@meta.features <- cbind(srt_raw[[info]]@meta.features, srt_append[[info]]@meta.features[
+                rownames(srt_raw[[info]]@meta.features),
+                setdiff(colnames(srt_append[[info]]@meta.features), colnames(srt_raw[[info]]@meta.features))
+              ])
+            }
           } else {
             srt_raw[[info]] <- srt_append[[info]]
           }
@@ -727,7 +773,7 @@ RunDimReduction <- function(srt, prefix = "", features = NULL, assay = NULL, slo
     }
     if (is.null(features) || length(features) == 0) {
       message("No features provided. Use variable features.")
-      if (length(VariableFeatures(srt)) == 0) {
+      if (length(VariableFeatures(srt, assay = assay)) == 0) {
         srt <- FindVariableFeatures(srt, assay = assay, verbose = FALSE)
       }
       features <- VariableFeatures(srt, assay = assay)
@@ -777,7 +823,7 @@ RunDimReduction <- function(srt, prefix = "", features = NULL, assay = NULL, slo
     }
     if (linear_reduction == "pca") {
       pca.out <- srt[[paste0(prefix, linear_reduction)]]
-      center <- rowMeans(GetAssayData(object = srt, slot = "scale.data")[features, ])
+      center <- rowMeans(GetAssayData(object = srt, slot = "scale.data", assay = assay)[features, , drop = FALSE])
       model <- list(sdev = pca.out@stdev, rotation = pca.out@feature.loadings, center = center, scale = FALSE, x = pca.out@cell.embeddings)
       class(model) <- "prcomp"
       srt@reductions[[paste0(prefix, linear_reduction)]]@misc[["model"]] <- model
@@ -926,7 +972,7 @@ RunDimReduction <- function(srt, prefix = "", features = NULL, assay = NULL, slo
 #' @importFrom Seurat GetAssayData SetAssayData VariableFeatures VariableFeatures<-
 #' @importFrom dplyr "%>%"
 #' @export
-Uncorrected_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE, srtList = NULL,
+Uncorrected_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE, srtList = NULL, assay = "RNA",
                                   do_normalization = NULL, normalization_method = "logCPM",
                                   do_HVF_finding = TRUE, HVF_source = "separate", HVF_method = "vst", nHVF = 2000, HVF_intersect = FALSE, HVF_min_intersection = 1, HVF = NULL,
                                   do_scaling = TRUE, vars_to_regress = NULL, regression_model = "linear",
@@ -984,7 +1030,7 @@ Uncorrected_integrate <- function(srtMerge = NULL, batch = "orig.ident", append 
   }
   if (!is.null(srtList)) {
     checked <- check_srtList(
-      srtList = srtList, batch = batch,
+      srtList = srtList, batch = batch, assay = assay,
       do_normalization = do_normalization, do_HVF_finding = do_HVF_finding,
       normalization_method = normalization_method,
       HVF_source = HVF_source, HVF_method = HVF_method, nHVF = nHVF, HVF_intersect = HVF_intersect, HVF_min_intersection = HVF_min_intersection, HVF = HVF,
@@ -997,7 +1043,7 @@ Uncorrected_integrate <- function(srtMerge = NULL, batch = "orig.ident", append 
   }
   if (is.null(srtList) && !is.null(srtMerge)) {
     checked <- check_srtMerge(
-      srtMerge = srtMerge, batch = batch,
+      srtMerge = srtMerge, batch = batch, assay = assay,
       do_normalization = do_normalization, do_HVF_finding = do_HVF_finding, do_scaling = do_scaling,
       normalization_method = normalization_method,
       HVF_source = HVF_source, HVF_method = HVF_method, nHVF = nHVF, HVF_intersect = HVF_intersect, HVF_min_intersection = HVF_min_intersection, HVF = HVF,
@@ -1009,7 +1055,7 @@ Uncorrected_integrate <- function(srtMerge = NULL, batch = "orig.ident", append 
 
   cat(paste0("[", Sys.time(), "]", " Perform integration(Uncorrected) on the data...\n"))
   srtIntegrated <- Standard_SCP(
-    srt = srtMerge, prefix = "Uncorrected",
+    srt = srtMerge, prefix = "Uncorrected", assay = assay,
     do_normalization = do_normalization, normalization_method = normalization_method,
     do_HVF_finding = do_HVF_finding, nHVF = nHVF, HVF = HVF, HVF_method = HVF_method,
     do_scaling = do_scaling, vars_to_regress = vars_to_regress, regression_model = regression_model,
@@ -1018,22 +1064,26 @@ Uncorrected_integrate <- function(srtMerge = NULL, batch = "orig.ident", append 
     do_cluster_finding = do_cluster_finding, cluster_algorithm = cluster_algorithm, cluster_resolution = cluster_resolution, cluster_reorder = cluster_reorder,
     seed = seed
   )
-  srtIntegrated[[paste0("Uncorrectedclusters")]] <- srtIntegrated[[paste0("Uncorrected", linear_reduction, "clusters")]]
-  srtIntegrated[[paste0("Uncorrected", linear_reduction, "clusters")]] <- NULL
+  if ("Uncorrectedclusters" %in% colnames(srtIntegrated@meta.data)) {
+    srtIntegrated[[paste0("Uncorrectedclusters")]] <- srtIntegrated[[paste0("Uncorrected", linear_reduction, "clusters")]]
+    srtIntegrated[[paste0("Uncorrected", linear_reduction, "clusters")]] <- NULL
+  }
   for (nr in nonlinear_reduction) {
     for (n in nonlinear_reduction_dims) {
-      reduc <- srtIntegrated@reductions[[paste0("Uncorrected", linear_reduction, toupper(nr), n, "D")]]
-      Key(reduc) <- paste0("Uncorrected", toupper(nr), n, "D_")
-      srtIntegrated@reductions[[paste0("Uncorrected", linear_reduction, toupper(nr), n, "D")]] <- NULL
-      srtIntegrated@reductions[[paste0("Uncorrected", toupper(nr), n, "D")]] <- reduc
+      if (paste0("Uncorrected", linear_reduction, toupper(nr), n, "D") %in% Reductions(srtIntegrated)) {
+        reduc <- srtIntegrated@reductions[[paste0("Uncorrected", linear_reduction, toupper(nr), n, "D")]]
+        Key(reduc) <- paste0("Uncorrected", toupper(nr), n, "D_")
+        srtIntegrated@reductions[[paste0("Uncorrected", linear_reduction, toupper(nr), n, "D")]] <- NULL
+        srtIntegrated@reductions[[paste0("Uncorrected", toupper(nr), n, "D")]] <- reduc
+      }
     }
     srtIntegrated@misc[["Default_reduction"]] <- paste0("Uncorrected", toupper(nr))
   }
-  DefaultAssay(srtIntegrated) <- "RNA"
+  DefaultAssay(srtIntegrated) <- assay
   VariableFeatures(srtIntegrated) <- srtIntegrated@misc[["Uncorrected_HVF"]] <- HVF
 
   if (isTRUE(append) && !is.null(srtMerge_raw)) {
-    srtMerge_raw <- SrtAppend(srt_raw = srtMerge_raw, srt_append = srtIntegrated, pattern = "Uncorrected|RNA|Default_reduction", overwrite = TRUE, verbose = FALSE)
+    srtMerge_raw <- SrtAppend(srt_raw = srtMerge_raw, srt_append = srtIntegrated, pattern = paste0(assay, "|Uncorrected|Default_reduction"), overwrite = TRUE, verbose = FALSE)
     return(srtMerge_raw)
   } else {
     return(srtIntegrated)
@@ -1077,7 +1127,7 @@ Uncorrected_integrate <- function(srtMerge = NULL, batch = "orig.ident", append 
 #' @importFrom Seurat GetAssayData ScaleData SetAssayData FindIntegrationAnchors IntegrateData DefaultAssay DefaultAssay<- FindNeighbors FindClusters Idents
 #' @importFrom dplyr "%>%"
 #' @export
-Seurat_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE, srtList = NULL,
+Seurat_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE, srtList = NULL, assay = "RNA",
                              do_normalization = NULL, normalization_method = "logCPM",
                              do_HVF_finding = TRUE, HVF_source = "separate", HVF_method = "vst", nHVF = 2000, HVF_intersect = FALSE, HVF_min_intersection = 1, HVF = NULL,
                              do_scaling = TRUE, vars_to_regress = NULL, regression_model = "linear",
@@ -1140,7 +1190,7 @@ Seurat_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRU
   }
   if (!is.null(srtList)) {
     checked <- check_srtList(
-      srtList = srtList, batch = batch,
+      srtList = srtList, batch = batch, assay = assay,
       do_normalization = do_normalization, do_HVF_finding = do_HVF_finding,
       normalization_method = normalization_method,
       HVF_source = HVF_source, HVF_method = HVF_method, nHVF = nHVF, HVF_intersect = HVF_intersect, HVF_min_intersection = HVF_min_intersection, HVF = HVF,
@@ -1152,7 +1202,7 @@ Seurat_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRU
   if (is.null(srtList) && !is.null(srtMerge)) {
     srtList <- SplitObject(object = srtMerge, split.by = batch)
     checked <- check_srtList(
-      srtList = srtList, batch = batch,
+      srtList = srtList, batch = batch, assay = assay,
       do_normalization = do_normalization, do_HVF_finding = do_HVF_finding,
       normalization_method = normalization_method,
       HVF_source = HVF_source, HVF_method = HVF_method, nHVF = nHVF, HVF_intersect = HVF_intersect, HVF_min_intersection = HVF_min_intersection, HVF = HVF,
@@ -1166,9 +1216,9 @@ Seurat_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRU
     cat(paste0("[", Sys.time(), "]", " Use 'rpca' workflow...\n"))
     for (i in seq_along(srtList)) {
       srt <- srtList[[i]]
-      if (isTRUE(do_scaling) || (is.null(do_scaling) && any(!HVF %in% rownames(GetAssayData(srt, slot = "scale.data"))))) {
+      if (isTRUE(do_scaling) || (is.null(do_scaling) && any(!HVF %in% rownames(GetAssayData(srt, slot = "scale.data", assay = DefaultAssay(srt)))))) {
         cat(paste0("[", Sys.time(), "]", " Perform ScaleData on the data ", i, " ...\n"))
-        srt <- ScaleData(object = srt, features = HVF, vars.to.regress = vars_to_regress, model.use = regression_model, verbose = FALSE)
+        srt <- ScaleData(object = srt, assay = DefaultAssay(srt), features = HVF, vars.to.regress = vars_to_regress, model.use = regression_model, verbose = FALSE)
       }
       cat(paste0("[", Sys.time(), "]", " Perform linear dimension reduction (pca) on the data ", i, " ...\n"))
       srt <- RunDimReduction(
@@ -1217,9 +1267,9 @@ Seurat_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRU
   DefaultAssay(srtIntegrated) <- "Seurat"
   VariableFeatures(srtIntegrated[["Seurat"]]) <- HVF
 
-  if (isTRUE(do_scaling) || (is.null(do_scaling) && any(!HVF %in% rownames(GetAssayData(srtIntegrated, slot = "scale.data"))))) {
+  if (isTRUE(do_scaling) || (is.null(do_scaling) && any(!HVF %in% rownames(GetAssayData(srtIntegrated, slot = "scale.data", assay = DefaultAssay(srtIntegrated)))))) {
     cat(paste0("[", Sys.time(), "]", " Perform ScaleData on the data...\n"))
-    srtIntegrated <- ScaleData(object = srtIntegrated, features = HVF, vars.to.regress = vars_to_regress, model.use = regression_model, verbose = FALSE)
+    srtIntegrated <- ScaleData(object = srtIntegrated, assay = DefaultAssay(srtIntegrated), features = HVF, vars.to.regress = vars_to_regress, model.use = regression_model, verbose = FALSE)
   }
 
   cat(paste0("[", Sys.time(), "]", " Perform linear dimension reduction (", linear_reduction, ") on the data...\n"))
@@ -1278,11 +1328,11 @@ Seurat_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRU
     }
   )
 
-  DefaultAssay(srtIntegrated) <- "RNA"
+  DefaultAssay(srtIntegrated) <- assay
   VariableFeatures(srtIntegrated) <- srtIntegrated@misc[["Seurat_HVF"]] <- HVF
 
   if (isTRUE(append) && !is.null(srtMerge_raw)) {
-    srtMerge_raw <- SrtAppend(srt_raw = srtMerge_raw, srt_append = srtIntegrated, pattern = "Seurat|RNA|Default_reduction", overwrite = TRUE, verbose = FALSE)
+    srtMerge_raw <- SrtAppend(srt_raw = srtMerge_raw, srt_append = srtIntegrated, pattern = paste0(assay, "|Seurat|Default_reduction"), overwrite = TRUE, verbose = FALSE)
     return(srtMerge_raw)
   } else {
     return(srtIntegrated)
@@ -1317,7 +1367,7 @@ Seurat_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRU
 #' @importFrom Seurat CreateSeuratObject GetAssayData SetAssayData DefaultAssay DefaultAssay<- Embeddings FindNeighbors FindClusters Idents VariableFeatures VariableFeatures<-
 #' @importFrom dplyr "%>%"
 #' @export
-scVI_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE, srtList = NULL,
+scVI_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE, srtList = NULL, assay = "RNA",
                            do_normalization = NULL, normalization_method = "logCPM",
                            do_HVF_finding = TRUE, HVF_source = "separate", HVF_method = "vst", nHVF = 2000, HVF_intersect = FALSE, HVF_min_intersection = 1, HVF = NULL,
                            nonlinear_reduction = "umap", nonlinear_reduction_dims = c(2, 3), nonlinear_reduction_params = list(), force_nonlinear_reduction = TRUE,
@@ -1373,7 +1423,7 @@ scVI_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE,
   }
   if (!is.null(srtList)) {
     checked <- check_srtList(
-      srtList = srtList, batch = batch,
+      srtList = srtList, batch = batch, assay = assay,
       do_normalization = do_normalization, do_HVF_finding = do_HVF_finding,
       normalization_method = normalization_method,
       HVF_source = HVF_source, HVF_method = HVF_method, nHVF = nHVF, HVF_intersect = HVF_intersect, HVF_min_intersection = HVF_min_intersection, HVF = HVF,
@@ -1386,7 +1436,7 @@ scVI_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE,
   }
   if (is.null(srtList) && !is.null(srtMerge)) {
     checked <- check_srtMerge(
-      srtMerge = srtMerge, batch = batch,
+      srtMerge = srtMerge, batch = batch, assay = assay,
       do_normalization = do_normalization, do_HVF_finding = do_HVF_finding, do_scaling = do_scaling,
       normalization_method = normalization_method,
       HVF_source = HVF_source, HVF_method = HVF_method, nHVF = nHVF, HVF_intersect = HVF_intersect, HVF_min_intersection = HVF_min_intersection, HVF = HVF,
@@ -1396,7 +1446,7 @@ scVI_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE,
     HVF <- checked[["HVF"]]
   }
 
-  adata <- srt_to_adata(srtMerge[HVF, ], assay_X = DefaultAssay(srtMerge), assay_layers = NULL, verbose = FALSE)
+  adata <- srt_to_adata(srtMerge, features = HVF, assay_X = DefaultAssay(srtMerge), assay_layers = NULL, verbose = FALSE)
   adata[["X"]] <- scipy$sparse$csr_matrix(adata[["X"]])
   scvi$model$SCVI$setup_anndata(adata, batch_key = batch)
 
@@ -1413,6 +1463,7 @@ scVI_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE,
   srtMerge <- NULL
   corrected <- t(as.matrix(model$get_normalized_expression()))
   srtIntegrated[["scVIcorrected"]] <- CreateAssayObject(counts = corrected)
+  DefaultAssay(srtIntegrated) <- "scVIcorrected"
   VariableFeatures(srtIntegrated[["scVIcorrected"]]) <- HVF
   latent <- as.matrix(model$get_latent_representation())
   rownames(latent) <- colnames(srtIntegrated)
@@ -1467,11 +1518,11 @@ scVI_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE,
     }
   )
 
-  DefaultAssay(srtIntegrated) <- "RNA"
+  DefaultAssay(srtIntegrated) <- assay
   VariableFeatures(srtIntegrated) <- srtIntegrated@misc[["scVI_HVF"]] <- HVF
 
   if (isTRUE(append) && !is.null(srtMerge_raw)) {
-    srtMerge_raw <- SrtAppend(srt_raw = srtMerge_raw, srt_append = srtIntegrated, pattern = "scVI|RNA|Default_reduction", overwrite = TRUE, verbose = FALSE)
+    srtMerge_raw <- SrtAppend(srt_raw = srtMerge_raw, srt_append = srtIntegrated, pattern = paste0(assay, "|scVI|Default_reduction"), overwrite = TRUE, verbose = FALSE)
     return(srtMerge_raw)
   } else {
     return(srtIntegrated)
@@ -1514,7 +1565,7 @@ scVI_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE,
 #' @importFrom Seurat CreateSeuratObject GetAssayData SetAssayData DefaultAssay DefaultAssay<- Embeddings FindNeighbors FindClusters Idents VariableFeatures VariableFeatures<-
 #' @importFrom dplyr "%>%"
 #' @export
-MNN_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE, srtList = NULL,
+MNN_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE, srtList = NULL, assay = "RNA",
                           do_normalization = NULL, normalization_method = "logCPM",
                           do_HVF_finding = TRUE, HVF_source = "separate", HVF_method = "vst", nHVF = 2000, HVF_intersect = FALSE, HVF_min_intersection = 1, HVF = NULL,
                           do_scaling = TRUE, vars_to_regress = NULL, regression_model = "linear",
@@ -1565,7 +1616,7 @@ MNN_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE, 
   }
   if (!is.null(srtList)) {
     checked <- check_srtList(
-      srtList = srtList, batch = batch,
+      srtList = srtList, batch = batch, assay = assay,
       do_normalization = do_normalization, do_HVF_finding = do_HVF_finding,
       normalization_method = normalization_method,
       HVF_source = HVF_source, HVF_method = HVF_method, nHVF = nHVF, HVF_intersect = HVF_intersect, HVF_min_intersection = HVF_min_intersection, HVF = HVF,
@@ -1577,7 +1628,7 @@ MNN_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE, 
   if (is.null(srtList) && !is.null(srtMerge)) {
     srtList <- SplitObject(object = srtMerge, split.by = batch)
     checked <- check_srtList(
-      srtList = srtList, batch = batch,
+      srtList = srtList, batch = batch, assay = assay,
       do_normalization = do_normalization, do_HVF_finding = do_HVF_finding,
       normalization_method = normalization_method,
       HVF_source = HVF_source, HVF_method = HVF_method, nHVF = nHVF, HVF_intersect = HVF_intersect, HVF_min_intersection = HVF_min_intersection, HVF = HVF,
@@ -1591,7 +1642,7 @@ MNN_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE, 
   VariableFeatures(srtIntegrated) <- HVF
 
   sceList <- lapply(srtList, function(x) {
-    sce <- as.SingleCellExperiment(CreateSeuratObject(counts = GetAssayData(x, slot = "data", assay = DefaultAssay(x))[HVF, ]))
+    sce <- as.SingleCellExperiment(CreateSeuratObject(counts = GetAssayData(x, slot = "data", assay = DefaultAssay(x))[HVF, , drop = FALSE]))
     sce@assays@data$logcounts <- as.matrix(sce@assays@data$logcounts)
     return(sce)
   })
@@ -1602,8 +1653,7 @@ MNN_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE, 
   cat(paste0("[", Sys.time(), "]", " Perform integration(MNN) on the data...\n"))
   params <- list(
     sceList,
-    cos.norm.out = FALSE,
-    BPPARAM = BiocParallel::bpparam()
+    cos.norm.out = FALSE
   )
   for (nm in names(mnnCorrect_params)) {
     params[[nm]] <- mnnCorrect_params[[nm]]
@@ -1614,9 +1664,9 @@ MNN_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE, 
   VariableFeatures(srtIntegrated[["MNNcorrected"]]) <- HVF
   DefaultAssay(srtIntegrated) <- "MNNcorrected"
 
-  if (isTRUE(do_scaling) || (is.null(do_scaling) && any(!HVF %in% rownames(GetAssayData(srtIntegrated, slot = "scale.data"))))) {
+  if (isTRUE(do_scaling) || (is.null(do_scaling) && any(!HVF %in% rownames(GetAssayData(srtIntegrated, slot = "scale.data", assay = DefaultAssay(srtIntegrated)))))) {
     cat(paste0("[", Sys.time(), "]", " Perform ScaleData on the data...\n"))
-    srtIntegrated <- ScaleData(object = srtIntegrated, features = HVF, vars.to.regress = vars_to_regress, model.use = regression_model, verbose = FALSE)
+    srtIntegrated <- ScaleData(object = srtIntegrated, assay = DefaultAssay(srtIntegrated), features = HVF, vars.to.regress = vars_to_regress, model.use = regression_model, verbose = FALSE)
   }
 
   cat(paste0("[", Sys.time(), "]", " Perform linear dimension reduction (", linear_reduction, ") on the data...\n"))
@@ -1675,11 +1725,11 @@ MNN_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE, 
     }
   )
 
-  DefaultAssay(srtIntegrated) <- "RNA"
+  DefaultAssay(srtIntegrated) <- assay
   VariableFeatures(srtIntegrated) <- srtIntegrated@misc[["MNN_HVF"]] <- HVF
 
   if (isTRUE(append) && !is.null(srtMerge_raw)) {
-    srtMerge_raw <- SrtAppend(srt_raw = srtMerge_raw, srt_append = srtIntegrated, pattern = "MNN|RNA|Default_reduction", overwrite = TRUE, verbose = FALSE)
+    srtMerge_raw <- SrtAppend(srt_raw = srtMerge_raw, srt_append = srtIntegrated, pattern = paste0(assay, "|MNN|Default_reduction"), overwrite = TRUE, verbose = FALSE)
     return(srtMerge_raw)
   } else {
     return(srtIntegrated)
@@ -1715,7 +1765,7 @@ MNN_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE, 
 #' @importFrom Seurat CreateSeuratObject GetAssayData SetAssayData DefaultAssay DefaultAssay<- Embeddings FindNeighbors FindClusters Idents VariableFeatures VariableFeatures<-
 #' @importFrom dplyr "%>%"
 #' @export
-fastMNN_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE, srtList = NULL,
+fastMNN_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE, srtList = NULL, assay = "RNA",
                               do_normalization = NULL, normalization_method = "logCPM",
                               do_HVF_finding = TRUE, HVF_source = "separate", HVF_method = "vst", nHVF = 2000, HVF_intersect = FALSE, HVF_min_intersection = 1, HVF = NULL,
                               fastMNN_dims_use = NULL,
@@ -1765,7 +1815,7 @@ fastMNN_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TR
   }
   if (!is.null(srtList)) {
     checked <- check_srtList(
-      srtList = srtList, batch = batch,
+      srtList = srtList, batch = batch, assay = assay,
       do_normalization = do_normalization, do_HVF_finding = do_HVF_finding,
       normalization_method = normalization_method,
       HVF_source = HVF_source, HVF_method = HVF_method, nHVF = nHVF, HVF_intersect = HVF_intersect, HVF_min_intersection = HVF_min_intersection, HVF = HVF,
@@ -1777,7 +1827,7 @@ fastMNN_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TR
   if (is.null(srtList) && !is.null(srtMerge)) {
     srtList <- SplitObject(object = srtMerge, split.by = batch)
     checked <- check_srtList(
-      srtList = srtList, batch = batch,
+      srtList = srtList, batch = batch, assay = assay,
       do_normalization = do_normalization, do_HVF_finding = do_HVF_finding,
       normalization_method = normalization_method,
       HVF_source = HVF_source, HVF_method = HVF_method, nHVF = nHVF, HVF_intersect = HVF_intersect, HVF_min_intersection = HVF_min_intersection, HVF = HVF,
@@ -1801,8 +1851,7 @@ fastMNN_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TR
 
   cat(paste0("[", Sys.time(), "]", " Perform integration(fastMNN) on the data...\n"))
   params <- list(
-    sceList,
-    BPPARAM = BiocParallel::bpparam()
+    sceList
   )
   for (nm in names(fastMNN_params)) {
     params[[nm]] <- fastMNN_params[[nm]]
@@ -1810,10 +1859,11 @@ fastMNN_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TR
   out <- invoke(.fn = batchelor::fastMNN, .args = params)
 
   srtIntegrated[["fastMNNcorrected"]] <- CreateAssayObject(counts = as.matrix(out@assays@data$reconstructed))
+  DefaultAssay(srtIntegrated) <- "fastMNNcorrected"
   VariableFeatures(srtIntegrated[["fastMNNcorrected"]]) <- HVF
   reduction <- out@int_colData$reducedDims$corrected
   colnames(reduction) <- paste0("fastMNN_", seq_len(ncol(reduction)))
-  srtIntegrated[["fastMNN"]] <- CreateDimReducObject(embeddings = reduction, key = "fastMNN_", assay = DefaultAssay(srtIntegrated))
+  srtIntegrated[["fastMNN"]] <- CreateDimReducObject(embeddings = reduction, key = "fastMNN_", assay = "fastMNNcorrected")
 
   if (is.null(fastMNN_dims_use)) {
     dim_est <- tryCatch(expr = {
@@ -1881,11 +1931,11 @@ fastMNN_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TR
     }
   )
 
-  DefaultAssay(srtIntegrated) <- "RNA"
+  DefaultAssay(srtIntegrated) <- assay
   VariableFeatures(srtIntegrated) <- srtIntegrated@misc[["fastMNN_HVF"]] <- HVF
 
   if (isTRUE(append) && !is.null(srtMerge_raw)) {
-    srtMerge_raw <- SrtAppend(srt_raw = srtMerge_raw, srt_append = srtIntegrated, pattern = "fastMNN|RNA|Default_reduction", overwrite = TRUE, verbose = FALSE)
+    srtMerge_raw <- SrtAppend(srt_raw = srtMerge_raw, srt_append = srtIntegrated, pattern = paste0(assay, "|fastMNN|Default_reduction"), overwrite = TRUE, verbose = FALSE)
     return(srtMerge_raw)
   } else {
     return(srtIntegrated)
@@ -1929,7 +1979,7 @@ fastMNN_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TR
 #' @importFrom Seurat GetAssayData ScaleData SetAssayData DefaultAssay DefaultAssay<- Embeddings FindNeighbors FindClusters Idents VariableFeatures VariableFeatures<-
 #' @importFrom dplyr "%>%"
 #' @export
-Harmony_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE, srtList = NULL,
+Harmony_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE, srtList = NULL, assay = "RNA",
                               do_normalization = NULL, normalization_method = "logCPM",
                               do_HVF_finding = TRUE, HVF_source = "separate", HVF_method = "vst", nHVF = 2000, HVF_intersect = FALSE, HVF_min_intersection = 1, HVF = NULL,
                               do_scaling = TRUE, vars_to_regress = NULL, regression_model = "linear",
@@ -1995,7 +2045,7 @@ Harmony_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TR
   }
   if (!is.null(srtList)) {
     checked <- check_srtList(
-      srtList = srtList, batch = batch,
+      srtList = srtList, batch = batch, assay = assay,
       do_normalization = do_normalization, do_HVF_finding = do_HVF_finding,
       normalization_method = normalization_method,
       HVF_source = HVF_source, HVF_method = HVF_method, nHVF = nHVF, HVF_intersect = HVF_intersect, HVF_min_intersection = HVF_min_intersection, HVF = HVF,
@@ -2008,7 +2058,7 @@ Harmony_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TR
   }
   if (is.null(srtList) && !is.null(srtMerge)) {
     checked <- check_srtMerge(
-      srtMerge = srtMerge, batch = batch,
+      srtMerge = srtMerge, batch = batch, assay = assay,
       do_normalization = do_normalization, do_HVF_finding = do_HVF_finding, do_scaling = do_scaling,
       normalization_method = normalization_method,
       HVF_source = HVF_source, HVF_method = HVF_method, nHVF = nHVF, HVF_intersect = HVF_intersect, HVF_min_intersection = HVF_min_intersection, HVF = HVF,
@@ -2018,9 +2068,9 @@ Harmony_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TR
     HVF <- checked[["HVF"]]
   }
 
-  if (isTRUE(do_scaling) || (is.null(do_scaling) && any(!HVF %in% rownames(GetAssayData(srtMerge, slot = "scale.data"))))) {
+  if (isTRUE(do_scaling) || (is.null(do_scaling) && any(!HVF %in% rownames(GetAssayData(srtMerge, slot = "scale.data", assay = DefaultAssay(srtMerge)))))) {
     cat(paste0("[", Sys.time(), "]", " Perform ScaleData on the data...\n"))
-    srtMerge <- ScaleData(object = srtMerge, features = HVF, vars.to.regress = vars_to_regress, model.use = regression_model, verbose = FALSE)
+    srtMerge <- ScaleData(object = srtMerge, assay = DefaultAssay(srtMerge), features = HVF, vars.to.regress = vars_to_regress, model.use = regression_model, verbose = FALSE)
   }
 
   cat(paste0("[", Sys.time(), "]", " Perform linear dimension reduction (", linear_reduction, ") on the data...\n"))
@@ -2114,11 +2164,11 @@ Harmony_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TR
     }
   )
 
-  DefaultAssay(srtIntegrated) <- "RNA"
+  DefaultAssay(srtIntegrated) <- assay
   VariableFeatures(srtIntegrated) <- srtIntegrated@misc[["Harmony_HVF"]] <- HVF
 
   if (isTRUE(append) && !is.null(srtMerge_raw)) {
-    srtMerge_raw <- SrtAppend(srt_raw = srtMerge_raw, srt_append = srtIntegrated, pattern = "Harmony|RNA|Default_reduction", overwrite = TRUE, verbose = FALSE)
+    srtMerge_raw <- SrtAppend(srt_raw = srtMerge_raw, srt_append = srtIntegrated, pattern = paste0(assay, "|Harmony|Default_reduction"), overwrite = TRUE, verbose = FALSE)
     return(srtMerge_raw)
   } else {
     return(srtIntegrated)
@@ -2164,7 +2214,7 @@ Harmony_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TR
 #' @importFrom reticulate import
 #' @importFrom stats sd
 #' @export
-Scanorama_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE, srtList = NULL,
+Scanorama_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE, srtList = NULL, assay = "RNA",
                                 do_normalization = NULL, normalization_method = "logCPM",
                                 do_HVF_finding = TRUE, HVF_source = "separate", HVF_method = "vst", nHVF = 2000, HVF_intersect = FALSE, HVF_min_intersection = 1, HVF = NULL,
                                 do_scaling = TRUE, vars_to_regress = NULL, regression_model = "linear",
@@ -2230,7 +2280,7 @@ Scanorama_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = 
   }
   if (!is.null(srtList)) {
     checked <- check_srtList(
-      srtList = srtList, batch = batch,
+      srtList = srtList, batch = batch, assay = assay,
       do_normalization = do_normalization, do_HVF_finding = do_HVF_finding,
       normalization_method = normalization_method,
       HVF_source = HVF_source, HVF_method = HVF_method, nHVF = nHVF, HVF_intersect = HVF_intersect, HVF_min_intersection = HVF_min_intersection, HVF = HVF,
@@ -2242,7 +2292,7 @@ Scanorama_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = 
   if (is.null(srtList) && !is.null(srtMerge)) {
     srtList <- SplitObject(object = srtMerge, split.by = batch)
     checked <- check_srtList(
-      srtList = srtList, batch = batch,
+      srtList = srtList, batch = batch, assay = assay,
       do_normalization = do_normalization, do_HVF_finding = do_HVF_finding,
       normalization_method = normalization_method,
       HVF_source = HVF_source, HVF_method = HVF_method, nHVF = nHVF, HVF_intersect = HVF_intersect, HVF_min_intersection = HVF_min_intersection, HVF = HVF,
@@ -2256,7 +2306,7 @@ Scanorama_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = 
   assaylist <- list()
   genelist <- list()
   for (i in seq_along(srtList)) {
-    assaylist[[i]] <- t(as.matrix(GetAssayData(object = srtList[[i]], slot = "data", assay = DefaultAssay(srtList[[1]]))))
+    assaylist[[i]] <- t(as.matrix(GetAssayData(object = srtList[[i]], slot = "data", assay = DefaultAssay(srtList[[i]]))))
     genelist[[i]] <- rownames(srtList[[i]])
   }
   params <- list(
@@ -2281,12 +2331,12 @@ Scanorama_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = 
 
   srtIntegrated <- Reduce(merge, srtList)
   srtIntegrated[["Scanoramacorrected"]] <- CreateAssayObject(data = cor_value)
-  srtIntegrated[["Scanorama"]] <- CreateDimReducObject(embeddings = dim_reduction, stdev = stdevs, key = "scanorama_", assay = DefaultAssay(srtIntegrated))
-  VariableFeatures(srtIntegrated[["Scanoramacorrected"]]) <- HVF
+  srtIntegrated[["Scanorama"]] <- CreateDimReducObject(embeddings = dim_reduction, stdev = stdevs, key = "scanorama_", assay = "Scanoramacorrected")
   DefaultAssay(srtIntegrated) <- "Scanoramacorrected"
+  VariableFeatures(srtIntegrated[["Scanoramacorrected"]]) <- HVF
 
   cat(paste0("[", Sys.time(), "]", " Perform ScaleData on the data...\n"))
-  srtIntegrated <- ScaleData(srtIntegrated, features = HVF, vars.to.regress = vars_to_regress, model.use = regression_model, verbose = FALSE)
+  srtIntegrated <- ScaleData(srtIntegrated, assay = DefaultAssay(srtIntegrated), features = HVF, vars.to.regress = vars_to_regress, model.use = regression_model, verbose = FALSE)
 
   cat(paste0("[", Sys.time(), "]", " Perform linear dimension reduction (", linear_reduction, ") on the data...\n"))
   srtIntegrated <- RunDimReduction(
@@ -2344,11 +2394,11 @@ Scanorama_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = 
     }
   )
 
-  DefaultAssay(srtIntegrated) <- "RNA"
+  DefaultAssay(srtIntegrated) <- assay
   VariableFeatures(srtIntegrated) <- srtIntegrated@misc[["Scanorama_HVF"]] <- HVF
 
   if (isTRUE(append) && !is.null(srtMerge_raw)) {
-    srtMerge_raw <- SrtAppend(srt_raw = srtMerge_raw, srt_append = srtIntegrated, pattern = "Scanorama|RNA|Default_reduction", overwrite = TRUE, verbose = FALSE)
+    srtMerge_raw <- SrtAppend(srt_raw = srtMerge_raw, srt_append = srtIntegrated, pattern = paste0(assay, "|Scanorama|Default_reduction"), overwrite = TRUE, verbose = FALSE)
     return(srtMerge_raw)
   } else {
     return(srtIntegrated)
@@ -2393,7 +2443,7 @@ Scanorama_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = 
 #' @importFrom dplyr "%>%"
 #' @importFrom reticulate import
 #' @export
-BBKNN_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE, srtList = NULL,
+BBKNN_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE, srtList = NULL, assay = "RNA",
                             do_normalization = NULL, normalization_method = "logCPM",
                             do_HVF_finding = TRUE, HVF_source = "separate", HVF_method = "vst", nHVF = 2000, HVF_intersect = FALSE, HVF_min_intersection = 1, HVF = NULL,
                             do_scaling = TRUE, vars_to_regress = NULL, regression_model = "linear",
@@ -2459,7 +2509,7 @@ BBKNN_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE
   }
   if (!is.null(srtList)) {
     checked <- check_srtList(
-      srtList = srtList, batch = batch,
+      srtList = srtList, batch = batch, assay = assay,
       do_normalization = do_normalization, do_HVF_finding = do_HVF_finding,
       normalization_method = normalization_method,
       HVF_source = HVF_source, HVF_method = HVF_method, nHVF = nHVF, HVF_intersect = HVF_intersect, HVF_min_intersection = HVF_min_intersection, HVF = HVF,
@@ -2472,7 +2522,7 @@ BBKNN_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE
   }
   if (is.null(srtList) && !is.null(srtMerge)) {
     checked <- check_srtMerge(
-      srtMerge = srtMerge, batch = batch,
+      srtMerge = srtMerge, batch = batch, assay = assay,
       do_normalization = do_normalization, do_HVF_finding = do_HVF_finding, do_scaling = do_scaling,
       normalization_method = normalization_method,
       HVF_source = HVF_source, HVF_method = HVF_method, nHVF = nHVF, HVF_intersect = HVF_intersect, HVF_min_intersection = HVF_min_intersection, HVF = HVF,
@@ -2482,9 +2532,9 @@ BBKNN_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE
     HVF <- checked[["HVF"]]
   }
 
-  if (isTRUE(do_scaling) || (is.null(do_scaling) && any(!HVF %in% rownames(GetAssayData(srtMerge, slot = "scale.data"))))) {
+  if (isTRUE(do_scaling) || (is.null(do_scaling) && any(!HVF %in% rownames(GetAssayData(srtMerge, slot = "scale.data", assay = DefaultAssay(srtMerge)))))) {
     cat(paste0("[", Sys.time(), "]", " Perform ScaleData on the data...\n"))
-    srtMerge <- ScaleData(object = srtMerge, features = HVF, vars.to.regress = vars_to_regress, model.use = regression_model, verbose = FALSE)
+    srtMerge <- ScaleData(object = srtMerge, assay = DefaultAssay(srtMerge), features = HVF, vars.to.regress = vars_to_regress, model.use = regression_model, verbose = FALSE)
   }
 
   cat(paste0("[", Sys.time(), "]", " Perform linear dimension reduction (", linear_reduction, ") on the data...\n"))
@@ -2511,7 +2561,7 @@ BBKNN_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE
   bbknn_graph <- as.sparse(bem[[2]][1:nrow(bem[[2]]), ])
   rownames(bbknn_graph) <- colnames(bbknn_graph) <- rownames(emb)
   bbknn_graph <- as.Graph(bbknn_graph)
-  bbknn_graph@assay.used <- DefaultAssay(srtMerge)
+  bbknn_graph@assay.used <- assay
   srtMerge@graphs[["BBKNN"]] <- bbknn_graph
   srtIntegrated <- srtMerge
 
@@ -2560,11 +2610,11 @@ BBKNN_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE
     }
   )
 
-  DefaultAssay(srtIntegrated) <- "RNA"
+  DefaultAssay(srtIntegrated) <- assay
   VariableFeatures(srtIntegrated) <- srtIntegrated@misc[["BBKNN_HVF"]] <- HVF
 
   if (isTRUE(append) && !is.null(srtMerge_raw)) {
-    srtMerge_raw <- SrtAppend(srt_raw = srtMerge_raw, srt_append = srtIntegrated, pattern = "BBKNN|RNA|Default_reduction", overwrite = TRUE, verbose = FALSE)
+    srtMerge_raw <- SrtAppend(srt_raw = srtMerge_raw, srt_append = srtIntegrated, pattern = paste0(assay, "|BBKNN|Default_reduction"), overwrite = TRUE, verbose = FALSE)
     return(srtMerge_raw)
   } else {
     return(srtIntegrated)
@@ -2607,7 +2657,7 @@ BBKNN_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE
 #' @importFrom Seurat GetAssayData ScaleData SetAssayData DefaultAssay DefaultAssay<- Embeddings FindNeighbors FindClusters Idents VariableFeatures VariableFeatures<-
 #' @importFrom dplyr "%>%"
 #' @export
-CSS_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE, srtList = NULL,
+CSS_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE, srtList = NULL, assay = "RNA",
                           do_normalization = NULL, normalization_method = "logCPM",
                           do_HVF_finding = TRUE, HVF_source = "separate", HVF_method = "vst", nHVF = 2000, HVF_intersect = FALSE, HVF_min_intersection = 1, HVF = NULL,
                           do_scaling = TRUE, vars_to_regress = NULL, regression_model = "linear",
@@ -2670,7 +2720,7 @@ CSS_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE, 
   }
   if (!is.null(srtList)) {
     checked <- check_srtList(
-      srtList = srtList, batch = batch,
+      srtList = srtList, batch = batch, assay = assay,
       do_normalization = do_normalization, do_HVF_finding = do_HVF_finding,
       normalization_method = normalization_method,
       HVF_source = HVF_source, HVF_method = HVF_method, nHVF = nHVF, HVF_intersect = HVF_intersect, HVF_min_intersection = HVF_min_intersection, HVF = HVF,
@@ -2683,7 +2733,7 @@ CSS_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE, 
   }
   if (is.null(srtList) && !is.null(srtMerge)) {
     checked <- check_srtMerge(
-      srtMerge = srtMerge, batch = batch,
+      srtMerge = srtMerge, batch = batch, assay = assay,
       do_normalization = do_normalization, do_HVF_finding = do_HVF_finding, do_scaling = do_scaling,
       normalization_method = normalization_method,
       HVF_source = HVF_source, HVF_method = HVF_method, nHVF = nHVF, HVF_intersect = HVF_intersect, HVF_min_intersection = HVF_min_intersection, HVF = HVF,
@@ -2693,9 +2743,9 @@ CSS_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE, 
     HVF <- checked[["HVF"]]
   }
 
-  if (isTRUE(do_scaling) || (is.null(do_scaling) && any(!HVF %in% rownames(GetAssayData(srtMerge, slot = "scale.data"))))) {
+  if (isTRUE(do_scaling) || (is.null(do_scaling) && any(!HVF %in% rownames(GetAssayData(srtMerge, slot = "scale.data", assay = DefaultAssay(srtMerge)))))) {
     cat(paste0("[", Sys.time(), "]", " Perform ScaleData on the data...\n"))
-    srtMerge <- ScaleData(object = srtMerge, features = HVF, vars.to.regress = vars_to_regress, model.use = regression_model, verbose = FALSE)
+    srtMerge <- ScaleData(object = srtMerge, assay = DefaultAssay(srtMerge), features = HVF, vars.to.regress = vars_to_regress, model.use = regression_model, verbose = FALSE)
   }
 
   cat(paste0("[", Sys.time(), "]", " Perform linear dimension reduction (", linear_reduction, ") on the data...\n"))
@@ -2776,11 +2826,11 @@ CSS_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE, 
     }
   )
 
-  DefaultAssay(srtIntegrated) <- "RNA"
+  DefaultAssay(srtIntegrated) <- assay
   VariableFeatures(srtIntegrated) <- srtIntegrated@misc[["CSS_HVF"]] <- HVF
 
   if (isTRUE(append) && !is.null(srtMerge_raw)) {
-    srtMerge_raw <- SrtAppend(srt_raw = srtMerge_raw, srt_append = srtIntegrated, pattern = "CSS|RNA|Default_reduction", overwrite = TRUE, verbose = FALSE)
+    srtMerge_raw <- SrtAppend(srt_raw = srtMerge_raw, srt_append = srtIntegrated, pattern = paste0(assay, "|CSS|Default_reduction"), overwrite = TRUE, verbose = FALSE)
     return(srtMerge_raw)
   } else {
     return(srtIntegrated)
@@ -2819,7 +2869,7 @@ CSS_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE, 
 #' @importFrom Seurat GetAssayData ScaleData SetAssayData DefaultAssay DefaultAssay<- Embeddings FindNeighbors FindClusters Idents VariableFeatures VariableFeatures<-
 #' @importFrom dplyr "%>%"
 #' @export
-LIGER_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE, srtList = NULL,
+LIGER_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE, srtList = NULL, assay = "RNA",
                             do_normalization = NULL, normalization_method = "logCPM",
                             do_HVF_finding = TRUE, HVF_source = "separate", HVF_method = "vst", nHVF = 2000, HVF_intersect = FALSE, HVF_min_intersection = 1, HVF = NULL,
                             do_scaling = TRUE, vars_to_regress = NULL, regression_model = "linear",
@@ -2869,7 +2919,7 @@ LIGER_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE
   }
   if (!is.null(srtList)) {
     checked <- check_srtList(
-      srtList = srtList, batch = batch,
+      srtList = srtList, batch = batch, assay = assay,
       do_normalization = do_normalization, do_HVF_finding = do_HVF_finding,
       normalization_method = normalization_method,
       HVF_source = HVF_source, HVF_method = HVF_method, nHVF = nHVF, HVF_intersect = HVF_intersect, HVF_min_intersection = HVF_min_intersection, HVF = HVF,
@@ -2882,7 +2932,7 @@ LIGER_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE
   }
   if (is.null(srtList) && !is.null(srtMerge)) {
     checked <- check_srtMerge(
-      srtMerge = srtMerge, batch = batch,
+      srtMerge = srtMerge, batch = batch, assay = assay,
       do_normalization = do_normalization, do_HVF_finding = do_HVF_finding, do_scaling = do_scaling,
       normalization_method = normalization_method,
       HVF_source = HVF_source, HVF_method = HVF_method, nHVF = nHVF, HVF_intersect = HVF_intersect, HVF_min_intersection = HVF_min_intersection, HVF = HVF,
@@ -2892,14 +2942,14 @@ LIGER_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE
     HVF <- checked[["HVF"]]
   }
 
-  if (isTRUE(do_scaling) || (is.null(do_scaling) && any(!HVF %in% rownames(GetAssayData(srtMerge, slot = "scale.data"))))) {
+  if (isTRUE(do_scaling) || (is.null(do_scaling) && any(!HVF %in% rownames(GetAssayData(srtMerge, slot = "scale.data", assay = DefaultAssay(srtMerge)))))) {
     cat(paste0("[", Sys.time(), "]", " Perform ScaleData on the data(do not center for LIGER)...\n"))
-    srtMerge <- ScaleData(object = srtMerge, features = HVF, split.by = batch, do.center = FALSE, vars.to.regress = vars_to_regress, model.use = regression_model, verbose = FALSE)
+    srtMerge <- ScaleData(object = srtMerge, assay = DefaultAssay(srtMerge), features = HVF, split.by = batch, do.center = FALSE, vars.to.regress = vars_to_regress, model.use = regression_model, verbose = FALSE)
   }
 
   split.cells <- split(x = colnames(x = srtMerge), f = srtMerge[[batch]])
   scale.data <- lapply(X = split.cells, FUN = function(x) {
-    return(t(x = GetAssayData(object = srtMerge, slot = "scale.data")[, x]))
+    return(t(x = GetAssayData(object = srtMerge, slot = "scale.data", assay = DefaultAssay(srtMerge))[, x]))
   })
 
   cat(paste0("[", Sys.time(), "]", " Perform integration(LIGER) on the data...\n"))
@@ -2999,11 +3049,11 @@ LIGER_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE
     }
   )
 
-  DefaultAssay(srtIntegrated) <- "RNA"
+  DefaultAssay(srtIntegrated) <- assay
   VariableFeatures(srtIntegrated) <- srtIntegrated@misc[["LIGER_HVF"]] <- HVF
 
   if (isTRUE(append) && !is.null(srtMerge_raw)) {
-    srtMerge_raw <- SrtAppend(srt_raw = srtMerge_raw, srt_append = srtIntegrated, pattern = "LIGER|RNA|Default_reduction", overwrite = TRUE, verbose = FALSE)
+    srtMerge_raw <- SrtAppend(srt_raw = srtMerge_raw, srt_append = srtIntegrated, pattern = paste0(assay, "|LIGER|Default_reduction"), overwrite = TRUE, verbose = FALSE)
     return(srtMerge_raw)
   } else {
     return(srtIntegrated)
@@ -3048,7 +3098,7 @@ LIGER_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE
 #' @importFrom Seurat GetAssayData ScaleData SetAssayData DefaultAssay DefaultAssay<- Embeddings FindNeighbors FindClusters Idents VariableFeatures VariableFeatures<-
 #' @importFrom dplyr "%>%"
 #' @export
-Conos_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE, srtList = NULL,
+Conos_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE, srtList = NULL, assay = "RNA",
                             do_normalization = NULL, normalization_method = "logCPM",
                             do_HVF_finding = TRUE, HVF_source = "separate", HVF_method = "vst", nHVF = 2000, HVF_intersect = FALSE, HVF_min_intersection = 1, HVF = NULL,
                             do_scaling = TRUE, vars_to_regress = NULL, regression_model = "linear",
@@ -3110,7 +3160,7 @@ Conos_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE
   }
   if (!is.null(srtList)) {
     checked <- check_srtList(
-      srtList = srtList, batch = batch,
+      srtList = srtList, batch = batch, assay = assay,
       do_normalization = do_normalization, do_HVF_finding = do_HVF_finding,
       normalization_method = normalization_method,
       HVF_source = HVF_source, HVF_method = HVF_method, nHVF = nHVF, HVF_intersect = HVF_intersect, HVF_min_intersection = HVF_min_intersection, HVF = HVF,
@@ -3122,7 +3172,7 @@ Conos_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE
   if (is.null(srtList) && !is.null(srtMerge)) {
     srtList <- SplitObject(object = srtMerge, split.by = batch)
     checked <- check_srtList(
-      srtList = srtList, batch = batch,
+      srtList = srtList, batch = batch, assay = assay,
       do_normalization = do_normalization, do_HVF_finding = do_HVF_finding,
       normalization_method = normalization_method,
       HVF_source = HVF_source, HVF_method = HVF_method, nHVF = nHVF, HVF_intersect = HVF_intersect, HVF_min_intersection = HVF_min_intersection, HVF = HVF,
@@ -3136,9 +3186,9 @@ Conos_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE
 
   for (i in seq_along(srtList)) {
     srt <- srtList[[i]]
-    if (isTRUE(do_scaling) || (is.null(do_scaling) && any(!HVF %in% rownames(GetAssayData(srt, slot = "scale.data"))))) {
+    if (isTRUE(do_scaling) || (is.null(do_scaling) && any(!HVF %in% rownames(GetAssayData(srt, slot = "scale.data", assay = DefaultAssay(srt)))))) {
       cat(paste0("[", Sys.time(), "]", " Perform ScaleData on the data ", i, " ...\n"))
-      srt <- ScaleData(object = srt, features = HVF, vars.to.regress = vars_to_regress, model.use = regression_model, verbose = FALSE)
+      srt <- ScaleData(object = srt, assay = DefaultAssay(srt), features = HVF, vars.to.regress = vars_to_regress, model.use = regression_model, verbose = FALSE)
     }
     cat(paste0("[", Sys.time(), "]", " Perform linear dimension reduction (", linear_reduction, ") on the data ", i, " ...\n"))
     srt <- RunDimReduction(
@@ -3218,11 +3268,11 @@ Conos_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE
     }
   )
 
-  DefaultAssay(srtIntegrated) <- "RNA"
+  DefaultAssay(srtIntegrated) <- assay
   VariableFeatures(srtIntegrated) <- srtIntegrated@misc[["Conos_HVF"]] <- HVF
 
   if (isTRUE(append) && !is.null(srtMerge_raw)) {
-    srtMerge_raw <- SrtAppend(srt_raw = srtMerge_raw, srt_append = srtIntegrated, pattern = "Conos|RNA|Default_reduction", overwrite = TRUE, verbose = FALSE)
+    srtMerge_raw <- SrtAppend(srt_raw = srtMerge_raw, srt_append = srtIntegrated, pattern = paste0(assay, "|Conos|Default_reduction"), overwrite = TRUE, verbose = FALSE)
     return(srtMerge_raw)
   } else {
     return(srtIntegrated)
@@ -3259,7 +3309,7 @@ Conos_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE
 #' @return
 #' @importFrom Seurat CreateSeuratObject as.SingleCellExperiment GetAssayData ScaleData SetAssayData DefaultAssay DefaultAssay<- Embeddings FindNeighbors FindClusters Idents VariableFeatures VariableFeatures<-
 #' @importFrom dplyr "%>%"
-ZINBWaVE_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE, srtList = NULL,
+ZINBWaVE_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE, srtList = NULL, assay = "RNA",
                                do_normalization = NULL, normalization_method = "logCPM",
                                do_HVF_finding = TRUE, HVF_source = "separate", HVF_method = "vst", nHVF = 2000, HVF_intersect = FALSE, HVF_min_intersection = 1, HVF = NULL,
                                do_scaling = TRUE, vars_to_regress = NULL, regression_model = "linear",
@@ -3312,7 +3362,7 @@ ZINBWaVE_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = T
   }
   if (!is.null(srtList)) {
     checked <- check_srtList(
-      srtList = srtList, batch = batch,
+      srtList = srtList, batch = batch, assay = assay,
       do_normalization = do_normalization, do_HVF_finding = do_HVF_finding,
       normalization_method = normalization_method,
       HVF_source = HVF_source, HVF_method = HVF_method, nHVF = nHVF, HVF_intersect = HVF_intersect, HVF_min_intersection = HVF_min_intersection, HVF = HVF,
@@ -3325,7 +3375,7 @@ ZINBWaVE_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = T
   }
   if (is.null(srtList) && !is.null(srtMerge)) {
     checked <- check_srtMerge(
-      srtMerge = srtMerge, batch = batch,
+      srtMerge = srtMerge, batch = batch, assay = assay,
       do_normalization = do_normalization, do_HVF_finding = do_HVF_finding, do_scaling = do_scaling,
       normalization_method = normalization_method,
       HVF_source = HVF_source, HVF_method = HVF_method, nHVF = nHVF, HVF_intersect = HVF_intersect, HVF_min_intersection = HVF_min_intersection, HVF = HVF,
@@ -3335,13 +3385,13 @@ ZINBWaVE_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = T
     HVF <- checked[["HVF"]]
   }
 
-  status <- check_DataType(srtMerge, slot = "counts")
+  status <- check_DataType(srtMerge, slot = "counts", assay = DefaultAssay(srtMerge))
   if (status != "raw_counts") {
     stop("All Seurat objects must have the raw counts!")
   }
 
   sce <- as.SingleCellExperiment(CreateSeuratObject(
-    counts = GetAssayData(srtMerge, slot = "counts", assay = DefaultAssay(srtMerge))[HVF, ],
+    counts = GetAssayData(srtMerge, slot = "counts", assay = DefaultAssay(srtMerge))[HVF, , drop = FALSE],
     meta.data = srtMerge@meta.data[, batch, drop = FALSE]
   ))
   sce@assays@data$counts <- as.matrix(sce@assays@data$counts)
@@ -3433,11 +3483,11 @@ ZINBWaVE_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = T
     }
   )
 
-  DefaultAssay(srtIntegrated) <- "RNA"
+  DefaultAssay(srtIntegrated) <- assay
   VariableFeatures(srtIntegrated) <- srtIntegrated@misc[["ZINBWaVE_HVF"]] <- HVF
 
   if (isTRUE(append) && !is.null(srtMerge_raw)) {
-    srtMerge_raw <- SrtAppend(srt_raw = srtMerge_raw, srt_append = srtIntegrated, pattern = "ZINBWaVE|RNA|Default_reduction", overwrite = TRUE, verbose = FALSE)
+    srtMerge_raw <- SrtAppend(srt_raw = srtMerge_raw, srt_append = srtIntegrated, pattern = paste0(assay, "|ZINBWaVE|Default_reduction"), overwrite = TRUE, verbose = FALSE)
     return(srtMerge_raw)
   } else {
     return(srtIntegrated)
@@ -3472,7 +3522,7 @@ ZINBWaVE_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = T
 #' @importFrom dplyr "%>%" filter arrange desc
 #' @importFrom Matrix rowSums
 #' @export
-Standard_SCP <- function(srt, prefix = "Standard",
+Standard_SCP <- function(srt, prefix = "Standard", assay = "RNA",
                          do_normalization = NULL, normalization_method = "logCPM",
                          do_HVF_finding = TRUE, HVF_method = "vst", nHVF = 2000, HVF = NULL,
                          do_scaling = TRUE, vars_to_regress = NULL, regression_model = "linear",
@@ -3511,7 +3561,7 @@ Standard_SCP <- function(srt, prefix = "Standard",
   set.seed(seed)
 
   checked <- check_srtList(
-    srtList = list(srt), batch = "",
+    srtList = list(srt), batch = "", assay = assay,
     do_normalization = do_normalization, do_HVF_finding = do_HVF_finding,
     normalization_method = normalization_method,
     HVF_source = "separate", nHVF = nHVF, HVF = HVF, HVF_method = HVF_method,
@@ -3524,10 +3574,10 @@ Standard_SCP <- function(srt, prefix = "Standard",
   if (!is.null(linear_reduction_dims_use) && max(linear_reduction_dims_use) > linear_reduction_dims) {
     linear_reduction_dims <- max(linear_reduction_dims_use)
   }
-  if (isTRUE(do_scaling) || (is.null(do_scaling) && any(!HVF %in% rownames(GetAssayData(srt, slot = "scale.data"))))) {
+  if (isTRUE(do_scaling) || (is.null(do_scaling) && any(!HVF %in% rownames(GetAssayData(srt, slot = "scale.data", assay = DefaultAssay(srt)))))) {
     if (normalization_method != "SCT") {
       cat(paste0("[", Sys.time(), "]", " Perform ScaleData on the data...\n"))
-      srt <- ScaleData(object = srt, features = HVF, vars.to.regress = vars_to_regress, model.use = regression_model, verbose = FALSE)
+      srt <- ScaleData(object = srt, assay = DefaultAssay(srt), features = HVF, vars.to.regress = vars_to_regress, model.use = regression_model, verbose = FALSE)
     }
   }
 
@@ -3602,7 +3652,7 @@ Standard_SCP <- function(srt, prefix = "Standard",
     srt@misc[["Default_reduction"]] <- paste0(prefix, toupper(nr))
   }
 
-  DefaultAssay(srt) <- "RNA"
+  DefaultAssay(srt) <- assay
   VariableFeatures(srt) <- srt@misc[["Standard_HVF"]] <- HVF
 
   time_end <- Sys.time()
@@ -3673,6 +3723,18 @@ Standard_SCP <- function(srt, prefix = "Standard",
 #' )
 #' ClassDimPlot(panc8_sub, group.by = c("tech", "celltype"))
 #'
+#' panc8_sub <- CellScoring(
+#'   srt = panc8_sub, slot = "data", assay = "RNA",
+#'   db = "GO_BP", species = "Homo_sapiens",
+#'   minGSSize = 10, maxGSSize = 100,
+#'   method = "Seurat", name = "GO", new_assay = TRUE
+#' )
+#' panc8_sub <- Integration_SCP(panc8_sub,
+#'   assay = "GO",
+#'   batch = "tech", integration_method = "Seurat"
+#' )
+#' ClassDimPlot(panc8_sub, group.by = c("tech", "celltype"))
+#'
 #' \dontrun{
 #' for (method in c("Uncorrected", "Seurat", "scVI", "MNN", "fastMNN", "Harmony", "Scanorama", "BBKNN", "CSS", "LIGER", "Conos")) {
 #'   panc8_sub <- Integration_SCP(panc8_sub,
@@ -3692,7 +3754,7 @@ Standard_SCP <- function(srt, prefix = "Standard",
 #' }
 #'
 #' @export
-Integration_SCP <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE, srtList = NULL,
+Integration_SCP <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE, srtList = NULL, assay = "RNA",
                             integration_method = "Uncorrected",
                             do_normalization = NULL, normalization_method = "logCPM",
                             do_HVF_finding = TRUE, HVF_source = "separate", HVF_method = "vst", nHVF = 2000, HVF_intersect = FALSE, HVF_min_intersection = 1, HVF = NULL,
@@ -3724,6 +3786,6 @@ Integration_SCP <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE
 
     return(srtIntegrated)
   } else {
-    stop(paste(integration_method, "is not a suppoted integration method!"))
+    stop(paste(integration_method, "is not a supported integration method!"))
   }
 }

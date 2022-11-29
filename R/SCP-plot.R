@@ -1362,7 +1362,16 @@ ClassDimPlot <- function(srt, group.by = "orig.ident", reduction = NULL, dims = 
         ))
 
       if (isTRUE(raster)) {
+        # p <- p + scattermore::geom_scattermore(
+        #   mapping = aes(x = .data[["x"]], y = .data[["y"]], color = .data[["group.by"]]),
+        #   pointsize = floor(pt.size), alpha = pt.alpha, pixels = raster.dpi
+        # )
         p <- p + scattermore::geom_scattermore(
+          data = dat[is.na(dat[, "group.by"]), , drop = FALSE],
+          mapping = aes(x = .data[["x"]], y = .data[["y"]], color = .data[["group.by"]]),
+          pointsize = floor(pt.size), alpha = pt.alpha, pixels = raster.dpi
+        ) + scattermore::geom_scattermore(
+          data = dat[!is.na(dat[, "group.by"]), , drop = FALSE],
           mapping = aes(x = .data[["x"]], y = .data[["y"]], color = .data[["group.by"]]),
           pointsize = floor(pt.size), alpha = pt.alpha, pixels = raster.dpi
         )
@@ -1814,7 +1823,7 @@ ExpDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), split.by
     if (length(features_meta) > 0) {
       warning(paste(features_meta, collapse = ","), "is not used when calculating co-expression")
     }
-    status <- check_DataType(srt, slot = slot)
+    status <- check_DataType(srt, slot = slot, assay = assay)
     message("Data type detected in ", slot, " slot: ", status)
     if (status == "raw_counts") {
       srt[["CoExp"]] <- GetAssayData(srt, slot = slot, assay = assay)[features_gene, , drop = FALSE] %>%
@@ -2009,10 +2018,16 @@ ExpDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), split.by
         ))
       if (isTRUE(raster)) {
         p <- p + scattermore::geom_scattermore(
+          data = dat[dat[, "color_blend"] == bg_color, , drop = FALSE],
           mapping = aes(x = .data[["x"]], y = .data[["y"]], color = .data[["color_blend"]]),
           pointsize = floor(pt.size), alpha = pt.alpha, pixels = raster.dpi
         ) +
-          scale_color_identity() +
+          scattermore::geom_scattermore(
+            data = dat[dat[, "color_blend"] != bg_color, , drop = FALSE],
+            mapping = aes(x = .data[["x"]], y = .data[["y"]], color = .data[["color_blend"]]),
+            pointsize = floor(pt.size), alpha = pt.alpha, pixels = raster.dpi
+          )
+        scale_color_identity() +
           new_scale_color()
       } else {
         p <- p + suppressWarnings(geom_point(
@@ -2286,9 +2301,15 @@ ExpDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), split.by
           ))
         if (isTRUE(raster)) {
           p <- p + scattermore::geom_scattermore(
+            data = dat[is.na(dat[, "value"]), , drop = FALSE],
             mapping = aes(x = .data[["x"]], y = .data[["y"]], color = .data[["value"]]),
             pointsize = floor(pt.size), alpha = pt.alpha, pixels = raster.dpi
-          )
+          ) +
+            scattermore::geom_scattermore(
+              data = dat[!is.na(dat[, "value"]), , drop = FALSE],
+              mapping = aes(x = .data[["x"]], y = .data[["y"]], color = .data[["value"]]),
+              pointsize = floor(pt.size), alpha = pt.alpha, pixels = raster.dpi
+            )
         } else if (isTRUE(hex)) {
           check_R("hexbin")
           dat_na <- dat[is.na(dat[["value"]]), ]
@@ -2765,7 +2786,7 @@ ExpDimPlot3D <- function(srt, features = NULL, reduction = NULL, dims = c(1, 2, 
     if (length(features_meta) > 0) {
       warning(paste(features_meta, collapse = ","), "is not used when calculating co-expression")
     }
-    status <- check_DataType(srt, slot = slot)
+    status <- check_DataType(srt, slot = slot, assay = assay)
     message("Data type detected in ", slot, " slot: ", status)
     if (status == "raw_counts") {
       srt[["CoExp"]] <- GetAssayData(srt, slot = slot, assay = assay)[features_gene, , drop = FALSE] %>%
@@ -2974,597 +2995,6 @@ ExpDimPlot3D <- function(srt, features = NULL, reduction = NULL, dims = c(1, 2, 
   }
 
   return(p)
-}
-
-
-# https://stackoverflow.com/a/45614547
-GeomSplitViolin <- ggplot2::ggproto("GeomSplitViolin", ggplot2::GeomViolin,
-  draw_group = function(self, data, ..., draw_quantiles = NULL) {
-    data <- transform(data, xminv = x - violinwidth * (x - xmin), xmaxv = x + violinwidth * (xmax - x))
-    grp <- data[1, "group"]
-    newdata <- dplyr::arrange(transform(data, x = if (grp %% 2 == 1) xminv else xmaxv), if (grp %% 2 == 1) y else -y)
-    newdata <- rbind(newdata[1, ], newdata, newdata[nrow(newdata), ], newdata[1, ])
-    newdata[c(1, nrow(newdata) - 1, nrow(newdata)), "x"] <- round(newdata[1, "x"])
-
-    if (length(draw_quantiles) > 0 & !scales::zero_range(range(data$y))) {
-      stopifnot(all(draw_quantiles >= 0), all(draw_quantiles <=
-        1))
-      quantiles <- ggplot2:::create_quantile_segment_frame(data, draw_quantiles)
-      aesthetics <- data[rep(1, nrow(quantiles)), setdiff(names(data), c("x", "y")), drop = FALSE]
-      aesthetics$alpha <- rep(1, nrow(quantiles))
-      both <- cbind(quantiles, aesthetics)
-      quantile_grob <- GeomPath$draw_panel(both, ...)
-      ggplot2:::ggname("geom_split_violin", grid::grobTree(GeomPolygon$draw_panel(newdata, ...), quantile_grob))
-    } else {
-      ggplot2:::ggname("geom_split_violin", GeomPolygon$draw_panel(newdata, ...))
-    }
-  }
-)
-
-geom_split_violin <- function(mapping = NULL, data = NULL, stat = "ydensity", position = "identity", ...,
-                              draw_quantiles = NULL, trim = TRUE, scale = "area", na.rm = FALSE,
-                              show.legend = NA, inherit.aes = TRUE) {
-  ggplot2::layer(
-    data = data, mapping = mapping, stat = stat, geom = GeomSplitViolin,
-    position = position, show.legend = show.legend, inherit.aes = inherit.aes,
-    params = list(trim = trim, scale = scale, draw_quantiles = draw_quantiles, na.rm = na.rm, ...)
-  )
-}
-
-#' Violin plot for cell expression.
-#'
-#' @param srt
-#' @param features
-#' @param group.by
-#' @param split.by
-#' @param bg.by
-#' @param cells
-#' @param keep_empty
-#' @param slot
-#' @param assay
-#' @param palette
-#' @param palcolor
-#' @param alpha
-#' @param bg_palette
-#' @param bg_palcolor
-#' @param bg_apha
-#' @param add_box
-#' @param box_fill
-#' @param box_width
-#' @param add_point
-#' @param pt.color
-#' @param pt.size
-#' @param pt.alpha
-#' @param jitter.width
-#' @param cells.highlight
-#' @param cols.highlight
-#' @param sizes.highlight
-#' @param alpha.highlight
-#' @param calculate_coexp
-#' @param compare_features
-#' @param y.max
-#' @param same.y.lims
-#' @param y.trans
-#' @param sort
-#' @param adjust
-#' @param split.plot
-#' @param stack
-#' @param fill.by
-#' @param flip
-#' @param comparisons
-#' @param ref_group
-#' @param pairwise_method
-#' @param multiplegroup_comparisons
-#' @param multiple_method
-#' @param theme_use
-#' @param aspect.ratio
-#' @param title
-#' @param subtitle
-#' @param xlab
-#' @param ylab
-#' @param legend.position
-#' @param legend.direction
-#' @param combine
-#' @param nrow
-#' @param ncol
-#' @param byrow
-#' @param align
-#' @param axis
-#' @param force
-#'
-#' @examples
-#' data("pancreas_sub")
-#' ExpVlnPlot(pancreas_sub, features = c("G2M_score", "S_score"), group.by = "SubCellType")
-#' ExpVlnPlot(pancreas_sub, features = c("G2M_score", "S_score"), group.by = "SubCellType", split.by = "Phase")
-#' ExpVlnPlot(pancreas_sub, features = c("G2M_score", "S_score"), group.by = "SubCellType", fill.by = "expression", palette = "Blues")
-#' ExpVlnPlot(pancreas_sub, features = c("Neurog3", "Fev"), group.by = "SubCellType", bg.by = "CellType", stack = TRUE)
-#' ExpVlnPlot(pancreas_sub, features = c("Rbp4", "Pyy"), group.by = "SubCellType", comparisons = list(c("Alpha", "Beta"), c("Alpha", "Delta")), multiplegroup_comparisons = TRUE)
-#' ExpVlnPlot(pancreas_sub,
-#'   features = c(
-#'     "Sox9", "Anxa2", "Bicc1", # Ductal
-#'     "Neurog3", "Hes6", # EPs
-#'     "Fev", "Neurod1", # Pre-endocrine
-#'     "Rbp4", "Pyy", # Endocrine
-#'     "Ins1", "Gcg", "Sst", "Ghrl" # Beta, Alpha, Delta, Epsilon
-#'   ),
-#'   group.by = "SubCellType", bg.by = "CellType", stack = TRUE, flip = TRUE
-#' )
-#' @importFrom Seurat DefaultAssay
-#' @importFrom gtable gtable_add_cols gtable_add_rows gtable_add_grob gtable_add_padding
-#' @importFrom ggplot2 geom_blank geom_violin geom_rect geom_boxplot layer_scales position_jitterdodge position_dodge stat_summary scale_x_discrete element_line element_text element_blank annotate
-#' @importFrom grid grobHeight grobWidth
-#' @importFrom rlang %||%
-#' @importFrom cowplot plot_grid
-#' @export
-ExpVlnPlot <- function(srt, features = NULL, group.by = NULL, split.by = NULL, bg.by = NULL, fill.by = c("group", "feature", "expression"),
-                       cells = NULL, slot = "data", assay = "RNA",
-                       keep_empty = FALSE, stat_single = FALSE,
-                       palette = "Paired", palcolor = NULL, alpha = 1,
-                       bg_palette = "Paired", bg_palcolor = NULL, bg_apha = 0.5,
-                       add_box = TRUE, box_fill = "black", box_width = 0.1,
-                       add_point = FALSE, pt.color = "black", pt.size = NULL, pt.alpha = 1, jitter.width = 1,
-                       cells.highlight = NULL, cols.highlight = "red", sizes.highlight = 1, alpha.highlight = 1,
-                       calculate_coexp = FALSE, compare_features = FALSE,
-                       y.nbreaks = 3, y.min = NULL, y.max = NULL, same.y.lims = FALSE, y.trans = "identity",
-                       sort = FALSE, adjust = 1, split.plot = FALSE,
-                       stack = FALSE, flip = FALSE,
-                       comparisons = list(), ref_group = NULL, pairwise_method = "wilcox.test",
-                       multiplegroup_comparisons = FALSE, multiple_method = "kruskal.test",
-                       theme_use = "theme_scp", aspect.ratio = NULL, title = NULL, subtitle = NULL, xlab = group.by, ylab = "Expression level",
-                       legend.position = "right", legend.direction = "vertical",
-                       combine = TRUE, nrow = NULL, ncol = NULL, byrow = TRUE, align = "hv", axis = "lr", force = FALSE) {
-  if (is.null(features)) {
-    stop("'features' must be provided.")
-  }
-  if (!inherits(features, "character")) {
-    stop("'features' is not a character vectors")
-  }
-  if (is.null(group.by)) {
-    stop("'group.by' must be provided.")
-  }
-  fill.by <- match.arg(fill.by)
-  if (isTRUE(stack)) {
-    split.by <- NULL
-    if (isTRUE(sort)) {
-      sort <- FALSE
-    }
-  }
-  if (is.null(split.by)) {
-    srt[["No.split.by"]] <- ""
-    split.by <- "No.split.by"
-  }
-  for (i in unique(c(group.by, split.by, bg.by))) {
-    if (!i %in% colnames(srt@meta.data)) {
-      stop(paste0(i, " is not in the meta.data of srt object."))
-    }
-    if (!is.factor(srt[[i, drop = TRUE]])) {
-      srt[[i, drop = TRUE]] <- factor(srt[[i, drop = TRUE]], levels = unique(srt[[i, drop = TRUE]]))
-    }
-  }
-  if (!is.null(bg.by)) {
-    df_table <- table(srt[[group.by, drop = TRUE]], srt[[bg.by, drop = TRUE]])
-    if (max(rowSums(df_table > 0)) > 1) {
-      stop("'group.by' must be a division of 'bg.by'")
-    }
-  }
-  if (!is.null(cells.highlight) && !isTRUE(cells.highlight)) {
-    if (!any(cells.highlight %in% colnames(srt))) {
-      stop("No cells in 'cells.highlight' found in srt.")
-    }
-    if (!all(cells.highlight %in% colnames(srt))) {
-      warning("Some cells in 'cells.highlight' not found in srt.", immediate. = TRUE)
-    }
-    cells.highlight <- intersect(cells.highlight, colnames(srt))
-  }
-  if (isTRUE(cells.highlight)) {
-    cells.highlight <- colnames(srt)
-  }
-  if (length(comparisons) > 0) {
-    l <- sapply(comparisons, length)
-    if (any(l > 2)) {
-      stop("'comparisons' must be a list of length-2 vectors.")
-    }
-  }
-
-  features <- unique(features)
-  features_drop <- features[!features %in% c(rownames(srt[[assay]]), colnames(srt@meta.data))]
-  if (length(features_drop) > 0) {
-    warning(paste0(features_drop, collapse = ","), " are not in the features of srt.", immediate. = TRUE)
-    features <- features[!features %in% features_drop]
-  }
-
-  features_gene <- features[features %in% rownames(srt[[assay]])]
-  features_meta <- features[features %in% colnames(srt@meta.data)]
-
-  if (isTRUE(calculate_coexp) && length(features_gene) > 0) {
-    if (length(features_meta) > 0) {
-      warning(paste(features_meta, collapse = ","), "is not used when calculating co-expression")
-    }
-    status <- check_DataType(srt, slot = slot)
-    message("Data type detected in ", slot, " slot: ", status)
-    if (status == "raw_counts") {
-      srt[["CoExp"]] <- GetAssayData(srt, slot = slot, assay = assay)[features_gene, , drop = FALSE] %>%
-        apply(2, function(x) log1p(exp(mean(log(x)))))
-    } else if (status == "log_normalized_counts") {
-      srt[["CoExp"]] <- GetAssayData(srt, slot = slot, assay = assay)[features_gene, , drop = FALSE] %>%
-        apply(c(1, 2), expm1) %>%
-        apply(2, function(x) log1p(exp(mean(log(x)))))
-    } else if (status == "raw_normalized_counts") {
-      srt[["CoExp"]] <- GetAssayData(srt, slot = slot, assay = assay)[features_gene, , drop = FALSE] %>%
-        apply(c(1, 2), log1p) %>%
-        apply(2, function(x) log1p(exp(mean(log(x)))))
-    } else {
-      stop("Can not determine the data type.")
-    }
-    features <- c(features, "CoExp")
-    features_meta <- c(features_meta, "CoExp")
-  }
-  if (length(features_gene > 0)) {
-    dat_gene <- t(GetAssayData(srt, slot = slot, assay = assay)[features_gene, , drop = FALSE])[colnames(srt), , drop = FALSE]
-  } else {
-    dat_gene <- matrix(nrow = ncol(srt), ncol = 0)
-  }
-  if (length(features_meta > 0)) {
-    dat_meta <- srt@meta.data[, features_meta, drop = FALSE]
-  } else {
-    dat_meta <- matrix(nrow = ncol(srt), ncol = 0)
-  }
-  dat_exp <- cbind(dat_gene, dat_meta)
-  features <- unique(features[features %in% c(features_gene, features_meta)])
-
-  if (!all(sapply(dat_exp, is.numeric))) {
-    stop("'features' must be type of numeric variable.")
-  }
-  dat_use <- srt@meta.data[, unique(c(group.by, bg.by, split.by)), drop = FALSE]
-  if (!is.null(cells)) {
-    dat_use <- dat_use[intersect(rownames(dat_use), cells), , drop = FALSE]
-  }
-  if (is.null(pt.size)) {
-    pt.size <- min(3000 / nrow(dat_use), 0.5)
-  }
-
-  nlev <- sapply(dat_use, nlevels)
-  nlev <- nlev[nlev > 50]
-  if (length(nlev) > 0 && !isTRUE(force)) {
-    warning(paste(names(nlev), sep = ","), " have more than 50 levels.", immediate. = TRUE)
-    answer <- askYesNo("Are you sure to continue?", default = FALSE)
-    if (!isTRUE(answer)) {
-      return(invisible(NULL))
-    }
-  }
-  if (isTRUE(same.y.lims) && is.null(y.max)) {
-    y.max <- max(as.matrix(dat_exp[, features])[is.finite(as.matrix(dat_exp[, features]))])
-  }
-  if (isTRUE(same.y.lims) && is.null(y.min)) {
-    y.min <- min(as.matrix(dat_exp[, features])[is.finite(as.matrix(dat_exp[, features]))])
-  }
-
-  if (!is.null(bg.by)) {
-    bg_color <- palette_scp(levels(dat_use[[bg.by]]), palette = bg_palette, palcolor = bg_palcolor)
-  }
-
-  plist <- list()
-  plist_stack <- list()
-  xlab <- xlab %||% group.by
-  ylab <- ylab %||% "Expression level"
-  for (g in group.by) {
-    dat_all <- cbind(dat_use, dat_exp[row.names(dat_use), , drop = FALSE])
-    if (fill.by == "feature") {
-      colors <- palette_scp(features, palette = palette, palcolor = palcolor)
-    }
-    if (fill.by == "group") {
-      if (split.by != "No.split.by") {
-        colors <- palette_scp(levels(dat_all[[split.by]]), palette = palette, palcolor = palcolor)
-      } else {
-        colors <- palette_scp(levels(dat_all[[g]]), palette = palette, palcolor = palcolor)
-      }
-    }
-    if (fill.by == "expression") {
-      median_values <- aggregate(dat_all[, features, drop = FALSE], by = list(dat_all[[g]], dat_all[[split.by]]), FUN = median)
-      rownames(median_values) <- paste0(median_values[, 1], "-", median_values[, 2])
-      colors <- palette_scp(unlist(median_values[, features]), type = "continuous", palette = palette, palcolor = palcolor)
-      colors_limits <- range(median_values[, features])
-    }
-    for (f in features) {
-      if (isTRUE(stat_single)) {
-        groups <- levels(dat_all[[g]])
-        splits <- levels(dat_all[[split.by]])
-      } else {
-        groups <- list(levels(dat_all[[g]]))
-        splits <- list(levels(dat_all[[split.by]]))
-      }
-      for (single_group in groups) {
-        for (sp in splits) {
-          dat <- dat_all[dat_all[[g]] %in% single_group & dat_all[[split.by]] %in% sp, c(colnames(dat_use), f)]
-          dat[[g]] <- factor(dat[[g]], levels = levels(dat[[g]])[levels(dat[[g]]) %in% dat[[g]]])
-          # dat[[split.by]] <- factor(dat[[split.by]], levels = levels(dat[[split.by]])[levels(dat[[split.by]]) %in% dat[[split.by]]])
-          dat[, "cell"] <- rownames(dat)
-          dat[, "value"] <- dat[, f]
-          dat[, "group.by"] <- dat[, g]
-          dat[, "split.by"] <- dat[, split.by]
-          dat[, "bg.by"] <- dat[, bg.by]
-          stat <- table(dat[, "group.by"], dat[, "split.by"])
-          stat_drop <- which(stat == 1, arr.ind = T)
-          if (nrow(stat_drop) > 0) {
-            for (i in 1:nrow(stat_drop)) {
-              dat <- dat[!(dat[, "group.by"] == rownames(stat)[stat_drop[i, 1]] & dat[, "split.by"] == colnames(stat)[stat_drop[i, 2]]), ]
-              rownames(stat)[stat_drop[i, 1]]
-            }
-          }
-          dat[, "features"] <- rep(f, nrow(dat))
-          if (nrow(dat) > 0 && ((is.character(x = sort) && nchar(x = sort) > 0) || sort)) {
-            df_sort <- aggregate(dat[, "value", drop = FALSE], by = list(dat[["group.by"]]), mean)
-            if (is.character(sort) && sort == "increasing") {
-              decreasing <- FALSE
-            } else {
-              decreasing <- TRUE
-            }
-            sortlevel <- as.character(df_sort[order(df_sort[["value"]], decreasing = decreasing), 1])
-            dat[, "group.by"] <- factor(dat[, "group.by"], levels = sortlevel)
-          }
-          if (fill.by == "feature") {
-            dat[, "fill.by"] <- rep(f, nrow(dat))
-            keynm <- "Features"
-          }
-          if (fill.by == "group") {
-            dat[, "fill.by"] <- dat[, "group.by"]
-            keynm <- ifelse(split.by == "No.split.by", g, split.by)
-          }
-          if (fill.by == "expression") {
-            dat[, "fill.by"] <- median_values[paste0(dat[["group.by"]], "-", dat[["split.by"]]), f]
-            keynm <- "Median expression"
-          }
-
-          if (split.by != "No.split.by") {
-            levels_order <- levels(dat[["split.by"]])
-          } else {
-            levels_order <- levels(dat[["group.by"]])
-          }
-
-          comb <- expand.grid(x = levels(dat[["split.by"]]), y = levels(dat[["group.by"]]))
-          dat[, "group"] <- head(factor(paste("a", dat[["split.by"]], "b", dat[["group.by"]], sep = "-"), levels = paste("a", comb[[1]], "b", comb[[2]], sep = "-")), nrow(dat))
-
-          y_max_use <- y.max %||% suppressWarnings(max(dat[, "value"][is.finite(x = dat[, "value"])]))
-          y_min_use <- y.min %||% suppressWarnings(min(dat[, "value"][is.finite(x = dat[, "value"])]))
-
-          if (isTRUE(flip)) {
-            dat[["group.by"]] <- factor(dat[["group.by"]], levels = rev(levels(dat[["group.by"]])))
-            aspect.ratio <- 1 / aspect.ratio
-            if (length(aspect.ratio) == 0 || is.na(aspect.ratio)) {
-              aspect.ratio <- NULL
-            }
-          }
-          p <- ggplot(dat, aes(
-            x = .data[["group.by"]], y = .data[["value"]], fill = .data[["fill.by"]]
-          )) +
-            geom_blank()
-          if (isTRUE(flip)) {
-            p <- p + do.call(theme_use, list(
-              aspect.ratio = aspect.ratio,
-              strip.text.x = element_text(angle = 45),
-              axis.text.x = if (isTRUE(stack)) element_blank() else element_text(),
-              axis.ticks.x = if (isTRUE(stack)) element_blank() else element_line(),
-              panel.grid.major.x = element_line(color = "grey", linetype = 2),
-              legend.position = legend.position,
-              legend.direction = legend.direction
-            )) + coord_flip()
-          } else {
-            p <- p + do.call(theme_use, list(
-              aspect.ratio = aspect.ratio,
-              axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1),
-              strip.text.y = element_text(angle = 0),
-              axis.text.y = if (isTRUE(stack)) element_blank() else element_text(),
-              axis.ticks.y = if (isTRUE(stack)) element_blank() else element_line(),
-              panel.grid.major.y = element_line(color = "grey", linetype = 2),
-              legend.position = legend.position,
-              legend.direction = legend.direction
-            ))
-          }
-          if (!is.null(bg.by)) {
-            bg_df <- unique(dat[, c("group.by", "bg.by")])
-            bg_list <- list()
-            for (i in seq_len(nrow(bg_df))) {
-              x <- as.numeric(bg_df[i, "group.by"])
-              bg_list[[i]] <- annotate(
-                geom = "rect",
-                xmin = ifelse(x == 1, -Inf, x - 0.5),
-                xmax = ifelse(x == nlevels(bg_df[, "group.by"]), Inf, x + 0.5),
-                ymin = -Inf,
-                ymax = Inf,
-                fill = bg_color[as.character(bg_df[i, "bg.by"])], alpha = bg_apha
-              )
-            }
-            p <- p + bg_list
-          }
-          if (isTRUE(split.plot)) {
-            p <- p + geom_split_violin(scale = "width", adjust = adjust, trim = TRUE, alpha = alpha, position = position_dodge())
-          } else {
-            p <- p + geom_violin(scale = "width", adjust = adjust, trim = TRUE, alpha = alpha, position = position_dodge())
-          }
-          if (length(comparisons) > 0) {
-            check_R("ggpubr")
-            p <- p + ggpubr::stat_compare_means(
-              symnum.args = list(
-                cutpoints = c(0, 0.0001, 0.001, 0.01, 0.05, 2),
-                symbols = c("****", "***", "**", "*", "ns")
-              ),
-              size = 3.5,
-              step.increase = 0.1,
-              tip.length = 0.03,
-              comparisons = comparisons, ref.group = ref_group, method = pairwise_method
-            )
-            y_max_use <- layer_scales(p)$y$range$range[2]
-          }
-          if (isTRUE(multiplegroup_comparisons)) {
-            check_R("ggpubr")
-            p <- p + ggpubr::stat_compare_means(method = multiple_method, label.y = Inf, vjust = 1.3, hjust = 0, size = 3.5)
-            y_max_use <- y_min_use + (y_max_use - y_min_use) * 1.2
-          }
-
-          if (isTRUE(add_point)) {
-            p <- p + geom_point(
-              color = pt.color,
-              size = pt.size, alpha = pt.alpha,
-              position = position_jitterdodge(jitter.width = jitter.width, dodge.width = 0.9, seed = 11), show.legend = FALSE
-            )
-            if (!is.null(cells.highlight)) {
-              p$data[, "cells.highlight"] <- rownames(p$data) %in% cells.highlight
-              cell_df <- subset(p$data, cells.highlight == TRUE)
-              if (nrow(cell_df) > 0) {
-                p <- p + geom_point(
-                  data = cell_df,
-                  color = cols.highlight, size = sizes.highlight, alpha = alpha.highlight,
-                  position = position_jitterdodge(jitter.width = jitter.width, dodge.width = 0.9, seed = 11), show.legend = FALSE
-                )
-              }
-            }
-          }
-          if (isTRUE(add_box)) {
-            p <- p + geom_boxplot(aes(group = .data[["group"]]),
-              position = position_dodge(width = 0.9), color = "black", fill = box_fill, width = box_width, show.legend = FALSE, outlier.shape = NA
-            ) +
-              stat_summary(
-                fun = median, geom = "point", mapping = aes(group = .data[["split.by"]]),
-                position = position_dodge(width = 0.9), color = "black", fill = "white", size = 1.5, shape = 21,
-              )
-            # stat_summary(
-            #   fun = median, geom = "text", mapping = aes(group = .data[["split.by"]],label=round(.data[["fill.by"]],3)),
-            #   position = position_dodge(width = 0.9), color = "red", fill = "white", size = 5, shape = 21,
-            # )
-          }
-
-          if (nrow(dat) == 0) {
-            p <- p + facet_null()
-          } else {
-            if (isTRUE(stack) && !isTRUE(flip)) {
-              p <- p + facet_grid(features ~ .) + theme(strip.text.y = element_text(angle = 0))
-            } else {
-              p <- p + facet_grid(. ~ features)
-            }
-          }
-          p <- p + labs(title = title, subtitle = subtitle, x = xlab, y = ylab)
-          if (nrow(dat) != 0) {
-            p <- p + scale_x_discrete(drop = !keep_empty)
-          }
-
-          p <- p + scale_y_continuous(limits = c(y_min_use, y_max_use), trans = y.trans, n.breaks = y.nbreaks)
-          if (fill.by != "expression") {
-            p <- p + scale_fill_manual(name = paste0(keynm, ":"), values = colors, breaks = levels_order, drop = FALSE) +
-              scale_color_manual(name = paste0(keynm, ":"), values = colors, breaks = levels_order, drop = FALSE) +
-              guides(fill = guide_legend(
-                title.hjust = 0,
-                keywidth = 0.05,
-                keyheight = 0.05,
-                default.unit = "inch",
-                order = 1,
-                override.aes = list(size = 4.5, color = "black", alpha = 1)
-              ))
-          } else {
-            p <- p + scale_fill_gradientn(
-              name = paste0(keynm, ":"), colours = colors, limits = colors_limits
-            ) + guides(
-              fill = guide_colorbar(frame.colour = "black", ticks.colour = "black", title.hjust = 0, order = 1)
-            )
-          }
-
-          plist[[paste0(f, ":", g, ":", paste0(single_group, collapse = ","), ":", paste0(sp, collapse = ","))]] <- p
-        }
-      }
-    }
-
-    if (isTRUE(stack) && length(features) > 1 && isFALSE(stat_single)) {
-      legend <- cowplot::get_plot_component(plist[[1]], pattern = "guide-box")
-      if (isTRUE(flip)) {
-        lab <- textGrob(label = ifelse(is.null(ylab), "Expression level", ylab), hjust = 0.5)
-        plist <- lapply(seq_along(plist), FUN = function(i) {
-          p <- plist[[i]]
-          if (i != 1) {
-            p <- p + theme(
-              legend.position = "none",
-              plot.title = element_blank(),
-              plot.subtitle = element_blank(),
-              axis.title = element_blank(),
-              axis.text.y = element_blank(),
-              axis.ticks.y = element_blank(),
-              plot.margin = margin(
-                t = 0.2, r = -0.06, b = 0.2, l = -0.06,
-                unit = "cm"
-              )
-            )
-          } else {
-            p <- p + theme(
-              legend.position = "none",
-              axis.title.x = element_blank(),
-              plot.margin = margin(
-                t = 0.2, r = -0.06, b = 0.2, l = 0.2,
-                unit = "cm"
-              )
-            )
-          }
-          return(ggplotGrob(p))
-        })
-        grob <- do.call(cbind, plist)
-        grob <- gtable_add_rows(grob, grobHeight(lab), -1)
-        grob <- gtable_add_grob(grob, lab, t = dim(grob)[1], l = mean(grob$layout[grep("panel", grob$layout$name), "l"]), clip = FALSE)
-
-        grob <- gtable_add_cols(grob, sum(legend$widths), -1)
-        grob <- gtable_add_grob(grob, legend, t = mean(grob$layout[grep("panel", grob$layout$name), "t"]), l = dim(grob)[2])
-      } else {
-        lab <- textGrob(label = ifelse(is.null(ylab), "Expression level", ylab), rot = 90, hjust = 0.5)
-        plist <- lapply(seq_along(plist), FUN = function(i) {
-          p <- plist[[i]]
-          if (i != length(plist)) {
-            p <- p + theme(
-              legend.position = "none",
-              axis.title = element_blank(),
-              axis.text.x = element_blank(),
-              axis.ticks.x = element_blank(),
-              plot.margin = margin(
-                t = -0.06, r = 0.2, b = -0.06, l = 0.2,
-                unit = "cm"
-              )
-            )
-            if (i == 1) {
-              p <- p + theme(plot.title = element_blank(), plot.subtitle = element_blank())
-            }
-          } else {
-            p <- p + theme(
-              legend.position = "none",
-              axis.title.y = element_blank(),
-              plot.margin = margin(
-                t = -0.06, r = 0.2, b = 0.2, l = 0.2,
-                unit = "cm"
-              )
-            )
-          }
-          return(ggplotGrob(p))
-        })
-        grob <- do.call(rbind, plist)
-        grob <- gtable_add_cols(grob, grobWidth(lab), 0)
-        grob <- gtable_add_grob(grob, lab, t = mean(grob$layout[grep("panel", grob$layout$name), "t"]), l = 1, clip = FALSE)
-
-        grob <- gtable_add_cols(grob, sum(legend$widths), -1)
-        grob <- gtable_add_grob(grob, legend, t = mean(grob$layout[grep("panel", grob$layout$name), "t"]), l = dim(grob)[2])
-      }
-      grob <- gtable_add_padding(grob, unit(c(1, 1, 1, 1), units = "cm"))
-      plot <- plot_grid(grob)
-      plist_stack[[f]] <- plot
-    }
-  }
-
-  if (length(plist_stack) > 0) {
-    plist <- plist_stack
-  }
-  if (isTRUE(combine)) {
-    if (length(plist) > 1) {
-      plot <- plot_grid(plotlist = plist, nrow = nrow, ncol = ncol, byrow = byrow, align = align, axis = axis)
-    } else {
-      plot <- plist[[1]]
-    }
-    return(plot)
-  } else {
-    return(plist)
-  }
 }
 
 fc_matrix <- function(matrix) {
@@ -3882,7 +3312,7 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
   cells <- intersect(cells, colnames(srt))
 
   if (is.null(features)) {
-    features <- VariableFeatures(srt)
+    features <- VariableFeatures(srt, assay = assay)
   }
   index <- features %in% c(rownames(srt[[assay]]), colnames(srt@meta.data))
   features <- features[index]
@@ -4161,7 +3591,7 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
         )
       } else {
         for (cell_group in group.by) {
-          subplots <- ExpVlnPlot(srt,
+          subplots <- ExpStatPlot(srt,
             assay = assay, slot = "data",
             features = cellan, cells = names(cell_groups[[cell_group]]),
             group.by = cell_group, split.by = split.by,
@@ -4447,7 +3877,6 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
 
   res <- NULL
   if (isTRUE(anno_keys) || isTRUE(anno_features) || isTRUE(anno_terms)) {
-    check_R("simplifyEnrichment")
     geneID <- feature_metadata[, "features"]
     geneID_groups <- feature_metadata[, "feature_split"]
     if (all(is.na(geneID_groups))) {
@@ -4534,6 +3963,7 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
 
           ha_keys <- NULL
           if (isTRUE(anno_keys)) {
+            check_R("jokergoo/simplifyEnrichment")
             keys_list <- lapply(subdf_list, function(df) {
               if (df$Database[1] %in% c("GO_BP", "GO_CC", "GO_MF")) {
                 df <- simplifyEnrichment::keyword_enrichment_from_GO(df[["ID"]]) %>%
@@ -4673,7 +4103,7 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
     }
 
     if (isTRUE(add_violin)) {
-      vlnplots <- ExpVlnPlot(srt,
+      vlnplots <- ExpStatPlot(srt,
         assay = assay, slot = "data",
         features = rownames(mat_list[[cell_group]]),
         cells = names(cell_groups[[cell_group]]),
@@ -4827,13 +4257,13 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
     fix <- TRUE
   }
   if (is.null(height)) {
-    height <- convertHeight(unit(1, "npc"), units)
+    height <- convertHeight(unit(0.9, "npc"), units)
   }
   if (length(ha_top_list) > 0) {
     height <- convertUnit(unit(height, units) + height.HeatmapAnnotation(ha_top_list[[1]]), units)
   }
   if (is.null(width)) {
-    width <- convertWidth(unit(1, "npc"), units)
+    width <- convertWidth(unit(0.9, "npc"), units)
   }
   if (!is.null(ha_left)) {
     width <- convertUnit(unit(width, units) + width.HeatmapAnnotation(ha_left), units)
@@ -5144,7 +4574,7 @@ ExpHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, spli
   cells <- intersect(cells, colnames(srt))
 
   if (is.null(features)) {
-    features <- VariableFeatures(srt)
+    features <- VariableFeatures(srt, assay = assay)
   }
   index <- features %in% c(rownames(srt[[assay]]), colnames(srt@meta.data))
   features <- features[index]
@@ -5628,7 +5058,6 @@ ExpHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, spli
 
   res <- NULL
   if (isTRUE(anno_keys) || isTRUE(anno_features) || isTRUE(anno_terms)) {
-    check_R("simplifyEnrichment")
     geneID <- feature_metadata[, "features"]
     geneID_groups <- feature_metadata[, "feature_split"]
     if (all(is.na(geneID_groups))) {
@@ -5715,6 +5144,7 @@ ExpHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, spli
 
           ha_keys <- NULL
           if (isTRUE(anno_keys)) {
+            check_R("jokergoo/simplifyEnrichment")
             keys_list <- lapply(subdf_list, function(df) {
               if (df$Database[1] %in% c("GO_BP", "GO_CC", "GO_MF")) {
                 df <- simplifyEnrichment::keyword_enrichment_from_GO(df[["ID"]]) %>%
@@ -5885,13 +5315,13 @@ ExpHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, spli
     fix <- TRUE
   }
   if (is.null(height)) {
-    height <- convertHeight(unit(1, "npc"), units)
+    height <- convertHeight(unit(0.9, "npc"), units)
   }
   if (length(ha_top_list) > 0) {
     height <- convertUnit(unit(height, units) + height.HeatmapAnnotation(ha_top_list[[1]]), units)
   }
   if (is.null(width)) {
-    width <- convertWidth(unit(1, "npc"), units)
+    width <- convertWidth(unit(0.9, "npc"), units)
   }
   if (!is.null(ha_left)) {
     width <- convertUnit(unit(width, units) + width.HeatmapAnnotation(ha_left), units)
@@ -6079,7 +5509,7 @@ ExpCorPlot <- function(srt, features, group.by = NULL, split.by = NULL, cells = 
     if (length(features_meta) > 0) {
       warning(paste(features_meta, collapse = ","), "is not used when calculating co-expression")
     }
-    status <- check_DataType(srt, slot = slot)
+    status <- check_DataType(srt, slot = slot, assay = assay)
     message("Data type detected in ", slot, " slot: ", status)
     if (status == "raw_counts") {
       srt[["CoExp"]] <- GetAssayData(srt, slot = slot, assay = assay)[features_gene, , drop = FALSE] %>%
@@ -6502,6 +5932,595 @@ CellCorHeatmap <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
   return(p)
 }
 
+# https://stackoverflow.com/a/45614547
+GeomSplitViolin <- ggplot2::ggproto("GeomSplitViolin", ggplot2::GeomViolin,
+  draw_group = function(self, data, ..., draw_quantiles = NULL) {
+    data <- transform(data, xminv = x - violinwidth * (x - xmin), xmaxv = x + violinwidth * (xmax - x))
+    grp <- data[1, "group"]
+    newdata <- dplyr::arrange(transform(data, x = if (grp %% 2 == 1) xminv else xmaxv), if (grp %% 2 == 1) y else -y)
+    newdata <- rbind(newdata[1, ], newdata, newdata[nrow(newdata), ], newdata[1, ])
+    newdata[c(1, nrow(newdata) - 1, nrow(newdata)), "x"] <- round(newdata[1, "x"])
+
+    if (length(draw_quantiles) > 0 & !scales::zero_range(range(data$y))) {
+      stopifnot(all(draw_quantiles >= 0), all(draw_quantiles <=
+        1))
+      quantiles <- ggplot2:::create_quantile_segment_frame(data, draw_quantiles)
+      aesthetics <- data[rep(1, nrow(quantiles)), setdiff(names(data), c("x", "y")), drop = FALSE]
+      aesthetics$alpha <- rep(1, nrow(quantiles))
+      both <- cbind(quantiles, aesthetics)
+      quantile_grob <- GeomPath$draw_panel(both, ...)
+      ggplot2:::ggname("geom_split_violin", grid::grobTree(GeomPolygon$draw_panel(newdata, ...), quantile_grob))
+    } else {
+      ggplot2:::ggname("geom_split_violin", GeomPolygon$draw_panel(newdata, ...))
+    }
+  }
+)
+
+geom_split_violin <- function(mapping = NULL, data = NULL, stat = "ydensity", position = "identity", ...,
+                              draw_quantiles = NULL, trim = TRUE, scale = "area", na.rm = FALSE,
+                              show.legend = NA, inherit.aes = TRUE) {
+  ggplot2::layer(
+    data = data, mapping = mapping, stat = stat, geom = GeomSplitViolin,
+    position = position, show.legend = show.legend, inherit.aes = inherit.aes,
+    params = list(trim = trim, scale = scale, draw_quantiles = draw_quantiles, na.rm = na.rm, ...)
+  )
+}
+
+#' Violin plot for cell expression.
+#'
+#' @param srt
+#' @param features
+#' @param group.by
+#' @param split.by
+#' @param bg.by
+#' @param cells
+#' @param keep_empty
+#' @param slot
+#' @param assay
+#' @param palette
+#' @param palcolor
+#' @param alpha
+#' @param bg_palette
+#' @param bg_palcolor
+#' @param bg_apha
+#' @param add_box
+#' @param box_fill
+#' @param box_width
+#' @param add_point
+#' @param pt.color
+#' @param pt.size
+#' @param pt.alpha
+#' @param jitter.width
+#' @param cells.highlight
+#' @param cols.highlight
+#' @param sizes.highlight
+#' @param alpha.highlight
+#' @param calculate_coexp
+#' @param compare_features
+#' @param y.max
+#' @param same.y.lims
+#' @param y.trans
+#' @param sort
+#' @param adjust
+#' @param split.plot
+#' @param stack
+#' @param fill.by
+#' @param flip
+#' @param comparisons
+#' @param ref_group
+#' @param pairwise_method
+#' @param multiplegroup_comparisons
+#' @param multiple_method
+#' @param theme_use
+#' @param aspect.ratio
+#' @param title
+#' @param subtitle
+#' @param xlab
+#' @param ylab
+#' @param legend.position
+#' @param legend.direction
+#' @param combine
+#' @param nrow
+#' @param ncol
+#' @param byrow
+#' @param align
+#' @param axis
+#' @param force
+#'
+#' @examples
+#' data("pancreas_sub")
+#' ExpStatPlot(pancreas_sub, features = c("G2M_score", "S_score"), group.by = "SubCellType")
+#' ExpStatPlot(pancreas_sub, features = c("G2M_score", "S_score"), group.by = "SubCellType", split.by = "Phase")
+#' ExpStatPlot(pancreas_sub, features = c("G2M_score", "S_score"), group.by = "SubCellType", fill.by = "expression", palette = "Blues")
+#' ExpStatPlot(pancreas_sub, features = c("Neurog3", "Fev"), group.by = "SubCellType", bg.by = "CellType", stack = TRUE)
+#' ExpStatPlot(pancreas_sub, features = c("Rbp4", "Pyy"), group.by = "SubCellType", comparisons = list(c("Alpha", "Beta"), c("Alpha", "Delta")), multiplegroup_comparisons = TRUE)
+#' ExpStatPlot(pancreas_sub,
+#'   features = c(
+#'     "Sox9", "Anxa2", "Bicc1", # Ductal
+#'     "Neurog3", "Hes6", # EPs
+#'     "Fev", "Neurod1", # Pre-endocrine
+#'     "Rbp4", "Pyy", # Endocrine
+#'     "Ins1", "Gcg", "Sst", "Ghrl" # Beta, Alpha, Delta, Epsilon
+#'   ),
+#'   group.by = "SubCellType", bg.by = "CellType", stack = TRUE, flip = TRUE
+#' )
+#' @importFrom Seurat DefaultAssay
+#' @importFrom gtable gtable_add_cols gtable_add_rows gtable_add_grob gtable_add_padding
+#' @importFrom ggplot2 geom_blank geom_violin geom_rect geom_boxplot layer_scales position_jitterdodge position_dodge stat_summary scale_x_discrete element_line element_text element_blank annotate
+#' @importFrom grid grobHeight grobWidth
+#' @importFrom rlang %||%
+#' @importFrom cowplot plot_grid
+#' @export
+ExpStatPlot <- function(srt, features = NULL, group.by = NULL, split.by = NULL, bg.by = NULL, fill.by = c("group", "feature", "expression"),
+                        cells = NULL, slot = "data", assay = "RNA", keep_empty = FALSE, stat_single = FALSE,
+                        plot_type = c("violin", "box", "bar", "histogram", "density", "ridgeline", "horizon"),
+                        palette = "Paired", palcolor = NULL, alpha = 1,
+                        bg_palette = "Paired", bg_palcolor = NULL, bg_apha = 0.5,
+                        add_box = TRUE, box_fill = "black", box_width = 0.1,
+                        add_point = FALSE, pt.color = "black", pt.size = NULL, pt.alpha = 1, jitter.width = 1,
+                        cells.highlight = NULL, cols.highlight = "red", sizes.highlight = 1, alpha.highlight = 1,
+                        calculate_coexp = FALSE, compare_features = FALSE,
+                        y.nbreaks = 3, y.min = NULL, y.max = NULL, same.y.lims = FALSE, y.trans = "identity",
+                        sort = FALSE, adjust = 1, split.plot = FALSE,
+                        stack = FALSE, flip = FALSE,
+                        comparisons = list(), ref_group = NULL, pairwise_method = "wilcox.test",
+                        multiplegroup_comparisons = FALSE, multiple_method = "kruskal.test",
+                        theme_use = "theme_scp", aspect.ratio = NULL, title = NULL, subtitle = NULL, xlab = group.by, ylab = "Expression level",
+                        legend.position = "right", legend.direction = "vertical",
+                        combine = TRUE, nrow = NULL, ncol = NULL, byrow = TRUE, align = "hv", axis = "lr", force = FALSE) {
+  if (is.null(features)) {
+    stop("'features' must be provided.")
+  }
+  if (!inherits(features, "character")) {
+    stop("'features' is not a character vectors")
+  }
+  if (is.null(group.by)) {
+    stop("'group.by' must be provided.")
+  }
+  fill.by <- match.arg(fill.by)
+  if (isTRUE(stack)) {
+    split.by <- NULL
+    if (isTRUE(sort)) {
+      sort <- FALSE
+    }
+  }
+  if (is.null(split.by)) {
+    srt[["No.split.by"]] <- ""
+    split.by <- "No.split.by"
+  }
+  for (i in unique(c(group.by, split.by, bg.by))) {
+    if (!i %in% colnames(srt@meta.data)) {
+      stop(paste0(i, " is not in the meta.data of srt object."))
+    }
+    if (!is.factor(srt[[i, drop = TRUE]])) {
+      srt[[i, drop = TRUE]] <- factor(srt[[i, drop = TRUE]], levels = unique(srt[[i, drop = TRUE]]))
+    }
+  }
+  if (!is.null(bg.by)) {
+    df_table <- table(srt[[group.by, drop = TRUE]], srt[[bg.by, drop = TRUE]])
+    if (max(rowSums(df_table > 0)) > 1) {
+      stop("'group.by' must be a division of 'bg.by'")
+    }
+  }
+  if (!is.null(cells.highlight) && !isTRUE(cells.highlight)) {
+    if (!any(cells.highlight %in% colnames(srt))) {
+      stop("No cells in 'cells.highlight' found in srt.")
+    }
+    if (!all(cells.highlight %in% colnames(srt))) {
+      warning("Some cells in 'cells.highlight' not found in srt.", immediate. = TRUE)
+    }
+    cells.highlight <- intersect(cells.highlight, colnames(srt))
+  }
+  if (isTRUE(cells.highlight)) {
+    cells.highlight <- colnames(srt)
+  }
+  if (length(comparisons) > 0) {
+    l <- sapply(comparisons, length)
+    if (any(l > 2)) {
+      stop("'comparisons' must be a list of length-2 vectors.")
+    }
+  }
+
+  features <- unique(features)
+  features_drop <- features[!features %in% c(rownames(srt[[assay]]), colnames(srt@meta.data))]
+  if (length(features_drop) > 0) {
+    warning(paste0(features_drop, collapse = ","), " are not in the features of srt.", immediate. = TRUE)
+    features <- features[!features %in% features_drop]
+  }
+
+  features_gene <- features[features %in% rownames(srt[[assay]])]
+  features_meta <- features[features %in% colnames(srt@meta.data)]
+
+  if (isTRUE(calculate_coexp) && length(features_gene) > 0) {
+    if (length(features_meta) > 0) {
+      warning(paste(features_meta, collapse = ","), "is not used when calculating co-expression")
+    }
+    status <- check_DataType(srt, slot = slot, assay = assay)
+    message("Data type detected in ", slot, " slot: ", status)
+    if (status == "raw_counts") {
+      srt[["CoExp"]] <- GetAssayData(srt, slot = slot, assay = assay)[features_gene, , drop = FALSE] %>%
+        apply(2, function(x) log1p(exp(mean(log(x)))))
+    } else if (status == "log_normalized_counts") {
+      srt[["CoExp"]] <- GetAssayData(srt, slot = slot, assay = assay)[features_gene, , drop = FALSE] %>%
+        apply(c(1, 2), expm1) %>%
+        apply(2, function(x) log1p(exp(mean(log(x)))))
+    } else if (status == "raw_normalized_counts") {
+      srt[["CoExp"]] <- GetAssayData(srt, slot = slot, assay = assay)[features_gene, , drop = FALSE] %>%
+        apply(c(1, 2), log1p) %>%
+        apply(2, function(x) log1p(exp(mean(log(x)))))
+    } else {
+      stop("Can not determine the data type.")
+    }
+    features <- c(features, "CoExp")
+    features_meta <- c(features_meta, "CoExp")
+  }
+  if (length(features_gene > 0)) {
+    dat_gene <- t(GetAssayData(srt, slot = slot, assay = assay)[features_gene, , drop = FALSE])[colnames(srt), , drop = FALSE]
+  } else {
+    dat_gene <- matrix(nrow = ncol(srt), ncol = 0)
+  }
+  if (length(features_meta > 0)) {
+    dat_meta <- srt@meta.data[, features_meta, drop = FALSE]
+  } else {
+    dat_meta <- matrix(nrow = ncol(srt), ncol = 0)
+  }
+  dat_exp <- cbind(dat_gene, dat_meta)
+  features <- unique(features[features %in% c(features_gene, features_meta)])
+
+  if (!all(sapply(dat_exp, is.numeric))) {
+    stop("'features' must be type of numeric variable.")
+  }
+  dat_use <- srt@meta.data[, unique(c(group.by, bg.by, split.by)), drop = FALSE]
+  if (!is.null(cells)) {
+    dat_use <- dat_use[intersect(rownames(dat_use), cells), , drop = FALSE]
+  }
+  if (is.null(pt.size)) {
+    pt.size <- min(3000 / nrow(dat_use), 0.5)
+  }
+
+  nlev <- sapply(dat_use, nlevels)
+  nlev <- nlev[nlev > 50]
+  if (length(nlev) > 0 && !isTRUE(force)) {
+    warning(paste(names(nlev), sep = ","), " have more than 50 levels.", immediate. = TRUE)
+    answer <- askYesNo("Are you sure to continue?", default = FALSE)
+    if (!isTRUE(answer)) {
+      return(invisible(NULL))
+    }
+  }
+  if (isTRUE(same.y.lims) && is.null(y.max)) {
+    y.max <- max(as.matrix(dat_exp[, features])[is.finite(as.matrix(dat_exp[, features]))])
+  }
+  if (isTRUE(same.y.lims) && is.null(y.min)) {
+    y.min <- min(as.matrix(dat_exp[, features])[is.finite(as.matrix(dat_exp[, features]))])
+  }
+
+  if (!is.null(bg.by)) {
+    bg_color <- palette_scp(levels(dat_use[[bg.by]]), palette = bg_palette, palcolor = bg_palcolor)
+  }
+
+  plist <- list()
+  plist_stack <- list()
+  xlab <- xlab %||% group.by
+  ylab <- ylab %||% "Expression level"
+  for (g in group.by) {
+    dat_all <- cbind(dat_use, dat_exp[row.names(dat_use), , drop = FALSE])
+    if (fill.by == "feature") {
+      colors <- palette_scp(features, palette = palette, palcolor = palcolor)
+    }
+    if (fill.by == "group") {
+      if (split.by != "No.split.by") {
+        colors <- palette_scp(levels(dat_all[[split.by]]), palette = palette, palcolor = palcolor)
+      } else {
+        colors <- palette_scp(levels(dat_all[[g]]), palette = palette, palcolor = palcolor)
+      }
+    }
+    if (fill.by == "expression") {
+      median_values <- aggregate(dat_all[, features, drop = FALSE], by = list(dat_all[[g]], dat_all[[split.by]]), FUN = median)
+      rownames(median_values) <- paste0(median_values[, 1], "-", median_values[, 2])
+      colors <- palette_scp(unlist(median_values[, features]), type = "continuous", palette = palette, palcolor = palcolor)
+      colors_limits <- range(median_values[, features])
+    }
+    for (f in features) {
+      if (isTRUE(stat_single)) {
+        groups <- levels(dat_all[[g]])
+        splits <- levels(dat_all[[split.by]])
+      } else {
+        groups <- list(levels(dat_all[[g]]))
+        splits <- list(levels(dat_all[[split.by]]))
+      }
+      for (single_group in groups) {
+        for (sp in splits) {
+          dat <- dat_all[dat_all[[g]] %in% single_group & dat_all[[split.by]] %in% sp, c(colnames(dat_use), f)]
+          dat[[g]] <- factor(dat[[g]], levels = levels(dat[[g]])[levels(dat[[g]]) %in% dat[[g]]])
+          # dat[[split.by]] <- factor(dat[[split.by]], levels = levels(dat[[split.by]])[levels(dat[[split.by]]) %in% dat[[split.by]]])
+          dat[, "cell"] <- rownames(dat)
+          dat[, "value"] <- dat[, f]
+          dat[, "group.by"] <- dat[, g]
+          dat[, "split.by"] <- dat[, split.by]
+          dat[, "bg.by"] <- dat[, bg.by]
+          stat <- table(dat[, "group.by"], dat[, "split.by"])
+          stat_drop <- which(stat == 1, arr.ind = T)
+          if (nrow(stat_drop) > 0) {
+            for (i in 1:nrow(stat_drop)) {
+              dat <- dat[!(dat[, "group.by"] == rownames(stat)[stat_drop[i, 1]] & dat[, "split.by"] == colnames(stat)[stat_drop[i, 2]]), ]
+              rownames(stat)[stat_drop[i, 1]]
+            }
+          }
+          dat[, "features"] <- rep(f, nrow(dat))
+          if (nrow(dat) > 0 && ((is.character(x = sort) && nchar(x = sort) > 0) || sort)) {
+            df_sort <- aggregate(dat[, "value", drop = FALSE], by = list(dat[["group.by"]]), mean)
+            if (is.character(sort) && sort == "increasing") {
+              decreasing <- FALSE
+            } else {
+              decreasing <- TRUE
+            }
+            sortlevel <- as.character(df_sort[order(df_sort[["value"]], decreasing = decreasing), 1])
+            dat[, "group.by"] <- factor(dat[, "group.by"], levels = sortlevel)
+          }
+          if (fill.by == "feature") {
+            dat[, "fill.by"] <- rep(f, nrow(dat))
+            keynm <- "Features"
+          }
+          if (fill.by == "group") {
+            dat[, "fill.by"] <- dat[, "group.by"]
+            keynm <- ifelse(split.by == "No.split.by", g, split.by)
+          }
+          if (fill.by == "expression") {
+            dat[, "fill.by"] <- median_values[paste0(dat[["group.by"]], "-", dat[["split.by"]]), f]
+            keynm <- "Median expression"
+          }
+
+          if (split.by != "No.split.by") {
+            levels_order <- levels(dat[["split.by"]])
+          } else {
+            levels_order <- levels(dat[["group.by"]])
+          }
+
+          comb <- expand.grid(x = levels(dat[["split.by"]]), y = levels(dat[["group.by"]]))
+          dat[, "group"] <- head(factor(paste("a", dat[["split.by"]], "b", dat[["group.by"]], sep = "-"), levels = paste("a", comb[[1]], "b", comb[[2]], sep = "-")), nrow(dat))
+
+          y_max_use <- y.max %||% suppressWarnings(max(dat[, "value"][is.finite(x = dat[, "value"])]))
+          y_min_use <- y.min %||% suppressWarnings(min(dat[, "value"][is.finite(x = dat[, "value"])]))
+
+          if (isTRUE(flip)) {
+            dat[["group.by"]] <- factor(dat[["group.by"]], levels = rev(levels(dat[["group.by"]])))
+            aspect.ratio <- 1 / aspect.ratio
+            if (length(aspect.ratio) == 0 || is.na(aspect.ratio)) {
+              aspect.ratio <- NULL
+            }
+          }
+          p <- ggplot(dat, aes(
+            x = .data[["group.by"]], y = .data[["value"]], fill = .data[["fill.by"]]
+          )) +
+            geom_blank()
+          if (isTRUE(flip)) {
+            p <- p + do.call(theme_use, list(
+              aspect.ratio = aspect.ratio,
+              strip.text.x = element_text(angle = 45),
+              axis.text.x = if (isTRUE(stack)) element_blank() else element_text(),
+              axis.ticks.x = if (isTRUE(stack)) element_blank() else element_line(),
+              panel.grid.major.x = element_line(color = "grey", linetype = 2),
+              legend.position = legend.position,
+              legend.direction = legend.direction
+            )) + coord_flip()
+          } else {
+            p <- p + do.call(theme_use, list(
+              aspect.ratio = aspect.ratio,
+              axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1),
+              strip.text.y = element_text(angle = 0),
+              axis.text.y = if (isTRUE(stack)) element_blank() else element_text(),
+              axis.ticks.y = if (isTRUE(stack)) element_blank() else element_line(),
+              panel.grid.major.y = element_line(color = "grey", linetype = 2),
+              legend.position = legend.position,
+              legend.direction = legend.direction
+            ))
+          }
+          if (!is.null(bg.by)) {
+            bg_df <- unique(dat[, c("group.by", "bg.by")])
+            bg_list <- list()
+            for (i in seq_len(nrow(bg_df))) {
+              x <- as.numeric(bg_df[i, "group.by"])
+              bg_list[[i]] <- annotate(
+                geom = "rect",
+                xmin = ifelse(x == 1, -Inf, x - 0.5),
+                xmax = ifelse(x == nlevels(bg_df[, "group.by"]), Inf, x + 0.5),
+                ymin = -Inf,
+                ymax = Inf,
+                fill = bg_color[as.character(bg_df[i, "bg.by"])], alpha = bg_apha
+              )
+            }
+            p <- p + bg_list
+          }
+          if (isTRUE(split.plot)) {
+            p <- p + geom_split_violin(scale = "width", adjust = adjust, trim = TRUE, alpha = alpha, position = position_dodge())
+          } else {
+            p <- p + geom_violin(scale = "width", adjust = adjust, trim = TRUE, alpha = alpha, position = position_dodge())
+          }
+          if (length(comparisons) > 0) {
+            check_R("ggpubr")
+            p <- p + ggpubr::stat_compare_means(
+              symnum.args = list(
+                cutpoints = c(0, 0.0001, 0.001, 0.01, 0.05, 2),
+                symbols = c("****", "***", "**", "*", "ns")
+              ),
+              size = 3.5,
+              step.increase = 0.1,
+              tip.length = 0.03,
+              comparisons = comparisons, ref.group = ref_group, method = pairwise_method
+            )
+            y_max_use <- layer_scales(p)$y$range$range[2]
+          }
+          if (isTRUE(multiplegroup_comparisons)) {
+            check_R("ggpubr")
+            p <- p + ggpubr::stat_compare_means(method = multiple_method, label.y = Inf, vjust = 1.3, hjust = 0, size = 3.5)
+            y_max_use <- y_min_use + (y_max_use - y_min_use) * 1.2
+          }
+
+          if (isTRUE(add_point)) {
+            p <- p + geom_point(
+              color = pt.color,
+              size = pt.size, alpha = pt.alpha,
+              position = position_jitterdodge(jitter.width = jitter.width, dodge.width = 0.9, seed = 11), show.legend = FALSE
+            )
+            if (!is.null(cells.highlight)) {
+              p$data[, "cells.highlight"] <- rownames(p$data) %in% cells.highlight
+              cell_df <- subset(p$data, cells.highlight == TRUE)
+              if (nrow(cell_df) > 0) {
+                p <- p + geom_point(
+                  data = cell_df,
+                  color = cols.highlight, size = sizes.highlight, alpha = alpha.highlight,
+                  position = position_jitterdodge(jitter.width = jitter.width, dodge.width = 0.9, seed = 11), show.legend = FALSE
+                )
+              }
+            }
+          }
+          if (isTRUE(add_box)) {
+            p <- p + geom_boxplot(aes(group = .data[["group"]]),
+              position = position_dodge(width = 0.9), color = "black", fill = box_fill, width = box_width, show.legend = FALSE, outlier.shape = NA
+            ) +
+              stat_summary(
+                fun = median, geom = "point", mapping = aes(group = .data[["split.by"]]),
+                position = position_dodge(width = 0.9), color = "black", fill = "white", size = 1.5, shape = 21,
+              )
+            # stat_summary(
+            #   fun = median, geom = "text", mapping = aes(group = .data[["split.by"]],label=round(.data[["fill.by"]],3)),
+            #   position = position_dodge(width = 0.9), color = "red", fill = "white", size = 5, shape = 21,
+            # )
+          }
+
+          if (nrow(dat) == 0) {
+            p <- p + facet_null()
+          } else {
+            if (isTRUE(stack) && !isTRUE(flip)) {
+              p <- p + facet_grid(features ~ .) + theme(strip.text.y = element_text(angle = 0))
+            } else {
+              p <- p + facet_grid(. ~ features)
+            }
+          }
+          p <- p + labs(title = title, subtitle = subtitle, x = xlab, y = ylab)
+          if (nrow(dat) != 0) {
+            p <- p + scale_x_discrete(drop = !keep_empty)
+          }
+
+          p <- p + scale_y_continuous(limits = c(y_min_use, y_max_use), trans = y.trans, n.breaks = y.nbreaks)
+          if (fill.by != "expression") {
+            p <- p + scale_fill_manual(name = paste0(keynm, ":"), values = colors, breaks = levels_order, drop = FALSE) +
+              scale_color_manual(name = paste0(keynm, ":"), values = colors, breaks = levels_order, drop = FALSE) +
+              guides(fill = guide_legend(
+                title.hjust = 0,
+                keywidth = 0.05,
+                keyheight = 0.05,
+                default.unit = "inch",
+                order = 1,
+                override.aes = list(size = 4.5, color = "black", alpha = 1)
+              ))
+          } else {
+            p <- p + scale_fill_gradientn(
+              name = paste0(keynm, ":"), colours = colors, limits = colors_limits
+            ) + guides(
+              fill = guide_colorbar(frame.colour = "black", ticks.colour = "black", title.hjust = 0, order = 1)
+            )
+          }
+
+          plist[[paste0(f, ":", g, ":", paste0(single_group, collapse = ","), ":", paste0(sp, collapse = ","))]] <- p
+        }
+      }
+    }
+
+    if (isTRUE(stack) && length(features) > 1 && isFALSE(stat_single)) {
+      legend <- cowplot::get_plot_component(plist[[1]], pattern = "guide-box")
+      if (isTRUE(flip)) {
+        lab <- textGrob(label = ifelse(is.null(ylab), "Expression level", ylab), hjust = 0.5)
+        plist <- lapply(seq_along(plist), FUN = function(i) {
+          p <- plist[[i]]
+          if (i != 1) {
+            p <- p + theme(
+              legend.position = "none",
+              plot.title = element_blank(),
+              plot.subtitle = element_blank(),
+              axis.title = element_blank(),
+              axis.text.y = element_blank(),
+              axis.ticks.y = element_blank(),
+              plot.margin = margin(
+                t = 0.2, r = -0.06, b = 0.2, l = -0.06,
+                unit = "cm"
+              )
+            )
+          } else {
+            p <- p + theme(
+              legend.position = "none",
+              axis.title.x = element_blank(),
+              plot.margin = margin(
+                t = 0.2, r = -0.06, b = 0.2, l = 0.2,
+                unit = "cm"
+              )
+            )
+          }
+          return(ggplotGrob(p))
+        })
+        grob <- do.call(cbind, plist)
+        grob <- gtable_add_rows(grob, grobHeight(lab), -1)
+        grob <- gtable_add_grob(grob, lab, t = dim(grob)[1], l = mean(grob$layout[grep("panel", grob$layout$name), "l"]), clip = FALSE)
+
+        grob <- gtable_add_cols(grob, sum(legend$widths), -1)
+        grob <- gtable_add_grob(grob, legend, t = mean(grob$layout[grep("panel", grob$layout$name), "t"]), l = dim(grob)[2])
+      } else {
+        lab <- textGrob(label = ifelse(is.null(ylab), "Expression level", ylab), rot = 90, hjust = 0.5)
+        plist <- lapply(seq_along(plist), FUN = function(i) {
+          p <- plist[[i]]
+          if (i != length(plist)) {
+            p <- p + theme(
+              legend.position = "none",
+              axis.title = element_blank(),
+              axis.text.x = element_blank(),
+              axis.ticks.x = element_blank(),
+              plot.margin = margin(
+                t = -0.06, r = 0.2, b = -0.06, l = 0.2,
+                unit = "cm"
+              )
+            )
+            if (i == 1) {
+              p <- p + theme(plot.title = element_blank(), plot.subtitle = element_blank())
+            }
+          } else {
+            p <- p + theme(
+              legend.position = "none",
+              axis.title.y = element_blank(),
+              plot.margin = margin(
+                t = -0.06, r = 0.2, b = 0.2, l = 0.2,
+                unit = "cm"
+              )
+            )
+          }
+          return(ggplotGrob(p))
+        })
+        grob <- do.call(rbind, plist)
+        grob <- gtable_add_cols(grob, grobWidth(lab), 0)
+        grob <- gtable_add_grob(grob, lab, t = mean(grob$layout[grep("panel", grob$layout$name), "t"]), l = 1, clip = FALSE)
+
+        grob <- gtable_add_cols(grob, sum(legend$widths), -1)
+        grob <- gtable_add_grob(grob, legend, t = mean(grob$layout[grep("panel", grob$layout$name), "t"]), l = dim(grob)[2])
+      }
+      grob <- gtable_add_padding(grob, unit(c(1, 1, 1, 1), units = "cm"))
+      plot <- plot_grid(grob)
+      plist_stack[[f]] <- plot
+    }
+  }
+
+  if (length(plist_stack) > 0) {
+    plist <- plist_stack
+  }
+  if (isTRUE(combine)) {
+    if (length(plist) > 1) {
+      plot <- plot_grid(plotlist = plist, nrow = nrow, ncol = ncol, byrow = byrow, align = align, axis = axis)
+    } else {
+      plot <- plist[[1]]
+    }
+    return(plot)
+  } else {
+    return(plist)
+  }
+}
 
 #' Statistical plot of cell classification
 #'
@@ -6703,6 +6722,7 @@ ClassStatPlot <- function(srt, stat.by = "orig.ident", group.by = NULL, split.by
     colors <- palette_scp(dat_all[[stat.by]], palette = palette, palcolor = palcolor, NA_color = NA_color, NA_keep = TRUE)
     for (g in group.by) {
       for (sp in levels(dat_all[[split.by]])) {
+        colors_use <- colors[names(colors) %in% dat_all[dat_all[[split.by]] == sp, stat.by]]
         if (stat_type == "percent") {
           dat_use <- dat_all[dat_all[[split.by]] == sp, ] %>%
             xtabs(formula = paste0("~", stat.by, "+", g), addNA = TRUE) %>%
@@ -6726,6 +6746,7 @@ ClassStatPlot <- function(srt, stat.by = "orig.ident", group.by = NULL, split.by
         for (single_group in groups) {
           dat <- dat_use[dat_use[[g]] %in% single_group, ]
           dat[[g]] <- factor(dat[[g]], levels = levels(dat[[g]])[levels(dat[[g]]) %in% dat[[g]]])
+          dat <- dat[!is.na(dat[["value"]]), , drop = FALSE]
           if (plot_type == "ring") {
             dat[[g]] <- factor(dat[[g]], levels = c("   ", levels(dat[[g]])))
             dat <- rbind(dat, dat[nrow(dat) + 1, ])
@@ -6738,8 +6759,12 @@ ClassStatPlot <- function(srt, stat.by = "orig.ident", group.by = NULL, split.by
               labels = if (stat_type == "count") scales::number else scales::percent,
               expand = c(0, 0)
             )
-          } else {
-            position_use <- position_dodge2(width = 0.9, preserve = "single")
+          } else if (position == "dodge") {
+            if (plot_type == "area") {
+              position_use <- position_dodge2(width = 0.9, preserve = "total")
+            } else {
+              position_use <- position_dodge2(width = 0.9, preserve = "single")
+            }
             scalex <- scale_x_discrete(drop = !keep_empty)
             scaley <- scale_y_continuous(
               limits = c(0, max(dat[["value"]], na.rm = TRUE) * 1.1),
@@ -6754,11 +6779,11 @@ ClassStatPlot <- function(srt, stat.by = "orig.ident", group.by = NULL, split.by
             bg_df[, "bg_color"] <- rep_len(c("transparent", "grey80"), nrow(bg_df))
             bg_list <- list()
             for (i in seq_len(nrow(bg_df))) {
-              x <- as.numeric(bg_df[i, g])
+              x <- i
               bg_list[[i]] <- annotate(
                 geom = "rect",
                 xmin = ifelse(x == 1, -Inf, x - 0.5),
-                xmax = ifelse(x == nlevels(bg_df[, g]), Inf, x + 0.5),
+                xmax = ifelse(x == length(unique(bg_df[, g])), Inf, x + 0.5),
                 ymin = -Inf,
                 ymax = Inf,
                 fill = as.character(bg_df[i, "bg_color"]), alpha = 0.2
@@ -6836,7 +6861,7 @@ ClassStatPlot <- function(srt, stat.by = "orig.ident", group.by = NULL, split.by
             axis.text.x <- element_text(angle = 45, hjust = 1, vjust = 1)
           }
           p <- p + labs(title = title, subtitle = subtitle, x = xlab, y = ylab) +
-            scale_fill_manual(name = paste0(stat.by, ":"), values = colors, na.value = colors["NA"], drop = FALSE) +
+            scale_fill_manual(name = paste0(stat.by, ":"), values = colors_use, na.value = colors_use["NA"], drop = FALSE) +
             do.call(theme_use, list(
               aspect.ratio = aspect.ratio,
               axis.text.x = axis.text.x,
@@ -9736,7 +9761,6 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineag
 
   res <- NULL
   if (isTRUE(anno_keys) || isTRUE(anno_features) || isTRUE(anno_terms)) {
-    check_R("simplifyEnrichment")
     geneID <- feature_metadata[, "features"]
     geneID_groups <- feature_metadata[, "feature_split"]
     if (all(is.na(geneID_groups))) {
@@ -9823,6 +9847,7 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineag
 
           ha_keys <- NULL
           if (isTRUE(anno_keys)) {
+            check_R("jokergoo/simplifyEnrichment")
             keys_list <- lapply(subdf_list, function(df) {
               if (df$Database[1] %in% c("GO_BP", "GO_CC", "GO_MF")) {
                 df <- simplifyEnrichment::keyword_enrichment_from_GO(df[["ID"]]) %>%
@@ -9986,13 +10011,13 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineag
     fix <- TRUE
   }
   if (is.null(height)) {
-    height <- convertHeight(unit(1, "npc"), units)
+    height <- convertHeight(unit(0.9, "npc"), units)
   }
   if (length(ha_top_list) > 0) {
     height <- convertUnit(unit(height, units) + height.HeatmapAnnotation(ha_top_list[[1]]), units)
   }
   if (is.null(width)) {
-    width <- convertWidth(unit(1, "npc"), units)
+    width <- convertWidth(unit(0.9, "npc"), units)
   }
   if (!is.null(ha_left)) {
     width <- convertUnit(unit(width, units) + width.HeatmapAnnotation(ha_left), units)
@@ -10393,7 +10418,7 @@ EnrichmentPlot <- function(srt, db = "GO_BP", group_by = NULL, group_use = NULL,
     }))
   } else if (plot_type == "wordcloud") {
     check_R("ggwordcloud")
-    check_R("simplifyEnrichment")
+    check_R("jokergoo/simplifyEnrichment")
     plist <- lapply(df_list, function(df) {
       if (word_type == "term") {
         if (df$Database[1] %in% c("GO_BP", "GO_CC", "GO_MF")) {

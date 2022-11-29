@@ -9,6 +9,7 @@ Integration_SCP(
   batch = "orig.ident",
   append = TRUE,
   srtList = NULL,
+  assay = "RNA",
   integration_method = "Uncorrected",
   do_normalization = NULL,
   normalization_method = "logCPM",
@@ -115,6 +116,18 @@ ClassDimPlot(panc8_sub, group.by = c("tech", "celltype"))
 panc8_sub <- Integration_SCP(panc8_sub,
   batch = "tech", integration_method = "Seurat",
   HVF_intersect = TRUE, HVF_min_intersection = length(unique(panc8_sub$tech))
+)
+ClassDimPlot(panc8_sub, group.by = c("tech", "celltype"))
+
+panc8_sub <- CellScoring(
+  srt = panc8_sub, slot = "data", assay = "RNA",
+  db = "GO_BP", species = "Homo_sapiens",
+  minGSSize = 10, maxGSSize = 100,
+  method = "Seurat", name = "GO", new_assay = TRUE
+)
+panc8_sub <- Integration_SCP(panc8_sub,
+  assay = "GO",
+  batch = "tech", integration_method = "Seurat"
 )
 ClassDimPlot(panc8_sub, group.by = c("tech", "celltype"))
 

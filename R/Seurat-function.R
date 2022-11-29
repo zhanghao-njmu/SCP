@@ -2176,6 +2176,7 @@ RunHarmony2 <- function(object, ...) {
 #' @rdname RunHarmony2
 #' @method RunHarmony2 Seurat
 #' @importFrom Seurat Embeddings RunPCA FetchData CreateDimReducObject ProjectDim LogSeuratCommand
+#' @export
 RunHarmony2.Seurat <- function(object,
                                group.by.vars,
                                reduction = "pca",

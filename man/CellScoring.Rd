@@ -7,6 +7,9 @@
 CellScoring(
   srt,
   features = NULL,
+  slot = "data",
+  assay = "RNA",
+  split.by = NULL,
   IDtype = "symbol",
   species = "Homo_sapiens",
   db = "GO_BP",
@@ -18,13 +21,13 @@ CellScoring(
   mirror = NULL,
   minGSSize = 10,
   maxGSSize = 500,
-  ncores = 1,
   method = "Seurat",
   classification = TRUE,
   name = "",
-  slot = "data",
-  assay = "RNA",
   new_assay = FALSE,
+  BPPARAM = BiocParallel::bpparam(),
+  progressbar = TRUE,
+  force = FALSE,
   seed = 11,
   ...
 )
@@ -38,19 +41,58 @@ Cell classification
 \examples{
 data("pancreas_sub")
 ccgenes <- CC_GenePrefetch("Mus_musculus")
+pancreas_sub <- Standard_SCP(pancreas_sub)
 pancreas_sub <- CellScoring(
   srt = pancreas_sub,
   features = list(S = ccgenes$cc_S_genes, G2M = ccgenes$cc_G2M_genes),
-  method = "Seurat", nbin = 10, name = "CC"
+  method = "Seurat", name = "CC"
 )
 ClassDimPlot(pancreas_sub, "CC_classification")
 ExpDimPlot(pancreas_sub, "CC_G2M")
 
-pancreas_sub <- CellScoring(
-  srt = pancreas_sub,
-  db = "GO_BP", species = "Mus_musculus",
-  minGSSize = 50, maxGSSize = 100,
-  method = "AUCell", name = "GO_BP", new_assay = TRUE
+data("panc8_sub")
+panc8_sub <- Integration_SCP(panc8_sub,
+  batch = "tech", integration_method = "Seurat"
 )
+ClassDimPlot(panc8_sub, group.by = c("tech", "celltype"))
+
+panc8_sub <- CellScoring(
+  srt = panc8_sub, slot = "data", assay = "RNA",
+  db = "GO_BP", species = "Homo_sapiens",
+  minGSSize = 10, maxGSSize = 100,
+  method = "Seurat", name = "GO", new_assay = TRUE
+)
+panc8_sub <- Integration_SCP(panc8_sub,
+  assay = "GO",
+  batch = "tech", integration_method = "Seurat"
+)
+ClassDimPlot(panc8_sub, group.by = c("tech", "celltype"))
+
+pancreas_sub <- CellScoring(
+  srt = pancreas_sub, slot = "data", assay = "RNA",
+  db = "GO_BP", species = "Mus_musculus",
+  termnames = panc8_sub[["GO"]]@meta.features[, "termnames"],
+  method = "Seurat", name = "GO", new_assay = TRUE
+)
+pancreas_sub <- Standard_SCP(pancreas_sub, assay = "GO")
+ClassDimPlot(pancreas_sub, "SubCellType")
+
+pancreas_sub[["tech"]] <- "Mouse"
+panc_merge <- Integration_SCP(
+  srtList = list(panc8_sub, pancreas_sub),
+  assay = "GO",
+  batch = "tech", integration_method = "Seurat"
+)
+ClassDimPlot(panc_merge, group.by = c("tech", "celltype", "SubCellType", "Phase"))
+
+genenames <- make.unique(stringr::str_to_title(rownames(panc8_sub[["RNA"]])))
+panc8_sub <- RenameFeatures(panc8_sub, newnames = genenames, assay = "RNA")
+head(rownames(panc8_sub))
+panc_merge <- Integration_SCP(
+  srtList = list(panc8_sub, pancreas_sub),
+  assay = "RNA",
+  batch = "tech", integration_method = "Seurat"
+)
+ClassDimPlot(panc_merge, group.by = c("tech", "celltype", "SubCellType", "Phase"))
 
 }

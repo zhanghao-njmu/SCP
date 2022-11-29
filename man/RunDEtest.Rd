@@ -35,6 +35,7 @@ RunDEtest(
   BPPARAM = BiocParallel::bpparam(),
   progressbar = TRUE,
   force = FALSE,
+  seed = 11,
   ...
 )
 }

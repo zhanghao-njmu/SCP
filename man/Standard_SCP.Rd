@@ -7,6 +7,7 @@
 Standard_SCP(
   srt,
   prefix = "Standard",
+  assay = "RNA",
   do_normalization = NULL,
   normalization_method = "logCPM",
   do_HVF_finding = TRUE,

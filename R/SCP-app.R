@@ -263,7 +263,7 @@ PrepareSCExplorer <- function(object,
   }
   if (length(names(object)) == 0) {
     names(object) <- make.names(sapply(object, function(x) x@project.name), unique = TRUE)
-    message("Set the project name of each seurat object in the list to their dataset name")
+    message("Set the project name of each seurat object to their dataset name")
   }
 
   for (i in seq_along(object)) {
@@ -447,7 +447,7 @@ FetchH5 <- function(DataFile, MetaFile, name = NULL,
 #' @param initial_ncol
 #' @param initial_arrange
 #' @param initial_panel_dpi
-#' @param initial_plot_dpi
+#' @param initial_dpi
 #' @param create_script
 #' @param style_script
 #' @param overwrite
@@ -505,7 +505,8 @@ RunSCExplorer <- function(base_dir = "SCExplorer",
                           initial_size = 4,
                           initial_ncol = 3,
                           initial_arrange = "Row",
-                          initial_plot_dpi = 100,
+                          initial_dpi = 100,
+                          initial_raster = FALSE,
                           create_script = TRUE,
                           style_script = require("styler", quietly = TRUE),
                           overwrite = FALSE,
@@ -577,13 +578,13 @@ RunSCExplorer <- function(base_dir = "SCExplorer",
   )
 
   initial_p1_dim <- SCP::ClassDimPlot(
-    srt = initial_srt_tmp, group.by = initial_metaname, reduction = initial_reduction,
+    srt = initial_srt_tmp, group.by = initial_metaname, reduction = initial_reduction, raster = initial_raster,
     label = ifelse(initial_label == "Yes", TRUE, FALSE), palette = initial_palette1, theme_use = initial_theme1,
     ncol = initial_ncol, byrow = ifelse(initial_arrange == "Row", TRUE, FALSE), force = TRUE
   )
   initial_p1_dim <- SCP::panel_fix(initial_p1_dim, height = initial_size, raster = FALSE, verbose = FALSE)
   initial_p2_dim <- SCP::ExpDimPlot(
-    srt = initial_srt_tmp, features = initial_feature, reduction = initial_reduction, slot = "data",
+    srt = initial_srt_tmp, features = initial_feature, reduction = initial_reduction, slot = "data", raster = initial_raster,
     calculate_coexp = ifelse(initial_coExp == "Yes", TRUE, FALSE), palette = initial_palette2, theme_use = initial_theme2,
     ncol = initial_ncol, byrow = ifelse(initial_arrange == "Row", TRUE, FALSE)
   )
@@ -661,6 +662,12 @@ RunSCExplorer <- function(base_dir = "SCExplorer",
             choices = c("theme_scp", "theme_blank"),
             selected = initial_theme1
           ),
+          selectInput(
+            inputId = "raster1",
+            label = "Raster",
+            choices = c("TRUE", "FALSE"),
+            selected = initial_raster
+          ),
           numericInput(
             inputId = "size1",
             label = "Panel size",
@@ -673,7 +680,7 @@ RunSCExplorer <- function(base_dir = "SCExplorer",
           numericInput(
             inputId = "plot_dpi1",
             label = "Resolution of the plot",
-            value = initial_plot_dpi,
+            value = initial_dpi,
             min = 50,
             max = 1000,
             step = 50,
@@ -799,6 +806,12 @@ RunSCExplorer <- function(base_dir = "SCExplorer",
             choices = c("theme_scp", "theme_blank"),
             selected = initial_theme2
           ),
+          selectInput(
+            inputId = "raster2",
+            label = "Raster",
+            choices = c("TRUE", "FALSE"),
+            selected = initial_raster
+          ),
           numericInput(
             inputId = "size2",
             label = "Panel size",
@@ -811,7 +824,7 @@ RunSCExplorer <- function(base_dir = "SCExplorer",
           numericInput(
             inputId = "plot_dpi2",
             label = "Resolution of the plot",
-            value = initial_plot_dpi,
+            value = initial_dpi,
             min = 50,
             max = 1000,
             step = 50,
@@ -885,9 +898,9 @@ RunSCExplorer <- function(base_dir = "SCExplorer",
       {
         initial_p1_dim
       },
-      width = attr(initial_p1_dim, "size")$width * initial_plot_dpi,
-      height = attr(initial_p1_dim, "size")$height * initial_plot_dpi,
-      res = initial_plot_dpi
+      width = attr(initial_p1_dim, "size")$width * initial_dpi,
+      height = attr(initial_p1_dim, "size")$height * initial_dpi,
+      res = initial_dpi
     )
 
     output$plot1_3d <- plotly::renderPlotly({
@@ -898,9 +911,9 @@ RunSCExplorer <- function(base_dir = "SCExplorer",
       {
         initial_p2_dim
       },
-      width = attr(initial_p2_dim, "size")$width * initial_plot_dpi,
-      height = attr(initial_p2_dim, "size")$height * initial_plot_dpi,
-      res = initial_plot_dpi
+      width = attr(initial_p2_dim, "size")$width * initial_dpi,
+      height = attr(initial_p2_dim, "size")$height * initial_dpi,
+      res = initial_dpi
     )
 
     output$plot2_3d <- plotly::renderPlotly({
@@ -911,9 +924,9 @@ RunSCExplorer <- function(base_dir = "SCExplorer",
       {
         initial_p2_vln
       },
-      width = attr(initial_p2_vln, "size")$width * initial_plot_dpi,
-      height = attr(initial_p2_vln, "size")$height * initial_plot_dpi,
-      res = initial_plot_dpi
+      width = attr(initial_p2_vln, "size")$width * initial_dpi,
+      height = attr(initial_p2_vln, "size")$height * initial_dpi,
+      res = initial_dpi
     )
 
     # change dataset  ----------------------------------------------------------------
@@ -970,8 +983,9 @@ RunSCExplorer <- function(base_dir = "SCExplorer",
         metanames = unique(c(input$class1, split1)), reduction = input$reduction1
       )
 
+      raster1 <- input$raster1 == "TRUE"
       p1_dim <- SCP::ClassDimPlot(
-        srt = srt_tmp, group.by = input$class1, split.by = split1, reduction = input$reduction1,
+        srt = srt_tmp, group.by = input$class1, split.by = split1, reduction = input$reduction1, raster = raster1,
         label = ifelse(input$label1 == "Yes", TRUE, FALSE), palette = input$palette1, theme_use = input$theme1,
         ncol = input$ncol1, byrow = ifelse(input$arrange1 == "Row", TRUE, FALSE), force = TRUE
       )
@@ -1036,8 +1050,9 @@ RunSCExplorer <- function(base_dir = "SCExplorer",
         metanames = unique(c(input$group2, split2)), reduction = input$reduction2
       )
 
+      raster2 <- input$raster2 == "TRUE"
       p2_dim <- SCP::ExpDimPlot(
-        srt = srt_tmp, features = input_features, split.by = split2, reduction = input$reduction2, slot = "data",
+        srt = srt_tmp, features = input_features, split.by = split2, reduction = input$reduction2, slot = "data", raster = raster2,
         calculate_coexp = ifelse(input$coExp2 == "Yes", TRUE, FALSE), palette = input$palette2, theme_use = input$theme2,
         ncol = input$ncol2, byrow = ifelse(input$arrange2 == "Row", TRUE, FALSE)
       )

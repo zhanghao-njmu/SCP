@@ -71,22 +71,22 @@ ClassDimPlot(pancreas_sub, group.by = "knnpredict_classification", label = TRUE)
 data("panc8_sub")
 # Simply convert genes from human to mouse and preprocess the data
 genenames <- make.unique(stringr::str_to_title(rownames(panc8_sub)))
-panc8_rename <- RenameFeatures(panc8_sub, newnames = genenames)
-panc8_rename <- check_srtMerge(panc8_rename, batch = "tech")[["srtMerge"]]
+panc8_sub <- RenameFeatures(panc8_sub, newnames = genenames)
+panc8_sub <- check_srtMerge(panc8_sub, batch = "tech")[["srtMerge"]]
 
-pancreas_sub <- RunKNNPredict(srt_query = pancreas_sub, srt_ref = panc8_rename, ref_group = "celltype")
+pancreas_sub <- RunKNNPredict(srt_query = pancreas_sub, srt_ref = panc8_sub, ref_group = "celltype")
 ClassDimPlot(pancreas_sub, group.by = "knnpredict_classification", label = TRUE)
 ExpDimPlot(pancreas_sub, features = "knnpredict_simil")
 
 pancreas_sub <- RunKNNPredict(
-  srt_query = pancreas_sub, srt_ref = panc8_rename,
+  srt_query = pancreas_sub, srt_ref = panc8_sub,
   ref_group = "celltype", ref_collapsing = FALSE
 )
 ClassDimPlot(pancreas_sub, group.by = "knnpredict_classification", label = TRUE)
 ExpDimPlot(pancreas_sub, features = "knnpredict_prob")
 
 pancreas_sub <- RunKNNPredict(
-  srt_query = pancreas_sub, srt_ref = panc8_rename,
+  srt_query = pancreas_sub, srt_ref = panc8_sub,
   query_group = "SubCellType", ref_group = "celltype",
   query_collapsing = TRUE, ref_collapsing = TRUE
 )
@@ -95,7 +95,7 @@ ExpDimPlot(pancreas_sub, features = "knnpredict_simil")
 
 # Annotate with DE gene instead of HVF
 pancreas_sub <- RunKNNPredict(
-  srt_query = pancreas_sub, srt_ref = panc8_rename,
+  srt_query = pancreas_sub, srt_ref = panc8_sub,
   ref_group = "celltype",
   features_type = "DE", feature_source = "ref"
 )
@@ -103,7 +103,7 @@ ClassDimPlot(pancreas_sub, group.by = "knnpredict_classification", label = TRUE)
 ExpDimPlot(pancreas_sub, features = "knnpredict_simil")
 
 pancreas_sub <- RunKNNPredict(
-  srt_query = pancreas_sub, srt_ref = panc8_rename,
+  srt_query = pancreas_sub, srt_ref = panc8_sub,
   query_group = "SubCellType", ref_group = "celltype",
   features_type = "DE", feature_source = "both"
 )

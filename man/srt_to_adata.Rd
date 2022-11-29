@@ -6,6 +6,7 @@
 \usage{
 srt_to_adata(
   srt,
+  features = NULL,
   assay_X = "RNA",
   slot_X = "counts",
   assay_layers = c("spliced", "unspliced"),
