@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">SCP</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.1.9001</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.3.9000</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -51,10 +51,13 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">AnnotateFeatures</span><span class="op">(</span></span>
 <span>  <span class="va">srt</span>,</span>
 <span>  species <span class="op">=</span> <span class="st">"Homo_sapiens"</span>,</span>
-<span>  anno_TF <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  merge_tf_by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"symbol"</span>, <span class="st">"ensembl_id"</span>, <span class="st">"entrez_id"</span><span class="op">)</span>,</span>
-<span>  anno_LR <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  merge_lr_by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"symbol"</span>, <span class="st">"ensembl_id"</span>, <span class="st">"entrez_id"</span><span class="op">)</span>,</span>
+<span>  IDtype <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"symbol"</span>, <span class="st">"ensembl_id"</span>, <span class="st">"entrez_id"</span><span class="op">)</span>,</span>
+<span>  db <span class="op">=</span> <span class="st">"TF"</span>,</span>
+<span>  db_update <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  db_version <span class="op">=</span> <span class="st">"latest"</span>,</span>
+<span>  convert_species <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  Ensembl_version <span class="op">=</span> <span class="fl">103</span>,</span>
+<span>  mirror <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  gtf <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  merge_gtf_by <span class="op">=</span> <span class="st">"gene_name"</span>,</span>
 <span>  attribute <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"gene_id"</span>, <span class="st">"gene_name"</span>, <span class="st">"gene_type"</span><span class="op">)</span>,</span>
@@ -65,53 +68,54 @@
 
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
-    <dl><dt>anno_TF</dt>
+    <dl><dt>mirror</dt>
+<dd></dd>
+
+
+<dt>anno_TF</dt>
 <dd><p>Whether to add the transcription factor/cofactor annotation.</p></dd>
-
-
-<dt>merge_tf_by</dt>
-<dd><p>"symbol", "ensembl_id" or "entrez_id"</p></dd>
 
 
 <dt>anno_LR</dt>
 <dd><p>Whether to add the ligand/receptor annotation.</p></dd>
-
-
-<dt>merge_lr_by</dt>
-<dd><p>"symbol", "ensembl_id" or "entrez_id"</p></dd>
-
-
-<dt>merge_gtf_by</dt>
-<dd></dd>
 
 </dl></div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"pancreas_sub"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu">AnnotateFeatures</span><span class="op">(</span><span class="va">pancreas_sub</span>, species <span class="op">=</span> <span class="st">"Mus_musculus"</span>, anno_TF <span class="op">=</span> <span class="cn">TRUE</span>, anno_LR <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu">AnnotateFeatures</span><span class="op">(</span><span class="va">pancreas_sub</span>,</span></span>
+<span class="r-in"><span>  species <span class="op">=</span> <span class="st">"Mus_musculus"</span>, IDtype <span class="op">=</span> <span class="st">"symbol"</span>,</span></span>
+<span class="r-in"><span>  db <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Chromosome"</span>, <span class="st">"GeneType"</span>, <span class="st">"Enzyme"</span>, <span class="st">"TF"</span>, <span class="st">"SP"</span>, <span class="st">"CellTalk"</span>, <span class="st">"PFAM"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Species: Mus_musculus</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Install package: 'PFAM.db' ...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 'getOption("repos")' replaces Bioconductor standard repositories, see '?repositories' for details</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> replacement repositories:</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>     CRAN: https://cloud.r-project.org</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Bioconductor version 3.16 (BiocManager 1.30.19), R 4.2.2 (2022-10-31)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Installing package(s) 'BiocVersion', 'PFAM.db'</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> also installing the dependency ‘AnnotationDbi’</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>internal error -3 in R_decompress1</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>package ‘PFAM.db’ is not available for this version of R</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> A version of this package for your version of R might be available elsewhere,</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> see the ideas at</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> https://cran.r-project.org/doc/manuals/r-patched/R-admin.html#Installing-packages</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>restarting interrupted promise evaluation</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>internal error -3 in R_decompress1</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>restarting interrupted promise evaluation</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>internal error -3 in R_decompress1</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in check_R(c("PFAM.db", "AnnotationDbi")):</span> Failed to install the package(s): PFAM.db. Please install manually.</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">pancreas_sub</span><span class="op">[[</span><span class="st">"RNA"</span><span class="op">]</span><span class="op">]</span><span class="op">@</span><span class="va">meta.features</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>               highly_variable_genes    TF TF_Family TF_cofactors TF_cofactors_Family  LR_type paired_gene_symbol</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Mrpl15                        False FALSE      &lt;NA&gt;        FALSE                &lt;NA&gt;     &lt;NA&gt;               &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Npbwr1                         &lt;NA&gt; FALSE      &lt;NA&gt;        FALSE                &lt;NA&gt; receptor            Npb,Npw</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4732440D04Rik                 False FALSE      &lt;NA&gt;        FALSE                &lt;NA&gt;     &lt;NA&gt;               &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Gm26901                       False FALSE      &lt;NA&gt;        FALSE                &lt;NA&gt;     &lt;NA&gt;               &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Sntg1                          True FALSE      &lt;NA&gt;        FALSE                &lt;NA&gt;     &lt;NA&gt;               &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Mybl1                         False  TRUE       MYB        FALSE                &lt;NA&gt;     &lt;NA&gt;               &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>               paired_gene_id                paired_ensembl_gene_id             paired_ensembl_protein_id</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Mrpl15                  &lt;NA&gt;                                  &lt;NA&gt;                                  &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Npbwr1         208990,381073 ENSMUSG00000044034,ENSMUSG00000071230 ENSMUSP00000101801,ENSMUSP00000093200</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4732440D04Rik           &lt;NA&gt;                                  &lt;NA&gt;                                  &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Gm26901                 &lt;NA&gt;                                  &lt;NA&gt;                                  &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Sntg1                   &lt;NA&gt;                                  &lt;NA&gt;                                  &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Mybl1                   &lt;NA&gt;                                  &lt;NA&gt;                                  &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                                 evidence</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Mrpl15                              &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Npbwr1        27140610,27140610,12925742</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4732440D04Rik                       &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Gm26901                             &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Sntg1                               &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Mybl1                               &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>               highly_variable_genes</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Mrpl15                        False</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Npbwr1                         &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4732440D04Rik                 False</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Gm26901                       False</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Sntg1                          True</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Mybl1                         False</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">## Annotate features using a GTF file</span></span></span>
 <span class="r-in"><span><span class="co"># pancreas_sub &lt;- AnnotateFeatures(pancreas_sub, gtf = "/data/reference/CellRanger/refdata-gex-mm10-2020-A/genes/genes.gtf")</span></span></span>

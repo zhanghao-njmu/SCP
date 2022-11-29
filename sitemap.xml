@@ -25,6 +25,9 @@
     <loc>https://zhanghao-njmu.github.io/SCP/reference/CSS_integrate.html</loc>
   </url>
   <url>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/CellCorHeatmap.html</loc>
+  </url>
+  <url>
     <loc>https://zhanghao-njmu.github.io/SCP/reference/CellScoring.html</loc>
   </url>
   <url>
@@ -67,9 +70,6 @@
     <loc>https://zhanghao-njmu.github.io/SCP/reference/ExpDimPlot3D.html</loc>
   </url>
   <url>
-    <loc>https://zhanghao-njmu.github.io/SCP/reference/ExpDotPlot.html</loc>
-  </url>
-  <url>
     <loc>https://zhanghao-njmu.github.io/SCP/reference/ExpHeatmap.html</loc>
   </url>
   <url>
@@ -88,6 +88,9 @@
     <loc>https://zhanghao-njmu.github.io/SCP/reference/GraphPlot.html</loc>
   </url>
   <url>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/GroupHeatmap.html</loc>
+  </url>
+  <url>
     <loc>https://zhanghao-njmu.github.io/SCP/reference/Harmony_integrate.html</loc>
   </url>
   <url>
@@ -100,7 +103,7 @@
     <loc>https://zhanghao-njmu.github.io/SCP/reference/LineagePlot.html</loc>
   </url>
   <url>
-    <loc>https://zhanghao-njmu.github.io/SCP/reference/ListEnrichmentDB.html</loc>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/ListDB.html</loc>
   </url>
   <url>
     <loc>https://zhanghao-njmu.github.io/SCP/reference/MNN_integrate.html</loc>
@@ -109,7 +112,7 @@
     <loc>https://zhanghao-njmu.github.io/SCP/reference/PAGAPlot.html</loc>
   </url>
   <url>
-    <loc>https://zhanghao-njmu.github.io/SCP/reference/PrepareEnrichmentDB.html</loc>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/PrepareDB.html</loc>
   </url>
   <url>
     <loc>https://zhanghao-njmu.github.io/SCP/reference/PrepareSCExplorer.html</loc>

@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">SCP</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.1.9001</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.3.9000</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -53,7 +53,8 @@
 <span>  stat.by <span class="op">=</span> <span class="st">"orig.ident"</span>,</span>
 <span>  group.by <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  split.by <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  cells_subset <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  cells <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  NA_color <span class="op">=</span> <span class="st">"grey"</span>,</span>
 <span>  keep_empty <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  stat_single <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  stat_level <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -105,19 +106,19 @@
 <span class="r-in"><span><span class="fu">ClassStatPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, stat.by <span class="op">=</span> <span class="st">"Phase"</span>, plot_type <span class="op">=</span> <span class="st">"rose"</span>, label <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="ClassStatPlot-3.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="fu">ClassStatPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, stat.by <span class="op">=</span> <span class="st">"Phase"</span>, plot_type <span class="op">=</span> <span class="st">"ring"</span>, label <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Removed 1 rows containing missing values (position_stack).</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Removed 1 rows containing missing values (position_stack).</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Removed 1 rows containing missing values (`position_stack()`).</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Removed 1 rows containing missing values (`position_stack()`).</span>
 <span class="r-plt img"><img src="ClassStatPlot-4.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="fu">ClassStatPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, stat.by <span class="op">=</span> <span class="st">"Phase"</span>, plot_type <span class="op">=</span> <span class="st">"pie"</span>, label <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="ClassStatPlot-5.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="fu">ClassStatPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, stat.by <span class="op">=</span> <span class="st">"Phase"</span>, group.by <span class="op">=</span> <span class="st">"CellType"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">ClassStatPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, stat.by <span class="op">=</span> <span class="st">"Phase"</span>, group.by <span class="op">=</span> <span class="st">"CellType"</span>, plot_type <span class="op">=</span> <span class="st">"bar"</span>, label <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="ClassStatPlot-6.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="fu">ClassStatPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, stat.by <span class="op">=</span> <span class="st">"Phase"</span>, group.by <span class="op">=</span> <span class="st">"CellType"</span>, plot_type <span class="op">=</span> <span class="st">"rose"</span>, label <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="ClassStatPlot-7.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="fu">ClassStatPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, stat.by <span class="op">=</span> <span class="st">"Phase"</span>, group.by <span class="op">=</span> <span class="st">"CellType"</span>, plot_type <span class="op">=</span> <span class="st">"ring"</span>, label <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Removed 1 rows containing missing values (position_stack).</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Removed 1 rows containing missing values (position_stack).</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Removed 1 rows containing missing values (`position_stack()`).</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Removed 1 rows containing missing values (`position_stack()`).</span>
 <span class="r-plt img"><img src="ClassStatPlot-8.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="fu">ClassStatPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, stat.by <span class="op">=</span> <span class="st">"Phase"</span>, group.by <span class="op">=</span> <span class="st">"CellType"</span>, plot_type <span class="op">=</span> <span class="st">"area"</span>, label <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="ClassStatPlot-9.png" alt="" width="700" height="433"></span>
@@ -125,34 +126,37 @@
 <span class="r-in"><span><span class="fu">ClassStatPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, stat.by <span class="op">=</span> <span class="st">"Phase"</span>, group.by <span class="op">=</span> <span class="st">"CellType"</span>, plot_type <span class="op">=</span> <span class="st">"bar"</span>, label <span class="op">=</span> <span class="cn">TRUE</span>, stat_single <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="ClassStatPlot-10.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="fu">ClassStatPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, stat.by <span class="op">=</span> <span class="st">"Phase"</span>, group.by <span class="op">=</span> <span class="st">"CellType"</span>, stat_type <span class="op">=</span> <span class="st">"count"</span>, plot_type <span class="op">=</span> <span class="st">"rose"</span>, label <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">ClassStatPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, stat.by <span class="op">=</span> <span class="st">"Phase"</span>, group.by <span class="op">=</span> <span class="st">"CellType"</span>, stat_type <span class="op">=</span> <span class="st">"count"</span>, plot_type <span class="op">=</span> <span class="st">"bar"</span>, label <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="ClassStatPlot-11.png" alt="" width="700" height="433"></span>
-<span class="r-in"><span><span class="fu">ClassStatPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, stat.by <span class="op">=</span> <span class="st">"Phase"</span>, group.by <span class="op">=</span> <span class="st">"CellType"</span>, stat_type <span class="op">=</span> <span class="st">"count"</span>, plot_type <span class="op">=</span> <span class="st">"ring"</span>, label <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Removed 1 rows containing missing values (position_stack).</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Removed 1 rows containing missing values (position_stack).</span>
+<span class="r-in"><span><span class="fu">ClassStatPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, stat.by <span class="op">=</span> <span class="st">"Phase"</span>, group.by <span class="op">=</span> <span class="st">"CellType"</span>, stat_type <span class="op">=</span> <span class="st">"count"</span>, plot_type <span class="op">=</span> <span class="st">"rose"</span>, label <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="ClassStatPlot-12.png" alt="" width="700" height="433"></span>
-<span class="r-in"><span><span class="fu">ClassStatPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, stat.by <span class="op">=</span> <span class="st">"Phase"</span>, group.by <span class="op">=</span> <span class="st">"CellType"</span>, stat_type <span class="op">=</span> <span class="st">"count"</span>, plot_type <span class="op">=</span> <span class="st">"area"</span>, label <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">ClassStatPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, stat.by <span class="op">=</span> <span class="st">"Phase"</span>, group.by <span class="op">=</span> <span class="st">"CellType"</span>, stat_type <span class="op">=</span> <span class="st">"count"</span>, plot_type <span class="op">=</span> <span class="st">"ring"</span>, label <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Removed 1 rows containing missing values (`position_stack()`).</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Removed 1 rows containing missing values (`position_stack()`).</span>
 <span class="r-plt img"><img src="ClassStatPlot-13.png" alt="" width="700" height="433"></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="fu">ClassStatPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, stat.by <span class="op">=</span> <span class="st">"Phase"</span>, group.by <span class="op">=</span> <span class="st">"CellType"</span>, stat_type <span class="op">=</span> <span class="st">"count"</span>, plot_type <span class="op">=</span> <span class="st">"rose"</span>, position <span class="op">=</span> <span class="st">"dodge"</span>, label <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">ClassStatPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, stat.by <span class="op">=</span> <span class="st">"Phase"</span>, group.by <span class="op">=</span> <span class="st">"CellType"</span>, stat_type <span class="op">=</span> <span class="st">"count"</span>, plot_type <span class="op">=</span> <span class="st">"area"</span>, label <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="ClassStatPlot-14.png" alt="" width="700" height="433"></span>
-<span class="r-in"><span><span class="fu">ClassStatPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, stat.by <span class="op">=</span> <span class="st">"Phase"</span>, group.by <span class="op">=</span> <span class="st">"CellType"</span>, stat_type <span class="op">=</span> <span class="st">"count"</span>, plot_type <span class="op">=</span> <span class="st">"ring"</span>, position <span class="op">=</span> <span class="st">"dodge"</span>, label <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Removed 1 rows containing missing values (geom_col).</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Removed 1 rows containing missing values (geom_text_repel).</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu">ClassStatPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, stat.by <span class="op">=</span> <span class="st">"Phase"</span>, group.by <span class="op">=</span> <span class="st">"CellType"</span>, stat_type <span class="op">=</span> <span class="st">"count"</span>, plot_type <span class="op">=</span> <span class="st">"bar"</span>, position <span class="op">=</span> <span class="st">"dodge"</span>, label <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="ClassStatPlot-15.png" alt="" width="700" height="433"></span>
-<span class="r-in"><span><span class="fu">ClassStatPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, stat.by <span class="op">=</span> <span class="st">"Phase"</span>, group.by <span class="op">=</span> <span class="st">"CellType"</span>, stat_type <span class="op">=</span> <span class="st">"count"</span>, plot_type <span class="op">=</span> <span class="st">"area"</span>, position <span class="op">=</span> <span class="st">"dodge"</span>, label <span class="op">=</span> <span class="cn">TRUE</span>, alpha <span class="op">=</span> <span class="fl">0.8</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">ClassStatPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, stat.by <span class="op">=</span> <span class="st">"Phase"</span>, group.by <span class="op">=</span> <span class="st">"CellType"</span>, stat_type <span class="op">=</span> <span class="st">"count"</span>, plot_type <span class="op">=</span> <span class="st">"rose"</span>, position <span class="op">=</span> <span class="st">"dodge"</span>, label <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="ClassStatPlot-16.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span><span class="fu">ClassStatPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, stat.by <span class="op">=</span> <span class="st">"Phase"</span>, group.by <span class="op">=</span> <span class="st">"CellType"</span>, stat_type <span class="op">=</span> <span class="st">"count"</span>, plot_type <span class="op">=</span> <span class="st">"ring"</span>, position <span class="op">=</span> <span class="st">"dodge"</span>, label <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Removed 1 rows containing missing values (`geom_col()`).</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Removed 1 rows containing missing values (`geom_text_repel()`).</span>
+<span class="r-plt img"><img src="ClassStatPlot-17.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span><span class="fu">ClassStatPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, stat.by <span class="op">=</span> <span class="st">"Phase"</span>, group.by <span class="op">=</span> <span class="st">"CellType"</span>, stat_type <span class="op">=</span> <span class="st">"count"</span>, plot_type <span class="op">=</span> <span class="st">"area"</span>, position <span class="op">=</span> <span class="st">"dodge"</span>, label <span class="op">=</span> <span class="cn">TRUE</span>, alpha <span class="op">=</span> <span class="fl">0.8</span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="ClassStatPlot-18.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu">ClassStatPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, stat.by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CellType"</span>, <span class="st">"Phase"</span><span class="op">)</span>, plot_type <span class="op">=</span> <span class="st">"chord"</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="ClassStatPlot-17.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="ClassStatPlot-19.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="fu">ClassStatPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, stat.by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CellType"</span>, <span class="st">"Phase"</span><span class="op">)</span>, plot_type <span class="op">=</span> <span class="st">"sankey"</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Install package: 'ggsankey' ...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> 'getOption("repos")' replaces Bioconductor standard repositories, see '?repositories' for details</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> replacement repositories:</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>     CRAN: https://cloud.r-project.org</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Bioconductor version 3.15 (BiocManager 1.30.19), R 4.2.2 (2022-10-31)</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Installing package(s) 'BiocVersion'</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Bioconductor version 3.16 (BiocManager 1.30.19), R 4.2.2 (2022-10-31)</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Installing github package(s) 'davidsjoberg/ggsankey'</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>package ‘davidsjoberg/ggsankey’ is not available for this version of R</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> </span>
@@ -161,7 +165,8 @@
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> https://cran.r-project.org/doc/manuals/r-patched/R-admin.html#Installing-packages</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Using github PAT from envvar GITHUB_PAT</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Downloading GitHub repo davidsjoberg/ggsankey@HEAD</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> * checking for file ‘/tmp/Rtmpq959DN/remotes46a628c5aa11/davidsjoberg-ggsankey-be08dd0/DESCRIPTION’ ... OK</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="color: #00BBBB;">R CMD build</span> <span style="color: #00BBBB;">─────────────────────────────────────────────────────────────────────────────────────────────────────────</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> * checking for file ‘/tmp/RtmpmywjeS/remotesb64a7427f9ca/davidsjoberg-ggsankey-be08dd0/DESCRIPTION’ ... OK</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> * preparing ‘ggsankey’:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> * checking DESCRIPTION meta-information ... OK</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> * checking for LF line-endings in source and make files and shell scripts</span>
@@ -174,19 +179,34 @@
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Loading required package: dplyr</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Attaching package: ‘dplyr’</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> The following object is masked from ‘package:AnnotationDbi’:</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>     select</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> The following objects are masked from ‘package:IRanges’:</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>     collapse, desc, intersect, setdiff, slice, union</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> The following objects are masked from ‘package:S4Vectors’:</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>     first, intersect, rename, setdiff, setequal, union</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> The following object is masked from ‘package:Biobase’:</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>     combine</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> The following objects are masked from ‘package:BiocGenerics’:</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>     combine, intersect, setdiff, union</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> The following objects are masked from ‘package:stats’:</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>     filter, lag</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> The following objects are masked from ‘package:base’:</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>     intersect, setdiff, setequal, union</span>
-<span class="r-plt img"><img src="ClassStatPlot-18.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="ClassStatPlot-20.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu">ClassStatPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>,</span></span>
 <span class="r-in"><span>  stat.by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CellType"</span>, <span class="st">"Phase"</span><span class="op">)</span>, plot_type <span class="op">=</span> <span class="st">"venn"</span>,</span></span>
-<span class="r-in"><span>  stat_level <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>CellType <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Ductal"</span>, <span class="st">"Ngn3 low EP"</span>, <span class="st">"Ngn3 high EP"</span><span class="op">)</span>, Phase <span class="op">=</span> <span class="st">"G2M"</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  stat_level <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>CellType <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Ductal"</span>, <span class="st">"Ngn3 low EP"</span><span class="op">)</span>, Phase <span class="op">=</span> <span class="st">"S"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="ClassStatPlot-19.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="ClassStatPlot-21.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">pancreas_sub</span><span class="op">$</span><span class="va">Ductal</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">pancreas_sub</span><span class="op">$</span><span class="va">CellType</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Ductal"</span>, <span class="st">"Ngn3 low EP"</span>, <span class="st">"Ngn3 high EP"</span><span class="op">)</span>, <span class="cn">TRUE</span>, <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">pancreas_sub</span><span class="op">$</span><span class="va">Endocrine</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">pancreas_sub</span><span class="op">$</span><span class="va">CellType</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Pre-endocrine"</span>, <span class="st">"Endocrine"</span><span class="op">)</span>, <span class="cn">TRUE</span>, <span class="cn">FALSE</span><span class="op">)</span></span></span>
@@ -201,9 +221,9 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span> CGGAGCTCATTGGGCC   TRUE     FALSE FALSE  TRUE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> AGAGCTTGTGTGACCC   TRUE     FALSE  TRUE FALSE</span>
 <span class="r-in"><span><span class="fu">ClassStatPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, stat.by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Ductal"</span>, <span class="st">"Endocrine"</span>, <span class="st">"G1S"</span>, <span class="st">"G2M"</span><span class="op">)</span>, plot_type <span class="op">=</span> <span class="st">"venn"</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="ClassStatPlot-20.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="ClassStatPlot-22.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="fu">ClassStatPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, stat.by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Ductal"</span>, <span class="st">"Endocrine"</span>, <span class="st">"G1S"</span>, <span class="st">"G2M"</span><span class="op">)</span>, plot_type <span class="op">=</span> <span class="st">"upset"</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="ClassStatPlot-21.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="ClassStatPlot-23.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

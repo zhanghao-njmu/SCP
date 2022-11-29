@@ -12,7 +12,7 @@ This function performs scVelo workflow in R by reticulate."><!-- mathjax --><scr
     
     <a class="navbar-brand me-2" href="../index.html">SCP</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.1.9001</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.3.9000</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -83,14 +83,12 @@ This function performs scVelo workflow in R by reticulate.</p>
 <span>  kinetics <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  kinetics_topn <span class="op">=</span> <span class="fl">100</span>,</span>
 <span>  calculate_velocity_genes <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  s_genes <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  g2m_genes <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  show_plot <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  dpi <span class="op">=</span> <span class="fl">300</span>,</span>
 <span>  save <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  dirpath <span class="op">=</span> <span class="st">"./"</span>,</span>
 <span>  fileprefix <span class="op">=</span> <span class="st">""</span>,</span>
-<span>  return_seurat <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span>  return_seurat <span class="op">=</span> <span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NULL.html" class="external-link">is.null</a></span><span class="op">(</span><span class="va">srt</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -176,14 +174,6 @@ This function performs scVelo workflow in R by reticulate.</p>
 <dd><p>calculate_velocity_genes.</p></dd>
 
 
-<dt>s_genes</dt>
-<dd><p>s_genes.</p></dd>
-
-
-<dt>g2m_genes</dt>
-<dd><p>g2m_genes.</p></dd>
-
-
 <dt>dpi</dt>
 <dd><p>dpi.</p></dd>
 
@@ -203,6 +193,14 @@ This function performs scVelo workflow in R by reticulate.</p>
 <dt>return_seurat</dt>
 <dd></dd>
 
+
+<dt>s_genes</dt>
+<dd><p>s_genes.</p></dd>
+
+
+<dt>g2m_genes</dt>
+<dd><p>g2m_genes.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
@@ -214,10 +212,12 @@ This function performs scVelo workflow in R by reticulate.</p>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"pancreas_sub"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu">RunSCVELO</span><span class="op">(</span>srt <span class="op">=</span> <span class="va">pancreas_sub</span>, group_by <span class="op">=</span> <span class="st">"SubCellType"</span>, linear_reduction <span class="op">=</span> <span class="st">"PCA"</span>, nonlinear_reduction <span class="op">=</span> <span class="st">"UMAP"</span>, return_seurat <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 'misc' slot in the srt object is not converted.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 'tools' slot in the srt object is not converted.</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in py_call_impl(callable, dots$args, dots$keywords):</span> ImportError: IProgress not found. Please update jupyter and ipywidgets. See https://ipywidgets.readthedocs.io/en/stable/user_install.html</span>
+<span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu">RunSCVELO</span><span class="op">(</span>srt <span class="op">=</span> <span class="va">pancreas_sub</span>, assay_X <span class="op">=</span> <span class="st">"RNA"</span>, group_by <span class="op">=</span> <span class="st">"SubCellType"</span>, linear_reduction <span class="op">=</span> <span class="st">"PCA"</span>, nonlinear_reduction <span class="op">=</span> <span class="st">"UMAP"</span>, return_seurat <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 'misc' slot is not converted.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 'tools' slot is not converted.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Keys should be one or more alphanumeric characters followed by an underscore, setting key from variance_stochastic_ to variancestochastic_</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Keys should be one or more alphanumeric characters followed by an underscore, setting key from variance_velocity_ to variancevelocity_</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'uns: neighbors' will not be converted. You may need to convert it manually.</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">pancreas_sub</span><span class="op">[[</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                     orig.ident nCount_RNA nFeature_RNA     S_score   G2M_score nCount_spliced nFeature_spliced</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> CAGCCGAAGCGATATA SeuratProject      10653         3295  0.33188155  0.54532743          10653             3295</span>
@@ -226,25 +226,94 @@ This function performs scVelo workflow in R by reticulate.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> CACAGTACATCCGTGG SeuratProject       5484         2510 -0.25927997 -0.25941831           5484             2510</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> CGGAGCTCATTGGGCC SeuratProject       7357         2674 -0.11764368  0.46237856           7357             2674</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> AGAGCTTGTGTGACCC SeuratProject       6498         2516 -0.11406432 -0.17830831           6498             2516</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                  nCount_unspliced nFeature_unspliced      CellType   SubCellType Phase</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> CAGCCGAAGCGATATA             1587               1063        Ductal        Ductal   G2M</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> AGTGTCATCGCCGTGA             1199                803 Pre-endocrine Pre-endocrine    G1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GATGAAAAGTTGTAGA             2166               1379   Ngn3 low EP   Ngn3 low EP   G2M</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> CACAGTACATCCGTGG             1339                859     Endocrine          Beta    G1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> CGGAGCTCATTGGGCC              976                745        Ductal        Ductal   G2M</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> AGAGCTTGTGTGACCC              822                591        Ductal        Ductal    G1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                  nCount_unspliced nFeature_unspliced      CellType   SubCellType Phase initial_size_unspliced</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> CAGCCGAAGCGATATA             1587               1063        Ductal        Ductal   G2M                   1587</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> AGTGTCATCGCCGTGA             1199                803 Pre-endocrine Pre-endocrine    G1                   1199</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GATGAAAAGTTGTAGA             2166               1379   Ngn3 low EP   Ngn3 low EP   G2M                   2166</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> CACAGTACATCCGTGG             1339                859     Endocrine          Beta    G1                   1339</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> CGGAGCTCATTGGGCC              976                745        Ductal        Ductal   G2M                    976</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> AGAGCTTGTGTGACCC              822                591        Ductal        Ductal    G1                    822</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                  initial_size_spliced initial_size n_counts stochastic_self_transition stochastic_length</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> CAGCCGAAGCGATATA                10653        10653 4572.026                  0.6022475              5.93</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> AGTGTCATCGCCGTGA                 4596         4596 4538.017                  0.4032382             19.69</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GATGAAAAGTTGTAGA                14091        14091 4556.528                  0.7582354              6.35</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> CACAGTACATCCGTGG                 5484         5484 4488.320                  0.3147901              8.14</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> CGGAGCTCATTGGGCC                 7357         7357 4579.222                  0.2901723             10.18</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> AGAGCTTGTGTGACCC                 6498         6498 4593.725                  0.6064041              7.93</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                  stochastic_confidence stochastic_confidence_transition stochastic_root_cells stochastic_end_points</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> CAGCCGAAGCGATATA             0.8305538                       0.05243368            0.04562891           0.505139214</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> AGTGTCATCGCCGTGA             0.9371346                       0.13112351            0.00000000           0.001001756</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GATGAAAAGTTGTAGA             0.8487794                       0.07677169            0.17179654           0.521808420</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> CACAGTACATCCGTGG             0.7506389                       0.31853375            0.00000000           0.001278406</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> CGGAGCTCATTGGGCC             0.7847933                       0.19552910            1.00000000           0.063231576</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> AGAGCTTGTGTGACCC             0.8014874                       0.06174470            0.00000000           0.001340042</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                  stochastic_pseudotime nCount_Ms nFeature_Ms nCount_Mu nFeature_Mu nCount_stochastic</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> CAGCCGAAGCGATATA            0.03984281  4585.044        3685  892.5218        3535         165.54229</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> AGTGTCATCGCCGTGA            0.79073602  4675.374        3549  961.4076        3239          87.16008</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GATGAAAAGTTGTAGA            0.01110565  4567.841        3666  899.8371        3414         158.98504</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> CACAGTACATCCGTGG            0.93323463  4538.791        3743  934.1198        3572         -20.10319</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> CGGAGCTCATTGGGCC            0.08549578  4573.531        3585  882.0175        3157         203.68220</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> AGAGCTTGTGTGACCC            0.07086470  4626.373        3669  899.8281        3394         152.89349</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                  nFeature_stochastic nCount_variance_stochastic nFeature_variance_stochastic nCount_velocity</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> CAGCCGAAGCGATATA                1920                  256.45370                          789       165.54229</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> AGTGTCATCGCCGTGA                1599                  -81.06340                          353        87.16008</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GATGAAAAGTTGTAGA                1805                  286.26301                          792       158.98504</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> CACAGTACATCCGTGG                1476                  -80.43105                          396       -20.10319</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> CGGAGCTCATTGGGCC                1889                  150.38356                          554       203.68220</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> AGAGCTTGTGTGACCC                1737                   68.93910                          511       152.89349</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                  nFeature_velocity nCount_variance_velocity nFeature_variance_velocity</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> CAGCCGAAGCGATATA              1920                256.45370                        789</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> AGTGTCATCGCCGTGA              1599                -81.06340                        353</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GATGAAAAGTTGTAGA              1805                286.26301                        792</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> CACAGTACATCCGTGG              1476                -80.43105                        396</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> CGGAGCTCATTGGGCC              1889                150.38356                        554</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> AGAGCTTGTGTGACCC              1737                 68.93910                        511</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">pancreas_sub</span><span class="op">@</span><span class="va">assays</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "RNA"       "spliced"   "unspliced"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "RNA"                 "spliced"             "unspliced"           "Ms"                  "Mu"                 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [6] "stochastic"          "variance_stochastic" "velocity"            "variance_velocity"  </span>
+<span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="ExpDimPlot.html">ExpDimPlot</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"stochastic_length"</span>, <span class="st">"stochastic_confidence"</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>stochastic_length,stochastic_confidence are not in the features of srt.</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in plist[[1]]:</span> subscript out of bounds</span>
+<span class="r-plt img"><img src="RunSCVELO-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="fu"><a href="ExpDimPlot.html">ExpDimPlot</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, <span class="st">"stochastic_pseudotime"</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>stochastic_pseudotime are not in the features of srt.</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in plist[[1]]:</span> subscript out of bounds</span>
+<span class="r-plt img"><img src="RunSCVELO-2.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="fu"><a href="VelocityPlot.html">VelocityPlot</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span>, plot_type <span class="op">=</span> <span class="st">"stream"</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in VelocityPlot(pancreas_sub, reduction = "UMAP", plot_type = "stream"):</span> Cannot find the velocity embedding stochastic_UMAP.</span>
+<span class="r-plt img"><img src="RunSCVELO-3.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="fu"><a href="ClassDimPlot.html">ClassDimPlot</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, group.by <span class="op">=</span> <span class="st">"SubCellType"</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span>, pt.size <span class="op">=</span> <span class="cn">NA</span>, velocity <span class="op">=</span> <span class="st">"stochastic"</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in VelocityPlot(srt, reduction = reduction, dims = dims, velocity = velocity,     plot_type = velocity_plot_type, group_by = group.by, group_palette = palette,     n_neighbors = velocity_n_neighbors, density = velocity_density,     smooth = velocity_smooth, scale = velocity_scale, min_mass = velocity_min_mass,     cutoff_perc = velocity_cutoff_perc, arrow_color = velocity_arrow_color,     arrow_angle = velocity_arrow_angle, arrow_flank = velocity_arrow_flank,     streamline_L = streamline_L, streamline_minL = streamline_minL,     streamline_res = streamline_res, streamline_jitter = streamline_jitter,     streamline_n = streamline_n, streamline_size = streamline_size,     streamline_alpha = streamline_alpha, streamline_color = streamline_color,     streamline_palette = streamline_palette, streamline_palcolor = streamline_palcolor,     streamline_bg_color = streamline_bg_color, streamline_bg_stroke = streamline_bg_stroke,     theme_use = theme_use, aspect.ratio = aspect.ratio, title = title,     subtitle = subtitle, xlab = xlab, ylab = ylab, lab_cex = lab_cex,     xlen_npc = xlen_npc, ylen_npc = ylen_npc, legend.position = "bottom",     legend.direction = legend.direction, return_layer = TRUE):</span> Cannot find the velocity embedding stochastic_UMAP.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Removed 1000 rows containing missing values (`geom_point()`).</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Removed 1000 rows containing missing values (`geom_point()`).</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Removed 3 rows containing missing values (`geom_segment()`).</span>
+<span class="r-plt img"><img src="RunSCVELO-4.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="Standard_SCP.html">Standard_SCP</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, normalization_method <span class="op">=</span> <span class="st">"SCT"</span>, nonlinear_reduction <span class="op">=</span> <span class="st">"tsne"</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-11-29 11:24:02] Start Standard_SCP</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-11-29 11:24:02] Checking srtList... ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Data 1/1 of the srtList is raw counts. Perform NormalizeData(logCPM) on the data ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Perform FindVariableFeatures on the data 1/1 of the srtList...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Perform SCTransform on the data 1 of the srtList...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Use the separate HVF from the existed HVF in srtList...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Number of available HVF: 2000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-11-29 11:24:15] Finished checking.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-11-29 11:24:15] Perform linear dimension reduction (pca) on the data...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> dims_estimate is 1:16 for 'pca'</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-11-29 11:24:21] Perform FindClusters (louvain) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-11-29 11:24:21] Reorder clusters...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-11-29 11:24:21] Perform nonlinear dimension reduction (tsne) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-11-29 11:24:29] Standard_SCP done</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 27.16 secs </span>
+<span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu">RunSCVELO</span><span class="op">(</span>srt <span class="op">=</span> <span class="va">pancreas_sub</span>, assay_X <span class="op">=</span> <span class="st">"SCT"</span>, group_by <span class="op">=</span> <span class="st">"SubCellType"</span>, linear_reduction <span class="op">=</span> <span class="st">"Standardpca"</span>, nonlinear_reduction <span class="op">=</span> <span class="st">"StandardTSNE2D"</span>, return_seurat <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Assay 'RNA' is in the srt object but not converted.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Assay 'Ms' is in the srt object but not converted.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Assay 'Mu' is in the srt object but not converted.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Assay 'stochastic' is in the srt object but not converted.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Assay 'variance_stochastic' is in the srt object but not converted.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Assay 'velocity' is in the srt object but not converted.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Assay 'variance_velocity' is in the srt object but not converted.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 'misc' slot is not converted.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 'tools' slot is not converted.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Keys should be one or more alphanumeric characters followed by an underscore, setting key from variance_stochastic_ to variancestochastic_</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Keys should be one or more alphanumeric characters followed by an underscore, setting key from variance_velocity_ to variancevelocity_</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'uns: neighbors' will not be converted. You may need to convert it manually.</span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>

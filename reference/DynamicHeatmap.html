@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">SCP</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.1.9001</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.3.9000</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -51,39 +51,52 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">DynamicHeatmap</span><span class="op">(</span></span>
 <span>  <span class="va">srt</span>,</span>
 <span>  <span class="va">lineages</span>,</span>
+<span>  features <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  feature_from <span class="op">=</span> <span class="va">lineages</span>,</span>
-<span>  exp_method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"zscore"</span>, <span class="st">"raw"</span>, <span class="st">"log2fc"</span>, <span class="st">"log1p"</span><span class="op">)</span>,</span>
-<span>  slot <span class="op">=</span> <span class="st">"counts"</span>,</span>
-<span>  assay <span class="op">=</span> <span class="st">"RNA"</span>,</span>
 <span>  use_fitted <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  lib_normalize <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  libsize <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  border <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  min_expcells <span class="op">=</span> <span class="fl">20</span>,</span>
 <span>  r.sq <span class="op">=</span> <span class="fl">0.2</span>,</span>
 <span>  dev.expl <span class="op">=</span> <span class="fl">0.2</span>,</span>
 <span>  padjust <span class="op">=</span> <span class="fl">0.05</span>,</span>
 <span>  cell_density <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  order_by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"peaktime"</span>, <span class="st">"valleytime"</span><span class="op">)</span>,</span>
-<span>  decreasing <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  slot <span class="op">=</span> <span class="st">"counts"</span>,</span>
+<span>  assay <span class="op">=</span> <span class="st">"RNA"</span>,</span>
+<span>  exp_method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"zscore"</span>, <span class="st">"raw"</span>, <span class="st">"fc"</span>, <span class="st">"log2fc"</span>, <span class="st">"log1p"</span><span class="op">)</span>,</span>
+<span>  lib_normalize <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  libsize <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  family <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  cluster_rows <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  cluster_row_slices <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  show_row_names <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  show_column_names <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  row_title_rot <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  column_title_rot <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>  feature_split <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  row_title_size <span class="op">=</span> <span class="fl">12</span>,</span>
-<span>  row_title_rot <span class="op">=</span> <span class="fl">90</span>,</span>
+<span>  feature_split_by <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  n_split <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  heatmap_split_by <span class="op">=</span> <span class="va">lineages</span>,</span>
 <span>  split_method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"mfuzz"</span>, <span class="st">"kmeans"</span>, <span class="st">"kmeans-peaktime"</span>, <span class="st">"hclust"</span>, <span class="st">"hclust-peaktime"</span><span class="op">)</span>,</span>
+<span>  decreasing <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  fuzzification <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  show_fuzzification <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  anno_terms <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  anno_keys <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  anno_features <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  terms_width <span class="op">=</span> <span class="fu">unit</span><span class="op">(</span><span class="fl">4</span>, <span class="st">"in"</span><span class="op">)</span>,</span>
+<span>  terms_fontsize <span class="op">=</span> <span class="fl">8</span>,</span>
+<span>  keys_width <span class="op">=</span> <span class="fu">unit</span><span class="op">(</span><span class="fl">2</span>, <span class="st">"in"</span><span class="op">)</span>,</span>
+<span>  keys_fontsize <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">6</span>, <span class="fl">10</span><span class="op">)</span>,</span>
+<span>  features_width <span class="op">=</span> <span class="fu">unit</span><span class="op">(</span><span class="fl">2</span>, <span class="st">"in"</span><span class="op">)</span>,</span>
+<span>  features_fontsize <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">6</span>, <span class="fl">10</span><span class="op">)</span>,</span>
 <span>  IDtype <span class="op">=</span> <span class="st">"symbol"</span>,</span>
 <span>  species <span class="op">=</span> <span class="st">"Homo_sapiens"</span>,</span>
-<span>  db_IDtype <span class="op">=</span> <span class="st">"symbol"</span>,</span>
 <span>  db_update <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  db_version <span class="op">=</span> <span class="st">"latest"</span>,</span>
+<span>  convert_species <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  Ensembl_version <span class="op">=</span> <span class="fl">103</span>,</span>
 <span>  mirror <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  enrichment <span class="op">=</span> <span class="st">"GO_BP"</span>,</span>
+<span>  db <span class="op">=</span> <span class="st">"GO_BP"</span>,</span>
 <span>  TERM2GENE <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  TERM2NAME <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  minGSSize <span class="op">=</span> <span class="fl">10</span>,</span>
@@ -96,13 +109,12 @@
 <span>  pvalueCutoff <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  padjustCutoff <span class="op">=</span> <span class="fl">0.05</span>,</span>
 <span>  topTerm <span class="op">=</span> <span class="fl">5</span>,</span>
-<span>  show_id <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  show_termid <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  topWord <span class="op">=</span> <span class="fl">20</span>,</span>
 <span>  min_word_length <span class="op">=</span> <span class="fl">3</span>,</span>
-<span>  exclude_words <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"cell"</span>, <span class="st">"cellular"</span>, <span class="st">"dna"</span>, <span class="st">"rna"</span>, <span class="st">"protein"</span>, <span class="st">"development"</span>, <span class="st">"system"</span>,</span>
-<span>    <span class="st">"regulation"</span>, <span class="st">"positive"</span>, <span class="st">"negative"</span>, <span class="st">"response"</span>, <span class="st">"process"</span><span class="op">)</span>,</span>
-<span>  anno_width <span class="op">=</span> <span class="fu">unit</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4</span>, <span class="fl">2</span>, <span class="fl">2</span><span class="op">)</span>, <span class="st">"in"</span><span class="op">)</span>,</span>
-<span>  anno_size <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">6</span>, <span class="fl">10</span><span class="op">)</span>,</span>
+<span>  exclude_words <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"cell"</span>, <span class="st">"cellular"</span>, <span class="st">"dna"</span>, <span class="st">"rna"</span>, <span class="st">"protein"</span>, <span class="st">"development"</span>,</span>
+<span>    <span class="st">"organization"</span>, <span class="st">"system"</span>, <span class="st">"regulation"</span>, <span class="st">"positive"</span>, <span class="st">"negative"</span>, <span class="st">"response"</span>,</span>
+<span>    <span class="st">"process"</span><span class="op">)</span>,</span>
 <span>  nlabel <span class="op">=</span> <span class="fl">20</span>,</span>
 <span>  features_label <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  label_size <span class="op">=</span> <span class="fl">10</span>,</span>
@@ -110,22 +122,29 @@
 <span>  pseudotime_label <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  pseudotime_label_color <span class="op">=</span> <span class="st">"black"</span>,</span>
 <span>  pseudotime_label_linetype <span class="op">=</span> <span class="fl">2</span>,</span>
-<span>  pseudotime_label_linewidth <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>  pseudotime_label_linewidth <span class="op">=</span> <span class="fl">3</span>,</span>
 <span>  heatmap_palette <span class="op">=</span> <span class="st">"RdBu"</span>,</span>
+<span>  heatmap_palcolor <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  pseudotime_palette <span class="op">=</span> <span class="st">"cividis"</span>,</span>
+<span>  pseudotime_palcolor <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  feature_split_palette <span class="op">=</span> <span class="st">"jama"</span>,</span>
+<span>  feature_split_palcolor <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  cell_annotation <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  cell_palette <span class="op">=</span> <span class="st">"Paired"</span>,</span>
 <span>  cell_palcolor <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  cell_annotation_params <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  feature_annotation <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  feature_palette <span class="op">=</span> <span class="st">"Dark2"</span>,</span>
 <span>  feature_palcolor <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  feature_annotation_params <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  reverse_ht <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  use_raster <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  raster_device <span class="op">=</span> <span class="st">"png"</span>,</span>
 <span>  height <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  width <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  units <span class="op">=</span> <span class="st">"inch"</span>,</span>
-<span>  seed <span class="op">=</span> <span class="fl">11</span></span>
+<span>  seed <span class="op">=</span> <span class="fl">11</span>,</span>
+<span>  ht_params <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -140,11 +159,11 @@
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"pancreas_sub"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="RunSlingshot.html">RunSlingshot</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, group.by <span class="op">=</span> <span class="st">"SubCellType"</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Removed 8 row(s) containing missing values (geom_path).</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Removed 8 row(s) containing missing values (geom_path).</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Removed 8 rows containing missing values (`geom_path()`).</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Removed 8 rows containing missing values (`geom_path()`).</span>
 <span class="r-plt img"><img src="DynamicHeatmap-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="RunDynamicFeatures.html">RunDynamicFeatures</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, lineages <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Lineage1"</span>, <span class="st">"Lineage2"</span><span class="op">)</span>, n_candidates <span class="op">=</span> <span class="fl">200</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-11-01 18:19:43] Start RunDynamicFeatures</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-11-29 10:39:23] Start RunDynamicFeatures</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Number of candidate features(union): 225</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Calculate dynamic features for Lineage1...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |==============================================================================================================| 100%</span>
@@ -152,56 +171,30 @@
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Calculate dynamic features for Lineage2...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |==============================================================================================================| 100%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-11-01 18:20:15] RunDynamicFeatures done</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 32.36 secs </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-11-29 10:39:50] RunDynamicFeatures done</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 26.84 secs </span>
 <span class="r-in"><span><span class="va">ht_result1</span> <span class="op">&lt;-</span> <span class="fu">DynamicHeatmap</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  srt <span class="op">=</span> <span class="va">pancreas_sub</span>,</span></span>
-<span class="r-in"><span>  lineages <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Lineage1"</span><span class="op">)</span>, order_by <span class="op">=</span> <span class="st">"peaktime"</span>,</span></span>
+<span class="r-in"><span>  lineages <span class="op">=</span> <span class="st">"Lineage1"</span>,</span></span>
 <span class="r-in"><span>  cell_annotation <span class="op">=</span> <span class="st">"SubCellType"</span>,</span></span>
-<span class="r-in"><span>  n_split <span class="op">=</span> <span class="fl">5</span>, split_method <span class="op">=</span> <span class="st">"kmeans-peaktime"</span>,</span></span>
-<span class="r-in"><span>  height <span class="op">=</span> <span class="fl">6</span>, width <span class="op">=</span> <span class="fl">7</span>, use_raster <span class="op">=</span> <span class="cn">FALSE</span></span></span>
+<span class="r-in"><span>  n_split <span class="op">=</span> <span class="fl">5</span>, split_method <span class="op">=</span> <span class="st">"kmeans-peaktime"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">ht_result1</span><span class="op">$</span><span class="va">plot</span></span></span>
 <span class="r-plt img"><img src="DynamicHeatmap-2.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">ht_result2</span> <span class="op">&lt;-</span> <span class="fu">DynamicHeatmap</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  srt <span class="op">=</span> <span class="va">pancreas_sub</span>,</span></span>
-<span class="r-in"><span>  lineages <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Lineage1"</span>, <span class="st">"Lineage2"</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>  cell_annotation <span class="op">=</span> <span class="st">"SubCellType"</span>,</span></span>
-<span class="r-in"><span>  n_split <span class="op">=</span> <span class="fl">5</span>, reverse_ht <span class="op">=</span> <span class="st">"Lineage1"</span>,</span></span>
-<span class="r-in"><span>  height <span class="op">=</span> <span class="fl">6</span>, width <span class="op">=</span> <span class="fl">7</span>, use_raster <span class="op">=</span> <span class="cn">FALSE</span></span></span>
+<span class="r-in"><span>  lineages <span class="op">=</span> <span class="st">"Lineage1"</span>,</span></span>
+<span class="r-in"><span>  features <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Sox9"</span>, <span class="st">"Neurod2"</span>, <span class="st">"Isl1"</span>, <span class="st">"Rbp4"</span>, <span class="st">"S_score"</span>, <span class="st">"G2M_score"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  cell_annotation <span class="op">=</span> <span class="st">"SubCellType"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>no DISPLAY variable so Tk is not available</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading required package: Mfuzz</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading required package: Biobase</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading required package: BiocGenerics</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Attaching package: ‘BiocGenerics’</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> The following object is masked from ‘package:DynDoc’:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>     path</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> The following objects are masked from ‘package:dplyr’:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>     combine, intersect, setdiff, union</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> The following objects are masked from ‘package:stats’:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>     IQR, mad, sd, var, xtabs</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> The following objects are masked from ‘package:base’:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>     Filter, Find, Map, Position, Reduce, anyDuplicated, append, as.data.frame, basename, cbind, colnames,</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>     dirname, do.call, duplicated, eval, evalq, get, grep, grepl, intersect, is.unsorted, lapply, mapply,</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>     match, mget, order, paste, pmax, pmax.int, pmin, pmin.int, rank, rbind, rownames, sapply, setdiff,</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>     sort, table, tapply, union, unique, unsplit, which.max, which.min</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Welcome to Bioconductor</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>     Vignettes contain introductory material; view with 'browseVignettes()'. To cite Bioconductor, see</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>     'citation("Biobase")', and for packages 'citation("pkgname")'.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Attaching package: ‘Biobase’</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> The following object is masked from ‘package:httr’:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>     content</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading required package: e1071</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-11-29 10:39:53] Start RunDynamicFeatures</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Number of candidate features(union): 2</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Calculate dynamic features for Lineage1...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |==============================================================================================================| 100%</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-11-29 10:39:54] RunDynamicFeatures done</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 1.44 secs </span>
 <span class="r-in"><span><span class="va">ht_result2</span><span class="op">$</span><span class="va">plot</span></span></span>
 <span class="r-plt img"><img src="DynamicHeatmap-3.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
@@ -209,31 +202,71 @@
 <span class="r-in"><span>  srt <span class="op">=</span> <span class="va">pancreas_sub</span>,</span></span>
 <span class="r-in"><span>  lineages <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Lineage1"</span>, <span class="st">"Lineage2"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  cell_annotation <span class="op">=</span> <span class="st">"SubCellType"</span>,</span></span>
-<span class="r-in"><span>  n_split <span class="op">=</span> <span class="fl">5</span>, reverse_ht <span class="op">=</span> <span class="st">"Lineage1"</span>,</span></span>
-<span class="r-in"><span>  species <span class="op">=</span> <span class="st">"Mus_musculus"</span>, anno_terms <span class="op">=</span> <span class="cn">TRUE</span>, anno_keys <span class="op">=</span> <span class="cn">TRUE</span>, anno_features <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
-<span class="r-in"><span>  height <span class="op">=</span> <span class="fl">6</span>, width <span class="op">=</span> <span class="fl">7</span>, use_raster <span class="op">=</span> <span class="cn">FALSE</span></span></span>
+<span class="r-in"><span>  n_split <span class="op">=</span> <span class="fl">5</span>, split_method <span class="op">=</span> <span class="st">"kmeans"</span>,</span></span>
+<span class="r-in"><span>  cluster_rows <span class="op">=</span> <span class="cn">TRUE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-11-01 18:20:34] Start Enrichment</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Species: Mus_musculus</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Preparing database: GO_BP</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Convert ID types for the database: GO_BP</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Connect to the Ensembl archives...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Using the 103 version of biomart...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Connect to the biomart...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Connect to the dataset mmusculus_gene_ensembl ...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Match and convert the geneID...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 22313 genes mapped with entrez_id</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ==============================</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 22313 genes mapped</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 6501 genes unmapped</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ==============================</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Permform enrichment...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |==============================================================================================================| 100%</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-11-01 18:25:30] Enrichment done</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 4.93 mins </span>
 <span class="r-in"><span><span class="va">ht_result3</span><span class="op">$</span><span class="va">plot</span></span></span>
 <span class="r-plt img"><img src="DynamicHeatmap-4.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="AnnotateFeatures.html">AnnotateFeatures</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, species <span class="op">=</span> <span class="st">"Mus_musculus"</span>, db <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"TF"</span>, <span class="st">"SP"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Species: Mus_musculus</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Preparing database: TF</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Install package: 'openxlsx' ...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 'getOption("repos")' replaces Bioconductor standard repositories, see '?repositories' for details</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> replacement repositories:</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>     CRAN: https://cloud.r-project.org</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Bioconductor version 3.16 (BiocManager 1.30.19), R 4.2.2 (2022-10-31)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Installing package(s) 'openxlsx'</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Preparing database: SP</span>
+<span class="r-in"><span><span class="va">ht_result3</span> <span class="op">&lt;-</span> <span class="fu">DynamicHeatmap</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  srt <span class="op">=</span> <span class="va">pancreas_sub</span>,</span></span>
+<span class="r-in"><span>  lineages <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Lineage1"</span>, <span class="st">"Lineage2"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  use_fitted <span class="op">=</span> <span class="cn">TRUE</span>, heatmap_palette <span class="op">=</span> <span class="st">"viridis"</span>,</span></span>
+<span class="r-in"><span>  cell_annotation <span class="op">=</span> <span class="st">"SubCellType"</span>,</span></span>
+<span class="r-in"><span>  n_split <span class="op">=</span> <span class="fl">5</span>, split_method <span class="op">=</span> <span class="st">"mfuzz"</span>,</span></span>
+<span class="r-in"><span>  reverse_ht <span class="op">=</span> <span class="st">"Lineage1"</span>,</span></span>
+<span class="r-in"><span>  feature_annotation <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"TF"</span>, <span class="st">"SP"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  feature_palcolor <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"gold"</span>, <span class="st">"steelblue"</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"forestgreen"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>no DISPLAY variable so Tk is not available</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading required package: Mfuzz</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading required package: e1071</span>
+<span class="r-in"><span><span class="va">ht_result3</span><span class="op">$</span><span class="va">plot</span></span></span>
+<span class="r-plt img"><img src="DynamicHeatmap-5.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">ht_result5</span> <span class="op">&lt;-</span> <span class="fu">DynamicHeatmap</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  srt <span class="op">=</span> <span class="va">pancreas_sub</span>,</span></span>
+<span class="r-in"><span>  lineages <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Lineage1"</span>, <span class="st">"Lineage2"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  cell_annotation <span class="op">=</span> <span class="st">"SubCellType"</span>,</span></span>
+<span class="r-in"><span>  n_split <span class="op">=</span> <span class="fl">5</span>, reverse_ht <span class="op">=</span> <span class="st">"Lineage1"</span>,</span></span>
+<span class="r-in"><span>  species <span class="op">=</span> <span class="st">"Mus_musculus"</span>, db <span class="op">=</span> <span class="st">"GO_BP"</span>,</span></span>
+<span class="r-in"><span>  anno_terms <span class="op">=</span> <span class="cn">TRUE</span>, anno_keys <span class="op">=</span> <span class="cn">TRUE</span>, anno_features <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
+<span class="r-in"><span>  pseudotime_label <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">pancreas_sub</span><span class="op">$</span><span class="va">Lineage1</span><span class="op">[</span><span class="va">pancreas_sub</span><span class="op">$</span><span class="va">SubCellType</span> <span class="op">==</span> <span class="st">"Pre-endocrine"</span><span class="op">]</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>internal error -3 in R_decompress1</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Install package: 'simplifyEnrichment' ...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 'getOption("repos")' replaces Bioconductor standard repositories, see '?repositories' for details</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> replacement repositories:</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>     CRAN: https://cloud.r-project.org</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Bioconductor version 3.16 (BiocManager 1.30.19), R 4.2.2 (2022-10-31)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Installing package(s) 'simplifyEnrichment'</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>restarting interrupted promise evaluation</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>internal error -3 in R_decompress1</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>package ‘simplifyEnrichment’ is not available for this version of R</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> A version of this package for your version of R might be available elsewhere,</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> see the ideas at</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> https://cran.r-project.org/doc/manuals/r-patched/R-admin.html#Installing-packages</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>restarting interrupted promise evaluation</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>internal error -3 in R_decompress1</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>restarting interrupted promise evaluation</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>internal error -3 in R_decompress1</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in check_R("simplifyEnrichment"):</span> Failed to install the package(s): simplifyEnrichment. Please install manually.</span>
+<span class="r-in"><span><span class="va">ht_result5</span><span class="op">$</span><span class="va">plot</span></span></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in eval(expr, envir, enclos):</span> object 'ht_result5' not found</span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>

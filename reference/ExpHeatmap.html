@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">SCP</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.1.9001</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.3.9000</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -51,33 +51,48 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">ExpHeatmap</span><span class="op">(</span></span>
 <span>  <span class="va">srt</span>,</span>
 <span>  features <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  feature_split <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  cluster_features <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  cell_split_by <span class="op">=</span> <span class="st">"orig.ident"</span>,</span>
-<span>  cluster_cells <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  cells <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  group.by <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  split.by <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  max_cells <span class="op">=</span> <span class="fl">100</span>,</span>
+<span>  cell_order <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  border <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  slot <span class="op">=</span> <span class="st">"counts"</span>,</span>
 <span>  assay <span class="op">=</span> <span class="st">"RNA"</span>,</span>
-<span>  exp_method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"zscore"</span>, <span class="st">"raw"</span>, <span class="st">"log2fc"</span>, <span class="st">"log1p"</span><span class="op">)</span>,</span>
-<span>  n_split <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  heatmap_split_by <span class="op">=</span> <span class="va">cell_split_by</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>,</span>
-<span>  split_method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"kmeans"</span>, <span class="st">"hclust"</span>, <span class="st">"mfuzz"</span><span class="op">)</span>,</span>
-<span>  row_title_size <span class="op">=</span> <span class="fl">12</span>,</span>
-<span>  row_title_rot <span class="op">=</span> <span class="fl">90</span>,</span>
-<span>  decreasing <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  exp_method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"zscore"</span>, <span class="st">"raw"</span>, <span class="st">"fc"</span>, <span class="st">"log2fc"</span>, <span class="st">"log1p"</span><span class="op">)</span>,</span>
 <span>  lib_normalize <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  libsize <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  feature_split <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  feature_split_by <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  n_split <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  split_method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"kmeans"</span>, <span class="st">"hclust"</span>, <span class="st">"mfuzz"</span><span class="op">)</span>,</span>
+<span>  decreasing <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  cluster_rows <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  cluster_rows_by <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  cluster_columns <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  cluster_row_slices <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  cluster_column_slices <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  show_row_names <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  show_column_names <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  row_title_rot <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  column_title_rot <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>  anno_terms <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  anno_keys <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  anno_features <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  terms_width <span class="op">=</span> <span class="fu">unit</span><span class="op">(</span><span class="fl">4</span>, <span class="st">"in"</span><span class="op">)</span>,</span>
+<span>  terms_fontsize <span class="op">=</span> <span class="fl">8</span>,</span>
+<span>  keys_width <span class="op">=</span> <span class="fu">unit</span><span class="op">(</span><span class="fl">2</span>, <span class="st">"in"</span><span class="op">)</span>,</span>
+<span>  keys_fontsize <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">6</span>, <span class="fl">10</span><span class="op">)</span>,</span>
+<span>  features_width <span class="op">=</span> <span class="fu">unit</span><span class="op">(</span><span class="fl">2</span>, <span class="st">"in"</span><span class="op">)</span>,</span>
+<span>  features_fontsize <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">6</span>, <span class="fl">10</span><span class="op">)</span>,</span>
 <span>  IDtype <span class="op">=</span> <span class="st">"symbol"</span>,</span>
 <span>  species <span class="op">=</span> <span class="st">"Homo_sapiens"</span>,</span>
-<span>  db_IDtype <span class="op">=</span> <span class="st">"symbol"</span>,</span>
 <span>  db_update <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  db_version <span class="op">=</span> <span class="st">"latest"</span>,</span>
+<span>  convert_species <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  Ensembl_version <span class="op">=</span> <span class="fl">103</span>,</span>
 <span>  mirror <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  enrichment <span class="op">=</span> <span class="st">"GO_BP"</span>,</span>
+<span>  db <span class="op">=</span> <span class="st">"GO_BP"</span>,</span>
 <span>  TERM2GENE <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  TERM2NAME <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  minGSSize <span class="op">=</span> <span class="fl">10</span>,</span>
@@ -90,31 +105,39 @@
 <span>  pvalueCutoff <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  padjustCutoff <span class="op">=</span> <span class="fl">0.05</span>,</span>
 <span>  topTerm <span class="op">=</span> <span class="fl">5</span>,</span>
-<span>  show_id <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  show_termid <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  topWord <span class="op">=</span> <span class="fl">20</span>,</span>
 <span>  min_word_length <span class="op">=</span> <span class="fl">3</span>,</span>
-<span>  exclude_words <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"cell"</span>, <span class="st">"cellular"</span>, <span class="st">"dna"</span>, <span class="st">"rna"</span>, <span class="st">"protein"</span>, <span class="st">"development"</span>, <span class="st">"system"</span>,</span>
-<span>    <span class="st">"regulation"</span>, <span class="st">"positive"</span>, <span class="st">"negative"</span>, <span class="st">"response"</span>, <span class="st">"process"</span><span class="op">)</span>,</span>
-<span>  anno_width <span class="op">=</span> <span class="fu">unit</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4</span>, <span class="fl">2</span>, <span class="fl">2</span><span class="op">)</span>, <span class="st">"in"</span><span class="op">)</span>,</span>
-<span>  anno_size <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">6</span>, <span class="fl">10</span><span class="op">)</span>,</span>
+<span>  exclude_words <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"cell"</span>, <span class="st">"cellular"</span>, <span class="st">"dna"</span>, <span class="st">"rna"</span>, <span class="st">"protein"</span>, <span class="st">"development"</span>,</span>
+<span>    <span class="st">"organization"</span>, <span class="st">"system"</span>, <span class="st">"regulation"</span>, <span class="st">"positive"</span>, <span class="st">"negative"</span>, <span class="st">"response"</span>,</span>
+<span>    <span class="st">"process"</span><span class="op">)</span>,</span>
 <span>  nlabel <span class="op">=</span> <span class="fl">20</span>,</span>
 <span>  features_label <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  label_size <span class="op">=</span> <span class="fl">10</span>,</span>
 <span>  label_color <span class="op">=</span> <span class="st">"black"</span>,</span>
 <span>  heatmap_palette <span class="op">=</span> <span class="st">"RdBu"</span>,</span>
-<span>  cell_split_palette <span class="op">=</span> <span class="st">"Paired"</span>,</span>
+<span>  heatmap_palcolor <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  group_palette <span class="op">=</span> <span class="st">"Paired"</span>,</span>
+<span>  group_palcolor <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  cell_split_palette <span class="op">=</span> <span class="st">"jco"</span>,</span>
+<span>  cell_split_palcolor <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  feature_split_palette <span class="op">=</span> <span class="st">"jama"</span>,</span>
+<span>  feature_split_palcolor <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  cell_annotation <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  cell_palette <span class="op">=</span> <span class="st">"Paired"</span>,</span>
 <span>  cell_palcolor <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  cell_annotation_params <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  feature_annotation <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  feature_palette <span class="op">=</span> <span class="st">"Dark2"</span>,</span>
 <span>  feature_palcolor <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  feature_annotation_params <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  use_raster <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  raster_device <span class="op">=</span> <span class="st">"png"</span>,</span>
 <span>  height <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  width <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  units <span class="op">=</span> <span class="st">"inch"</span>,</span>
-<span>  seed <span class="op">=</span> <span class="fl">11</span></span>
+<span>  seed <span class="op">=</span> <span class="fl">11</span>,</span>
+<span>  ht_params <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -129,41 +152,103 @@
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">pancreas_sub</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="Standard_SCP.html">Standard_SCP</a></span><span class="op">(</span><span class="va">pancreas_sub</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-11-29 10:44:00] Start Standard_SCP</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-11-29 10:44:00] Checking srtList... ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Data 1/1 of the srtList is raw counts. Perform NormalizeData(logCPM) on the data ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Perform FindVariableFeatures on the data 1/1 of the srtList...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Use the separate HVF from the existed HVF in srtList...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Number of available HVF: 2000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-11-29 10:44:01] Finished checking.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-11-29 10:44:01] Perform ScaleData on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-11-29 10:44:02] Perform linear dimension reduction (pca) on the data...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> dims_estimate is 1:18 for 'pca'</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-11-29 10:44:09] Perform FindClusters (louvain) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-11-29 10:44:09] Reorder clusters...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-11-29 10:44:09] Perform nonlinear dimension reduction (umap) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-11-29 10:44:16] Standard_SCP done</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 16.51 secs </span>
 <span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="RunDEtest.html">RunDEtest</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, group_by <span class="op">=</span> <span class="st">"CellType"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-11-01 18:33:54] Start DEtest</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-11-29 10:44:16] Start DEtest</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Threads used for DE test: 1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform FindAllMarkers(wilcox)...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |==============================================================================================================| 100%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-11-01 18:34:18] DEtest done</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 23.68 secs </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-11-29 10:44:20] DEtest done</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 4.05 secs </span>
 <span class="r-in"><span><span class="va">de_filter</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">pancreas_sub</span><span class="op">@</span><span class="va">tools</span><span class="op">$</span><span class="va">DEtest_CellType</span><span class="op">$</span><span class="va">AllMarkers_wilcox</span>, <span class="va">p_val_adj</span> <span class="op">&lt;</span> <span class="fl">0.05</span> <span class="op">&amp;</span> <span class="va">avg_log2FC</span> <span class="op">&gt;</span> <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">ht1</span> <span class="op">&lt;-</span> <span class="fu">ExpHeatmap</span><span class="op">(</span></span></span>
-<span class="r-in"><span>  srt <span class="op">=</span> <span class="va">pancreas_sub</span>, features <span class="op">=</span> <span class="va">de_filter</span><span class="op">$</span><span class="va">gene</span>, cell_split_by <span class="op">=</span> <span class="st">"CellType"</span>, cluster_features <span class="op">=</span> <span class="cn">TRUE</span></span></span>
+<span class="r-in"><span>  srt <span class="op">=</span> <span class="va">pancreas_sub</span>, features <span class="op">=</span> <span class="va">de_filter</span><span class="op">$</span><span class="va">gene</span>, group.by <span class="op">=</span> <span class="st">"CellType"</span>,</span></span>
+<span class="r-in"><span>  split.by <span class="op">=</span> <span class="st">"Phase"</span>, cell_split_palcolor <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"grey"</span>, <span class="st">"gold"</span>, <span class="st">"deeppink"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">ht1</span><span class="op">$</span><span class="va">plot</span></span></span>
 <span class="r-plt img"><img src="ExpHeatmap-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">ht2</span> <span class="op">&lt;-</span> <span class="fu">ExpHeatmap</span><span class="op">(</span></span></span>
-<span class="r-in"><span>  srt <span class="op">=</span> <span class="va">pancreas_sub</span>, features <span class="op">=</span> <span class="va">de_filter</span><span class="op">$</span><span class="va">gene</span>, n_split <span class="op">=</span> <span class="fl">4</span>, cell_split_by <span class="op">=</span> <span class="st">"CellType"</span></span></span>
+<span class="r-in"><span>  srt <span class="op">=</span> <span class="va">pancreas_sub</span>, features <span class="op">=</span> <span class="va">de_filter</span><span class="op">$</span><span class="va">gene</span>, group.by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CellType"</span>, <span class="st">"SubCellType"</span><span class="op">)</span>, n_split <span class="op">=</span> <span class="fl">4</span>,</span></span>
+<span class="r-in"><span>  cluster_rows <span class="op">=</span> <span class="cn">TRUE</span>, cluster_row_slices <span class="op">=</span> <span class="cn">TRUE</span>, cluster_columns <span class="op">=</span> <span class="cn">TRUE</span>, cluster_column_slices <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
+<span class="r-in"><span>  ht_params <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>row_gap <span class="op">=</span> <span class="fu">grid</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/grid/unit.html" class="external-link">unit</a></span><span class="op">(</span><span class="fl">0</span>, <span class="st">"mm"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">ht2</span><span class="op">$</span><span class="va">plot</span></span></span>
 <span class="r-plt img"><img src="ExpHeatmap-2.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">ht3</span> <span class="op">&lt;-</span> <span class="fu">ExpHeatmap</span><span class="op">(</span></span></span>
-<span class="r-in"><span>  srt <span class="op">=</span> <span class="va">pancreas_sub</span>, features <span class="op">=</span> <span class="va">de_filter</span><span class="op">$</span><span class="va">gene</span>, feature_split <span class="op">=</span> <span class="va">de_filter</span><span class="op">$</span><span class="va">group1</span>, cell_split_by <span class="op">=</span> <span class="st">"CellType"</span>,</span></span>
-<span class="r-in"><span>  species <span class="op">=</span> <span class="st">"Mus_musculus"</span>, anno_terms <span class="op">=</span> <span class="cn">TRUE</span>, anno_keys <span class="op">=</span> <span class="cn">TRUE</span>, anno_features <span class="op">=</span> <span class="cn">TRUE</span></span></span>
-<span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-11-01 18:35:39] Start Enrichment</span>
+<span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="AnnotateFeatures.html">AnnotateFeatures</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, species <span class="op">=</span> <span class="st">"Mus_musculus"</span>, db <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"TF"</span>, <span class="st">"SP"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Species: Mus_musculus</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Loaded cached db: GO_BP version:3.15.0 nterm:15985 created:2022-11-01 18:24:35</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Permform enrichment...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |==============================================================================================================| 100%</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-11-01 18:37:03] Enrichment done</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 1.4 mins </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Loaded cached db: TF version:AnimalTFDB4 nterm:2 created:2022-11-29 10:40:06</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Loaded cached db: SP version:cspa nterm:1 created:2022-11-29 10:40:42</span>
+<span class="r-in"><span><span class="va">ht3</span> <span class="op">&lt;-</span> <span class="fu">ExpHeatmap</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  srt <span class="op">=</span> <span class="va">pancreas_sub</span>, features <span class="op">=</span> <span class="va">de_filter</span><span class="op">$</span><span class="va">gene</span>, n_split <span class="op">=</span> <span class="fl">4</span>, group.by <span class="op">=</span> <span class="st">"CellType"</span>,</span></span>
+<span class="r-in"><span>  heatmap_palette <span class="op">=</span> <span class="st">"viridis"</span>,</span></span>
+<span class="r-in"><span>  feature_annotation <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"TF"</span>, <span class="st">"SP"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  feature_palcolor <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"gold"</span>, <span class="st">"steelblue"</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"forestgreen"</span><span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  cell_annotation <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Phase"</span>, <span class="st">"G2M_score"</span><span class="op">)</span>, cell_palette <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Dark2"</span>, <span class="st">"Purples"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">ht3</span><span class="op">$</span><span class="va">plot</span></span></span>
 <span class="r-plt img"><img src="ExpHeatmap-3.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">ht4</span> <span class="op">&lt;-</span> <span class="fu">ExpHeatmap</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  srt <span class="op">=</span> <span class="va">pancreas_sub</span>, features <span class="op">=</span> <span class="va">de_filter</span><span class="op">$</span><span class="va">gene</span>, feature_split <span class="op">=</span> <span class="va">de_filter</span><span class="op">$</span><span class="va">group1</span>, group.by <span class="op">=</span> <span class="st">"CellType"</span>,</span></span>
+<span class="r-in"><span>  species <span class="op">=</span> <span class="st">"Mus_musculus"</span>, anno_terms <span class="op">=</span> <span class="cn">TRUE</span>, anno_keys <span class="op">=</span> <span class="cn">TRUE</span>, anno_features <span class="op">=</span> <span class="cn">TRUE</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>restarting interrupted promise evaluation</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>internal error -3 in R_decompress1</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Install package: 'simplifyEnrichment' ...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 'getOption("repos")' replaces Bioconductor standard repositories, see '?repositories' for details</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> replacement repositories:</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>     CRAN: https://cloud.r-project.org</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Bioconductor version 3.16 (BiocManager 1.30.19), R 4.2.2 (2022-10-31)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Installing package(s) 'simplifyEnrichment'</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>restarting interrupted promise evaluation</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>internal error -3 in R_decompress1</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>package ‘simplifyEnrichment’ is not available for this version of R</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> A version of this package for your version of R might be available elsewhere,</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> see the ideas at</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> https://cran.r-project.org/doc/manuals/r-patched/R-admin.html#Installing-packages</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>restarting interrupted promise evaluation</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>internal error -3 in R_decompress1</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>restarting interrupted promise evaluation</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>internal error -3 in R_decompress1</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in check_R("simplifyEnrichment"):</span> Failed to install the package(s): simplifyEnrichment. Please install manually.</span>
+<span class="r-in"><span><span class="va">ht4</span><span class="op">$</span><span class="va">plot</span></span></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in eval(expr, envir, enclos):</span> object 'ht4' not found</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="RunPAGA.html">RunPAGA</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  srt <span class="op">=</span> <span class="va">pancreas_sub</span>, assay_X <span class="op">=</span> <span class="st">"RNA"</span>, group_by <span class="op">=</span> <span class="st">"SubCellType"</span>,</span></span>
+<span class="r-in"><span>  linear_reduction <span class="op">=</span> <span class="st">"PCA"</span>, nonlinear_reduction <span class="op">=</span> <span class="st">"UMAP"</span>, infer_pseudotime <span class="op">=</span> <span class="cn">TRUE</span>, root_group <span class="op">=</span> <span class="st">"Ductal"</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 'misc' slot is not converted.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 'tools' slot is not converted.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'uns: neighbors' will not be converted. You may need to convert it manually.</span>
+<span class="r-in"><span><span class="va">ht5</span> <span class="op">&lt;-</span> <span class="fu">ExpHeatmap</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  srt <span class="op">=</span> <span class="va">pancreas_sub</span>, features <span class="op">=</span> <span class="va">de_filter</span><span class="op">$</span><span class="va">gene</span>,</span></span>
+<span class="r-in"><span>  cell_order <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sort.html" class="external-link">sort</a></span><span class="op">(</span><span class="va">pancreas_sub</span><span class="op">$</span><span class="va">dpt_pseudotime</span><span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  cell_annotation <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CellType"</span>, <span class="st">"dpt_pseudotime"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  cell_palette <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Paired"</span>, <span class="st">"cividis"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">ht5</span><span class="op">$</span><span class="va">plot</span></span></span>
+<span class="r-plt img"><img src="ExpHeatmap-4.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
