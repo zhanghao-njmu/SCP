@@ -91,33 +91,36 @@
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">db_list</span> <span class="op">&lt;-</span> <span class="fu">PrepareDB</span><span class="op">(</span>species <span class="op">=</span> <span class="st">"Homo_sapiens"</span>, db <span class="op">=</span> <span class="st">"GO_BP"</span>, db_update <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Species: Homo_sapiens</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>restarting interrupted promise evaluation</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>internal error -3 in R_decompress1</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Install package: 'org.Hs.eg.db' ...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 'getOption("repos")' replaces Bioconductor standard repositories, see '?repositories' for details</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> replacement repositories:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>     CRAN: https://cloud.r-project.org</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Bioconductor version 3.16 (BiocManager 1.30.19), R 4.2.2 (2022-10-31)</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Installing package(s) 'org.Hs.eg.db'</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>restarting interrupted promise evaluation</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>internal error -3 in R_decompress1</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>package ‘org.Hs.eg.db’ is not available for this version of R</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> A version of this package for your version of R might be available elsewhere,</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> see the ideas at</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> https://cran.r-project.org/doc/manuals/r-patched/R-admin.html#Installing-packages</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>restarting interrupted promise evaluation</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>internal error -3 in R_decompress1</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>restarting interrupted promise evaluation</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>internal error -3 in R_decompress1</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Annotation package org.Hs.eg.db does not exist.</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in PrepareDB(species = "Homo_sapiens", db = "GO_BP", db_update = TRUE):</span> Stop the preparation.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Preparing database: GO_BP</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Convert ID types for the database: GO_BP</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Connect to the Ensembl archives...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Using the 103 version of biomart...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Connect to the biomart...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Connect to the dataset hsapiens_gene_ensembl ...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Match and convert the geneID...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 18145 genes mapped with entrez_id</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ==============================</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 18145 genes mapped</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 655 genes unmapped</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ==============================</span>
 <span class="r-in"><span><span class="fu"><a href="ListDB.html">ListDB</a></span><span class="op">(</span>species <span class="op">=</span> <span class="st">"Homo_sapiens"</span>, db <span class="op">=</span> <span class="st">"GO_BP"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] identifier version    comment    timestamp  date       db_version db_name    file      </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;0 rows&gt; (or 0-length row.names)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                                          identifier version                               comment</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5  Rcache v0.1.7 (R package R.cache by Henrik Bengtsson)              0.1.7 3.15.0 nterm:15947|Homo_sapiens-GO_BP</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 13 Rcache v0.1.7 (R package R.cache by Henrik Bengtsson)              0.1.7 3.15.0 nterm:15947|Homo_sapiens-GO_BP</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     timestamp                date         db_version            db_name</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5  1669742909 2022-11-29 17:28:29 3.15.0 nterm:15947 Homo_sapiens-GO_BP</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 13 1669742873 2022-11-29 17:27:52 3.15.0 nterm:15947 Homo_sapiens-GO_BP</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                                                     file</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5  /home/runner/.cache/R/R.cache/6479856b660afcefc0bbfe2b06217f1a.Rcache</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 13 /home/runner/.cache/R/R.cache/b44b02a16ad07bc319a58fe1b7fb825d.Rcache</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">db_list</span><span class="op">[[</span><span class="st">"Homo_sapiens"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"GO_BP"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"TERM2GENE"</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in h(simpleError(msg, call)):</span> error in evaluating the argument 'x' in selecting a method for function 'head': object 'db_list' not found</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         Term entrez_id  symbol      ensembl_id</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 GO:0000002      3980    LIG3 ENSG00000005156</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 GO:0000002      9093  DNAJA3 ENSG00000103423</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 GO:0000002      9093  DNAJA3 ENSG00000276726</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 GO:0000002       291 SLC25A4 ENSG00000151729</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5 GO:0000002     56652    TWNK ENSG00000107815</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6 GO:0000002     30968  STOML2 ENSG00000165283</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">db_list</span> <span class="op">&lt;-</span> <span class="fu">PrepareDB</span><span class="op">(</span>species <span class="op">=</span> <span class="st">"Homo_sapiens"</span>, db <span class="op">=</span> <span class="st">"MP"</span>, convert_species <span class="op">=</span> <span class="cn">TRUE</span>, db_update <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Species: Homo_sapiens</span>
@@ -149,13 +152,13 @@
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ==============================</span>
 <span class="r-in"><span><span class="fu"><a href="ListDB.html">ListDB</a></span><span class="op">(</span>species <span class="op">=</span> <span class="st">"Homo_sapiens"</span>, db <span class="op">=</span> <span class="st">"MP"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                                                         identifier version</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 Rcache v0.1.7 (R package R.cache by Henrik Bengtsson)              0.1.7</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5 Rcache v0.1.7 (R package R.cache by Henrik Bengtsson)              0.1.7</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                                                                     comment  timestamp                date</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 2022-11-28 08:00(converted from Mus_musculus) nterm:10100|Homo_sapiens-MP 1669719731 2022-11-29 11:02:10</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5 2022-11-28 08:00(converted from Mus_musculus) nterm:10100|Homo_sapiens-MP 1669742963 2022-11-29 17:29:23</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                                                  db_version         db_name</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 2022-11-28 08:00(converted from Mus_musculus) nterm:10100 Homo_sapiens-MP</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5 2022-11-28 08:00(converted from Mus_musculus) nterm:10100 Homo_sapiens-MP</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                                                                    file</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 /home/runner/.cache/R/R.cache/60b20716ff79e1b603ce0ff4e247fd02.Rcache</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5 /home/runner/.cache/R/R.cache/60b20716ff79e1b603ce0ff4e247fd02.Rcache</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">db_list</span><span class="op">[[</span><span class="st">"Homo_sapiens"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"MP"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"TERM2GENE"</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>         Term      ensembl_id symbol entrez_id</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1 MP:0000600 ENSG00000139687    RB1      5925</span>
@@ -186,17 +189,46 @@
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> https://cran.r-project.org/doc/manuals/r-patched/R-admin.html#Installing-packages</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Annotation package org.Mf.eg.db does not exist.</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Use the human annotation to create the GO_BP database for Macaca_fascicularis</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>restarting interrupted promise evaluation</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>internal error -3 in R_decompress1</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> package or namespace load failed for ‘org.Hs.eg.db’:</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span>  .onLoad failed in loadNamespace() for 'org.Hs.eg.db', details:</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span>   call: get(paste0("createAnnObjs.", schema))</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span>   error: lazy-load database '/home/runner/work/_temp/Library/AnnotationDbi/R/AnnotationDbi.rdb' is corrupt</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Preparing database: GO_BP</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Convert species for the database: GO_BP</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Connect to the Ensembl archives...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Using the 103 version of biomart...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Connect to the biomart...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Connect to the dataset hsapiens_gene_ensembl ...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Match and convert the geneID...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 18145 genes mapped with entrez_id</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ==============================</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 18145 genes mapped</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 655 genes unmapped</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ==============================</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Convert ID types for the database: GO_BP</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Connect to the Ensembl archives...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Using the 103 version of biomart...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Connect to the biomart...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Connect to the dataset mfascicularis_gene_ensembl ...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Match and convert the geneID...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 15803 genes mapped with ensembl_id</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ==============================</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 15803 genes mapped</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 0 genes unmapped</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ==============================</span>
 <span class="r-in"><span><span class="fu"><a href="ListDB.html">ListDB</a></span><span class="op">(</span>species <span class="op">=</span> <span class="st">"Macaca_fascicularis"</span>, db <span class="op">=</span> <span class="st">"GO_BP"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] identifier version    comment    timestamp  date       db_version db_name    file      </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;0 rows&gt; (or 0-length row.names)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                                          identifier version</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 20 Rcache v0.1.7 (R package R.cache by Henrik Bengtsson)              0.1.7</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                                                      comment  timestamp                date</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 20 3.15.0(converted from Homo_sapiens) nterm:15713|Macaca_fascicularis-GO_BP 1669743192 2022-11-29 17:33:12</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                         db_version                   db_name</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 20 3.15.0(converted from Homo_sapiens) nterm:15713 Macaca_fascicularis-GO_BP</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                                                     file</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 20 /home/runner/.cache/R/R.cache/f13510a82f20793bcec9de7f15b49a8c.Rcache</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">db_list</span><span class="op">[[</span><span class="st">"Macaca_fascicularis"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"GO_BP"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"TERM2GENE"</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         Term         ensembl_id   symbol entrez_id</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 GO:0000002 ENSMFAG00000036202     LIG3 102140711</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 GO:0000002 ENSMFAG00000042573   DNAJA3 102143112</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 GO:0000002 ENSMFAG00000032688  SLC25A4 102120762</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 GO:0000002 ENSMFAG00000032824     TWNK 102131591</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5 GO:0000002 ENSMFAG00000039141   STOML2 102124083</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6 GO:0000002 ENSMFAG00000000534 PPARGC1A 102125865</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

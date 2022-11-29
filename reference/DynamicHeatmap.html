@@ -163,7 +163,7 @@
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Removed 8 rows containing missing values (`geom_path()`).</span>
 <span class="r-plt img"><img src="DynamicHeatmap-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="RunDynamicFeatures.html">RunDynamicFeatures</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, lineages <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Lineage1"</span>, <span class="st">"Lineage2"</span><span class="op">)</span>, n_candidates <span class="op">=</span> <span class="fl">200</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-11-29 10:39:23] Start RunDynamicFeatures</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-11-29 16:57:37] Start RunDynamicFeatures</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Number of candidate features(union): 225</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Calculate dynamic features for Lineage1...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |==============================================================================================================| 100%</span>
@@ -171,8 +171,8 @@
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Calculate dynamic features for Lineage2...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |==============================================================================================================| 100%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-11-29 10:39:50] RunDynamicFeatures done</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 26.84 secs </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-11-29 16:58:05] RunDynamicFeatures done</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 28.14 secs </span>
 <span class="r-in"><span><span class="va">ht_result1</span> <span class="op">&lt;-</span> <span class="fu">DynamicHeatmap</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  srt <span class="op">=</span> <span class="va">pancreas_sub</span>,</span></span>
 <span class="r-in"><span>  lineages <span class="op">=</span> <span class="st">"Lineage1"</span>,</span></span>
@@ -188,13 +188,13 @@
 <span class="r-in"><span>  features <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Sox9"</span>, <span class="st">"Neurod2"</span>, <span class="st">"Isl1"</span>, <span class="st">"Rbp4"</span>, <span class="st">"S_score"</span>, <span class="st">"G2M_score"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  cell_annotation <span class="op">=</span> <span class="st">"SubCellType"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-11-29 10:39:53] Start RunDynamicFeatures</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-11-29 16:58:08] Start RunDynamicFeatures</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Number of candidate features(union): 2</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Calculate dynamic features for Lineage1...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |==============================================================================================================| 100%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-11-29 10:39:54] RunDynamicFeatures done</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 1.44 secs </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-11-29 16:58:10] RunDynamicFeatures done</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 1.45 secs </span>
 <span class="r-in"><span><span class="va">ht_result2</span><span class="op">$</span><span class="va">plot</span></span></span>
 <span class="r-plt img"><img src="DynamicHeatmap-3.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
@@ -210,15 +210,8 @@
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="AnnotateFeatures.html">AnnotateFeatures</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, species <span class="op">=</span> <span class="st">"Mus_musculus"</span>, db <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"TF"</span>, <span class="st">"SP"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Species: Mus_musculus</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Preparing database: TF</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Install package: 'openxlsx' ...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 'getOption("repos")' replaces Bioconductor standard repositories, see '?repositories' for details</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> replacement repositories:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>     CRAN: https://cloud.r-project.org</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Bioconductor version 3.16 (BiocManager 1.30.19), R 4.2.2 (2022-10-31)</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Installing package(s) 'openxlsx'</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Preparing database: SP</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Loaded cached db: TF version:AnimalTFDB4 nterm:2 created:2022-11-29 16:47:30</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Loaded cached db: SP version:cspa nterm:1 created:2022-11-29 16:47:33</span>
 <span class="r-in"><span><span class="va">ht_result3</span> <span class="op">&lt;-</span> <span class="fu">DynamicHeatmap</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  srt <span class="op">=</span> <span class="va">pancreas_sub</span>,</span></span>
 <span class="r-in"><span>  lineages <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Lineage1"</span>, <span class="st">"Lineage2"</span><span class="op">)</span>,</span></span>
@@ -244,28 +237,16 @@
 <span class="r-in"><span>  anno_terms <span class="op">=</span> <span class="cn">TRUE</span>, anno_keys <span class="op">=</span> <span class="cn">TRUE</span>, anno_features <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
 <span class="r-in"><span>  pseudotime_label <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">pancreas_sub</span><span class="op">$</span><span class="va">Lineage1</span><span class="op">[</span><span class="va">pancreas_sub</span><span class="op">$</span><span class="va">SubCellType</span> <span class="op">==</span> <span class="st">"Pre-endocrine"</span><span class="op">]</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>internal error -3 in R_decompress1</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Install package: 'simplifyEnrichment' ...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 'getOption("repos")' replaces Bioconductor standard repositories, see '?repositories' for details</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> replacement repositories:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>     CRAN: https://cloud.r-project.org</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Bioconductor version 3.16 (BiocManager 1.30.19), R 4.2.2 (2022-10-31)</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Installing package(s) 'simplifyEnrichment'</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>restarting interrupted promise evaluation</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>internal error -3 in R_decompress1</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>package ‘simplifyEnrichment’ is not available for this version of R</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> A version of this package for your version of R might be available elsewhere,</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> see the ideas at</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> https://cran.r-project.org/doc/manuals/r-patched/R-admin.html#Installing-packages</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>restarting interrupted promise evaluation</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>internal error -3 in R_decompress1</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>restarting interrupted promise evaluation</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>internal error -3 in R_decompress1</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in check_R("simplifyEnrichment"):</span> Failed to install the package(s): simplifyEnrichment. Please install manually.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-11-29 16:58:22] Start Enrichment</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Species: Mus_musculus</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Loaded cached db: GO_BP version:3.15.0 nterm:15985 created:2022-11-29 16:52:50</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Permform enrichment...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |==============================================================================================================| 100%</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-11-29 16:58:58] Enrichment done</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 36.4 secs </span>
 <span class="r-in"><span><span class="va">ht_result5</span><span class="op">$</span><span class="va">plot</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in eval(expr, envir, enclos):</span> object 'ht_result5' not found</span>
+<span class="r-plt img"><img src="DynamicHeatmap-6.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
