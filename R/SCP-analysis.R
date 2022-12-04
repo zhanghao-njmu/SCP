@@ -437,6 +437,123 @@ CC_GenePrefetch <- function(species, Ensembl_version = 103, mirror = NULL, attem
   ))
 }
 
+LengthCheck <- function(values, cutoff = 0) {
+  return(vapply(X = values, FUN = function(x) {
+    return(length(x = x) > cutoff)
+  }, FUN.VALUE = logical(1)))
+}
+
+
+#' @importFrom Seurat UpdateSymbolList
+#' @importFrom SeuratObject DefaultAssay GetAssayData CheckGC
+#' @importFrom BiocParallel bplapply
+#' @export
+AddModuleScore2 <- function(object, slot = "data", features, pool = NULL, nbin = 24, ctrl = 100,
+                            k = FALSE, assay = NULL, name = "Cluster", seed = 1, search = FALSE,
+                            BPPARAM = BiocParallel::bpparam(), ...) {
+  if (!is.null(x = seed)) {
+    set.seed(seed = seed)
+  }
+  assay.old <- DefaultAssay(object = object)
+  assay <- assay %||% assay.old
+  DefaultAssay(object = object) <- assay
+  assay.data <- GetAssayData(object = object, slot = slot)
+  features.old <- features
+  if (k) {
+    .NotYetUsed(arg = "k")
+    features <- list()
+    for (i in as.numeric(x = names(x = table(object@kmeans.obj[[1]]$cluster)))) {
+      features[[i]] <- names(x = which(x = object@kmeans.obj[[1]]$cluster ==
+        i))
+    }
+    cluster.length <- length(x = features)
+  } else {
+    if (is.null(x = features)) {
+      stop("Missing input feature list")
+    }
+    features <- lapply(X = features, FUN = function(x) {
+      missing.features <- setdiff(x = x, y = rownames(x = object))
+      if (length(x = missing.features) > 0) {
+        warning("The following features are not present in the object: ",
+          paste(missing.features, collapse = ", "),
+          ifelse(test = search, yes = ", attempting to find updated synonyms",
+            no = ", not searching for symbol synonyms"
+          ),
+          call. = FALSE, immediate. = TRUE
+        )
+        if (search) {
+          tryCatch(expr = {
+            updated.features <- UpdateSymbolList(symbols = missing.features, ...)
+            names(x = updated.features) <- missing.features
+            for (miss in names(x = updated.features)) {
+              index <- which(x == miss)
+              x[index] <- updated.features[miss]
+            }
+          }, error = function(...) {
+            warning("Could not reach HGNC's gene names database",
+              call. = FALSE, immediate. = TRUE
+            )
+          })
+          missing.features <- setdiff(x = x, y = rownames(x = object))
+          if (length(x = missing.features) > 0) {
+            warning("The following features are still not present in the object: ",
+              paste(missing.features, collapse = ", "),
+              call. = FALSE, immediate. = TRUE
+            )
+          }
+        }
+      }
+      return(intersect(x = x, y = rownames(x = object)))
+    })
+    cluster.length <- length(x = features)
+  }
+  if (!all(LengthCheck(values = features))) {
+    warning(paste(
+      "Could not find enough features in the object from the following feature lists:",
+      paste(names(x = which(x = !LengthCheck(values = features)))),
+      "Attempting to match case..."
+    ))
+    features <- lapply(X = features.old, FUN = CaseMatch, match = rownames(x = object))
+  }
+  if (!all(LengthCheck(values = features))) {
+    stop(paste(
+      "The following feature lists do not have enough features present in the object:",
+      paste(names(x = which(x = !LengthCheck(values = features)))),
+      "exiting..."
+    ))
+  }
+  pool <- pool %||% rownames(x = object)
+  data.avg <- Matrix::rowMeans(x = assay.data[pool, ])
+  data.avg <- data.avg[order(data.avg)]
+  data.cut <- ggplot2::cut_number(x = data.avg + rnorm(n = length(data.avg)) / 1e+30, n = nbin, labels = FALSE, right = FALSE)
+  names(x = data.cut) <- names(x = data.avg)
+
+  scores <- bplapply(1:cluster.length, function(i) {
+    features.use <- features[[i]]
+    # ctrl.use <- data.cut[which(data.cut %in% data.cut[features.use])]
+    # ctrl.use <- names(sample(ctrl.use, size = min(ctrl * length(features.use), length(ctrl.use)), replace = FALSE))
+    ctrl.use <- unlist(lapply(1:length(features.use), function(j) {
+      data.cut[which(data.cut == data.cut[features.use[j]])]
+    }))
+    ctrl.use <- names(sample(ctrl.use, size = min(ctrl * length(features.use), length(ctrl.use)), replace = FALSE))
+    ctrl.scores_i <- Matrix::colMeans(x = assay.data[ctrl.use, , drop = FALSE])
+    features.scores_i <- Matrix::colMeans(x = assay.data[features.use, , drop = FALSE])
+    return(list(ctrl.scores_i, features.scores_i))
+  }, BPPARAM = BPPARAM)
+  ctrl.scores <- do.call(rbind, lapply(scores, function(x) x[[1]]))
+  features.scores <- do.call(rbind, lapply(scores, function(x) x[[2]]))
+
+  features.scores.use <- features.scores - ctrl.scores
+  rownames(x = features.scores.use) <- paste0(name, 1:cluster.length)
+  features.scores.use <- as.data.frame(x = t(x = features.scores.use))
+  rownames(x = features.scores.use) <- colnames(x = object)
+  object[[colnames(x = features.scores.use)]] <- features.scores.use
+  CheckGC()
+  DefaultAssay(object = object) <- assay.old
+  return(object)
+}
+
+
 #' Cell classification
 #'
 #' @param srt
@@ -453,132 +570,215 @@ CC_GenePrefetch <- function(species, Ensembl_version = 103, mirror = NULL, attem
 #' @examples
 #' data("pancreas_sub")
 #' ccgenes <- CC_GenePrefetch("Mus_musculus")
+#' pancreas_sub <- Standard_SCP(pancreas_sub)
 #' pancreas_sub <- CellScoring(
 #'   srt = pancreas_sub,
 #'   features = list(S = ccgenes$cc_S_genes, G2M = ccgenes$cc_G2M_genes),
-#'   method = "Seurat", nbin = 10, name = "CC"
+#'   method = "Seurat", name = "CC"
 #' )
 #' ClassDimPlot(pancreas_sub, "CC_classification")
 #' ExpDimPlot(pancreas_sub, "CC_G2M")
 #'
-#' pancreas_sub <- CellScoring(
-#'   srt = pancreas_sub,
-#'   db = "GO_BP", species = "Mus_musculus",
-#'   minGSSize = 50, maxGSSize = 100,
-#'   method = "AUCell", name = "GO_BP", new_assay = TRUE
+#' data("panc8_sub")
+#' panc8_sub <- Integration_SCP(panc8_sub,
+#'   batch = "tech", integration_method = "Seurat"
 #' )
+#' ClassDimPlot(panc8_sub, group.by = c("tech", "celltype"))
+#'
+#' panc8_sub <- CellScoring(
+#'   srt = panc8_sub, slot = "data", assay = "RNA",
+#'   db = "GO_BP", species = "Homo_sapiens",
+#'   minGSSize = 10, maxGSSize = 100,
+#'   method = "Seurat", name = "GO", new_assay = TRUE
+#' )
+#' panc8_sub <- Integration_SCP(panc8_sub,
+#'   assay = "GO",
+#'   batch = "tech", integration_method = "Seurat"
+#' )
+#' ClassDimPlot(panc8_sub, group.by = c("tech", "celltype"))
+#'
+#' pancreas_sub <- CellScoring(
+#'   srt = pancreas_sub, slot = "data", assay = "RNA",
+#'   db = "GO_BP", species = "Mus_musculus",
+#'   termnames = panc8_sub[["GO"]]@meta.features[, "termnames"],
+#'   method = "Seurat", name = "GO", new_assay = TRUE
+#' )
+#' pancreas_sub <- Standard_SCP(pancreas_sub, assay = "GO")
+#' ClassDimPlot(pancreas_sub, "SubCellType")
+#'
+#' pancreas_sub[["tech"]] <- "Mouse"
+#' panc_merge <- Integration_SCP(
+#'   srtList = list(panc8_sub, pancreas_sub),
+#'   assay = "GO",
+#'   batch = "tech", integration_method = "Seurat"
+#' )
+#' ClassDimPlot(panc_merge, group.by = c("tech", "celltype", "SubCellType", "Phase"))
+#'
+#' genenames <- make.unique(stringr::str_to_title(rownames(panc8_sub[["RNA"]])))
+#' panc8_sub <- RenameFeatures(panc8_sub, newnames = genenames, assay = "RNA")
+#' head(rownames(panc8_sub))
+#' panc_merge <- Integration_SCP(
+#'   srtList = list(panc8_sub, pancreas_sub),
+#'   assay = "RNA",
+#'   batch = "tech", integration_method = "Seurat"
+#' )
+#' ClassDimPlot(panc_merge, group.by = c("tech", "celltype", "SubCellType", "Phase"))
 #'
 #' @importFrom Seurat AddModuleScore AddMetaData
 #' @export
-CellScoring <- function(srt, features = NULL,
+CellScoring <- function(srt, features = NULL, slot = "data", assay = "RNA", split.by = NULL,
                         IDtype = "symbol", species = "Homo_sapiens",
                         db = "GO_BP", termnames = NULL, db_update = FALSE, db_version = "latest", convert_species = FALSE,
                         Ensembl_version = 103, mirror = NULL, minGSSize = 10, maxGSSize = 500,
-                        ncores = 1, method = "Seurat", classification = TRUE,
-                        name = "", slot = "data", assay = "RNA", new_assay = FALSE, seed = 11, ...) {
+                        method = "Seurat", classification = TRUE, name = "", new_assay = FALSE,
+                        BPPARAM = BiocParallel::bpparam(), progressbar = TRUE, force = FALSE, seed = 11, ...) {
   set.seed(seed)
   if (!method %in% c("Seurat", "AUCell", "UCell")) {
     stop("method must be 'Seurat', 'AUCell'or 'UCell'.")
   }
-  status <- check_DataType(srt, slot = "data")
-  if (status != "log_normalized_counts") {
-    warning("object is not log normalized")
+  if (slot == "counts") {
+    status <- check_DataType(srt, slot = "counts", assay = assay)
+    if (status != "raw_counts") {
+      warning("object is not raw counts", immediate. = TRUE)
+    }
+  }
+  if (slot == "data") {
+    status <- check_DataType(srt, slot = "data", assay = assay)
+    if (status != "log_normalized_counts") {
+      warning("object is not log normalized", immediate. = TRUE)
+    }
   }
   if (name == "" && isTRUE(new_assay)) {
     stop("name must be specified when new_assay=TRUE")
   }
   if (is.null(features)) {
-    if (length(db) > 1) {
-      stop("Only one database is supported per run.")
-    }
-    db_list <- PrepareDB(
-      species = species, db = db, db_update = db_update, db_version = db_version,
-      db_IDtypes = IDtype, convert_species = convert_species, Ensembl_version = Ensembl_version, mirror = mirror
-    )
-    TERM2GENE_tmp <- db_list[[species]][[db]][["TERM2GENE"]][, c("Term", IDtype)]
-    TERM2NAME_tmp <- db_list[[species]][[db]][["TERM2NAME"]]
-    dup <- duplicated(TERM2GENE_tmp)
-    na <- rowSums(is.na(TERM2GENE_tmp)) > 0
-    TERM2GENE_tmp <- TERM2GENE_tmp[!(dup | na), ]
-    TERM2NAME_tmp <- TERM2NAME_tmp[TERM2NAME_tmp[, "Term"] %in% TERM2GENE_tmp[, "Term"], ]
+    for (single_db in db) {
+      db_list <- PrepareDB(
+        species = species, db = single_db, db_update = db_update, db_version = db_version,
+        db_IDtypes = IDtype, convert_species = convert_species, Ensembl_version = Ensembl_version, mirror = mirror
+      )
+      TERM2GENE_tmp <- db_list[[species]][[single_db]][["TERM2GENE"]][, c("Term", IDtype)]
+      TERM2NAME_tmp <- db_list[[species]][[single_db]][["TERM2NAME"]]
+      dup <- duplicated(TERM2GENE_tmp)
+      na <- rowSums(is.na(TERM2GENE_tmp)) > 0
+      TERM2GENE_tmp <- TERM2GENE_tmp[!(dup | na), ]
+      TERM2NAME_tmp <- TERM2NAME_tmp[TERM2NAME_tmp[, "Term"] %in% TERM2GENE_tmp[, "Term"], ]
 
-    TERM2GENE_tmp <- unique(TERM2GENE_tmp)
-    TERM2NAME_tmp <- unique(TERM2NAME_tmp)
-    rownames(TERM2NAME_tmp) <- TERM2NAME_tmp[, "Term"]
-    features <- split(TERM2GENE_tmp[, IDtype], TERM2NAME_tmp[TERM2GENE_tmp[, "Term"], "Name"])
-    if (is.null(termnames)) {
-      GSSize <- sapply(features, length)
-      features <- features[GSSize >= minGSSize & GSSize <= maxGSSize]
-      message("Number of feature lists to be scored: ", length(features))
-    } else {
-      if (length(intersect(termnames, names(features)) > 0)) {
-        features <- features[intersect(termnames, names(features))]
+      TERM2GENE_tmp <- unique(TERM2GENE_tmp)
+      TERM2NAME_tmp <- unique(TERM2NAME_tmp)
+      rownames(TERM2NAME_tmp) <- TERM2NAME_tmp[, "Term"]
+      features_tmp <- split(TERM2GENE_tmp[, IDtype], TERM2NAME_tmp[TERM2GENE_tmp[, "Term"], "Name"])
+      if (is.null(termnames)) {
+        GSSize <- sapply(features_tmp, length)
+        features_tmp <- features_tmp[GSSize >= minGSSize & GSSize <= maxGSSize]
       } else {
-        stop("None of termnames found in the db: ", db)
+        if (length(intersect(termnames, names(features_tmp)) > 0)) {
+          features_tmp <- features_tmp[intersect(termnames, names(features_tmp))]
+        } else {
+          stop("None of termnames found in the db: ", single_db)
+        }
       }
+      features <- c(features, features_tmp)
     }
   }
 
   if (!is.list(features) || length(names(features)) == 0) {
     stop("'features' must be named list")
   }
-  features <- lapply(setNames(names(features), names(features)), function(x) features[[x]][features[[x]] %in% rownames(srt[[assay]])])
+  expressed <- names(which(rowSums(GetAssayData(srt, slot = slot, assay = assay) > 0) > 0))
+  features <- lapply(setNames(names(features), names(features)), function(x) features[[x]][features[[x]] %in% expressed])
   filtered_none <- names(which(sapply(features, length) == 0))
   if (length(filtered_none) > 0) {
-    warning("The following list of features were filtered because none of features were found in the srt assay:\n", paste0(filtered_none, collapse = ", "))
+    warning("The following list of features were filtered because none of features were found in the srt assay:\n", paste0(filtered_none, collapse = ", "), immediate. = TRUE)
   }
   features <- features[!names(features) %in% filtered_none]
-  if (method == "Seurat") {
-    ## need to add a 'slot' parameter
-    srt_tmp <- AddModuleScore(
-      srt,
-      features = features,
-      name = name,
-      assay = assay,
-      ...
-    )
-    if (name != "") {
-      scores <- srt_tmp[[paste0(name, seq_along(features))]]
-    } else {
-      scores <- srt_tmp[[paste0("X", seq_along(features))]]
-    }
-  } else if (method == "UCell") {
-    check_R("UCell")
-    srt_tmp <- UCell::AddModuleScore_UCell(
-      srt,
-      features = features,
-      name = name,
-      ncores = ncores,
-      slot = slot,
-      assay = assay,
-      ...
-    )
-    filtered <- names(features)[!paste0(names(features), name) %in% colnames(srt_tmp@meta.data)]
-    if (length(filtered) > 0) {
-      warning("The following list of features were filtered:\n", paste0(filtered, collapse = ", "))
-    }
-    features <- features[!names(features) %in% filtered]
-    scores <- srt_tmp[[paste0(names(features), name)]]
-  } else if (method == "AUCell") {
-    check_R("AUCell")
-    CellRank <- AUCell::AUCell_buildRankings(as.matrix(GetAssayData(srt, slot = slot, assay = assay)), plotStats = FALSE)
-    cells_AUC <- AUCell::AUCell_calcAUC(geneSets = features, rankings = CellRank, nCores = ncores)
-    filtered <- names(features)[!names(features) %in% rownames(AUCell::getAUC(cells_AUC))]
-    if (length(filtered) > 0) {
-      warning("The following list of features were filtered:", paste0(filtered, collapse = ", "))
-    }
-    features <- features[!names(features) %in% filtered]
-    scores <- as.data.frame(t(AUCell::getAUC(cells_AUC)))[, names(features)]
+  features_raw <- features
+  names(features) <- make.names(names(features))
+  message("Number of feature lists to be scored: ", length(features))
+
+  if ("progressbar" %in% names(BPPARAM)) {
+    BPPARAM[["progressbar"]] <- progressbar
   }
-  if (isTRUE(new_assay)) {
-    srt[[name]] <- CreateAssayObject(counts = t(as.matrix(scores)))
+
+  time_start <- Sys.time()
+  cat(paste0("[", time_start, "] ", "Start CellScoring\n"))
+  message("Threads used: ", BPPARAM$workers)
+
+  if (!is.null(split.by)) {
+    split_list <- SplitObject(srt, split.by = split.by)
   } else {
-    colnames(scores) <- make.names(paste(name, names(features), sep = "_"))
-    srt <- AddMetaData(object = srt, metadata = scores)
+    split_list <- list(srt)
+  }
+  scores_list <- list()
+  features_nm_list <- list()
+  for (i in seq_along(split_list)) {
+    srt_sp <- split_list[[i]]
+    if (method == "Seurat") {
+      ## need to add a 'slot' parameter
+      srt_tmp <- AddModuleScore2(
+        srt_sp,
+        features = features,
+        name = name,
+        slot = slot,
+        assay = assay,
+        BPPARAM = BPPARAM,
+        ...
+      )
+      if (name != "") {
+        scores <- srt_tmp[[paste0(name, seq_along(features))]]
+      } else {
+        scores <- srt_tmp[[paste0("X", seq_along(features))]]
+      }
+      features_nm <- features_raw
+      colnames(scores) <- make.names(paste(name, names(features_nm), sep = "_"))
+    } else if (method == "UCell") {
+      check_R("UCell")
+      srt_tmp <- UCell::AddModuleScore_UCell(
+        srt_sp,
+        features = features,
+        name = name,
+        slot = slot,
+        assay = assay,
+        BPPARAM = BPPARAM,
+        ...
+      )
+      filtered <- names(features)[!paste0(names(features), name) %in% colnames(srt_tmp@meta.data)]
+      if (length(filtered) > 0) {
+        warning("The following list of features were filtered when scoring:\n", paste0(filtered, collapse = ", "), immediate. = TRUE)
+      }
+      features_keep <- features[!names(features) %in% filtered]
+      features_nm <- features_raw[!names(features) %in% filtered]
+      scores <- srt_tmp[[paste0(names(features_keep), name)]]
+      colnames(scores) <- make.names(paste(name, names(features_nm), sep = "_"))
+    } else if (method == "AUCell") {
+      check_R("AUCell")
+      CellRank <- AUCell::AUCell_buildRankings(as.matrix(GetAssayData(srt_sp, slot = slot, assay = assay)), BPPARAM = BPPARAM, plotStats = FALSE)
+      cells_AUC <- AUCell::AUCell_calcAUC(geneSets = features, rankings = CellRank, ...)
+      filtered <- names(features)[!names(features) %in% rownames(AUCell::getAUC(cells_AUC))]
+      if (length(filtered) > 0) {
+        warning("The following list of features were filtered when scoring:", paste0(filtered, collapse = ", "), immediate. = TRUE)
+      }
+      features_keep <- features[!names(features) %in% filtered]
+      features_nm <- features_raw[!names(features) %in% filtered]
+      scores <- as.data.frame(t(AUCell::getAUC(cells_AUC)))[, names(features_keep)]
+      colnames(scores) <- make.names(paste(name, names(features_nm), sep = "_"))
+    }
+    features_nm_list[[i]] <- setNames(object = names(features_nm), nm = colnames(scores))
+    scores_list[[i]] <- scores
+  }
+  features_used <- Reduce(intersect, lapply(scores_list, colnames))
+  features_nm_used <- Reduce(intersect, features_nm_list)
+  scores_mat <- do.call(rbind, lapply(scores_list, function(x) x[intersect(rownames(x), colnames(srt)), features_used, drop = FALSE]))
+
+  if (isTRUE(new_assay)) {
+    srt[[name]] <- CreateAssayObject(counts = t(as.matrix(scores_mat[colnames(srt), , drop = FALSE])))
+    srt[[name]] <- AddMetaData(object = srt[[name]], metadata = data.frame(termnames = features_nm_used[colnames(scores_mat)]))
+  } else {
+    srt <- AddMetaData(object = srt, metadata = scores_mat)
   }
 
   if (isTRUE(classification)) {
-    assignments <- apply(scores, MARGIN = 1, FUN = function(x) {
+    assignments <- apply(scores_mat, MARGIN = 1, FUN = function(x) {
       if (all(x < 0)) {
         return(NA)
       } else {
@@ -589,8 +789,12 @@ CellScoring <- function(srt, features = NULL,
         }
       }
     })
-    srt[[paste0(name, "_classification")]] <- assignments[rownames(scores)]
+    srt[[paste0(name, "_classification")]] <- assignments[rownames(scores_mat)]
   }
+
+  time_end <- Sys.time()
+  cat(paste0("[", time_end, "] ", "CellScoring done\n"))
+  cat("Elapsed time:", format(round(difftime(time_end, time_start), 2), format = "%Y-%m-%d %H:%M:%S"), "\n")
 
   return(srt)
 }
@@ -841,7 +1045,8 @@ RunDEtest <- function(srt, group_by = NULL, group1 = NULL, group2 = NULL, cells1
                       min.pct = 0.1, min.diff.pct = -Inf, max.cells.per.ident = Inf, latent.vars = NULL,
                       min.cells.feature = 3, min.cells.group = 3,
                       norm.method = "LogNormalize", p.adjust.method = "bonferroni", slot = "data", assay = "RNA",
-                      BPPARAM = BiocParallel::bpparam(), progressbar = TRUE, force = FALSE, ...) {
+                      BPPARAM = BiocParallel::bpparam(), progressbar = TRUE, force = FALSE, seed = 11, ...) {
+  set.seed(seed)
   if (isTRUE(FindConservedMarkers)) {
     check_R(c("multtest", "metap"))
     if (is.null(grouping.var)) {
@@ -870,7 +1075,7 @@ RunDEtest <- function(srt, group_by = NULL, group1 = NULL, group2 = NULL, cells1
 
   time_start <- Sys.time()
   cat(paste0("[", time_start, "] ", "Start DEtest\n"))
-  message("Threads used for DE test: ", BPPARAM$workers)
+  message("Threads used: ", BPPARAM$workers)
 
   if (fc.threshold < 1) {
     stop("fc.threshold must be greater than or equal to 1")
@@ -2116,6 +2321,7 @@ RunEnrichment <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_t
 
   time_start <- Sys.time()
   cat(paste0("[", time_start, "] ", "Start Enrichment\n"))
+  message("Threads used: ", BPPARAM$workers)
 
   use_srt <- FALSE
   if (is.null(geneID)) {
@@ -2353,6 +2559,7 @@ RunGSEA <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_thresho
 
   time_start <- Sys.time()
   cat(paste0("[", time_start, "] ", "Start GSEA\n"))
+  message("Threads used: ", BPPARAM$workers)
 
   use_srt <- FALSE
   if (is.null(geneID)) {
@@ -3285,6 +3492,7 @@ RunDynamicFeatures <- function(srt, lineages, features = NULL, suffix = lineages
 
   time_start <- Sys.time()
   cat(paste0("[", time_start, "] ", "Start RunDynamicFeatures\n"))
+  message("Threads used: ", BPPARAM$workers)
 
   check_R(c("mgcv"))
   meta <- c()
@@ -3580,6 +3788,10 @@ RunDynamicEnrichment <- function(srt, lineages,
     BPPARAM[["progressbar"]] <- progressbar
   }
 
+  time_start <- Sys.time()
+  cat(paste0("[", time_start, "] ", "Start RunDynamicFeatures\n"))
+  message("Threads used: ", BPPARAM$workers)
+
   feature_union <- c()
   cell_union <- c()
   dynamic <- list()
@@ -3635,11 +3847,11 @@ RunDynamicEnrichment <- function(srt, lineages,
       features = feature_list,
       method = score_method,
       classification = FALSE,
-      ncore = ncore,
-      name = term,
       slot = slot,
       assay = assay,
-      new_assay = TRUE
+      name = term,
+      new_assay = TRUE,
+      BPPARAM = BPPARAM
     )
     srt <- RunDynamicFeatures(
       srt = srt,
@@ -3656,6 +3868,11 @@ RunDynamicEnrichment <- function(srt, lineages,
     # )
     # ht_result$plot
   }
+
+  time_end <- Sys.time()
+  cat(paste0("[", time_end, "] ", "RunDynamicEnrichment done\n"))
+  cat("Elapsed time:", format(round(difftime(time_end, time_start), 2), format = "%Y-%m-%d %H:%M:%S"), "\n")
+
   return(srt)
 }
 
@@ -3685,12 +3902,15 @@ RunDynamicEnrichment <- function(srt, lineages,
 #' @importFrom Matrix t
 #' @export
 #'
-srt_to_adata <- function(srt,
+srt_to_adata <- function(srt, features = NULL,
                          assay_X = "RNA", slot_X = "counts",
                          assay_layers = c("spliced", "unspliced"), slot_layers = "counts",
                          convert_tools = FALSE, convert_misc = FALSE, verbose = TRUE) {
   if (!inherits(srt, "Seurat")) {
     stop("'srt' is not a Seurat object.")
+  }
+  if (is.null(features)) {
+    features <- rownames(srt[[assay_X]])
   }
   if (length(slot_layers) == 1) {
     slot_layers <- rep(slot_layers, length(assay_layers))
@@ -3711,7 +3931,7 @@ srt_to_adata <- function(srt,
     }
   }
 
-  var <- srt[[assay_X]]@meta.features
+  var <- srt[[assay_X]]@meta.features[features, , drop = FALSE]
   if (ncol(var) > 0) {
     for (i in seq_len(ncol(var))) {
       if (is.logical(var[, i]) && !identical(colnames(var)[i], "highly_variable")) {
@@ -3720,19 +3940,19 @@ srt_to_adata <- function(srt,
     }
   }
 
-  X <- t(GetAssayData(srt, assay = assay_X, slot = slot_X))
+  X <- t(GetAssayData(srt, assay = assay_X, slot = slot_X)[features, , drop = FALSE])
   adata <- sc$AnnData(
     X = X,
     obs = obs,
-    var = cbind(data.frame(features = rownames(srt[[assay_X]])), var),
+    var = cbind(data.frame(features = features), var),
     dtype = np$float32
   )
-  adata$var_names <- rownames(srt[[assay_X]])
+  adata$var_names <- features
   if (length(VariableFeatures(srt, assay = assay_X) > 0)) {
     if ("highly_variable" %in% colnames(var)) {
       adata$var <- var[, colnames(var) != "highly_variable"]
     }
-    adata$var <- adata$var$join(data.frame(row.names = rownames(srt[[assay_X]]), highly_variable = rownames(srt[[assay_X]]) %in% VariableFeatures(srt, assay = assay_X)))
+    adata$var <- adata$var$join(data.frame(row.names = features, highly_variable = features %in% VariableFeatures(srt, assay = assay_X)))
   }
 
   layer_list <- list()

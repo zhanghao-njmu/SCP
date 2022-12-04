@@ -6,7 +6,7 @@
 \usage{
 RecoverCounts(
   srt,
-  assay = "RNA",
+  assay = NULL,
   min_count = c(1, 2, 3),
   tolerance = 0.1,
   verbose = TRUE

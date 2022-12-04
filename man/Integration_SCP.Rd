@@ -119,6 +119,18 @@ panc8_sub <- Integration_SCP(panc8_sub,
 )
 ClassDimPlot(panc8_sub, group.by = c("tech", "celltype"))
 
+panc8_sub <- CellScoring(
+  srt = panc8_sub, slot = "data", assay = "RNA",
+  db = "GO_BP", species = "Homo_sapiens",
+  minGSSize = 10, maxGSSize = 100,
+  method = "Seurat", name = "GO", new_assay = TRUE
+)
+panc8_sub <- Integration_SCP(panc8_sub,
+  assay = "GO",
+  batch = "tech", integration_method = "Seurat"
+)
+ClassDimPlot(panc8_sub, group.by = c("tech", "celltype"))
+
 \dontrun{
 for (method in c("Uncorrected", "Seurat", "scVI", "MNN", "fastMNN", "Harmony", "Scanorama", "BBKNN", "CSS", "LIGER", "Conos")) {
   panc8_sub <- Integration_SCP(panc8_sub,
