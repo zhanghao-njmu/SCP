@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">SCP</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.3.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.3.9001</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -51,9 +51,9 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">RenameClusters</span><span class="op">(</span></span>
 <span>  <span class="va">srt</span>,</span>
 <span>  <span class="va">group.by</span>,</span>
-<span>  newnames <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  nameslist <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
-<span>  createnew <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  new_name <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  name <span class="op">=</span> <span class="st">"newclusters"</span>,</span>
 <span>  keep_levels <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -73,16 +73,14 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span> [8] "Epsilon"      </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Rename all clusters</span></span></span>
-<span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu">RenameClusters</span><span class="op">(</span><span class="va">pancreas_sub</span>, group.by <span class="op">=</span> <span class="st">"SubCellType"</span>, newnames <span class="op">=</span> <span class="va">letters</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">8</span><span class="op">]</span>, createnew <span class="op">=</span> <span class="st">"newclusters"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">pancreas_sub</span><span class="op">@</span><span class="va">meta.data</span><span class="op">[[</span><span class="st">"newclusters"</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">pancreas_sub</span><span class="op">@</span><span class="va">meta.data</span><span class="op">[[</span><span class="st">"newclusters"</span><span class="op">]</span><span class="op">]</span>, levels <span class="op">=</span> <span class="va">letters</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">8</span><span class="op">]</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu">RenameClusters</span><span class="op">(</span><span class="va">pancreas_sub</span>, group.by <span class="op">=</span> <span class="st">"SubCellType"</span>, nameslist <span class="op">=</span> <span class="va">letters</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">8</span><span class="op">]</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="ClassDimPlot.html">ClassDimPlot</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, <span class="st">"newclusters"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="RenameClusters-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Rename specified clusters</span></span></span>
 <span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu">RenameClusters</span><span class="op">(</span><span class="va">pancreas_sub</span>,</span></span>
 <span class="r-in"><span>  group.by <span class="op">=</span> <span class="st">"SubCellType"</span>,</span></span>
-<span class="r-in"><span>  newnames <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Alpha"</span> <span class="op">=</span> <span class="st">"a"</span>, <span class="st">"Beta"</span> <span class="op">=</span> <span class="st">"b"</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>  createnew <span class="op">=</span> <span class="st">"newclusters"</span></span></span>
+<span class="r-in"><span>  nameslist <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"a"</span> <span class="op">=</span> <span class="st">"Alpha"</span>, <span class="st">"b"</span> <span class="op">=</span> <span class="st">"Beta"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="ClassDimPlot.html">ClassDimPlot</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, <span class="st">"newclusters"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="RenameClusters-2.png" alt="" width="700" height="433"></span>
@@ -91,9 +89,9 @@
 <span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu">RenameClusters</span><span class="op">(</span><span class="va">pancreas_sub</span>,</span></span>
 <span class="r-in"><span>  group.by <span class="op">=</span> <span class="st">"SubCellType"</span>,</span></span>
 <span class="r-in"><span>  nameslist <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"EndocrineClusters"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Alpha"</span>, <span class="st">"Beta"</span>, <span class="st">"Epsilon"</span>, <span class="st">"Delta"</span><span class="op">)</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>  createnew <span class="op">=</span> <span class="st">"newclusters"</span>, keep_levels <span class="op">=</span> <span class="cn">TRUE</span></span></span>
+<span class="r-in"><span>  name <span class="op">=</span> <span class="st">"Merged"</span>, keep_levels <span class="op">=</span> <span class="cn">TRUE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="ClassDimPlot.html">ClassDimPlot</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, <span class="st">"newclusters"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="ClassDimPlot.html">ClassDimPlot</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, <span class="st">"Merged"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="RenameClusters-3.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
