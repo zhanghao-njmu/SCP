@@ -171,21 +171,21 @@
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"pancreas_sub"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu">Standard_SCP</span><span class="op">(</span>srt <span class="op">=</span> <span class="va">pancreas_sub</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-04 10:42:40] Start Standard_SCP</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-04 10:42:40] Checking srtList... ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-04 13:16:52] Start Standard_SCP</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-04 13:16:52] Checking srtList... ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Data 1/1 of the srtList is raw counts. Perform NormalizeData(logCPM) on the data ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform FindVariableFeatures on the data 1/1 of the srtList...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Use the separate HVF from the existed HVF in srtList...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Number of available HVF: 2000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-04 10:42:42] Finished checking.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-04 10:42:42] Perform ScaleData on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-04 10:42:42] Perform linear dimension reduction (pca) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-04 13:16:54] Finished checking.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-04 13:16:54] Perform ScaleData on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-04 13:16:54] Perform linear dimension reduction (pca) on the data...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> dims_estimate is 1:18 for 'pca'</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-04 10:42:49] Perform FindClusters (louvain) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-04 10:42:50] Reorder clusters...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-04 10:42:50] Perform nonlinear dimension reduction (umap) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-04 10:42:58] Standard_SCP done</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 18.4 secs </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-04 13:17:01] Perform FindClusters (louvain) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-04 13:17:01] Reorder clusters...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-04 13:17:01] Perform nonlinear dimension reduction (umap) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-04 13:17:13] Standard_SCP done</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 20.97 secs </span>
 <span class="r-in"><span><span class="fu"><a href="ClassDimPlot.html">ClassDimPlot</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, group.by <span class="op">=</span> <span class="st">"CellType"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="Standard_SCP-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
@@ -195,61 +195,61 @@
 <span class="r-in"><span>  linear_reduction <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"pca"</span>, <span class="st">"ica"</span>, <span class="st">"nmf"</span>, <span class="st">"mds"</span>, <span class="st">"glmpca"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  nonlinear_reduction <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"umap"</span>, <span class="st">"tsne"</span>, <span class="st">"phate"</span>, <span class="st">"pacmap"</span>, <span class="st">"trimap"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-04 10:42:59] Start Standard_SCP</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-04 10:42:59] Checking srtList... ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-04 13:17:13] Start Standard_SCP</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-04 13:17:13] Checking srtList... ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Data 1/1 of the srtList has been log-normalized.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform FindVariableFeatures on the data 1/1 of the srtList...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Use the separate HVF from the existed HVF in srtList...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Number of available HVF: 2000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-04 10:43:01] Finished checking.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-04 10:43:01] Perform ScaleData on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-04 10:43:01] Perform linear dimension reduction (pca) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-04 13:17:15] Finished checking.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-04 13:17:15] Perform ScaleData on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-04 13:17:15] Perform linear dimension reduction (pca) on the data...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> dims_estimate is 1:18 for 'pca'</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-04 10:43:08] Perform FindClusters (louvain) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-04 10:43:08] Reorder clusters...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-04 10:43:09] Perform nonlinear dimension reduction (umap) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-04 10:43:17] Perform nonlinear dimension reduction (tsne) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-04 10:43:26] Perform nonlinear dimension reduction (phate) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-04 13:17:23] Perform FindClusters (louvain) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-04 13:17:23] Reorder clusters...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-04 13:17:23] Perform nonlinear dimension reduction (umap) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-04 13:17:34] Perform nonlinear dimension reduction (tsne) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-04 13:17:46] Perform nonlinear dimension reduction (phate) on the data...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Try to install 'phate' ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Using virtual environment 'SCP' ...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> + '/home/runner/.virtualenvs/SCP/bin/python' -m pip install --upgrade --no-user -i https://pypi.org/simple/ 'phate'</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-04 10:44:04] Perform nonlinear dimension reduction (pacmap) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-04 13:18:25] Perform nonlinear dimension reduction (pacmap) on the data...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Try to install 'pacmap' ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Using virtual environment 'SCP' ...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> + '/home/runner/.virtualenvs/SCP/bin/python' -m pip install --upgrade --no-user -i https://pypi.org/simple/ 'pacmap'</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-04 10:44:35] Perform nonlinear dimension reduction (trimap) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-04 13:18:59] Perform nonlinear dimension reduction (trimap) on the data...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Try to install 'trimap' ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Using virtual environment 'SCP' ...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> + '/home/runner/.virtualenvs/SCP/bin/python' -m pip install --upgrade --no-user -i https://pypi.org/simple/ 'trimap'</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-04 10:44:52] Perform linear dimension reduction (ica) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-04 13:19:16] Perform linear dimension reduction (ica) on the data...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> dims_estimate is 1:29 for 'ica'</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-04 10:45:00] Perform FindClusters (louvain) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-04 10:45:00] Reorder clusters...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-04 10:45:01] Perform nonlinear dimension reduction (umap) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-04 10:45:10] Perform nonlinear dimension reduction (tsne) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-04 10:45:19] Perform nonlinear dimension reduction (phate) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-04 10:45:50] Perform nonlinear dimension reduction (pacmap) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-04 10:45:55] Perform nonlinear dimension reduction (trimap) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-04 10:46:00] Perform linear dimension reduction (nmf) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-04 13:19:23] Perform FindClusters (louvain) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-04 13:19:24] Reorder clusters...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-04 13:19:24] Perform nonlinear dimension reduction (umap) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-04 13:19:36] Perform nonlinear dimension reduction (tsne) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-04 13:19:46] Perform nonlinear dimension reduction (phate) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-04 13:20:17] Perform nonlinear dimension reduction (pacmap) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-04 13:20:22] Perform nonlinear dimension reduction (trimap) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-04 13:20:28] Perform linear dimension reduction (nmf) on the data...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> dims_estimate is 1:100 for 'nmf'</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-04 10:46:43] Perform FindClusters (louvain) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-04 10:46:43] Reorder clusters...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-04 10:46:44] Perform nonlinear dimension reduction (umap) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-04 10:46:53] Perform nonlinear dimension reduction (tsne) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-04 10:47:02] Perform nonlinear dimension reduction (phate) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-04 10:47:29] Perform nonlinear dimension reduction (pacmap) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-04 10:47:34] Perform nonlinear dimension reduction (trimap) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-04 10:47:39] Perform linear dimension reduction (mds) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-04 13:21:11] Perform FindClusters (louvain) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-04 13:21:11] Reorder clusters...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-04 13:21:12] Perform nonlinear dimension reduction (umap) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-04 13:21:23] Perform nonlinear dimension reduction (tsne) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-04 13:21:32] Perform nonlinear dimension reduction (phate) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-04 13:22:00] Perform nonlinear dimension reduction (pacmap) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-04 13:22:05] Perform nonlinear dimension reduction (trimap) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-04 13:22:11] Perform linear dimension reduction (mds) on the data...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Use RNA/data to measure 'euclidean' distance.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> dims_estimate is 1:18 for 'mds'</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-04 10:47:50] Perform FindClusters (louvain) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-04 10:47:50] Reorder clusters...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-04 10:47:51] Perform nonlinear dimension reduction (umap) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-04 10:48:00] Perform nonlinear dimension reduction (tsne) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-04 10:48:08] Perform nonlinear dimension reduction (phate) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-04 10:48:40] Perform nonlinear dimension reduction (pacmap) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-04 10:48:45] Perform nonlinear dimension reduction (trimap) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-04 10:48:51] Perform linear dimension reduction (glmpca) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-04 13:22:26] Perform FindClusters (louvain) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-04 13:22:26] Reorder clusters...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-04 13:22:27] Perform nonlinear dimension reduction (umap) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-04 13:22:39] Perform nonlinear dimension reduction (tsne) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-04 13:22:48] Perform nonlinear dimension reduction (phate) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-04 13:23:21] Perform nonlinear dimension reduction (pacmap) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-04 13:23:26] Perform nonlinear dimension reduction (trimap) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-04 13:23:32] Perform linear dimension reduction (glmpca) on the data...</span>
 <span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in loadNamespace(x):</span> there is no package called ‘glmpca’</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">pancreas_sub</span><span class="op">@</span><span class="va">reductions</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "PCA"               "UMAP"              "Standardpca"       "StandardpcaUMAP2D" "StandardpcaUMAP3D"</span>
