@@ -801,7 +801,7 @@ CellScoring <- function(srt, features = NULL, slot = "data", assay = "RNA", spli
 
 #' @importFrom SeuratObject PackageCheck FetchData WhichCells SetIdent Idents
 #' @importFrom Seurat FindMarkers FoldChange
-FindConservedMarkers2 <- function(object, grouping.var, ident.1, ident.2 = NULL, cells.1 = NULL, cells.2 = NULL,
+FindConservedMarkers2 <- function(object, grouping.var, ident.1, ident.2 = NULL, cells.1 = NULL, cells.2 = NULL, features = NULL,
                                   test.use = "wilcox", logfc.threshold = 0.25, base = 2, pseudocount.use = 1, mean.fxn = NULL,
                                   min.pct = 0.1, min.diff.pct = -Inf, max.cells.per.ident = Inf, latent.vars = NULL, only.pos = FALSE,
                                   assay = "RNA", slot = "data", min.cells.group = 3, min.cells.feature = 3, meta.method = metap::maximump,
@@ -876,7 +876,7 @@ FindConservedMarkers2 <- function(object, grouping.var, ident.1, ident.2 = NULL,
         next
       }
       marker.test[[i]] <- FindMarkers(
-        object = Assays(object, assay), slot = slot, cells.1 = cells.1.use, cells.2 = cells.2.use,
+        object = Assays(object, assay), slot = slot, cells.1 = cells.1.use, cells.2 = cells.2.use, features = features,
         test.use = test.use, logfc.threshold = logfc.threshold,
         min.pct = min.pct, min.diff.pct = min.diff.pct, max.cells.per.ident = max.cells.per.ident,
         min.cells.group = min.cells.group, min.cells.feature = min.cells.feature,
@@ -903,7 +903,7 @@ FindConservedMarkers2 <- function(object, grouping.var, ident.1, ident.2 = NULL,
         message("Testing group ", level.use, ": (", paste("cells.1", collapse = ", "), ") vs (", paste("cells.2", collapse = ", "), ")")
       }
       marker.test[[i]] <- FindMarkers(
-        object = Assays(object, assay), slot = slot, cells.1 = cells.1.use, cells.2 = cells.2.use,
+        object = Assays(object, assay), slot = slot, cells.1 = cells.1.use, cells.2 = cells.2.use, features = features,
         test.use = test.use, logfc.threshold = logfc.threshold,
         min.pct = min.pct, min.diff.pct = min.diff.pct, max.cells.per.ident = max.cells.per.ident,
         min.cells.group = min.cells.group, min.cells.feature = min.cells.feature,
@@ -1038,7 +1038,7 @@ FindConservedMarkers2 <- function(object, grouping.var, ident.1, ident.2 = NULL,
 #'
 #' @export
 #'
-RunDEtest <- function(srt, group_by = NULL, group1 = NULL, group2 = NULL, cells1 = NULL, cells2 = NULL,
+RunDEtest <- function(srt, group_by = NULL, group1 = NULL, group2 = NULL, cells1 = NULL, cells2 = NULL, features = NULL,
                       FindAllMarkers = TRUE, FindPairedMarkers = FALSE, FindConservedMarkers = FALSE,
                       grouping.var = NULL, meta.method = metap::maximump,
                       test.use = "wilcox", only.pos = TRUE, fc.threshold = 1.5, base = 2, pseudocount.use = 1, mean.fxn = NULL,
@@ -1111,6 +1111,7 @@ RunDEtest <- function(srt, group_by = NULL, group1 = NULL, group2 = NULL, cells1
         object = Assays(srt, assay), slot = slot,
         cells.1 = cells1,
         cells.2 = cells2,
+        features = features,
         test.use = test.use,
         logfc.threshold = log(fc.threshold, base = base),
         base = base,
@@ -1154,6 +1155,7 @@ RunDEtest <- function(srt, group_by = NULL, group1 = NULL, group2 = NULL, cells1
         object = srt, assay = assay, slot = slot,
         cells.1 = cells1,
         cells.2 = cells2,
+        features = features,
         grouping.var = grouping.var,
         test.use = test.use,
         logfc.threshold = log(fc.threshold, base = base),
@@ -1213,6 +1215,7 @@ RunDEtest <- function(srt, group_by = NULL, group1 = NULL, group2 = NULL, cells1
     args1 <- list(
       object = Assays(srt, assay),
       slot = slot,
+      features = features,
       test.use = test.use,
       logfc.threshold = log(fc.threshold, base = base),
       base = base,

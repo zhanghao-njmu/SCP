@@ -30,7 +30,7 @@ theme_scp <- function(aspect.ratio = NULL, base_size = 12, ...) {
     legend.key = element_rect(fill = "transparent", color = "transparent"),
     legend.background = element_blank(),
     panel.background = element_rect(fill = "white", color = "white"),
-    panel.border = element_rect(fill = "transparent", colour = "black", size = 1),
+    panel.border = element_rect(fill = "transparent", colour = "black", linewidth = 1),
     complete = TRUE
   )
   args2 <- as.list(match.call())[-1]
@@ -3126,7 +3126,8 @@ cluster_within_group2 <- function(mat, factor) {
 #'     "Rbp4", "Pyy", # Endocrine
 #'     "Ins1", "Gcg", "Sst", "Ghrl" # Beta, Alpha, Delta, Epsilon
 #'   ),
-#'   group.by = c("CellType", "SubCellType")
+#'   group.by = c("CellType", "SubCellType"),
+#'   show_row_names = TRUE
 #' )
 #' ht1$plot
 #'
@@ -3159,29 +3160,41 @@ cluster_within_group2 <- function(mat, factor) {
 #'   cell_annotation_params = list(height = grid::unit(0.5, "in")),
 #'   feature_annotation = c("TF", "SP"),
 #'   feature_palcolor = list(c("gold", "steelblue"), c("forestgreen")),
-#'   add_dot = TRUE, add_bg = TRUE
+#'   add_dot = TRUE, add_bg = TRUE, show_row_names = TRUE
 #' )
 #' ht4$plot
 #'
 #' ht5 <- GroupHeatmap(pancreas_sub,
 #'   features = de_top$gene, feature_split = de_top$group1, group.by = "CellType",
-#'   add_violin = TRUE, cluster_rows = TRUE
+#'   cell_annotation = c("Phase", "G2M_score", "Neurod2"), cell_palette = c("Dark2", "Paired", "Paired"),
+#'   cell_annotation_params = list(width = grid::unit(0.5, "in")),
+#'   feature_annotation = c("TF", "SP"),
+#'   feature_palcolor = list(c("gold", "steelblue"), c("forestgreen")),
+#'   add_dot = TRUE, add_bg = TRUE, flip = TRUE, column_title_rot = 90, show_column_names = TRUE
 #' )
 #' ht5$plot
 #'
 #' ht6 <- GroupHeatmap(pancreas_sub,
 #'   features = de_top$gene, feature_split = de_top$group1, group.by = "CellType",
-#'   add_violin = TRUE, fill.by = "expression", fill_palette = "Blues", cluster_rows = TRUE
+#'   add_violin = TRUE, cluster_rows = TRUE,
+#'   show_row_names = TRUE
 #' )
 #' ht6$plot
 #'
 #' ht7 <- GroupHeatmap(pancreas_sub,
+#'   features = de_top$gene, feature_split = de_top$group1, group.by = "CellType",
+#'   add_violin = TRUE, fill.by = "expression", fill_palette = "Blues", cluster_rows = TRUE,
+#'   show_row_names = TRUE
+#' )
+#' ht7$plot
+#'
+#' ht8 <- GroupHeatmap(pancreas_sub,
 #'   features = de_top$gene, group.by = "CellType", split.by = "Phase", n_split = 4,
 #'   cluster_rows = TRUE, cluster_columns = TRUE, cluster_row_slices = TRUE, cluster_column_slices = TRUE,
 #'   add_dot = TRUE, add_reticle = TRUE, heatmap_palette = "viridis",
 #'   ht_params = list(row_gap = grid::unit(0, "mm"))
 #' )
-#' ht7$plot
+#' ht8$plot
 #'
 #' @importFrom circlize colorRamp2
 #' @importFrom stats aggregate formula quantile
@@ -3192,11 +3205,12 @@ cluster_within_group2 <- function(mat, factor) {
 #' @importFrom scales alpha
 #' @importFrom methods getFunction
 #' @export
-GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL, cells = NULL, aggregate_fun = mean, exp_cutoff = 0, border = TRUE,
+GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL, cells = NULL, aggregate_fun = mean, exp_cutoff = 0, border = TRUE, flip = FALSE,
                          slot = "counts", assay = "RNA", exp_method = c("zscore", "raw", "fc", "log2fc", "log1p"), lib_normalize = TRUE, libsize = NULL,
                          feature_split = NULL, feature_split_by = NULL, n_split = NULL, split_method = c("kmeans", "hclust", "mfuzz"), decreasing = FALSE,
-                         cluster_rows = FALSE, cluster_rows_by = NULL, cluster_columns = FALSE, cluster_row_slices = FALSE, cluster_column_slices = FALSE,
-                         show_row_names = TRUE, show_column_names = FALSE, row_title_rot = 0, column_title_rot = 0,
+                         cluster_features_by = NULL, cluster_rows = FALSE, cluster_columns = FALSE, cluster_row_slices = FALSE, cluster_column_slices = FALSE,
+                         show_row_names = FALSE, show_column_names = FALSE, row_names_side = ifelse(flip, "left", "right"), column_names_side = ifelse(flip, "bottom", "top"),
+                         row_title_side = "left", column_title_side = "top", row_title_rot = 0, column_title_rot = ifelse(flip, 90, 0),
                          anno_terms = FALSE, anno_keys = FALSE, anno_features = FALSE,
                          terms_width = unit(4, "in"), terms_fontsize = 8,
                          keys_width = unit(2, "in"), keys_fontsize = c(6, 10),
@@ -3299,6 +3313,16 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
       stop("feature_annotation: ", feature_annotation[!feature_annotation %in% colnames(srt[[assay]]@meta.features)], " is not in the meta data of the ", assay, " assay in the Seurat object.")
     }
   }
+  if (isTRUE(flip)) {
+    cluster_rows_raw <- cluster_rows
+    cluster_columns_raw <- cluster_columns
+    cluster_row_slices_raw <- cluster_row_slices
+    cluster_column_slices_raw <- cluster_column_slices
+    cluster_rows <- cluster_columns_raw
+    cluster_columns <- cluster_rows_raw
+    cluster_row_slices <- cluster_column_slices_raw
+    cluster_column_slices <- cluster_row_slices_raw
+  }
 
   if (is.null(cells)) {
     cells <- colnames(srt)
@@ -3346,11 +3370,11 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
         out <- NULL
         for (sp in levels(srt[[split.by, drop = TRUE]])) {
           cells_sp <- cells_sub[srt[[split.by, drop = TRUE]][cells_sub] == sp]
-          out <- c(out, setNames(rep(paste0(x, "_split_by_", sp), length(cells_sp)), cells_sp))
+          out <- c(out, setNames(rep(paste0(x, " : ", sp), length(cells_sp)), cells_sp))
         }
         return(out)
       }) %>% unlist(use.names = TRUE)
-      levels <- apply(expand.grid(levels(srt[[split.by, drop = TRUE]]), levels(srt[[cell_group, drop = TRUE]])), 1, function(x) paste0(x[2:1], collapse = "_split_by_"))
+      levels <- apply(expand.grid(levels(srt[[split.by, drop = TRUE]]), levels(srt[[cell_group, drop = TRUE]])), 1, function(x) paste0(x[2:1], collapse = " : "))
       cell_groups[[cell_group]] <- factor(cell_groups[[cell_group]], levels = levels[levels %in% cell_groups[[cell_group]]])
     }
   }
@@ -3391,6 +3415,9 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
     colnames(mat_perc) <- mat_perc[1, ]
     mat_perc <- mat_perc[-1, ]
     class(mat_perc) <- "numeric"
+    if (isTRUE(flip)) {
+      mat_perc <- t(mat_perc)
+    }
     mat_perc_list[[cell_group]] <- mat_perc
   }
 
@@ -3463,7 +3490,7 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
     if (is.null(split.by)) {
       column_split_list[[cell_group]] <- NULL
     } else {
-      column_split_list[[cell_group]] <- factor(gsub("_split_by_.*", "", levels(cell_groups[[cell_group]])), levels = levels(srt[[cell_group, drop = TRUE]]))
+      column_split_list[[cell_group]] <- factor(gsub(" : .*", "", levels(cell_groups[[cell_group]])), levels = levels(srt[[cell_group, drop = TRUE]]))
     }
     if (isTRUE(cluster_column_slices) && !is.null(split.by)) {
       if (!isTRUE(cluster_columns)) {
@@ -3486,11 +3513,12 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
 
       anno <- list()
       anno[["Group"]] <- anno_block(
-        align_to = split(seq_along(levels(cell_groups[[cell_group]])), gsub(pattern = "_split_by_.*", replacement = "", x = levels(cell_groups[[cell_group]]))),
+        align_to = split(seq_along(levels(cell_groups[[cell_group]])), gsub(pattern = " : .*", replacement = "", x = levels(cell_groups[[cell_group]]))),
         panel_fun = getFunction("panel_fun", where = environment()),
+        which = ifelse(flip, "row", "column"),
         show_name = i == 1
       )
-      ha_cell_group <- do.call("HeatmapAnnotation", args = c(anno, which = "column", show_annotation_name = TRUE, annotation_name_side = "left", border = TRUE))
+      ha_cell_group <- do.call("HeatmapAnnotation", args = c(anno, which = ifelse(flip, "row", "column"), show_annotation_name = TRUE, annotation_name_side = ifelse(flip, "top", "left"), border = TRUE))
       ha_top_list[[cell_group]] <- ha_cell_group
       lgd[[cell_group]] <- Legend(
         title = cell_group, labels = levels(srt[[cell_group, drop = TRUE]]),
@@ -3509,11 +3537,12 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
 
       anno <- list()
       anno[[split.by]] <- anno_block(
-        align_to = split(seq_along(levels(cell_groups[[cell_group]])), gsub(pattern = ".*_split_by_", replacement = "", x = levels(cell_groups[[cell_group]]))),
+        align_to = split(seq_along(levels(cell_groups[[cell_group]])), gsub(pattern = ".* : ", replacement = "", x = levels(cell_groups[[cell_group]]))),
         panel_fun = getFunction("panel_fun", where = environment()),
+        which = ifelse(flip, "row", "column"),
         show_name = i == 1
       )
-      ha_split_by <- do.call("HeatmapAnnotation", args = c(anno, which = "column", show_annotation_name = TRUE, annotation_name_side = "left", border = TRUE))
+      ha_split_by <- do.call("HeatmapAnnotation", args = c(anno, which = ifelse(flip, "row", "column"), show_annotation_name = TRUE, annotation_name_side = ifelse(flip, "top", "left"), border = TRUE))
       if (is.null(ha_top_list[[cell_group]])) {
         ha_top_list[[cell_group]] <- ha_split_by
       } else {
@@ -3561,7 +3590,7 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
             funbody <- gsub(pattern = "\n", replacement = "", x = funbody)
             eval(parse(text = paste("graphics[[nm]] <- function(x, y, w, h) {", funbody, "}", sep = "")), envir = environment())
           }
-          x_nm <- sapply(strsplit(levels(cell_groups[[cell_group]]), "_split_by_"), function(x) {
+          x_nm <- sapply(strsplit(levels(cell_groups[[cell_group]]), " : "), function(x) {
             if (length(x) == 2) {
               paste0(c(cell_group, x[1], x[2]), collapse = ":")
             } else {
@@ -3573,10 +3602,15 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
           ha_cell[[cellan]] <- anno_customize(
             x = x_nm,
             graphics = graphics,
+            which = ifelse(flip, "row", "column"),
             border = TRUE,
             verbose = FALSE
           )
-          anno_args <- c(ha_cell, which = "column", show_annotation_name = cell_group == group.by[1], annotation_name_side = "left")
+          anno_args <- c(ha_cell,
+            which = ifelse(flip, "row", "column"),
+            show_annotation_name = cell_group == group.by[1],
+            annotation_name_side = ifelse(flip, "top", "left")
+          )
           anno_args <- c(anno_args, cell_annotation_params[setdiff(names(cell_annotation_params), names(anno_args))])
           ha_top <- do.call(HeatmapAnnotation, args = anno_args)
           if (is.null(ha_top_list[[cell_group]])) {
@@ -3592,7 +3626,7 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
       } else {
         for (cell_group in group.by) {
           subplots <- ExpStatPlot(srt,
-            assay = assay, slot = "data",
+            assay = assay, slot = "data", flip = flip,
             features = cellan, cells = names(cell_groups[[cell_group]]),
             group.by = cell_group, split.by = split.by,
             palette = group_palette[cell_group], palcolor = group_palcolor[cell_group],
@@ -3611,7 +3645,7 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
             funbody <- gsub(pattern = "\n", replacement = "", x = funbody)
             eval(parse(text = paste("graphics[[nm]] <- function(x, y, w, h) {", funbody, "}", sep = "")), envir = environment())
           }
-          x_nm <- sapply(strsplit(levels(cell_groups[[cell_group]]), "_split_by_"), function(x) {
+          x_nm <- sapply(strsplit(levels(cell_groups[[cell_group]]), " : "), function(x) {
             if (length(x) == 2) {
               paste0(c(cellan, cell_group, x[1], x[2]), collapse = ":")
             } else {
@@ -3622,10 +3656,15 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
           ha_cell[[cellan]] <- anno_customize(
             x = x_nm,
             graphics = graphics,
+            which = ifelse(flip, "row", "column"),
             border = TRUE,
             verbose = FALSE
           )
-          anno_args <- c(ha_cell, which = "column", show_annotation_name = cell_group == group.by[1], annotation_name_side = "left")
+          anno_args <- c(ha_cell,
+            which = ifelse(flip, "row", "column"),
+            show_annotation_name = cell_group == group.by[1],
+            annotation_name_side = ifelse(flip, "top", "left")
+          )
           anno_args <- c(anno_args, cell_annotation_params[setdiff(names(cell_annotation_params), names(anno_args))])
           ha_top <- do.call(HeatmapAnnotation, args = anno_args)
           if (is.null(ha_top_list[[cell_group]])) {
@@ -3728,14 +3767,16 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
     funbody <- gsub(pattern = "\n", replacement = "", x = funbody)
     eval(parse(text = paste("panel_fun <- function(index, nm) {", funbody, "}", sep = "")), envir = environment())
     ha_clusters <- HeatmapAnnotation(
-      feat_empty = anno_empty(width = unit(0.05, "in"), border = FALSE),
       feat_split = anno_block(
         align_to = split(seq_along(row_split_raw), row_split_raw),
         panel_fun = getFunction("panel_fun", where = environment()),
+        which = ifelse(flip, "column", "row"),
         width = unit(0.1, "in"),
+        height = unit(0.1, "in"),
         show_name = FALSE
       ),
-      which = "row", border = TRUE
+      which = ifelse(flip, "column", "row"),
+      border = TRUE
     )
     if (is.null(ha_left)) {
       ha_left <- ha_clusters
@@ -3748,8 +3789,8 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
     )
   }
 
-  if (isTRUE(cluster_rows) && !is.null(cluster_rows_by)) {
-    mat_cluster <- do.call(cbind, mat_list[cluster_rows_by])
+  if (isTRUE(cluster_rows) && !is.null(cluster_features_by)) {
+    mat_cluster <- do.call(cbind, mat_list[cluster_features_by])
     if (is.null(row_split)) {
       dend <- as.dendrogram(hclust(dist(mat_cluster)))
       dend_ordered <- reorder(dend, wts = colMeans(mat_cluster), agglo.FUN = mean)
@@ -3763,14 +3804,9 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
 
   cell_group <- group.by[1]
   ht_args <- list(
-    name = cell_group,
     matrix = mat_list[[cell_group]],
-    col = colors,
-    column_title = cell_group,
     row_split = row_split,
     column_split = column_split_list[[cell_group]],
-    row_title_rot = row_title_rot,
-    column_title_rot = column_title_rot,
     cluster_rows = cluster_rows,
     cluster_columns = cluster_columns_list[[cell_group]],
     cluster_row_slices = cluster_row_slices,
@@ -3803,11 +3839,12 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
       gene = anno_mark(
         at = which(rownames(feature_metadata) %in% features_ordered[index]),
         labels = feature_metadata[which(rownames(feature_metadata) %in% features_ordered[index]), "features"],
-        side = "left",
+        side = ifelse(flip, "top", "left"),
         labels_gp = gpar(fontsize = label_size, col = label_color),
-        link_gp = gpar(fontsize = label_size, col = label_color)
+        link_gp = gpar(fontsize = label_size, col = label_color),
+        which = ifelse(flip, "column", "row")
       ),
-      which = "row", show_annotation_name = FALSE
+      which = ifelse(flip, "column", "row"), show_annotation_name = FALSE
     )
     if (is.null(ha_left)) {
       ha_left <- ha_mark
@@ -3834,9 +3871,10 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
           x = as.character(featan_values),
           col = palette_scp(featan_values, palette = palette, palcolor = palcolor),
           na_col = "transparent",
-          border = TRUE, which = "row"
+          which = ifelse(flip, "column", "row"),
+          border = TRUE
         )
-        anno_args <- c(ha_feature, which = "row", show_annotation_name = TRUE, annotation_name_side = "top", border = TRUE)
+        anno_args <- c(ha_feature, which = ifelse(flip, "column", "row"), show_annotation_name = TRUE, annotation_name_side = ifelse(flip, "left", "top"), border = TRUE)
         anno_args <- c(anno_args, feature_annotation_params[setdiff(names(feature_annotation_params), names(anno_args))])
         ha_feature <- do.call(HeatmapAnnotation, args = anno_args)
         if (is.null(ha_right)) {
@@ -3858,9 +3896,10 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
           x = featan_values,
           col = col_fun,
           na_col = "transparent",
-          border = TRUE, which = "row"
+          which = ifelse(flip, "column", "row"),
+          border = TRUE
         )
-        anno_args <- c(ha_feature, which = "row", show_annotation_name = TRUE, annotation_name_side = "top", border = TRUE)
+        anno_args <- c(ha_feature, which = ifelse(flip, "column", "row"), show_annotation_name = TRUE, annotation_name_side = ifelse(flip, "left", "top"), border = TRUE)
         anno_args <- c(anno_args, feature_annotation_params[setdiff(names(feature_annotation_params), names(anno_args))])
         ha_feature <- do.call(HeatmapAnnotation, args = anno_args)
         if (is.null(ha_right)) {
@@ -3877,6 +3916,9 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
 
   res <- NULL
   if (isTRUE(anno_keys) || isTRUE(anno_features) || isTRUE(anno_terms)) {
+    if (isTRUE(flip)) {
+      stop("anno_keys, anno_features and anno_terms can only be used when flip is FALSE.")
+    }
     geneID <- feature_metadata[, "features"]
     geneID_groups <- feature_metadata[, "feature_split"]
     if (all(is.na(geneID_groups))) {
@@ -3946,15 +3988,17 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
             })
             names(terms_list) <- unlist(lapply(nm, function(x) x[[2]]))
             ha_terms <- HeatmapAnnotation(
-              "terms_empty" = anno_empty(width = unit(0.05, "in"), border = FALSE),
+              "terms_empty" = anno_empty(width = unit(0.05, "in"), border = FALSE, which = "row"),
               "terms_split" = anno_block(
                 gp = gpar(fill = palette_scp(geneID_groups, type = "discrete", palette = feature_split_palette)),
-                width = unit(0.1, "in")
+                width = unit(0.1, "in"),
+                which = "row"
               ),
               "terms" = anno_textbox(
                 align_to = geneID_groups, text = terms_list, max_width = terms_width,
                 word_wrap = TRUE, add_new_line = TRUE,
-                background_gp = gpar(fill = "grey98", col = "black"), round_corners = TRUE
+                background_gp = gpar(fill = "grey98", col = "black"), round_corners = TRUE,
+                which = "row"
               ),
               which = "row", gap = unit(0, "points")
             )
@@ -4007,14 +4051,16 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
             })
             names(keys_list) <- unlist(lapply(nm, function(x) x[[2]]))
             ha_keys <- HeatmapAnnotation(
-              "keys_empty" = anno_empty(width = unit(0.05, "in"), border = FALSE),
+              "keys_empty" = anno_empty(width = unit(0.05, "in"), border = FALSE, which = "row"),
               "keys_split" = anno_block(
                 gp = gpar(fill = palette_scp(geneID_groups, type = "discrete", palette = feature_split_palette)),
-                width = unit(0.1, "in")
+                width = unit(0.1, "in"),
+                which = "row"
               ),
               "keys" = anno_textbox(
                 align_to = geneID_groups, text = keys_list, max_width = keys_width,
-                background_gp = gpar(fill = "grey98", col = "black"), round_corners = TRUE
+                background_gp = gpar(fill = "grey98", col = "black"), round_corners = TRUE,
+                which = "row"
               ),
               which = "row", gap = unit(0, "points")
             )
@@ -4048,14 +4094,16 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
             })
             names(features_list) <- unlist(lapply(nm, function(x) x[[2]]))
             ha_features <- HeatmapAnnotation(
-              "feat_empty" = anno_empty(width = unit(0.05, "in"), border = FALSE),
+              "feat_empty" = anno_empty(width = unit(0.05, "in"), border = FALSE, which = "row"),
               "feat_split" = anno_block(
                 gp = gpar(fill = palette_scp(geneID_groups, type = "discrete", palette = feature_split_palette)),
-                width = unit(0.1, "in")
+                width = unit(0.1, "in"),
+                which = "row"
               ),
               "feat" = anno_textbox(
                 align_to = geneID_groups, text = features_list, max_width = features_width,
-                background_gp = gpar(fill = "grey98", col = "black"), round_corners = TRUE
+                background_gp = gpar(fill = "grey98", col = "black"), round_corners = TRUE,
+                which = "row"
               ),
               which = "row", gap = unit(0, "points")
             )
@@ -4101,10 +4149,9 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
     } else {
       right_annotation <- NULL
     }
-
     if (isTRUE(add_violin)) {
       vlnplots <- ExpStatPlot(srt,
-        assay = assay, slot = "data",
+        assay = assay, slot = "data", flip = flip,
         features = rownames(mat_list[[cell_group]]),
         cells = names(cell_groups[[cell_group]]),
         group.by = cell_group, split.by = split.by,
@@ -4134,7 +4181,7 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
       vlnplots_list[[paste0("heatmap_group:", cell_group)]] <- vlnplots
       x_nm <- rownames(mat_list[[cell_group]])
       x_nm_list[[paste0("heatmap_group:", cell_group)]] <- x_nm
-      y_nm <- sapply(strsplit(levels(cell_groups[[cell_group]]), "_split_by_"), function(x) {
+      y_nm <- sapply(strsplit(levels(cell_groups[[cell_group]]), " : "), function(x) {
         if (length(x) == 2) {
           paste0(c(cell_group, x[1], x[2]), collapse = ":")
         } else {
@@ -4149,7 +4196,10 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
       #                          x_nm =  x_nm_list[[paste0('heatmap_group:', cell_group)]],
       #                          y_nm= y_nm_list[[paste0('heatmap_group:',cell_group)]],
       #                          x = 1:4,y = 1:4);
-      # grid_draw(groblist, x = unit(c(0.33,0.67,0.33,0.67),'npc'), y = unit(c(0.67,0.67,0.67,0.67),'npc'));
+      # grid_draw(groblist,
+      #   x = unit(c(0.33, 0.67, 0.33, 0.67), "npc"), y = unit(c(0.33, 0.33, 0.67, 0.67), "npc"),
+      #   width = rep(unit(1, "in"), 4), height = rep(unit(1, "in"), 4)
+      # )
     }
 
     funbody <- paste0(
@@ -4190,13 +4240,23 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
         ")
       },
       if (isTRUE(add_violin)) {
-        paste0("
+        if (isTRUE(flip)) {
+          paste0("
+        groblist <- extractgrobs(vlnplots = vlnplots_list[[paste0('heatmap_group:', '", cell_group, "')]],
+               x_nm =  x_nm_list[[paste0('heatmap_group:', '", cell_group, "')]],
+               y_nm= y_nm_list[[paste0('heatmap_group:', '", cell_group, "')]],
+               x = j,y = i);
+        grid_draw(groblist, x = x, y = y, width = width, height = height);
+        ")
+        } else {
+          paste0("
         groblist <- extractgrobs(vlnplots = vlnplots_list[[paste0('heatmap_group:', '", cell_group, "')]],
                x_nm =  x_nm_list[[paste0('heatmap_group:', '", cell_group, "')]],
                y_nm= y_nm_list[[paste0('heatmap_group:', '", cell_group, "')]],
                x = i,y = j);
         grid_draw(groblist, x = x, y = y, width = width, height = height);
         ")
+        }
       }
     )
     # groblist <- extractgrobs(vlnplots = vlnplots_list[[paste0("heatmap_group:", cell_group)]],
@@ -4217,30 +4277,33 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
 
     funbody <- gsub(pattern = "\n", replacement = "", x = funbody)
     eval(parse(text = paste("layer_fun <- function(j, i, x, y, width, height, fill) {", funbody, "}", sep = "")), envir = environment())
-
     ht_args <- list(
       name = cell_group,
-      matrix = mat_list[[cell_group]],
+      matrix = if (flip) t(mat_list[[cell_group]]) else mat_list[[cell_group]],
       col = colors,
       layer_fun = getFunction("layer_fun", where = environment()),
-      column_title = ifelse(cell_group != "No.group.by", cell_group, ""),
-      row_split = row_split,
-      column_split = column_split_list[[cell_group]],
+      row_title = if (flip) ifelse(cell_group != "No.group.by", cell_group, "") else character(0),
+      row_title_side = row_title_side,
+      column_title = if (flip) character(0) else ifelse(cell_group != "No.group.by", cell_group, ""),
+      column_title_side = if (flip) "top" else column_title_side,
       row_title_rot = row_title_rot,
       column_title_rot = column_title_rot,
-      cluster_rows = cluster_rows,
-      cluster_columns = cluster_columns_list[[cell_group]],
-      cluster_row_slices = cluster_row_slices,
-      cluster_column_slices = cluster_column_slices,
+      row_split = if (flip) column_split_list[[cell_group]] else row_split,
+      column_split = if (flip) row_split else column_split_list[[cell_group]],
+      cluster_rows = if (flip) cluster_columns_list[[cell_group]] else cluster_rows,
+      cluster_columns = if (flip) cluster_rows else cluster_columns_list[[cell_group]],
+      cluster_row_slices = cluster_column_slices,
+      cluster_column_slices = cluster_row_slices,
       show_row_names = show_row_names,
       show_column_names = show_column_names,
-      top_annotation = ha_top_list[[cell_group]],
-      left_annotation = left_annotation,
-      right_annotation = right_annotation,
+      row_names_side = row_names_side,
+      column_names_side = column_names_side,
+      top_annotation = if (flip) left_annotation else ha_top_list[[cell_group]],
+      left_annotation = if (flip) ha_top_list[[cell_group]] else left_annotation,
+      bottom_annotation = if (flip) right_annotation else NULL,
+      right_annotation = if (flip) NULL else right_annotation,
       show_heatmap_legend = FALSE,
       border = border,
-      # width = unit(ncol(mat_list[[cell_group]]) * grid_size, "cm"),
-      # height = unit(nrow(mat_list[[cell_group]]) * grid_size, "cm"),
       use_raster = use_raster,
       raster_device = raster_device
     )
@@ -4248,7 +4311,15 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
       warning("ht_params: ", paste0(intersect(names(ht_params), names(ht_args)), collapse = ","), " were duplicated and will not be used.")
     }
     ht_args <- c(ht_args, ht_params[setdiff(names(ht_params), names(ht_args))])
-    ht_list <- ht_list + do.call(Heatmap, args = ht_args)
+    if (isTRUE(flip)) {
+      if (is.null(ht_list)) {
+        ht_list <- do.call(Heatmap, args = ht_args)
+      } else {
+        ht_list <- ht_list %v% do.call(Heatmap, args = ht_args)
+      }
+    } else {
+      ht_list <- ht_list + do.call(Heatmap, args = ht_args)
+    }
   }
 
   if (length(index) == 0 && isFALSE(anno_terms) && isFALSE(anno_keys) && isFALSE(anno_features) && is.null(width) && is.null(height)) {
@@ -4259,17 +4330,29 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
   if (is.null(height)) {
     height <- convertHeight(unit(0.9, "npc"), units)
   }
-  if (length(ha_top_list) > 0) {
-    height <- convertUnit(unit(height, units) + height.HeatmapAnnotation(ha_top_list[[1]]), units)
-  }
   if (is.null(width)) {
     width <- convertWidth(unit(0.9, "npc"), units)
   }
-  if (!is.null(ha_left)) {
-    width <- convertUnit(unit(width, units) + width.HeatmapAnnotation(ha_left), units)
-  }
-  if (!is.null(ha_right)) {
-    width <- convertUnit(unit(width, units) + width.HeatmapAnnotation(ha_right), units)
+  if (isTRUE(flip)) {
+    if (length(ha_top_list) > 0) {
+      width <- convertUnit(unit(width, units) + width.HeatmapAnnotation(ha_top_list[[1]]), units)
+    }
+    if (!is.null(ha_left)) {
+      height <- convertUnit(unit(height, units) + height.HeatmapAnnotation(ha_left), units)
+    }
+    if (!is.null(ha_right)) {
+      height <- convertUnit(unit(height, units) + height.HeatmapAnnotation(ha_right), units)
+    }
+  } else {
+    if (length(ha_top_list) > 0) {
+      height <- convertUnit(unit(height, units) + height.HeatmapAnnotation(ha_top_list[[1]]), units)
+    }
+    if (!is.null(ha_left)) {
+      width <- convertUnit(unit(width, units) + width.HeatmapAnnotation(ha_left), units)
+    }
+    if (!is.null(ha_right)) {
+      width <- convertUnit(unit(width, units) + width.HeatmapAnnotation(ha_right), units)
+    }
   }
 
   lgd_width <- convertUnit(unit(unlist(lapply(lgd, width.Legends)), unitType(width.Legends(lgd[[1]]))) + unit(4, "mm"), units)
@@ -4457,11 +4540,12 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
 #' @importFrom Seurat GetAssayData
 #' @importFrom stats hclust order.dendrogram as.dendrogram reorder
 #' @export
-ExpHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, split.by = NULL, max_cells = 100, cell_order = NULL, border = TRUE,
+ExpHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, split.by = NULL, max_cells = 100, cell_order = NULL, border = TRUE, flip = FALSE,
                        slot = "counts", assay = "RNA", exp_method = c("zscore", "raw", "fc", "log2fc", "log1p"), lib_normalize = TRUE, libsize = NULL,
                        feature_split = NULL, feature_split_by = NULL, n_split = NULL, split_method = c("kmeans", "hclust", "mfuzz"), decreasing = FALSE,
-                       cluster_rows = FALSE, cluster_rows_by = NULL, cluster_columns = FALSE, cluster_row_slices = FALSE, cluster_column_slices = FALSE,
-                       show_row_names = FALSE, show_column_names = FALSE, row_title_rot = 0, column_title_rot = 0,
+                       cluster_features_by = NULL, cluster_rows = FALSE, cluster_columns = FALSE, cluster_row_slices = FALSE, cluster_column_slices = FALSE,
+                       show_row_names = FALSE, show_column_names = FALSE, row_names_side = ifelse(flip, "left", "right"), column_names_side = ifelse(flip, "bottom", "top"),
+                       row_title_side = "left", column_title_side = "top", row_title_rot = 0, column_title_rot = ifelse(flip, 90, 0),
                        anno_terms = FALSE, anno_keys = FALSE, anno_features = FALSE,
                        terms_width = unit(4, "in"), terms_fontsize = 8,
                        keys_width = unit(2, "in"), keys_fontsize = c(6, 10),
@@ -4561,6 +4645,16 @@ ExpHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, spli
       stop("feature_annotation: ", feature_annotation[!feature_annotation %in% colnames(srt[[assay]]@meta.features)], " is not in the meta data of the ", assay, " assay in the Seurat object.")
     }
   }
+  if (isTRUE(flip)) {
+    cluster_rows_raw <- cluster_rows
+    cluster_columns_raw <- cluster_columns
+    cluster_row_slices_raw <- cluster_row_slices
+    cluster_column_slices_raw <- cluster_column_slices
+    cluster_rows <- cluster_columns_raw
+    cluster_columns <- cluster_rows_raw
+    cluster_row_slices <- cluster_column_slices_raw
+    cluster_column_slices <- cluster_row_slices_raw
+  }
 
   if (is.null(cells)) {
     cells <- colnames(srt)
@@ -4612,13 +4706,13 @@ ExpHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, spli
           cells_sp <- cells_sub[srt[[split.by, drop = TRUE]][cells_sub] == sp]
           size <- ifelse(length(cells_sp) > max_cells, max_cells, length(cells_sp))
           cells_sample <- sample(cells_sub, size)
-          cells_tmp <- c(cells_tmp, setNames(rep(paste0(x, "_split_by_", sp), size), cells_sample))
+          cells_tmp <- c(cells_tmp, setNames(rep(paste0(x, " : ", sp), size), cells_sample))
         }
         size <- ifelse(length(cells_tmp) > max_cells, max_cells, length(cells_tmp))
         out <- sample(cells_tmp, size)
         return(out)
       }) %>% unlist(use.names = TRUE)
-      levels <- apply(expand.grid(levels(srt[[split.by, drop = TRUE]]), levels(srt[[cell_group, drop = TRUE]])), 1, function(x) paste0(x[2:1], collapse = "_split_by_"))
+      levels <- apply(expand.grid(levels(srt[[split.by, drop = TRUE]]), levels(srt[[cell_group, drop = TRUE]])), 1, function(x) paste0(x[2:1], collapse = " : "))
       cell_groups[[cell_group]] <- factor(cell_groups[[cell_group]], levels = levels[levels %in% cell_groups[[cell_group]]])
     }
     if (!is.null(cell_order)) {
@@ -4719,11 +4813,12 @@ ExpHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, spli
 
       anno <- list()
       anno[["Group"]] <- anno_block(
-        align_to = split(seq_along(cell_groups[[cell_group]]), gsub(pattern = "_split_by_.*", replacement = "", x = cell_groups[[cell_group]])),
+        align_to = split(seq_along(cell_groups[[cell_group]]), gsub(pattern = " : .*", replacement = "", x = cell_groups[[cell_group]])),
         panel_fun = getFunction("panel_fun", where = environment()),
+        which = ifelse(flip, "row", "column"),
         show_name = i == 1
       )
-      ha_cell_group <- do.call("HeatmapAnnotation", args = c(anno, which = "column", show_annotation_name = TRUE, annotation_name_side = "left", border = TRUE))
+      ha_cell_group <- do.call("HeatmapAnnotation", args = c(anno, which = ifelse(flip, "row", "column"), show_annotation_name = TRUE, annotation_name_side = ifelse(flip, "top", "left"), border = TRUE))
       ha_top_list[[cell_group]] <- ha_cell_group
       lgd[[cell_group]] <- Legend(
         title = cell_group, labels = levels(srt[[cell_group, drop = TRUE]]),
@@ -4742,11 +4837,12 @@ ExpHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, spli
 
       anno <- list()
       anno[[split.by]] <- anno_block(
-        align_to = split(seq_along(cell_groups[[cell_group]]), gsub(pattern = ".*_split_by_", replacement = "", x = cell_groups[[cell_group]])),
+        align_to = split(seq_along(cell_groups[[cell_group]]), gsub(pattern = ".* : ", replacement = "", x = cell_groups[[cell_group]])),
         panel_fun = getFunction("panel_fun", where = environment()),
+        which = ifelse(flip, "row", "column"),
         show_name = i == 1
       )
-      ha_split_by <- do.call("HeatmapAnnotation", args = c(anno, which = "column", show_annotation_name = TRUE, annotation_name_side = "left", border = TRUE))
+      ha_split_by <- do.call("HeatmapAnnotation", args = c(anno, which = ifelse(flip, "row", "column"), show_annotation_name = TRUE, annotation_name_side = ifelse(flip, "top", "left"), border = TRUE))
       if (is.null(ha_top_list[[cell_group]])) {
         ha_top_list[[cell_group]] <- ha_split_by
       } else {
@@ -4779,10 +4875,15 @@ ExpHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, spli
           ha_cell[[cellan]] <- anno_simple(
             x = as.character(cell_anno[names(cell_groups[[cell_group]])]),
             col = palette_scp(cell_anno, palette = palette, palcolor = palcolor),
+            which = ifelse(flip, "row", "column"),
             na_col = "transparent",
             border = TRUE
           )
-          anno_args <- c(ha_cell, which = "column", show_annotation_name = cell_group == group.by[1], annotation_name_side = "left")
+          anno_args <- c(ha_cell,
+            which = ifelse(flip, "row", "column"),
+            show_annotation_name = cell_group == group.by[1],
+            annotation_name_side = ifelse(flip, "top", "left")
+          )
           anno_args <- c(anno_args, cell_annotation_params[setdiff(names(cell_annotation_params), names(anno_args))])
           ha_top <- do.call(HeatmapAnnotation, args = anno_args)
           if (is.null(ha_top_list[[cell_group]])) {
@@ -4805,10 +4906,15 @@ ExpHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, spli
           ha_cell[[cellan]] <- anno_simple(
             x = cell_anno[names(cell_groups[[cell_group]])],
             col = col_fun,
+            which = ifelse(flip, "row", "column"),
             na_col = "transparent",
             border = TRUE
           )
-          anno_args <- c(ha_cell, which = "column", show_annotation_name = cell_group == group.by[1], annotation_name_side = "left")
+          anno_args <- c(ha_cell,
+            which = ifelse(flip, "row", "column"),
+            show_annotation_name = cell_group == group.by[1],
+            annotation_name_side = ifelse(flip, "top", "left")
+          )
           anno_args <- c(anno_args, cell_annotation_params[setdiff(names(cell_annotation_params), names(anno_args))])
           ha_top <- do.call(HeatmapAnnotation, args = anno_args)
           if (is.null(ha_top_list[[cell_group]])) {
@@ -4909,14 +5015,15 @@ ExpHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, spli
     funbody <- gsub(pattern = "\n", replacement = "", x = funbody)
     eval(parse(text = paste("panel_fun <- function(index, nm) {", funbody, "}", sep = "")), envir = environment())
     ha_clusters <- HeatmapAnnotation(
-      feat_empty = anno_empty(width = unit(0.05, "in"), border = FALSE),
       feat_split = anno_block(
         align_to = split(seq_along(row_split_raw), row_split_raw),
         panel_fun = getFunction("panel_fun", where = environment()),
+        which = ifelse(flip, "column", "row"),
         width = unit(0.1, "in"),
+        height = unit(0.1, "in"),
         show_name = FALSE
       ),
-      which = "row", border = TRUE
+      which = ifelse(flip, "column", "row"), border = TRUE
     )
     if (is.null(ha_left)) {
       ha_left <- ha_clusters
@@ -4929,8 +5036,8 @@ ExpHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, spli
     )
   }
 
-  if (isTRUE(cluster_rows) && !is.null(cluster_rows_by)) {
-    mat_cluster <- do.call(cbind, mat_list[cluster_rows_by])
+  if (isTRUE(cluster_rows) && !is.null(cluster_features_by)) {
+    mat_cluster <- do.call(cbind, mat_list[cluster_features_by])
     if (is.null(row_split)) {
       dend <- as.dendrogram(hclust(dist(mat_cluster)))
       dend_ordered <- reorder(dend, wts = colMeans(mat_cluster), agglo.FUN = mean)
@@ -4984,11 +5091,12 @@ ExpHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, spli
       gene = anno_mark(
         at = which(rownames(feature_metadata) %in% features_ordered[index]),
         labels = feature_metadata[which(rownames(feature_metadata) %in% features_ordered[index]), "features"],
-        side = "left",
+        side = ifelse(flip, "top", "left"),
         labels_gp = gpar(fontsize = label_size, col = label_color),
-        link_gp = gpar(fontsize = label_size, col = label_color)
+        link_gp = gpar(fontsize = label_size, col = label_color),
+        which = ifelse(flip, "column", "row")
       ),
-      which = "row", show_annotation_name = FALSE
+      which = ifelse(flip, "column", "row"), show_annotation_name = FALSE
     )
     if (is.null(ha_left)) {
       ha_left <- ha_mark
@@ -5014,10 +5122,11 @@ ExpHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, spli
         ha_feature[[featan]] <- anno_simple(
           x = as.character(featan_values),
           col = palette_scp(featan_values, palette = palette, palcolor = palcolor),
+          which = ifelse(flip, "column", "row"),
           na_col = "transparent",
-          border = TRUE, which = "row"
+          border = TRUE
         )
-        anno_args <- c(ha_feature, which = "row", show_annotation_name = TRUE, annotation_name_side = "top", border = TRUE)
+        anno_args <- c(ha_feature, which = ifelse(flip, "column", "row"), show_annotation_name = TRUE, annotation_name_side = ifelse(flip, "left", "top"), border = TRUE)
         anno_args <- c(anno_args, feature_annotation_params[setdiff(names(feature_annotation_params), names(anno_args))])
         ha_feature <- do.call(HeatmapAnnotation, args = anno_args)
         if (is.null(ha_right)) {
@@ -5038,10 +5147,11 @@ ExpHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, spli
         ha_feature[[featan]] <- anno_simple(
           x = featan_values,
           col = col_fun,
+          which = ifelse(flip, "column", "row"),
           na_col = "transparent",
-          border = TRUE, which = "row"
+          border = TRUE
         )
-        anno_args <- c(ha_feature, which = "row", show_annotation_name = TRUE, annotation_name_side = "top", border = TRUE)
+        anno_args <- c(ha_feature, which = ifelse(flip, "column", "row"), show_annotation_name = TRUE, annotation_name_side = ifelse(flip, "left", "top"), border = TRUE)
         anno_args <- c(anno_args, feature_annotation_params[setdiff(names(feature_annotation_params), names(anno_args))])
         ha_feature <- do.call(HeatmapAnnotation, args = anno_args)
         if (is.null(ha_right)) {
@@ -5058,6 +5168,9 @@ ExpHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, spli
 
   res <- NULL
   if (isTRUE(anno_keys) || isTRUE(anno_features) || isTRUE(anno_terms)) {
+    if (isTRUE(flip)) {
+      stop("anno_keys, anno_features and anno_terms can only be used when flip is FALSE.")
+    }
     geneID <- feature_metadata[, "features"]
     geneID_groups <- feature_metadata[, "feature_split"]
     if (all(is.na(geneID_groups))) {
@@ -5127,15 +5240,17 @@ ExpHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, spli
             })
             names(terms_list) <- unlist(lapply(nm, function(x) x[[2]]))
             ha_terms <- HeatmapAnnotation(
-              "terms_empty" = anno_empty(width = unit(0.05, "in"), border = FALSE),
+              "terms_empty" = anno_empty(width = unit(0.05, "in"), border = FALSE, which = "row"),
               "terms_split" = anno_block(
                 gp = gpar(fill = palette_scp(geneID_groups, type = "discrete", palette = feature_split_palette)),
-                width = unit(0.1, "in")
+                width = unit(0.1, "in"),
+                which = "row"
               ),
               "terms" = anno_textbox(
                 align_to = geneID_groups, text = terms_list, max_width = terms_width,
                 word_wrap = TRUE, add_new_line = TRUE,
-                background_gp = gpar(fill = "grey98", col = "black"), round_corners = TRUE
+                background_gp = gpar(fill = "grey98", col = "black"), round_corners = TRUE,
+                which = "row"
               ),
               which = "row", gap = unit(0, "points")
             )
@@ -5188,14 +5303,16 @@ ExpHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, spli
             })
             names(keys_list) <- unlist(lapply(nm, function(x) x[[2]]))
             ha_keys <- HeatmapAnnotation(
-              "keys_empty" = anno_empty(width = unit(0.05, "in"), border = FALSE),
+              "keys_empty" = anno_empty(width = unit(0.05, "in"), border = FALSE, which = "row"),
               "keys_split" = anno_block(
                 gp = gpar(fill = palette_scp(geneID_groups, type = "discrete", palette = feature_split_palette)),
-                width = unit(0.1, "in")
+                width = unit(0.1, "in"),
+                which = "row"
               ),
               "keys" = anno_textbox(
                 align_to = geneID_groups, text = keys_list, max_width = keys_width,
-                background_gp = gpar(fill = "grey98", col = "black"), round_corners = TRUE
+                background_gp = gpar(fill = "grey98", col = "black"), round_corners = TRUE,
+                which = "row"
               ),
               which = "row", gap = unit(0, "points")
             )
@@ -5229,14 +5346,16 @@ ExpHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, spli
             })
             names(features_list) <- unlist(lapply(nm, function(x) x[[2]]))
             ha_features <- HeatmapAnnotation(
-              "feat_empty" = anno_empty(width = unit(0.05, "in"), border = FALSE),
+              "feat_empty" = anno_empty(width = unit(0.05, "in"), border = FALSE, which = "row"),
               "feat_split" = anno_block(
                 gp = gpar(fill = palette_scp(geneID_groups, type = "discrete", palette = feature_split_palette)),
-                width = unit(0.1, "in")
+                width = unit(0.1, "in"),
+                which = "row"
               ),
               "feat" = anno_textbox(
                 align_to = geneID_groups, text = features_list, max_width = features_width,
-                background_gp = gpar(fill = "grey98", col = "black"), round_corners = TRUE
+                background_gp = gpar(fill = "grey98", col = "black"), round_corners = TRUE,
+                which = "row"
               ),
               which = "row", gap = unit(0, "points")
             )
@@ -5272,41 +5391,60 @@ ExpHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, spli
     } else {
       right_annotation <- NULL
     }
+
     ht_args <- list(
       name = cell_group,
-      matrix = mat_list[[cell_group]],
+      matrix = if (flip) t(mat_list[[cell_group]]) else mat_list[[cell_group]],
       col = colors,
-      column_title = ifelse(cell_group != "No.group.by", cell_group, ""),
-      row_split = row_split,
-      column_split = column_split_list[[cell_group]],
+      row_title = if (flip) ifelse(cell_group != "No.group.by", cell_group, "") else character(0),
+      row_title_side = row_title_side,
+      column_title = if (flip) character(0) else ifelse(cell_group != "No.group.by", cell_group, ""),
+      column_title_side = if (flip) "top" else column_title_side,
       row_title_rot = row_title_rot,
       column_title_rot = column_title_rot,
-      cluster_rows = cluster_rows,
-      cluster_columns = cluster_columns_list[[cell_group]],
-      cluster_row_slices = cluster_row_slices,
-      cluster_column_slices = cluster_column_slices,
+      row_split = if (flip) column_split_list[[cell_group]] else row_split,
+      column_split = if (flip) row_split else column_split_list[[cell_group]],
+      cluster_rows = if (flip) cluster_columns_list[[cell_group]] else cluster_rows,
+      cluster_columns = if (flip) cluster_rows else cluster_columns_list[[cell_group]],
+      cluster_row_slices = cluster_column_slices,
+      cluster_column_slices = cluster_row_slices,
       show_row_names = show_row_names,
       show_column_names = show_column_names,
-      top_annotation = ha_top_list[[cell_group]],
-      left_annotation = left_annotation,
-      right_annotation = right_annotation,
+      row_names_side = row_names_side,
+      column_names_side = column_names_side,
+      top_annotation = if (flip) left_annotation else ha_top_list[[cell_group]],
+      left_annotation = if (flip) ha_top_list[[cell_group]] else left_annotation,
+      bottom_annotation = if (flip) right_annotation else NULL,
+      right_annotation = if (flip) NULL else right_annotation,
       show_heatmap_legend = FALSE,
       border = border,
       use_raster = use_raster,
       raster_device = raster_device
     )
     if (!is.null(split.by) && !isTRUE(cluster_column_slices)) {
-      groups_order <- sapply(strsplit(levels(column_split_list[[cell_group]]), "_split_by_"), function(x) x[[1]])
+      groups_order <- sapply(strsplit(levels(column_split_list[[cell_group]]), " : "), function(x) x[[1]])
       gaps_order <- paste(groups_order[2:length(groups_order)], groups_order[1:(length(groups_order) - 1)], sep = "->")
       gaps <- rep(unit(1, "mm"), length(gaps_order))
       gaps[groups_order[2:length(groups_order)] == groups_order[1:(length(groups_order) - 1)]] <- unit(0, "mm")
-      ht_args[["column_gap"]] <- gaps
+      if (isTRUE(flip)) {
+        ht_args[["row_gap"]] <- gaps
+      } else {
+        ht_args[["column_gap"]] <- gaps
+      }
     }
     if (any(names(ht_params) %in% names(ht_args))) {
       warning("ht_params: ", paste0(intersect(names(ht_params), names(ht_args)), collapse = ","), " were duplicated and will not be used.")
     }
     ht_args <- c(ht_args, ht_params[setdiff(names(ht_params), names(ht_args))])
-    ht_list <- ht_list + do.call(Heatmap, args = ht_args)
+    if (isTRUE(flip)) {
+      if (is.null(ht_list)) {
+        ht_list <- do.call(Heatmap, args = ht_args)
+      } else {
+        ht_list <- ht_list %v% do.call(Heatmap, args = ht_args)
+      }
+    } else {
+      ht_list <- ht_list + do.call(Heatmap, args = ht_args)
+    }
   }
 
   if (length(index) == 0 && isFALSE(anno_terms) && isFALSE(anno_keys) && isFALSE(anno_features) && is.null(width) && is.null(height)) {
@@ -5317,17 +5455,29 @@ ExpHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, spli
   if (is.null(height)) {
     height <- convertHeight(unit(0.9, "npc"), units)
   }
-  if (length(ha_top_list) > 0) {
-    height <- convertUnit(unit(height, units) + height.HeatmapAnnotation(ha_top_list[[1]]), units)
-  }
   if (is.null(width)) {
     width <- convertWidth(unit(0.9, "npc"), units)
   }
-  if (!is.null(ha_left)) {
-    width <- convertUnit(unit(width, units) + width.HeatmapAnnotation(ha_left), units)
-  }
-  if (!is.null(ha_right)) {
-    width <- convertUnit(unit(width, units) + width.HeatmapAnnotation(ha_right), units)
+  if (isTRUE(flip)) {
+    if (length(ha_top_list) > 0) {
+      width <- convertUnit(unit(width, units) + width.HeatmapAnnotation(ha_top_list[[1]]), units)
+    }
+    if (!is.null(ha_left)) {
+      height <- convertUnit(unit(height, units) + height.HeatmapAnnotation(ha_left), units)
+    }
+    if (!is.null(ha_right)) {
+      height <- convertUnit(unit(height, units) + height.HeatmapAnnotation(ha_right), units)
+    }
+  } else {
+    if (length(ha_top_list) > 0) {
+      height <- convertUnit(unit(height, units) + height.HeatmapAnnotation(ha_top_list[[1]]), units)
+    }
+    if (!is.null(ha_left)) {
+      width <- convertUnit(unit(width, units) + width.HeatmapAnnotation(ha_left), units)
+    }
+    if (!is.null(ha_right)) {
+      width <- convertUnit(unit(width, units) + width.HeatmapAnnotation(ha_right), units)
+    }
   }
 
   lgd_width <- convertUnit(unit(unlist(lapply(lgd, width.Legends)), unitType(width.Legends(lgd[[1]]))) + unit(4, "mm"), units)
@@ -5870,8 +6020,10 @@ CellCorHeatmap <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
                            DE_threshold = "p_val_adj < 0.05",
                            distance_metric = "cosine", k = 30,
                            filter_lowfreq = 0, prefix = "knnpredict", force = FALSE,
+                           rows = NULL, columns = NULL,
                            cluster_columns = TRUE, cluster_rows = TRUE,
-                           nlabel = 3, label_by = "row") {
+                           nlabel = 3, label_cutoff = 0, label_by = "row", label_size = 10,
+                           gird_size = unit(8, "mm"), ...) {
   if (is.null(srt@tools$knnpredict$distance_matrix)) {
     srt <- RunKNNPredict(
       srt_query = srt_query, srt_ref = srt_ref, bulk_ref = bulk_ref,
@@ -5888,6 +6040,19 @@ CellCorHeatmap <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
     )
   }
   d <- t(as.matrix(1 - srt@tools$knnpredict$distance_matrix))
+  if (is.null(rows)) {
+    rows <- rownames(d)
+  }
+  if (is.null(columns)) {
+    columns <- colnames(d)
+  }
+  if (sum(!rows %in% rownames(d)) > 0) {
+    warning("Rows of the matrix do not contain the following names: ", paste0(rows[!rows %in% rownames(d)], collapse = ","), immediate. = TRUE)
+  }
+  if (sum(!columns %in% colnames(d)) > 0) {
+    warning("Columns of the matrix do not contain the following names: ", paste0(columns[!columns %in% colnames(d)], collapse = ","), immediate. = TRUE)
+  }
+  d <- d[rows[rows %in% rownames(d)], columns[columns %in% colnames(d)]]
   ht <- Heatmap(d,
     name = "Cosine similarity", cluster_columns = cluster_columns, cluster_rows = cluster_rows,
     col = colorRamp2(seq(min(d), max(d), length.out = 3), c("#27408B", "white", "#EE0000")),
@@ -5901,27 +6066,28 @@ CellCorHeatmap <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
         gp = gpar(col = fill, lwd = 1, fill = alpha(fill, 0.5))
       )
       if (label_by == "row") {
-        if (d[i, j] >= sort(d[i, ], decreasing = T)[nlabel]) {
+        if (d[i, j] >= max(sort(d[i, ], decreasing = T)[nlabel], label_cutoff)) {
           # grid.text("*", x, y, gp = gpar(fontsize = 20))
-          grid.text(round(d[i, j], 2), x, y, gp = gpar(fontsize = 10))
+          grid.text(round(d[i, j], 2), x, y, gp = gpar(fontsize = label_size))
         }
       }
       if (label_by == "column") {
-        if (d[i, j] >= sort(d[, j], decreasing = T)[nlabel]) {
+        if (d[i, j] >= max(sort(d[, j], decreasing = T)[nlabel], label_cutoff)) {
           # grid.text("*", x, y, gp = gpar(fontsize = 20))
-          grid.text(round(d[i, j], 2), x, y, gp = gpar(fontsize = 10))
+          grid.text(round(d[i, j], 2), x, y, gp = gpar(fontsize = label_size))
         }
       }
       if (label_by == "both") {
-        if (d[i, j] >= sort(d[, j], decreasing = T)[nlabel] & d[i, j] >= sort(d[i, ], decreasing = T)[nlabel]) {
+        if (d[i, j] >= max(sort(d[, j], decreasing = T)[nlabel], label_cutoff) & d[i, j] >= max(sort(d[i, ], decreasing = T)[nlabel], label_cutoff)) {
           # grid.text("*", x, y, gp = gpar(fontsize = 20))
-          grid.text(round(d[i, j], 2), x, y, gp = gpar(fontsize = 10))
+          grid.text(round(d[i, j], 2), x, y, gp = gpar(fontsize = label_size))
         }
       }
     },
+    width = gird_size * ncol(d),
+    height = gird_size * nrow(d),
     border = TRUE,
-    width = unit(ncol(d) * 0.8, "cm"),
-    height = unit(nrow(d) * 0.8, "cm"),
+    ...
   )
   gTree <- grid.grabExpr({
     draw(ht,
@@ -9613,7 +9779,6 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineag
     funbody <- gsub(pattern = "\n", replacement = "", x = funbody)
     eval(parse(text = paste("panel_fun <- function(index, nm) {", funbody, "}", sep = "")), envir = environment())
     ha_clusters <- HeatmapAnnotation(
-      feat_empty = anno_empty(width = unit(0.05, "in"), border = FALSE),
       feat_split = anno_block(
         align_to = split(seq_along(row_split_raw), row_split_raw),
         panel_fun = getFunction("panel_fun", where = environment()),
@@ -10341,7 +10506,7 @@ EnrichmentPlot <- function(srt, db = "GO_BP", group_by = NULL, group_use = NULL,
           aspect.ratio = aspect.ratio,
           base_size = base_size,
           panel.grid.major = element_line(colour = "grey80", linetype = 2),
-          strip.background.y = element_rect(fill = "white", color = "black", linetype = 1, size = 1),
+          strip.background.y = element_rect(fill = "white", color = "black", linetype = 1, linewidth = 1),
           legend.box.margin = margin(0, 0, 0, 0),
           legend.margin = margin(0, 0, 0, 0),
           legend.position = legend.position,
@@ -10402,7 +10567,7 @@ EnrichmentPlot <- function(srt, db = "GO_BP", group_by = NULL, group_use = NULL,
           panel.background = element_rect(fill = "#1A365C"),
           base_size = base_size,
           panel.grid.major = element_line(colour = "grey80", linetype = 2),
-          strip.background.y = element_rect(fill = "white", color = "black", linetype = 1, size = 1),
+          strip.background.y = element_rect(fill = "white", color = "black", linetype = 1, linewidth = 1),
           legend.box.margin = margin(0, 0, 0, 0),
           legend.margin = margin(0, 0, 0, 0),
           legend.position = legend.position,
@@ -10647,7 +10812,7 @@ GSEAPlot <- function(srt, db = "GO_BP", group_by = NULL, group_use = NULL, test.
         axis.text.x = element_blank(),
         axis.ticks.x = element_blank(),
         axis.line = element_blank(),
-        panel.border = element_rect(color = "black", fill = "transparent", size = 1),
+        panel.border = element_rect(color = "black", fill = "transparent", linewidth = 1),
         plot.margin = margin(t = 0.2, r = 0.2, b = 0, l = 0.2, unit = "cm"),
         legend.position = "right",
         legend.title = element_blank(),
@@ -10673,7 +10838,7 @@ GSEAPlot <- function(srt, db = "GO_BP", group_by = NULL, group_use = NULL, test.
       theme(
         legend.position = "none",
         plot.margin = margin(t = -0.1, b = 0, r = 0.2, l = 0.2, unit = "cm"),
-        panel.border = element_rect(color = "black", fill = "transparent", size = 1),
+        panel.border = element_rect(color = "black", fill = "transparent", linewidth = 1),
         axis.line.y = element_blank(), axis.line.x = element_blank(),
         axis.ticks = element_blank(), axis.text = element_blank()
       ) +
@@ -10781,7 +10946,7 @@ GSEAPlot <- function(srt, db = "GO_BP", group_by = NULL, group_use = NULL, test.
       theme(
         plot.margin = margin(t = -0.1, r = 0.2, b = 0.2, l = 0.2, unit = "cm"),
         axis.line = element_blank(), axis.line.x = element_blank(),
-        panel.border = element_rect(color = "black", fill = "transparent", size = 1)
+        panel.border = element_rect(color = "black", fill = "transparent", linewidth = 1)
       )
     if (!is.null(title) && !is.na(title) && title != "") {
       p1 <- p1 + ggtitle(title, subtitle = subtitle_use)

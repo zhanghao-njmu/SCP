@@ -31,7 +31,11 @@ check_DataType <- function(srt, data = NULL, slot = "data", assay = NULL) {
     } else if (isfloat && islog) {
       return("log_normalized_counts")
     } else if (isfloat && !islog) {
-      return("raw_normalized_counts")
+      if (length(unique(colSums(data))) == 1) {
+        return("raw_normalized_counts")
+      } else {
+        return("unknown")
+      }
     }
   }
 }
