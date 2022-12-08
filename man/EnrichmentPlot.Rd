@@ -65,7 +65,6 @@ EnrichmentPlot
 }
 \examples{
 data("pancreas_sub")
-pancreas_sub <- Standard_SCP(pancreas_sub)
 pancreas_sub <- RunDEtest(pancreas_sub, group_by = "CellType")
 pancreas_sub <- RunEnrichment(srt = pancreas_sub, group_by = "CellType", db = "GO_BP", species = "Mus_musculus")
 EnrichmentPlot(pancreas_sub, group_by = "CellType", plot_type = "bar")

@@ -48,11 +48,10 @@ GSEA Plot
 \examples{
 library(dplyr)
 data("pancreas_sub")
-pancreas_sub <- Standard_SCP(pancreas_sub)
 pancreas_sub <- RunDEtest(pancreas_sub, group_by = "CellType", only.pos = FALSE, fc.threshold = 1)
 pancreas_sub <- RunGSEA(pancreas_sub, group_by = "CellType", db = "GO_BP", species = "Mus_musculus")
 GSEAPlot(pancreas_sub, group_by = "CellType", group_use = c("Ngn3 low EP", "Endocrine"))
 GSEAPlot(pancreas_sub, group_by = "CellType", group_use = "Ductal", geneSetID = "GO:0006412")
 GSEAPlot(pancreas_sub, group_by = "CellType", group_use = "Endocrine", geneSetID = c("GO:0046903", "GO:0015031", "GO:0007600")) \%>\%
-  panel_fix_single(width = 5)
+  panel_fix_single(width = 10)
 }

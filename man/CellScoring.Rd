@@ -41,7 +41,6 @@ Cell classification
 \examples{
 data("pancreas_sub")
 ccgenes <- CC_GenePrefetch("Mus_musculus")
-pancreas_sub <- Standard_SCP(pancreas_sub)
 pancreas_sub <- CellScoring(
   srt = pancreas_sub,
   features = list(S = ccgenes$cc_S_genes, G2M = ccgenes$cc_G2M_genes),

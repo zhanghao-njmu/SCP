@@ -4,15 +4,47 @@
 \alias{CellDensityPlot}
 \title{CellDensityPlot}
 \usage{
-CellDensityPlot(srt, along, group.by, split.by, decreasing = FALSE)
+CellDensityPlot(
+  srt,
+  features,
+  group.by,
+  split.by = NULL,
+  flip = FALSE,
+  reverse = FALSE,
+  decreasing = NULL,
+  palette = "Paired",
+  palcolor = NULL,
+  cells = NULL,
+  assay = NULL,
+  slot = "data",
+  keep_empty = FALSE,
+  y.nbreaks = 4,
+  y.min = NULL,
+  y.max = NULL,
+  same.y.lims = FALSE,
+  theme_use = "theme_scp",
+  aspect.ratio = NULL,
+  title = NULL,
+  subtitle = NULL,
+  legend.position = "right",
+  legend.direction = "vertical",
+  combine = TRUE,
+  nrow = NULL,
+  ncol = NULL,
+  byrow = TRUE,
+  align = "hv",
+  axis = "lr",
+  force = FALSE
+)
 }
 \description{
 CellDensityPlot
 }
 \examples{
 data("pancreas_sub")
+CellDensityPlot(pancreas_sub, features = "Sox9", group.by = "SubCellType")
+
 pancreas_sub <- RunSlingshot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP")
-pancreas_sub <- RunDynamicFeatures(pancreas_sub, lineages = c("Lineage1", "Lineage2"), n_candidates = 200)
-CellDensityPlot(pancreas_sub, along = "Lineage1", group.by = "SubCellType")
-CellDensityPlot(pancreas_sub, along = "Lineage2", group.by = "SubCellType")
+CellDensityPlot(pancreas_sub, features = "Lineage1", group.by = "SubCellType", flip = TRUE)
+
 }

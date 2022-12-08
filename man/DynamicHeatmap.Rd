@@ -103,6 +103,10 @@ DynamicHeatmap(
   feature_palette = "Dark2",
   feature_palcolor = NULL,
   feature_annotation_params = list(),
+  separate_annotation = NULL,
+  separate_palette = "Paired",
+  separate_palcolor = NULL,
+  separate_annotation_params = list(),
   reverse_ht = NULL,
   use_raster = NULL,
   raster_device = "png",
@@ -154,24 +158,36 @@ pancreas_sub <- AnnotateFeatures(pancreas_sub, species = "Mus_musculus", db = c(
 ht4 <- DynamicHeatmap(
   srt = pancreas_sub,
   lineages = c("Lineage1", "Lineage2"),
-  use_fitted = TRUE, heatmap_palette = "viridis",
-  cell_annotation = "SubCellType",
+  use_fitted = TRUE,
   n_split = 5, split_method = "mfuzz",
   reverse_ht = "Lineage1",
+  heatmap_palette = "viridis",
+  cell_annotation = c("SubCellType", "Phase", "G2M_score"),
+  cell_palette = c("Paired", "jco", "Purples"),
+  separate_annotation = list("SubCellType", c("Nnat", "Irx1")),
+  separate_annotation_params = list(height = grid::unit(1, "in")),
   feature_annotation = c("TF", "SP"),
-  feature_palcolor = list(c("gold", "steelblue"), c("forestgreen"))
+  feature_palcolor = list(c("gold", "steelblue"), c("forestgreen")),
+  pseudotime_label = 25,
+  pseudotime_label_color = "red"
 )
 ht4$plot
 
 ht5 <- DynamicHeatmap(
   srt = pancreas_sub,
   lineages = c("Lineage1", "Lineage2"),
-  use_fitted = TRUE, heatmap_palette = "viridis",
-  cell_annotation = "SubCellType",
+  use_fitted = TRUE,
   n_split = 5, split_method = "mfuzz",
   reverse_ht = "Lineage1",
+  heatmap_palette = "viridis",
+  cell_annotation = c("SubCellType", "Phase", "G2M_score"),
+  cell_palette = c("Paired", "jco", "Purples"),
+  separate_annotation = list("SubCellType", c("Nnat", "Irx1")),
+  separate_annotation_params = list(width = grid::unit(1, "in")),
   feature_annotation = c("TF", "SP"),
   feature_palcolor = list(c("gold", "steelblue"), c("forestgreen")),
+  pseudotime_label = 25,
+  pseudotime_label_color = "red",
   flip = TRUE, column_title_rot = 45
 )
 ht5$plot
@@ -182,8 +198,7 @@ ht6 <- DynamicHeatmap(
   cell_annotation = "SubCellType",
   n_split = 5, reverse_ht = "Lineage1",
   species = "Mus_musculus", db = "GO_BP",
-  anno_terms = TRUE, anno_keys = TRUE, anno_features = TRUE,
-  pseudotime_label = max(pancreas_sub$Lineage1[pancreas_sub$SubCellType == "Pre-endocrine"], na.rm = TRUE)
+  anno_terms = TRUE, anno_keys = TRUE, anno_features = TRUE
 )
 ht6$plot
 

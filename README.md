@@ -315,7 +315,7 @@ ht <- ExpHeatmap(
   srt = pancreas_sub, group.by = "CellType", features = DEGs$gene, feature_split = DEGs$group1,
   species = "Mus_musculus", anno_terms = TRUE, anno_keys = TRUE, anno_features = TRUE,
   feature_annotation = c("TF", "SP"), feature_palcolor = list(c("gold", "steelblue"), c("forestgreen")),
-  height = 5.5, width = 5
+  height = 6, width = 5
 )
 print(ht$plot)
 ```
@@ -398,11 +398,15 @@ ClassDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", lineage
 ``` r
 pancreas_sub <- RunDynamicFeatures(srt = pancreas_sub, lineages = c("Lineage1", "Lineage2"), n_candidates = 200)
 ht <- DynamicHeatmap(
-  srt = pancreas_sub, lineages = c("Lineage1", "Lineage2"), cell_annotation = "SubCellType",
-  n_split = 5, reverse_ht = "Lineage1",
+  srt = pancreas_sub, lineages = c("Lineage1", "Lineage2"),
+  use_fitted = TRUE, n_split = 5, reverse_ht = "Lineage1",
   species = "Mus_musculus", anno_terms = TRUE, anno_keys = TRUE, anno_features = TRUE,
+  heatmap_palette = "viridis", cell_annotation = "SubCellType",
+  separate_annotation = list("SubCellType", c("Nnat", "Irx1")),
+  separate_annotation_params = list(height = grid::unit(1, "in")),
   feature_annotation = c("TF", "SP"), feature_palcolor = list(c("gold", "steelblue"), c("forestgreen")),
-  height = 5.5, width = 5
+  pseudotime_label = 25, pseudotime_label_color = "red",
+  height = 6, width = 5
 )
 print(ht$plot)
 ```
