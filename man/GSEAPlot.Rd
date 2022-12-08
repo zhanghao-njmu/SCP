@@ -46,6 +46,7 @@ GSEAPlot(
 GSEA Plot
 }
 \examples{
+library(dplyr)
 data("pancreas_sub")
 pancreas_sub <- Standard_SCP(pancreas_sub)
 pancreas_sub <- RunDEtest(pancreas_sub, group_by = "CellType", only.pos = FALSE, fc.threshold = 1)
