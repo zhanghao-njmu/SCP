@@ -6388,6 +6388,7 @@ geom_split_violin <- function(mapping = NULL, data = NULL, stat = "ydensity", po
 #' @param force
 #'
 #' @examples
+#' library(dplyr)
 #' data("pancreas_sub")
 #' ExpStatPlot(pancreas_sub, features = c("G2M_score", "S_score"), group.by = "SubCellType")
 #' ExpStatPlot(pancreas_sub, features = c("G2M_score", "S_score"), group.by = "SubCellType", split.by = "Phase")
@@ -10975,6 +10976,7 @@ EnrichmentPlot <- function(srt, db = "GO_BP", group_by = NULL, group_use = NULL,
 #' @param term_use
 #'
 #' @examples
+#' library(dplyr)
 #' data("pancreas_sub")
 #' pancreas_sub <- Standard_SCP(pancreas_sub)
 #' pancreas_sub <- RunDEtest(pancreas_sub, group_by = "CellType", only.pos = FALSE, fc.threshold = 1)

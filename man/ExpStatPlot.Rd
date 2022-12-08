@@ -76,6 +76,7 @@ ExpStatPlot(
 Violin plot for cell expression.
 }
 \examples{
+library(dplyr)
 data("pancreas_sub")
 ExpStatPlot(pancreas_sub, features = c("G2M_score", "S_score"), group.by = "SubCellType")
 ExpStatPlot(pancreas_sub, features = c("G2M_score", "S_score"), group.by = "SubCellType", split.by = "Phase")
