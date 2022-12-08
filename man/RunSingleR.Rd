@@ -21,8 +21,7 @@ RunSingleR(
   prune = TRUE,
   BPPARAM = BiocParallel::bpparam(),
   query_assay = "RNA",
-  ref_assay = "RNA",
-  force = FALSE
+  ref_assay = "RNA"
 )
 }
 \arguments{

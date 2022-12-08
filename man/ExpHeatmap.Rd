@@ -13,6 +13,7 @@ ExpHeatmap(
   max_cells = 100,
   cell_order = NULL,
   border = TRUE,
+  flip = FALSE,
   slot = "counts",
   assay = "RNA",
   exp_method = c("zscore", "raw", "fc", "log2fc", "log1p"),
@@ -23,15 +24,21 @@ ExpHeatmap(
   n_split = NULL,
   split_method = c("kmeans", "hclust", "mfuzz"),
   decreasing = FALSE,
+  cluster_features_by = NULL,
   cluster_rows = FALSE,
-  cluster_rows_by = NULL,
   cluster_columns = FALSE,
   cluster_row_slices = FALSE,
   cluster_column_slices = FALSE,
   show_row_names = FALSE,
   show_column_names = FALSE,
+  row_names_side = ifelse(flip, "left", "right"),
+  column_names_side = ifelse(flip, "bottom", "top"),
+  row_names_rot = 0,
+  column_names_rot = 90,
+  row_title_side = "left",
+  column_title_side = "top",
   row_title_rot = 0,
-  column_title_rot = 0,
+  column_title_rot = ifelse(flip, 90, 0),
   anno_terms = FALSE,
   anno_keys = FALSE,
   anno_features = FALSE,
@@ -113,6 +120,7 @@ ht1 <- ExpHeatmap(
   split.by = "Phase", cell_split_palcolor = list(c("grey", "gold", "deeppink"))
 )
 ht1$plot
+panel_fix(ht1$plot, height = 5, width = 10, raster = TRUE, dpi = 50)
 
 ht2 <- ExpHeatmap(
   srt = pancreas_sub, features = de_filter$gene, group.by = c("CellType", "SubCellType"), n_split = 4,
@@ -132,21 +140,31 @@ ht3 <- ExpHeatmap(
 ht3$plot
 
 ht4 <- ExpHeatmap(
+  srt = pancreas_sub, features = de_filter$gene, n_split = 4, group.by = "CellType",
+  heatmap_palette = "viridis",
+  feature_annotation = c("TF", "SP"),
+  feature_palcolor = list(c("gold", "steelblue"), c("forestgreen")),
+  cell_annotation = c("Phase", "G2M_score"), cell_palette = c("Dark2", "Purples"),
+  flip = TRUE, column_title_rot = 45
+)
+ht4$plot
+
+ht5 <- ExpHeatmap(
   srt = pancreas_sub, features = de_filter$gene, feature_split = de_filter$group1, group.by = "CellType",
   species = "Mus_musculus", anno_terms = TRUE, anno_keys = TRUE, anno_features = TRUE
 )
-ht4$plot
+ht5$plot
 
 pancreas_sub <- RunPAGA(
   srt = pancreas_sub, assay_X = "RNA", group_by = "SubCellType",
   linear_reduction = "PCA", nonlinear_reduction = "UMAP", infer_pseudotime = TRUE, root_group = "Ductal"
 )
-ht5 <- ExpHeatmap(
+ht6 <- ExpHeatmap(
   srt = pancreas_sub, features = de_filter$gene,
   cell_order = names(sort(pancreas_sub$dpt_pseudotime)),
   cell_annotation = c("CellType", "dpt_pseudotime"),
   cell_palette = c("Paired", "cividis")
 )
-ht5$plot
+ht6$plot
 
 }

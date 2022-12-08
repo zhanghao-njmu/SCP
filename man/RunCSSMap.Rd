@@ -26,19 +26,14 @@ RunCSSMap(
 Single-cell reference mapping with CSS method
 }
 \examples{
-data("pancreas_sub")
-pancreas_sub <- Standard_SCP(pancreas_sub)
-
 data("panc8_sub")
-# Simply convert genes from human to mouse and preprocess the data
-genenames <- make.unique(stringr::str_to_title(rownames(panc8_sub)))
-panc8_sub <- RenameFeatures(panc8_sub, newnames = genenames)
-head(rownames(panc8_sub))
-panc8_sub <- Integration_SCP(panc8_sub, batch = "tech", integration_method = "CSS")
-ClassDimPlot(panc8_sub, "celltype")
+srt_ref <- panc8_sub[, panc8_sub$tech != "fluidigmc1"]
+srt_query <- panc8_sub[, panc8_sub$tech == "fluidigmc1"]
+srt_ref <- Integration_SCP(srt_ref, batch = "tech", integration_method = "CSS")
+ClassDimPlot(srt_ref, group.by = c("celltype", "tech"))
 
 # Projection
-pancreas_sub <- RunCSSMap(srt_query = pancreas_sub, srt_ref = panc8_sub, ref_css = "CSS", ref_umap = "CSSUMAP2D")
-ProjectionPlot(srt_query = pancreas_sub, srt_ref = panc8_sub, query_group = "SubCellType", ref_group = "celltype")
+srt_query <- RunCSSMap(srt_query = srt_query, srt_ref = srt_ref, ref_css = "CSS", ref_umap = "CSSUMAP2D")
+ProjectionPlot(srt_query = srt_query, srt_ref = srt_ref, query_group = "celltype", ref_group = "celltype")
 
 }

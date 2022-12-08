@@ -105,7 +105,7 @@ RunKNNPredict <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
                           DEtest_param = list(max.cells.per.ident = 200, test.use = "wilcox"),
                           DE_threshold = "p_val_adj < 0.05",
                           nn_method = NULL, distance_metric = "cosine", k = 30,
-                          filter_lowfreq = 0, prefix = "knnpredict", force = FALSE) {
+                          filter_lowfreq = 0, prefix = "knnpredict") {
   check_R(c("RcppParallel", "proxyC"))
   query_assay <- query_assay %||% DefaultAssay(srt_query)
   features_type <- match.arg(features_type, choices = c("HVF", "DE"))
@@ -313,11 +313,7 @@ RunKNNPredict <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
     status_ref <- check_DataType(data = ref)
     message("Detected reference data type: ", status_ref)
     if (status_ref != status_dat || any(status_dat == "unknown", status_ref == "unknown")) {
-      if (isTRUE(force)) {
-        warning("Data type is different between query and reference.")
-      } else {
-        stop("Data type is different between query and reference. Set force=TRUE if want to run it anyway.")
-      }
+      warning("Data type is unknown or different between query and reference.", immediate. = TRUE)
     }
   }
 
@@ -531,7 +527,7 @@ RunKNNPredict <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
 #' @export
 RunScmap <- function(srt_query, srt_ref, ref_group = NULL, method = "scmapCluster",
                      n_features = 500, threshold = 0.5, k = 10,
-                     query_assay = "RNA", ref_assay = "RNA", force = FALSE) {
+                     query_assay = "RNA", ref_assay = "RNA") {
   check_R("scmap")
   if (!is.null(ref_group)) {
     if (length(ref_group) == ncol(srt_ref)) {
@@ -555,11 +551,7 @@ RunScmap <- function(srt_query, srt_ref, ref_group = NULL, method = "scmapCluste
   status_ref <- check_DataType(data = GetAssayData(srt_ref, slot = "data", assay = ref_assay))
   message("Detected srt_ref data type: ", status_ref)
   if (status_ref != status_query || any(status_query == "unknown", status_ref == "unknown")) {
-    if (isTRUE(force)) {
-      warning("Data type is different between query and ref.")
-    } else {
-      stop("Data type is different between query and ref. Set force=TRUE if want to run it anyway.")
-    }
+    warning("Data type is unknown or different between query and ref.", immediate. = TRUE)
   }
 
   assays_query <- list(
@@ -680,7 +672,7 @@ RunSingleR <- function(srt_query, srt_ref, query_group = NULL, ref_group = NULL,
                        aggr.ref = FALSE, aggr.args = list(),
                        quantile = 0.8, fine.tune = TRUE, tune.thresh = 0.05, prune = TRUE,
                        BPPARAM = BiocParallel::bpparam(),
-                       query_assay = "RNA", ref_assay = "RNA", force = FALSE) {
+                       query_assay = "RNA", ref_assay = "RNA") {
   check_R("SingleR")
   if (!is.null(ref_group)) {
     if (length(ref_group) == ncol(srt_ref)) {
@@ -721,11 +713,7 @@ RunSingleR <- function(srt_query, srt_ref, query_group = NULL, ref_group = NULL,
   status_ref <- check_DataType(data = GetAssayData(srt_ref, slot = "data", assay = ref_assay))
   message("Detected srt_ref data type: ", status_ref)
   if (status_ref != status_query || any(status_query == "unknown", status_ref == "unknown")) {
-    if (isTRUE(force)) {
-      warning("Data type is different between query and ref.")
-    } else {
-      stop("Data type is different between query and ref. Set force=TRUE if want to run it anyway.")
-    }
+    warning("Data type is unknown or different between query and ref.", immediate. = TRUE)
   }
 
   assays_query <- list(

@@ -215,7 +215,7 @@ human pancreas datasets)](https://github.com/satijalab/seurat-data)
 ``` r
 data("panc8_sub")
 panc8_sub <- Integration_SCP(srtMerge = panc8_sub, batch = "tech", integration_method = "Seurat")
-panc8_sub <- Integration_SCP(srtMerge = panc8_sub, batch = "tech", integration_method = "fastMNN", nonlinear_reduction = "pacmap")
+panc8_sub <- Integration_SCP(srtMerge = panc8_sub, batch = "tech", integration_method = "Harmony")
 ClassDimPlot(
   srt = panc8_sub, group.by = c("celltype", "tech"), reduction = "SeuratUMAP2D",
   title = "Seurat", theme_use = "theme_blank"
@@ -226,8 +226,8 @@ ClassDimPlot(
 
 ``` r
 ClassDimPlot(
-  srt = panc8_sub, group.by = c("celltype", "tech"), reduction = "fastMNNPACMAP2D",
-  title = "fastMNN", theme_use = "theme_blank"
+  srt = panc8_sub, group.by = c("celltype", "tech"), reduction = "HarmonyUMAP2D",
+  title = "Harmony", theme_use = "theme_blank"
 )
 ```
 
@@ -236,7 +236,7 @@ ClassDimPlot(
 ### Cell projection between single-cell datasets
 
 ``` r
-panc8_rename <- RenameFeatures(srt = panc8_sub, newnames = make.unique(stringr::str_to_title(rownames(panc8_sub))))
+panc8_rename <- RenameFeatures(srt = panc8_sub, newnames = make.unique(stringr::str_to_title(rownames(panc8_sub))), assays = "RNA")
 pancreas_sub <- RunKNNMap(srt_query = pancreas_sub, srt_ref = panc8_rename, ref_umap = "SeuratUMAP2D")
 ProjectionPlot(
   srt_query = pancreas_sub, srt_ref = panc8_rename,
@@ -315,7 +315,7 @@ ht <- ExpHeatmap(
   srt = pancreas_sub, group.by = "CellType", features = DEGs$gene, feature_split = DEGs$group1,
   species = "Mus_musculus", anno_terms = TRUE, anno_keys = TRUE, anno_features = TRUE,
   feature_annotation = c("TF", "SP"), feature_palcolor = list(c("gold", "steelblue"), c("forestgreen")),
-  height = 5, width = 5
+  height = 5.5, width = 5
 )
 print(ht$plot)
 ```
@@ -402,7 +402,7 @@ ht <- DynamicHeatmap(
   n_split = 5, reverse_ht = "Lineage1",
   species = "Mus_musculus", anno_terms = TRUE, anno_keys = TRUE, anno_features = TRUE,
   feature_annotation = c("TF", "SP"), feature_palcolor = list(c("gold", "steelblue"), c("forestgreen")),
-  height = 5, width = 5
+  height = 5.5, width = 5
 )
 print(ht$plot)
 ```
@@ -420,7 +420,7 @@ DynamicPlot(
 <img src="README/README-DynamicPlot-1.png" width="100%" style="display: block; margin: auto;" />
 
 ``` r
-ExpVlnPlot(
+ExpStatPlot(
   srt = pancreas_sub, group.by = "SubCellType", bg.by = "CellType",
   features = c("Sox9", "Neurod2", "Isl1", "Rbp4"),
   comparisons = list(

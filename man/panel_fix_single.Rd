@@ -13,7 +13,11 @@ panel_fix_single(
   margin = 0.5,
   units = "in",
   raster = FALSE,
-  dpi = 300
+  dpi = 300,
+  return_grob = FALSE,
+  bg_color = "white",
+  save = NULL,
+  verbose = TRUE
 )
 }
 \arguments{

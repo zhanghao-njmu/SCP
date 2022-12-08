@@ -29,10 +29,16 @@ CellCorHeatmap(
   filter_lowfreq = 0,
   prefix = "knnpredict",
   force = FALSE,
+  rows = NULL,
+  columns = NULL,
   cluster_columns = TRUE,
   cluster_rows = TRUE,
   nlabel = 3,
-  label_by = "row"
+  label_cutoff = 0,
+  label_by = "row",
+  label_size = 10,
+  gird_size = unit(8, "mm"),
+  ...
 )
 }
 \description{

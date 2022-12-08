@@ -446,7 +446,7 @@ LengthCheck <- function(values, cutoff = 0) {
 
 #' @importFrom Seurat UpdateSymbolList
 #' @importFrom SeuratObject DefaultAssay GetAssayData CheckGC
-#' @importFrom BiocParallel bplapply
+#' @importFrom BiocParallel bplapply bpaggregate
 #' @export
 AddModuleScore2 <- function(object, slot = "data", features, pool = NULL, nbin = 24, ctrl = 100,
                             k = FALSE, assay = NULL, name = "Cluster", seed = 1, search = FALSE,
@@ -528,7 +528,7 @@ AddModuleScore2 <- function(object, slot = "data", features, pool = NULL, nbin =
   data.cut <- ggplot2::cut_number(x = data.avg + rnorm(n = length(data.avg)) / 1e+30, n = nbin, labels = FALSE, right = FALSE)
   names(x = data.cut) <- names(x = data.avg)
 
-  scores <- bplapply(1:cluster.length, function(i) {
+  scores <- bplapply(1:cluster.length, function(i, features, data.cut, assay.data, ctrl) {
     features.use <- features[[i]]
     # ctrl.use <- data.cut[which(data.cut %in% data.cut[features.use])]
     # ctrl.use <- names(sample(ctrl.use, size = min(ctrl * length(features.use), length(ctrl.use)), replace = FALSE))
@@ -539,9 +539,34 @@ AddModuleScore2 <- function(object, slot = "data", features, pool = NULL, nbin =
     ctrl.scores_i <- Matrix::colMeans(x = assay.data[ctrl.use, , drop = FALSE])
     features.scores_i <- Matrix::colMeans(x = assay.data[features.use, , drop = FALSE])
     return(list(ctrl.scores_i, features.scores_i))
-  }, BPPARAM = BPPARAM)
+  }, BPPARAM = BPPARAM, features = features, data.cut = data.cut, assay.data = assay.data, ctrl = ctrl)
   ctrl.scores <- do.call(rbind, lapply(scores, function(x) x[[1]]))
   features.scores <- do.call(rbind, lapply(scores, function(x) x[[2]]))
+
+  # features_collapse <- bplapply(1:cluster.length, function(i) {
+  #   features.use <- features[[i]]
+  #   # ctrl.use <- data.cut[which(data.cut %in% data.cut[features.use])]
+  #   # ctrl.use <- names(sample(ctrl.use, size = min(ctrl * length(features.use), length(ctrl.use)), replace = FALSE))
+  #   ctrl.use <- unlist(lapply(1:length(features.use), function(j) {
+  #     data.cut[which(data.cut == data.cut[features.use[j]])]
+  #   }))
+  #   ctrl.use <- names(sample(ctrl.use, size = min(ctrl * length(features.use), length(ctrl.use)), replace = FALSE))
+  #   return(list(features.use, ctrl.use))
+  # }, BPPARAM = BPPARAM)
+  # features.scores <- bpaggregate(
+  #   x = as.matrix(assay.data[unlist(lapply(features_collapse, function(x) x[[1]])), ]),
+  #   by = list(unlist(lapply(1:length(features_collapse), function(x) rep(x, length(features_collapse[[x]][[1]]))))),
+  #   FUN = mean,
+  #   BPPARAM = BPPARAM
+  # )
+  # features.scores <- features.scores[,-1]
+  # ctrl.scores <- bpaggregate(
+  #   x = as.matrix(assay.data[unlist(lapply(features_collapse, function(x) x[[2]])), ]),
+  #   by = list(unlist(lapply(1:length(features_collapse), function(x) rep(x, length(features_collapse[[x]][[2]]))))),
+  #   FUN = mean,
+  #   BPPARAM = BPPARAM
+  # )
+  # ctrl.scores <- ctrl.scores[,-1]
 
   features.scores.use <- features.scores - ctrl.scores
   rownames(x = features.scores.use) <- paste0(name, 1:cluster.length)
@@ -639,13 +664,21 @@ CellScoring <- function(srt, features = NULL, slot = "data", assay = "RNA", spli
   if (slot == "counts") {
     status <- check_DataType(srt, slot = "counts", assay = assay)
     if (status != "raw_counts") {
-      warning("object is not raw counts", immediate. = TRUE)
+      warning("Data is not raw counts", immediate. = TRUE)
     }
   }
   if (slot == "data") {
     status <- check_DataType(srt, slot = "data", assay = assay)
-    if (status != "log_normalized_counts") {
-      warning("object is not log normalized", immediate. = TRUE)
+    if (status == "raw_counts") {
+      cat("Data is raw counts. Perform NormalizeData(logCPM) on the data ...\n", sep = "")
+      srt <- suppressWarnings(NormalizeData(object = srt, assay = assay, normalization.method = "LogNormalize", verbose = FALSE))
+    }
+    if (status == "raw_normalized_counts") {
+      cat("Data is normalized without log transformation. Perform NormalizeData(logCPM) on the data...\n", sep = "")
+      srt <- suppressWarnings(NormalizeData(object = srt, assay = assay, normalization.method = "LogNormalize", verbose = FALSE))
+    }
+    if (status == "unknown") {
+      warning("Can not determine whether data ", i, " is log-normalized...\n", immediate. = TRUE)
     }
   }
   if (name == "" && isTRUE(new_assay)) {
@@ -801,7 +834,7 @@ CellScoring <- function(srt, features = NULL, slot = "data", assay = "RNA", spli
 
 #' @importFrom SeuratObject PackageCheck FetchData WhichCells SetIdent Idents
 #' @importFrom Seurat FindMarkers FoldChange
-FindConservedMarkers2 <- function(object, grouping.var, ident.1, ident.2 = NULL, cells.1 = NULL, cells.2 = NULL,
+FindConservedMarkers2 <- function(object, grouping.var, ident.1, ident.2 = NULL, cells.1 = NULL, cells.2 = NULL, features = NULL,
                                   test.use = "wilcox", logfc.threshold = 0.25, base = 2, pseudocount.use = 1, mean.fxn = NULL,
                                   min.pct = 0.1, min.diff.pct = -Inf, max.cells.per.ident = Inf, latent.vars = NULL, only.pos = FALSE,
                                   assay = "RNA", slot = "data", min.cells.group = 3, min.cells.feature = 3, meta.method = metap::maximump,
@@ -876,7 +909,7 @@ FindConservedMarkers2 <- function(object, grouping.var, ident.1, ident.2 = NULL,
         next
       }
       marker.test[[i]] <- FindMarkers(
-        object = Assays(object, assay), slot = slot, cells.1 = cells.1.use, cells.2 = cells.2.use,
+        object = Assays(object, assay), slot = slot, cells.1 = cells.1.use, cells.2 = cells.2.use, features = features,
         test.use = test.use, logfc.threshold = logfc.threshold,
         min.pct = min.pct, min.diff.pct = min.diff.pct, max.cells.per.ident = max.cells.per.ident,
         min.cells.group = min.cells.group, min.cells.feature = min.cells.feature,
@@ -903,7 +936,7 @@ FindConservedMarkers2 <- function(object, grouping.var, ident.1, ident.2 = NULL,
         message("Testing group ", level.use, ": (", paste("cells.1", collapse = ", "), ") vs (", paste("cells.2", collapse = ", "), ")")
       }
       marker.test[[i]] <- FindMarkers(
-        object = Assays(object, assay), slot = slot, cells.1 = cells.1.use, cells.2 = cells.2.use,
+        object = Assays(object, assay), slot = slot, cells.1 = cells.1.use, cells.2 = cells.2.use, features = features,
         test.use = test.use, logfc.threshold = logfc.threshold,
         min.pct = min.pct, min.diff.pct = min.diff.pct, max.cells.per.ident = max.cells.per.ident,
         min.cells.group = min.cells.group, min.cells.feature = min.cells.feature,
@@ -1038,7 +1071,7 @@ FindConservedMarkers2 <- function(object, grouping.var, ident.1, ident.2 = NULL,
 #'
 #' @export
 #'
-RunDEtest <- function(srt, group_by = NULL, group1 = NULL, group2 = NULL, cells1 = NULL, cells2 = NULL,
+RunDEtest <- function(srt, group_by = NULL, group1 = NULL, group2 = NULL, cells1 = NULL, cells2 = NULL, features = NULL,
                       FindAllMarkers = TRUE, FindPairedMarkers = FALSE, FindConservedMarkers = FALSE,
                       grouping.var = NULL, meta.method = metap::maximump,
                       test.use = "wilcox", only.pos = TRUE, fc.threshold = 1.5, base = 2, pseudocount.use = 1, mean.fxn = NULL,
@@ -1058,12 +1091,13 @@ RunDEtest <- function(srt, group_by = NULL, group1 = NULL, group2 = NULL, cells1
     stop("Data in the 'counts' slot is not raw counts.")
   }
   if (slot == "data" && status != "log_normalized_counts") {
-    if (status == "raw_normalized_counts") {
-      warning("Data in the 'data' slot is raw_normalized_counts. Perform log1p on it.", immediate. = TRUE)
-      srt[[assay]]@data <- log1p(srt[[assay]]@data)
-    }
     if (status == "raw_counts") {
-      stop("Data in the 'data' slot is raw counts. You need to perform NormalizeData before testing.")
+      warning("Data in the 'data' slot is raw counts. Perform NormalizeData(logCPM) on the data.", immediate. = TRUE)
+      srt <- suppressWarnings(NormalizeData(object = srt, assay = assay, normalization.method = "LogNormalize", verbose = FALSE))
+    }
+    if (status == "raw_normalized_counts") {
+      warning("Data in the 'data' slot is raw_normalized_counts. Perform NormalizeData(logCPM) on the data.", immediate. = TRUE)
+      srt <- suppressWarnings(NormalizeData(object = srt, assay = assay, normalization.method = "LogNormalize", verbose = FALSE))
     }
     if (status == "unknown") {
       stop("Data in the 'data' slot is unknown. Please check the data type.")
@@ -1111,6 +1145,7 @@ RunDEtest <- function(srt, group_by = NULL, group1 = NULL, group2 = NULL, cells1
         object = Assays(srt, assay), slot = slot,
         cells.1 = cells1,
         cells.2 = cells2,
+        features = features,
         test.use = test.use,
         logfc.threshold = log(fc.threshold, base = base),
         base = base,
@@ -1154,6 +1189,7 @@ RunDEtest <- function(srt, group_by = NULL, group1 = NULL, group2 = NULL, cells1
         object = srt, assay = assay, slot = slot,
         cells.1 = cells1,
         cells.2 = cells2,
+        features = features,
         grouping.var = grouping.var,
         test.use = test.use,
         logfc.threshold = log(fc.threshold, base = base),
@@ -1213,6 +1249,7 @@ RunDEtest <- function(srt, group_by = NULL, group1 = NULL, group2 = NULL, cells1
     args1 <- list(
       object = Assays(srt, assay),
       slot = slot,
+      features = features,
       test.use = test.use,
       logfc.threshold = log(fc.threshold, base = base),
       base = base,
@@ -3462,6 +3499,8 @@ RunMonocle3 <- function(srt, annotation = NULL, assay = NULL, slot = "counts",
 #' data("pancreas_sub")
 #' pancreas_sub <- RunSlingshot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP")
 #' pancreas_sub <- RunDynamicFeatures(pancreas_sub, lineages = c("Lineage1", "Lineage2"), n_candidates = 200)
+#' names(pancreas_sub@tools$DynamicFeatures_Lineage1)
+#' head(pancreas_sub@tools$DynamicFeatures_Lineage1$DynamicFeatures)
 #' ht_result <- DynamicHeatmap(
 #'   srt = pancreas_sub,
 #'   lineages = c("Lineage1", "Lineage2"),
@@ -4103,7 +4142,7 @@ adata_to_srt <- function(adata) {
     for (k in iterate(adata$obsm$keys())) {
       obsm <- tryCatch(adata$obsm[[k]], error = identity)
       if (inherits(obsm, "error")) {
-        warning("'obsm: ", k, "' will not be converted. You may need to convert it manually.")
+        warning("'obsm: ", k, "' will not be converted. You may need to convert it manually.", immediate. = TRUE)
         next
       }
       k <- gsub(pattern = "^X_", replacement = "", x = k)
@@ -4116,7 +4155,7 @@ adata_to_srt <- function(adata) {
     for (k in iterate(adata$obsp$keys())) {
       obsp <- tryCatch(adata$obsp[[k]], error = identity)
       if (inherits(obsp, "error")) {
-        warning("'obsp: ", k, "' will not be converted. You may need to convert it manually.")
+        warning("'obsp: ", k, "' will not be converted. You may need to convert it manually.", immediate. = TRUE)
         next
       }
       colnames(obsp) <- adata$obs_names$values
@@ -4134,7 +4173,7 @@ adata_to_srt <- function(adata) {
     for (k in iterate(adata$varm$keys())) {
       varm <- tryCatch(adata$varm[[k]], error = identity)
       if (inherits(varm, "error")) {
-        warning("'varm: ", k, "' will not be converted. You may need to convert it manually.")
+        warning("'varm: ", k, "' will not be converted. You may need to convert it manually.", immediate. = TRUE)
         next
       }
       colnames(varm) <- paste0(k, "_", seq_len(ncol(varm)))
@@ -4146,7 +4185,7 @@ adata_to_srt <- function(adata) {
     for (k in iterate(adata$varp$keys())) {
       varp <- tryCatch(adata$varp[[k]], error = identity)
       if (inherits(varp, "error")) {
-        warning("'varp: ", k, "' will not be converted. You may need to convert it manually.")
+        warning("'varp: ", k, "' will not be converted. You may need to convert it manually.", immediate. = TRUE)
         next
       }
       colnames(varp) <- adata$var_names$values
@@ -4159,7 +4198,7 @@ adata_to_srt <- function(adata) {
     for (k in iterate(adata$uns$keys())) {
       uns <- tryCatch(adata$uns[[k]], error = identity)
       if (inherits(uns, "error")) {
-        warning("'uns: ", k, "' will not be converted. You may need to convert it manually.")
+        warning("'uns: ", k, "' will not be converted. You may need to convert it manually.", immediate. = TRUE)
         next
       }
       uns <- check_python_element(uns)

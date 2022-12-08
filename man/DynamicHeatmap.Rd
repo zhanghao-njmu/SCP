@@ -11,6 +11,7 @@ DynamicHeatmap(
   feature_from = lineages,
   use_fitted = FALSE,
   border = TRUE,
+  flip = FALSE,
   min_expcells = 20,
   r.sq = 0.2,
   dev.expl = 0.2,
@@ -23,12 +24,21 @@ DynamicHeatmap(
   lib_normalize = TRUE,
   libsize = NULL,
   family = NULL,
+  cluster_features_by = NULL,
   cluster_rows = FALSE,
   cluster_row_slices = FALSE,
+  cluster_columns = FALSE,
+  cluster_column_slices = FALSE,
   show_row_names = FALSE,
   show_column_names = FALSE,
+  row_names_side = ifelse(flip, "left", "right"),
+  column_names_side = ifelse(flip, "bottom", "top"),
+  row_names_rot = 0,
+  column_names_rot = 90,
+  row_title_side = "left",
+  column_title_side = "top",
   row_title_rot = 0,
-  column_title_rot = 0,
+  column_title_rot = ifelse(flip, 90, 0),
   feature_split = NULL,
   feature_split_by = NULL,
   n_split = NULL,
@@ -113,33 +123,35 @@ Heatmap plot for dynamic features along lineages
 data("pancreas_sub")
 pancreas_sub <- RunSlingshot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP")
 pancreas_sub <- RunDynamicFeatures(pancreas_sub, lineages = c("Lineage1", "Lineage2"), n_candidates = 200)
-ht_result1 <- DynamicHeatmap(
+ht1 <- DynamicHeatmap(
   srt = pancreas_sub,
   lineages = "Lineage1",
   cell_annotation = "SubCellType",
   n_split = 5, split_method = "kmeans-peaktime"
 )
-ht_result1$plot
+ht1$plot
+panel_fix(ht1$plot, raster = TRUE, dpi = 50)
 
-ht_result2 <- DynamicHeatmap(
+ht2 <- DynamicHeatmap(
   srt = pancreas_sub,
   lineages = "Lineage1",
   features = c("Sox9", "Neurod2", "Isl1", "Rbp4", "S_score", "G2M_score"),
   cell_annotation = "SubCellType"
 )
-ht_result2$plot
+ht2$plot
+panel_fix(ht2$plot, height = 5, width = 10, raster = TRUE, dpi = 50)
 
-ht_result3 <- DynamicHeatmap(
+ht3 <- DynamicHeatmap(
   srt = pancreas_sub,
   lineages = c("Lineage1", "Lineage2"),
   cell_annotation = "SubCellType",
   n_split = 5, split_method = "kmeans",
   cluster_rows = TRUE
 )
-ht_result3$plot
+ht3$plot
 
 pancreas_sub <- AnnotateFeatures(pancreas_sub, species = "Mus_musculus", db = c("TF", "SP"))
-ht_result3 <- DynamicHeatmap(
+ht4 <- DynamicHeatmap(
   srt = pancreas_sub,
   lineages = c("Lineage1", "Lineage2"),
   use_fitted = TRUE, heatmap_palette = "viridis",
@@ -149,9 +161,22 @@ ht_result3 <- DynamicHeatmap(
   feature_annotation = c("TF", "SP"),
   feature_palcolor = list(c("gold", "steelblue"), c("forestgreen"))
 )
-ht_result3$plot
+ht4$plot
 
-ht_result5 <- DynamicHeatmap(
+ht5 <- DynamicHeatmap(
+  srt = pancreas_sub,
+  lineages = c("Lineage1", "Lineage2"),
+  use_fitted = TRUE, heatmap_palette = "viridis",
+  cell_annotation = "SubCellType",
+  n_split = 5, split_method = "mfuzz",
+  reverse_ht = "Lineage1",
+  feature_annotation = c("TF", "SP"),
+  feature_palcolor = list(c("gold", "steelblue"), c("forestgreen")),
+  flip = TRUE, column_title_rot = 45
+)
+ht5$plot
+
+ht6 <- DynamicHeatmap(
   srt = pancreas_sub,
   lineages = c("Lineage1", "Lineage2"),
   cell_annotation = "SubCellType",
@@ -160,6 +185,6 @@ ht_result5 <- DynamicHeatmap(
   anno_terms = TRUE, anno_keys = TRUE, anno_features = TRUE,
   pseudotime_label = max(pancreas_sub$Lineage1[pancreas_sub$SubCellType == "Pre-endocrine"], na.rm = TRUE)
 )
-ht_result5$plot
+ht6$plot
 
 }

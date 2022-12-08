@@ -11,6 +11,7 @@ RunDEtest(
   group2 = NULL,
   cells1 = NULL,
   cells2 = NULL,
+  features = NULL,
   FindAllMarkers = TRUE,
   FindPairedMarkers = FALSE,
   FindConservedMarkers = FALSE,

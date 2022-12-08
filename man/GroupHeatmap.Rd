@@ -13,6 +13,7 @@ GroupHeatmap(
   aggregate_fun = mean,
   exp_cutoff = 0,
   border = TRUE,
+  flip = FALSE,
   slot = "counts",
   assay = "RNA",
   exp_method = c("zscore", "raw", "fc", "log2fc", "log1p"),
@@ -23,15 +24,21 @@ GroupHeatmap(
   n_split = NULL,
   split_method = c("kmeans", "hclust", "mfuzz"),
   decreasing = FALSE,
+  cluster_features_by = NULL,
   cluster_rows = FALSE,
-  cluster_rows_by = NULL,
   cluster_columns = FALSE,
   cluster_row_slices = FALSE,
   cluster_column_slices = FALSE,
-  show_row_names = TRUE,
+  show_row_names = FALSE,
   show_column_names = FALSE,
+  row_names_side = ifelse(flip, "left", "right"),
+  column_names_side = ifelse(flip, "bottom", "top"),
+  row_names_rot = 0,
+  column_names_rot = 90,
+  row_title_side = "left",
+  column_title_side = "top",
   row_title_rot = 0,
-  column_title_rot = 0,
+  column_title_rot = ifelse(flip, 90, 0),
   anno_terms = FALSE,
   anno_keys = FALSE,
   anno_features = FALSE,
@@ -144,9 +151,11 @@ ht1 <- GroupHeatmap(pancreas_sub,
     "Rbp4", "Pyy", # Endocrine
     "Ins1", "Gcg", "Sst", "Ghrl" # Beta, Alpha, Delta, Epsilon
   ),
-  group.by = c("CellType", "SubCellType")
+  group.by = c("CellType", "SubCellType"),
+  show_row_names = TRUE
 )
 ht1$plot
+panel_fix(ht1$plot, height = 5, width = 10, raster = TRUE, dpi = 50)
 
 pancreas_sub <- RunDEtest(pancreas_sub, group_by = "CellType")
 de_filter <- filter(pancreas_sub@tools$DEtest_CellType$AllMarkers_wilcox, p_val_adj < 0.05 & avg_log2FC > 1)
@@ -177,28 +186,41 @@ ht4 <- GroupHeatmap(pancreas_sub,
   cell_annotation_params = list(height = grid::unit(0.5, "in")),
   feature_annotation = c("TF", "SP"),
   feature_palcolor = list(c("gold", "steelblue"), c("forestgreen")),
-  add_dot = TRUE, add_bg = TRUE
+  add_dot = TRUE, add_bg = TRUE, show_row_names = TRUE
 )
 ht4$plot
 
 ht5 <- GroupHeatmap(pancreas_sub,
   features = de_top$gene, feature_split = de_top$group1, group.by = "CellType",
-  add_violin = TRUE, cluster_rows = TRUE
+  cell_annotation = c("Phase", "G2M_score", "Neurod2"), cell_palette = c("Dark2", "Paired", "Paired"),
+  cell_annotation_params = list(width = grid::unit(0.5, "in")),
+  feature_annotation = c("TF", "SP"),
+  feature_palcolor = list(c("gold", "steelblue"), c("forestgreen")),
+  add_dot = TRUE, add_bg = TRUE,
+  flip = TRUE, column_title_rot = 45, show_column_names = TRUE
 )
 ht5$plot
 
 ht6 <- GroupHeatmap(pancreas_sub,
   features = de_top$gene, feature_split = de_top$group1, group.by = "CellType",
-  add_violin = TRUE, fill.by = "expression", fill_palette = "Blues", cluster_rows = TRUE
+  add_violin = TRUE, cluster_rows = TRUE,
+  show_row_names = TRUE
 )
 ht6$plot
 
 ht7 <- GroupHeatmap(pancreas_sub,
+  features = de_top$gene, feature_split = de_top$group1, group.by = "CellType",
+  add_violin = TRUE, fill.by = "expression", fill_palette = "Blues", cluster_rows = TRUE,
+  show_row_names = TRUE
+)
+ht7$plot
+
+ht8 <- GroupHeatmap(pancreas_sub,
   features = de_top$gene, group.by = "CellType", split.by = "Phase", n_split = 4,
   cluster_rows = TRUE, cluster_columns = TRUE, cluster_row_slices = TRUE, cluster_column_slices = TRUE,
   add_dot = TRUE, add_reticle = TRUE, heatmap_palette = "viridis",
   ht_params = list(row_gap = grid::unit(0, "mm"))
 )
-ht7$plot
+ht8$plot
 
 }
