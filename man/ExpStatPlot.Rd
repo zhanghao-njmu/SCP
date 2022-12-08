@@ -37,7 +37,7 @@ ExpStatPlot(
   alpha.highlight = 1,
   calculate_coexp = FALSE,
   compare_features = FALSE,
-  y.nbreaks = 3,
+  y.nbreaks = 4,
   y.min = NULL,
   y.max = NULL,
   same.y.lims = FALSE,
@@ -80,8 +80,8 @@ data("pancreas_sub")
 ExpStatPlot(pancreas_sub, features = c("G2M_score", "S_score"), group.by = "SubCellType")
 ExpStatPlot(pancreas_sub, features = c("G2M_score", "S_score"), group.by = "SubCellType", split.by = "Phase")
 ExpStatPlot(pancreas_sub, features = c("G2M_score", "S_score"), group.by = "SubCellType", fill.by = "expression", palette = "Blues")
-ExpStatPlot(pancreas_sub, features = c("Neurog3", "Fev"), group.by = "SubCellType", bg.by = "CellType", stack = TRUE)
 ExpStatPlot(pancreas_sub, features = c("Rbp4", "Pyy"), group.by = "SubCellType", comparisons = list(c("Alpha", "Beta"), c("Alpha", "Delta")), multiplegroup_comparisons = TRUE)
+ExpStatPlot(pancreas_sub, features = c("Neurog3", "Fev"), group.by = "SubCellType", bg.by = "CellType", stack = TRUE)
 ExpStatPlot(pancreas_sub,
   features = c(
     "Sox9", "Anxa2", "Bicc1", # Ductal
@@ -91,5 +91,5 @@ ExpStatPlot(pancreas_sub,
     "Ins1", "Gcg", "Sst", "Ghrl" # Beta, Alpha, Delta, Epsilon
   ),
   group.by = "SubCellType", bg.by = "CellType", stack = TRUE, flip = TRUE
-)
+) \%>\% panel_fix_single(width = 10, height = 5)
 }

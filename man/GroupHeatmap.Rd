@@ -33,6 +33,8 @@ GroupHeatmap(
   show_column_names = FALSE,
   row_names_side = ifelse(flip, "left", "right"),
   column_names_side = ifelse(flip, "bottom", "top"),
+  row_names_rot = 0,
+  column_names_rot = 90,
   row_title_side = "left",
   column_title_side = "top",
   row_title_rot = 0,
@@ -153,6 +155,7 @@ ht1 <- GroupHeatmap(pancreas_sub,
   show_row_names = TRUE
 )
 ht1$plot
+panel_fix(ht1$plot, height = 5, width = 10, raster = TRUE, dpi = 50)
 
 pancreas_sub <- RunDEtest(pancreas_sub, group_by = "CellType")
 de_filter <- filter(pancreas_sub@tools$DEtest_CellType$AllMarkers_wilcox, p_val_adj < 0.05 & avg_log2FC > 1)
@@ -193,7 +196,8 @@ ht5 <- GroupHeatmap(pancreas_sub,
   cell_annotation_params = list(width = grid::unit(0.5, "in")),
   feature_annotation = c("TF", "SP"),
   feature_palcolor = list(c("gold", "steelblue"), c("forestgreen")),
-  add_dot = TRUE, add_bg = TRUE, flip = TRUE, column_title_rot = 90, show_column_names = TRUE
+  add_dot = TRUE, add_bg = TRUE,
+  flip = TRUE, column_title_rot = 45, show_column_names = TRUE
 )
 ht5$plot
 

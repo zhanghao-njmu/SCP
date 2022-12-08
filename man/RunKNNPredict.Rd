@@ -29,8 +29,7 @@ RunKNNPredict(
   distance_metric = "cosine",
   k = 30,
   filter_lowfreq = 0,
-  prefix = "knnpredict",
-  force = FALSE
+  prefix = "knnpredict"
 )
 }
 \arguments{

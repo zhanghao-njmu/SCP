@@ -114,7 +114,7 @@ RunKNNMap <- function(srt_query, srt_ref, query_assay = NULL, ref_assay = NULL, 
     status_ref <- check_DataType(data = GetAssayData(srt_ref, slot = "data", assay = ref_assay))
     message("Detected srt_ref data type: ", status_ref)
     if (status_ref != status_query || any(status_query == "unknown", status_ref == "unknown")) {
-      warning("Data type is different between srt_query and srt_ref.", immediate. = TRUE)
+      warning("Data type is unknown or different between srt_query and srt_ref.", immediate. = TRUE)
     }
     if (length(features) == 0) {
       if (length(VariableFeatures(srt_ref, assay = ref_assay)) == 0) {
@@ -338,7 +338,7 @@ RunPCAMap <- function(srt_query, srt_ref, query_assay = NULL, ref_assay = srt_re
   status_ref <- check_DataType(data = GetAssayData(srt_ref, slot = "data", assay = ref_assay))
   message("Detected srt_ref data type: ", status_ref)
   if (status_ref != status_query || any(status_query == "unknown", status_ref == "unknown")) {
-    warning("Data type is different between srt_query and srt_ref.", immediate. = TRUE)
+    warning("Data type is unknown or different between srt_query and srt_ref.", immediate. = TRUE)
   }
 
   message("Run PCA projection")
@@ -446,7 +446,7 @@ RunSeuratMap <- function(srt_query, srt_ref, query_assay = NULL, ref_assay = srt
   status_ref <- check_DataType(data = GetAssayData(srt_ref, slot = "data", assay = ref_assay))
   message("Detected srt_ref data type: ", status_ref)
   if (status_ref != status_query || any(status_query == "unknown", status_ref == "unknown")) {
-    warning("Data type is different between srt_query and srt_ref.", immediate. = TRUE)
+    warning("Data type is unknown or different between srt_query and srt_ref.", immediate. = TRUE)
   }
 
   message("Run FindTransferAnchors")
@@ -556,7 +556,7 @@ RunCSSMap <- function(srt_query, srt_ref, query_assay = NULL, ref_assay = srt_re
   status_ref <- check_DataType(data = GetAssayData(srt_ref, slot = "data", assay = ref_assay))
   message("Detected srt_ref data type: ", status_ref)
   if (status_ref != status_query || any(status_query == "unknown", status_ref == "unknown")) {
-    warning("Data type is different between srt_query and srt_ref.", immediate. = TRUE)
+    warning("Data type is unknown or different between srt_query and srt_ref.", immediate. = TRUE)
   }
 
   message("Run CSS projection")
@@ -664,7 +664,7 @@ RunSymphonyMap <- function(srt_query, srt_ref, query_assay = NULL, ref_assay = s
   status_ref <- check_DataType(data = GetAssayData(srt_ref, slot = "data", assay = ref_assay))
   message("Detected srt_ref data type: ", status_ref)
   if (status_ref != status_query || any(status_query == "unknown", status_ref == "unknown")) {
-    warning("Data type is different between srt_query and srt_ref.", immediate. = TRUE)
+    warning("Data type is unknown or different between srt_query and srt_ref.", immediate. = TRUE)
   }
 
   message("Build reference")

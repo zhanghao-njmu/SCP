@@ -31,7 +31,7 @@ check_DataType <- function(srt, data = NULL, slot = "data", assay = NULL) {
     } else if (isfloat && islog) {
       return("log_normalized_counts")
     } else if (isfloat && !islog) {
-      if (length(unique(colSums(data))) == 1) {
+      if (isFALSE(isnegative)) {
         return("raw_normalized_counts")
       } else {
         return("unknown")
@@ -121,10 +121,24 @@ check_srtList <- function(srtList, batch = "orig.ident", assay = "RNA",
       u <- unique(srtList[[i]][[batch, drop = TRUE]])
       if (length(u) > 1) {
         x <- SplitObject(srtList[[i]], split.by = batch)
-        srtList[[i]] <- NULL
+        srtList[[i]] <- character(0)
         srtList <- c(srtList, x)
       }
     }
+    srtList <- srtList[sapply(srtList, length) > 0]
+    srtList_batch <- sapply(srtList, function(x) unique(x[[batch, drop = TRUE]]))
+    batch_to_merge <- names(which(table(srtList_batch) > 1))
+    if (length(batch_to_merge) > 0) {
+      for (b in batch_to_merge) {
+        index <- which(srtList_batch == b)
+        srtList_tmp <- Reduce(merge, srtList[index])
+        for (i in index) {
+          srtList[[i]] <- character(0)
+        }
+        srtList <- c(srtList, srtList_tmp)
+      }
+    }
+    srtList <- srtList[sapply(srtList, length) > 0]
   }
 
   for (i in seq_along(srtList)) {
@@ -137,19 +151,19 @@ check_srtList <- function(srtList, batch = "orig.ident", assay = "RNA",
       srtList[[i]] <- suppressWarnings(NormalizeData(object = srtList[[i]], assay = assay, normalization.method = "LogNormalize", verbose = FALSE))
     } else if (is.null(do_normalization)) {
       status <- check_DataType(srtList[[i]], slot = "data", assay = assay)
+      if (status == "log_normalized_counts") {
+        cat("Data ", i, "/", length(srtList), " of the srtList has been log-normalized.\n", sep = "")
+      }
       if (status == "raw_counts") {
         cat("Data ", i, "/", length(srtList), " of the srtList is raw counts. Perform NormalizeData(logCPM) on the data ...\n", sep = "")
         srtList[[i]] <- suppressWarnings(NormalizeData(object = srtList[[i]], assay = assay, normalization.method = "LogNormalize", verbose = FALSE))
       }
-      if (status == "log_normalized_counts") {
-        cat("Data ", i, "/", length(srtList), " of the srtList has been log-normalized.\n", sep = "")
-      }
       if (status == "raw_normalized_counts") {
-        cat("Data ", i, "/", length(srtList), " of the srtList is normalized without log transformation. Perform log1p on the data...\n", sep = "")
-        srtList[[i]][[assay]]@data <- log1p(srtList[[i]][[assay]]@data)
+        cat("Data ", i, "/", length(srtList), " of the srtList is normalized without log transformation. Perform NormalizeData(logCPM) on the data...\n", sep = "")
+        srtList[[i]] <- suppressWarnings(NormalizeData(object = srtList[[i]], assay = assay, normalization.method = "LogNormalize", verbose = FALSE))
       }
       if (status == "unknown") {
-        warning("Can not determine whether data ", i, " is log-normalized", immediate. = TRUE)
+        warning("Can not determine whether data ", i, " is log-normalized...\n", immediate. = TRUE)
       }
     }
     if (is.null(HVF)) {
@@ -316,40 +330,6 @@ check_srtMerge <- function(srtMerge, batch = "orig.ident", assay = "RNA",
   ))
 }
 
-#' @param srt
-#'
-#' @param HVF
-#' @param do_normalization
-#'
-#' @importFrom Seurat DefaultAssay DefaultAssay<- GetAssayData NormalizeData VariableFeatures VariableFeatures<-
-check_final <- function(srt, HVF, assay, do_normalization) {
-  raw_DefaultAssay <- DefaultAssay(object = srt)
-  DefaultAssay(object = srt) <- assay
-  if (isTRUE(do_normalization)) {
-    cat("Perform NormalizeData(logCPM) on the data [Final check]...\n", sep = "")
-    srt <- suppressWarnings(NormalizeData(object = srt, assay = assay, normalization.method = "LogNormalize", verbose = FALSE))
-  } else if (is.null(do_normalization)) {
-    status <- check_DataType(srt, slot = "data", assay = assay)
-    if (status == "raw_counts") {
-      cat("Perform NormalizeData(logCPM) on the data [Final check]...\n")
-      srt <- suppressWarnings(NormalizeData(object = srt, assay = assay, normalization.method = "LogNormalize", verbose = FALSE))
-    }
-    if (status == "raw_normalized_counts") {
-      cat("Data is normalized without log transformation. Perform log1p on the data [Final check]...\n")
-      srt[[assay]]@data <- log1p(srt[[assay]]@data)
-    }
-    if (status == "unknown") {
-      warning("Unable to determine if data is log-normalized [Final check].", immediate. = TRUE)
-    }
-  }
-  if (length(VariableFeatures(srt)) == 0) {
-    HVF <- HVF[HVF %in% rownames(GetAssayData(srt, slot = "counts", assay = assay))]
-    VariableFeatures(srt) <- HVF
-  }
-  DefaultAssay(object = srt) <- raw_DefaultAssay
-  return(srt)
-}
-
 #' Attempt to recover raw counts from the normalized matrix.
 #'
 #' @param srt A Seurat object.
@@ -506,7 +486,7 @@ RenameFeatures <- function(srt, newnames = NULL, assays = NULL) {
 #'
 #' @importFrom stats setNames
 #' @export
-RenameClusters <- function(srt, group.by, nameslist = list(), new_name = TRUE, name = "newclusters", keep_levels = FALSE) {
+RenameClusters <- function(srt, group.by, nameslist = list(), name = "newclusters", keep_levels = FALSE) {
   if (missing(group.by)) {
     stop("group.by must be provided")
   }
@@ -537,13 +517,6 @@ RenameClusters <- function(srt, group.by, nameslist = list(), new_name = TRUE, n
     levels <- levels(srt@meta.data[[group.by]])
   } else {
     levels <- NULL
-  }
-  if (isFALSE(new_name)) {
-    name <- group.by
-  } else {
-    if (is.null(name)) {
-      stop("'name' is not provided.")
-    }
   }
   index <- which(as.character(srt@meta.data[[group.by]]) %in% names(names_assign))
   srt@meta.data[[name]] <- as.character(srt@meta.data[[group.by]])

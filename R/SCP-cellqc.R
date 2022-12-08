@@ -18,7 +18,7 @@ db_scDblFinder <- function(srt, assay = "RNA", db_rate = ncol(srt) / 1000 * 0.01
   }
   status <- check_DataType(srt, slot = "counts", assay = assay)
   if (status != "raw_counts") {
-    stop("Infinite values or floating values in the counts slot of the srt object!")
+    stop("Data type is not raw counts!")
   }
   check_R("scDblFinder")
   sce <- as.SingleCellExperiment(srt, assay = assay)
@@ -49,7 +49,7 @@ db_scds <- function(srt, assay = "RNA", db_rate = ncol(srt) / 1000 * 0.01, metho
   }
   status <- check_DataType(srt, slot = "counts", assay = assay)
   if (status != "raw_counts") {
-    stop("Infinite values or floating values in the counts slot of the srt object!")
+    stop("Data type is not raw counts!")
   }
   check_R("scds")
   sce <- as.SingleCellExperiment(srt, assay = assay)
@@ -85,7 +85,7 @@ db_Scrublet <- function(srt, assay = "RNA", db_rate = ncol(srt) / 1000 * 0.01, .
   }
   status <- check_DataType(srt, slot = "counts", assay = assay)
   if (status != "raw_counts") {
-    stop("Infinite values or floating values in the counts slot of the srt object!")
+    stop("Data type is not raw counts!")
   }
   check_Python("scrublet", envname = "SCP")
   scr <- import("scrublet")
@@ -126,7 +126,7 @@ db_DoubletDetection <- function(srt, assay = "RNA", db_rate = ncol(srt) / 1000 *
   }
   status <- check_DataType(srt, slot = "counts", assay = assay)
   if (status != "raw_counts") {
-    stop("Infinite values or floating values in the counts slot of the srt object!")
+    stop("Data type is not raw counts!")
   }
   check_Python("doubletdetection", envname = "SCP")
   doubletdetection <- import("doubletdetection")
@@ -176,7 +176,7 @@ RunDoubletCalling <- function(srt, assay = "RNA", db_method = "scDblFinder", db_
   }
   status <- check_DataType(srt, slot = "counts", assay = assay)
   if (status != "raw_counts") {
-    stop("Infinite values or floating values in the counts slot of the srt object!")
+    stop("Data type is not raw counts!")
   }
   if (db_method %in% c("scDblFinder", "Scrublet", "DoubletDetection", "scds_cxds", "scds_bcds", "scds_hybrid")) {
     message("Run doublet-calling with ", db_method)
@@ -311,7 +311,7 @@ RunCellQC <- function(srt, assay = "RNA",
   }
   status <- check_DataType(srt, slot = "counts", assay = assay)
   if (status != "raw_counts") {
-    stop("Infinite values or floating values in the counts slot of the srt object!")
+    stop("Data type is not raw counts!")
   }
   if (!paste0("nCount_", assay) %in% colnames(srt@meta.data)) {
     srt@meta.data[[paste0("nCount_", assay)]] <- colSums(srt[[assay]]@counts)

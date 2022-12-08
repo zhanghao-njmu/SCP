@@ -13,8 +13,7 @@ RunScmap(
   threshold = 0.5,
   k = 10,
   query_assay = "RNA",
-  ref_assay = "RNA",
-  force = FALSE
+  ref_assay = "RNA"
 )
 }
 \arguments{

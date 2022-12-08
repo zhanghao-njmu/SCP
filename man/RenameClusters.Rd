@@ -8,7 +8,6 @@ RenameClusters(
   srt,
   group.by,
   nameslist = list(),
-  new_name = TRUE,
   name = "newclusters",
   keep_levels = FALSE
 )

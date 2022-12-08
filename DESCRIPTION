@@ -22,7 +22,7 @@ Imports:
     cowplot,
     dplyr,
     ggnewscale,
-    ggplot2,
+    ggplot2 (>= 3.4.0),
     ggtree (>= 3.6.1),
     ggrepel,
     GO.db,
