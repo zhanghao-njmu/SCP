@@ -6186,7 +6186,6 @@ ExpCorPlot <- function(srt, features, group.by = NULL, split.by = NULL, cells = 
   }
 }
 
-
 #' CellDensityPlot
 #'
 #' @examples
@@ -6201,7 +6200,8 @@ ExpCorPlot <- function(srt, features, group.by = NULL, split.by = NULL, cells = 
 #' @importFrom ggplot2 ggplot scale_fill_manual labs scale_y_discrete scale_x_continuous facet_grid labs coord_flip element_text element_line
 #' @importFrom cowplot plot_grid
 #' @export
-CellDensityPlot <- function(srt, features, group.by, split.by = NULL, flip = FALSE, reverse = FALSE,
+CellDensityPlot <- function(srt, features, group.by, split.by = NULL,
+                            flip = FALSE, reverse = FALSE, x_order = c("value", "rank"),
                             decreasing = NULL, palette = "Paired", palcolor = NULL,
                             cells = NULL, assay = NULL, slot = "data", keep_empty = FALSE,
                             y.nbreaks = 4, y.min = NULL, y.max = NULL, same.y.lims = FALSE,
@@ -6210,6 +6210,7 @@ CellDensityPlot <- function(srt, features, group.by, split.by = NULL, flip = FAL
                             combine = TRUE, nrow = NULL, ncol = NULL, byrow = TRUE, align = "hv", axis = "lr", force = FALSE) {
   check_R("ggridges")
   assay <- assay %||% DefaultAssay(srt)
+  x_order <- match.arg(x_order)
   if (is.null(features)) {
     stop("'features' must be provided.")
   }
@@ -6287,7 +6288,11 @@ CellDensityPlot <- function(srt, features, group.by, split.by = NULL, flip = FAL
           dat[, f][dat[, f] == min(dat[, f])] <- min(dat[, f][is.finite(dat[, f])])
         }
         dat[, "cell"] <- rownames(dat)
-        dat[, "value"] <- dat[, f]
+        if (x_order == "value") {
+          dat[, "value"] <- dat[, f]
+        } else {
+          dat[, "value"] <- rank(dat[, f])
+        }
         dat[, "features"] <- f
         dat[, "split.by"] <- s
         dat <- dat[!is.na(dat[[f]]), ]
@@ -6303,10 +6308,10 @@ CellDensityPlot <- function(srt, features, group.by, split.by = NULL, flip = FAL
           levels <- dat %>%
             group_by_at(g) %>%
             summarise_at(.funs = median, .vars = f, na.rm = TRUE) %>%
-            arrange_at(.vars = f, .funs = if (decreasing) desc else list(), na.rm = TRUE) %>%
+            arrange_at(.vars = f, .funs = if (decreasing) desc else list()) %>%
             pull(g) %>%
             as.character()
-          dat[["order"]] <- factor(dat[[g]], levels = rev(levels))
+          dat[["order"]] <- factor(dat[[g]], levels = levels)
         } else {
           dat[["order"]] <- factor(dat[[g]], levels = rev(levels(dat[[g]])))
         }
@@ -6317,7 +6322,7 @@ CellDensityPlot <- function(srt, features, group.by, split.by = NULL, flip = FAL
             aspect.ratio <- NULL
           }
         }
-        p <- ggplot(dat, aes(x = .data[[f]], y = .data[["order"]], fill = .data[[g]])) +
+        p <- ggplot(dat, aes(x = .data[["value"]], y = .data[["order"]], fill = .data[[g]])) +
           ggridges::geom_density_ridges()
         p <- p + scale_fill_manual(
           name = paste0(g, ":"),
@@ -9248,15 +9253,16 @@ SummaryPlot <- function(srt,
 #' @importFrom grDevices colorRampPalette
 #' @importFrom stats runif
 #' @export
-DynamicPlot <- function(srt, features, lineages, cells = NULL, slot = "counts", assay = "RNA", family = NULL,
+DynamicPlot <- function(srt, features, lineages, group.by = NULL, cells = NULL, slot = "counts", assay = "RNA", family = NULL,
                         exp_method = c("log1p", "raw", "zscore", "fc", "log2fc"), lib_normalize = TRUE, libsize = NULL,
-                        order.by = "pseudotime", group.by = NULL, compare_lineages = TRUE, compare_features = FALSE,
+                        compare_lineages = TRUE, compare_features = FALSE,
                         add_line = TRUE, add_interval = TRUE, line.size = 1, line_palette = "Dark2", line_palcolor = NULL,
                         add_point = TRUE, pt.size = 1, point_palette = "Paired", point_palcolor = NULL,
-                        add_rug = TRUE, flip = FALSE, reverse = FALSE,
+                        add_rug = TRUE, flip = FALSE, reverse = FALSE, x_order = c("value", "rank"),
                         aspect.ratio = NULL, legend.position = "right", legend.direction = "vertical",
                         combine = TRUE, nrow = NULL, ncol = NULL, byrow = TRUE, align = "hv", axis = "lr") {
   check_R("MatrixGenerics")
+  x_order <- match.arg(x_order)
   if (!is.null(group.by) && !group.by %in% colnames(srt@meta.data)) {
     stop(group.by, " is not in the meta.data of srt object.")
   }
@@ -9314,9 +9320,6 @@ DynamicPlot <- function(srt, features, lineages, cells = NULL, slot = "counts", 
   }
 
   x_assign <- rowMeans(srt@meta.data[cell_union, lineages, drop = FALSE], na.rm = TRUE)
-  if (order.by == "rank") {
-    x_assign <- rank(x_assign)
-  }
   cell_metadata <- cbind.data.frame(data.frame(row.names = cell_union),
     x_assign = x_assign,
     srt@meta.data[cell_union, lineages, drop = FALSE]
@@ -9458,8 +9461,10 @@ DynamicPlot <- function(srt, features, lineages, cells = NULL, slot = "counts", 
   for (l in lineages_use) {
     for (f in features_use) {
       df <- subset(df_all, df_all[["Lineages"]] %in% l & df_all[["Features"]] %in% f)
-      random_noise <- runif(nrow(df), -0.01 * diff(range(df[, "exp", drop = FALSE], na.rm = TRUE)), 0.01 * diff(range(df[, "exp", drop = FALSE], na.rm = TRUE)))
-      df[, "random_noise"] <- random_noise
+      if (x_order == "rank") {
+        df[, "x_assign"] <- rank(df[, "x_assign"])
+        df[, "Pseudotime"] <- rank(df[, "Pseudotime"])
+      }
       df_point <- unique(df[df[["Value"]] == "raw", c("Cell", "x_assign", "exp", group.by)])
       if (isTRUE(compare_features)) {
         raw_point <- NULL
@@ -9560,7 +9565,7 @@ DynamicPlot <- function(srt, features, lineages, cells = NULL, slot = "counts", 
         rug +
         interval +
         line +
-        labs(x = "Pseudotime", y = exp_name) +
+        labs(x = ifelse(x_order == "rank", "Pseudotime(rank)", "Pseudotime"), y = exp_name) +
         facet_grid(formula(formula), scales = "free") +
         theme_scp(
           aspect.ratio = aspect.ratio,
@@ -10150,6 +10155,7 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineag
           lineage_cells <- gsub(pattern = l, replacement = "", x = cell_order_list[[l]])
           subplots <- CellDensityPlot(
             srt = srt, cells = lineage_cells, group.by = cellan, features = l,
+            decreasing = TRUE, x_order = "rank",
             palette = palette, palcolor = palcolor,
             flip = flip, reverse = l %in% lineages[reverse_ht] || l %in% reverse_ht
           ) + theme_void()
@@ -10195,7 +10201,7 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineag
           subplots <- DynamicPlot(
             srt = srt, cells = lineage_cells, lineages = l, group.by = NULL, features = cellan,
             line_palette = palette, line_palcolor = palcolor,
-            add_rug = FALSE, legend.position = "none", compare_features = TRUE,
+            add_rug = FALSE, legend.position = "none", compare_features = TRUE, x_order = "rank",
             flip = flip, reverse = l %in% lineages[reverse_ht] || l %in% reverse_ht
           ) + theme_void()
           subplots_list[[paste0(paste0(cellan, collapse = ","), ":", l)]] <- subplots

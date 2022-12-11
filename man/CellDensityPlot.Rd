@@ -11,6 +11,7 @@ CellDensityPlot(
   split.by = NULL,
   flip = FALSE,
   reverse = FALSE,
+  x_order = c("value", "rank"),
   decreasing = NULL,
   palette = "Paired",
   palcolor = NULL,
