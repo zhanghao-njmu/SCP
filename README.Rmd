@@ -236,7 +236,7 @@ pancreas_sub <- RunDEtest(srt = pancreas_sub, group_by = "CellType", fc.threshol
 VolcanoPlot(srt = pancreas_sub, group_by = "CellType")
 ```
 
-```{r DEGsPlot, fig.height=6, fig.width=16}
+```{r DEGsPlot, fig.height=6, fig.width=17}
 DEGs <- pancreas_sub@tools$DEtest_CellType$AllMarkers_wilcox
 DEGs <- DEGs[with(DEGs, avg_log2FC > 1 & p_val_adj < 0.05), ]
 pancreas_sub <- AnnotateFeatures(pancreas_sub, species = "Mus_musculus", db = c("TF", "SP"))
@@ -244,7 +244,7 @@ ht <- ExpHeatmap(
   srt = pancreas_sub, group.by = "CellType", features = DEGs$gene, feature_split = DEGs$group1,
   species = "Mus_musculus", anno_terms = TRUE, anno_keys = TRUE, anno_features = TRUE,
   feature_annotation = c("TF", "SP"), feature_palcolor = list(c("gold", "steelblue"), c("forestgreen")),
-  height = 5.5, width = 5
+  height = 6, width = 5
 )
 print(ht$plot)
 ```
@@ -291,14 +291,18 @@ ClassDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", lineage
 
 ### Dynamic features
 
-```{r DynamicHeatmap, fig.height=6, fig.width=17}
+```{r DynamicHeatmap, fig.height=9, fig.width=17}
 pancreas_sub <- RunDynamicFeatures(srt = pancreas_sub, lineages = c("Lineage1", "Lineage2"), n_candidates = 200)
 ht <- DynamicHeatmap(
-  srt = pancreas_sub, lineages = c("Lineage1", "Lineage2"), cell_annotation = "SubCellType",
-  n_split = 5, reverse_ht = "Lineage1",
+  srt = pancreas_sub, lineages = c("Lineage1", "Lineage2"),
+  use_fitted = TRUE, n_split = 5, reverse_ht = "Lineage1",
   species = "Mus_musculus", anno_terms = TRUE, anno_keys = TRUE, anno_features = TRUE,
+  heatmap_palette = "viridis", cell_annotation = "SubCellType",
+  separate_annotation = list("SubCellType", c("Nnat", "Irx1")),
+  separate_annotation_params = list(height = grid::unit(1, "in")),
   feature_annotation = c("TF", "SP"), feature_palcolor = list(c("gold", "steelblue"), c("forestgreen")),
-  height = 5.5, width = 5
+  pseudotime_label = 25, pseudotime_label_color = "red",
+  height = 6, width = 5
 )
 print(ht$plot)
 ```

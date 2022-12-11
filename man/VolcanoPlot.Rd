@@ -40,7 +40,6 @@ VolcanoPlot
 }
 \examples{
 data("pancreas_sub")
-pancreas_sub <- Standard_SCP(pancreas_sub)
 pancreas_sub <- RunDEtest(pancreas_sub, group_by = "CellType", only.pos = FALSE)
 VolcanoPlot(pancreas_sub, group_by = "CellType")
 VolcanoPlot(pancreas_sub, group_by = "CellType", DE_threshold = "abs(diff_pct) > 0.3 & p_val_adj < 0.05")

@@ -595,7 +595,6 @@ AddModuleScore2 <- function(object, slot = "data", features, pool = NULL, nbin =
 #' @examples
 #' data("pancreas_sub")
 #' ccgenes <- CC_GenePrefetch("Mus_musculus")
-#' pancreas_sub <- Standard_SCP(pancreas_sub)
 #' pancreas_sub <- CellScoring(
 #'   srt = pancreas_sub,
 #'   features = list(S = ccgenes$cc_S_genes, G2M = ccgenes$cc_G2M_genes),
@@ -1033,7 +1032,6 @@ FindConservedMarkers2 <- function(object, grouping.var, ident.1, ident.2 = NULL,
 #' @examples
 #' library(dplyr)
 #' data(pancreas_sub)
-#' pancreas_sub <- Standard_SCP(pancreas_sub)
 #' pancreas_sub <- RunDEtest(pancreas_sub, group_by = "CellType")
 #'
 #' # Heatmap
@@ -2333,7 +2331,6 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
 #'
 #' @examples
 #' data("pancreas_sub")
-#' pancreas_sub <- Standard_SCP(pancreas_sub)
 #' pancreas_sub <- RunDEtest(pancreas_sub, group_by = "CellType")
 #' pancreas_sub <- RunEnrichment(srt = pancreas_sub, group_by = "CellType", db = "GO_BP", species = "Mus_musculus")
 #' EnrichmentPlot(pancreas_sub, group_by = "CellType", db = "GO_BP", plot_type = "bar")
@@ -2570,7 +2567,6 @@ RunEnrichment <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_t
 #' @importFrom BiocParallel bplapply
 #' @examples
 #' data("pancreas_sub")
-#' pancreas_sub <- Standard_SCP(pancreas_sub)
 #' pancreas_sub <- RunDEtest(pancreas_sub, group_by = "CellType", only.pos = FALSE, fc.threshold = 1)
 #' pancreas_sub <- RunGSEA(pancreas_sub, group_by = "CellType", db = "GO_BP", species = "Mus_musculus")
 #' GSEAPlot(pancreas_sub, group_by = "CellType")

@@ -3683,8 +3683,12 @@ Standard_SCP <- function(srt, prefix = "Standard", assay = "RNA",
 #' )
 #' ClassDimPlot(panc8_sub, group.by = c("tech", "celltype"))
 #'
-#' panc8_sub <- Integration_SCP(panc8_sub,
-#'   batch = "tech", integration_method = "Seurat"
+#' panc8_sub <- Integration_SCP(
+#'   srtMerge = panc8_sub,
+#'   batch = "tech",
+#'   integration_method = "Seurat",
+#'   normalization_method = "SCT",
+#'   nonlinear_reduction = "umap"
 #' )
 #' ClassDimPlot(panc8_sub, group.by = c("tech", "celltype"))
 #'

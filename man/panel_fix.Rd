@@ -95,6 +95,8 @@ ht1 <- GroupHeatmap(pancreas_sub,
   group.by = c("CellType", "SubCellType"),
   show_row_names = TRUE
 )
+panel_fix(ht1$plot)
+panel_fix(ht1$plot, raster = TRUE, dpi = 50)
 panel_fix(ht1$plot, height = 5, width = 10, bg_color = "grey")
 
 ht2 <- GroupHeatmap(pancreas_sub,
@@ -109,7 +111,7 @@ ht2 <- GroupHeatmap(pancreas_sub,
   show_row_names = TRUE,
   nlabel = 5, height = 3, width = 6
 )
-ht2$plot
+panel_fix(ht2$plot)
 panel_fix(ht2$plot, raster = TRUE, dpi = 50)
 panel_fix(ht2$plot, height = 5, width = 10)
 

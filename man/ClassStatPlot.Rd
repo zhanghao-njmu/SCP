@@ -10,6 +10,7 @@ ClassStatPlot(
   group.by = NULL,
   split.by = NULL,
   cells = NULL,
+  flip = FALSE,
   NA_color = "grey",
   keep_empty = FALSE,
   stat_single = FALSE,
