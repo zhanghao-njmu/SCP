@@ -171,21 +171,21 @@
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"pancreas_sub"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu">Standard_SCP</span><span class="op">(</span>srt <span class="op">=</span> <span class="va">pancreas_sub</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-11 15:32:07] Start Standard_SCP</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-11 15:32:07] Checking srtList... ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-11 18:03:47] Start Standard_SCP</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-11 18:03:47] Checking srtList... ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Data 1/1 of the srtList is raw counts. Perform NormalizeData(logCPM) on the data ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform FindVariableFeatures on the data 1/1 of the srtList...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Use the separate HVF from the existed HVF in srtList...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Number of available HVF: 2000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-11 15:32:08] Finished checking.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-11 15:32:08] Perform ScaleData on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-11 15:32:08] Perform linear dimension reduction (pca) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-11 18:03:48] Finished checking.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-11 18:03:48] Perform ScaleData on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-11 18:03:48] Perform linear dimension reduction (pca) on the data...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> dims_estimate is 1:18 for 'pca'</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-11 15:32:09] Perform FindClusters (louvain) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-11 15:32:10] Reorder clusters...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-11 15:32:10] Perform nonlinear dimension reduction (umap) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-11 15:32:19] Standard_SCP done</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 11.5 secs </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-11 18:03:50] Perform FindClusters (louvain) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-11 18:03:50] Reorder clusters...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-11 18:03:51] Perform nonlinear dimension reduction (umap) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-11 18:04:02] Standard_SCP done</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 14.93 secs </span>
 <span class="r-in"><span><span class="fu"><a href="ClassDimPlot.html">ClassDimPlot</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, group.by <span class="op">=</span> <span class="st">"CellType"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="Standard_SCP-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
@@ -195,21 +195,21 @@
 <span class="r-in"><span>  linear_reduction <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"pca"</span>, <span class="st">"ica"</span>, <span class="st">"nmf"</span>, <span class="st">"mds"</span>, <span class="st">"glmpca"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  nonlinear_reduction <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"umap"</span>, <span class="st">"tsne"</span>, <span class="st">"phate"</span>, <span class="st">"pacmap"</span>, <span class="st">"trimap"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-11 15:32:19] Start Standard_SCP</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-11 15:32:19] Checking srtList... ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-11 18:04:02] Start Standard_SCP</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-11 18:04:02] Checking srtList... ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Data 1/1 of the srtList has been log-normalized.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform FindVariableFeatures on the data 1/1 of the srtList...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Use the separate HVF from the existed HVF in srtList...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Number of available HVF: 2000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-11 15:32:20] Finished checking.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-11 15:32:20] Perform ScaleData on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-11 15:32:20] Perform linear dimension reduction (pca) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-11 18:04:03] Finished checking.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-11 18:04:03] Perform ScaleData on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-11 18:04:04] Perform linear dimension reduction (pca) on the data...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> dims_estimate is 1:18 for 'pca'</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-11 15:32:21] Perform FindClusters (louvain) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-11 15:32:22] Reorder clusters...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-11 15:32:22] Perform nonlinear dimension reduction (umap) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-11 15:32:30] Perform nonlinear dimension reduction (tsne) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-11 15:32:40] Perform nonlinear dimension reduction (phate) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-11 18:04:05] Perform FindClusters (louvain) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-11 18:04:06] Reorder clusters...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-11 18:04:06] Perform nonlinear dimension reduction (umap) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-11 18:04:17] Perform nonlinear dimension reduction (tsne) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-11 18:04:31] Perform nonlinear dimension reduction (phate) on the data...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Try to install 'phate' ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Using virtual environment 'SCP' ...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> + '/home/runner/.virtualenvs/SCP/bin/python' -m pip install --upgrade --no-user -i https://pypi.org/simple/ 'phate'</span>
