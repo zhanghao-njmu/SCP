@@ -776,10 +776,10 @@ panel_fix_single <- function(x, panel_index = NULL, respect = NULL,
       # print(w)
       # print(h)
       if (width == 0 && height == 0) {
-        width <- as.numeric(convertWidth(unit(0.9, "npc"), units))
-        height <- as.numeric(convertHeight(unit(0.9, "npc"), units))
+        width <- as.numeric(convertWidth(unit(0.8, "npc"), units))
+        height <- as.numeric(convertHeight(unit(0.8, "npc"), units))
         if (isTRUE(grob$respect)) {
-          if (width <= height) {
+          if (raw_aspect <= 1) {
             height <- width * raw_aspect
           } else {
             width <- height / raw_aspect
@@ -1545,10 +1545,6 @@ ClassDimPlot <- function(srt, group.by = "orig.ident", reduction = NULL, dims = 
         ))
 
       if (isTRUE(raster)) {
-        # p <- p + scattermore::geom_scattermore(
-        #   mapping = aes(x = .data[["x"]], y = .data[["y"]], color = .data[["group.by"]]),
-        #   pointsize = floor(pt.size), alpha = pt.alpha, pixels = raster.dpi
-        # )
         p <- p + scattermore::geom_scattermore(
           data = dat[is.na(dat[, "group.by"]), , drop = FALSE],
           mapping = aes(x = .data[["x"]], y = .data[["y"]], color = .data[["group.by"]]),
@@ -4509,10 +4505,10 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
     fix <- FALSE
   }
   if (is.null(height)) {
-    height <- convertHeight(unit(0.9, "npc"), units)
+    height <- convertHeight(unit(0.8, "npc"), units)
   }
   if (is.null(width)) {
-    width <- convertWidth(unit(0.9, "npc"), units)
+    width <- convertWidth(unit(0.8, "npc"), units)
   }
   if (isTRUE(flip)) {
     if (length(ha_top_list) > 0) {
@@ -5644,10 +5640,10 @@ ExpHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, spli
     fix <- FALSE
   }
   if (is.null(height)) {
-    height <- convertHeight(unit(0.9, "npc"), units)
+    height <- convertHeight(unit(0.8, "npc"), units)
   }
   if (is.null(width)) {
-    width <- convertWidth(unit(0.9, "npc"), units)
+    width <- convertWidth(unit(0.8, "npc"), units)
   }
   if (isTRUE(flip)) {
     if (length(ha_top_list) > 0) {
@@ -7158,7 +7154,7 @@ ExpStatPlot <- function(srt, features = NULL, group.by = NULL, split.by = NULL, 
 #' @importFrom rlang %||%
 #' @export
 ClassStatPlot <- function(srt, stat.by = "orig.ident", group.by = NULL, split.by = NULL, cells = NULL, flip = FALSE,
-                          NA_color = "grey", keep_empty = FALSE, stat_single = FALSE, stat_level = NULL,
+                          NA_color = "grey", NA_stat = TRUE, keep_empty = FALSE, stat_single = FALSE, stat_level = NULL,
                           plot_type = c("bar", "rose", "ring", "pie", "area", "sankey", "chord", "venn", "upset"),
                           stat_type = c("percent", "count"), position = c("stack", "dodge"), width = 0.8,
                           palette = "Paired", palcolor = NULL, alpha = 1,
@@ -7270,9 +7266,12 @@ ClassStatPlot <- function(srt, stat.by = "orig.ident", group.by = NULL, split.by
     for (g in group.by) {
       for (sp in levels(dat_all[[split.by]])) {
         colors_use <- colors[names(colors) %in% dat_all[dat_all[[split.by]] == sp, stat.by]]
+        if (any(is.na(dat_all[dat_all[[split.by]] == sp, stat.by]))) {
+          colors_use <- c(colors_use, colors["NA"])
+        }
         if (stat_type == "percent") {
           dat_use <- dat_all[dat_all[[split.by]] == sp, ] %>%
-            xtabs(formula = paste0("~", stat.by, "+", g), addNA = TRUE) %>%
+            xtabs(formula = paste0("~", stat.by, "+", g), addNA = NA_stat) %>%
             as.data.frame() %>%
             group_by(across(all_of(g)), .drop = FALSE) %>%
             mutate(groupn = sum(Freq)) %>%
@@ -7281,7 +7280,7 @@ ClassStatPlot <- function(srt, stat.by = "orig.ident", group.by = NULL, split.by
             as.data.frame()
         } else {
           dat_use <- dat_all[dat_all[[split.by]] == sp, ] %>%
-            xtabs(formula = paste0("~", stat.by, "+", g), addNA = TRUE) %>%
+            xtabs(formula = paste0("~", stat.by, "+", g), addNA = NA_stat) %>%
             as.data.frame() %>%
             mutate(value = Freq)
         }
@@ -10776,10 +10775,10 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineag
     fix <- FALSE
   }
   if (is.null(height)) {
-    height <- convertHeight(unit(0.9, "npc"), units)
+    height <- convertHeight(unit(0.8, "npc"), units)
   }
   if (is.null(width)) {
-    width <- convertWidth(unit(0.9, "npc"), units)
+    width <- convertWidth(unit(0.8, "npc"), units)
   }
   if (isTRUE(flip)) {
     if (length(ha_top_list) > 0) {

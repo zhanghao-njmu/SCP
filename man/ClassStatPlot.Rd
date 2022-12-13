@@ -12,6 +12,7 @@ ClassStatPlot(
   cells = NULL,
   flip = FALSE,
   NA_color = "grey",
+  NA_stat = TRUE,
   keep_empty = FALSE,
   stat_single = FALSE,
   stat_level = NULL,

@@ -38,7 +38,7 @@ NULL
 RunKNNMap <- function(srt_query, srt_ref, query_assay = NULL, ref_assay = NULL, ref_umap = NULL, ref_group = NULL,
                       features = NULL, nfeatures = 2000,
                       query_reduction = NULL, ref_reduction = NULL, query_dims = 1:30, ref_dims = 1:30,
-                      projection_method = "model", nn_method = NULL, k = 30, distance_metric = "cosine", vote_fun = "mean") {
+                      projection_method = c("model", "knn"), nn_method = NULL, k = 30, distance_metric = "cosine", vote_fun = "mean") {
   query_assay <- query_assay %||% DefaultAssay(srt_query)
   ref_assay <- ref_assay %||% DefaultAssay(srt_ref)
   if (!is.null(ref_group)) {
@@ -63,9 +63,7 @@ RunKNNMap <- function(srt_query, srt_ref, query_assay = NULL, ref_assay = NULL, 
       message("Set ref_umap to ", ref_umap)
     }
   }
-  if (!projection_method %in% c("model", "knn")) {
-    stop("projection_method must be one of 'model' and 'knn'")
-  }
+  projection_method <- match.arg(projection_method)
   if (projection_method == "model" && !"model" %in% names(srt_ref[[ref_umap]]@misc)) {
     message("No UMAP model detected. Set the projection_method to 'knn'")
     projection_method <- "knn"
@@ -201,7 +199,7 @@ RunKNNMap <- function(srt_query, srt_ref, query_assay = NULL, ref_assay = NULL, 
       match_k_cell <- t(as.matrix(apply(d, 2, function(x) names(x)[order(x, decreasing = FALSE)[1:k]])))
       match_k_distance <- t(as.matrix(apply(d, 2, function(x) x[order(x, decreasing = FALSE)[1:k]])))
     }
-    knn_cells <- c(match_k_cell)
+    knn_cells <- match_k_cell
     refumap_all <- srt_ref[[ref_umap]]@cell.embeddings[knn_cells, ]
     group <- rep(colnames(d), k)
   }
@@ -321,9 +319,7 @@ RunPCAMap <- function(srt_query, srt_ref, query_assay = NULL, ref_assay = srt_re
       message("Set ref_umap to ", ref_umap)
     }
   }
-  if (!projection_method %in% c("model", "knn")) {
-    stop("projection_method must be one of 'model' and 'knn'")
-  }
+  projection_method <- match.arg(projection_method)
   if (projection_method == "model" && !"model" %in% names(srt_ref[[ref_umap]]@misc)) {
     message("No UMAP model detected. Set the projection_method to 'knn'")
     projection_method <- "knn"
@@ -430,9 +426,7 @@ RunSeuratMap <- function(srt_query, srt_ref, query_assay = NULL, ref_assay = srt
       message("Set ref_umap to ", ref_umap)
     }
   }
-  if (!projection_method %in% c("model", "knn")) {
-    stop("projection_method must be one of 'model' and 'knn'")
-  }
+  projection_method <- match.arg(projection_method)
   if (projection_method == "model" && !"model" %in% names(srt_ref[[ref_umap]]@misc)) {
     message("No UMAP model detected. Set the projection_method to 'knn'")
     projection_method <- "knn"
@@ -539,9 +533,7 @@ RunCSSMap <- function(srt_query, srt_ref, query_assay = NULL, ref_assay = srt_re
       message("Set ref_umap to ", ref_umap)
     }
   }
-  if (!projection_method %in% c("model", "knn")) {
-    stop("projection_method must be one of 'model' and 'knn'")
-  }
+  projection_method <- match.arg(projection_method)
   if (projection_method == "model" && !"model" %in% names(srt_ref[[ref_umap]]@misc)) {
     message("No UMAP model detected. Set the projection_method to 'knn'")
     projection_method <- "knn"
@@ -648,9 +640,7 @@ RunSymphonyMap <- function(srt_query, srt_ref, query_assay = NULL, ref_assay = s
       message("Set ref_umap to ", ref_umap)
     }
   }
-  if (!projection_method %in% c("model", "knn")) {
-    stop("projection_method must be one of 'model' and 'knn'")
-  }
+  projection_method <- match.arg(projection_method)
   if (projection_method == "model" && !"model" %in% names(srt_ref[[ref_umap]]@misc)) {
     message("No UMAP model detected. Set the projection_method to 'knn'")
     projection_method <- "knn"

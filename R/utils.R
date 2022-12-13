@@ -17,14 +17,14 @@ PrepareVirtualEnv <- function(python = NULL, pypi_mirror = "https://pypi.org/sim
     unlink(reticulate:::virtualenv_path("SCP"), recursive = TRUE)
   }
   python_path <- NULL
-  if (!isTRUE(install_python)) {
+  sys_bit <- ifelse(grepl("64", Sys.info()["machine"]), "64bit", "32bit")
+  if (isFALSE(install_python)) {
     if (!is.null(python) && file.exists(python)) {
       pythons <- python
     } else {
       pythons <- unique(c(reticulate::virtualenv_python("SCP"), Sys.getenv("RETICULATE_PYTHON"), Sys.which("python3"), Sys.which("python")))
     }
 
-    sys_bit <- ifelse(grepl("64", Sys.info()["machine"]), "64bit", "32bit")
     for (py in pythons) {
       if (py != "" && !file.exists(py)) {
         # packageStartupMessage(py, " is not a Python executable file.")
