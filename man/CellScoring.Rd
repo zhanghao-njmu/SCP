@@ -2,7 +2,7 @@
 % Please edit documentation in R/SCP-analysis.R
 \name{CellScoring}
 \alias{CellScoring}
-\title{Cell classification}
+\title{CellScoring}
 \usage{
 CellScoring(
   srt,
@@ -36,7 +36,7 @@ CellScoring(
 \item{...}{}
 }
 \description{
-Cell classification
+CellScoring
 }
 \examples{
 data("pancreas_sub")

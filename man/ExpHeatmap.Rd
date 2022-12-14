@@ -160,7 +160,7 @@ pancreas_sub <- RunPAGA(
   linear_reduction = "PCA", nonlinear_reduction = "UMAP", infer_pseudotime = TRUE, root_group = "Ductal"
 )
 ht6 <- ExpHeatmap(
-  srt = pancreas_sub, features = de_filter$gene,
+  srt = pancreas_sub, features = de_filter$gene, nlabel = 10,
   cell_order = names(sort(pancreas_sub$dpt_pseudotime)),
   cell_annotation = c("CellType", "dpt_pseudotime"),
   cell_palette = c("Paired", "cividis")
