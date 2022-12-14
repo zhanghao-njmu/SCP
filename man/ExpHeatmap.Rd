@@ -111,7 +111,7 @@ ExpHeatmap
 }
 \examples{
 library(dplyr)
-data(pancreas_sub)
+data("pancreas_sub")
 pancreas_sub <- Standard_SCP(pancreas_sub)
 pancreas_sub <- RunDEtest(pancreas_sub, group_by = "CellType")
 de_filter <- filter(pancreas_sub@tools$DEtest_CellType$AllMarkers_wilcox, p_val_adj < 0.05 & avg_log2FC > 1)

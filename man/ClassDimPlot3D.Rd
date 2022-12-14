@@ -57,7 +57,7 @@ ClassDimPlot3D(
 Plotting cell points on a reduced 3D space and coloring according to the groups of the cells.
 }
 \examples{
-data(pancreas_sub)
+data("pancreas_sub")
 pancreas_sub <- Standard_SCP(pancreas_sub)
 ClassDimPlot3D(pancreas_sub, group.by = "SubCellType", reduction = "StandardpcaUMAP3D")
 

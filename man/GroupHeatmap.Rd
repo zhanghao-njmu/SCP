@@ -141,7 +141,7 @@ GroupHeatmap
 }
 \examples{
 library(dplyr)
-data(pancreas_sub)
+data("pancreas_sub")
 pancreas_sub <- Standard_SCP(pancreas_sub)
 ht1 <- GroupHeatmap(pancreas_sub,
   features = c(

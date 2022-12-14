@@ -2656,7 +2656,7 @@ ExpDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), split.by
 #' @param height Height in pixels, defaults to automatic sizing.
 #'
 #' @examples
-#' data(pancreas_sub)
+#' data("pancreas_sub")
 #' pancreas_sub <- Standard_SCP(pancreas_sub)
 #' ClassDimPlot3D(pancreas_sub, group.by = "SubCellType", reduction = "StandardpcaUMAP3D")
 #'
@@ -2876,7 +2876,7 @@ ClassDimPlot3D <- function(srt, group.by = "orig.ident", reduction = NULL, dims 
 #' Plotting cell points on a reduced 3D space and coloring according to the gene expression in the cells.
 #'
 #' @examples
-#' data(pancreas_sub)
+#' data("pancreas_sub")
 #' pancreas_sub <- Standard_SCP(pancreas_sub)
 #' ExpDimPlot3D(pancreas_sub, features = c("Ghrl", "Ins1", "Gcg", "Ins2"), reduction = "StandardpcaUMAP3D")
 #' @inheritParams ExpDimPlot
@@ -3288,7 +3288,7 @@ cluster_within_group2 <- function(mat, factor) {
 #'
 #' @examples
 #' library(dplyr)
-#' data(pancreas_sub)
+#' data("pancreas_sub")
 #' pancreas_sub <- Standard_SCP(pancreas_sub)
 #' ht1 <- GroupHeatmap(pancreas_sub,
 #'   features = c(
@@ -3378,6 +3378,7 @@ cluster_within_group2 <- function(mat, factor) {
 #' @importFrom cowplot plot_grid
 #' @importFrom scales alpha
 #' @importFrom methods getFunction
+#' @importFrom dplyr %>% filter group_by arrange desc across mutate summarise distinct n .data "%>%"
 #' @export
 GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL, cells = NULL, aggregate_fun = mean, exp_cutoff = 0, border = TRUE, flip = FALSE,
                          slot = "counts", assay = "RNA", exp_method = c("zscore", "raw", "fc", "log2fc", "log1p"), lib_normalize = TRUE, libsize = NULL,
@@ -4162,6 +4163,9 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
               df_out[["col"]] <- palette_scp(-log10(head(df[, "p.adjust"], topTerm)), type = "continuous", palette = "Spectral", matched = TRUE)
               df_out[["col"]] <- sapply(df_out[["col"]], function(x) blendcolors(c(x, "black")))
               df_out[["fontsize"]] <- terms_fontsize
+              if (length(df_out[["fontsize"]]) == 0 || any(is.infinite(df_out[["fontsize"]])) || any(is.na(df_out[["fontsize"]]))) {
+                df_out[["fontsize"]] <- 8
+              }
               return(df_out)
             })
             names(terms_list) <- unlist(lapply(nm, function(x) x[[2]]))
@@ -4225,6 +4229,9 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
               df[["col"]] <- palette_scp(df[, "score"], type = "continuous", palette = "Spectral", matched = TRUE)
               df[["col"]] <- sapply(df[["col"]], function(x) blendcolors(c(x, "black")))
               df[["fontsize"]] <- rescale(df[, "count"], to = keys_fontsize)
+              if (length(df[["fontsize"]]) == 0 || any(is.infinite(df[["fontsize"]])) || any(is.na(df[["fontsize"]]))) {
+                df[["fontsize"]] <- 8
+              }
               return(df)
             })
             names(keys_list) <- unlist(lapply(nm, function(x) x[[2]]))
@@ -4268,6 +4275,9 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
               df[["col"]] <- palette_scp(df[, "score"], type = "continuous", palette = "Spectral", matched = TRUE)
               df[["col"]] <- sapply(df[["col"]], function(x) blendcolors(c(x, "black")))
               df[["fontsize"]] <- rescale(df[, "count"], to = features_fontsize)
+              if (length(df[["fontsize"]]) == 0 || any(is.infinite(df[["fontsize"]])) || any(is.na(df[["fontsize"]]))) {
+                df[["fontsize"]] <- 8
+              }
               return(df)
             })
             names(features_list) <- unlist(lapply(nm, function(x) x[[2]]))
@@ -4664,7 +4674,7 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
 #'
 #' @examples
 #' library(dplyr)
-#' data(pancreas_sub)
+#' data("pancreas_sub")
 #' pancreas_sub <- Standard_SCP(pancreas_sub)
 #' pancreas_sub <- RunDEtest(pancreas_sub, group_by = "CellType")
 #' de_filter <- filter(pancreas_sub@tools$DEtest_CellType$AllMarkers_wilcox, p_val_adj < 0.05 & avg_log2FC > 1)
@@ -4725,9 +4735,9 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
 #' @importFrom grid gpar grid.grabExpr grid.text convertUnit
 #' @importFrom gtable gtable_add_padding
 #' @importFrom cowplot plot_grid
-#' @importFrom dplyr "%>%" filter
 #' @importFrom Seurat GetAssayData
 #' @importFrom stats hclust order.dendrogram as.dendrogram reorder
+#' @importFrom dplyr %>% filter group_by arrange desc across mutate summarise distinct n .data "%>%"
 #' @export
 ExpHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, split.by = NULL, max_cells = 100, cell_order = NULL, border = TRUE, flip = FALSE,
                        slot = "counts", assay = "RNA", exp_method = c("zscore", "raw", "fc", "log2fc", "log1p"), lib_normalize = TRUE, libsize = NULL,
@@ -5424,6 +5434,10 @@ ExpHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, spli
               df_out[["col"]] <- palette_scp(-log10(head(df[, "p.adjust"], topTerm)), type = "continuous", palette = "Spectral", matched = TRUE)
               df_out[["col"]] <- sapply(df_out[["col"]], function(x) blendcolors(c(x, "black")))
               df_out[["fontsize"]] <- terms_fontsize
+              if (length(df_out[["fontsize"]]) == 0 || any(is.infinite(df_out[["fontsize"]])) || any(is.na(df_out[["fontsize"]]))) {
+                print(df)
+                df_out[["fontsize"]] <- 8
+              }
               return(df_out)
             })
             names(terms_list) <- unlist(lapply(nm, function(x) x[[2]]))
@@ -5487,6 +5501,10 @@ ExpHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, spli
               df[["col"]] <- palette_scp(df[, "score"], type = "continuous", palette = "Spectral", matched = TRUE)
               df[["col"]] <- sapply(df[["col"]], function(x) blendcolors(c(x, "black")))
               df[["fontsize"]] <- rescale(df[, "count"], to = keys_fontsize)
+              if (length(df[["fontsize"]]) == 0 || any(is.infinite(df[["fontsize"]])) || any(is.na(df[["fontsize"]]))) {
+                print(df)
+                df[["fontsize"]] <- 8
+              }
               return(df)
             })
             names(keys_list) <- unlist(lapply(nm, function(x) x[[2]]))
@@ -5530,6 +5548,10 @@ ExpHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, spli
               df[["col"]] <- palette_scp(df[, "score"], type = "continuous", palette = "Spectral", matched = TRUE)
               df[["col"]] <- sapply(df[["col"]], function(x) blendcolors(c(x, "black")))
               df[["fontsize"]] <- rescale(df[, "count"], to = features_fontsize)
+              if (length(df[["fontsize"]]) == 0 || any(is.infinite(df[["fontsize"]])) || any(is.na(df[["fontsize"]]))) {
+                print(df)
+                df[["fontsize"]] <- 8
+              }
               return(df)
             })
             names(features_list) <- unlist(lapply(nm, function(x) x[[2]]))
@@ -9748,8 +9770,8 @@ DynamicPlot <- function(srt, features, lineages, group.by = NULL, cells = NULL, 
 #' @importFrom ggplot2 ggplotGrob
 #' @importFrom grid gpar grid.lines grid.text convertUnit convertUnit
 #' @importFrom gtable gtable_add_padding
-#' @importFrom dplyr group_by filter arrange desc across mutate summarise distinct n .data "%>%"
 #' @importFrom Matrix t
+#' @importFrom dplyr %>% filter group_by arrange desc across mutate summarise distinct n .data "%>%"
 #' @export
 DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineages, use_fitted = FALSE, border = TRUE, flip = FALSE,
                            min_expcells = 20, r.sq = 0.2, dev.expl = 0.2, padjust = 0.05, cell_density = 1, order_by = c("peaktime", "valleytime"),
@@ -10571,6 +10593,9 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineag
               df_out[["col"]] <- palette_scp(-log10(head(df[, "p.adjust"], topTerm)), type = "continuous", palette = "Spectral", matched = TRUE)
               df_out[["col"]] <- sapply(df_out[["col"]], function(x) blendcolors(c(x, "black")))
               df_out[["fontsize"]] <- terms_fontsize
+              if (length(df_out[["fontsize"]]) == 0 || any(is.infinite(df_out[["fontsize"]])) || any(is.na(df_out[["fontsize"]]))) {
+                df_out[["fontsize"]] <- 8
+              }
               return(df_out)
             })
             names(terms_list) <- unlist(lapply(nm, function(x) x[[2]]))
@@ -10634,6 +10659,9 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineag
               df[["col"]] <- palette_scp(df[, "score"], type = "continuous", palette = "Spectral", matched = TRUE)
               df[["col"]] <- sapply(df[["col"]], function(x) blendcolors(c(x, "black")))
               df[["fontsize"]] <- rescale(df[, "count"], to = keys_fontsize)
+              if (length(df[["fontsize"]]) == 0 || any(is.infinite(df[["fontsize"]])) || any(is.na(df[["fontsize"]]))) {
+                df[["fontsize"]] <- 8
+              }
               return(df)
             })
             names(keys_list) <- unlist(lapply(nm, function(x) x[[2]]))
@@ -10677,6 +10705,9 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineag
               df[["col"]] <- palette_scp(df[, "score"], type = "continuous", palette = "Spectral", matched = TRUE)
               df[["col"]] <- sapply(df[["col"]], function(x) blendcolors(c(x, "black")))
               df[["fontsize"]] <- rescale(df[, "count"], to = features_fontsize)
+              if (length(df[["fontsize"]]) == 0 || any(is.infinite(df[["fontsize"]])) || any(is.na(df[["fontsize"]]))) {
+                df[["fontsize"]] <- 8
+              }
               return(df)
             })
             names(features_list) <- unlist(lapply(nm, function(x) x[[2]]))

@@ -18,7 +18,7 @@ Standard_SCP(
   vars_to_regress = NULL,
   regression_model = "linear",
   linear_reduction = "pca",
-  linear_reduction_dims = 100,
+  linear_reduction_dims = 50,
   linear_reduction_dims_use = NULL,
   linear_reduction_params = list(),
   force_linear_reduction = FALSE,

@@ -10,7 +10,7 @@ Encoding: UTF-8
 LazyData: True
 LazyDataCompression: xz
 Depends:
-    R (>= 3.5.0)
+    R (>= 4.0.0)
 biocViews: SingleCell, Visualization
 Imports:
     AnnotationDbi,
@@ -49,7 +49,6 @@ Imports:
     reshape2,
     reticulate,
     rlang,
-    rliger,
     Seurat (>= 4.2.0),
     SeuratObject,
     scales,
@@ -86,6 +85,7 @@ Suggests:
     RcppML,
     renv,
     rhdf5,
+    rliger,
     S4Vectors,
     scattermore,
     scds,

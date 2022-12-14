@@ -1031,7 +1031,7 @@ FindConservedMarkers2 <- function(object, grouping.var, ident.1, ident.2 = NULL,
 #'
 #' @examples
 #' library(dplyr)
-#' data(pancreas_sub)
+#' data("pancreas_sub")
 #' pancreas_sub <- RunDEtest(pancreas_sub, group_by = "CellType")
 #'
 #' # Heatmap
@@ -2047,7 +2047,7 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
         message("Preparing database: SP")
         temp <- paste0(tempfile(), ".xlsx")
         url <- "https://wlab.ethz.ch/cspa/data/S1_File.xlsx"
-        download(url = url, destfile = temp)
+        download(url = url, destfile = temp, mode = ifelse(.Platform$OS.type == "windows", "wb", "w"))
         surfacepro <- openxlsx::read.xlsx(temp, sheet = 1)
         unlink(temp)
         surfacepro <- surfacepro[surfacepro[["organism"]] == switch(sps,

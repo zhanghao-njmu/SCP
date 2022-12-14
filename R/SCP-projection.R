@@ -285,7 +285,7 @@ RunKNNMap <- function(srt_query, srt_ref, query_assay = NULL, ref_assay = NULL, 
 #' @export
 RunPCAMap <- function(srt_query, srt_ref, query_assay = NULL, ref_assay = srt_ref[[ref_pca]]@assay.used,
                       ref_pca = NULL, ref_dims = 1:30, ref_umap = NULL, ref_group = NULL,
-                      projection_method = "model", nn_method = NULL, k = 30, distance_metric = "cosine", vote_fun = "mean") {
+                      projection_method = c("model", "knn"), nn_method = NULL, k = 30, distance_metric = "cosine", vote_fun = "mean") {
   query_assay <- query_assay %||% DefaultAssay(srt_query)
   ref_assay <- ref_assay %||% DefaultAssay(srt_ref)
   check_R("MatrixGenerics")
@@ -399,7 +399,7 @@ RunSeuratMap <- function(srt_query, srt_ref, query_assay = NULL, ref_assay = srt
                          ref_pca = NULL, ref_dims = 1:30, ref_umap = NULL, ref_group = NULL,
                          normalization.method = "LogNormalize", reduction_project_method = "pcaproject",
                          k.anchor = 5, k.filter = 200, k.score = 30, k.weight = 100,
-                         projection_method = "model", nn_method = NULL, k = 30, distance_metric = "cosine", vote_fun = "mean") {
+                         projection_method = c("model", "knn"), nn_method = NULL, k = 30, distance_metric = "cosine", vote_fun = "mean") {
   query_assay <- query_assay %||% DefaultAssay(srt_query)
   ref_assay <- ref_assay %||% DefaultAssay(srt_ref)
   weight.reduction <- switch(reduction_project_method,
@@ -496,7 +496,7 @@ RunSeuratMap <- function(srt_query, srt_ref, query_assay = NULL, ref_assay = srt
 #' @export
 RunCSSMap <- function(srt_query, srt_ref, query_assay = NULL, ref_assay = srt_ref[[ref_css]]@assay.used,
                       ref_css = NULL, ref_umap = NULL, ref_group = NULL,
-                      projection_method = "model", nn_method = NULL, k = 30, distance_metric = "cosine", vote_fun = "mean") {
+                      projection_method = c("model", "knn"), nn_method = NULL, k = 30, distance_metric = "cosine", vote_fun = "mean") {
   check_R("quadbiolab/simspec")
   query_assay <- query_assay %||% DefaultAssay(srt_query)
   ref_assay <- ref_assay %||% DefaultAssay(srt_ref)
@@ -598,7 +598,7 @@ RunCSSMap <- function(srt_query, srt_ref, query_assay = NULL, ref_assay = srt_re
 #' @export
 RunSymphonyMap <- function(srt_query, srt_ref, query_assay = NULL, ref_assay = srt_ref[[ref_pca]]@assay.used,
                            ref_pca = NULL, ref_harmony = NULL, ref_umap = NULL, ref_group = NULL,
-                           projection_method = "model", nn_method = NULL, k = 30, distance_metric = "cosine", vote_fun = "mean") {
+                           projection_method = c("model", "knn"), nn_method = NULL, k = 30, distance_metric = "cosine", vote_fun = "mean") {
   check_R("immunogenomics/symphony")
   query_assay <- query_assay %||% DefaultAssay(srt_query)
   ref_assay <- ref_assay %||% DefaultAssay(srt_ref)

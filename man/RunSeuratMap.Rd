@@ -19,7 +19,7 @@ RunSeuratMap(
   k.filter = 200,
   k.score = 30,
   k.weight = 100,
-  projection_method = "model",
+  projection_method = c("model", "knn"),
   nn_method = NULL,
   k = 30,
   distance_metric = "cosine",

@@ -62,7 +62,7 @@ Differential gene test
 }
 \examples{
 library(dplyr)
-data(pancreas_sub)
+data("pancreas_sub")
 pancreas_sub <- RunDEtest(pancreas_sub, group_by = "CellType")
 
 # Heatmap

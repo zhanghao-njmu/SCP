@@ -370,7 +370,6 @@ RunMDS.default <- function(object, assay = NULL, slot = "data",
                            nmds = 50, dist.method = "euclidean", mds.method = "cmdscale",
                            rev.mds = FALSE, ndims.print = 1:5, nfeatures.print = 30,
                            reduction.key = "MDS_", seed.use = 42, verbose = TRUE, ...) {
-  message("Use ", assay, "/", slot, " to measure '", dist.method, "' distance.")
   if (!is.null(x = seed.use)) {
     set.seed(seed = seed.use)
   }
@@ -422,6 +421,21 @@ RunMDS.default <- function(object, assay = NULL, slot = "data",
 
 #' Run GLMPCA
 #'
+#' @param object An object
+#' @param ... Extra parameters passed to \code{\link[glmpca]{glmpca}}
+#'
+#' @return A Seurat object containing the output of GLMPCA stored as a DimReduc object.
+#'
+#' @export
+#'
+#' @rdname RunGLMPCA
+#' @export RunGLMPCA
+#'
+RunGLMPCA <- function(object, ...) {
+  UseMethod(generic = "RunGLMPCA", object = object)
+}
+
+
 #' @param object A Seurat object
 #' @param L The number of dimensions to return (defaults to 5)
 #' @param assay Assay to use, defaults to the default assay
@@ -429,39 +443,121 @@ RunMDS.default <- function(object, assay = NULL, slot = "data",
 #' @param reduction.name Name to store resulting DimReduc object as. Defaults to glmpca
 #' @param reduction.key Key for resulting DimReduc. Defaults to GLMPC_
 #' @param ... Extra parameters passed to \code{\link[glmpca]{glmpca}}
+#' @param ...
 #'
-#' @return A Seurat object containing the output of GLMPCA stored as a DimReduc object.
+#' @rdname RunGLMPCA
+#' @concept dimensional_reduction
+#' @importFrom Seurat LogSeuratCommand DefaultAssay GetAssayData Embeddings
+#' @export
+#' @method RunGLMPCA Seurat
 #'
-#' @author Will Townes
-#' @references Townes, W., Hicks, SC, Aryee, MJ, Irizarry, RA. (2019). "Feature selection and dimension reduction for single-cell RNA-Seq based on a multinomial model."
-#' Genome Biology.
+RunGLMPCA.Seurat <- function(object,
+                             L = 5,
+                             fam = c("poi", "nb", "nb2", "binom", "mult", "bern"),
+                             assay = NULL,
+                             slot = "counts",
+                             features = NULL,
+                             reduction.name = "glmpca",
+                             reduction.key = "GLMPC_",
+                             verbose = TRUE,
+                             ...) {
+  features <- features %||% VariableFeatures(object = object)
+  assay <- assay %||% DefaultAssay(object = object)
+  assay.data <- GetAssay(object = object, assay = assay)
+  reduction.data <- RunGLMPCA(
+    object = assay.data,
+    assay = assay,
+    slot = slot,
+    L = L,
+    fam = fam,
+    reduction.key = reduction.key,
+    verbose = verbose,
+    ...
+  )
+  object[[reduction.name]] <- reduction.data
+  object <- LogSeuratCommand(object = object)
+  return(object)
+}
+
+
+
+#' @param object
+#' @param L
+#' @param fam
+#' @param assay
+#' @param slot
+#' @param features
+#' @param reduction.name
+#' @param reduction.key
+#' @param verbose
+#' @param ...
 #'
+#' @rdname RunGLMPCA
+#' @concept dimensional_reduction
+#' @importFrom stats var
+#' @importFrom Seurat VariableFeatures GetAssayData
+#' @export
+#' @method RunGLMPCA Assay
+RunGLMPCA.Assay <- function(object,
+                            L = 5,
+                            fam = c("poi", "nb", "nb2", "binom", "mult", "bern"),
+                            assay = NULL,
+                            slot = "counts",
+                            features = NULL,
+                            reduction.name = "glmpca",
+                            reduction.key = "GLMPC_",
+                            verbose = TRUE,
+                            ...) {
+  features <- features %||% VariableFeatures(object = object)
+  data.use <- GetAssayData(object = object, slot = slot)
+  features.var <- apply(
+    X = data.use[features, ], MARGIN = 1,
+    FUN = var
+  )
+  features.keep <- features[features.var > 0]
+  data.use <- data.use[features.keep, ]
+  reduction.data <- RunGLMPCA(
+    object = data.use,
+    assay = assay,
+    slot = slot,
+    L = L,
+    fam = fam,
+    reduction.key = reduction.key,
+    verbose = verbose,
+    ...
+  )
+  return(reduction.data)
+}
+
+#' @param object
+#' @param L
+#' @param fam
+#' @param assay
+#' @param slot
+#' @param features
+#' @param reduction.name
+#' @param reduction.key
+#' @param verbose
+#' @param ...
+#'
+#' @method RunGLMPCA default
 #' @importFrom Seurat DefaultAssay DefaultAssay<- CreateDimReducObject Tool<- LogSeuratCommand
 #' @export
 #'
-RunGLMPCA <- function(object,
-                      L = 5,
-                      fam = c("poi", "nb", "nb2", "binom", "mult", "bern"),
-                      assay = NULL,
-                      slot = "counts",
-                      features = NULL,
-                      reduction.name = "glmpca",
-                      reduction.key = "GLMPC_",
-                      verbose = TRUE,
-                      ...) {
-  if (!inherits(x = object, what = "Seurat")) {
-    stop("'object' must be a Seurat object", call. = FALSE)
+RunGLMPCA.default <- function(object,
+                              L = 5,
+                              fam = c("poi", "nb", "nb2", "binom", "mult", "bern"),
+                              assay = NULL,
+                              slot = "counts",
+                              features = NULL,
+                              reduction.key = "GLMPC_",
+                              verbose = TRUE,
+                              ...) {
+  check_R("glmpca")
+  if (inherits(object, "dgCMatrix")) {
+    object <- as_matrix(object)
   }
-  assay <- assay %||% DefaultAssay(object = object)
-  DefaultAssay(object = object) <- assay
-  features <- features %||% VariableFeatures(object)
-  data <- GetAssayData(object = object, slot = slot)
-  features <- intersect(x = features, y = rownames(x = data))
-  if (length(x = features) == 0) {
-    stop("Please specify a subset of features for GLM-PCA")
-  }
-  data <- data[features, ]
-  glmpca_results <- glmpca::glmpca(Y = data, L = L, fam = fam, ...)
+  glmpca_results <- glmpca::glmpca(Y = object, L = L, fam = fam, ...)
   glmpca_dimnames <- paste0(reduction.key, 1:L)
   factors <- as.matrix(glmpca_results$factors)
   loadings <- as.matrix(glmpca_results$loadings)
@@ -472,17 +568,16 @@ RunGLMPCA <- function(object,
   class(glmpca_results) <- NULL
   # save memory by removing factors and loadings since they are stored separately
   glmpca_results$factors <- glmpca_results$loadings <- NULL
-  object[[reduction.name]] <- CreateDimReducObject(
+  reduction <- CreateDimReducObject(
     embeddings = factors,
     key = reduction.key,
     loadings = loadings,
     stdev = factors_l2_norm,
     assay = assay,
     global = TRUE,
-    misc = glmpca_results
+    misc = list(slot = slot, glmpca_results = glmpca_results)
   )
-  object <- LogSeuratCommand(object = object)
-  return(object)
+  return(reduction)
 }
 
 #' Run DiffusionMap(DM)
@@ -2138,10 +2233,6 @@ RunLargeVis.default <- function(object, assay = NULL,
 #' Run Harmony algorithm with Seurat pipelines.
 #'
 #' @param object An Seurat object
-#' @inheritParams harmony::RunHarmony
-#'
-#'
-#' @export
 #'
 #' @rdname RunHarmony2
 #' @export RunHarmony2
