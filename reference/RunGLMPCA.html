@@ -48,7 +48,24 @@
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">RunGLMPCA</span><span class="op">(</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">RunGLMPCA</span><span class="op">(</span><span class="va">object</span>, <span class="va">...</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S3 method for Seurat</span></span>
+<span><span class="fu">RunGLMPCA</span><span class="op">(</span></span>
+<span>  <span class="va">object</span>,</span>
+<span>  L <span class="op">=</span> <span class="fl">5</span>,</span>
+<span>  fam <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"poi"</span>, <span class="st">"nb"</span>, <span class="st">"nb2"</span>, <span class="st">"binom"</span>, <span class="st">"mult"</span>, <span class="st">"bern"</span><span class="op">)</span>,</span>
+<span>  assay <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  slot <span class="op">=</span> <span class="st">"counts"</span>,</span>
+<span>  features <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  reduction.name <span class="op">=</span> <span class="st">"glmpca"</span>,</span>
+<span>  reduction.key <span class="op">=</span> <span class="st">"GLMPC_"</span>,</span>
+<span>  verbose <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S3 method for Assay</span></span>
+<span><span class="fu">RunGLMPCA</span><span class="op">(</span></span>
 <span>  <span class="va">object</span>,</span>
 <span>  L <span class="op">=</span> <span class="fl">5</span>,</span>
 <span>  fam <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"poi"</span>, <span class="st">"nb"</span>, <span class="st">"nb2"</span>, <span class="st">"binom"</span>, <span class="st">"mult"</span>, <span class="st">"bern"</span><span class="op">)</span>,</span>
@@ -66,6 +83,10 @@
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
     <dl><dt>object</dt>
 <dd><p>A Seurat object</p></dd>
+
+
+<dt>...</dt>
+<dd></dd>
 
 
 <dt>L</dt>
@@ -87,25 +108,12 @@
 <dt>reduction.key</dt>
 <dd><p>Key for resulting DimReduc. Defaults to GLMPC_</p></dd>
 
-
-<dt>...</dt>
-<dd><p>Extra parameters passed to <code>glmpca</code></p></dd>
-
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     
 
 <p>A Seurat object containing the output of GLMPCA stored as a DimReduc object.</p>
-    </div>
-    <div class="section level2">
-    <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
-    <p>Townes, W., Hicks, SC, Aryee, MJ, Irizarry, RA. (2019). "Feature selection and dimension reduction for single-cell RNA-Seq based on a multinomial model."
-Genome Biology.</p>
-    </div>
-    <div class="section level2">
-    <h2 id="author">Author<a class="anchor" aria-label="anchor" href="#author"></a></h2>
-    <p>Will Townes</p>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
