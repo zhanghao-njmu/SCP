@@ -3761,6 +3761,7 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
             funbody <- paste0(
               "
               g <- ggplotGrob(subplots_list[['", cellan, ":", cell_group, "']]", "[['", nm, "']] + theme_void() + theme(legend.position = 'none'));
+              g$name <- '", paste0(cellan, ":", cell_group, "-", nm), "';
               grid.draw(g)
               "
             )
@@ -3816,6 +3817,7 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
             funbody <- paste0(
               "
               g <- ggplotGrob(subplots_list[['", cellan, ":", cell_group, "']]", "[['", nm, "']]  + facet_null() + theme_void() + theme(legend.position = 'none'));
+              g$name <- '", paste0(cellan, ":", cell_group, "-", nm), "';
               grid.draw(g)
               "
             )
@@ -4361,7 +4363,9 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
       # lgd[["ht"]] <- Legend(title = " ", at = names(graphics), graphics = graphics, border = TRUE)
 
       for (nm in names(vlnplots)) {
-        vlnplots[[nm]] <- ggplotGrob(vlnplots[[nm]] + facet_null() + theme_void() + theme(legend.position = "none"))
+        grob <- ggplotGrob(vlnplots[[nm]] + facet_null() + theme_void() + theme(legend.position = "none"))
+        grob$name <- paste0(cell_group, "-", nm)
+        vlnplots[[nm]] <- grob
       }
       vlnplots_list[[paste0("heatmap_group:", cell_group)]] <- vlnplots
       x_nm <- rownames(mat_list[[cell_group]])
@@ -4587,6 +4591,7 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
     },
     height = convertUnit(height, unitTo = "inch"),
     width = convertUnit(width, unitTo = "inch"),
+    wrap = TRUE,
     wrap.grobs = TRUE
   )
 
@@ -4723,7 +4728,7 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
 #'   linear_reduction = "PCA", nonlinear_reduction = "UMAP", infer_pseudotime = TRUE, root_group = "Ductal"
 #' )
 #' ht6 <- ExpHeatmap(
-#'   srt = pancreas_sub, features = de_filter$gene,
+#'   srt = pancreas_sub, features = de_filter$gene, nlabel = 10,
 #'   cell_order = names(sort(pancreas_sub$dpt_pseudotime)),
 #'   cell_annotation = c("CellType", "dpt_pseudotime"),
 #'   cell_palette = c("Paired", "cividis")
@@ -5435,7 +5440,9 @@ ExpHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, spli
               df_out[["col"]] <- sapply(df_out[["col"]], function(x) blendcolors(c(x, "black")))
               df_out[["fontsize"]] <- terms_fontsize
               if (length(df_out[["fontsize"]]) == 0 || any(is.infinite(df_out[["fontsize"]])) || any(is.na(df_out[["fontsize"]]))) {
+                print(subdf_list)
                 print(df)
+                print("anno_terms")
                 df_out[["fontsize"]] <- 8
               }
               return(df_out)
@@ -5502,7 +5509,9 @@ ExpHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, spli
               df[["col"]] <- sapply(df[["col"]], function(x) blendcolors(c(x, "black")))
               df[["fontsize"]] <- rescale(df[, "count"], to = keys_fontsize)
               if (length(df[["fontsize"]]) == 0 || any(is.infinite(df[["fontsize"]])) || any(is.na(df[["fontsize"]]))) {
+                print(subdf_list)
                 print(df)
+                print("anno_keys")
                 df[["fontsize"]] <- 8
               }
               return(df)
@@ -5549,7 +5558,9 @@ ExpHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, spli
               df[["col"]] <- sapply(df[["col"]], function(x) blendcolors(c(x, "black")))
               df[["fontsize"]] <- rescale(df[, "count"], to = features_fontsize)
               if (length(df[["fontsize"]]) == 0 || any(is.infinite(df[["fontsize"]])) || any(is.na(df[["fontsize"]]))) {
+                print(subdf_list)
                 print(df)
+                print("anno_features")
                 df[["fontsize"]] <- 8
               }
               return(df)
@@ -5733,6 +5744,7 @@ ExpHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, spli
     },
     height = convertUnit(height, unitTo = "inch"),
     width = convertUnit(width, unitTo = "inch"),
+    wrap = TRUE,
     wrap.grobs = TRUE
   )
   if (!isTRUE(fix)) {
@@ -10231,6 +10243,7 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineag
           funbody <- paste0(
             "
             g <- ggplotGrob(subplots_list[['", nm, "']] + theme_void() + theme(legend.position = 'none'));
+            g$name <- '", paste0(cellan, ":", cell_group, "-", nm), "';
             grid.draw(g);
             grid.rect(gp = gpar(fill = 'transparent', col = 'black'));
             "
@@ -10905,6 +10918,7 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineag
     },
     height = convertUnit(height, unitTo = "inch"),
     width = convertUnit(width, unitTo = "inch"),
+    wrap = TRUE,
     wrap.grobs = TRUE
   )
   if (!isTRUE(fix)) {

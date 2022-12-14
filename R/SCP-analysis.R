@@ -579,7 +579,7 @@ AddModuleScore2 <- function(object, slot = "data", features, pool = NULL, nbin =
 }
 
 
-#' Cell classification
+#' CellScoring
 #'
 #' @param srt
 #' @param features

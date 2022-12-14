@@ -11,7 +11,7 @@ RunDimReduction(
   assay = NULL,
   slot = "data",
   linear_reduction = NULL,
-  linear_reduction_dims = 50,
+  linear_reduction_dims = 100,
   linear_reduction_params = list(),
   force_linear_reduction = FALSE,
   nonlinear_reduction = NULL,
