@@ -4207,7 +4207,7 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
                   distinct() %>%
                   mutate(angle = 90 * sample(c(0, 1), n(), replace = TRUE, prob = c(60, 40))) %>%
                   as.data.frame()
-                df <- df[head(order(df[["score"]], decreasing = TRUE), topWord), ]
+                df <- df[head(order(df[["score"]], decreasing = TRUE), topWord), , drop = FALSE]
               } else {
                 df <- df %>%
                   mutate(keyword = strsplit(as.character(.data[["Description"]]), " ")) %>%
@@ -4226,7 +4226,7 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
                   distinct() %>%
                   mutate(angle = 90 * sample(c(0, 1), n(), replace = TRUE, prob = c(60, 40))) %>%
                   as.data.frame()
-                df <- df[head(order(df[["score"]], decreasing = TRUE), topWord), ]
+                df <- df[head(order(df[["score"]], decreasing = TRUE), topWord), , drop = FALSE]
               }
               df[["col"]] <- palette_scp(df[, "score"], type = "continuous", palette = "Spectral", matched = TRUE)
               df[["col"]] <- sapply(df[["col"]], function(x) blendcolors(c(x, "black")))
@@ -5471,20 +5471,47 @@ ExpHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, spli
             check_R("jokergoo/simplifyEnrichment")
             keys_list <- lapply(subdf_list, function(df) {
               if (df$Database[1] %in% c("GO_BP", "GO_CC", "GO_MF")) {
-                df <- simplifyEnrichment::keyword_enrichment_from_GO(df[["ID"]]) %>%
-                  summarise(
-                    keyword = .data[["keyword"]],
-                    score = -(log10(.data[["padj"]])),
-                    count = .data[["n_term"]],
-                    Database = df[["Database"]][1],
-                    Groups = df[["Groups"]][1]
-                  ) %>%
+                # df <- simplifyEnrichment::keyword_enrichment_from_GO(df[["ID"]]) %>%
+                #   summarise(
+                #     keyword = .data[["keyword"]],
+                #     score = -(log10(.data[["padj"]])),
+                #     count = .data[["n_term"]],
+                #     Database = df[["Database"]][1],
+                #     Groups = df[["Groups"]][1]
+                #   ) %>%
+                #   filter(nchar(.data[["keyword"]]) >= min_word_length) %>%
+                #   filter(!.data[["keyword"]] %in% exclude_words) %>%
+                #   distinct() %>%
+                #   mutate(angle = 90 * sample(c(0, 1), n(), replace = TRUE, prob = c(60, 40))) %>%
+                #   as.data.frame()
+                # df <- df[head(order(df[["score"]], decreasing = TRUE), topWord), , drop = FALSE]
+
+                print("df0")
+                print(head(df))
+                df1 <- simplifyEnrichment::keyword_enrichment_from_GO(df[["ID"]])
+                df2 <- df1 %>% summarise(
+                  keyword = .data[["keyword"]],
+                  score = -(log10(.data[["padj"]])),
+                  count = .data[["n_term"]],
+                  Database = df[["Database"]][1],
+                  Groups = df[["Groups"]][1]
+                )
+                df3 <- df2 %>%
                   filter(nchar(.data[["keyword"]]) >= min_word_length) %>%
                   filter(!.data[["keyword"]] %in% exclude_words) %>%
                   distinct() %>%
                   mutate(angle = 90 * sample(c(0, 1), n(), replace = TRUE, prob = c(60, 40))) %>%
                   as.data.frame()
-                df <- df[head(order(df[["score"]], decreasing = TRUE), topWord), ]
+                df <- df3
+                df <- df[head(order(df[["score"]], decreasing = TRUE), topWord), , drop = FALSE]
+                print("df1")
+                print(head(df1))
+                print("df2")
+                print(head(df2))
+                print("df3")
+                print(head(df3))
+                print("df")
+                print(head(df))
               } else {
                 df <- df %>%
                   mutate(keyword = strsplit(as.character(.data[["Description"]]), " ")) %>%
@@ -5503,7 +5530,7 @@ ExpHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, spli
                   distinct() %>%
                   mutate(angle = 90 * sample(c(0, 1), n(), replace = TRUE, prob = c(60, 40))) %>%
                   as.data.frame()
-                df <- df[head(order(df[["score"]], decreasing = TRUE), topWord), ]
+                df <- df[head(order(df[["score"]], decreasing = TRUE), topWord), , drop = FALSE]
               }
               df[["col"]] <- palette_scp(df[, "score"], type = "continuous", palette = "Spectral", matched = TRUE)
               df[["col"]] <- sapply(df[["col"]], function(x) blendcolors(c(x, "black")))
@@ -7428,14 +7455,15 @@ ClassStatPlot <- function(srt, stat.by = "orig.ident", group.by = NULL, split.by
               scaley
           }
           if (isTRUE(label)) {
-            p <- p + geom_text_repel(aes(
-              label = if (stat_type == "count") value else paste0(round(value * 100, 1), "%"),
-              y = value # if (position == "stack") value else value / 2
-            ),
-            colour = label.fg, size = label.size,
-            bg.color = label.bg, bg.r = label.bg.r,
-            point.size = NA, max.overlaps = 100, min.segment.length = 0,
-            position = position_use
+            p <- p + geom_text_repel(
+              aes(
+                label = if (stat_type == "count") value else paste0(round(value * 100, 1), "%"),
+                y = value # if (position == "stack") value else value / 2
+              ),
+              colour = label.fg, size = label.size,
+              bg.color = label.bg, bg.r = label.bg.r,
+              point.size = NA, max.overlaps = 100, min.segment.length = 0,
+              position = position_use
             )
           }
           if (plot_type %in% c("rose")) {
@@ -10649,7 +10677,7 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineag
                   distinct() %>%
                   mutate(angle = 90 * sample(c(0, 1), n(), replace = TRUE, prob = c(60, 40))) %>%
                   as.data.frame()
-                df <- df[head(order(df[["score"]], decreasing = TRUE), topWord), ]
+                df <- df[head(order(df[["score"]], decreasing = TRUE), topWord), , drop = FALSE]
               } else {
                 df <- df %>%
                   mutate(keyword = strsplit(as.character(.data[["Description"]]), " ")) %>%
@@ -10668,7 +10696,7 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineag
                   distinct() %>%
                   mutate(angle = 90 * sample(c(0, 1), n(), replace = TRUE, prob = c(60, 40))) %>%
                   as.data.frame()
-                df <- df[head(order(df[["score"]], decreasing = TRUE), topWord), ]
+                df <- df[head(order(df[["score"]], decreasing = TRUE), topWord), , drop = FALSE]
               }
               df[["col"]] <- palette_scp(df[, "score"], type = "continuous", palette = "Spectral", matched = TRUE)
               df[["col"]] <- sapply(df[["col"]], function(x) blendcolors(c(x, "black")))
@@ -11586,12 +11614,13 @@ GSEAPlot <- function(srt, db = "GO_BP", group_by = NULL, group_use = NULL, test.
         ymin = ymin, ymax = ymax, xmin = xmin,
         xmax = xmax, col = unique(col)
       )
-      p2 <- p2 + geom_rect(aes_(
-        xmin = ~xmin, xmax = ~xmax,
-        ymin = ~ymin, ymax = ~ymax, fill = ~ I(col)
-      ),
-      data = d,
-      alpha = 0.95, inherit.aes = FALSE
+      p2 <- p2 + geom_rect(
+        aes_(
+          xmin = ~xmin, xmax = ~xmax,
+          ymin = ~ymin, ymax = ~ymax, fill = ~ I(col)
+        ),
+        data = d,
+        alpha = 0.95, inherit.aes = FALSE
       )
     }
     df2 <- p$data

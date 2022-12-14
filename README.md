@@ -314,7 +314,7 @@ DEGs <- DEGs[with(DEGs, avg_log2FC > 1 & p_val_adj < 0.05), ]
 pancreas_sub <- AnnotateFeatures(pancreas_sub, species = "Mus_musculus", db = c("TF", "SP"))
 ht <- ExpHeatmap(
   srt = pancreas_sub, group.by = "CellType", features = DEGs$gene, feature_split = DEGs$group1,
-  species = "Mus_musculus",db = "GO_BP", anno_terms = TRUE, anno_keys = TRUE, anno_features = TRUE,
+  species = "Mus_musculus", db = "GO_BP", anno_terms = TRUE, anno_keys = TRUE, anno_features = TRUE,
   feature_annotation = c("TF", "SP"), feature_palcolor = list(c("gold", "steelblue"), c("forestgreen")),
   height = 6, width = 5
 )
@@ -401,7 +401,7 @@ pancreas_sub <- RunDynamicFeatures(srt = pancreas_sub, lineages = c("Lineage1", 
 ht <- DynamicHeatmap(
   srt = pancreas_sub, lineages = c("Lineage1", "Lineage2"),
   use_fitted = TRUE, n_split = 6, reverse_ht = "Lineage1",
-  species = "Mus_musculus",db = "GO_BP", anno_terms = TRUE, anno_keys = TRUE, anno_features = TRUE,
+  species = "Mus_musculus", db = "GO_BP", anno_terms = TRUE, anno_keys = TRUE, anno_features = TRUE,
   heatmap_palette = "viridis", cell_annotation = "SubCellType",
   separate_annotation = list("SubCellType", c("Nnat", "Irx1")),
   separate_annotation_params = list(height = grid::unit(1, "in")),
