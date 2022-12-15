@@ -111,7 +111,7 @@ ExpHeatmap
 }
 \examples{
 library(dplyr)
-data(pancreas_sub)
+data("pancreas_sub")
 pancreas_sub <- Standard_SCP(pancreas_sub)
 pancreas_sub <- RunDEtest(pancreas_sub, group_by = "CellType")
 de_filter <- filter(pancreas_sub@tools$DEtest_CellType$AllMarkers_wilcox, p_val_adj < 0.05 & avg_log2FC > 1)
@@ -160,7 +160,7 @@ pancreas_sub <- RunPAGA(
   linear_reduction = "PCA", nonlinear_reduction = "UMAP", infer_pseudotime = TRUE, root_group = "Ductal"
 )
 ht6 <- ExpHeatmap(
-  srt = pancreas_sub, features = de_filter$gene,
+  srt = pancreas_sub, features = de_filter$gene, nlabel = 10,
   cell_order = names(sort(pancreas_sub$dpt_pseudotime)),
   cell_annotation = c("CellType", "dpt_pseudotime"),
   cell_palette = c("Paired", "cividis")

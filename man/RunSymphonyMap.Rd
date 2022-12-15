@@ -13,7 +13,7 @@ RunSymphonyMap(
   ref_harmony = NULL,
   ref_umap = NULL,
   ref_group = NULL,
-  projection_method = "model",
+  projection_method = c("model", "knn"),
   nn_method = NULL,
   k = 30,
   distance_metric = "cosine",

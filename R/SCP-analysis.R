@@ -579,7 +579,7 @@ AddModuleScore2 <- function(object, slot = "data", features, pool = NULL, nbin =
 }
 
 
-#' Cell classification
+#' CellScoring
 #'
 #' @param srt
 #' @param features
@@ -1031,41 +1031,20 @@ FindConservedMarkers2 <- function(object, grouping.var, ident.1, ident.2 = NULL,
 #'
 #' @examples
 #' library(dplyr)
-#' data(pancreas_sub)
+#' data("pancreas_sub")
 #' pancreas_sub <- RunDEtest(pancreas_sub, group_by = "CellType")
 #'
-#' # Heatmap
 #' de_filter <- filter(pancreas_sub@tools$DEtest_CellType$AllMarkers_wilcox, p_val_adj < 0.05 & avg_log2FC > 1)
-#' ht_result <- ExpHeatmap(pancreas_sub, features = de_filter$gene, feature_split = de_filter$group1, group.by = "CellType")
-#' ht_result$plot
+#' ht <- ExpHeatmap(pancreas_sub, features = de_filter$gene, feature_split = de_filter$group1, group.by = "CellType")
+#' ht$plot
 #'
-#' # Dot plot
 #' de_top <- de_filter %>%
 #'   group_by(gene) %>%
 #'   top_n(1, avg_log2FC) %>%
 #'   group_by(group1) %>%
 #'   top_n(3, avg_log2FC)
-#' GroupHeatmap(pancreas_sub, features = de_top$gene, feature_split = de_top$group1, group.by = "CellType")
-#'
-#' data("panc8_sub")
-#' panc8_sub <- Integration_SCP(panc8_sub, batch = "tech", integration_method = "Seurat")
-#' ClassDimPlot(panc8_sub, group.by = c("tech", "celltype"))
-#' panc8_sub <- RunDEtest(panc8_sub, group_by = "celltype", FindConservedMarkers = TRUE, grouping.var = "tech")
-#'
-#' # Heatmap
-#'
-#' # Dot plot
-#' conserved_filter <- filter(panc8_sub@tools$DEtest_celltype$ConservedMarkers_wilcox, p_val_adj < 0.05 & avg_log2FC > 1)
-#' conserved_top <- conserved_filter %>%
-#'   group_by(gene) %>%
-#'   top_n(1, avg_log2FC) %>%
-#'   group_by(group1) %>%
-#'   top_n(3, avg_log2FC)
-#'
-#' ExpDimPlot(panc8_sub,
-#'   features = conserved_top$gene[1], split.by = "tech",
-#'   cells.highlight = colnames(panc8_sub)[panc8_sub$celltype == conserved_top$group1[1]]
-#' )
+#' ht <- GroupHeatmap(pancreas_sub, features = de_top$gene, feature_split = de_top$group1, group.by = "CellType")
+#' ht$plot
 #'
 #' @export
 #'
@@ -1464,7 +1443,9 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
                       db_IDtypes = c("symbol", "entrez_id", "ensembl_id"),
                       db_version = "latest", db_update = FALSE,
                       convert_species = FALSE,
-                      Ensembl_version = 103, mirror = NULL) {
+                      Ensembl_version = 103, mirror = NULL,
+                      TERM2GENE = NULL, TERM2NAME = NULL,
+                      custom_IDtype = NULL, custom_species = NULL, custom_version = NULL) {
   db_list <- list()
   for (sps in species) {
     message("Species: ", sps)
@@ -1475,10 +1456,20 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
       "GeneType" = "entrez_id", "Enzyme" = "entrez_id", "TF" = "symbol", "SP" = "symbol",
       "CellTalk" = "symbol", "CellChat" = "symbol"
     )
-    if (!any(db %in% names(default_IDtypes))) {
+    if (!any(db %in% names(default_IDtypes)) && is.null(TERM2GENE)) {
       stop("'db' is invalid.")
     }
-    if (isFALSE(db_update)) {
+    if (!is.null(TERM2GENE)) {
+      if (length(db) > 1) {
+        stop("When building a custom database, the length of 'db' must be 1.")
+      }
+      if (is.null(custom_IDtype) || is.null(custom_species) || is.null(custom_version)) {
+        stop("When building a custom database, 'custom_IDtype', 'custom_species' and 'custom_version' must be provided.")
+      }
+      custom_IDtype <- match.arg(custom_IDtype, choices = c("symbol", "entrez_id", "ensembl_id"))
+      default_IDtypes[db] <- custom_IDtype
+    }
+    if (isFALSE(db_update) && is.null(TERM2GENE)) {
       for (term in db) {
         # Try to load cached database, if already generated.
         dbinfo <- ListDB(species = sps, db = term)
@@ -2047,7 +2038,7 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
         message("Preparing database: SP")
         temp <- paste0(tempfile(), ".xlsx")
         url <- "https://wlab.ethz.ch/cspa/data/S1_File.xlsx"
-        download(url = url, destfile = temp)
+        download(url = url, destfile = temp, mode = ifelse(.Platform$OS.type == "windows", "wb", "w"))
         surfacepro <- openxlsx::read.xlsx(temp, sheet = 1)
         unlink(temp)
         surfacepro <- surfacepro[surfacepro[["organism"]] == switch(sps,
@@ -2169,6 +2160,33 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
         saveCache(db_list[[db_species["CellChat"]]][["CellChat"]],
           key = list(version, db_species["CellChat"], "CellChat"),
           comment = paste0(version, " nterm:", length(TERM2NAME[[1]]), "|", db_species["CellChat"], "-CellChat")
+        )
+      }
+
+      ## Custom ---------------------------------------------------------------------------
+      if (!is.null(TERM2GENE)) {
+        if (sps != custom_species) {
+          if (isTRUE(convert_species)) {
+            warning("Use the ", custom_species, " annotation to create the ", db, " database for ", sps, immediate. = TRUE)
+            db_species[db] <- custom_species
+          } else {
+            warning(db, " database only support ", custom_species, ". Consider using convert_species=TRUE", immediate. = TRUE)
+            stop("Stop the preparation.")
+          }
+        }
+        colnames(TERM2GENE) <- c("Term", custom_IDtype)
+        if (is.null(TERM2NAME)) {
+          TERM2NAME <- TERM2GENE[, c(1, 1)]
+        }
+        colnames(TERM2NAME) <- c("Term", "Name")
+        TERM2GENE <- na.omit(unique(TERM2GENE))
+        TERM2NAME <- na.omit(unique(TERM2NAME))
+        db_list[[db_species[db]]][[db]][["TERM2GENE"]] <- TERM2GENE
+        db_list[[db_species[db]]][[db]][["TERM2NAME"]] <- TERM2NAME
+        db_list[[db_species[db]]][[db]][["version"]] <- custom_version
+        saveCache(db_list[[db_species[db]]][[db]],
+          key = list(custom_version, db_species[db], db),
+          comment = paste0(custom_version, " nterm:", length(TERM2NAME[[1]]), "|", db_species[db], "-", db)
         )
       }
 

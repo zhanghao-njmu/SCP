@@ -62,40 +62,19 @@ Differential gene test
 }
 \examples{
 library(dplyr)
-data(pancreas_sub)
+data("pancreas_sub")
 pancreas_sub <- RunDEtest(pancreas_sub, group_by = "CellType")
 
-# Heatmap
 de_filter <- filter(pancreas_sub@tools$DEtest_CellType$AllMarkers_wilcox, p_val_adj < 0.05 & avg_log2FC > 1)
-ht_result <- ExpHeatmap(pancreas_sub, features = de_filter$gene, feature_split = de_filter$group1, group.by = "CellType")
-ht_result$plot
+ht <- ExpHeatmap(pancreas_sub, features = de_filter$gene, feature_split = de_filter$group1, group.by = "CellType")
+ht$plot
 
-# Dot plot
 de_top <- de_filter \%>\%
   group_by(gene) \%>\%
   top_n(1, avg_log2FC) \%>\%
   group_by(group1) \%>\%
   top_n(3, avg_log2FC)
-GroupHeatmap(pancreas_sub, features = de_top$gene, feature_split = de_top$group1, group.by = "CellType")
-
-data("panc8_sub")
-panc8_sub <- Integration_SCP(panc8_sub, batch = "tech", integration_method = "Seurat")
-ClassDimPlot(panc8_sub, group.by = c("tech", "celltype"))
-panc8_sub <- RunDEtest(panc8_sub, group_by = "celltype", FindConservedMarkers = TRUE, grouping.var = "tech")
-
-# Heatmap
-
-# Dot plot
-conserved_filter <- filter(panc8_sub@tools$DEtest_celltype$ConservedMarkers_wilcox, p_val_adj < 0.05 & avg_log2FC > 1)
-conserved_top <- conserved_filter \%>\%
-  group_by(gene) \%>\%
-  top_n(1, avg_log2FC) \%>\%
-  group_by(group1) \%>\%
-  top_n(3, avg_log2FC)
-
-ExpDimPlot(panc8_sub,
-  features = conserved_top$gene[1], split.by = "tech",
-  cells.highlight = colnames(panc8_sub)[panc8_sub$celltype == conserved_top$group1[1]]
-)
+ht <- GroupHeatmap(pancreas_sub, features = de_top$gene, feature_split = de_top$group1, group.by = "CellType")
+ht$plot
 
 }

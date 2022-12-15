@@ -14,7 +14,12 @@ PrepareDB(
   db_update = FALSE,
   convert_species = FALSE,
   Ensembl_version = 103,
-  mirror = NULL
+  mirror = NULL,
+  TERM2GENE = NULL,
+  TERM2NAME = NULL,
+  custom_IDtype = NULL,
+  custom_species = NULL,
+  custom_version = NULL
 )
 }
 \arguments{

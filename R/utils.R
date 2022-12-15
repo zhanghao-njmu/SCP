@@ -312,7 +312,7 @@ run_Python <- function(command, envir = .GlobalEnv) {
 
 #' @importFrom utils download.file
 #' @export
-download <- function(url, destfile, methods = c("auto", "wget", "libcurl", "curl", "wininet", "internal"), quiet = FALSE, attempts = 2, return_status = FALSE) {
+download <- function(url, destfile, methods = c("auto", "wget", "libcurl", "curl", "wininet", "internal"), quiet = FALSE, attempts = 2, return_status = FALSE, mode = "w") {
   if (missing(url) || missing(destfile)) {
     stop("'url' and 'destfile' must be both provided.")
   }
@@ -321,7 +321,7 @@ download <- function(url, destfile, methods = c("auto", "wget", "libcurl", "curl
   while (is.null(status)) {
     for (method in methods) {
       status <- tryCatch(expr = {
-        suppressWarnings(download.file(url, destfile = destfile, method = method, quiet = quiet))
+        suppressWarnings(download.file(url, destfile = destfile, method = method, quiet = quiet, mode = mode))
         status <- 1
       }, error = function(error) {
         message(error)
@@ -356,11 +356,12 @@ kegg_get <- function(url) {
   return(content)
 }
 
-rescale <- function(x, to = c(0, 1), from = range(x, na.rm = TRUE, finite = TRUE)) {
+rescale <- function(x, from = range(x, na.rm = TRUE, finite = TRUE), to = c(0, 1)) {
   if (zero_range(from) || zero_range(to)) {
     return(ifelse(is.na(x), NA, mean(to)))
+  } else {
+    return((x - from[1]) / diff(from) * diff(to) + to[1])
   }
-  (x - from[1]) / diff(from) * diff(to) + to[1]
 }
 
 zero_range <- function(x, tol = 1000 * .Machine$double.eps) {
