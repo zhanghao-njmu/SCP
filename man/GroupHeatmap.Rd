@@ -99,7 +99,8 @@ GroupHeatmap(
   cell_annotation = NULL,
   cell_palette = "Paired",
   cell_palcolor = NULL,
-  cell_annotation_params = list(height = grid::unit(10, "mm")),
+  cell_annotation_params = if (flip) list(width = grid::unit(1, "cm")) else list(height =
+    grid::unit(1, "cm")),
   feature_annotation = NULL,
   feature_palette = "Dark2",
   feature_palcolor = NULL,
