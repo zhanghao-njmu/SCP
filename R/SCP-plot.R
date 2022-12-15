@@ -4194,20 +4194,25 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
             check_R("jokergoo/simplifyEnrichment")
             keys_list <- lapply(subdf_list, function(df) {
               if (df$Database[1] %in% c("GO_BP", "GO_CC", "GO_MF")) {
-                df <- simplifyEnrichment::keyword_enrichment_from_GO(df[["ID"]]) %>%
-                  summarise(
-                    keyword = .data[["keyword"]],
-                    score = -(log10(.data[["padj"]])),
-                    count = .data[["n_term"]],
-                    Database = df[["Database"]][1],
-                    Groups = df[["Groups"]][1]
-                  ) %>%
-                  filter(nchar(.data[["keyword"]]) >= min_word_length) %>%
-                  filter(!.data[["keyword"]] %in% exclude_words) %>%
-                  distinct() %>%
-                  mutate(angle = 90 * sample(c(0, 1), n(), replace = TRUE, prob = c(60, 40))) %>%
-                  as.data.frame()
-                df <- df[head(order(df[["score"]], decreasing = TRUE), topWord), , drop = FALSE]
+                df <- simplifyEnrichment::keyword_enrichment_from_GO(df[["ID"]])
+                if (nrow(df > 0)) {
+                  df <- df %>%
+                    summarise(
+                      keyword = .data[["keyword"]],
+                      score = -(log10(.data[["padj"]])),
+                      count = .data[["n_term"]],
+                      Database = df[["Database"]][1],
+                      Groups = df[["Groups"]][1]
+                    ) %>%
+                    filter(nchar(.data[["keyword"]]) >= min_word_length) %>%
+                    filter(!.data[["keyword"]] %in% exclude_words) %>%
+                    distinct() %>%
+                    mutate(angle = 90 * sample(c(0, 1), n(), replace = TRUE, prob = c(60, 40))) %>%
+                    as.data.frame()
+                  df <- df[head(order(df[["score"]], decreasing = TRUE), topWord), , drop = FALSE]
+                } else {
+                  df <- NULL
+                }
               } else {
                 df <- df %>%
                   mutate(keyword = strsplit(as.character(.data[["Description"]]), " ")) %>%
@@ -4228,15 +4233,18 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
                   as.data.frame()
                 df <- df[head(order(df[["score"]], decreasing = TRUE), topWord), , drop = FALSE]
               }
-              df[["col"]] <- palette_scp(df[, "score"], type = "continuous", palette = "Spectral", matched = TRUE)
-              df[["col"]] <- sapply(df[["col"]], function(x) blendcolors(c(x, "black")))
-              df[["fontsize"]] <- rescale(df[, "count"], to = keys_fontsize)
-              if (length(df[["fontsize"]]) == 0 || any(is.infinite(df[["fontsize"]])) || any(is.na(df[["fontsize"]]))) {
-                df[["fontsize"]] <- 8
+              if (!is.null(df)) {
+                df[["col"]] <- palette_scp(df[, "score"], type = "continuous", palette = "Spectral", matched = TRUE)
+                df[["col"]] <- sapply(df[["col"]], function(x) blendcolors(c(x, "black")))
+                df[["fontsize"]] <- rescale(df[, "count"], to = keys_fontsize)
+                if (length(df[["fontsize"]]) == 0 || any(is.infinite(df[["fontsize"]])) || any(is.na(df[["fontsize"]]))) {
+                  df[["fontsize"]] <- 8
+                }
               }
               return(df)
             })
             names(keys_list) <- unlist(lapply(nm, function(x) x[[2]]))
+            keys_list <- keys_list[lapply(keys_list, length) > 0]
             ha_keys <- HeatmapAnnotation(
               "keys_empty" = anno_empty(width = unit(0.05, "in"), border = FALSE, which = "row"),
               "keys_split" = anno_block(
@@ -5440,9 +5448,6 @@ ExpHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, spli
               df_out[["col"]] <- sapply(df_out[["col"]], function(x) blendcolors(c(x, "black")))
               df_out[["fontsize"]] <- terms_fontsize
               if (length(df_out[["fontsize"]]) == 0 || any(is.infinite(df_out[["fontsize"]])) || any(is.na(df_out[["fontsize"]]))) {
-                print(head(subdf_list[[1]]))
-                print(df)
-                print("anno_terms")
                 df_out[["fontsize"]] <- 8
               }
               return(df_out)
@@ -5471,47 +5476,25 @@ ExpHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, spli
             check_R("jokergoo/simplifyEnrichment")
             keys_list <- lapply(subdf_list, function(df) {
               if (df$Database[1] %in% c("GO_BP", "GO_CC", "GO_MF")) {
-                # df <- simplifyEnrichment::keyword_enrichment_from_GO(df[["ID"]]) %>%
-                #   summarise(
-                #     keyword = .data[["keyword"]],
-                #     score = -(log10(.data[["padj"]])),
-                #     count = .data[["n_term"]],
-                #     Database = df[["Database"]][1],
-                #     Groups = df[["Groups"]][1]
-                #   ) %>%
-                #   filter(nchar(.data[["keyword"]]) >= min_word_length) %>%
-                #   filter(!.data[["keyword"]] %in% exclude_words) %>%
-                #   distinct() %>%
-                #   mutate(angle = 90 * sample(c(0, 1), n(), replace = TRUE, prob = c(60, 40))) %>%
-                #   as.data.frame()
-                # df <- df[head(order(df[["score"]], decreasing = TRUE), topWord), , drop = FALSE]
-
-                print("df0")
-                print(head(df))
-                df1 <- simplifyEnrichment::keyword_enrichment_from_GO(df[["ID"]])
-                df2 <- df1 %>% summarise(
-                  keyword = .data[["keyword"]],
-                  score = -(log10(.data[["padj"]])),
-                  count = .data[["n_term"]],
-                  Database = df[["Database"]][1],
-                  Groups = df[["Groups"]][1]
-                )
-                df3 <- df2 %>%
-                  filter(nchar(.data[["keyword"]]) >= min_word_length) %>%
-                  filter(!.data[["keyword"]] %in% exclude_words) %>%
-                  distinct() %>%
-                  mutate(angle = 90 * sample(c(0, 1), n(), replace = TRUE, prob = c(60, 40))) %>%
-                  as.data.frame()
-                df <- df3
-                df <- df[head(order(df[["score"]], decreasing = TRUE), topWord), , drop = FALSE]
-                print("df1")
-                print(head(df1))
-                print("df2")
-                print(head(df2))
-                print("df3")
-                print(head(df3))
-                print("df")
-                print(head(df))
+                df <- simplifyEnrichment::keyword_enrichment_from_GO(df[["ID"]])
+                if (nrow(df > 0)) {
+                  df <- df %>%
+                    summarise(
+                      keyword = .data[["keyword"]],
+                      score = -(log10(.data[["padj"]])),
+                      count = .data[["n_term"]],
+                      Database = df[["Database"]][1],
+                      Groups = df[["Groups"]][1]
+                    ) %>%
+                    filter(nchar(.data[["keyword"]]) >= min_word_length) %>%
+                    filter(!.data[["keyword"]] %in% exclude_words) %>%
+                    distinct() %>%
+                    mutate(angle = 90 * sample(c(0, 1), n(), replace = TRUE, prob = c(60, 40))) %>%
+                    as.data.frame()
+                  df <- df[head(order(df[["score"]], decreasing = TRUE), topWord), , drop = FALSE]
+                } else {
+                  df <- NULL
+                }
               } else {
                 df <- df %>%
                   mutate(keyword = strsplit(as.character(.data[["Description"]]), " ")) %>%
@@ -5532,18 +5515,18 @@ ExpHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, spli
                   as.data.frame()
                 df <- df[head(order(df[["score"]], decreasing = TRUE), topWord), , drop = FALSE]
               }
-              df[["col"]] <- palette_scp(df[, "score"], type = "continuous", palette = "Spectral", matched = TRUE)
-              df[["col"]] <- sapply(df[["col"]], function(x) blendcolors(c(x, "black")))
-              df[["fontsize"]] <- rescale(df[, "count"], to = keys_fontsize)
-              if (length(df[["fontsize"]]) == 0 || any(is.infinite(df[["fontsize"]])) || any(is.na(df[["fontsize"]]))) {
-                print(head(subdf_list[[1]]))
-                print(df)
-                print("anno_keys")
-                df[["fontsize"]] <- 8
+              if (!is.null(df)) {
+                df[["col"]] <- palette_scp(df[, "score"], type = "continuous", palette = "Spectral", matched = TRUE)
+                df[["col"]] <- sapply(df[["col"]], function(x) blendcolors(c(x, "black")))
+                df[["fontsize"]] <- rescale(df[, "count"], to = keys_fontsize)
+                if (length(df[["fontsize"]]) == 0 || any(is.infinite(df[["fontsize"]])) || any(is.na(df[["fontsize"]]))) {
+                  df[["fontsize"]] <- 8
+                }
               }
               return(df)
             })
             names(keys_list) <- unlist(lapply(nm, function(x) x[[2]]))
+            keys_list <- keys_list[lapply(keys_list, length) > 0]
             ha_keys <- HeatmapAnnotation(
               "keys_empty" = anno_empty(width = unit(0.05, "in"), border = FALSE, which = "row"),
               "keys_split" = anno_block(
@@ -5585,9 +5568,6 @@ ExpHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, spli
               df[["col"]] <- sapply(df[["col"]], function(x) blendcolors(c(x, "black")))
               df[["fontsize"]] <- rescale(df[, "count"], to = features_fontsize)
               if (length(df[["fontsize"]]) == 0 || any(is.infinite(df[["fontsize"]])) || any(is.na(df[["fontsize"]]))) {
-                print(head(subdf_list[[1]]))
-                print(df)
-                print("anno_features")
                 df[["fontsize"]] <- 8
               }
               return(df)
@@ -10664,20 +10644,25 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineag
             check_R("jokergoo/simplifyEnrichment")
             keys_list <- lapply(subdf_list, function(df) {
               if (df$Database[1] %in% c("GO_BP", "GO_CC", "GO_MF")) {
-                df <- simplifyEnrichment::keyword_enrichment_from_GO(df[["ID"]]) %>%
-                  summarise(
-                    keyword = .data[["keyword"]],
-                    score = -(log10(.data[["padj"]])),
-                    count = .data[["n_term"]],
-                    Database = df[["Database"]][1],
-                    Groups = df[["Groups"]][1]
-                  ) %>%
-                  filter(nchar(.data[["keyword"]]) >= min_word_length) %>%
-                  filter(!.data[["keyword"]] %in% exclude_words) %>%
-                  distinct() %>%
-                  mutate(angle = 90 * sample(c(0, 1), n(), replace = TRUE, prob = c(60, 40))) %>%
-                  as.data.frame()
-                df <- df[head(order(df[["score"]], decreasing = TRUE), topWord), , drop = FALSE]
+                df <- simplifyEnrichment::keyword_enrichment_from_GO(df[["ID"]])
+                if (nrow(df > 0)) {
+                  df <- df %>%
+                    summarise(
+                      keyword = .data[["keyword"]],
+                      score = -(log10(.data[["padj"]])),
+                      count = .data[["n_term"]],
+                      Database = df[["Database"]][1],
+                      Groups = df[["Groups"]][1]
+                    ) %>%
+                    filter(nchar(.data[["keyword"]]) >= min_word_length) %>%
+                    filter(!.data[["keyword"]] %in% exclude_words) %>%
+                    distinct() %>%
+                    mutate(angle = 90 * sample(c(0, 1), n(), replace = TRUE, prob = c(60, 40))) %>%
+                    as.data.frame()
+                  df <- df[head(order(df[["score"]], decreasing = TRUE), topWord), , drop = FALSE]
+                } else {
+                  df <- NULL
+                }
               } else {
                 df <- df %>%
                   mutate(keyword = strsplit(as.character(.data[["Description"]]), " ")) %>%
@@ -10698,15 +10683,18 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineag
                   as.data.frame()
                 df <- df[head(order(df[["score"]], decreasing = TRUE), topWord), , drop = FALSE]
               }
-              df[["col"]] <- palette_scp(df[, "score"], type = "continuous", palette = "Spectral", matched = TRUE)
-              df[["col"]] <- sapply(df[["col"]], function(x) blendcolors(c(x, "black")))
-              df[["fontsize"]] <- rescale(df[, "count"], to = keys_fontsize)
-              if (length(df[["fontsize"]]) == 0 || any(is.infinite(df[["fontsize"]])) || any(is.na(df[["fontsize"]]))) {
-                df[["fontsize"]] <- 8
+              if (!is.null(df)) {
+                df[["col"]] <- palette_scp(df[, "score"], type = "continuous", palette = "Spectral", matched = TRUE)
+                df[["col"]] <- sapply(df[["col"]], function(x) blendcolors(c(x, "black")))
+                df[["fontsize"]] <- rescale(df[, "count"], to = keys_fontsize)
+                if (length(df[["fontsize"]]) == 0 || any(is.infinite(df[["fontsize"]])) || any(is.na(df[["fontsize"]]))) {
+                  df[["fontsize"]] <- 8
+                }
               }
               return(df)
             })
             names(keys_list) <- unlist(lapply(nm, function(x) x[[2]]))
+            keys_list <- keys_list[lapply(keys_list, length) > 0]
             ha_keys <- HeatmapAnnotation(
               "keys_empty" = anno_empty(width = unit(0.05, "in"), border = FALSE, which = "row"),
               "keys_split" = anno_block(
