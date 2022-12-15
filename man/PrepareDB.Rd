@@ -15,8 +15,8 @@ PrepareDB(
   convert_species = FALSE,
   Ensembl_version = 103,
   mirror = NULL,
-  TERM2GENE = NULL,
-  TERM2NAME = NULL,
+  custom_TERM2GENE = NULL,
+  custom_TERM2NAME = NULL,
   custom_IDtype = NULL,
   custom_species = NULL,
   custom_version = NULL

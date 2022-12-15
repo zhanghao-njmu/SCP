@@ -1444,7 +1444,7 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
                       db_version = "latest", db_update = FALSE,
                       convert_species = FALSE,
                       Ensembl_version = 103, mirror = NULL,
-                      TERM2GENE = NULL, TERM2NAME = NULL,
+                      custom_TERM2GENE = NULL, custom_TERM2NAME = NULL,
                       custom_IDtype = NULL, custom_species = NULL, custom_version = NULL) {
   db_list <- list()
   for (sps in species) {
@@ -1456,10 +1456,10 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
       "GeneType" = "entrez_id", "Enzyme" = "entrez_id", "TF" = "symbol", "SP" = "symbol",
       "CellTalk" = "symbol", "CellChat" = "symbol"
     )
-    if (!any(db %in% names(default_IDtypes)) && is.null(TERM2GENE)) {
+    if (!any(db %in% names(default_IDtypes)) && is.null(custom_TERM2GENE)) {
       stop("'db' is invalid.")
     }
-    if (!is.null(TERM2GENE)) {
+    if (!is.null(custom_TERM2GENE)) {
       if (length(db) > 1) {
         stop("When building a custom database, the length of 'db' must be 1.")
       }
@@ -1469,7 +1469,7 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
       custom_IDtype <- match.arg(custom_IDtype, choices = c("symbol", "entrez_id", "ensembl_id"))
       default_IDtypes[db] <- custom_IDtype
     }
-    if (isFALSE(db_update) && is.null(TERM2GENE)) {
+    if (isFALSE(db_update) && is.null(custom_TERM2GENE)) {
       for (term in db) {
         # Try to load cached database, if already generated.
         dbinfo <- ListDB(species = sps, db = term)
@@ -2164,7 +2164,7 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
       }
 
       ## Custom ---------------------------------------------------------------------------
-      if (!is.null(TERM2GENE)) {
+      if (!is.null(custom_TERM2GENE)) {
         if (sps != custom_species) {
           if (isTRUE(convert_species)) {
             warning("Use the ", custom_species, " annotation to create the ", db, " database for ", sps, immediate. = TRUE)
@@ -2174,11 +2174,15 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
             stop("Stop the preparation.")
           }
         }
+        TERM2GENE <- custom_TERM2GENE
         colnames(TERM2GENE) <- c("Term", custom_IDtype)
-        if (is.null(TERM2NAME)) {
+        if (is.null(custom_TERM2NAME)) {
           TERM2NAME <- TERM2GENE[, c(1, 1)]
+        } else {
+          TERM2NAME <- custom_TERM2NAME
         }
         colnames(TERM2NAME) <- c("Term", "Name")
+
         TERM2GENE <- na.omit(unique(TERM2GENE))
         TERM2NAME <- na.omit(unique(TERM2NAME))
         db_list[[db_species[db]]][[db]][["TERM2GENE"]] <- TERM2GENE
