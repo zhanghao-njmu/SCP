@@ -74,8 +74,8 @@ PrepareVirtualEnv <- function(python = NULL, pypi_mirror = "https://pypi.org/sim
       # }
       # options(timeout = 120)
       # python_path <- reticulate::install_python(version = ifelse(sys_bit == "64bit", install_version, paste0(install_version, "-win32")))
-      if (!file.exists(miniconda_path())) {
-        reticulate::install_miniconda(path = miniconda_path(), update = TRUE)
+      if (!file.exists(reticulate::miniconda_path())) {
+        reticulate::install_miniconda(path = reticulate::miniconda_path(), update = TRUE)
       }
       python_path <- reticulate::conda_create(envname = "SCP", python_version = install_version)
 
