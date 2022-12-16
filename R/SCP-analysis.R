@@ -630,23 +630,25 @@ AddModuleScore2 <- function(object, slot = "data", features, pool = NULL, nbin =
 #' pancreas_sub <- Standard_SCP(pancreas_sub, assay = "GO")
 #' ClassDimPlot(pancreas_sub, "SubCellType")
 #'
-#' pancreas_sub[["tech"]] <- "Mouse"
-#' panc_merge <- Integration_SCP(
-#'   srtList = list(panc8_sub, pancreas_sub),
-#'   assay = "GO",
-#'   batch = "tech", integration_method = "Seurat"
-#' )
-#' ClassDimPlot(panc_merge, group.by = c("tech", "celltype", "SubCellType", "Phase"))
+#' if (interactive()) {
+#'   pancreas_sub[["tech"]] <- "Mouse"
+#'   panc_merge <- Integration_SCP(
+#'     srtList = list(panc8_sub, pancreas_sub),
+#'     assay = "GO",
+#'     batch = "tech", integration_method = "Seurat"
+#'   )
+#'   ClassDimPlot(panc_merge, group.by = c("tech", "celltype", "SubCellType", "Phase"))
 #'
-#' genenames <- make.unique(stringr::str_to_title(rownames(panc8_sub[["RNA"]])))
-#' panc8_sub <- RenameFeatures(panc8_sub, newnames = genenames, assay = "RNA")
-#' head(rownames(panc8_sub))
-#' panc_merge <- Integration_SCP(
-#'   srtList = list(panc8_sub, pancreas_sub),
-#'   assay = "RNA",
-#'   batch = "tech", integration_method = "Seurat"
-#' )
-#' ClassDimPlot(panc_merge, group.by = c("tech", "celltype", "SubCellType", "Phase"))
+#'   genenames <- make.unique(stringr::str_to_title(rownames(panc8_sub[["RNA"]])))
+#'   panc8_sub <- RenameFeatures(panc8_sub, newnames = genenames, assay = "RNA")
+#'   head(rownames(panc8_sub))
+#'   panc_merge <- Integration_SCP(
+#'     srtList = list(panc8_sub, pancreas_sub),
+#'     assay = "RNA",
+#'     batch = "tech", integration_method = "Seurat"
+#'   )
+#'   ClassDimPlot(panc_merge, group.by = c("tech", "celltype", "SubCellType", "Phase"))
+#' }
 #'
 #' @importFrom Seurat AddModuleScore AddMetaData
 #' @export
@@ -1023,6 +1025,8 @@ FindConservedMarkers2 <- function(object, grouping.var, ident.1, ident.2 = NULL,
 #' @param min.cells.feature
 #' @param min.cells.group
 #' @param p.adjust.method
+#' @param features
+#' @param seed
 #'
 #' @importFrom BiocParallel bplapply
 #' @importFrom dplyr bind_rows
@@ -3020,9 +3024,9 @@ RunMonocle2 <- function(srt, annotation = NULL, assay = NULL, slot = "counts", e
   }
   if (is.null(features)) {
     if (feature_type == "HVF") {
-      features <- VariableFeatures(srt)
+      features <- VariableFeatures(srt, assay = assay)
       if (length(features) == 0) {
-        features <- VariableFeatures(FindVariableFeatures(srt))
+        features <- VariableFeatures(FindVariableFeatures(srt, assay = assay), assay = assay)
       }
     }
     if (feature_type == "Disp") {
@@ -3598,7 +3602,7 @@ RunDynamicFeatures <- function(srt, lineages, features = NULL, suffix = lineages
       if (is.null(n_candidates)) {
         stop("'features' or 'n_candidates' must provided at least one.")
       }
-      HVF <- VariableFeatures(FindVariableFeatures(srt_sub, nfeatures = n_candidates))
+      HVF <- VariableFeatures(FindVariableFeatures(srt_sub, nfeatures = n_candidates, assay = assay), assay = assay)
       HVF_counts <- srt_sub[[assay]]@counts[HVF, , drop = FALSE]
       # freq <- aggregate(HVF_counts@x,
       #   by = list(HVF_counts@i),

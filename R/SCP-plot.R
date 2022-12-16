@@ -1264,7 +1264,7 @@ DefaultReduction <- function(srt, pattern = NULL, min_dim = 2, max_distance = 0.
 #' )
 #' @importFrom Seurat Reductions Embeddings Key
 #' @importFrom dplyr group_by summarize "%>%" .data
-#' @importFrom ggplot2 ggplot ggplotGrob aes geom_point geom_density_2d stat_density_2d geom_segment labs scale_x_continuous scale_y_continuous scale_size_continuous facet_grid scale_color_manual scale_fill_manual guides guide_legend geom_hex geom_path theme_void annotation_custom scale_linewidth_continuous
+#' @importFrom ggplot2 ggplot ggplotGrob aes geom_point geom_density_2d stat_density_2d geom_segment labs scale_x_continuous scale_y_continuous scale_size_continuous facet_grid scale_color_manual scale_fill_manual guides guide_legend geom_hex geom_path theme_void annotation_custom scale_linewidth_continuous after_stat
 #' @importFrom ggrepel geom_text_repel
 #' @importFrom ggnewscale new_scale_color new_scale_fill new_scale
 #' @importFrom gtable gtable_add_cols gtable_add_grob
@@ -1558,7 +1558,7 @@ ClassDimPlot <- function(srt, group.by = "orig.ident", reduction = NULL, dims = 
         check_R("hexbin")
         if (isTRUE(hex.count)) {
           p <- p + geom_hex(
-            mapping = aes(x = .data[["x"]], y = .data[["y"]], fill = .data[["group.by"]], color = .data[["group.by"]], alpha = ..count..),
+            mapping = aes(x = .data[["x"]], y = .data[["y"]], fill = .data[["group.by"]], color = .data[["group.by"]], alpha = after_stat(count)),
             size = hex.size, bins = hex.bins, binwidth = hex.binwidth
           )
         } else {
@@ -1913,7 +1913,7 @@ ClassDimPlot <- function(srt, group.by = "orig.ident", reduction = NULL, dims = 
 #' @importFrom Seurat Reductions Embeddings Key
 #' @importFrom dplyr group_by summarize "%>%" .data
 #' @importFrom stats quantile
-#' @importFrom ggplot2 ggplot aes geom_point geom_density_2d stat_density_2d geom_segment labs scale_x_continuous scale_y_continuous scale_size_continuous facet_grid scale_color_gradientn scale_fill_gradientn scale_colour_gradient scale_fill_gradient guide_colorbar scale_color_identity scale_fill_identity guide_colourbar geom_hex stat_summary_hex geom_path scale_linewidth_continuous
+#' @importFrom ggplot2 ggplot aes geom_point geom_density_2d stat_density_2d geom_segment labs scale_x_continuous scale_y_continuous scale_size_continuous facet_grid scale_color_gradientn scale_fill_gradientn scale_colour_gradient scale_fill_gradient guide_colorbar scale_color_identity scale_fill_identity guide_colourbar geom_hex stat_summary_hex geom_path scale_linewidth_continuous after_stat
 #' @importFrom ggnewscale new_scale_color new_scale_fill
 #' @importFrom gtable gtable_add_cols
 #' @importFrom ggrepel geom_text_repel
@@ -4194,9 +4194,9 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
             check_R("jokergoo/simplifyEnrichment")
             keys_list <- lapply(subdf_list, function(df) {
               if (df$Database[1] %in% c("GO_BP", "GO_CC", "GO_MF")) {
-                df <- simplifyEnrichment::keyword_enrichment_from_GO(df[["ID"]])
-                if (nrow(df > 0)) {
-                  df <- df %>%
+                df0 <- simplifyEnrichment::keyword_enrichment_from_GO(df[["ID"]])
+                if (nrow(df0 > 0)) {
+                  df <- df0 %>%
                     summarise(
                       keyword = .data[["keyword"]],
                       score = -(log10(.data[["padj"]])),
@@ -4205,7 +4205,7 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
                       Groups = df[["Groups"]][1]
                     ) %>%
                     filter(nchar(.data[["keyword"]]) >= min_word_length) %>%
-                    filter(!.data[["keyword"]] %in% exclude_words) %>%
+                    filter(!tolower(.data[["keyword"]]) %in% tolower(exclude_words)) %>%
                     distinct() %>%
                     mutate(angle = 90 * sample(c(0, 1), n(), replace = TRUE, prob = c(60, 40))) %>%
                     as.data.frame()
@@ -4227,7 +4227,7 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
                     .groups = "keep"
                   ) %>%
                   filter(nchar(.data[["keyword"]]) >= min_word_length) %>%
-                  filter(!.data[["keyword"]] %in% exclude_words) %>%
+                  filter(!tolower(.data[["keyword"]]) %in% tolower(exclude_words)) %>%
                   distinct() %>%
                   mutate(angle = 90 * sample(c(0, 1), n(), replace = TRUE, prob = c(60, 40))) %>%
                   as.data.frame()
@@ -4277,7 +4277,7 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
                   Groups = .data[["Groups"]],
                   .groups = "keep"
                 ) %>%
-                filter(!.data[["keyword"]] %in% exclude_words) %>%
+                filter(!tolower(.data[["keyword"]]) %in% tolower(exclude_words)) %>%
                 distinct() %>%
                 mutate(angle = 90 * sample(c(0, 1), n(), replace = TRUE, prob = c(60, 40))) %>%
                 as.data.frame()
@@ -5476,9 +5476,9 @@ ExpHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, spli
             check_R("jokergoo/simplifyEnrichment")
             keys_list <- lapply(subdf_list, function(df) {
               if (df$Database[1] %in% c("GO_BP", "GO_CC", "GO_MF")) {
-                df <- simplifyEnrichment::keyword_enrichment_from_GO(df[["ID"]])
-                if (nrow(df > 0)) {
-                  df <- df %>%
+                df0 <- simplifyEnrichment::keyword_enrichment_from_GO(df[["ID"]])
+                if (nrow(df0 > 0)) {
+                  df <- df0 %>%
                     summarise(
                       keyword = .data[["keyword"]],
                       score = -(log10(.data[["padj"]])),
@@ -5487,7 +5487,7 @@ ExpHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, spli
                       Groups = df[["Groups"]][1]
                     ) %>%
                     filter(nchar(.data[["keyword"]]) >= min_word_length) %>%
-                    filter(!.data[["keyword"]] %in% exclude_words) %>%
+                    filter(!tolower(.data[["keyword"]]) %in% tolower(exclude_words)) %>%
                     distinct() %>%
                     mutate(angle = 90 * sample(c(0, 1), n(), replace = TRUE, prob = c(60, 40))) %>%
                     as.data.frame()
@@ -5509,7 +5509,7 @@ ExpHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, spli
                     .groups = "keep"
                   ) %>%
                   filter(nchar(.data[["keyword"]]) >= min_word_length) %>%
-                  filter(!.data[["keyword"]] %in% exclude_words) %>%
+                  filter(!tolower(.data[["keyword"]]) %in% tolower(exclude_words)) %>%
                   distinct() %>%
                   mutate(angle = 90 * sample(c(0, 1), n(), replace = TRUE, prob = c(60, 40))) %>%
                   as.data.frame()
@@ -5559,7 +5559,7 @@ ExpHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, spli
                   Groups = .data[["Groups"]],
                   .groups = "keep"
                 ) %>%
-                filter(!.data[["keyword"]] %in% exclude_words) %>%
+                filter(!tolower(.data[["keyword"]]) %in% tolower(exclude_words)) %>%
                 distinct() %>%
                 mutate(angle = 90 * sample(c(0, 1), n(), replace = TRUE, prob = c(60, 40))) %>%
                 as.data.frame()
@@ -7187,7 +7187,7 @@ ExpStatPlot <- function(srt, features = NULL, group.by = NULL, split.by = NULL, 
 #'
 #' @importFrom dplyr group_by across all_of mutate "%>%" .data summarise
 #' @importFrom stats quantile xtabs
-#' @importFrom ggplot2 ggplot ggplotGrob aes labs position_stack position_dodge2 scale_x_continuous scale_y_continuous geom_col geom_area geom_vline scale_fill_manual scale_fill_identity scale_color_identity scale_fill_gradientn guides guide_legend element_line coord_polar annotate geom_sf theme_void
+#' @importFrom ggplot2 ggplot ggplotGrob aes labs position_stack position_dodge2 scale_x_continuous scale_y_continuous geom_col geom_area geom_vline scale_fill_manual scale_fill_identity scale_color_identity scale_fill_gradientn guides guide_legend element_line coord_polar annotate geom_sf theme_void after_stat
 #' @importFrom ggnewscale new_scale_color new_scale_fill
 #' @importFrom ggrepel geom_text_repel
 #' @importFrom cowplot plot_grid get_legend draw_grob
@@ -7562,8 +7562,8 @@ ClassStatPlot <- function(srt, stat.by = "orig.ident", group.by = NULL, split.by
         }
         dat_use <- dat_use[sapply(dat_use[["intersection"]], length) > 0, ]
         p <- ggplot(dat_use, aes(x = intersection)) +
-          geom_bar(aes(fill = ..count..), color = "black", width = 0.5, show.legend = FALSE) +
-          geom_text_repel(aes(label = ..count..),
+          geom_bar(aes(fill = after_stat(count)), color = "black", width = 0.5, show.legend = FALSE) +
+          geom_text_repel(aes(label = after_stat(count)),
             stat = "count",
             colour = label.fg, size = label.size,
             bg.color = label.bg, bg.r = label.bg.r,
@@ -9926,6 +9926,9 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineag
     if (length(unique(length(separate_palette), length(separate_palcolor), length(separate_annotation))) != 1) {
       stop("separate_palette and separate_palcolor must be the same length as separate_annotation")
     }
+    if (any(!unique(unlist(separate_annotation)) %in% c(colnames(srt@meta.data), rownames(srt[[assay]])))) {
+      stop("separate_annotation: ", paste0(unique(unlist(separate_annotation))[!unique(unlist(separate_annotation)) %in% c(colnames(srt@meta.data), rownames(srt[[assay]]))], collapse = ","), " is not in the Seurat object.")
+    }
   }
 
   column_split <- NULL
@@ -10644,9 +10647,9 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineag
             check_R("jokergoo/simplifyEnrichment")
             keys_list <- lapply(subdf_list, function(df) {
               if (df$Database[1] %in% c("GO_BP", "GO_CC", "GO_MF")) {
-                df <- simplifyEnrichment::keyword_enrichment_from_GO(df[["ID"]])
-                if (nrow(df > 0)) {
-                  df <- df %>%
+                df0 <- simplifyEnrichment::keyword_enrichment_from_GO(df[["ID"]])
+                if (nrow(df0 > 0)) {
+                  df <- df0 %>%
                     summarise(
                       keyword = .data[["keyword"]],
                       score = -(log10(.data[["padj"]])),
@@ -10655,7 +10658,7 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineag
                       Groups = df[["Groups"]][1]
                     ) %>%
                     filter(nchar(.data[["keyword"]]) >= min_word_length) %>%
-                    filter(!.data[["keyword"]] %in% exclude_words) %>%
+                    filter(!tolower(.data[["keyword"]]) %in% tolower(exclude_words)) %>%
                     distinct() %>%
                     mutate(angle = 90 * sample(c(0, 1), n(), replace = TRUE, prob = c(60, 40))) %>%
                     as.data.frame()
@@ -10677,7 +10680,7 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineag
                     .groups = "keep"
                   ) %>%
                   filter(nchar(.data[["keyword"]]) >= min_word_length) %>%
-                  filter(!.data[["keyword"]] %in% exclude_words) %>%
+                  filter(!tolower(.data[["keyword"]]) %in% tolower(exclude_words)) %>%
                   distinct() %>%
                   mutate(angle = 90 * sample(c(0, 1), n(), replace = TRUE, prob = c(60, 40))) %>%
                   as.data.frame()
@@ -10727,7 +10730,7 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineag
                   Groups = .data[["Groups"]],
                   .groups = "keep"
                 ) %>%
-                filter(!.data[["keyword"]] %in% exclude_words) %>%
+                filter(!tolower(.data[["keyword"]]) %in% tolower(exclude_words)) %>%
                 distinct() %>%
                 mutate(angle = 90 * sample(c(0, 1), n(), replace = TRUE, prob = c(60, 40))) %>%
                 as.data.frame()
@@ -11266,20 +11269,25 @@ EnrichmentPlot <- function(srt, db = "GO_BP", group_by = NULL, group_use = NULL,
     plist <- lapply(df_list, function(df) {
       if (word_type == "term") {
         if (df$Database[1] %in% c("GO_BP", "GO_CC", "GO_MF")) {
-          df <- simplifyEnrichment::keyword_enrichment_from_GO(df[["ID"]]) %>%
-            summarise(
-              keyword = .data[["keyword"]],
-              score = -(log10(.data[["padj"]])),
-              count = .data[["n_term"]],
-              Database = df[["Database"]][1],
-              Groups = df[["Groups"]][1]
-            ) %>%
-            filter(nchar(.data[["keyword"]]) >= min_word_length) %>%
-            filter(!tolower(.data[["keyword"]]) %in% tolower(exclude_words)) %>%
-            distinct() %>%
-            mutate(angle = 90 * sample(c(0, 1), n(), replace = TRUE, prob = c(60, 40))) %>%
-            as.data.frame()
-          df <- df[head(order(df[["score"]], decreasing = TRUE), topWord), ]
+          df0 <- simplifyEnrichment::keyword_enrichment_from_GO(df[["ID"]])
+          if (nrow(df0 > 0)) {
+            df <- df0 %>%
+              summarise(
+                keyword = .data[["keyword"]],
+                score = -(log10(.data[["padj"]])),
+                count = .data[["n_term"]],
+                Database = df[["Database"]][1],
+                Groups = df[["Groups"]][1]
+              ) %>%
+              filter(nchar(.data[["keyword"]]) >= min_word_length) %>%
+              filter(!tolower(.data[["keyword"]]) %in% tolower(exclude_words)) %>%
+              distinct() %>%
+              mutate(angle = 90 * sample(c(0, 1), n(), replace = TRUE, prob = c(60, 40))) %>%
+              as.data.frame()
+            df <- df[head(order(df[["score"]], decreasing = TRUE), topWord), , drop = FALSE]
+          } else {
+            return(NULL)
+          }
         } else {
           df <- df %>%
             mutate(keyword = strsplit(as.character(.data[["Description"]]), " ")) %>%

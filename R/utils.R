@@ -67,12 +67,18 @@ PrepareVirtualEnv <- function(python = NULL, pypi_mirror = "https://pypi.org/sim
     }
     if (is.null(python_path)) {
       packageStartupMessage("Python(3.7-3.9) is unavailable. Install python(", install_version, ") automatically ...")
-      git_exist <- suppressWarnings(system("git", ignore.stdout = TRUE, ignore.stderr = TRUE))
-      if (git_exist == 127) {
-        stop("You need to install git first! (http://git-scm.com/download/) or install python manually.")
+
+      # git_exist <- suppressWarnings(system("git", ignore.stdout = TRUE, ignore.stderr = TRUE))
+      # if (git_exist == 127) {
+      #   stop("You need to install git first! (http://git-scm.com/download/) or install python manually.")
+      # }
+      # options(timeout = 120)
+      # python_path <- reticulate::install_python(version = ifelse(sys_bit == "64bit", install_version, paste0(install_version, "-win32")))
+      if (!file.exists(miniconda_path())) {
+        reticulate::install_miniconda(path = miniconda_path(), update = TRUE)
       }
-      options(timeout = 120)
-      python_path <- reticulate::install_python(version = ifelse(sys_bit == "64bit", install_version, paste0(install_version, "-win32")))
+      python_path <- reticulate::conda_create(envname = "SCP", python_version = install_version)
+
       packageStartupMessage("Create SCP virtual environment. The path is: ", reticulate:::virtualenv_path("SCP"))
       reticulate::virtualenv_create(envname = "SCP", python = python_path, packages = FALSE)
     }
@@ -82,12 +88,12 @@ PrepareVirtualEnv <- function(python = NULL, pypi_mirror = "https://pypi.org/sim
       suppressWarnings(system2(command = reticulate::virtualenv_python("SCP"), args = temp, stdout = TRUE))
       unlink(temp)
     }
-    check_Python(
-      pkgs = c("pip", "setuptools", "wheel"),
-      envname = "SCP",
-      pypi_mirror = pypi_mirror,
-      force = TRUE
-    )
+    # check_Python(
+    #   pkgs = c("pip", "setuptools", "wheel"),
+    #   envname = "SCP",
+    #   pypi_mirror = pypi_mirror,
+    #   force = TRUE
+    # )
   }
   python_path <- reticulate::virtualenv_python("SCP")
   Sys.setenv(RETICULATE_PYTHON = python_path)
@@ -110,8 +116,6 @@ PrepareVirtualEnv <- function(python = NULL, pypi_mirror = "https://pypi.org/sim
         suppressWarnings(system2(command = reticulate::virtualenv_python("SCP"), args = temp, stdout = TRUE))
         unlink(temp)
       }
-      # reticulate::py_install("numpy==1.23.2", pip_options = "--no-binary='numpy'", ignore_installed = TRUE, envname = "SCP")
-      # check_Python(pkgs = c("numba==0.53.1", "python-igraph==0.9.9", "pandas", "matplotlib", "versioned-hdf5", "scanpy", "scvelo", "palantir"), envname = "SCP")
       check_Python(
         pkgs = c(
           "numpy==1.21.6", "numba==0.55.2", "python-igraph==0.10.2",
