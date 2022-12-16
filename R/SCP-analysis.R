@@ -1023,6 +1023,8 @@ FindConservedMarkers2 <- function(object, grouping.var, ident.1, ident.2 = NULL,
 #' @param min.cells.feature
 #' @param min.cells.group
 #' @param p.adjust.method
+#' @param features
+#' @param seed
 #'
 #' @importFrom BiocParallel bplapply
 #' @importFrom dplyr bind_rows
@@ -3020,9 +3022,9 @@ RunMonocle2 <- function(srt, annotation = NULL, assay = NULL, slot = "counts", e
   }
   if (is.null(features)) {
     if (feature_type == "HVF") {
-      features <- VariableFeatures(srt)
+      features <- VariableFeatures(srt, assay = assay)
       if (length(features) == 0) {
-        features <- VariableFeatures(FindVariableFeatures(srt))
+        features <- VariableFeatures(FindVariableFeatures(srt, assay = assay), assay = assay)
       }
     }
     if (feature_type == "Disp") {
@@ -3598,7 +3600,7 @@ RunDynamicFeatures <- function(srt, lineages, features = NULL, suffix = lineages
       if (is.null(n_candidates)) {
         stop("'features' or 'n_candidates' must provided at least one.")
       }
-      HVF <- VariableFeatures(FindVariableFeatures(srt_sub, nfeatures = n_candidates))
+      HVF <- VariableFeatures(FindVariableFeatures(srt_sub, nfeatures = n_candidates, assay = assay), assay = assay)
       HVF_counts <- srt_sub[[assay]]@counts[HVF, , drop = FALSE]
       # freq <- aggregate(HVF_counts@x,
       #   by = list(HVF_counts@i),
