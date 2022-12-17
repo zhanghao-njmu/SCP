@@ -65,34 +65,19 @@ devtools::install_github("zhanghao-njmu/SCP")
 To run functions such as `RunSCVELO` or `RunPAGA`, SCP requires python
 3.7-3.9 to be installed in the environment.
 
-Check the version of python in the terminal:
-
-``` shell
-python3 --version
-```
-
-or in the R environment:
-
-``` r
-if (!require("reticulate", quietly = TRUE)) {
-  install.packages("reticulate")
-}
-py <- Sys.which("python3")
-reticulate:::python_version(py)
-```
-
-Then run `PrepareVirtualEnv` to create a standalone python virtual
-environment for SCP and install the necessary packages.
-
-``` r
-SCP::PrepareVirtualEnv(python = py, pypi_mirror = "https://pypi.tuna.tsinghua.edu.cn/simple", remove_old = TRUE)
-```
-
-Or use `PrepareVirtualEnv(install_python = TRUE)` to automatically
+You can use `PrepareVirtualEnv(install_python = TRUE)` to automatically
 download and install a new Python.
 
 ``` r
 SCP::PrepareVirtualEnv(install_python = TRUE, install_version = "3.8.8", pypi_mirror = "https://pypi.tuna.tsinghua.edu.cn/simple", remove_old = TRUE)
+```
+
+Or run `PrepareVirtualEnv(python = "/path/to/python")` to create a
+standalone python virtual environment for SCP using the specified python
+and install the necessary packages.
+
+``` r
+SCP::PrepareVirtualEnv(python = "/path/to/python", pypi_mirror = "https://pypi.tuna.tsinghua.edu.cn/simple", remove_old = TRUE)
 ```
 
 ## Example
