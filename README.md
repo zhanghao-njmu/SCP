@@ -75,6 +75,7 @@ download and install a new Python.
 ``` r
 SCP::PrepareVirtualEnv(
   install_python = TRUE, install_version = "3.8.8",
+  miniconda_mirror = "https://mirrors.bfsu.edu.cn/anaconda/miniconda", # Default is "https://repo.anaconda.com/miniconda"
   pypi_mirror = "https://pypi.tuna.tsinghua.edu.cn/simple", # Default is "https://pypi.org/simple"
   remove_old = TRUE
 )
@@ -113,8 +114,8 @@ install.packages("devtools")
 devtools::install_github("zhanghao-njmu/SCP", upgrade = "always")
 SCP::PrepareVirtualEnv(
   install_python = TRUE, install_version = "3.8.8",
-  pypi_mirror = "https://pypi.tuna.tsinghua.edu.cn/simple", # Default is "https://pypi.org/simple"
   miniconda_mirror = "https://mirrors.bfsu.edu.cn/anaconda/miniconda", # Default is "https://repo.anaconda.com/miniconda"
+  pypi_mirror = "https://pypi.tuna.tsinghua.edu.cn/simple", # Default is "https://pypi.org/simple"
   remove_old = TRUE
 )
 ```

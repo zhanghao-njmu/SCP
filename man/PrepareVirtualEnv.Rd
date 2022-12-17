@@ -8,8 +8,8 @@ PrepareVirtualEnv(
   python = NULL,
   install_python = FALSE,
   install_version = "3.8.8",
-  pypi_mirror = "https://pypi.org/simple/",
   miniconda_mirror = "https://repo.anaconda.com/miniconda",
+  pypi_mirror = "https://pypi.org/simple/",
   remove_old = FALSE
 )
 }
