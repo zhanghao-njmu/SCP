@@ -12,7 +12,7 @@ Integration_SCP(
   assay = "RNA",
   integration_method = "Uncorrected",
   do_normalization = NULL,
-  normalization_method = "logCPM",
+  normalization_method = "LogNormalize",
   do_HVF_finding = TRUE,
   HVF_source = "separate",
   HVF_method = "vst",
@@ -53,7 +53,7 @@ Integration_SCP(
 
 \item{do_normalization}{Whether to normalize the data. If NULL, will automatically determine.}
 
-\item{normalization_method}{Normalization method.Can be one of "logCPM", "SCT".}
+\item{normalization_method}{Normalization method.Can be one of "LogNormalize", "SCT".}
 
 \item{do_HVF_finding}{Whether to find the high variable features(HVF). If NULL, will automatically determine.}
 

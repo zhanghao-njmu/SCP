@@ -61,7 +61,7 @@ check_DataType <- function(srt, data = NULL, slot = "data", assay = NULL) {
 #' @export
 #'
 check_srtList <- function(srtList, batch = "orig.ident", assay = "RNA",
-                          do_normalization = NULL, normalization_method = "logCPM",
+                          do_normalization = NULL, normalization_method = "LogNormalize",
                           do_HVF_finding = TRUE, HVF_source = "separate", HVF_method = "vst", nHVF = 2000, HVF_intersect = FALSE, HVF_min_intersection = 1, HVF = NULL,
                           vars_to_regress = NULL, seed = 11, ...) {
   cat(paste0("[", Sys.time(), "]", " Checking srtList... ...\n"))
@@ -70,8 +70,8 @@ check_srtList <- function(srtList, batch = "orig.ident", assay = "RNA",
   if (!inherits(srtList, "list") || any(sapply(srtList, function(x) !inherits(x, "Seurat")))) {
     stop("'srtList' is not a list of Seurat object.")
   }
-  if (!normalization_method %in% c("logCPM", "SCT")) {
-    stop("'normalization_method' must be one of: 'logCPM','SCT'")
+  if (!normalization_method %in% c("LogNormalize", "SCT")) {
+    stop("'normalization_method' must be one of: 'LogNormalize','SCT'")
   }
   if (normalization_method %in% c("SCT")) {
     check_R("glmGamPoi")
@@ -147,7 +147,7 @@ check_srtList <- function(srtList, batch = "orig.ident", assay = "RNA",
     }
     DefaultAssay(srtList[[i]]) <- assay
     if (isTRUE(do_normalization)) {
-      cat("Perform NormalizeData(logCPM) on the data ", i, "/", length(srtList), " of the srtList...\n", sep = "")
+      cat("Perform NormalizeData(LogNormalize) on the data ", i, "/", length(srtList), " of the srtList...\n", sep = "")
       srtList[[i]] <- suppressWarnings(NormalizeData(object = srtList[[i]], assay = assay, normalization.method = "LogNormalize", verbose = FALSE))
     } else if (is.null(do_normalization)) {
       status <- check_DataType(srtList[[i]], slot = "data", assay = assay)
@@ -155,11 +155,11 @@ check_srtList <- function(srtList, batch = "orig.ident", assay = "RNA",
         cat("Data ", i, "/", length(srtList), " of the srtList has been log-normalized.\n", sep = "")
       }
       if (status == "raw_counts") {
-        cat("Data ", i, "/", length(srtList), " of the srtList is raw counts. Perform NormalizeData(logCPM) on the data ...\n", sep = "")
+        cat("Data ", i, "/", length(srtList), " of the srtList is raw counts. Perform NormalizeData(LogNormalize) on the data ...\n", sep = "")
         srtList[[i]] <- suppressWarnings(NormalizeData(object = srtList[[i]], assay = assay, normalization.method = "LogNormalize", verbose = FALSE))
       }
       if (status == "raw_normalized_counts") {
-        cat("Data ", i, "/", length(srtList), " of the srtList is normalized without log transformation. Perform NormalizeData(logCPM) on the data...\n", sep = "")
+        cat("Data ", i, "/", length(srtList), " of the srtList is normalized without log transformation. Perform NormalizeData(LogNormalize) on the data...\n", sep = "")
         srtList[[i]] <- suppressWarnings(NormalizeData(object = srtList[[i]], assay = assay, normalization.method = "LogNormalize", verbose = FALSE))
       }
       if (status == "unknown") {
@@ -278,7 +278,7 @@ check_srtList <- function(srtList, batch = "orig.ident", assay = "RNA",
 #' @importFrom Seurat GetAssayData SplitObject SetAssayData VariableFeatures VariableFeatures<-
 #' @export
 check_srtMerge <- function(srtMerge, batch = "orig.ident", assay = "RNA",
-                           do_normalization = NULL, normalization_method = "logCPM",
+                           do_normalization = NULL, normalization_method = "LogNormalize",
                            do_HVF_finding = TRUE, HVF_source = "separate", HVF_method = "vst", nHVF = 2000, HVF_intersect = FALSE, HVF_min_intersection = 1, HVF = NULL,
                            vars_to_regress = NULL, seed = 11, ...) {
   if (!inherits(srtMerge, "Seurat")) {
@@ -950,15 +950,15 @@ RunDimReduction <- function(srt, prefix = "", features = NULL, assay = NULL, slo
 #' @importFrom dplyr "%>%"
 #' @export
 Uncorrected_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE, srtList = NULL, assay = "RNA",
-                                  do_normalization = NULL, normalization_method = "logCPM",
+                                  do_normalization = NULL, normalization_method = "LogNormalize",
                                   do_HVF_finding = TRUE, HVF_source = "separate", HVF_method = "vst", nHVF = 2000, HVF_intersect = FALSE, HVF_min_intersection = 1, HVF = NULL,
                                   do_scaling = TRUE, vars_to_regress = NULL, regression_model = "linear",
                                   linear_reduction = "pca", linear_reduction_dims = 100, linear_reduction_dims_use = NULL, linear_reduction_params = list(), force_linear_reduction = FALSE,
                                   nonlinear_reduction = "umap", nonlinear_reduction_dims = c(2, 3), nonlinear_reduction_params = list(), force_nonlinear_reduction = TRUE,
                                   do_cluster_finding = TRUE, cluster_algorithm = "louvain", cluster_resolution = 0.6, cluster_reorder = TRUE,
                                   seed = 11) {
-  if (!normalization_method %in% c("logCPM", "SCT", "Linnorm", "Scran", "Scone", "DESeq2")) {
-    stop("'normalization_method' must be one of: 'logCPM','SCT','Linnorm','Scran','Scone','DESeq2'")
+  if (!normalization_method %in% c("LogNormalize", "SCT", "Linnorm", "Scran", "Scone", "DESeq2")) {
+    stop("'normalization_method' must be one of: 'LogNormalize','SCT','Linnorm','Scran','Scone','DESeq2'")
   }
   if (length(linear_reduction) > 1) {
     warning("Only the first method in the 'linear_reduction' will be used.", immediate. = TRUE)
@@ -1105,15 +1105,15 @@ Uncorrected_integrate <- function(srtMerge = NULL, batch = "orig.ident", append 
 #' @importFrom dplyr "%>%"
 #' @export
 Seurat_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE, srtList = NULL, assay = "RNA",
-                             do_normalization = NULL, normalization_method = "logCPM",
+                             do_normalization = NULL, normalization_method = "LogNormalize",
                              do_HVF_finding = TRUE, HVF_source = "separate", HVF_method = "vst", nHVF = 2000, HVF_intersect = FALSE, HVF_min_intersection = 1, HVF = NULL,
                              do_scaling = TRUE, vars_to_regress = NULL, regression_model = "linear",
                              linear_reduction = "pca", linear_reduction_dims = 100, linear_reduction_dims_use = NULL, linear_reduction_params = list(), force_linear_reduction = FALSE,
                              nonlinear_reduction = "umap", nonlinear_reduction_dims = c(2, 3), nonlinear_reduction_params = list(), force_nonlinear_reduction = TRUE,
                              do_cluster_finding = TRUE, cluster_algorithm = "louvain", cluster_resolution = 0.6, cluster_reorder = TRUE,
                              FindIntegrationAnchors_params = list(), IntegrateData_params = list(), seed = 11) {
-  if (!normalization_method %in% c("logCPM", "SCT", "Linnorm", "Scran", "Scone", "DESeq2")) {
-    stop("'normalization_method' must be one of: 'logCPM','SCT','Linnorm','Scran','Scone','DESeq2'")
+  if (!normalization_method %in% c("LogNormalize", "SCT", "Linnorm", "Scran", "Scone", "DESeq2")) {
+    stop("'normalization_method' must be one of: 'LogNormalize','SCT','Linnorm','Scran','Scone','DESeq2'")
   }
   if (length(linear_reduction) > 1) {
     warning("Only the first method in the 'linear_reduction' will be used.", immediate. = TRUE)
@@ -1214,7 +1214,7 @@ Seurat_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRU
   params1 <- list(
     object.list = srtList,
     normalization.method = switch(normalization_method,
-      "logCPM" = "LogNormalize",
+      "LogNormalize" = "LogNormalize",
       "SCT" = "SCT"
     ),
     anchor.features = HVF,
@@ -1230,7 +1230,7 @@ Seurat_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRU
     anchorset = srt_anchors,
     new.assay.name = "Seurat",
     normalization.method = switch(normalization_method,
-      "logCPM" = "LogNormalize",
+      "LogNormalize" = "LogNormalize",
       "SCT" = "SCT"
     ),
     features.to.integrate = HVF,
@@ -1345,13 +1345,13 @@ Seurat_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRU
 #' @importFrom dplyr "%>%"
 #' @export
 scVI_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE, srtList = NULL, assay = "RNA",
-                           do_normalization = NULL, normalization_method = "logCPM",
+                           do_normalization = NULL, normalization_method = "LogNormalize",
                            do_HVF_finding = TRUE, HVF_source = "separate", HVF_method = "vst", nHVF = 2000, HVF_intersect = FALSE, HVF_min_intersection = 1, HVF = NULL,
                            nonlinear_reduction = "umap", nonlinear_reduction_dims = c(2, 3), nonlinear_reduction_params = list(), force_nonlinear_reduction = TRUE,
                            do_cluster_finding = TRUE, cluster_algorithm = "louvain", cluster_resolution = 0.6, cluster_reorder = TRUE,
                            SCVI_params = list(), num_threads = 8, seed = 11) {
-  if (!normalization_method %in% c("logCPM", "SCT", "Linnorm", "Scran", "Scone", "DESeq2")) {
-    stop("'normalization_method' must be one of: 'logCPM','SCT','Linnorm','Scran','Scone','DESeq2'")
+  if (!normalization_method %in% c("LogNormalize", "SCT", "Linnorm", "Scran", "Scone", "DESeq2")) {
+    stop("'normalization_method' must be one of: 'LogNormalize','SCT','Linnorm','Scran','Scone','DESeq2'")
   }
   if (any(!nonlinear_reduction %in% c("umap", "umap-naive", "tsne", "dm", "phate", "pacmap", "trimap", "largevis"))) {
     stop("'nonlinear_reduction' must be one of 'umap', 'tsne', 'dm', 'phate', 'pacmap', 'trimap', 'largevis'.")
@@ -1543,15 +1543,15 @@ scVI_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE,
 #' @importFrom dplyr "%>%"
 #' @export
 MNN_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE, srtList = NULL, assay = "RNA",
-                          do_normalization = NULL, normalization_method = "logCPM",
+                          do_normalization = NULL, normalization_method = "LogNormalize",
                           do_HVF_finding = TRUE, HVF_source = "separate", HVF_method = "vst", nHVF = 2000, HVF_intersect = FALSE, HVF_min_intersection = 1, HVF = NULL,
                           do_scaling = TRUE, vars_to_regress = NULL, regression_model = "linear",
                           linear_reduction = "pca", linear_reduction_dims = 100, linear_reduction_dims_use = NULL, linear_reduction_params = list(), force_linear_reduction = FALSE,
                           nonlinear_reduction = "umap", nonlinear_reduction_dims = c(2, 3), nonlinear_reduction_params = list(), force_nonlinear_reduction = TRUE,
                           do_cluster_finding = TRUE, cluster_algorithm = "louvain", cluster_resolution = 0.6, cluster_reorder = TRUE,
                           mnnCorrect_params = list(), seed = 11) {
-  if (!normalization_method %in% c("logCPM", "SCT", "Linnorm", "Scran", "Scone", "DESeq2")) {
-    stop("'normalization_method' must be one of: 'logCPM','SCT','Linnorm','Scran','Scone','DESeq2'")
+  if (!normalization_method %in% c("LogNormalize", "SCT", "Linnorm", "Scran", "Scone", "DESeq2")) {
+    stop("'normalization_method' must be one of: 'LogNormalize','SCT','Linnorm','Scran','Scone','DESeq2'")
   }
   if (any(!nonlinear_reduction %in% c("umap", "umap-naive", "tsne", "dm", "phate", "pacmap", "trimap", "largevis"))) {
     stop("'nonlinear_reduction' must be one of 'umap', 'tsne', 'dm', 'phate', 'pacmap', 'trimap', 'largevis'.")
@@ -1743,14 +1743,14 @@ MNN_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE, 
 #' @importFrom dplyr "%>%"
 #' @export
 fastMNN_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE, srtList = NULL, assay = "RNA",
-                              do_normalization = NULL, normalization_method = "logCPM",
+                              do_normalization = NULL, normalization_method = "LogNormalize",
                               do_HVF_finding = TRUE, HVF_source = "separate", HVF_method = "vst", nHVF = 2000, HVF_intersect = FALSE, HVF_min_intersection = 1, HVF = NULL,
                               fastMNN_dims_use = NULL,
                               nonlinear_reduction = "umap", nonlinear_reduction_dims = c(2, 3), nonlinear_reduction_params = list(), force_nonlinear_reduction = TRUE,
                               do_cluster_finding = TRUE, cluster_algorithm = "louvain", cluster_resolution = 0.6, cluster_reorder = TRUE,
                               fastMNN_params = list(), seed = 11) {
-  if (!normalization_method %in% c("logCPM", "SCT", "Linnorm", "Scran", "Scone", "DESeq2")) {
-    stop("'normalization_method' must be one of: 'logCPM','SCT','Linnorm','Scran','Scone','DESeq2'")
+  if (!normalization_method %in% c("LogNormalize", "SCT", "Linnorm", "Scran", "Scone", "DESeq2")) {
+    stop("'normalization_method' must be one of: 'LogNormalize','SCT','Linnorm','Scran','Scone','DESeq2'")
   }
   if (any(!nonlinear_reduction %in% c("umap", "umap-naive", "tsne", "dm", "phate", "pacmap", "trimap", "largevis"))) {
     stop("'nonlinear_reduction' must be one of 'umap', 'tsne', 'dm', 'phate', 'pacmap', 'trimap', 'largevis'.")
@@ -1957,7 +1957,7 @@ fastMNN_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TR
 #' @importFrom dplyr "%>%"
 #' @export
 Harmony_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE, srtList = NULL, assay = "RNA",
-                              do_normalization = NULL, normalization_method = "logCPM",
+                              do_normalization = NULL, normalization_method = "LogNormalize",
                               do_HVF_finding = TRUE, HVF_source = "separate", HVF_method = "vst", nHVF = 2000, HVF_intersect = FALSE, HVF_min_intersection = 1, HVF = NULL,
                               do_scaling = TRUE, vars_to_regress = NULL, regression_model = "linear",
                               linear_reduction = "pca", linear_reduction_dims = 100, linear_reduction_dims_use = NULL, linear_reduction_params = list(), force_linear_reduction = FALSE,
@@ -1965,8 +1965,8 @@ Harmony_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TR
                               nonlinear_reduction = "umap", nonlinear_reduction_dims = c(2, 3), nonlinear_reduction_params = list(), force_nonlinear_reduction = TRUE,
                               do_cluster_finding = TRUE, cluster_algorithm = "louvain", cluster_resolution = 0.6, cluster_reorder = TRUE,
                               RunHarmony_params = list(), seed = 11) {
-  if (!normalization_method %in% c("logCPM", "SCT", "Linnorm", "Scran", "Scone", "DESeq2")) {
-    stop("'normalization_method' must be one of: 'logCPM','SCT','Linnorm','Scran','Scone','DESeq2'")
+  if (!normalization_method %in% c("LogNormalize", "SCT", "Linnorm", "Scran", "Scone", "DESeq2")) {
+    stop("'normalization_method' must be one of: 'LogNormalize','SCT','Linnorm','Scran','Scone','DESeq2'")
   }
   if (length(linear_reduction) > 1) {
     warning("Only the first method in the 'linear_reduction' will be used.", immediate. = TRUE)
@@ -2192,15 +2192,15 @@ Harmony_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TR
 #' @importFrom stats sd
 #' @export
 Scanorama_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE, srtList = NULL, assay = "RNA",
-                                do_normalization = NULL, normalization_method = "logCPM",
+                                do_normalization = NULL, normalization_method = "LogNormalize",
                                 do_HVF_finding = TRUE, HVF_source = "separate", HVF_method = "vst", nHVF = 2000, HVF_intersect = FALSE, HVF_min_intersection = 1, HVF = NULL,
                                 do_scaling = TRUE, vars_to_regress = NULL, regression_model = "linear",
                                 linear_reduction = "pca", linear_reduction_dims = 100, linear_reduction_dims_use = NULL, linear_reduction_params = list(), force_linear_reduction = FALSE,
                                 nonlinear_reduction = "umap", nonlinear_reduction_dims = c(2, 3), nonlinear_reduction_params = list(), force_nonlinear_reduction = TRUE,
                                 do_cluster_finding = TRUE, cluster_algorithm = "louvain", cluster_resolution = 0.6, cluster_reorder = TRUE,
                                 scanorama_params = list(), seed = 11) {
-  if (!normalization_method %in% c("logCPM", "SCT", "Linnorm", "Scran", "Scone", "DESeq2")) {
-    stop("'normalization_method' must be one of: 'logCPM','SCT','Linnorm','Scran','Scone','DESeq2'")
+  if (!normalization_method %in% c("LogNormalize", "SCT", "Linnorm", "Scran", "Scone", "DESeq2")) {
+    stop("'normalization_method' must be one of: 'LogNormalize','SCT','Linnorm','Scran','Scone','DESeq2'")
   }
   if (length(linear_reduction) > 1) {
     warning("Only the first method in the 'linear_reduction' will be used.", immediate. = TRUE)
@@ -2421,15 +2421,15 @@ Scanorama_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = 
 #' @importFrom reticulate import
 #' @export
 BBKNN_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE, srtList = NULL, assay = "RNA",
-                            do_normalization = NULL, normalization_method = "logCPM",
+                            do_normalization = NULL, normalization_method = "LogNormalize",
                             do_HVF_finding = TRUE, HVF_source = "separate", HVF_method = "vst", nHVF = 2000, HVF_intersect = FALSE, HVF_min_intersection = 1, HVF = NULL,
                             do_scaling = TRUE, vars_to_regress = NULL, regression_model = "linear",
                             linear_reduction = "pca", linear_reduction_dims = 100, linear_reduction_dims_use = NULL, linear_reduction_params = list(), force_linear_reduction = FALSE,
                             nonlinear_reduction = "umap", nonlinear_reduction_dims = c(2, 3), nonlinear_reduction_params = list(), force_nonlinear_reduction = TRUE,
                             do_cluster_finding = TRUE, cluster_algorithm = "louvain", cluster_resolution = 0.6, cluster_reorder = TRUE,
                             bbknn_params = list(), seed = 11) {
-  if (!normalization_method %in% c("logCPM", "SCT", "Linnorm", "Scran", "Scone", "DESeq2")) {
-    stop("'normalization_method' must be one of: 'logCPM','SCT','Linnorm','Scran','Scone','DESeq2'")
+  if (!normalization_method %in% c("LogNormalize", "SCT", "Linnorm", "Scran", "Scone", "DESeq2")) {
+    stop("'normalization_method' must be one of: 'LogNormalize','SCT','Linnorm','Scran','Scone','DESeq2'")
   }
   if (length(linear_reduction) > 1) {
     warning("Only the first method in the 'linear_reduction' will be used.", immediate. = TRUE)
@@ -2635,15 +2635,15 @@ BBKNN_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE
 #' @importFrom dplyr "%>%"
 #' @export
 CSS_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE, srtList = NULL, assay = "RNA",
-                          do_normalization = NULL, normalization_method = "logCPM",
+                          do_normalization = NULL, normalization_method = "LogNormalize",
                           do_HVF_finding = TRUE, HVF_source = "separate", HVF_method = "vst", nHVF = 2000, HVF_intersect = FALSE, HVF_min_intersection = 1, HVF = NULL,
                           do_scaling = TRUE, vars_to_regress = NULL, regression_model = "linear",
                           linear_reduction = "pca", linear_reduction_dims = 100, linear_reduction_dims_use = NULL, linear_reduction_params = list(), force_linear_reduction = FALSE,
                           nonlinear_reduction = "umap", nonlinear_reduction_dims = c(2, 3), nonlinear_reduction_params = list(), force_nonlinear_reduction = TRUE,
                           do_cluster_finding = TRUE, cluster_algorithm = "louvain", cluster_resolution = 0.6, cluster_reorder = TRUE,
                           CSS_params = list(), seed = 11) {
-  if (!normalization_method %in% c("logCPM", "SCT", "Linnorm", "Scran", "Scone", "DESeq2")) {
-    stop("'normalization_method' must be one of: 'logCPM','SCT','Linnorm','Scran','Scone','DESeq2'")
+  if (!normalization_method %in% c("LogNormalize", "SCT", "Linnorm", "Scran", "Scone", "DESeq2")) {
+    stop("'normalization_method' must be one of: 'LogNormalize','SCT','Linnorm','Scran','Scone','DESeq2'")
   }
   if (length(linear_reduction) > 1) {
     warning("Only the first method in the 'linear_reduction' will be used.", immediate. = TRUE)
@@ -2847,14 +2847,14 @@ CSS_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE, 
 #' @importFrom dplyr "%>%"
 #' @export
 LIGER_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE, srtList = NULL, assay = "RNA",
-                            do_normalization = NULL, normalization_method = "logCPM",
+                            do_normalization = NULL, normalization_method = "LogNormalize",
                             do_HVF_finding = TRUE, HVF_source = "separate", HVF_method = "vst", nHVF = 2000, HVF_intersect = FALSE, HVF_min_intersection = 1, HVF = NULL,
                             do_scaling = TRUE, vars_to_regress = NULL, regression_model = "linear",
                             nonlinear_reduction = "umap", nonlinear_reduction_dims = c(2, 3), nonlinear_reduction_params = list(), force_nonlinear_reduction = TRUE,
                             do_cluster_finding = TRUE, cluster_algorithm = "louvain", cluster_resolution = 0.6, cluster_reorder = TRUE,
                             optimizeALS_params = list(), quantilenorm_params = list(), seed = 11) {
-  if (!normalization_method %in% c("logCPM", "SCT", "Linnorm", "Scran", "Scone", "DESeq2")) {
-    stop("'normalization_method' must be one of: 'logCPM','SCT','Linnorm','Scran','Scone','DESeq2'")
+  if (!normalization_method %in% c("LogNormalize", "SCT", "Linnorm", "Scran", "Scone", "DESeq2")) {
+    stop("'normalization_method' must be one of: 'LogNormalize','SCT','Linnorm','Scran','Scone','DESeq2'")
   }
   if (any(!nonlinear_reduction %in% c("umap", "umap-naive", "tsne", "dm", "phate", "pacmap", "trimap", "largevis"))) {
     stop("'nonlinear_reduction' must be one of 'umap', 'tsne', 'dm', 'phate', 'pacmap', 'trimap', 'largevis'.")
@@ -3076,15 +3076,15 @@ LIGER_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE
 #' @importFrom dplyr "%>%"
 #' @export
 Conos_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE, srtList = NULL, assay = "RNA",
-                            do_normalization = NULL, normalization_method = "logCPM",
+                            do_normalization = NULL, normalization_method = "LogNormalize",
                             do_HVF_finding = TRUE, HVF_source = "separate", HVF_method = "vst", nHVF = 2000, HVF_intersect = FALSE, HVF_min_intersection = 1, HVF = NULL,
                             do_scaling = TRUE, vars_to_regress = NULL, regression_model = "linear",
                             linear_reduction = "pca", linear_reduction_dims = 100, linear_reduction_dims_use = NULL, linear_reduction_params = list(), force_linear_reduction = FALSE,
                             nonlinear_reduction = "umap", nonlinear_reduction_dims = c(2, 3), nonlinear_reduction_params = list(), force_nonlinear_reduction = TRUE,
                             do_cluster_finding = TRUE, cluster_algorithm = "louvain", cluster_resolution = 0.6, cluster_reorder = TRUE,
                             buildGraph_params = list(), num_threads = 2, seed = 11) {
-  if (!normalization_method %in% c("logCPM", "SCT", "Linnorm", "Scran", "Scone", "DESeq2")) {
-    stop("'normalization_method' must be one of: 'logCPM','SCT','Linnorm','Scran','Scone','DESeq2'")
+  if (!normalization_method %in% c("LogNormalize", "SCT", "Linnorm", "Scran", "Scone", "DESeq2")) {
+    stop("'normalization_method' must be one of: 'LogNormalize','SCT','Linnorm','Scran','Scone','DESeq2'")
   }
   if (length(linear_reduction) > 1) {
     warning("Only the first method in the 'linear_reduction' will be used.", immediate. = TRUE)
@@ -3287,14 +3287,14 @@ Conos_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE
 #' @importFrom Seurat CreateSeuratObject as.SingleCellExperiment GetAssayData ScaleData SetAssayData DefaultAssay DefaultAssay<- Embeddings FindNeighbors FindClusters Idents VariableFeatures VariableFeatures<-
 #' @importFrom dplyr "%>%"
 ZINBWaVE_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE, srtList = NULL, assay = "RNA",
-                               do_normalization = NULL, normalization_method = "logCPM",
+                               do_normalization = NULL, normalization_method = "LogNormalize",
                                do_HVF_finding = TRUE, HVF_source = "separate", HVF_method = "vst", nHVF = 2000, HVF_intersect = FALSE, HVF_min_intersection = 1, HVF = NULL,
                                do_scaling = TRUE, vars_to_regress = NULL, regression_model = "linear",
                                nonlinear_reduction = "umap", nonlinear_reduction_dims = c(2, 3), nonlinear_reduction_params = list(), force_nonlinear_reduction = TRUE,
                                do_cluster_finding = TRUE, cluster_algorithm = "louvain", cluster_resolution = 0.6, cluster_reorder = TRUE,
                                zinbwave_params = list(), seed = 11) {
-  if (!normalization_method %in% c("logCPM", "SCT", "Linnorm", "Scran", "Scone", "DESeq2")) {
-    stop("'normalization_method' must be one of: 'logCPM','SCT','Linnorm','Scran','Scone','DESeq2'")
+  if (!normalization_method %in% c("LogNormalize", "SCT", "Linnorm", "Scran", "Scone", "DESeq2")) {
+    stop("'normalization_method' must be one of: 'LogNormalize','SCT','Linnorm','Scran','Scone','DESeq2'")
   }
   if (any(!nonlinear_reduction %in% c("umap", "umap-naive", "tsne", "dm", "phate", "pacmap", "trimap", "largevis"))) {
     stop("'nonlinear_reduction' must be one of 'umap', 'tsne', 'dm', 'phate', 'pacmap', 'trimap', 'largevis'.")
@@ -3500,7 +3500,7 @@ ZINBWaVE_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = T
 #' @importFrom Matrix rowSums
 #' @export
 Standard_SCP <- function(srt, prefix = "Standard", assay = "RNA",
-                         do_normalization = NULL, normalization_method = "logCPM",
+                         do_normalization = NULL, normalization_method = "LogNormalize",
                          do_HVF_finding = TRUE, HVF_method = "vst", nHVF = 2000, HVF = NULL,
                          do_scaling = TRUE, vars_to_regress = NULL, regression_model = "linear",
                          linear_reduction = "pca", linear_reduction_dims = 100, linear_reduction_dims_use = NULL, linear_reduction_params = list(), force_linear_reduction = FALSE,
@@ -3510,8 +3510,8 @@ Standard_SCP <- function(srt, prefix = "Standard", assay = "RNA",
   if (!inherits(srt, "Seurat")) {
     stop("'srt' is not a Seurat object.")
   }
-  if (!normalization_method %in% c("logCPM", "SCT", "Linnorm", "Scran", "Scone", "DESeq2")) {
-    stop("'normalization_method' must be one of: 'logCPM','SCT','Linnorm','Scran','Scone','DESeq2'")
+  if (!normalization_method %in% c("LogNormalize", "SCT", "Linnorm", "Scran", "Scone", "DESeq2")) {
+    stop("'normalization_method' must be one of: 'LogNormalize','SCT','Linnorm','Scran','Scone','DESeq2'")
   }
   reduc_test <- c("pca", "ica", "nmf", "mds", "glmpca")
   reduc_test <- c(reduc_test, Reductions(srt))
@@ -3649,7 +3649,7 @@ Standard_SCP <- function(srt, prefix = "Standard", assay = "RNA",
 #' @param append Whether append results into the \code{srtMerge}. Only valid when srtMerge is provided.
 #' @param integration_method Integration method. Can be one of "Uncorrected", "Seurat", "scVI", "MNN", "fastMNN", "Harmony", "Scanorama", "BBKNN", "CSS", "LIGER", "Conos".
 #' @param do_normalization Whether to normalize the data. If NULL, will automatically determine.
-#' @param normalization_method Normalization method.Can be one of "logCPM", "SCT".
+#' @param normalization_method Normalization method.Can be one of "LogNormalize", "SCT".
 #' @param do_HVF_finding Whether to find the high variable features(HVF). If NULL, will automatically determine.
 #' @param HVF_source Source of the HVF. Can be one of "separate" and "global".
 #' @param nHVF HVF number to use.
@@ -3737,7 +3737,7 @@ Standard_SCP <- function(srt, prefix = "Standard", assay = "RNA",
 #' @export
 Integration_SCP <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE, srtList = NULL, assay = "RNA",
                             integration_method = "Uncorrected",
-                            do_normalization = NULL, normalization_method = "logCPM",
+                            do_normalization = NULL, normalization_method = "LogNormalize",
                             do_HVF_finding = TRUE, HVF_source = "separate", HVF_method = "vst", nHVF = 2000, HVF_intersect = FALSE, HVF_min_intersection = 1, HVF = NULL,
                             do_scaling = TRUE, vars_to_regress = NULL, regression_model = "linear",
                             linear_reduction = "pca", linear_reduction_dims = 100, linear_reduction_dims_use = NULL, linear_reduction_params = list(), force_linear_reduction = FALSE,
