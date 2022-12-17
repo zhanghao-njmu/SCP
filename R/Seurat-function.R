@@ -435,7 +435,6 @@ RunGLMPCA <- function(object, ...) {
   UseMethod(generic = "RunGLMPCA", object = object)
 }
 
-
 #' @param object A Seurat object
 #' @param L The number of dimensions to return (defaults to 5)
 #' @param assay Assay to use, defaults to the default assay
@@ -478,8 +477,6 @@ RunGLMPCA.Seurat <- function(object,
   object <- LogSeuratCommand(object = object)
   return(object)
 }
-
-
 
 #' @param object
 #' @param L
@@ -540,10 +537,11 @@ RunGLMPCA.Assay <- function(object,
 #' @param verbose
 #' @param ...
 #'
-#' @method RunGLMPCA default
+#' @rdname RunGLMPCA
+#' @concept dimensional_reduction
 #' @importFrom Seurat DefaultAssay DefaultAssay<- CreateDimReducObject Tool<- LogSeuratCommand
 #' @export
-#'
+#' @method RunGLMPCA default
 RunGLMPCA.default <- function(object,
                               L = 5,
                               fam = c("poi", "nb", "nb2", "binom", "mult", "bern"),

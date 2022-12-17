@@ -4,6 +4,7 @@
 \alias{RunGLMPCA}
 \alias{RunGLMPCA.Seurat}
 \alias{RunGLMPCA.Assay}
+\alias{RunGLMPCA.default}
 \title{Run GLMPCA}
 \usage{
 RunGLMPCA(object, ...)
@@ -29,6 +30,18 @@ RunGLMPCA(object, ...)
   slot = "counts",
   features = NULL,
   reduction.name = "glmpca",
+  reduction.key = "GLMPC_",
+  verbose = TRUE,
+  ...
+)
+
+\method{RunGLMPCA}{default}(
+  object,
+  L = 5,
+  fam = c("poi", "nb", "nb2", "binom", "mult", "bern"),
+  assay = NULL,
+  slot = "counts",
+  features = NULL,
   reduction.key = "GLMPC_",
   verbose = TRUE,
   ...

@@ -17,8 +17,8 @@ PrepareDB(
   mirror = NULL,
   custom_TERM2GENE = NULL,
   custom_TERM2NAME = NULL,
-  custom_IDtype = NULL,
   custom_species = NULL,
+  custom_IDtype = NULL,
   custom_version = NULL
 )
 }
@@ -49,5 +49,17 @@ head(db_list[["Homo_sapiens"]][["MP"]][["TERM2GENE"]])
 db_list <- PrepareDB(species = "Macaca_fascicularis", db = "GO_BP", convert_species = TRUE, db_update = TRUE)
 ListDB(species = "Macaca_fascicularis", db = "GO_BP")
 head(db_list[["Macaca_fascicularis"]][["GO_BP"]][["TERM2GENE"]])
+
+ccgenes <- CC_GenePrefetch("Homo_sapiens")
+custom_TERM2GENE <- rbind(
+  data.frame(term = "S_genes", gene = ccgenes[["cc_S_genes"]]),
+  data.frame(term = "G2M_genes", gene = ccgenes[["cc_G2M_genes"]])
+)
+db_list <- PrepareDB(
+  species = c("Homo_sapiens", "Mus_musculus"), db = "CellCycle", convert_species = TRUE,
+  custom_TERM2GENE = custom_TERM2GENE, custom_species = "Homo_sapiens", custom_IDtype = "symbol", custom_version = "Seurat_v4", db_update = TRUE
+)
+ListDB(db = "CellCycle")
+head(db_list[["Mus_musculus"]][["CellCycle"]][["TERM2GENE"]])
 
 }

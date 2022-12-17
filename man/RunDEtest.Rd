@@ -53,9 +53,9 @@ RunDEtest(
 
 \item{min.pct}{min.pct}
 
-\item{p.adjust.method}{}
-
 \item{force}{force}
+
+\item{seed}{}
 }
 \description{
 Differential gene test

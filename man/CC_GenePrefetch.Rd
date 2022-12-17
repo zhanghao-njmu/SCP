@@ -5,7 +5,7 @@
 \title{Prefetch cycle gene}
 \usage{
 CC_GenePrefetch(
-  species,
+  species = "Homo_sapiens",
   Ensembl_version = 103,
   mirror = NULL,
   attempts = 5,
@@ -30,6 +30,8 @@ A list of S-phase and G2M-phase genes.
 Based on the human cell cycle genes, the cell cycle genes of the corresponding species were captured by homologous gene conversion.
 }
 \examples{
+ccgenes <- CC_GenePrefetch("Homo_sapiens")
+str(ccgenes)
 ccgenes <- CC_GenePrefetch("Mus_musculus")
-names(ccgenes)
+str(ccgenes)
 }

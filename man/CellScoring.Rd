@@ -76,22 +76,24 @@ pancreas_sub <- CellScoring(
 pancreas_sub <- Standard_SCP(pancreas_sub, assay = "GO")
 ClassDimPlot(pancreas_sub, "SubCellType")
 
-pancreas_sub[["tech"]] <- "Mouse"
-panc_merge <- Integration_SCP(
-  srtList = list(panc8_sub, pancreas_sub),
-  assay = "GO",
-  batch = "tech", integration_method = "Seurat"
-)
-ClassDimPlot(panc_merge, group.by = c("tech", "celltype", "SubCellType", "Phase"))
+if (interactive()) {
+  pancreas_sub[["tech"]] <- "Mouse"
+  panc_merge <- Integration_SCP(
+    srtList = list(panc8_sub, pancreas_sub),
+    assay = "GO",
+    batch = "tech", integration_method = "Seurat"
+  )
+  ClassDimPlot(panc_merge, group.by = c("tech", "celltype", "SubCellType", "Phase"))
 
-genenames <- make.unique(stringr::str_to_title(rownames(panc8_sub[["RNA"]])))
-panc8_sub <- RenameFeatures(panc8_sub, newnames = genenames, assay = "RNA")
-head(rownames(panc8_sub))
-panc_merge <- Integration_SCP(
-  srtList = list(panc8_sub, pancreas_sub),
-  assay = "RNA",
-  batch = "tech", integration_method = "Seurat"
-)
-ClassDimPlot(panc_merge, group.by = c("tech", "celltype", "SubCellType", "Phase"))
+  genenames <- make.unique(stringr::str_to_title(rownames(panc8_sub[["RNA"]])))
+  panc8_sub <- RenameFeatures(panc8_sub, newnames = genenames, assay = "RNA")
+  head(rownames(panc8_sub))
+  panc_merge <- Integration_SCP(
+    srtList = list(panc8_sub, pancreas_sub),
+    assay = "RNA",
+    batch = "tech", integration_method = "Seurat"
+  )
+  ClassDimPlot(panc_merge, group.by = c("tech", "celltype", "SubCellType", "Phase"))
+}
 
 }
