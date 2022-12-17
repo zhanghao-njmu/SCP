@@ -86,7 +86,13 @@ environment for SCP and install the necessary packages.
 
 ``` r
 SCP::PrepareVirtualEnv(python = py, pypi_mirror = "https://pypi.tuna.tsinghua.edu.cn/simple", remove_old = TRUE)
-reticulate::virtualenv_python("SCP")
+```
+
+Or use `PrepareVirtualEnv(install_python = TRUE)` to automatically
+download and install a new Python.
+
+``` r
+SCP::PrepareVirtualEnv(install_python = TRUE, install_version = "3.8.8", pypi_mirror = "https://pypi.tuna.tsinghua.edu.cn/simple", remove_old = TRUE)
 ```
 
 ## Example
@@ -403,8 +409,7 @@ ht <- DynamicHeatmap(
   use_fitted = TRUE, n_split = 6, reverse_ht = "Lineage1",
   species = "Mus_musculus", db = "GO_BP", anno_terms = TRUE, anno_keys = TRUE, anno_features = TRUE,
   heatmap_palette = "viridis", cell_annotation = "SubCellType",
-  separate_annotation = list("SubCellType", c("Nnat", "Irx1")),
-  separate_annotation_params = list(height = grid::unit(1, "in")),
+  separate_annotation = list("SubCellType", c("Nnat", "Irx1")), separate_palette = c("Paired", "Set1"),
   feature_annotation = c("TF", "SP"), feature_palcolor = list(c("gold", "steelblue"), c("forestgreen")),
   pseudotime_label = 25, pseudotime_label_color = "red",
   height = 6, width = 5
@@ -445,6 +450,6 @@ functions, such as
 [RunKNNMap](https://zhanghao-njmu.github.io/SCP/reference/RunKNNMap.html),
 [RunMonocle3](https://zhanghao-njmu.github.io/SCP/reference/RunMonocle3.html),
 [ClassDimPlot](https://zhanghao-njmu.github.io/SCP/reference/ClassDimPlot.html),
-[ExpHeatmap](https://zhanghao-njmu.github.io/SCP/reference/ExpHeatmap.html),
+[GroupHeatmap](https://zhanghao-njmu.github.io/SCP/reference/GroupHeatmap.html),
 [RunSCExplorer](https://zhanghao-njmu.github.io/SCP/reference/RunSCExplorer.html),
 etc.

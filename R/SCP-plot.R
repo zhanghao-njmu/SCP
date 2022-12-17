@@ -9281,10 +9281,25 @@ SummaryPlot <- function(srt,
 #' pancreas_sub <- RunSlingshot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP")
 #' DynamicPlot(
 #'   srt = pancreas_sub,
+#'   lineages = "Lineage1",
+#'   features = c("Nnat", "Irx1", "G2M_score"),
+#'   group.by = "SubCellType",
+#'   compare_features = TRUE
+#' )
+#' DynamicPlot(
+#'   srt = pancreas_sub,
 #'   lineages = c("Lineage1", "Lineage2"),
 #'   features = c("Nnat", "Irx1", "G2M_score"),
 #'   group.by = "SubCellType",
 #'   compare_lineages = TRUE,
+#'   compare_features = FALSE
+#' )
+#' DynamicPlot(
+#'   srt = pancreas_sub,
+#'   lineages = c("Lineage1", "Lineage2"),
+#'   features = c("Nnat", "Irx1", "G2M_score"),
+#'   group.by = "SubCellType",
+#'   compare_lineages = FALSE,
 #'   compare_features = FALSE
 #' )
 #' @importFrom ggplot2 geom_line geom_point geom_ribbon geom_rug stat_density2d facet_grid expansion
@@ -9488,17 +9503,34 @@ DynamicPlot <- function(srt, features, lineages, group.by = NULL, cells = NULL, 
   legend <- NULL
   if (isTRUE(compare_lineages)) {
     lineages_use <- list(lineages)
-    formula <- ". ~ Features"
+    lineages_formula <- "."
   } else {
     lineages_use <- lineages
-    formula <- "Lineages ~ Features"
+    lineages_formula <- "Lineages"
   }
   if (isTRUE(compare_features)) {
     features_use <- list(features)
-    formula <- ".~."
+    features_formula <- "."
   } else {
     features_use <- features
+    features_formula <- "Features"
   }
+  formula <- paste(lineages_formula, "~", features_formula)
+  fill_by <- "Lineages"
+  if (lineages_formula == "." && length(lineages) > 1) {
+    lineages_guide <- TRUE
+  } else {
+    lineages_guide <- FALSE
+    if (isTRUE(compare_features)) {
+      fill_by <- "Features"
+    }
+  }
+  if (features_formula == "." && length(features) > 1) {
+    features_guide <- TRUE
+  } else {
+    features_guide <- FALSE
+  }
+
   for (l in lineages_use) {
     for (f in features_use) {
       df <- subset(df_all, df_all[["Lineages"]] %in% l & df_all[["Features"]] %in% f)
@@ -9553,11 +9585,14 @@ DynamicPlot <- function(srt, features, lineages, group.by = NULL, cells = NULL, 
             data = subset(df, df[["Value"]] == "fitted"),
             mapping = aes(
               x = .data[["Pseudotime"]], y = .data[["exp"]], ymin = .data[["lwr"]], ymax = .data[["upr"]],
-              fill = .data[["Lineages"]], group = .data[["LineagesFeatures"]]
+              fill = .data[[fill_by]], group = .data[["LineagesFeatures"]]
             ),
-            alpha = 0.4, color = "grey90", show.legend = isTRUE(compare_features)
+            alpha = 0.4, color = "grey90"
           ),
-          scale_fill_manual(values = palette_scp(df[["Lineages"]], palette = line_palette, palcolor = line_palcolor)),
+          scale_fill_manual(
+            values = palette_scp(df[[fill_by]], palette = line_palette, palcolor = line_palcolor),
+            guide = if (fill_by == "Features" || lineages_guide || length(l) == 1) "none" else guide_legend()
+          ),
           new_scale_fill()
         )
       } else {
@@ -9575,7 +9610,7 @@ DynamicPlot <- function(srt, features, lineages, group.by = NULL, cells = NULL, 
           ),
           scale_color_manual(
             values = palette_scp(df[["Features"]], palette = line_palette, palcolor = line_palcolor),
-            guide = guide_legend(override.aes = list(alpha = 1, size = 2), order = 2)
+            guide = if (features_guide) guide_legend(override.aes = list(alpha = 1, size = 2), order = 2) else "none"
           ),
           new_scale_color()
         )
@@ -9588,7 +9623,7 @@ DynamicPlot <- function(srt, features, lineages, group.by = NULL, cells = NULL, 
             ),
             scale_color_manual(
               values = palette_scp(df[["Lineages"]], palette = line_palette, palcolor = line_palcolor),
-              guide = guide_legend(override.aes = list(alpha = 1, size = 2), order = 2)
+              guide = if (lineages_guide) guide_legend(override.aes = list(alpha = 1, size = 2), order = 2) else "none"
             ),
             new_scale_color()
           )
