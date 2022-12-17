@@ -6,22 +6,23 @@
 \usage{
 PrepareVirtualEnv(
   python = NULL,
-  pypi_mirror = "https://pypi.org/simple/",
-  remove_old = FALSE,
   install_python = FALSE,
-  install_version = "3.8.8"
+  install_version = "3.8.8",
+  pypi_mirror = "https://pypi.org/simple/",
+  miniconda_mirror = "https://repo.anaconda.com/miniconda",
+  remove_old = FALSE
 )
 }
 \arguments{
 \item{python}{Python path which is used to create the virtual environment.}
 
-\item{pypi_mirror}{PyPI mirror used to install the Python packages. Default is "https://pypi.org/simple/". Options are "https://pypi.tuna.tsinghua.edu.cn/simple", "http://mirrors.aliyun.com/pypi/simple/", "https://pypi.mirrors.ustc.edu.cn/simple/", etc.}
-
-\item{remove_old}{Whether to remove the old SCP virtual environment. Default is FALSE.}
-
 \item{install_python}{Whether to download and install a new python. Default is FALSE, which only installs automatically if no suitable version of python is found.}
 
 \item{install_version}{The version of python to install. Default is \code{3.8.8}}
+
+\item{pypi_mirror}{PyPI mirror used to install the Python packages. Default is "https://pypi.org/simple/". Options are "https://pypi.tuna.tsinghua.edu.cn/simple", "http://mirrors.aliyun.com/pypi/simple/", "https://pypi.mirrors.ustc.edu.cn/simple/", etc.}
+
+\item{remove_old}{Whether to remove the old SCP virtual environment. Default is FALSE.}
 }
 \description{
 Prepare SCP python virtual environment

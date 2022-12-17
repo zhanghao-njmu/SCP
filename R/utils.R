@@ -7,7 +7,10 @@
 #' @param install_version The version of python to install. Default is \code{3.8.8}
 #'
 #' @export
-PrepareVirtualEnv <- function(python = NULL, pypi_mirror = "https://pypi.org/simple/", remove_old = FALSE, install_python = FALSE, install_version = "3.8.8") {
+PrepareVirtualEnv <- function(python = NULL, install_python = FALSE, install_version = "3.8.8",
+                              pypi_mirror = "https://pypi.org/simple/",
+                              miniconda_mirror = "https://repo.anaconda.com/miniconda",
+                              remove_old = FALSE) {
   if (isTRUE(remove_old) || reticulate::virtualenv_exists("SCP")) {
     if (isTRUE(reticulate:::is_python_initialized())) {
       stop("Python is initialized in the current R session. You may run SCP::PrepareVirtualEnv() in a new R seesion to create SCP virtual environmenet. If you want to disable virtual environment initialization, you can set options(SCP_virtualenv_init = FALSE) before library(SCP).")
@@ -74,8 +77,38 @@ PrepareVirtualEnv <- function(python = NULL, pypi_mirror = "https://pypi.org/sim
       # }
       # options(timeout = 120)
       # python_path <- reticulate::install_python(version = ifelse(sys_bit == "64bit", install_version, paste0(install_version, "-win32")))
-      if (!file.exists(reticulate::miniconda_path())) {
-        reticulate::install_miniconda(path = reticulate::miniconda_path(), update = TRUE)
+      if (!file.exists(paste0(reticulate::miniconda_path(), "/pkgs"))) {
+        options(timeout = 360)
+        version <- "3"
+        info <- as.list(Sys.info())
+        if (info$sysname == "Darwin" && info$machine == "arm64") {
+          base <- "https://github.com/conda-forge/miniforge/releases/latest/download"
+          name <- "Miniforge3-MacOSX-arm64.sh"
+          return(file.path(base, name))
+        }
+        base <- miniconda_mirror
+        info <- as.list(Sys.info())
+        arch <- reticulate:::miniconda_installer_arch(info)
+        version <- as.character(version)
+        name <- if (reticulate:::is_windows()) {
+          sprintf(
+            "Miniconda%s-latest-Windows-%s.exe", version,
+            arch
+          )
+        } else if (reticulate:::is_osx()) {
+          sprintf(
+            "Miniconda%s-latest-MacOSX-%s.sh", version,
+            arch
+          )
+        } else if (reticulate:::is_linux()) {
+          sprintf("Miniconda%s-latest-Linux-%s.sh", version, arch)
+        } else {
+          stopf("unsupported platform %s", shQuote(Sys.info()[["sysname"]]))
+        }
+        url <- file.path(base, name)
+        options(reticulate.miniconda.url = url)
+        print(url)
+        reticulate::install_miniconda(path = reticulate::miniconda_path(), force = TRUE, update = TRUE)
       }
       python_path <- reticulate::conda_create(envname = "SCP", python_version = install_version)
 

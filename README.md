@@ -48,7 +48,11 @@ The functions in the SCP package are all developed around the [Seurat
 object](https://github.com/mojaveazure/seurat-object) and compatible
 with other Seurat functions.
 
-## Installation
+## R version requirement
+
+-   R \>= 4.1.0
+
+## Installation in the global R environment
 
 You can install the development version of SCP from
 [GitHub](https://github.com/zhanghao-njmu/SCP) with:
@@ -60,7 +64,7 @@ if (!require("devtools", quietly = TRUE)) {
 devtools::install_github("zhanghao-njmu/SCP")
 ```
 
-### Requirement for python functions in SCP
+#### Requirement for python functions in SCP
 
 To run functions such as `RunSCVELO` or `RunPAGA`, SCP requires python
 3.7-3.9 to be installed in the environment.
@@ -69,15 +73,66 @@ You can use `PrepareVirtualEnv(install_python = TRUE)` to automatically
 download and install a new Python.
 
 ``` r
-SCP::PrepareVirtualEnv(install_python = TRUE, install_version = "3.8.8", pypi_mirror = "https://pypi.tuna.tsinghua.edu.cn/simple", remove_old = TRUE)
+SCP::PrepareVirtualEnv(
+  install_python = TRUE, install_version = "3.8.8",
+  pypi_mirror = "https://pypi.tuna.tsinghua.edu.cn/simple", # Default is "https://pypi.org/simple"
+  remove_old = TRUE
+)
 ```
 
 Or run `PrepareVirtualEnv(python = "/path/to/python")` to create a
-standalone python virtual environment for SCP using the specified python
-and install the necessary packages.
+standalone python virtual environment for SCP using the specified
+python.
 
 ``` r
-SCP::PrepareVirtualEnv(python = "/path/to/python", pypi_mirror = "https://pypi.tuna.tsinghua.edu.cn/simple", remove_old = TRUE)
+SCP::PrepareVirtualEnv(
+  python = "/path/to/python",
+  pypi_mirror = "https://pypi.tuna.tsinghua.edu.cn/simple", # Default is "https://pypi.org/simple"
+  remove_old = TRUE
+)
+```
+
+## Installation in a local environment using renv
+
+#### Create a local environment
+
+``` r
+env_dir <- "~/SCP_env/" # It cannot be the home directory "~" !
+dir.create(env_dir, recursive = TRUE)
+setwd(env_dir)
+
+install.packages("renv")
+renv::init(project = env_dir, bare = TRUE, force = TRUE, restart = TRUE)
+```
+
+#### Install SCP package in the environment
+
+``` r
+renv::activate(project = env_dir)
+install.packages("devtools")
+devtools::install_github("zhanghao-njmu/SCP", upgrade = "always")
+SCP::PrepareVirtualEnv(
+  install_python = TRUE, install_version = "3.8.8",
+  pypi_mirror = "https://pypi.tuna.tsinghua.edu.cn/simple", # Default is "https://pypi.org/simple"
+  miniconda_mirror = "https://mirrors.bfsu.edu.cn/anaconda/miniconda", # Default is "https://repo.anaconda.com/miniconda"
+  remove_old = TRUE
+)
+```
+
+Some network issues may cause the download to fail when installing
+packages, for example, you need to provide a github personal access
+token and restart rsession before downloading.
+
+#### Activate SCP local environment when needed
+
+``` r
+env_dir <- "~/SCP_env/"
+renv::activate(project = env_dir)
+
+library(SCP)
+data("pancreas_sub")
+pancreas_sub <- RunPAGA(srt = pancreas_sub, group_by = "SubCellType", linear_reduction = "PCA", nonlinear_reduction = "UMAP")
+ClassDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "draw_graph_fr")
 ```
 
 ## Example
