@@ -55,9 +55,10 @@ custom_TERM2GENE <- rbind(
   data.frame(term = "S_genes", gene = ccgenes[["cc_S_genes"]]),
   data.frame(term = "G2M_genes", gene = ccgenes[["cc_G2M_genes"]])
 )
+str(custom_TERM2GENE)
 db_list <- PrepareDB(
-  species = c("Homo_sapiens", "Mus_musculus"), db = "CellCycle", convert_species = TRUE,
-  custom_TERM2GENE = custom_TERM2GENE, custom_species = "Homo_sapiens", custom_IDtype = "symbol", custom_version = "Seurat_v4", db_update = TRUE
+  species = c("Homo_sapiens", "Mus_musculus"), db = "CellCycle", convert_species = TRUE, db_update = TRUE,
+  custom_TERM2GENE = custom_TERM2GENE, custom_species = "Homo_sapiens", custom_IDtype = "symbol", custom_version = "Seurat_v4"
 )
 ListDB(db = "CellCycle")
 head(db_list[["Mus_musculus"]][["CellCycle"]][["TERM2GENE"]])

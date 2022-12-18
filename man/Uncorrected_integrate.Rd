@@ -11,7 +11,7 @@ Uncorrected_integrate(
   srtList = NULL,
   assay = "RNA",
   do_normalization = NULL,
-  normalization_method = "logCPM",
+  normalization_method = "LogNormalize",
   do_HVF_finding = TRUE,
   HVF_source = "separate",
   HVF_method = "vst",
