@@ -1,178 +1,87 @@
 #' Prepare SCP python virtual environment
 #'
-#' @param python Python path which is used to create the virtual environment.
-#' @param pypi_mirror PyPI mirror used to install the Python packages. Default is "https://pypi.org/simple/". Options are "https://pypi.tuna.tsinghua.edu.cn/simple", "http://mirrors.aliyun.com/pypi/simple/", "https://pypi.mirrors.ustc.edu.cn/simple/", etc.
-#' @param remove_old Whether to remove the old SCP virtual environment. Default is FALSE.
-#' @param install_python Whether to download and install a new python. Default is FALSE, which only installs automatically if no suitable version of python is found.
-#' @param install_version The version of python to install. Default is \code{3.8.8}
+#' @param python_version The version of python to install. Default is \code{3.8}
+#' @param conda_binary
+#' @param miniconda_repo
+#' @param force
 #'
 #' @export
-PrepareVirtualEnv <- function(python = NULL, install_python = FALSE, install_version = "3.8.8",
-                              miniconda_mirror = "https://repo.anaconda.com/miniconda",
-                              pypi_mirror = "https://pypi.org/simple/",
-                              remove_old = FALSE) {
-  if (isTRUE(remove_old) || reticulate::virtualenv_exists("SCP")) {
-    if (isTRUE(reticulate:::is_python_initialized())) {
-      stop("Python is initialized in the current R session. You may run SCP::PrepareVirtualEnv() in a new R seesion to create SCP virtual environmenet. If you want to disable virtual environment initialization, you can set options(SCP_virtualenv_init = FALSE) before library(SCP).")
-    }
-  }
-  if (isTRUE(remove_old)) {
-    unlink(reticulate:::virtualenv_path("SCP"), recursive = TRUE)
-  }
-  python_path <- NULL
-  sys_bit <- ifelse(grepl("64", Sys.info()["machine"]), "64bit", "32bit")
-  if (isFALSE(install_python)) {
-    if (!is.null(python) && file.exists(python)) {
-      pythons <- python
-    } else {
-      pythons <- unique(c(reticulate::virtualenv_python("SCP"), Sys.getenv("RETICULATE_PYTHON"), Sys.which("python3"), Sys.which("python")))
-    }
-
-    for (py in pythons) {
-      if (py != "" && !file.exists(py)) {
-        # packageStartupMessage(py, " is not a Python executable file.")
-        next
-      }
-      # py <- file.path(normalizePath(dirname(py)), basename(py))
-      py_version <- tryCatch(suppressWarnings(reticulate:::python_version(py)),
-        error = identity
-      )
-      if (inherits(py_version, "error") || length(py_version) == 0) {
-        next
-      }
-      if (py_version < numeric_version("3.7.0") || py_version >= numeric_version("3.10.0")) {
-        next
-      }
-      py_bit <- tryCatch(suppressWarnings(system2(command = py, args = " -c \"import platform; print(platform.architecture()[0])\"", stdout = TRUE)),
-        error = identity
-      )
-      if (inherits(py_bit, "error") || length(py_bit) == 0) {
-        next
-      }
-      if (identical(py_bit, sys_bit)) {
-        python_path <- py
-        # packageStartupMessage("python path: ", python_path)
-        break
-      } else {
-        # packageStartupMessage("System architecture is ", sys_bit, " but ", py, " is ", py_bit)
-        next
-      }
-    }
+PrepareEnv <- function(conda_binary = NULL, python_version = "3.8",
+                       miniconda_repo = "https://repo.anaconda.com/miniconda",
+                       force = FALSE, ...) {
+  options(reticulate.conda_binary = conda_binary)
+  if (python_version < numeric_version("3.7.0") || python_version >= numeric_version("3.10.0")) {
+    stop("SCP currently only support python version 3.7-3.9!")
   }
 
-  if (!reticulate::virtualenv_exists("SCP")) {
-    if (!is.null(python_path)) {
-      packageStartupMessage("Create SCP virtual environment. The path is: ", reticulate:::virtualenv_path("SCP"))
-      env_status <- tryCatch(reticulate::virtualenv_create(envname = "SCP", python = python_path, packages = FALSE), error = identity)
-      if (inherits(env_status, "error") || length(env_status) == 0) {
-        python_path <- NULL
-      }
-    }
-    if (is.null(python_path)) {
-      packageStartupMessage("Python(3.7-3.9) is unavailable. Install python(", install_version, ") automatically ...")
-
-      # git_exist <- suppressWarnings(system("git", ignore.stdout = TRUE, ignore.stderr = TRUE))
-      # if (git_exist == 127) {
-      #   stop("You need to install git first! (http://git-scm.com/download/) or install python manually.")
-      # }
-      # options(timeout = 120)
-      # python_path <- reticulate::install_python(version = ifelse(sys_bit == "64bit", install_version, paste0(install_version, "-win32")))
-      if (!file.exists(paste0(reticulate::miniconda_path(), "/pkgs"))) {
-        options(timeout = 360)
-        version <- "3"
-        info <- as.list(Sys.info())
-        if (info$sysname == "Darwin" && info$machine == "arm64") {
-          base <- "https://github.com/conda-forge/miniforge/releases/latest/download"
-          name <- "Miniforge3-MacOSX-arm64.sh"
-          return(file.path(base, name))
-        }
-        base <- miniconda_mirror
-        info <- as.list(Sys.info())
-        arch <- reticulate:::miniconda_installer_arch(info)
-        version <- as.character(version)
-        name <- if (reticulate:::is_windows()) {
-          sprintf(
-            "Miniconda%s-latest-Windows-%s.exe", version,
-            arch
-          )
-        } else if (reticulate:::is_osx()) {
-          sprintf(
-            "Miniconda%s-latest-MacOSX-%s.sh", version,
-            arch
-          )
-        } else if (reticulate:::is_linux()) {
-          sprintf("Miniconda%s-latest-Linux-%s.sh", version, arch)
-        } else {
-          stopf("unsupported platform %s", shQuote(Sys.info()[["sysname"]]))
-        }
-        url <- file.path(base, name)
-        options(reticulate.miniconda.url = url)
-        print(url)
-        reticulate::install_miniconda(path = reticulate::miniconda_path(), force = TRUE, update = TRUE)
-      }
-      python_path <- reticulate::conda_create(envname = "SCP", python_version = install_version)
-
-      packageStartupMessage("Create SCP virtual environment. The path is: ", reticulate:::virtualenv_path("SCP"))
-      reticulate::virtualenv_create(envname = "SCP", python = python_path, packages = FALSE)
-    }
-    if (!exist_Python_pkg(pkg = "pip", envname = "SCP", show_pkg_info = FALSE)) {
-      temp <- tempfile()
-      download.file("https://bootstrap.pypa.io/get-pip.py", temp)
-      suppressWarnings(system2(command = reticulate::virtualenv_python("SCP"), args = temp, stdout = TRUE))
-      unlink(temp)
-    }
-    # check_Python(
-    #   pkgs = c("pip", "setuptools", "wheel"),
-    #   envname = "SCP",
-    #   pypi_mirror = pypi_mirror,
-    #   force = TRUE
-    # )
-  }
-  python_path <- reticulate::virtualenv_python("SCP")
-  Sys.setenv(RETICULATE_PYTHON = python_path)
-
-  version <- tryCatch(suppressWarnings(reticulate:::python_version(python_path)), error = identity)
-  if (inherits(version, "error")) {
-    stop("SCP need python 3.7-3.9! Please install python and reload the SCP!")
+  conda_exist <- reticulate:::conda_installed()
+  if (conda_exist) {
+    env_exist <- file.exists(paste0(reticulate:::conda_info()$conda_prefix, "/envs/SCP"))
   } else {
-    if (version < numeric_version("3.7.0") || version >= numeric_version("3.10.0")) {
-      stop(
-        "SCP currently only support python version 3.7-3.9! The version of Python currently is ", version,
-        "!\nPython related functions may not work. Please install the right version of python and reload the SCP!"
-      )
-    } else {
-      reticulate::use_virtualenv("SCP", required = TRUE)
-
-      if (!exist_Python_pkg(pkg = "pip", envname = "SCP", show_pkg_info = FALSE)) {
-        temp <- tempfile()
-        download.file("https://bootstrap.pypa.io/get-pip.py", temp)
-        suppressWarnings(system2(command = reticulate::virtualenv_python("SCP"), args = temp, stdout = TRUE))
-        unlink(temp)
-      }
-      check_Python(
-        pkgs = c(
-          "numpy==1.21.6", "numba==0.55.2", "python-igraph==0.10.2",
-          "pandas", "matplotlib", "versioned-hdf5", "leidenalg", "scanpy", "scvelo", "palantir"
-        ),
-        envname = "SCP",
-        pypi_mirror = pypi_mirror
-      )
-
-      pyinfo <- utils::capture.output(reticulate::py_config())
-      pyinfo_mesg <- c(
-        "======================== SCP python config ========================",
-        pyinfo,
-        "==================================================================="
-      )
-      invisible(lapply(pyinfo_mesg, packageStartupMessage))
-      invisible(run_Python(command = "import matplotlib", envir = .GlobalEnv))
-      if (!interactive()) {
-        invisible(run_Python(command = "matplotlib.use('pdf')", envir = .GlobalEnv))
-      }
-      invisible(run_Python(command = "import matplotlib.pyplot as plt", envir = .GlobalEnv))
-      invisible(run_Python(command = "import scanpy", envir = .GlobalEnv))
-    }
+    env_exist <- FALSE
   }
+  if (isTRUE(force) && isTRUE(env_exist)) {
+    env_exist <- FALSE
+  }
+
+  if (isFALSE(env_exist)) {
+    if (isFALSE(conda_exist)) {
+      options(timeout = 360)
+      version <- "3"
+      info <- as.list(Sys.info())
+      if (info$sysname == "Darwin" && info$machine == "arm64") {
+        base <- "https://github.com/conda-forge/miniforge/releases/latest/download"
+        name <- "Miniforge3-MacOSX-arm64.sh"
+        return(file.path(base, name))
+      }
+      base <- miniconda_repo
+      info <- as.list(Sys.info())
+      arch <- reticulate:::miniconda_installer_arch(info)
+      version <- as.character(version)
+      name <- if (reticulate:::is_windows()) {
+        sprintf(
+          "Miniconda%s-latest-Windows-%s.exe", version,
+          arch
+        )
+      } else if (reticulate:::is_osx()) {
+        sprintf(
+          "Miniconda%s-latest-MacOSX-%s.sh", version,
+          arch
+        )
+      } else if (reticulate:::is_linux()) {
+        sprintf("Miniconda%s-latest-Linux-%s.sh", version, arch)
+      } else {
+        stopf("unsupported platform %s", shQuote(Sys.info()[["sysname"]]))
+      }
+      url <- file.path(base, name)
+      options(reticulate.miniconda.url = url)
+      reticulate::install_miniconda(path = reticulate::miniconda_path(), force = TRUE, update = FALSE)
+    }
+    python_path <- reticulate::conda_create(envname = "SCP", python_version = python_version)
+  }
+
+  packages <- c(
+    "numpy==1.21.6", "numba==0.55.2", "python-igraph==0.10.2",
+    "scipy", "pandas", "matplotlib", "versioned-hdf5", "leidenalg", "scanpy", "scvelo", "palantir"
+  )
+  check_Python(packages = packages, envname = "SCP", pip = TRUE, ...)
+
+  python_path <- reticulate::conda_python("SCP")
+  reticulate::use_python(python_path, required = TRUE)
+
+  pyinfo <- utils::capture.output(reticulate::py_config())
+  pyinfo_mesg <- c(
+    "======================== SCP python config ========================",
+    pyinfo,
+    "==================================================================="
+  )
+  invisible(lapply(pyinfo_mesg, packageStartupMessage))
+  invisible(run_Python(command = "import matplotlib", envir = .GlobalEnv))
+  if (!interactive()) {
+    invisible(run_Python(command = "matplotlib.use('pdf')", envir = .GlobalEnv))
+  }
+  invisible(run_Python(command = "import matplotlib.pyplot as plt", envir = .GlobalEnv))
+  invisible(run_Python(command = "import scanpy", envir = .GlobalEnv))
 }
 
 #' Check and install R packages
@@ -254,81 +163,83 @@ check_R <- function(pkgs, pkg_names = NULL, install_methods = c("BiocManager::in
 }
 
 #' Check if the python package exists in the environment
-#' @param pkg Python package name.
+#'
+#' @param packages
 #' @param envname The name of, or path to, a Python virtual environment.
-#' @param show_pkg_info Whether to display information about installed packages.
+#'
 #' @export
-exist_Python_pkg <- function(pkg, envname = "SCP", show_pkg_info = TRUE) {
-  pkg_info <- strsplit(pkg, split = "==")[[1]]
-  pkg_name <- pkg_info[1]
-  pkg_version <- pkg_info[2]
-  pkg_exist <- suppressWarnings(system2(command = reticulate::virtualenv_python(envname), args = paste0("-m pip show ", pkg_name), stdout = TRUE))
-  if (length(pkg_exist) == 0 || isTRUE(attr(pkg_exist, "status") == 1)) {
-    return(FALSE)
+exist_Python_pkgs <- function(packages, envname = "SCP") {
+  conda_exist <- reticulate:::conda_installed()
+  if (conda_exist) {
+    env_exist <- file.exists(paste0(reticulate:::conda_info()$conda_prefix, "/envs/", envname))
   } else {
-    if (show_pkg_info) {
-      message(paste(pkg_exist, collapse = "\n"))
-    }
-    if (!is.na(pkg_version)) {
-      pkg_installed_version <- strsplit(pkg_exist, split = "Version: ")[[2]][2]
-      if (pkg_installed_version == pkg_version) {
-        return(TRUE)
+    env_exist <- FALSE
+  }
+
+  if (isFALSE(env_exist)) {
+    stop("Can not find the conda environment: ", envname)
+  }
+  all_installed <- reticulate:::conda_list_packages(envname, no_pip = FALSE)
+  packages_installed <- NULL
+  for (pkg in packages) {
+    pkg_info <- strsplit(pkg, split = "==")[[1]]
+    pkg_name <- pkg_info[1]
+    pkg_version <- pkg_info[2]
+    if (pkg_name %in% all_installed$package) {
+      if (!is.na(pkg_version)) {
+        packages_installed[pkg] <- all_installed$version[all_installed$package == pkg_name] == pkg_version
       } else {
-        return(FALSE)
+        packages_installed[pkg] <- TRUE
       }
     } else {
-      return(TRUE)
+      packages_installed[pkg] <- FALSE
     }
   }
+  return(packages_installed)
 }
 
 #' Check and install python packages
 #'
-#' @param pkgs Package to be installed.
-#' @param pkg_names The name of the package that corresponds to the \code{pkgs} parameter, used to check if the package is already installed.
-#' By default, the package name is extracted according to the \code{pkgs} parameter.
 #' @param envname The name of, or path to, a Python virtual environment.
-#' @param pypi_mirror Default is "https://pypi.org/simple/". Options can be "https://pypi.tuna.tsinghua.edu.cn/simple", "http://mirrors.aliyun.com/pypi/simple/", "https://pypi.mirrors.ustc.edu.cn/simple/", etc.
 #' @param force Whether to force package installation. Default is FALSE.
+#' @param packages
+#' @param pip
+#' @param ...
 #'
 #' @importFrom rlang %||%
 #' @export
-check_Python <- function(pkgs, pkg_names = NULL, envname = "SCP", pypi_mirror = "https://pypi.org/simple/", force = FALSE) {
-  if (!reticulate::virtualenv_exists("SCP")) {
-    warning("SCP python virtual environment do not exist. Create it with the PrepareVirtualEnv function...", immediate. = TRUE)
-    PrepareVirtualEnv(pypi_mirror = pypi_mirror)
+check_Python <- function(packages, envname = "SCP", force = FALSE, pip = TRUE, ...) {
+  conda_exist <- reticulate:::conda_installed()
+  if (conda_exist) {
+    env_exist <- file.exists(paste0(reticulate:::conda_info()$conda_prefix, "/envs/", envname))
+  } else {
+    env_exist <- FALSE
   }
-  if (length(pkg_names) != 0 && length(pkg_names) != length(pkgs)) {
-    stop("pkg_names must be NULL or a vector of the same length with pkgs")
+  if (isFALSE(env_exist)) {
+    warning(envname, " python environment do not exist. Create it with the PrepareEnv function...", immediate. = TRUE)
+    PrepareEnv()
   }
-  status_list <- list()
-  for (n in seq_along(pkgs)) {
-    pkg <- pkgs[n]
-    pkg_name <- pkg_names[n] %||% gsub("(.*)(\\[.*\\])", "\\1", pkg)
-    exist <- exist_Python_pkg(pkg = pkg_name, envname = envname, show_pkg_info = FALSE)
-    if (!isTRUE(exist) || isTRUE(force)) {
-      message("Try to install '", pkg, "' ...")
-      tryCatch(expr = {
-        reticulate::py_install(pkg, envname = envname, pip_options = paste("-i", pypi_mirror))
-      }, error = function(e) {
-        warning("Something went wrong when installing the package ", pkg)
-      })
+  if (isTRUE(force)) {
+    exist <- setNames(rep(FALSE, length(packages)), packages)
+  } else {
+    exist <- exist_Python_pkgs(packages = packages, envname = envname)
+  }
+  if (sum(!exist) > 0) {
+    pkgs_to_install <- names(exist)[!exist]
+    message("Try to install ", paste0(pkgs_to_install, collapse = ","), " ...")
+    if (isTRUE(pip)) {
+      pkgs_to_install <- c("pip", pkgs_to_install)
     }
+    tryCatch(expr = {
+      reticulate::conda_install(pkgs_to_install, envname = envname, pip = pip, ...)
+    }, error = identity)
   }
-  for (n in seq_along(pkgs)) {
-    pkg <- pkgs[n]
-    pkg_name <- pkg_names[n] %||% gsub("(.*)(\\[.*\\])", "\\1", pkg)
-    exist <- exist_Python_pkg(pkg = pkg_name, envname = envname, show_pkg_info = FALSE)
-    if (isTRUE(exist)) {
-      status_list[[pkg_name]] <- TRUE
-    } else {
-      status_list[[pkg_name]] <- FALSE
-    }
-  }
-  out <- sapply(status_list, isTRUE)
-  out <- out[!out]
-  if (length(out) > 0) {
-    stop("Failed to install the module(s): ", paste0(names(out), collapse = ","), " into the environment '", envname, "'. Please install manually.")
+
+  exist <- exist_Python_pkgs(packages = packages, envname = envname)
+  if (sum(!exist) > 0) {
+    stop("Failed to install the package(s): ", paste0(names(exist)[!exist], collapse = ","), " into the environment '", envname, "'. Please install manually.")
+  } else {
+    return(invisible(NULL))
   }
 }
 
@@ -347,6 +258,15 @@ run_Python <- function(command, envir = .GlobalEnv) {
   })
 }
 
+#' @param url
+#'
+#' @param destfile
+#' @param methods
+#' @param quiet
+#' @param attempts
+#' @param return_status
+#' @param mode
+#'
 #' @importFrom utils download.file
 #' @export
 download <- function(url, destfile, methods = c("auto", "wget", "libcurl", "curl", "wininet", "internal"), quiet = FALSE, attempts = 2, return_status = FALSE, mode = "w") {

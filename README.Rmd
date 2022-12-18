@@ -57,36 +57,36 @@ if (!require("devtools", quietly = TRUE)) {
 devtools::install_github("zhanghao-njmu/SCP")
 ```
 
-#### Requirement for python functions in SCP
+#### Create SCP python environment
 
-To run functions such as `RunSCVELO` or `RunPAGA`, SCP requires python 3.7-3.9 to create a standalone virtual environment.
+In order to run functions such as "RunSCVELO" or "RunPAGA", SCP requires [conda](https://docs.conda.io/en/latest/miniconda.html) to create a separate python environment.
 
-You can use `PrepareVirtualEnv(install_python = TRUE)` to automatically download and install a new Python.
+You can use `PrepareEnv()` to automatically download and install a miniconda.
 
 ```{r eval=FALSE}
-SCP::PrepareVirtualEnv(
-  install_python = TRUE, install_version = "3.8.8",
-  miniconda_mirror = "https://mirrors.bfsu.edu.cn/anaconda/miniconda", # Default is "https://repo.anaconda.com/miniconda"
-  pypi_mirror = "https://pypi.tuna.tsinghua.edu.cn/simple", # Default is "https://pypi.org/simple"
-  remove_old = TRUE
+SCP::PrepareEnv()
+```
+
+Or run `PrepareVirtualEnv(conda_binary = "/path/to/conda")` to use a particular conda binary.
+
+```{r eval=FALSE}
+SCP::PrepareEnv(conda_binary = "/path/to/conda")
+```
+
+If the installation of miniconda or packages is slow, you can specify the miniconda repo and PyPI mirror according to your network region.
+
+```{r eval=FALSE}
+PrepareEnv(
+  miniconda_repo = "https://mirrors.bfsu.edu.cn/anaconda/miniconda",
+  pip_options = "-i https://pypi.tuna.tsinghua.edu.cn/simple"
 )
 ```
 
-Or run `PrepareVirtualEnv(python = "/path/to/python")` with the specified python.
+## Installation in a isolated R environment using renv
 
-```{r eval=FALSE}
-SCP::PrepareVirtualEnv(
-  python = "/path/to/python",
-  pypi_mirror = "https://pypi.tuna.tsinghua.edu.cn/simple", # Default is "https://pypi.org/simple"
-  remove_old = TRUE
-)
-```
+If there are some R package version conflicts, or you do not want to change your current R environment, you can use the [renv](https://rstudio.github.io/renv/) package to install SCP into an isolated R environment.
 
-## Installation in a isolated environment using renv
-
-If there are some R package version conflicts, or you do not want to change your current R environment, you can use the [renv](https://rstudio.github.io/renv/) package to install SCP into an isolated environment.
-
-#### Create a isolated environment
+#### Create a isolated R environment
 
 ```{r eval=FALSE}
 env_dir <- "~/SCP_env/" # It cannot be the home directory "~" !
@@ -97,21 +97,16 @@ install.packages("renv")
 renv::init(project = env_dir, bare = TRUE, force = TRUE, restart = TRUE)
 ```
 
-#### Install SCP package in the environment
+#### Install SCP package and create SCP python environment
 
 ```{r eval=FALSE}
 renv::activate(project = env_dir)
 install.packages("devtools")
 devtools::install_github("zhanghao-njmu/SCP", upgrade = "always")
-SCP::PrepareVirtualEnv(
-  install_python = TRUE, install_version = "3.8.8",
-  miniconda_mirror = "https://mirrors.bfsu.edu.cn/anaconda/miniconda", # Default is "https://repo.anaconda.com/miniconda"
-  pypi_mirror = "https://pypi.tuna.tsinghua.edu.cn/simple", # Default is "https://pypi.org/simple"
-  remove_old = TRUE
-)
+SCP::PrepareVirtualEnv()
 ```
 
-When installing packages, some network issues may cause the download to fail. Sometimes you need to provide a GitHub personal access token and restart the r session before downloading.
+When installing packages, network issues may cause the download to fail. Sometimes you need to provide a GitHub personal access token and restart the r session before downloading.
 
 #### Activate SCP environment when used
 
