@@ -4,25 +4,14 @@
 \alias{check_Python}
 \title{Check and install python packages}
 \usage{
-check_Python(
-  pkgs,
-  pkg_names = NULL,
-  envname = "SCP",
-  pypi_mirror = "https://pypi.org/simple/",
-  force = FALSE
-)
+check_Python(packages, envname = "SCP", force = FALSE, pip = TRUE, ...)
 }
 \arguments{
-\item{pkgs}{Package to be installed.}
-
-\item{pkg_names}{The name of the package that corresponds to the \code{pkgs} parameter, used to check if the package is already installed.
-By default, the package name is extracted according to the \code{pkgs} parameter.}
-
 \item{envname}{The name of, or path to, a Python virtual environment.}
 
-\item{pypi_mirror}{Default is "https://pypi.org/simple/". Options can be "https://pypi.tuna.tsinghua.edu.cn/simple", "http://mirrors.aliyun.com/pypi/simple/", "https://pypi.mirrors.ustc.edu.cn/simple/", etc.}
-
 \item{force}{Whether to force package installation. Default is FALSE.}
+
+\item{...}{}
 }
 \description{
 Check and install python packages

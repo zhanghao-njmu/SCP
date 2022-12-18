@@ -4333,7 +4333,7 @@ RunPAGA <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_layers
                     infer_pseudotime = FALSE, root_group = NULL, root_cell = NULL, n_dcs = 10, n_branchings = 0, min_group_size = 0.01,
                     show_plot = TRUE, dpi = 300, save = FALSE, dirpath = "./", fileprefix = "",
                     return_seurat = !is.null(srt)) {
-  check_Python("scanpy")
+  check_Python("scanpy", envname = "SCP")
   if (all(is.null(srt), is.null(adata), is.null(h5ad))) {
     stop("One of 'srt', 'adata' or 'h5ad' must be provided.")
   }
@@ -4465,9 +4465,9 @@ RunSCVELO <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_laye
                       calculate_velocity_genes = FALSE,
                       show_plot = TRUE, dpi = 300, save = FALSE, dirpath = "./", fileprefix = "",
                       return_seurat = !is.null(srt)) {
-  check_Python("scvelo")
+  check_Python("scvelo", envname = "SCP")
   if (isTRUE(magic_impute)) {
-    check_Python("magic-impute")
+    check_Python("magic-impute", envname = "SCP")
   }
   if (all(is.null(srt), is.null(adata), is.null(h5ad))) {
     stop("One of 'srt', 'adata' or 'h5ad' must be provided.")
@@ -4553,7 +4553,7 @@ RunPalantir <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_la
                         max_iterations = 25, n_jobs = 8, point_size = 20,
                         show_plot = TRUE, dpi = 300, save = FALSE, dirpath = "./", fileprefix = "",
                         return_seurat = !is.null(srt)) {
-  check_Python("palantir")
+  check_Python("palantir", envname = "SCP")
   if (all(is.null(srt), is.null(adata), is.null(h5ad))) {
     stop("One of 'srt', 'adata' or 'h5ad' must be provided.")
   }
@@ -4624,9 +4624,9 @@ RunCellRank <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_la
                         denoise = FALSE, kinetics = FALSE, axis = "equal",
                         show_plot = TRUE, dpi = 300, save = FALSE, dirpath = "./", fileprefix = "",
                         return_seurat = !is.null(srt)) {
-  check_Python("cellrank")
+  check_Python("cellrank", envname = "SCP")
   if (isTRUE(magic_impute)) {
-    check_Python("magic-impute")
+    check_Python("magic-impute", envname = "SCP")
   }
   if (all(is.null(srt), is.null(adata), is.null(h5ad))) {
     stop("One of 'srt', 'adata' or 'h5ad' must be provided.")
@@ -4691,7 +4691,7 @@ RunDynamo <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_laye
                       max_iterations = 25, n_jobs = 1, point_size = 20,
                       show_plot = TRUE, dpi = 300, save = FALSE, dirpath = "./", fileprefix = "",
                       return_seurat = !is.null(srt)) {
-  check_Python("dynamo-release")
+  check_Python("dynamo-release", envname = "SCP")
   if (all(is.null(srt), is.null(adata), is.null(h5ad))) {
     stop("One of 'srt', 'adata' or 'h5ad' must be provided.")
   }
