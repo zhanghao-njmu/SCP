@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">SCP</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.5.9001</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.5.9006</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -94,14 +94,14 @@
 <span class="r-in"><span>  features <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>S <span class="op">=</span> <span class="va">ccgenes</span><span class="op">$</span><span class="va">cc_S_genes</span>, G2M <span class="op">=</span> <span class="va">ccgenes</span><span class="op">$</span><span class="va">cc_G2M_genes</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  method <span class="op">=</span> <span class="st">"Seurat"</span>, name <span class="op">=</span> <span class="st">"CC"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Data is raw counts. Perform NormalizeData(logCPM) on the data ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Data is raw counts. Perform NormalizeData(LogNormalize) on the data ...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Number of feature lists to be scored: 2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-17 11:28:02] Start CellScoring</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-18 04:55:34] Start CellScoring</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Threads used: 1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |==============================================================================================================| 100%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-17 11:28:02] CellScoring done</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 0.29 secs </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-18 04:55:34] CellScoring done</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 0.28 secs </span>
 <span class="r-in"><span><span class="fu"><a href="ClassDimPlot.html">ClassDimPlot</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, <span class="st">"CC_classification"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="CellScoring-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="fu"><a href="ExpDimPlot.html">ExpDimPlot</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, <span class="st">"CC_G2M"</span><span class="op">)</span></span></span>
@@ -111,31 +111,31 @@
 <span class="r-in"><span><span class="va">panc8_sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="Integration_SCP.html">Integration_SCP</a></span><span class="op">(</span><span class="va">panc8_sub</span>,</span></span>
 <span class="r-in"><span>  batch <span class="op">=</span> <span class="st">"tech"</span>, integration_method <span class="op">=</span> <span class="st">"Seurat"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-17 11:28:05] Start Seurat_integrate</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-17 11:28:05] Checking srtList... ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Data 1/5 of the srtList is normalized without log transformation. Perform NormalizeData(logCPM) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-18 04:55:37] Start Seurat_integrate</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-18 04:55:37] Checking srtList... ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Data 1/5 of the srtList is normalized without log transformation. Perform NormalizeData(LogNormalize) on the data...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform FindVariableFeatures on the data 1/5 of the srtList...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Data 2/5 of the srtList is normalized without log transformation. Perform NormalizeData(logCPM) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Data 2/5 of the srtList is normalized without log transformation. Perform NormalizeData(LogNormalize) on the data...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform FindVariableFeatures on the data 2/5 of the srtList...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Data 3/5 of the srtList is normalized without log transformation. Perform NormalizeData(logCPM) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Data 3/5 of the srtList is normalized without log transformation. Perform NormalizeData(LogNormalize) on the data...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform FindVariableFeatures on the data 3/5 of the srtList...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Data 4/5 of the srtList is raw counts. Perform NormalizeData(logCPM) on the data ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Data 4/5 of the srtList is raw counts. Perform NormalizeData(LogNormalize) on the data ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform FindVariableFeatures on the data 4/5 of the srtList...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Data 5/5 of the srtList is raw counts. Perform NormalizeData(logCPM) on the data ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Data 5/5 of the srtList is raw counts. Perform NormalizeData(LogNormalize) on the data ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform FindVariableFeatures on the data 5/5 of the srtList...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Use the separate HVF from the existed HVF in srtList...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Number of available HVF: 2000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-17 11:28:09] Finished checking.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-17 11:28:09] Perform FindIntegrationAnchors on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-17 11:28:31] Perform integration(Seurat) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-17 11:28:41] Perform ScaleData on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-17 11:28:41] Perform linear dimension reduction (pca) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-18 04:55:41] Finished checking.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-18 04:55:41] Perform FindIntegrationAnchors on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-18 04:56:02] Perform integration(Seurat) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-18 04:56:10] Perform ScaleData on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-18 04:56:11] Perform linear dimension reduction (pca) on the data...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> dims_estimate is 1:16 for 'pca'</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-17 11:28:43] Perform FindClusters (louvain) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-17 11:28:43] Reorder clusters...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-17 11:28:43] Perform nonlinear dimension reduction (umap) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-17 11:28:51] Seurat_integrate done</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 46.52 secs </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-18 04:56:12] Perform FindClusters (louvain) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-18 04:56:12] Reorder clusters...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-18 04:56:13] Perform nonlinear dimension reduction (umap) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-18 04:56:20] Seurat_integrate done</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 43.49 secs </span>
 <span class="r-in"><span><span class="fu"><a href="ClassDimPlot.html">ClassDimPlot</a></span><span class="op">(</span><span class="va">panc8_sub</span>, group.by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"tech"</span>, <span class="st">"celltype"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="CellScoring-3.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
@@ -161,19 +161,19 @@
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>The following list of features were filtered because none of features were found in the srt assay:</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> negative regulation of vascular endothelial growth factor production, xenobiotic glucuronidation</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Number of feature lists to be scored: 5066</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-17 11:30:32] Start CellScoring</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-18 04:58:06] Start CellScoring</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Threads used: 1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |==============================================================================================================| 100%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Feature names cannot have underscores ('_'), replacing with dashes ('-')</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-17 11:40:06] CellScoring done</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 9.55 mins </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-18 05:07:07] CellScoring done</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 9.01 mins </span>
 <span class="r-in"><span><span class="va">panc8_sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="Integration_SCP.html">Integration_SCP</a></span><span class="op">(</span><span class="va">panc8_sub</span>,</span></span>
 <span class="r-in"><span>  assay <span class="op">=</span> <span class="st">"GO"</span>,</span></span>
 <span class="r-in"><span>  batch <span class="op">=</span> <span class="st">"tech"</span>, integration_method <span class="op">=</span> <span class="st">"Seurat"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-17 11:40:06] Start Seurat_integrate</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-17 11:40:06] Checking srtList... ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-18 05:07:07] Start Seurat_integrate</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-18 05:07:07] Checking srtList... ...</span>
 <span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> 'GO' is not an assay</span>
 <span class="r-in"><span><span class="fu"><a href="ClassDimPlot.html">ClassDimPlot</a></span><span class="op">(</span><span class="va">panc8_sub</span>, group.by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"tech"</span>, <span class="st">"celltype"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="CellScoring-4.png" alt="" width="700" height="433"></span>
@@ -200,16 +200,16 @@
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>The following list of features were filtered because none of features were found in the srt assay:</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> response to corticosterone</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Number of feature lists to be scored: 5063</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-17 11:41:52] Start CellScoring</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-18 05:08:43] Start CellScoring</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Threads used: 1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |==============================================================================================================| 100%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Feature names cannot have underscores ('_'), replacing with dashes ('-')</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-17 11:46:46] CellScoring done</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 4.91 mins </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-18 05:13:24] CellScoring done</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 4.67 mins </span>
 <span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="Standard_SCP.html">Standard_SCP</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, assay <span class="op">=</span> <span class="st">"GO"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-17 11:46:46] Start Standard_SCP</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-17 11:46:46] Checking srtList... ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-18 05:13:24] Start Standard_SCP</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-18 05:13:24] Checking srtList... ...</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Negative values detected!</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Can not determine whether data 1 is log-normalized...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform FindVariableFeatures on the data 1/1 of the srtList...</span>
@@ -217,15 +217,15 @@
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>number of items to replace is not a multiple of replacement length</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Use the separate HVF from the existed HVF in srtList...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Number of available HVF: 2000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-17 11:46:48] Finished checking.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-17 11:46:48] Perform ScaleData on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-17 11:46:48] Perform linear dimension reduction (pca) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-18 05:13:25] Finished checking.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-18 05:13:25] Perform ScaleData on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-18 05:13:25] Perform linear dimension reduction (pca) on the data...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> dims_estimate is 1:25 for 'pca'</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-17 11:46:49] Perform FindClusters (louvain) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-17 11:46:49] Reorder clusters...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-17 11:46:49] Perform nonlinear dimension reduction (umap) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-17 11:46:56] Standard_SCP done</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 10.06 secs </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-18 05:13:26] Perform FindClusters (louvain) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-18 05:13:26] Reorder clusters...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-18 05:13:26] Perform nonlinear dimension reduction (umap) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-18 05:13:33] Standard_SCP done</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 9.25 secs </span>
 <span class="r-in"><span><span class="fu"><a href="ClassDimPlot.html">ClassDimPlot</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, <span class="st">"SubCellType"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="CellScoring-5.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
