@@ -66,7 +66,7 @@ devtools::install_github("zhanghao-njmu/SCP")
 
 #### Create SCP python environment
 
-In order to run functions such as “RunSCVELO” or “RunPAGA”, SCP requires
+To run functions such as `RunSCVELO` or `RunPAGA`, SCP requires
 [conda](https://docs.conda.io/en/latest/miniconda.html) to create a
 separate python environment.
 
