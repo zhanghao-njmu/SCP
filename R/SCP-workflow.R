@@ -1371,7 +1371,7 @@ scVI_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE,
     suppressWarnings(system2(command = reticulate::virtualenv_python("SCP"), args = "-m pip install jax[cpu]===0.3.20 -f https://whls.blob.core.windows.net/unstable/index.html --use-deprecated legacy-resolver", stdout = TRUE))
   }
 
-  check_Python("scvi-tools")
+  check_Python("scvi-tools", envname = "SCP")
   scvi <- import("scvi")
   scipy <- import("scipy")
   set.seed(seed)

@@ -1,10 +1,11 @@
 .onAttach <- function(libname, pkgname) {
   options(future.globals.maxSize = Inf)
   options(expressions = 5e5)
-  if (reticulate::virtualenv_exists("SCP") && (is.null(getOption("SCP_virtualenv_init")) || getOption("SCP_virtualenv_init") != FALSE)) {
+  env_exist <- isTRUE(tryCatch("SCP" %in% reticulate::conda_list()$name[grep(reticulate:::conda_info()$conda_prefix, reticulate::conda_list()$python)], error = identity))
+  if (env_exist && (is.null(getOption("SCP_env_init")) || getOption("SCP_env_init") != FALSE)) {
     try({
-      Sys.setenv(RETICULATE_PYTHON = reticulate::virtualenv_python("SCP"))
-      reticulate::use_virtualenv("SCP", required = TRUE)
+      python_path <- reticulate::conda_python("SCP")
+      reticulate::use_python(python_path, required = TRUE)
       pyinfo <- utils::capture.output(reticulate::py_config())
       pyinfo_mesg <- c(
         "======================== SCP python config ========================",
@@ -18,7 +19,7 @@
       }
       invisible(run_Python(command = "import matplotlib.pyplot as plt", envir = .GlobalEnv))
       invisible(run_Python(command = "import scanpy", envir = .GlobalEnv))
-      packageStartupMessage("SCP python virtual environment can be disabled with the command 'options(SCP_virtualenv_init = FALSE)' before loading the package")
+      packageStartupMessage("SCP python environment can be disabled with the command 'options(SCP_env_init = FALSE)' before loading the package")
     })
   }
 }
