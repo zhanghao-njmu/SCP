@@ -54,7 +54,7 @@ with other Seurat functions.
 
 ## Installation in the global R environment
 
-You can install the development version of SCP from
+You can install the latest version of SCP from
 [GitHub](https://github.com/zhanghao-njmu/SCP) with:
 
 ``` r
@@ -67,7 +67,7 @@ devtools::install_github("zhanghao-njmu/SCP")
 #### Requirement for python functions in SCP
 
 To run functions such as `RunSCVELO` or `RunPAGA`, SCP requires python
-3.7-3.9 to be installed in the environment.
+3.7-3.9 to create a standalone virtual environment.
 
 You can use `PrepareVirtualEnv(install_python = TRUE)` to automatically
 download and install a new Python.
@@ -81,9 +81,8 @@ SCP::PrepareVirtualEnv(
 )
 ```
 
-Or run `PrepareVirtualEnv(python = "/path/to/python")` to create a
-standalone python virtual environment for SCP using the specified
-python.
+Or run `PrepareVirtualEnv(python = "/path/to/python")` with the
+specified python.
 
 ``` r
 SCP::PrepareVirtualEnv(
@@ -93,9 +92,14 @@ SCP::PrepareVirtualEnv(
 )
 ```
 
-## Installation in a local environment using renv
+## Installation in a isolated environment using renv
 
-#### Create a local environment
+If there are some R package version conflicts, or you do not want to
+change your current R environment, you can use the
+[renv](https://rstudio.github.io/renv/) package to install SCP into an
+isolated environment.
+
+#### Create a isolated environment
 
 ``` r
 env_dir <- "~/SCP_env/" # It cannot be the home directory "~" !
@@ -120,11 +124,11 @@ SCP::PrepareVirtualEnv(
 )
 ```
 
-Some network issues may cause the download to fail when installing
-packages, for example, you need to provide a github personal access
-token and restart rsession before downloading.
+When installing packages, some network issues may cause the download to
+fail. Sometimes you need to provide a GitHub personal access token and
+restart the r session before downloading.
 
-#### Activate SCP local environment when needed
+#### Activate SCP environment when used
 
 ``` r
 env_dir <- "~/SCP_env/"
@@ -134,6 +138,13 @@ library(SCP)
 data("pancreas_sub")
 pancreas_sub <- RunPAGA(srt = pancreas_sub, group_by = "SubCellType", linear_reduction = "PCA", nonlinear_reduction = "UMAP")
 ClassDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "draw_graph_fr")
+```
+
+#### Save and restore the state of SCP environment
+
+``` r
+renv::snapshot(project = env_dir)
+renv::restore(project = env_dir)
 ```
 
 ## Example
@@ -485,8 +496,8 @@ ExpStatPlot(
 
 <img src="README/README-ExpVlnPlot-1.png" width="100%" style="display: block; margin: auto;" />
 
-More examples of SCP can be found in the documentation of the individual
-functions, such as
+More examples of SCP can be found in the documentation of the functions,
+such as
 [Integration_SCP](https://zhanghao-njmu.github.io/SCP/reference/Integration_SCP.html),
 [RunKNNMap](https://zhanghao-njmu.github.io/SCP/reference/RunKNNMap.html),
 [RunMonocle3](https://zhanghao-njmu.github.io/SCP/reference/RunMonocle3.html),

@@ -288,7 +288,6 @@ RunPCAMap <- function(srt_query, srt_ref, query_assay = NULL, ref_assay = srt_re
                       projection_method = c("model", "knn"), nn_method = NULL, k = 30, distance_metric = "cosine", vote_fun = "mean") {
   query_assay <- query_assay %||% DefaultAssay(srt_query)
   ref_assay <- ref_assay %||% DefaultAssay(srt_ref)
-  check_R("MatrixGenerics")
   if (!is.null(ref_group)) {
     if (length(ref_group) == ncol(srt_ref)) {
       srt_ref[["ref_group"]] <- ref_group
@@ -339,9 +338,9 @@ RunPCAMap <- function(srt_query, srt_ref, query_assay = NULL, ref_assay = srt_re
 
   message("Run PCA projection")
   features <- rownames(pca.out@feature.loadings)
-  center <- MatrixGenerics::rowMeans2(GetAssayData(object = srt_ref, slot = "data", assay = ref_assay)[features, ])
+  center <- apply(GetAssayData(object = srt_ref, slot = "data", assay = ref_assay)[features, ], 1, mean)
   names(center) <- features
-  sds <- MatrixGenerics::rowSds(GetAssayData(object = srt_ref, slot = "data", assay = ref_assay)[features, ])
+  sds <- apply(GetAssayData(object = srt_ref, slot = "data", assay = ref_assay)[features, ], 1, sd)
   names(sds) <- features
   rotation <- pca.out@feature.loadings
 

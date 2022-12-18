@@ -3376,7 +3376,6 @@ cluster_within_group2 <- function(mat, factor) {
 #' @importFrom grid gpar grid.grabExpr grid.lines grid.rect grid.points grid.draw
 #' @importFrom ggplot2 ggplotGrob theme_void theme facet_null
 #' @importFrom cowplot plot_grid
-#' @importFrom scales alpha
 #' @importFrom methods getFunction
 #' @importFrom dplyr %>% filter group_by arrange desc across mutate summarise distinct n .data "%>%"
 #' @export
@@ -4410,7 +4409,7 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
         paste0("
         grid.rect(x, y,
           width = width, height = height,
-          gp = gpar(col = fill, lwd = 1, fill = alpha(fill, ", bg_alpha, "))
+          gp = gpar(col = fill, lwd = 1, fill = adjcolors(fill, ", bg_alpha, "))
         );
         ")
       },
@@ -11131,7 +11130,6 @@ ProjectionPlot <- function(srt_query, srt_ref,
 #' EnrichmentPlot(pancreas_sub, db = c("MP", "DO"), group_by = "CellType", group_use = c("Ductal", "Endocrine"), plot_type = "lollipop")
 #'
 #' @importFrom ggplot2 ggplot geom_bar geom_text labs scale_fill_manual scale_y_continuous facet_grid coord_flip scale_color_gradientn scale_fill_gradientn scale_size guides geom_segment expansion guide_colorbar
-#' @importFrom scales breaks_extended
 #' @importFrom dplyr group_by filter arrange desc across mutate summarise distinct n .data
 #' @importFrom stringr str_extract str_wrap str_split
 #' @importFrom stats formula
@@ -11266,14 +11264,14 @@ EnrichmentPlot <- function(srt, db = "GO_BP", group_by = NULL, group_use = NULL,
         labs(x = "", y = "Enrichment Score") +
         scale_fill_gradientn(
           name = paste0("-log10(", metric, ")"),
-          breaks = breaks_extended(n = 3),
+          breaks = scales::breaks_extended(n = 3),
           colors = c("gold", "red3"),
           na.value = "grey80",
           guide = guide_colorbar(frame.colour = "black", ticks.colour = "black", barheight = 4)
         ) +
         scale_color_gradientn(
           name = paste0("-log10(", metric, ")"),
-          breaks = breaks_extended(n = 3),
+          breaks = scales::breaks_extended(n = 3),
           colors = c("gold", "red3"),
           na.value = "grey80",
           guide = guide_colorbar(frame.colour = "black", ticks.colour = "black", barheight = 4)
