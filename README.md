@@ -118,7 +118,7 @@ renv::init(project = env_dir, bare = TRUE, force = TRUE, restart = TRUE)
 renv::activate(project = env_dir)
 install.packages("devtools")
 devtools::install_github("zhanghao-njmu/SCP", upgrade = "always")
-SCP::PrepareVirtualEnv()
+SCP::PrepareEnv()
 ```
 
 When installing packages, network issues may cause the download to fail.
