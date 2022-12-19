@@ -26,7 +26,7 @@
     
     <a class="navbar-brand me-2" href="index.html">SCP</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.5.9009</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.5.9010</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -98,7 +98,7 @@
 <p>You can use <code><a href="reference/PrepareEnv.html">PrepareEnv()</a></code> to create the SCP python environment. If conda binary not found, it will automatically download and install a miniconda.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">SCP</span><span class="fu">::</span><span class="fu"><a href="reference/PrepareEnv.html">PrepareEnv</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p>Or run <code>PrepareVirtualEnv(conda_binary = "/path/to/conda")</code> to use a particular conda binary.</p>
+<p>Or run <code>PrepareEnv(conda_binary = "/path/to/conda")</code> to use a particular conda binary.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">SCP</span><span class="fu">::</span><span class="fu"><a href="reference/PrepareEnv.html">PrepareEnv</a></span><span class="op">(</span>conda_binary <span class="op">=</span> <span class="st">"/path/to/conda"</span><span class="op">)</span></span></code></pre></div>
 <p>If the download of miniconda or packages is slow, you can specify the miniconda repo and PyPI mirror according to your network region.</p>
@@ -435,6 +435,19 @@
 <span>  multiplegroup_comparisons <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p><img src="README/README-ExpStatPlot-1.png" width="100%" style="display: block; margin: auto;"></p>
+</div>
+<div class="section level3">
+<h3 id="interactive-data-visualization-with-scexplorer">Interactive data visualization with SCExplorer<a class="anchor" aria-label="anchor" href="#interactive-data-visualization-with-scexplorer"></a>
+</h3>
+<div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="reference/PrepareSCExplorer.html">PrepareSCExplorer</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>mouse_pancreas <span class="op">=</span> <span class="va">pancreas_sub</span>, human_pancreas <span class="op">=</span> <span class="va">panc8_sub</span><span class="op">)</span>, base_dir <span class="op">=</span> <span class="st">"./SCExplorer"</span><span class="op">)</span></span>
+<span><span class="va">app</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/RunSCExplorer.html">RunSCExplorer</a></span><span class="op">(</span>base_dir <span class="op">=</span> <span class="st">"./SCExplorer"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="st">"./SCExplorer"</span><span class="op">)</span> <span class="co"># This directory can be used as site directory for Shiny Server.</span></span>
+<span></span>
+<span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu">shiny</span><span class="fu">::</span><span class="fu"><a href="https://shiny.rstudio.com/reference/shiny/latest/runApp.html" class="external-link">runApp</a></span><span class="op">(</span><span class="va">app</span><span class="op">)</span></span>
+<span><span class="op">}</span></span></code></pre></div>
+<p><img src="README/README-SCExplorer-1.png" alt="SCExplorer"><img src="README/README-SCExplorer-2.png" alt="SCExplorer"></p>
 <p>More examples of SCP can be found in the documentation of the functions, such as <a href="https://zhanghao-njmu.github.io/SCP/reference/Integration_SCP.html">Integration_SCP</a>, <a href="https://zhanghao-njmu.github.io/SCP/reference/RunKNNMap.html">RunKNNMap</a>, <a href="https://zhanghao-njmu.github.io/SCP/reference/RunMonocle3.html">RunMonocle3</a>, <a href="https://zhanghao-njmu.github.io/SCP/reference/ClassDimPlot.html">ClassDimPlot</a>, <a href="https://zhanghao-njmu.github.io/SCP/reference/GroupHeatmap.html">GroupHeatmap</a>, <a href="https://zhanghao-njmu.github.io/SCP/reference/RunSCExplorer.html">RunSCExplorer</a>, etc.</p>
 </div>
 </div>
