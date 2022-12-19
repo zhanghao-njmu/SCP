@@ -1,4 +1,4 @@
-#' Prepare SCP python virtual environment
+#' Prepare SCP python environment
 #'
 #' @param python_version The version of python to install. Default is \code{3.8}
 #' @param conda_binary
@@ -165,7 +165,7 @@ check_R <- function(pkgs, pkg_names = NULL, install_methods = c("BiocManager::in
 #' Check if the python package exists in the environment
 #'
 #' @param packages
-#' @param envname The name of, or path to, a Python virtual environment.
+#' @param envname The name of, or path to, a Python environment.
 #'
 #' @export
 exist_Python_pkgs <- function(packages, envname = "SCP") {
@@ -200,7 +200,7 @@ exist_Python_pkgs <- function(packages, envname = "SCP") {
 
 #' Check and install python packages
 #'
-#' @param envname The name of, or path to, a Python virtual environment.
+#' @param envname The name of, or path to, a Python environment.
 #' @param force Whether to force package installation. Default is FALSE.
 #' @param packages
 #' @param pip

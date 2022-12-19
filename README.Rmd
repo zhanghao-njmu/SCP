@@ -67,7 +67,7 @@ You can use `PrepareEnv()` to create the SCP python environment. If conda binary
 SCP::PrepareEnv()
 ```
 
-Or run `PrepareVirtualEnv(conda_binary = "/path/to/conda")` to use a particular conda binary.
+Or run `PrepareEnv(conda_binary = "/path/to/conda")` to use a particular conda binary.
 
 ```{r eval=FALSE}
 SCP::PrepareEnv(conda_binary = "/path/to/conda")
@@ -374,5 +374,18 @@ ExpStatPlot(
   multiplegroup_comparisons = TRUE
 )
 ```
+
+### Interactive data visualization with SCExplorer
+```{r SCExplorer}
+PrepareSCExplorer(list(mouse_pancreas = pancreas_sub, human_pancreas = panc8_sub), base_dir = "./SCExplorer")
+app <- RunSCExplorer(base_dir = "./SCExplorer")
+list.files("./SCExplorer") # This directory can be used as site directory for Shiny Server.
+
+if (interactive()) {
+  shiny::runApp(app)
+}
+```
+![SCExplorer](README/README-SCExplorer-1.png)
+![SCExplorer](README/README-SCExplorer-2.png)
 
 More examples of SCP can be found in the documentation of the functions, such as [Integration_SCP](https://zhanghao-njmu.github.io/SCP/reference/Integration_SCP.html), [RunKNNMap](https://zhanghao-njmu.github.io/SCP/reference/RunKNNMap.html), [RunMonocle3](https://zhanghao-njmu.github.io/SCP/reference/RunMonocle3.html), [ClassDimPlot](https://zhanghao-njmu.github.io/SCP/reference/ClassDimPlot.html), [GroupHeatmap](https://zhanghao-njmu.github.io/SCP/reference/GroupHeatmap.html), [RunSCExplorer](https://zhanghao-njmu.github.io/SCP/reference/RunSCExplorer.html), etc.

@@ -385,9 +385,9 @@ FetchH5 <- function(DataFile, MetaFile, name = NULL,
   }
 
   if (length(gene_features) > 0) {
-    srt_tmp <- CreateSeuratObject(assay = assay, counts = as(t(data[, gene_features, drop = FALSE]), "matrix")) # sparseMatrix
+    srt_tmp <- CreateSeuratObject(assay = assay %||% "RNA", counts = as(t(data[, gene_features, drop = FALSE]), "matrix")) # sparseMatrix
   } else {
-    srt_tmp <- CreateSeuratObject(assay = assay, counts = matrix(data = 0, ncol = length(all_cells), dimnames = list("empty", all_cells)))
+    srt_tmp <- CreateSeuratObject(assay = assay %||% "RNA", counts = matrix(data = 0, ncol = length(all_cells), dimnames = list("empty", all_cells)))
   }
 
   if (length(c(metanames, meta_features)) > 0) {
@@ -423,7 +423,7 @@ FetchH5 <- function(DataFile, MetaFile, name = NULL,
       srt_tmp@reductions[[i]] <- CreateDimReducObject(
         embeddings = reduction,
         key = as.character(reduction_attr$key),
-        assay = assay
+        assay = assay %||% DefaultAssay(srt_tmp)
       )
     }
   }
@@ -465,16 +465,17 @@ FetchH5 <- function(DataFile, MetaFile, name = NULL,
 #' data("panc8_sub")
 #' panc8_sub <- Integration_SCP(srtMerge = panc8_sub, batch = "tech", integration_method = "Seurat")
 #'
-#' PrepareSCExplorer(list(mouse_pancreas = pancreas_sub, human_pancreas = panc8_sub), base_dir = "./SCExplorer")
+#' PrepareSCExplorer(list(mouse_pancreas = pancreas_sub, human_pancreas = panc8_sub), base_dir = "./SCExplorer", overwrite = TRUE)
 #'
 #' # Create the app.R script
-#' app <- RunSCExplorer(base_dir = "./SCExplorer", return_app = TRUE)
+#' app <- RunSCExplorer(base_dir = "./SCExplorer", overwrite = TRUE)
 #' list.files("./SCExplorer") # This directory can be used as site directory for Shiny Server.
 #'
 #' # Run shiny app
 #' if (interactive()) {
 #'   shiny::runApp(app)
 #' }
+#' # Note: If SCP installed in the isolated environment using renv, you need to add `renv::activate(project = "path/to/SCP_env")` to the app.R script.
 #'
 #' ####################################################################################################################
 #' # You can deploy the app on the self-hosted shiny server(https://www.rstudio.com/products/shiny/shiny-server/).

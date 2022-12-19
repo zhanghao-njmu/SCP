@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils.R
 \name{PrepareEnv}
 \alias{PrepareEnv}
-\title{Prepare SCP python virtual environment}
+\title{Prepare SCP python environment}
 \usage{
 PrepareEnv(
   conda_binary = NULL,
@@ -18,5 +18,5 @@ PrepareEnv(
 \item{force}{}
 }
 \description{
-Prepare SCP python virtual environment
+Prepare SCP python environment
 }
