@@ -118,10 +118,10 @@
     <loc>https://zhanghao-njmu.github.io/SCP/reference/PrepareDB.html</loc>
   </url>
   <url>
-    <loc>https://zhanghao-njmu.github.io/SCP/reference/PrepareSCExplorer.html</loc>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/PrepareEnv.html</loc>
   </url>
   <url>
-    <loc>https://zhanghao-njmu.github.io/SCP/reference/PrepareVirtualEnv.html</loc>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/PrepareSCExplorer.html</loc>
   </url>
   <url>
     <loc>https://zhanghao-njmu.github.io/SCP/reference/ProjectionPlot.html</loc>
@@ -298,7 +298,7 @@
     <loc>https://zhanghao-njmu.github.io/SCP/reference/db_scds.html</loc>
   </url>
   <url>
-    <loc>https://zhanghao-njmu.github.io/SCP/reference/exist_Python_pkg.html</loc>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/exist_Python_pkgs.html</loc>
   </url>
   <url>
     <loc>https://zhanghao-njmu.github.io/SCP/reference/fastMNN_integrate.html</loc>
