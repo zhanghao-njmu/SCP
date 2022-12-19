@@ -264,12 +264,12 @@ run_Python <- function(command, envir = .GlobalEnv) {
 #' @param methods
 #' @param quiet
 #' @param attempts
+#' @param ...
 #' @param return_status
-#' @param mode
 #'
 #' @importFrom utils download.file
 #' @export
-download <- function(url, destfile, methods = c("auto", "wget", "libcurl", "curl", "wininet", "internal"), quiet = FALSE, attempts = 2, return_status = FALSE, mode = "w") {
+download <- function(url, destfile, methods = c("auto", "wget", "libcurl", "curl", "wininet", "internal"), quiet = FALSE, ..., attempts = 2, return_status = FALSE) {
   if (missing(url) || missing(destfile)) {
     stop("'url' and 'destfile' must be both provided.")
   }
@@ -278,7 +278,7 @@ download <- function(url, destfile, methods = c("auto", "wget", "libcurl", "curl
   while (is.null(status)) {
     for (method in methods) {
       status <- tryCatch(expr = {
-        suppressWarnings(download.file(url, destfile = destfile, method = method, quiet = quiet, mode = mode))
+        suppressWarnings(download.file(url, destfile = destfile, method = method, quiet = quiet, ...))
         status <- 1
       }, error = function(error) {
         message(error)

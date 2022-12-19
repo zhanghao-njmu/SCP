@@ -3867,29 +3867,34 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
         row_split_raw <- row_split <- feature_split <- setNames(rep(1, nrow(mat_split)), rownames(mat_split))
       } else {
         if (split_method == "mfuzz") {
-          check_R("Mfuzz")
-          require("Mfuzz")
-          mat_split_tmp <- mat_split
-          colnames(mat_split_tmp) <- make.unique(colnames(mat_split_tmp))
-          eset <- new("ExpressionSet", exprs = mat_split_tmp)
-          eset <- Mfuzz::standardise(eset)
-          min_fuzzification <- Mfuzz::mestimate(eset)
-          if (is.null(fuzzification)) {
-            fuzzification <- min_fuzzification + 0.1
+          status <- tryCatch(check_R("Mfuzz"), error = identity)
+          if (inherits(status, "error")) {
+            warning("The Mfuzz package was not found. Switch split_method to 'kmeans'", immediate. = TRUE)
+            split_method <- "kmeans"
           } else {
-            if (fuzzification <= min_fuzzification) {
-              warning("fuzzification value is samller than estimated:", round(min_fuzzification, 2), immediate. = TRUE)
+            require("Mfuzz")
+            mat_split_tmp <- mat_split
+            colnames(mat_split_tmp) <- make.unique(colnames(mat_split_tmp))
+            eset <- new("ExpressionSet", exprs = mat_split_tmp)
+            eset <- Mfuzz::standardise(eset)
+            min_fuzzification <- Mfuzz::mestimate(eset)
+            if (is.null(fuzzification)) {
+              fuzzification <- min_fuzzification + 0.1
+            } else {
+              if (fuzzification <= min_fuzzification) {
+                warning("fuzzification value is samller than estimated:", round(min_fuzzification, 2), immediate. = TRUE)
+              }
             }
+            cl <- Mfuzz::mfuzz(eset, c = n_split, m = fuzzification)
+            if (length(cl$cluster) == 0) {
+              stop("Clustering with mfuzz failed (fuzzification=", round(fuzzification, 2), "). Please set a larger fuzzification parameter manually.")
+            }
+            if (isTRUE(show_fuzzification)) {
+              message("fuzzification: ", fuzzification)
+            }
+            # mfuzz.plot(eset, cl,new.window = FALSE)
+            row_split <- feature_split <- cl$cluster
           }
-          cl <- Mfuzz::mfuzz(eset, c = n_split, m = fuzzification)
-          if (length(cl$cluster) == 0) {
-            stop("Clustering with mfuzz failed (fuzzification=", round(fuzzification, 2), "). Please set a larger fuzzification parameter manually.")
-          }
-          if (isTRUE(show_fuzzification)) {
-            message("fuzzification: ", fuzzification)
-          }
-          # mfuzz.plot(eset, cl,new.window = FALSE)
-          row_split <- feature_split <- cl$cluster
         }
         if (split_method == "kmeans") {
           km <- kmeans(mat_split, centers = n_split, iter.max = 1e4, nstart = 20)
@@ -5150,29 +5155,34 @@ ExpHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, spli
         row_split_raw <- row_split <- feature_split <- setNames(rep(1, nrow(mat_split)), rownames(mat_split))
       } else {
         if (split_method == "mfuzz") {
-          check_R("Mfuzz")
-          require("Mfuzz")
-          mat_split_tmp <- mat_split
-          colnames(mat_split_tmp) <- make.unique(colnames(mat_split_tmp))
-          eset <- new("ExpressionSet", exprs = mat_split_tmp)
-          eset <- Mfuzz::standardise(eset)
-          min_fuzzification <- Mfuzz::mestimate(eset)
-          if (is.null(fuzzification)) {
-            fuzzification <- min_fuzzification + 0.1
+          status <- tryCatch(check_R("Mfuzz"), error = identity)
+          if (inherits(status, "error")) {
+            warning("The Mfuzz package was not found. Switch split_method to 'kmeans'", immediate. = TRUE)
+            split_method <- "kmeans"
           } else {
-            if (fuzzification <= min_fuzzification) {
-              warning("fuzzification value is samller than estimated:", round(min_fuzzification, 2), immediate. = TRUE)
+            require("Mfuzz")
+            mat_split_tmp <- mat_split
+            colnames(mat_split_tmp) <- make.unique(colnames(mat_split_tmp))
+            eset <- new("ExpressionSet", exprs = mat_split_tmp)
+            eset <- Mfuzz::standardise(eset)
+            min_fuzzification <- Mfuzz::mestimate(eset)
+            if (is.null(fuzzification)) {
+              fuzzification <- min_fuzzification + 0.1
+            } else {
+              if (fuzzification <= min_fuzzification) {
+                warning("fuzzification value is samller than estimated:", round(min_fuzzification, 2), immediate. = TRUE)
+              }
             }
+            cl <- Mfuzz::mfuzz(eset, c = n_split, m = fuzzification)
+            if (length(cl$cluster) == 0) {
+              stop("Clustering with mfuzz failed (fuzzification=", round(fuzzification, 2), "). Please set a larger fuzzification parameter manually.")
+            }
+            if (isTRUE(show_fuzzification)) {
+              message("fuzzification: ", fuzzification)
+            }
+            # mfuzz.plot(eset, cl,new.window = FALSE)
+            row_split <- feature_split <- cl$cluster
           }
-          cl <- Mfuzz::mfuzz(eset, c = n_split, m = fuzzification)
-          if (length(cl$cluster) == 0) {
-            stop("Clustering with mfuzz failed (fuzzification=", round(fuzzification, 2), "). Please set a larger fuzzification parameter manually.")
-          }
-          if (isTRUE(show_fuzzification)) {
-            message("fuzzification: ", fuzzification)
-          }
-          # mfuzz.plot(eset, cl,new.window = FALSE)
-          row_split <- feature_split <- cl$cluster
         }
         if (split_method == "kmeans") {
           km <- kmeans(mat_split, centers = n_split, iter.max = 1e4, nstart = 20)
@@ -9773,7 +9783,7 @@ DynamicPlot <- function(srt, features, lineages, group.by = NULL, cells = NULL, 
 #'   srt = pancreas_sub,
 #'   lineages = c("Lineage1", "Lineage2"),
 #'   use_fitted = TRUE,
-#'   n_split = 5, split_method = "mfuzz",
+#'   n_split = 6, split_method = "mfuzz",
 #'   reverse_ht = "Lineage1",
 #'   heatmap_palette = "viridis",
 #'   cell_annotation = c("SubCellType", "Phase", "G2M_score"),
@@ -9791,7 +9801,7 @@ DynamicPlot <- function(srt, features, lineages, group.by = NULL, cells = NULL, 
 #'   srt = pancreas_sub,
 #'   lineages = c("Lineage1", "Lineage2"),
 #'   use_fitted = TRUE,
-#'   n_split = 5, split_method = "mfuzz",
+#'   n_split = 6, split_method = "mfuzz",
 #'   reverse_ht = "Lineage1",
 #'   heatmap_palette = "viridis",
 #'   cell_annotation = c("SubCellType", "Phase", "G2M_score"),
@@ -10332,27 +10342,32 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineag
         row_split_raw <- row_split <- feature_split <- setNames(rep(1, nrow(mat_split)), rownames(mat_split))
       } else {
         if (split_method == "mfuzz") {
-          check_R("Mfuzz")
-          require("Mfuzz")
-          eset <- new("ExpressionSet", exprs = mat_split)
-          eset <- Mfuzz::standardise(eset)
-          min_fuzzification <- Mfuzz::mestimate(eset)
-          if (is.null(fuzzification)) {
-            fuzzification <- min_fuzzification + 0.1
+          status <- tryCatch(check_R("Mfuzz"), error = identity)
+          if (inherits(status, "error")) {
+            warning("The Mfuzz package was not found. Switch split_method to 'kmeans'", immediate. = TRUE)
+            split_method <- "kmeans"
           } else {
-            if (fuzzification <= min_fuzzification) {
-              warning("fuzzification value is samller than estimated:", round(min_fuzzification, 2), immediate. = TRUE)
+            require("Mfuzz")
+            eset <- new("ExpressionSet", exprs = mat_split)
+            eset <- Mfuzz::standardise(eset)
+            min_fuzzification <- Mfuzz::mestimate(eset)
+            if (is.null(fuzzification)) {
+              fuzzification <- min_fuzzification + 0.1
+            } else {
+              if (fuzzification <= min_fuzzification) {
+                warning("fuzzification value is samller than estimated:", round(min_fuzzification, 2), immediate. = TRUE)
+              }
             }
+            cl <- Mfuzz::mfuzz(eset, c = n_split, m = fuzzification)
+            if (length(cl$cluster) == 0) {
+              stop("Clustering with mfuzz failed (fuzzification=", round(fuzzification, 2), "). Please set a larger fuzzification parameter manually.")
+            }
+            if (isTRUE(show_fuzzification)) {
+              message("fuzzification: ", fuzzification)
+            }
+            # mfuzz.plot(eset, cl,new.window = FALSE)
+            row_split <- feature_split <- cl$cluster
           }
-          cl <- Mfuzz::mfuzz(eset, c = n_split, m = fuzzification)
-          if (length(cl$cluster) == 0) {
-            stop("Clustering with mfuzz failed (fuzzification=", round(fuzzification, 2), "). Please set a larger fuzzification parameter manually.")
-          }
-          if (isTRUE(show_fuzzification)) {
-            message("fuzzification: ", fuzzification)
-          }
-          # mfuzz.plot(eset, cl,new.window = FALSE)
-          row_split <- feature_split <- cl$cluster
         }
         if (split_method == "kmeans") {
           km <- kmeans(mat_split, centers = n_split, iter.max = 1e4, nstart = 20)

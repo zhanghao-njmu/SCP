@@ -1719,7 +1719,7 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
         if (any(db == "ProteinComplex") && (!"ProteinComplex" %in% names(db_list[[sps]]))) {
           message("Preparing database: ProteinComplex")
           check_R("taxize")
-          temp <- tempfile()
+          temp <- tempfile(fileext = ".txt.zip")
           download(url = "https://mips.helmholtz-muenchen.de/corum/download/coreComplexes.txt.zip", destfile = temp)
           df_all <- read.table(unz(temp, "coreComplexes.txt"), header = TRUE, sep = "\t", stringsAsFactors = FALSE, fill = TRUE, quote = "")
           complex_sp <- gsub(pattern = "_", replacement = " ", x = sps)
@@ -1863,10 +1863,11 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
         ## DO ---------------------------------------------------------------------------
         if (any(db == "DO") && (!"DO" %in% names(db_list[[sps]]))) {
           message("Preparing database: DO")
-          temp <- tempfile()
+          temp <- tempfile(fileext = ".tsv.gz")
           download(url = "https://fms.alliancegenome.org/download/DISEASE-ALLIANCE_COMBINED.tsv.gz", destfile = temp)
-          do_all <- read.table(temp, header = TRUE, sep = "\t", fill = TRUE, quote = "")
-          version <- gsub(pattern = ".*Alliance Database Version: ", replacement = "", x = grep("Alliance Database Version", readLines(temp, warn = FALSE), perl = TRUE, value = TRUE))
+          R.utils::gunzip(temp)
+          do_all <- read.table(gsub(".gz", "", temp), header = TRUE, sep = "\t", fill = TRUE, quote = "")
+          version <- gsub(pattern = ".*Alliance Database Version: ", replacement = "", x = grep("Alliance Database Version", readLines(gsub(".gz", "", temp), warn = FALSE), perl = TRUE, value = TRUE))
           unlink(temp)
           do_sp <- gsub(pattern = "_", replacement = " ", x = sps)
           do_df <- do_all[do_all[["DBobjectType"]] == "gene" & do_all[["SpeciesName"]] == do_sp, ]
@@ -2056,7 +2057,7 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
           }
           check_R("openxlsx")
           message("Preparing database: SP")
-          temp <- paste0(tempfile(), ".xlsx")
+          temp <- tempfile(fileext = ".xlsx")
           url <- "https://wlab.ethz.ch/cspa/data/S1_File.xlsx"
           download(url = url, destfile = temp, mode = ifelse(.Platform$OS.type == "windows", "wb", "w"))
           surfacepro <- openxlsx::read.xlsx(temp, sheet = 1)
