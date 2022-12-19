@@ -78,8 +78,8 @@ miniconda.
 SCP::PrepareEnv()
 ```
 
-Or run `PrepareVirtualEnv(conda_binary = "/path/to/conda")` to use a
-particular conda binary.
+Or run `PrepareEnv(conda_binary = "/path/to/conda")` to use a particular
+conda binary.
 
 ``` r
 SCP::PrepareEnv(conda_binary = "/path/to/conda")
@@ -493,6 +493,21 @@ ExpStatPlot(
 ```
 
 <img src="README/README-ExpStatPlot-1.png" width="100%" style="display: block; margin: auto;" />
+
+### Interactive data visualization with SCExplorer
+
+``` r
+PrepareSCExplorer(list(mouse_pancreas = pancreas_sub, human_pancreas = panc8_sub), base_dir = "./SCExplorer")
+app <- RunSCExplorer(base_dir = "./SCExplorer")
+list.files("./SCExplorer") # This directory can be used as site directory for Shiny Server.
+
+if (interactive()) {
+  shiny::runApp(app)
+}
+```
+
+![SCExplorer](README/README-SCExplorer-1.png)
+![SCExplorer](README/README-SCExplorer-2.png)
 
 More examples of SCP can be found in the documentation of the functions,
 such as

@@ -7,7 +7,7 @@
 check_Python(packages, envname = "SCP", force = FALSE, pip = TRUE, ...)
 }
 \arguments{
-\item{envname}{The name of, or path to, a Python virtual environment.}
+\item{envname}{The name of, or path to, a Python environment.}
 
 \item{force}{Whether to force package installation. Default is FALSE.}
 

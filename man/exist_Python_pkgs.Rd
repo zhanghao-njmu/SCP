@@ -7,7 +7,7 @@
 exist_Python_pkgs(packages, envname = "SCP")
 }
 \arguments{
-\item{envname}{The name of, or path to, a Python virtual environment.}
+\item{envname}{The name of, or path to, a Python environment.}
 }
 \description{
 Check if the python package exists in the environment

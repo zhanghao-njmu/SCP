@@ -3378,6 +3378,7 @@ cluster_within_group2 <- function(mat, factor) {
 #' @importFrom cowplot plot_grid
 #' @importFrom methods getFunction
 #' @importFrom dplyr %>% filter group_by arrange desc across mutate summarise distinct n .data "%>%"
+#' @importFrom Matrix t
 #' @export
 GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL, cells = NULL, aggregate_fun = mean, exp_cutoff = 0, border = TRUE, flip = FALSE,
                          slot = "counts", assay = "RNA", exp_method = c("zscore", "raw", "fc", "log2fc", "log1p"), lib_normalize = TRUE, libsize = NULL,
@@ -3806,7 +3807,8 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
             assay = assay, slot = "data", flip = flip,
             features = cellan, cells = names(cell_groups[[cell_group]]),
             group.by = cell_group, split.by = split.by,
-            palette = group_palette[cell_group], palcolor = group_palcolor[cell_group],
+            palette = if (is.null(split.by)) group_palette[cell_group] else cell_split_palette,
+            palcolor = if (is.null(split.by)) group_palcolor[cell_group] else cell_split_palcolor,
             fill.by = "group", same.y.lims = TRUE,
             stat_single = TRUE, combine = FALSE
           )
@@ -6483,7 +6485,7 @@ CellCorHeatmap <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
   }
   d <- d[rows[rows %in% rownames(d)], columns[columns %in% colnames(d)]]
   ht <- Heatmap(d,
-    name = "Cosine similarity", cluster_columns = cluster_columns, cluster_rows = cluster_rows,
+    name = paste(distance_metric, "similarity"), cluster_columns = cluster_columns, cluster_rows = cluster_rows,
     col = colorRamp2(seq(min(d), max(d), length.out = 3), c("#27408B", "white", "#EE0000")),
     cell_fun = function(j, i, x, y, w, h, fill) {
       grid.rect(x, y,
