@@ -3678,28 +3678,24 @@ Standard_SCP <- function(srt, prefix = "Standard", assay = "RNA",
 #'
 #' @examples
 #' data("panc8_sub")
-#' panc8_sub <- Integration_SCP(panc8_sub,
-#'   batch = "tech", integration_method = "Uncorrected"
+#' panc8_sub <- Integration_SCP(
+#'   srtMerge = panc8_sub, batch = "tech", integration_method = "Uncorrected"
 #' )
 #' ClassDimPlot(panc8_sub, group.by = c("tech", "celltype"))
 #'
 #' panc8_sub <- Integration_SCP(
-#'   srtMerge = panc8_sub,
-#'   batch = "tech",
-#'   integration_method = "Seurat",
-#'   normalization_method = "SCT",
-#'   nonlinear_reduction = "umap"
+#'   srtMerge = panc8_sub, batch = "tech", integration_method = "Seurat"
 #' )
 #' ClassDimPlot(panc8_sub, group.by = c("tech", "celltype"))
 #'
-#' panc8_sub <- Integration_SCP(panc8_sub,
-#'   batch = "tech", integration_method = "Seurat",
+#' panc8_sub <- Integration_SCP(
+#'   srtMerge = panc8_sub, batch = "tech", integration_method = "Seurat",
 #'   HVF_intersect = TRUE
 #' )
 #' ClassDimPlot(panc8_sub, group.by = c("tech", "celltype"))
 #'
-#' panc8_sub <- Integration_SCP(panc8_sub,
-#'   batch = "tech", integration_method = "Seurat",
+#' panc8_sub <- Integration_SCP(
+#'   srtMerge = panc8_sub, batch = "tech", integration_method = "Seurat",
 #'   HVF_intersect = TRUE, HVF_min_intersection = length(unique(panc8_sub$tech))
 #' )
 #' ClassDimPlot(panc8_sub, group.by = c("tech", "celltype"))
@@ -3710,23 +3706,23 @@ Standard_SCP <- function(srt, prefix = "Standard", assay = "RNA",
 #'   minGSSize = 10, maxGSSize = 100,
 #'   method = "Seurat", name = "GO", new_assay = TRUE
 #' )
-#' panc8_sub <- Integration_SCP(panc8_sub,
-#'   assay = "GO",
+#' panc8_sub <- Integration_SCP(
+#'   srtMerge = panc8_sub, assay = "GO",
 #'   batch = "tech", integration_method = "Seurat"
 #' )
 #' ClassDimPlot(panc8_sub, group.by = c("tech", "celltype"))
 #'
 #' \dontrun{
 #' for (method in c("Uncorrected", "Seurat", "scVI", "MNN", "fastMNN", "Harmony", "Scanorama", "BBKNN", "CSS", "LIGER", "Conos")) {
-#'   panc8_sub <- Integration_SCP(panc8_sub,
-#'     batch = "tech", integration_method = method,
-#'     nonlinear_reduction = "umap"
+#'   panc8_sub <- Integration_SCP(
+#'     srtMerge = panc8_sub, batch = "tech",
+#'     integration_method = method, nonlinear_reduction = "umap"
 #'   )
 #'   print(ClassDimPlot(panc8_sub, group.by = c("tech", "celltype"), reduction = paste0(method, "UMAP2D"), theme_use = "theme_blank"))
 #' }
 #'
-#' panc8_sub <- Integration_SCP(panc8_sub,
-#'   batch = "tech", integration_method = "Seurat",
+#' panc8_sub <- Integration_SCP(
+#'   srtMerge = panc8_sub, batch = "tech", integration_method = "Seurat",
 #'   nonlinear_reduction = c("umap", "tsne", "dm", "phate", "pacmap", "trimap", "largevis")
 #' )
 #' for (reduc in c("umap", "tsne", "dm", "phate", "pacmap", "trimap", "largevis")) {
