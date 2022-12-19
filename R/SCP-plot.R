@@ -1352,9 +1352,9 @@ ClassDimPlot <- function(srt, group.by = "orig.ident", reduction = NULL, dims = 
 
   dat_meta <- srt@meta.data[, unique(c(group.by, split.by)), drop = FALSE]
   nlev <- sapply(dat_meta, nlevels)
-  nlev <- nlev[nlev > 50]
+  nlev <- nlev[nlev > 100]
   if (length(nlev) > 0 && !isTRUE(force)) {
-    warning(paste(names(nlev), sep = ","), " have more than 50 levels.", immediate. = TRUE)
+    warning(paste(names(nlev), sep = ","), " have more than 100 levels.", immediate. = TRUE)
     answer <- askYesNo("Are you sure to continue?", default = FALSE)
     if (!isTRUE(answer)) {
       return(invisible(NULL))
@@ -2731,9 +2731,9 @@ ClassDimPlot3D <- function(srt, group.by = "orig.ident", reduction = NULL, dims 
   rownames(dat_dim) <- rownames(dat_dim) %||% colnames(srt)
   dat_use <- cbind(dat_dim[colnames(srt), ], srt@meta.data[colnames(srt), , drop = FALSE])
   nlev <- sapply(dat_use[, group.by, drop = FALSE], nlevels)
-  nlev <- nlev[nlev > 50]
+  nlev <- nlev[nlev > 100]
   if (length(nlev) > 0 && !isTRUE(force)) {
-    warning(paste(names(nlev), sep = ","), " have more than 50 levels.", immediate. = TRUE)
+    warning(paste(names(nlev), sep = ","), " have more than 100 levels.", immediate. = TRUE)
     answer <- askYesNo("Are you sure to continue?", default = FALSE)
     if (!isTRUE(answer)) {
       return(invisible(NULL))
@@ -6762,9 +6762,9 @@ ExpStatPlot <- function(srt, features = NULL, group.by = NULL, split.by = NULL, 
   }
 
   nlev <- sapply(dat_use, nlevels)
-  nlev <- nlev[nlev > 50]
+  nlev <- nlev[nlev > 100]
   if (length(nlev) > 0 && !isTRUE(force)) {
-    warning(paste(names(nlev), sep = ","), " have more than 50 levels.", immediate. = TRUE)
+    warning(paste(names(nlev), sep = ","), " have more than 100 levels.", immediate. = TRUE)
     answer <- askYesNo("Are you sure to continue?", default = FALSE)
     if (!isTRUE(answer)) {
       return(invisible(NULL))
@@ -7168,8 +7168,8 @@ ExpStatPlot <- function(srt, features = NULL, group.by = NULL, split.by = NULL, 
 #' ClassStatPlot(pancreas_sub, stat.by = "Phase", group.by = "CellType", stat_type = "count", plot_type = "ring", position = "dodge", label = TRUE)
 #' ClassStatPlot(pancreas_sub, stat.by = "Phase", group.by = "CellType", stat_type = "count", plot_type = "area", position = "dodge", label = TRUE, alpha = 0.8)
 #'
+#' # ClassStatPlot(pancreas_sub, stat.by = c("CellType", "Phase"), plot_type = "sankey")
 #' ClassStatPlot(pancreas_sub, stat.by = c("CellType", "Phase"), plot_type = "chord")
-#' ClassStatPlot(pancreas_sub, stat.by = c("CellType", "Phase"), plot_type = "sankey")
 #'
 #' ClassStatPlot(pancreas_sub,
 #'   stat.by = c("CellType", "Phase"), plot_type = "venn",
@@ -7289,9 +7289,9 @@ ClassStatPlot <- function(srt, stat.by = "orig.ident", group.by = NULL, split.by
     dat_all <- dat_all[intersect(rownames(dat_all), cells), , drop = FALSE]
   }
   nlev <- sapply(dat_all, nlevels)
-  nlev <- nlev[nlev > 50]
+  nlev <- nlev[nlev > 100]
   if (length(nlev) > 0 && !isTRUE(force)) {
-    warning(paste(names(nlev), sep = ","), " have more than 50 levels.", immediate. = TRUE)
+    warning(paste(names(nlev), sep = ","), " have more than 100 levels.", immediate. = TRUE)
     answer <- askYesNo("Are you sure to continue?", default = FALSE)
     if (!isTRUE(answer)) {
       return(invisible(NULL))

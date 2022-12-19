@@ -10,7 +10,7 @@ CreateDataFile(
   name = NULL,
   assays = "RNA",
   slots = "data",
-  compression_level = 0,
+  compression_level = 6,
   overwrite = FALSE
 )
 }

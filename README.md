@@ -70,7 +70,8 @@ To run functions such as `RunSCVELO` or `RunPAGA`, SCP requires
 [conda](https://docs.conda.io/en/latest/miniconda.html) to create a
 separate python environment.
 
-You can use `PrepareEnv()` to automatically download and install a
+You can use `PrepareEnv()` to create the SCP python environment. If
+conda binary not found, it will automatically download and install a
 miniconda.
 
 ``` r
@@ -84,8 +85,8 @@ particular conda binary.
 SCP::PrepareEnv(conda_binary = "/path/to/conda")
 ```
 
-If the installation of miniconda or packages is slow, you can specify
-the miniconda repo and PyPI mirror according to your network region.
+If the download of miniconda or packages is slow, you can specify the
+miniconda repo and PyPI mirror according to your network region.
 
 ``` r
 PrepareEnv(
@@ -491,7 +492,7 @@ ExpStatPlot(
 )
 ```
 
-<img src="README/README-ExpVlnPlot-1.png" width="100%" style="display: block; margin: auto;" />
+<img src="README/README-ExpStatPlot-1.png" width="100%" style="display: block; margin: auto;" />
 
 More examples of SCP can be found in the documentation of the functions,
 such as

@@ -77,8 +77,8 @@ ClassStatPlot(pancreas_sub, stat.by = "Phase", group.by = "CellType", stat_type 
 ClassStatPlot(pancreas_sub, stat.by = "Phase", group.by = "CellType", stat_type = "count", plot_type = "ring", position = "dodge", label = TRUE)
 ClassStatPlot(pancreas_sub, stat.by = "Phase", group.by = "CellType", stat_type = "count", plot_type = "area", position = "dodge", label = TRUE, alpha = 0.8)
 
+# ClassStatPlot(pancreas_sub, stat.by = c("CellType", "Phase"), plot_type = "sankey")
 ClassStatPlot(pancreas_sub, stat.by = c("CellType", "Phase"), plot_type = "chord")
-ClassStatPlot(pancreas_sub, stat.by = c("CellType", "Phase"), plot_type = "sankey")
 
 ClassStatPlot(pancreas_sub,
   stat.by = c("CellType", "Phase"), plot_type = "venn",

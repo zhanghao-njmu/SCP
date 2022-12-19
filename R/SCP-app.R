@@ -12,7 +12,7 @@
 #' @importFrom Seurat GetAssayData
 #' @importFrom SeuratObject as.sparse
 #' @export
-CreateDataFile <- function(srt, DataFile, name = NULL, assays = "RNA", slots = "data", compression_level = 0, overwrite = FALSE) {
+CreateDataFile <- function(srt, DataFile, name = NULL, assays = "RNA", slots = "data", compression_level = 6, overwrite = FALSE) {
   check_R("HDF5Array")
   if (missing(DataFile) || is.null(DataFile)) {
     DataFile <- "Data.hdf5"
@@ -93,7 +93,7 @@ CreateDataFile <- function(srt, DataFile, name = NULL, assays = "RNA", slots = "
 #' @importFrom Seurat Key Reductions Embeddings
 #' @importFrom Matrix sparseMatrix
 #' @export
-CreateMetaFile <- function(srt, MetaFile, name = NULL, write_tools = FALSE, write_misc = FALSE, ignore_nlevel = 50, compression_level = 0, overwrite = FALSE) {
+CreateMetaFile <- function(srt, MetaFile, name = NULL, write_tools = FALSE, write_misc = FALSE, ignore_nlevel = 100, compression_level = 6, overwrite = FALSE) {
   if (missing(MetaFile) || is.null(MetaFile)) {
     MetaFile <- "Meta.hdf5"
   }
@@ -237,12 +237,12 @@ CreateMetaFile <- function(srt, MetaFile, name = NULL, write_tools = FALSE, writ
 #' pancreas_sub <- Standard_SCP(pancreas_sub)
 #' PrepareSCExplorer(pancreas_sub, base_dir = "./SCExplorer")
 #' }
-#' @importFrom Seurat Reductions Assays
+#' @importFrom Seurat Reductions Assays DefaultAssay
 #' @export
 PrepareSCExplorer <- function(object,
                               base_dir = "SCExplorer", DataFile = "Data.hdf5", MetaFile = "Meta.hdf5",
                               assays = "RNA", slots = c("counts", "data"),
-                              ignore_nlevel = 50, write_tools = FALSE, write_misc = FALSE,
+                              ignore_nlevel = 100, write_tools = FALSE, write_misc = FALSE,
                               compression_level = 6, overwrite = FALSE) {
   base_dir <- R.utils::getAbsolutePath(base_dir)
   if (!dir.exists(base_dir)) {
@@ -274,7 +274,12 @@ PrepareSCExplorer <- function(object,
       stop("No reduction found in the Seurat object ", i)
     }
     if (!any(assays %in% Assays(srt))) {
-      stop("Assay:", assays[!assays %in% Assays(srt)], " is not in the Seurat object ", i)
+      warning("Assay:", assays[!assays %in% Assays(srt)], " is not in the Seurat object ", i, immediate. = TRUE)
+      assays <- assays[assays %in% Assays(srt)]
+      if (length(assays) == 0) {
+        warning("No assays found in the Seurat object ", i, ". Use the default assay to create data file.")
+        assays <- DefaultAssay(srt)
+      }
     }
     if (!"orig.ident" %in% colnames(srt[[]])) {
       srt[["orig.ident"]] <- "SeuratObject"
@@ -380,9 +385,9 @@ FetchH5 <- function(DataFile, MetaFile, name = NULL,
   }
 
   if (length(gene_features) > 0) {
-    srt_tmp <- CreateSeuratObject(counts = as(t(data[, gene_features, drop = FALSE]), "matrix")) # sparseMatrix
+    srt_tmp <- CreateSeuratObject(assay = assay, counts = as(t(data[, gene_features, drop = FALSE]), "matrix")) # sparseMatrix
   } else {
-    srt_tmp <- CreateSeuratObject(counts = matrix(data = 0, ncol = length(all_cells), dimnames = list("empty", all_cells)))
+    srt_tmp <- CreateSeuratObject(assay = assay, counts = matrix(data = 0, ncol = length(all_cells), dimnames = list("empty", all_cells)))
   }
 
   if (length(c(metanames, meta_features)) > 0) {
@@ -418,7 +423,7 @@ FetchH5 <- function(DataFile, MetaFile, name = NULL,
       srt_tmp@reductions[[i]] <- CreateDimReducObject(
         embeddings = reduction,
         key = as.character(reduction_attr$key),
-        assay = assay %||% "RNA"
+        assay = assay
       )
     }
   }
@@ -457,7 +462,10 @@ FetchH5 <- function(DataFile, MetaFile, name = NULL,
 #' \dontrun{
 #' data("pancreas_sub")
 #' pancreas_sub <- Standard_SCP(pancreas_sub)
-#' PrepareSCExplorer(pancreas_sub, base_dir = "./SCExplorer")
+#' data("panc8_sub")
+#' panc8_sub <- Integration_SCP(srtMerge = panc8_sub, batch = "tech", integration_method = "Seurat")
+#'
+#' PrepareSCExplorer(list(mouse_pancreas = pancreas_sub, human_pancreas = panc8_sub), base_dir = "./SCExplorer")
 #'
 #' # Create the app.R script
 #' app <- RunSCExplorer(base_dir = "./SCExplorer", return_app = TRUE)
@@ -589,7 +597,7 @@ RunSCExplorer <- function(base_dir = "SCExplorer",
     ncol = initial_ncol, byrow = ifelse(initial_arrange == "Row", TRUE, FALSE)
   )
   initial_p2_dim <- SCP::panel_fix(initial_p2_dim, height = initial_size, raster = FALSE, verbose = FALSE)
-  initial_p2_vln <- SCP::ExpVlnPlot(
+  initial_p2_vln <- SCP::ExpStatPlot(
     srt = initial_srt_tmp, features = initial_feature, group.by = initial_metaname,
     calculate_coexp = ifelse(initial_coExp == "Yes", TRUE, FALSE), palette = initial_palette2,
     ncol = initial_ncol, byrow = ifelse(initial_arrange == "Row", TRUE, FALSE), force = TRUE
@@ -1067,7 +1075,7 @@ RunSCExplorer <- function(base_dir = "SCExplorer",
         res = input$plot_dpi2
       )
 
-      p2_vln <- SCP::ExpVlnPlot(
+      p2_vln <- SCP::ExpStatPlot(
         srt = srt_tmp, features = input_features, group.by = input$group2, split.by = split2,
         calculate_coexp = ifelse(input$coExp2 == "Yes", TRUE, FALSE), palette = input$palette2,
         ncol = input$ncol2, byrow = ifelse(input$arrange2 == "Row", TRUE, FALSE), force = TRUE
