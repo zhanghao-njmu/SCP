@@ -10,8 +10,8 @@ CreateMetaFile(
   name = NULL,
   write_tools = FALSE,
   write_misc = FALSE,
-  ignore_nlevel = 50,
-  compression_level = 0,
+  ignore_nlevel = 100,
+  compression_level = 6,
   overwrite = FALSE
 )
 }

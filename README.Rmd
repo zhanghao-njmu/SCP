@@ -61,7 +61,7 @@ devtools::install_github("zhanghao-njmu/SCP")
 
 To run functions such as `RunSCVELO` or `RunPAGA`, SCP requires [conda](https://docs.conda.io/en/latest/miniconda.html) to create a separate python environment.
 
-You can use `PrepareEnv()` to automatically download and install a miniconda.
+You can use `PrepareEnv()` to create the SCP python environment. If conda binary not found, it will automatically download and install a miniconda.
 
 ```{r eval=FALSE}
 SCP::PrepareEnv()
@@ -73,7 +73,7 @@ Or run `PrepareVirtualEnv(conda_binary = "/path/to/conda")` to use a particular 
 SCP::PrepareEnv(conda_binary = "/path/to/conda")
 ```
 
-If the installation of miniconda or packages is slow, you can specify the miniconda repo and PyPI mirror according to your network region.
+If the download of miniconda or packages is slow, you can specify the miniconda repo and PyPI mirror according to your network region.
 
 ```{r eval=FALSE}
 PrepareEnv(
@@ -362,7 +362,7 @@ DynamicPlot(
 )
 ```
 
-```{r ExpVlnPlot, fig.height=6, fig.width=13}
+```{r ExpStatPlot, fig.height=6, fig.width=13}
 ExpStatPlot(
   srt = pancreas_sub, group.by = "SubCellType", bg.by = "CellType",
   features = c("Sox9", "Neurod2", "Isl1", "Rbp4"),

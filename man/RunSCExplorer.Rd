@@ -42,7 +42,10 @@ RunSCExplorer
 \dontrun{
 data("pancreas_sub")
 pancreas_sub <- Standard_SCP(pancreas_sub)
-PrepareSCExplorer(pancreas_sub, base_dir = "./SCExplorer")
+data("panc8_sub")
+panc8_sub <- Integration_SCP(srtMerge = panc8_sub, batch = "tech", integration_method = "Seurat")
+
+PrepareSCExplorer(list(mouse_pancreas = pancreas_sub, human_pancreas = panc8_sub), base_dir = "./SCExplorer")
 
 # Create the app.R script
 app <- RunSCExplorer(base_dir = "./SCExplorer", return_app = TRUE)

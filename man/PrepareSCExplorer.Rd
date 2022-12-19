@@ -11,7 +11,7 @@ PrepareSCExplorer(
   MetaFile = "Meta.hdf5",
   assays = "RNA",
   slots = c("counts", "data"),
-  ignore_nlevel = 50,
+  ignore_nlevel = 100,
   write_tools = FALSE,
   write_misc = FALSE,
   compression_level = 6,
