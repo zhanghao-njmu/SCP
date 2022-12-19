@@ -469,7 +469,7 @@ FetchH5 <- function(DataFile, MetaFile, name = NULL,
 #'
 #' # Create the app.R script
 #' app <- RunSCExplorer(base_dir = "./SCExplorer", return_app = TRUE)
-#' list.files("./SCExplorer")
+#' list.files("./SCExplorer") # This directory can be used as site directory for Shiny Server.
 #'
 #' # Run shiny app
 #' if (interactive()) {
@@ -477,8 +477,8 @@ FetchH5 <- function(DataFile, MetaFile, name = NULL,
 #' }
 #'
 #' ####################################################################################################################
-#' # You can also deploy the app on the self-hosted shiny server(https://www.rstudio.com/products/shiny/shiny-server/)
-#' # or deploy the app on the website(https://www.shinyapps.io) for free:
+#' # You can deploy the app on the self-hosted shiny server(https://www.rstudio.com/products/shiny/shiny-server/).
+#' # Or deploy the app on the website(https://www.shinyapps.io) for free:
 #'
 #' ### step1: set the repository URL for Bioconductor packages and update them to the latest version
 #' # options(repos = BiocManager::repositories())
