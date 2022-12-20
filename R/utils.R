@@ -14,7 +14,7 @@ PrepareEnv <- function(conda_binary = NULL, python_version = "3.8",
     stop("SCP currently only support python version 3.7-3.9!")
   }
   conda <- find_conda()
-  
+
   if (!is.null(conda)) {
     env_exist <- file.exists(paste0(reticulate:::conda_info(conda = conda)$conda_prefix, "/envs/SCP"))
   } else {
@@ -55,6 +55,11 @@ PrepareEnv <- function(conda_binary = NULL, python_version = "3.8",
       }
       url <- file.path(base, name)
       options(reticulate.miniconda.url = url)
+      if (!is.na(Sys.getenv("USER", unset = NA))) {
+        miniconda_path <- gsub(pattern = "\\$USER", replacement = Sys.getenv("USER"), reticulate::miniconda_path())
+      } else {
+        miniconda_path <- reticulate::miniconda_path()
+      }
       reticulate::install_miniconda(path = miniconda_path, force = TRUE, update = FALSE)
       conda <- reticulate:::miniconda_conda(miniconda_path)
     }
@@ -249,20 +254,20 @@ check_Python <- function(packages, envname = "SCP", conda = "auto", force = FALS
 }
 
 find_conda <- function() {
-  if (!is.na(Sys.getenv("USER", unset = NA))) {
-    miniconda_path <- gsub(pattern = "\\$USER", replacement = Sys.getenv("USER"), reticulate::miniconda_path())
-  }
   conda <- tryCatch(reticulate::conda_binary(conda = "auto"), error = identity)
   conda_exist <- !inherits(conda, "error")
   if (isFALSE(conda_exist)) {
+    if (!is.na(Sys.getenv("USER", unset = NA))) {
+      miniconda_path <- gsub(pattern = "\\$USER", replacement = Sys.getenv("USER"), reticulate::miniconda_path())
+    } else {
+      miniconda_path <- reticulate::miniconda_path()
+    }
     conda_exist <- reticulate:::miniconda_exists(miniconda_path) && reticulate:::miniconda_test(miniconda_path)
     if (isTRUE(conda_exist)) {
       conda <- reticulate:::miniconda_conda(miniconda_path)
     } else {
       conda <- NULL
     }
-  } else {
-    conda <- NULL
   }
   return(conda)
 }
