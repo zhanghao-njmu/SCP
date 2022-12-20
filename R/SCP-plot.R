@@ -4495,8 +4495,8 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
       column_split = if (flip) row_split else column_split_list[[cell_group]],
       cluster_rows = if (flip) cluster_columns_list[[cell_group]] else cluster_rows,
       cluster_columns = if (flip) cluster_rows else cluster_columns_list[[cell_group]],
-      cluster_row_slices = cluster_column_slices,
-      cluster_column_slices = cluster_row_slices,
+      cluster_row_slices = if (flip) cluster_column_slices else cluster_row_slices,
+      cluster_column_slices = if (flip) cluster_row_slices else cluster_column_slices,
       show_row_names = show_row_names,
       show_column_names = show_column_names,
       row_names_side = row_names_side,
@@ -5642,8 +5642,8 @@ ExpHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, spli
       column_split = if (flip) row_split else column_split_list[[cell_group]],
       cluster_rows = if (flip) cluster_columns_list[[cell_group]] else cluster_rows,
       cluster_columns = if (flip) cluster_rows else cluster_columns_list[[cell_group]],
-      cluster_row_slices = cluster_column_slices,
-      cluster_column_slices = cluster_row_slices,
+      cluster_row_slices = if (flip) cluster_column_slices else cluster_row_slices,
+      cluster_column_slices = if (flip) cluster_row_slices else cluster_column_slices,
       show_row_names = show_row_names,
       show_column_names = show_column_names,
       row_names_side = row_names_side,
@@ -6455,8 +6455,8 @@ CellCorHeatmap <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
                            cluster_columns = TRUE, cluster_rows = TRUE,
                            nlabel = 3, label_cutoff = 0, label_by = "row", label_size = 10,
                            gird_size = unit(8, "mm"), ...) {
-  if (is.null(srt@tools$knnpredict$distance_matrix)) {
-    srt <- RunKNNPredict(
+  if (is.null(srt_query@tools$knnpredict$distance_matrix)) {
+    srt_query <- RunKNNPredict(
       srt_query = srt_query, srt_ref = srt_ref, bulk_ref = bulk_ref,
       query_group = query_group, ref_group = ref_group,
       query_assay = query_assay, ref_assay = ref_assay,
@@ -6470,7 +6470,7 @@ CellCorHeatmap <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
       nn_method = "raw", return_full_distance_matrix = TRUE
     )
   }
-  d <- t(as.matrix(1 - srt@tools$knnpredict$distance_matrix))
+  d <- t(as.matrix(1 - srt_query@tools$knnpredict$distance_matrix))
   if (is.null(rows)) {
     rows <- rownames(d)
   }
@@ -6486,7 +6486,7 @@ CellCorHeatmap <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
   d <- d[rows[rows %in% rownames(d)], columns[columns %in% colnames(d)]]
   ht <- Heatmap(d,
     name = paste(distance_metric, "similarity"), cluster_columns = cluster_columns, cluster_rows = cluster_rows,
-    col = colorRamp2(seq(min(d), max(d), length.out = 3), c("#27408B", "white", "#EE0000")),
+    col = colorRamp2(seq(min(d[is.finite(d)]), max(d[is.finite(d)]), length.out = 3), c("#27408B", "white", "#EE0000")),
     cell_fun = function(j, i, x, y, w, h, fill) {
       grid.rect(x, y,
         width = w, height = h,
@@ -10852,8 +10852,8 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineag
       column_split = if (flip) row_split else column_split,
       cluster_rows = if (flip) cluster_columns else cluster_rows,
       cluster_columns = if (flip) cluster_rows else cluster_columns,
-      cluster_row_slices = cluster_column_slices,
-      cluster_column_slices = cluster_row_slices,
+      cluster_row_slices = if (flip) cluster_column_slices else cluster_row_slices,
+      cluster_column_slices = if (flip) cluster_row_slices else cluster_column_slices,
       show_row_names = show_row_names,
       show_column_names = show_column_names,
       row_names_side = row_names_side,

@@ -4,7 +4,14 @@
 \alias{check_Python}
 \title{Check and install python packages}
 \usage{
-check_Python(packages, envname = "SCP", force = FALSE, pip = TRUE, ...)
+check_Python(
+  packages,
+  envname = "SCP",
+  conda = "auto",
+  force = FALSE,
+  pip = TRUE,
+  ...
+)
 }
 \arguments{
 \item{envname}{The name of, or path to, a Python environment.}
