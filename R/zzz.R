@@ -10,7 +10,7 @@
   }
   if (env_exist && (is.null(getOption("SCP_env_init")) || getOption("SCP_env_init") != FALSE)) {
     try({
-      python_path <- reticulate::conda_python("SCP")
+      python_path <- conda_python(conda = conda, envname = "SCP")
       reticulate::use_python(python_path, required = TRUE)
       pyinfo <- utils::capture.output(reticulate::py_config())
       pyinfo_mesg <- c(
