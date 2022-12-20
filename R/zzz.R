@@ -6,6 +6,7 @@
     env_exist <- file.exists(paste0(reticulate:::conda_info(conda = conda)$conda_prefix, "/envs/SCP"))
   } else {
     env_exist <- FALSE
+    packageStartupMessage("Conda and SCP environment not found.\nIf you have already created an SCP python environment using conda, you can specify the conda path by setting options(reticulate.conda_binary = '/path/to/conda') before loading the package.")
   }
   if (env_exist && (is.null(getOption("SCP_env_init")) || getOption("SCP_env_init") != FALSE)) {
     try({
