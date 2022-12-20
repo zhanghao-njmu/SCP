@@ -4,6 +4,7 @@
 #' @param conda_binary
 #' @param miniconda_repo
 #' @param force
+#' @param ...
 #'
 #' @export
 PrepareEnv <- function(conda_binary = NULL, python_version = "3.8",
@@ -347,7 +348,7 @@ conda_python <- function(envname = NULL, conda = "auto", all = FALSE) {
     stop(sprintf(fmt, envname))
   }
   conda_envs <- reticulate::conda_list(conda = conda)
-  conda_envs <- conda_envs[grep(reticulate:::conda_info(conda = conda)$conda_prefix, x = conda_envs$python, fixed = TRUE), , drop = FALSE]
+  conda_envs <- conda_envs[grep(normalizePath(reticulate:::conda_info(conda = conda)$conda_prefix), x = normalizePath(conda_envs$python), fixed = TRUE), , drop = FALSE]
   env <- subset(conda_envs, conda_envs$name == envname)
   if (nrow(env) == 0) {
     stop("conda environment '", envname, "' not found")
