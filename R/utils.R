@@ -13,10 +13,8 @@ PrepareEnv <- function(conda_binary = NULL, python_version = "3.8",
   if (python_version < numeric_version("3.7.0") || python_version >= numeric_version("3.10.0")) {
     stop("SCP currently only support python version 3.7-3.9!")
   }
-
-  if (identical(conda, "auto")) {
-    conda <- find_conda()
-  }
+  conda <- find_conda()
+  
   if (!is.null(conda)) {
     env_exist <- file.exists(paste0(reticulate:::conda_info(conda = conda)$conda_prefix, "/envs/SCP"))
   } else {
