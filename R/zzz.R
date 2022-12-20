@@ -3,7 +3,7 @@
   options(expressions = 5e5)
   conda <- find_conda()
   if (!is.null(conda)) {
-    env_exist <- file.exists(paste0(reticulate:::conda_info(conda = conda)$conda_prefix, "/envs/", envname))
+    env_exist <- file.exists(paste0(reticulate:::conda_info(conda = conda)$conda_prefix, "/envs/SCP"))
   } else {
     env_exist <- FALSE
   }
