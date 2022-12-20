@@ -344,7 +344,7 @@ conda_python <- function(envname = NULL, conda = "auto", all = FALSE) {
     stop(sprintf(fmt, envname))
   }
   conda_envs <- reticulate::conda_list(conda = conda)
-  conda_envs <- conda_envs[grep(paste0(reticulate:::conda_info(conda = conda)$conda_prefix, "/envs/"), x = conda_envs$python), ]
+  conda_envs <- conda_envs[grep(paste0(reticulate:::conda_info(conda = conda)$conda_prefix, "/envs/"), x = conda_envs$python), , drop = FALSE]
   env <- subset(conda_envs, conda_envs$name == envname)
   if (nrow(env) == 0) {
     stop("conda environment '", envname, "' not found")
