@@ -1,9 +1,9 @@
 .onAttach <- function(libname, pkgname) {
   options(future.globals.maxSize = Inf)
   options(expressions = 5e5)
-  conda_exist <- reticulate:::conda_installed()
-  if (conda_exist) {
-    env_exist <- file.exists(paste0(reticulate:::conda_info()$conda_prefix, "/envs/SCP"))
+  conda <- find_conda()
+  if (!is.null(conda)) {
+    env_exist <- file.exists(paste0(reticulate:::conda_info(conda = conda)$conda_prefix, "/envs/SCP"))
   } else {
     env_exist <- FALSE
   }
