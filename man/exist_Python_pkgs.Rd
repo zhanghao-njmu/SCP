@@ -4,7 +4,7 @@
 \alias{exist_Python_pkgs}
 \title{Check if the python package exists in the environment}
 \usage{
-exist_Python_pkgs(packages, envname = "SCP")
+exist_Python_pkgs(packages, envname = "SCP", conda = "auto")
 }
 \arguments{
 \item{envname}{The name of, or path to, a Python environment.}

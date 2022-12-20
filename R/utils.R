@@ -14,9 +14,11 @@ PrepareEnv <- function(conda_binary = NULL, python_version = "3.8",
     stop("SCP currently only support python version 3.7-3.9!")
   }
 
-  conda_exist <- reticulate:::conda_installed()
-  if (conda_exist) {
-    env_exist <- file.exists(paste0(reticulate:::conda_info()$conda_prefix, "/envs/SCP"))
+  if (identical(conda, "auto")) {
+    conda <- find_conda()
+  }
+  if (!is.null(conda)) {
+    env_exist <- file.exists(paste0(reticulate:::conda_info(conda = conda)$conda_prefix, "/envs/SCP"))
   } else {
     env_exist <- FALSE
   }
@@ -25,7 +27,7 @@ PrepareEnv <- function(conda_binary = NULL, python_version = "3.8",
   }
 
   if (isFALSE(env_exist)) {
-    if (isFALSE(conda_exist)) {
+    if (is.null(conda)) {
       options(timeout = 360)
       version <- "3"
       info <- as.list(Sys.info())
@@ -55,18 +57,19 @@ PrepareEnv <- function(conda_binary = NULL, python_version = "3.8",
       }
       url <- file.path(base, name)
       options(reticulate.miniconda.url = url)
-      reticulate::install_miniconda(path = reticulate::miniconda_path(), force = TRUE, update = FALSE)
+      reticulate::install_miniconda(path = miniconda_path, force = TRUE, update = FALSE)
+      conda <- reticulate:::miniconda_conda(miniconda_path)
     }
-    python_path <- reticulate::conda_create(envname = "SCP", python_version = python_version)
+    python_path <- reticulate::conda_create(conda = conda, envname = "SCP", python_version = python_version)
   }
 
   packages <- c(
     "numpy==1.21.6", "numba==0.55.2", "python-igraph==0.10.2",
     "scipy", "pandas", "matplotlib", "versioned-hdf5", "leidenalg", "scanpy", "scvelo", "palantir"
   )
-  check_Python(packages = packages, envname = "SCP", pip = TRUE, ...)
+  check_Python(packages = packages, envname = "SCP", conda = conda, pip = TRUE, ...)
 
-  python_path <- reticulate::conda_python("SCP")
+  python_path <- conda_python(conda = conda, envname = "SCP")
   reticulate::use_python(python_path, required = TRUE)
 
   pyinfo <- utils::capture.output(reticulate::py_config())
@@ -168,10 +171,12 @@ check_R <- function(pkgs, pkg_names = NULL, install_methods = c("BiocManager::in
 #' @param envname The name of, or path to, a Python environment.
 #'
 #' @export
-exist_Python_pkgs <- function(packages, envname = "SCP") {
-  conda_exist <- reticulate:::conda_installed()
-  if (conda_exist) {
-    env_exist <- file.exists(paste0(reticulate:::conda_info()$conda_prefix, "/envs/", envname))
+exist_Python_pkgs <- function(packages, envname = "SCP", conda = "auto") {
+  if (identical(conda, "auto")) {
+    conda <- find_conda()
+  }
+  if (!is.null(conda)) {
+    env_exist <- file.exists(paste0(reticulate:::conda_info(conda = conda)$conda_prefix, "/envs/", envname))
   } else {
     env_exist <- FALSE
   }
@@ -179,7 +184,7 @@ exist_Python_pkgs <- function(packages, envname = "SCP") {
   if (isFALSE(env_exist)) {
     stop("Can not find the conda environment: ", envname)
   }
-  all_installed <- reticulate:::conda_list_packages(envname, no_pip = FALSE)
+  all_installed <- reticulate:::conda_list_packages(conda = conda, envname = envname, no_pip = FALSE)
   packages_installed <- NULL
   for (pkg in packages) {
     pkg_info <- strsplit(pkg, split = "==")[[1]]
@@ -208,10 +213,12 @@ exist_Python_pkgs <- function(packages, envname = "SCP") {
 #'
 #' @importFrom rlang %||%
 #' @export
-check_Python <- function(packages, envname = "SCP", force = FALSE, pip = TRUE, ...) {
-  conda_exist <- reticulate:::conda_installed()
-  if (conda_exist) {
-    env_exist <- file.exists(paste0(reticulate:::conda_info()$conda_prefix, "/envs/", envname))
+check_Python <- function(packages, envname = "SCP", conda = "auto", force = FALSE, pip = TRUE, ...) {
+  if (identical(conda, "auto")) {
+    conda <- find_conda()
+  }
+  if (!is.null(conda)) {
+    env_exist <- file.exists(paste0(reticulate:::conda_info(conda = conda)$conda_prefix, "/envs/", envname))
   } else {
     env_exist <- FALSE
   }
@@ -222,7 +229,7 @@ check_Python <- function(packages, envname = "SCP", force = FALSE, pip = TRUE, .
   if (isTRUE(force)) {
     exist <- setNames(rep(FALSE, length(packages)), packages)
   } else {
-    exist <- exist_Python_pkgs(packages = packages, envname = envname)
+    exist <- exist_Python_pkgs(packages = packages, envname = envname, conda = conda)
   }
   if (sum(!exist) > 0) {
     pkgs_to_install <- names(exist)[!exist]
@@ -231,16 +238,119 @@ check_Python <- function(packages, envname = "SCP", force = FALSE, pip = TRUE, .
       pkgs_to_install <- c("pip", pkgs_to_install)
     }
     tryCatch(expr = {
-      reticulate::conda_install(pkgs_to_install, envname = envname, pip = pip, ...)
+      conda_install(conda = conda, packages = pkgs_to_install, envname = envname, pip = pip, ...)
     }, error = identity)
   }
 
-  exist <- exist_Python_pkgs(packages = packages, envname = envname)
+  exist <- exist_Python_pkgs(packages = packages, envname = envname, conda = conda)
   if (sum(!exist) > 0) {
     stop("Failed to install the package(s): ", paste0(names(exist)[!exist], collapse = ","), " into the environment '", envname, "'. Please install manually.")
   } else {
     return(invisible(NULL))
   }
+}
+
+find_conda <- function() {
+  if (!is.na(Sys.getenv("USER", unset = NA))) {
+    miniconda_path <- gsub(pattern = "\\$USER", replacement = Sys.getenv("USER"), reticulate::miniconda_path())
+  }
+  conda <- tryCatch(reticulate::conda_binary(conda = "auto"), error = identity)
+  conda_exist <- !inherits(conda, "error")
+  if (isFALSE(conda_exist)) {
+    conda_exist <- reticulate:::miniconda_exists(miniconda_path) && reticulate:::miniconda_test(miniconda_path)
+    if (isTRUE(conda_exist)) {
+      conda <- reticulate:::miniconda_conda(miniconda_path)
+    } else {
+      conda <- NULL
+    }
+  } else {
+    conda <- NULL
+  }
+  return(conda)
+}
+
+conda_install <- function(envname = NULL, packages, forge = TRUE, channel = character(),
+                          pip = FALSE, pip_options = character(), pip_ignore_installed = FALSE,
+                          conda = "auto", python_version = NULL, ...) {
+  reticulate:::check_forbidden_install("Python packages")
+  if (missing(packages)) {
+    if (!is.null(envname)) {
+      fmt <- paste("argument \"packages\" is missing, with no default",
+        "- did you mean 'conda_install(<envname>, %1$s)'?",
+        "- use 'py_install(%1$s)' to install into the active Python environment",
+        sep = "\n"
+      )
+      stopf(fmt, deparse1(substitute(envname)), call. = FALSE)
+    } else {
+      packages
+    }
+  }
+  conda <- reticulate::conda_binary(conda)
+  envname <- reticulate:::condaenv_resolve(envname)
+  python_package <- if (is.null(python_version)) {
+    NULL
+  } else if (grepl("[><=]", python_version)) {
+    paste0("python", python_version)
+  } else {
+    sprintf("python=%s", python_version)
+  }
+  python <- tryCatch(conda_python(envname = envname, conda = conda), error = identity)
+  if (inherits(python, "error") || !file.exists(python)) {
+    reticulate::conda_create(envname = envname, packages = python_package %||% "python", forge = forge, channel = channel, conda = conda)
+    python <- conda_python(envname = envname, conda = conda)
+  }
+  if (!is.null(python_version)) {
+    args <- reticulate:::conda_args("install", envname, python_package)
+    status <- reticulate:::system2t(conda, shQuote(args))
+    if (status != 0L) {
+      fmt <- "installation of '%s' into environment '%s' failed [error code %i]"
+      msg <- sprintf(fmt, python_package, envname, status)
+      stop(msg, call. = FALSE)
+    }
+  }
+  if (pip) {
+    result <- reticulate:::pip_install(
+      python = python, packages = packages,
+      pip_options = pip_options, ignore_installed = pip_ignore_installed,
+      conda = conda, envname = envname
+    )
+    return(result)
+  }
+  args <- reticulate:::conda_args("install", envname)
+  channels <- if (length(channel)) {
+    channel
+  } else if (forge) {
+    "conda-forge"
+  }
+  for (ch in channels) args <- c(args, "-c", ch)
+  args <- c(args, python_package, packages)
+  result <- reticulate:::system2t(conda, shQuote(args))
+  if (result != 0L) {
+    fmt <- "one or more Python packages failed to install [error code %i]"
+    stopf(fmt, result)
+  }
+  invisible(packages)
+}
+
+conda_python <- function(envname = NULL, conda = "auto", all = FALSE) {
+  envname <- reticulate:::condaenv_resolve(envname)
+  if (grepl("[/\\\\]", envname)) {
+    suffix <- if (reticulate:::is_windows()) "python.exe" else "bin/python"
+    path <- file.path(envname, suffix)
+    if (file.exists(path)) {
+      return(path)
+    }
+    fmt <- "no conda environment exists at path '%s'"
+    stop(sprintf(fmt, envname))
+  }
+  conda_envs <- reticulate::conda_list(conda = conda)
+  conda_envs <- conda_envs[grep(paste0(reticulate:::conda_info(conda = conda)$conda_prefix, "/envs/"), x = conda_envs$python), ]
+  env <- subset(conda_envs, conda_envs$name == envname)
+  if (nrow(env) == 0) {
+    stop("conda environment '", envname, "' not found")
+  }
+  python <- if (all) env$python else env$python[[1L]]
+  path.expand(python)
 }
 
 #' @export
