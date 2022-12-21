@@ -26,7 +26,7 @@
     
     <a class="navbar-brand me-2" href="index.html">SCP</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.5.9010</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.5.9011</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -101,7 +101,7 @@
 <p>Or run <code>PrepareEnv(conda_binary = "/path/to/conda")</code> to use a particular conda binary.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">SCP</span><span class="fu">::</span><span class="fu"><a href="reference/PrepareEnv.html">PrepareEnv</a></span><span class="op">(</span>conda_binary <span class="op">=</span> <span class="st">"/path/to/conda"</span><span class="op">)</span></span></code></pre></div>
-<p>If the download of miniconda or packages is slow, you can specify the miniconda repo and PyPI mirror according to your network region.</p>
+<p>If the download of miniconda or pip packages is slow, you can specify the miniconda repo and PyPI mirror according to your network region.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/PrepareEnv.html">PrepareEnv</a></span><span class="op">(</span></span>
 <span>  miniconda_repo <span class="op">=</span> <span class="st">"https://mirrors.bfsu.edu.cn/anaconda/miniconda"</span>,</span>
@@ -117,29 +117,27 @@
 <h4 id="create-a-isolated-r-environment">Create a isolated R environment<a class="anchor" aria-label="anchor" href="#create-a-isolated-r-environment"></a>
 </h4>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">env_dir</span> <span class="op">&lt;-</span> <span class="st">"~/SCP_env/"</span> <span class="co"># It cannot be the home directory "~" !</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.create</a></span><span class="op">(</span><span class="va">env_dir</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">setwd</a></span><span class="op">(</span><span class="va">env_dir</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"renv"</span><span class="op">)</span></span>
-<span><span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="https://rstudio.github.io/renv/reference/init.html" class="external-link">init</a></span><span class="op">(</span>project <span class="op">=</span> <span class="va">env_dir</span>, bare <span class="op">=</span> <span class="cn">TRUE</span>, force <span class="op">=</span> <span class="cn">TRUE</span>, restart <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">require</a></span><span class="op">(</span><span class="st"><a href="https://rstudio.github.io/renv/" class="external-link">"renv"</a></span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"renv"</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.create</a></span><span class="op">(</span><span class="st">"~/SCP_env"</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="co"># It cannot be the home directory "~" !</span></span>
+<span><span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="https://rstudio.github.io/renv/reference/init.html" class="external-link">init</a></span><span class="op">(</span>project <span class="op">=</span> <span class="st">"~/SCP_env"</span>, bare <span class="op">=</span> <span class="cn">TRUE</span>, restart <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level4">
 <h4 id="install-scp-package-and-create-scp-python-environment">Install SCP package and create SCP python environment<a class="anchor" aria-label="anchor" href="#install-scp-package-and-create-scp-python-environment"></a>
 </h4>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="https://rstudio.github.io/renv/reference/activate.html" class="external-link">activate</a></span><span class="op">(</span>project <span class="op">=</span> <span class="va">env_dir</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"devtools"</span><span class="op">)</span></span>
-<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"zhanghao-njmu/SCP"</span>, upgrade <span class="op">=</span> <span class="st">"always"</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="https://rstudio.github.io/renv/reference/activate.html" class="external-link">activate</a></span><span class="op">(</span>project <span class="op">=</span> <span class="st">"~/SCP_env"</span><span class="op">)</span></span>
+<span><span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="https://rstudio.github.io/renv/reference/install.html" class="external-link">install</a></span><span class="op">(</span><span class="st">"BiocManager"</span><span class="op">)</span></span>
+<span><span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="https://rstudio.github.io/renv/reference/install.html" class="external-link">install</a></span><span class="op">(</span><span class="st">"zhanghao-njmu/SCP"</span>, repos <span class="op">=</span> <span class="fu">BiocManager</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/BiocManager/man/repositories.html" class="external-link">repositories</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu">SCP</span><span class="fu">::</span><span class="fu"><a href="reference/PrepareEnv.html">PrepareEnv</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>When installing packages, network issues may cause the download to fail. Sometimes you need to provide a GitHub personal access token and restart the r session before downloading.</p>
 </div>
 <div class="section level4">
-<h4 id="activate-scp-environment-when-used">Activate SCP environment when used<a class="anchor" aria-label="anchor" href="#activate-scp-environment-when-used"></a>
+<h4 id="activate-scp-environment-first-before-use">Activate SCP environment first before use<a class="anchor" aria-label="anchor" href="#activate-scp-environment-first-before-use"></a>
 </h4>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">env_dir</span> <span class="op">&lt;-</span> <span class="st">"~/SCP_env/"</span></span>
-<span><span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="https://rstudio.github.io/renv/reference/activate.html" class="external-link">activate</a></span><span class="op">(</span>project <span class="op">=</span> <span class="va">env_dir</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="https://rstudio.github.io/renv/reference/activate.html" class="external-link">activate</a></span><span class="op">(</span>project <span class="op">=</span> <span class="st">"~/SCP_env"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/zhanghao-njmu/SCP/" class="external-link">SCP</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"pancreas_sub"</span><span class="op">)</span></span>
@@ -150,8 +148,8 @@
 <h4 id="save-and-restore-the-state-of-scp-environment">Save and restore the state of SCP environment<a class="anchor" aria-label="anchor" href="#save-and-restore-the-state-of-scp-environment"></a>
 </h4>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="https://rstudio.github.io/renv/reference/snapshot.html" class="external-link">snapshot</a></span><span class="op">(</span>project <span class="op">=</span> <span class="va">env_dir</span><span class="op">)</span></span>
-<span><span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="https://rstudio.github.io/renv/reference/restore.html" class="external-link">restore</a></span><span class="op">(</span>project <span class="op">=</span> <span class="va">env_dir</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="https://rstudio.github.io/renv/reference/snapshot.html" class="external-link">snapshot</a></span><span class="op">(</span>project <span class="op">=</span> <span class="st">"~/SCP_env"</span><span class="op">)</span></span>
+<span><span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="https://rstudio.github.io/renv/reference/restore.html" class="external-link">restore</a></span><span class="op">(</span>project <span class="op">=</span> <span class="st">"~/SCP_env"</span><span class="op">)</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
