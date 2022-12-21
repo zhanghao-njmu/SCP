@@ -73,7 +73,7 @@ Or run `PrepareEnv(conda_binary = "/path/to/conda")` to use a particular conda b
 SCP::PrepareEnv(conda_binary = "/path/to/conda")
 ```
 
-If the download of miniconda or packages is slow, you can specify the miniconda repo and PyPI mirror according to your network region.
+If the download of miniconda or pip packages is slow, you can specify the miniconda repo and PyPI mirror according to your network region.
 
 ```{r eval=FALSE}
 PrepareEnv(
@@ -89,30 +89,28 @@ If there are some R package version conflicts, or you do not want to change your
 #### Create a isolated R environment
 
 ```{r eval=FALSE}
-env_dir <- "~/SCP_env/" # It cannot be the home directory "~" !
-dir.create(env_dir, recursive = TRUE)
-setwd(env_dir)
-
-install.packages("renv")
-renv::init(project = env_dir, bare = TRUE, force = TRUE, restart = TRUE)
+if (!require("renv", quietly = TRUE)) {
+  install.packages("renv")
+}
+dir.create("~/SCP_env", recursive = TRUE) # It cannot be the home directory "~" !
+renv::init(project = "~/SCP_env", bare = TRUE, restart = TRUE)
 ```
 
 #### Install SCP package and create SCP python environment
 
 ```{r eval=FALSE}
-renv::activate(project = env_dir)
-install.packages("devtools")
-devtools::install_github("zhanghao-njmu/SCP", upgrade = "always")
+renv::activate(project = "~/SCP_env")
+renv::install("BiocManager")
+renv::install("zhanghao-njmu/SCP", repos = BiocManager::repositories())
 SCP::PrepareEnv()
 ```
 
 When installing packages, network issues may cause the download to fail. Sometimes you need to provide a GitHub personal access token and restart the r session before downloading.
 
-#### Activate SCP environment when used
+#### Activate SCP environment first before use
 
 ```{r eval=FALSE}
-env_dir <- "~/SCP_env/"
-renv::activate(project = env_dir)
+renv::activate(project = "~/SCP_env")
 
 library(SCP)
 data("pancreas_sub")
@@ -123,8 +121,8 @@ ClassDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "draw_graph_fr"
 #### Save and restore the state of SCP environment
 
 ```{r eval=FALSE}
-renv::snapshot(project = env_dir)
-renv::restore(project = env_dir)
+renv::snapshot(project = "~/SCP_env")
+renv::restore(project = "~/SCP_env")
 ```
 
 ## Example
@@ -376,6 +374,7 @@ ExpStatPlot(
 ```
 
 ### Interactive data visualization with SCExplorer
+
 ```{r SCExplorer}
 PrepareSCExplorer(list(mouse_pancreas = pancreas_sub, human_pancreas = panc8_sub), base_dir = "./SCExplorer")
 app <- RunSCExplorer(base_dir = "./SCExplorer")
@@ -385,7 +384,7 @@ if (interactive()) {
   shiny::runApp(app)
 }
 ```
-![SCExplorer](README/README-SCExplorer-1.png)
-![SCExplorer](README/README-SCExplorer-2.png)
+
+![SCExplorer](README/README-SCExplorer-1.png) ![SCExplorer](README/README-SCExplorer-2.png)
 
 More examples of SCP can be found in the documentation of the functions, such as [Integration_SCP](https://zhanghao-njmu.github.io/SCP/reference/Integration_SCP.html), [RunKNNMap](https://zhanghao-njmu.github.io/SCP/reference/RunKNNMap.html), [RunMonocle3](https://zhanghao-njmu.github.io/SCP/reference/RunMonocle3.html), [ClassDimPlot](https://zhanghao-njmu.github.io/SCP/reference/ClassDimPlot.html), [GroupHeatmap](https://zhanghao-njmu.github.io/SCP/reference/GroupHeatmap.html), [RunSCExplorer](https://zhanghao-njmu.github.io/SCP/reference/RunSCExplorer.html), etc.

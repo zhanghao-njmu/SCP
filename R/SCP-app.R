@@ -494,6 +494,7 @@ FetchH5 <- function(DataFile, MetaFile, name = NULL,
 #' # deployApp("./SCExplorer")
 #' }
 #'
+#' @importFrom rlang %||%
 #' @export
 RunSCExplorer <- function(base_dir = "SCExplorer",
                           DataFile = "Data.hdf5",
@@ -899,7 +900,6 @@ RunSCExplorer <- function(base_dir = "SCExplorer",
 
   # server ------------------------------------------------------------------
   server <- function(input, output, session) {
-
     # initial  ----------------------------------------------------------------
     updateSelectizeInput(session, "features2", choices = c(meta_features_name, all_features), selected = initial_feature, server = TRUE)
 
@@ -912,9 +912,11 @@ RunSCExplorer <- function(base_dir = "SCExplorer",
       res = initial_dpi
     )
 
-    output$plot1_3d <- plotly::renderPlotly({
-      initial_p1_3d
-    })
+    output$plot1_3d <- plotly::renderPlotly(
+      {
+        initial_p1_3d
+      }
+    )
 
     output$plot2 <- renderPlot(
       {
@@ -925,9 +927,11 @@ RunSCExplorer <- function(base_dir = "SCExplorer",
       res = initial_dpi
     )
 
-    output$plot2_3d <- plotly::renderPlotly({
-      initial_p2_3d
-    })
+    output$plot2_3d <- plotly::renderPlotly(
+      {
+        initial_p2_3d
+      }
+    )
 
     output$plot2_vln <- renderPlot(
       {
@@ -1019,9 +1023,11 @@ RunSCExplorer <- function(base_dir = "SCExplorer",
         p1_3d <- NULL
       }
 
-      output$plot1_3d <- plotly::renderPlotly({
-        p1_3d
-      })
+      output$plot1_3d <- plotly::renderPlotly(
+        {
+          p1_3d
+        }
+      )
     })
 
     # submit2  ----------------------------------------------------------------
@@ -1102,9 +1108,11 @@ RunSCExplorer <- function(base_dir = "SCExplorer",
         p2_3d <- NULL
       }
 
-      output$plot2_3d <- plotly::renderPlotly({
-        p2_3d
-      })
+      output$plot2_3d <- plotly::renderPlotly(
+        {
+          p2_3d
+        }
+      )
     })
   }
   '
