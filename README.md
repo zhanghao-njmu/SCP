@@ -85,8 +85,8 @@ conda binary.
 SCP::PrepareEnv(conda_binary = "/path/to/conda")
 ```
 
-If the download of miniconda or packages is slow, you can specify the
-miniconda repo and PyPI mirror according to your network region.
+If the download of miniconda or pip packages is slow, you can specify
+the miniconda repo and PyPI mirror according to your network region.
 
 ``` r
 PrepareEnv(
@@ -105,20 +105,19 @@ isolated R environment.
 #### Create a isolated R environment
 
 ``` r
-env_dir <- "~/SCP_env/" # It cannot be the home directory "~" !
-dir.create(env_dir, recursive = TRUE)
-setwd(env_dir)
-
-install.packages("renv")
-renv::init(project = env_dir, bare = TRUE, force = TRUE, restart = TRUE)
+if (!require("renv", quietly = TRUE)) {
+  install.packages("renv")
+}
+dir.create("~/SCP_env", recursive = TRUE) # It cannot be the home directory "~" !
+renv::init(project = "~/SCP_env", bare = TRUE, restart = TRUE)
 ```
 
 #### Install SCP package and create SCP python environment
 
 ``` r
-renv::activate(project = env_dir)
-install.packages("devtools")
-devtools::install_github("zhanghao-njmu/SCP", upgrade = "always")
+renv::activate(project = "~/SCP_env")
+renv::install("BiocManager")
+renv::install("zhanghao-njmu/SCP", repos = BiocManager::repositories())
 SCP::PrepareEnv()
 ```
 
@@ -126,11 +125,10 @@ When installing packages, network issues may cause the download to fail.
 Sometimes you need to provide a GitHub personal access token and restart
 the r session before downloading.
 
-#### Activate SCP environment when used
+#### Activate SCP environment first before use
 
 ``` r
-env_dir <- "~/SCP_env/"
-renv::activate(project = env_dir)
+renv::activate(project = "~/SCP_env")
 
 library(SCP)
 data("pancreas_sub")
@@ -141,8 +139,8 @@ ClassDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "draw_graph_fr"
 #### Save and restore the state of SCP environment
 
 ``` r
-renv::snapshot(project = env_dir)
-renv::restore(project = env_dir)
+renv::snapshot(project = "~/SCP_env")
+renv::restore(project = "~/SCP_env")
 ```
 
 ## Example

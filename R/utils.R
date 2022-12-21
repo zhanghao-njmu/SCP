@@ -22,6 +22,7 @@ PrepareEnv <- function(conda_binary = NULL, python_version = "3.8",
     env_exist <- FALSE
   }
   if (isTRUE(force) && isTRUE(env_exist)) {
+    unlink(paste0(reticulate:::conda_info(conda = conda)$conda_prefix, "/envs/SCP"), recursive = TRUE)
     env_exist <- FALSE
   }
 
@@ -65,6 +66,16 @@ PrepareEnv <- function(conda_binary = NULL, python_version = "3.8",
       conda <- reticulate:::miniconda_conda(miniconda_path)
     }
     python_path <- reticulate::conda_create(conda = conda, envname = "SCP", python_version = python_version)
+    env_path <- paste0(reticulate:::conda_info(conda = conda)$conda_prefix, "/envs/SCP")
+    env_exist <- file.exists(env_path)
+    if (isFALSE(env_exist)) {
+      print(reticulate::conda_list(conda = conda))
+      stop(
+        "Unable to find SCP environment under the expected path: ", env_path, "\n",
+        "conda: ", conda, "\n",
+        "SCP python: ", python_path, "\n"
+      )
+    }
   }
 
   packages <- c(
@@ -227,7 +238,7 @@ check_Python <- function(packages, envname = "SCP", conda = "auto", force = FALS
     env_exist <- FALSE
   }
   if (isFALSE(env_exist)) {
-    warning(envname, " python environment do not exist. Create it with the PrepareEnv function...", immediate. = TRUE)
+    warning(envname, " python environment does not exist. Create it with the PrepareEnv function...", immediate. = TRUE)
     PrepareEnv()
   }
   if (isTRUE(force)) {
