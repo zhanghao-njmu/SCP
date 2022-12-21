@@ -66,7 +66,7 @@ devtools::install_github("zhanghao-njmu/SCP")
 
 #### Create SCP python environment
 
-To run functions such as `RunSCVELO` or `RunPAGA`, SCP requires
+To run functions such as `RunPAGA` or `RunSCVELO`, SCP requires
 [conda](https://docs.conda.io/en/latest/miniconda.html) to create a
 separate python environment.
 
@@ -89,7 +89,7 @@ If the download of miniconda or pip packages is slow, you can specify
 the miniconda repo and PyPI mirror according to your network region.
 
 ``` r
-PrepareEnv(
+SCP::PrepareEnv(
   miniconda_repo = "https://mirrors.bfsu.edu.cn/anaconda/miniconda",
   pip_options = "-i https://pypi.tuna.tsinghua.edu.cn/simple"
 )

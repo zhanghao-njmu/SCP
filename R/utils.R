@@ -17,12 +17,12 @@ PrepareEnv <- function(conda_binary = NULL, python_version = "3.8",
   conda <- find_conda()
 
   if (!is.null(conda)) {
-    env_exist <- file.exists(paste0(reticulate:::conda_info(conda = conda)$conda_prefix, "/envs/SCP"))
+    env_exist <- file.exists(paste0(reticulate:::conda_info(conda = conda)$envs_dirs[1], "/SCP"))
   } else {
     env_exist <- FALSE
   }
   if (isTRUE(force) && isTRUE(env_exist)) {
-    unlink(paste0(reticulate:::conda_info(conda = conda)$conda_prefix, "/envs/SCP"), recursive = TRUE)
+    unlink(paste0(reticulate:::conda_info(conda = conda)$envs_dirs[1], "/SCP"), recursive = TRUE)
     env_exist <- FALSE
   }
 
@@ -66,9 +66,10 @@ PrepareEnv <- function(conda_binary = NULL, python_version = "3.8",
       conda <- reticulate:::miniconda_conda(miniconda_path)
     }
     python_path <- reticulate::conda_create(conda = conda, envname = "SCP", python_version = python_version)
-    env_path <- paste0(reticulate:::conda_info(conda = conda)$conda_prefix, "/envs/SCP")
+    env_path <- paste0(reticulate:::conda_info(conda = conda)$envs_dirs[1], "/SCP")
     env_exist <- file.exists(env_path)
     if (isFALSE(env_exist)) {
+      print(reticulate:::conda_info(conda = conda))
       print(reticulate::conda_list(conda = conda))
       stop(
         "Unable to find SCP environment under the expected path: ", env_path, "\n",
@@ -191,7 +192,7 @@ exist_Python_pkgs <- function(packages, envname = "SCP", conda = "auto") {
     conda <- find_conda()
   }
   if (!is.null(conda)) {
-    env_exist <- file.exists(paste0(reticulate:::conda_info(conda = conda)$conda_prefix, "/envs/", envname))
+    env_exist <- file.exists(paste0(reticulate:::conda_info(conda = conda)$envs_dirs[1], "/", envname))
   } else {
     env_exist <- FALSE
   }
@@ -233,7 +234,7 @@ check_Python <- function(packages, envname = "SCP", conda = "auto", force = FALS
     conda <- find_conda()
   }
   if (!is.null(conda)) {
-    env_exist <- file.exists(paste0(reticulate:::conda_info(conda = conda)$conda_prefix, "/envs/", envname))
+    env_exist <- file.exists(paste0(reticulate:::conda_info(conda = conda)$envs_dirs[1], "/", envname))
   } else {
     env_exist <- FALSE
   }
@@ -359,7 +360,7 @@ conda_python <- function(envname = NULL, conda = "auto", all = FALSE) {
     stop(sprintf(fmt, envname))
   }
   conda_envs <- reticulate::conda_list(conda = conda)
-  conda_envs <- conda_envs[grep(normalizePath(reticulate:::conda_info(conda = conda)$conda_prefix), x = normalizePath(conda_envs$python), fixed = TRUE), , drop = FALSE]
+  conda_envs <- conda_envs[grep(normalizePath(reticulate:::conda_info(conda = conda)$envs_dirs[1]), x = normalizePath(conda_envs$python), fixed = TRUE), , drop = FALSE]
   env <- subset(conda_envs, conda_envs$name == envname)
   if (nrow(env) == 0) {
     stop("conda environment '", envname, "' not found")

@@ -6470,7 +6470,7 @@ CellCorHeatmap <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
       nn_method = "raw", return_full_distance_matrix = TRUE
     )
   }
-  d <- t(as.matrix(1 - srt_query@tools$knnpredict$distance_matrix))
+  d <- t(as.matrix(1 - srt_query@tools$knnpredict_classification$distance_matrix))
   if (is.null(rows)) {
     rows <- rownames(d)
   }
