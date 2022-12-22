@@ -6,7 +6,7 @@
 \usage{
 check_Python(
   packages,
-  envname = "SCP",
+  envname = NULL,
   conda = "auto",
   force = FALSE,
   pip = TRUE,

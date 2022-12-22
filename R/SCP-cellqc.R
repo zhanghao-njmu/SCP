@@ -87,7 +87,7 @@ db_Scrublet <- function(srt, assay = "RNA", db_rate = ncol(srt) / 1000 * 0.01, .
   if (status != "raw_counts") {
     stop("Data type is not raw counts!")
   }
-  check_Python("scrublet", envname = "SCP")
+  check_Python("scrublet")
   scr <- import("scrublet")
   raw_counts <- t(as.matrix(GetAssayData(object = srt, assay = assay, slot = "counts")))
   scrub <- scr$Scrublet(raw_counts, expected_doublet_rate = db_rate, ...)
@@ -128,7 +128,7 @@ db_DoubletDetection <- function(srt, assay = "RNA", db_rate = ncol(srt) / 1000 *
   if (status != "raw_counts") {
     stop("Data type is not raw counts!")
   }
-  check_Python("doubletdetection", envname = "SCP")
+  check_Python("doubletdetection")
   doubletdetection <- import("doubletdetection")
   counts <- GetAssayData(object = srt, assay = assay, slot = "counts")
   clf <- doubletdetection$BoostClassifier(

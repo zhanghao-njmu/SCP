@@ -550,7 +550,7 @@ RenameClusters <- function(srt, group.by, nameslist = list(), name = "newcluster
 #' @importFrom Matrix t colMeans
 #' @export
 SrtReorder <- function(srt, features = NULL, reorder_by = NULL, slot = "data", assay = NULL, log = TRUE,
-                       distance_metric = "euclidean", reorder_FUN = "mean") {
+                       distance_metric = "euclidean", reorder_FUN = base::mean) {
   assay <- assay %||% DefaultAssay(srt)
   if (is.null(features)) {
     features <- VariableFeatures(srt, assay = assay)
@@ -562,7 +562,7 @@ SrtReorder <- function(srt, features = NULL, reorder_by = NULL, slot = "data", a
     srt$ident <- srt[[reorder_by, drop = TRUE]]
   }
   if (length(unique(srt[[reorder_by, drop = TRUE]])) == 1) {
-    warning("Only one cluter found. No need to reorder.", immediate. = TRUE)
+    warning("Only one cluter found.", immediate. = TRUE)
     return(srt)
   }
   simil_method <- c(
@@ -978,7 +978,7 @@ Uncorrected_integrate <- function(srtMerge = NULL, batch = "orig.ident", append 
     stop("'cluster_algorithm' must be one of 'louvain', 'slm', 'leiden'.")
   }
   if (cluster_algorithm == "leiden") {
-    check_Python("leidenalg", envname = "SCP")
+    check_Python("leidenalg")
   }
   if (!is.null(linear_reduction_dims_use) && max(linear_reduction_dims_use) > linear_reduction_dims) {
     linear_reduction_dims <- max(linear_reduction_dims_use)
@@ -1133,7 +1133,7 @@ Seurat_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRU
     stop("'cluster_algorithm' must be one of 'louvain', 'slm', 'leiden'.")
   }
   if (cluster_algorithm == "leiden") {
-    check_Python("leidenalg", envname = "SCP")
+    check_Python("leidenalg")
   }
   if (!is.null(linear_reduction_dims_use) && max(linear_reduction_dims_use) > linear_reduction_dims) {
     linear_reduction_dims <- max(linear_reduction_dims_use)
@@ -1360,18 +1360,18 @@ scVI_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE,
     stop("'cluster_algorithm' must be one of 'louvain', 'slm', 'leiden'.")
   }
   if (cluster_algorithm == "leiden") {
-    check_Python("leidenalg", envname = "SCP")
+    check_Python("leidenalg")
   }
   cluster_algorithm_index <- switch(tolower(cluster_algorithm),
     "louvain" = 1,
     "slm" = 3,
     "leiden" = 4
   )
-  if (.Platform$OS.type == "windows" && !exist_pkg(pkg = "scvi-tools", envname = "SCP")) {
-    suppressWarnings(system2(command = reticulate::virtualenv_python("SCP"), args = "-m pip install jax[cpu]===0.3.20 -f https://whls.blob.core.windows.net/unstable/index.html --use-deprecated legacy-resolver", stdout = TRUE))
+  if (.Platform$OS.type == "windows" && !exist_Python_pkgs(packages = "scvi-tools")) {
+    suppressWarnings(system2(command = conda_python(), args = "-m pip install jax[cpu]===0.3.20 -f https://whls.blob.core.windows.net/unstable/index.html --use-deprecated legacy-resolver", stdout = TRUE))
   }
 
-  check_Python("scvi-tools", envname = "SCP")
+  check_Python("scvi-tools")
   scvi <- import("scvi")
   scipy <- import("scipy")
   set.seed(seed)
@@ -1560,7 +1560,7 @@ MNN_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE, 
     stop("'cluster_algorithm' must be one of 'louvain', 'slm', 'leiden'.")
   }
   if (cluster_algorithm == "leiden") {
-    check_Python("leidenalg", envname = "SCP")
+    check_Python("leidenalg")
   }
   cluster_algorithm_index <- switch(tolower(cluster_algorithm),
     "louvain" = 1,
@@ -1759,7 +1759,7 @@ fastMNN_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TR
     stop("'cluster_algorithm' must be one of 'louvain', 'slm', 'leiden'.")
   }
   if (cluster_algorithm == "leiden") {
-    check_Python("leidenalg", envname = "SCP")
+    check_Python("leidenalg")
   }
   cluster_algorithm_index <- switch(tolower(cluster_algorithm),
     "louvain" = 1,
@@ -1986,7 +1986,7 @@ Harmony_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TR
     stop("'cluster_algorithm' must be one of 'louvain', 'slm', 'leiden'.")
   }
   if (cluster_algorithm == "leiden") {
-    check_Python("leidenalg", envname = "SCP")
+    check_Python("leidenalg")
   }
   if (!is.null(linear_reduction_dims_use) && max(linear_reduction_dims_use) > linear_reduction_dims) {
     linear_reduction_dims <- max(linear_reduction_dims_use)
@@ -2220,7 +2220,7 @@ Scanorama_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = 
     stop("'cluster_algorithm' must be one of 'louvain', 'slm', 'leiden'.")
   }
   if (cluster_algorithm == "leiden") {
-    check_Python("leidenalg", envname = "SCP")
+    check_Python("leidenalg")
   }
   if (!is.null(linear_reduction_dims_use) && max(linear_reduction_dims_use) > linear_reduction_dims) {
     linear_reduction_dims <- max(linear_reduction_dims_use)
@@ -2232,7 +2232,7 @@ Scanorama_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = 
   )
 
   set.seed(seed)
-  check_Python("scanorama", envname = "SCP")
+  check_Python("scanorama")
   scanorama <- import("scanorama")
 
   if (is.null(srtList) && is.null(srtMerge)) {
@@ -2449,7 +2449,7 @@ BBKNN_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE
     stop("'cluster_algorithm' must be one of 'louvain', 'slm', 'leiden'.")
   }
   if (cluster_algorithm == "leiden") {
-    check_Python("leidenalg", envname = "SCP")
+    check_Python("leidenalg")
   }
   if (!is.null(linear_reduction_dims_use) && max(linear_reduction_dims_use) > linear_reduction_dims) {
     linear_reduction_dims <- max(linear_reduction_dims_use)
@@ -2461,7 +2461,7 @@ BBKNN_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE
   )
 
   set.seed(seed)
-  check_Python("bbknn", envname = "SCP")
+  check_Python("bbknn")
   bbknn <- import("bbknn")
 
   if (is.null(srtList) && is.null(srtMerge)) {
@@ -2663,7 +2663,7 @@ CSS_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE, 
     stop("'cluster_algorithm' must be one of 'louvain', 'slm', 'leiden'.")
   }
   if (cluster_algorithm == "leiden") {
-    check_Python("leidenalg", envname = "SCP")
+    check_Python("leidenalg")
   }
   cluster_algorithm_index <- switch(tolower(cluster_algorithm),
     "louvain" = 1,
@@ -2863,7 +2863,7 @@ LIGER_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE
     stop("'cluster_algorithm' must be one of 'louvain', 'slm', 'leiden'.")
   }
   if (cluster_algorithm == "leiden") {
-    check_Python("leidenalg", envname = "SCP")
+    check_Python("leidenalg")
   }
   cluster_algorithm_index <- switch(tolower(cluster_algorithm),
     "louvain" = 1,
@@ -3104,7 +3104,7 @@ Conos_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE
     stop("'cluster_algorithm' must be one of 'louvain', 'slm', 'leiden'.")
   }
   if (cluster_algorithm == "leiden") {
-    check_Python("leidenalg", envname = "SCP")
+    check_Python("leidenalg")
   }
   cluster_algorithm_index <- switch(tolower(cluster_algorithm),
     "louvain" = 1,
@@ -3303,7 +3303,7 @@ ZINBWaVE_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = T
     stop("'cluster_algorithm' must be one of 'louvain', 'slm', 'leiden'.")
   }
   if (cluster_algorithm == "leiden") {
-    check_Python("leidenalg", envname = "SCP")
+    check_Python("leidenalg")
   }
   if (!is.null(linear_reduction_dims_use) && max(linear_reduction_dims_use) > linear_reduction_dims) {
     linear_reduction_dims <- max(linear_reduction_dims_use)
@@ -3471,7 +3471,6 @@ ZINBWaVE_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = T
   }
 }
 
-
 #' Standard_SCP
 #'
 #' Single cell pipeline for the single dataset.
@@ -3491,7 +3490,12 @@ ZINBWaVE_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = T
 #' pancreas_sub <- Standard_SCP(
 #'   srt = pancreas_sub,
 #'   linear_reduction = c("pca", "ica", "nmf", "mds", "glmpca"),
-#'   nonlinear_reduction = c("umap", "tsne", "phate", "pacmap", "trimap")
+#'   nonlinear_reduction = "umap"
+#' )
+#' pancreas_sub <- Standard_SCP(
+#'   srt = pancreas_sub,
+#'   linear_reduction = "pca",
+#'   nonlinear_reduction = c("umap", "tsne", "dm", "phate", "pacmap", "trimap", "largevis")
 #' )
 #' names(pancreas_sub@reductions)
 #'
@@ -3525,7 +3529,7 @@ Standard_SCP <- function(srt, prefix = "Standard", assay = "RNA",
     stop("'cluster_algorithm' must be one of 'louvain', 'slm', 'leiden'.")
   }
   if (cluster_algorithm == "leiden") {
-    check_Python("leidenalg", envname = "SCP")
+    check_Python("leidenalg")
   }
   cluster_algorithm_index <- switch(tolower(cluster_algorithm),
     "louvain" = 1,
@@ -3697,18 +3701,6 @@ Standard_SCP <- function(srt, prefix = "Standard", assay = "RNA",
 #' panc8_sub <- Integration_SCP(
 #'   srtMerge = panc8_sub, batch = "tech", integration_method = "Seurat",
 #'   HVF_intersect = TRUE, HVF_min_intersection = length(unique(panc8_sub$tech))
-#' )
-#' ClassDimPlot(panc8_sub, group.by = c("tech", "celltype"))
-#'
-#' panc8_sub <- CellScoring(
-#'   srt = panc8_sub, slot = "data", assay = "RNA",
-#'   db = "GO_BP", species = "Homo_sapiens",
-#'   minGSSize = 10, maxGSSize = 100,
-#'   method = "Seurat", name = "GO", new_assay = TRUE
-#' )
-#' panc8_sub <- Integration_SCP(
-#'   srtMerge = panc8_sub, assay = "GO",
-#'   batch = "tech", integration_method = "Seurat"
 #' )
 #' ClassDimPlot(panc8_sub, group.by = c("tech", "celltype"))
 #'

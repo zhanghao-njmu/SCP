@@ -89,7 +89,12 @@ ClassDimPlot(pancreas_sub, group.by = "CellType")
 pancreas_sub <- Standard_SCP(
   srt = pancreas_sub,
   linear_reduction = c("pca", "ica", "nmf", "mds", "glmpca"),
-  nonlinear_reduction = c("umap", "tsne", "phate", "pacmap", "trimap")
+  nonlinear_reduction = "umap"
+)
+pancreas_sub <- Standard_SCP(
+  srt = pancreas_sub,
+  linear_reduction = "pca",
+  nonlinear_reduction = c("umap", "tsne", "dm", "phate", "pacmap", "trimap", "largevis")
 )
 names(pancreas_sub@reductions)
 

@@ -5,17 +5,18 @@
 \title{Prepare SCP python environment}
 \usage{
 PrepareEnv(
-  conda_binary = NULL,
-  python_version = "3.8",
+  conda = "auto",
   miniconda_repo = "https://repo.anaconda.com/miniconda",
+  python_version = "3.8",
+  envname = NULL,
   force = FALSE,
   ...
 )
 }
 \arguments{
-\item{python_version}{The version of python to install. Default is \code{3.8}}
+\item{conda}{}
 
-\item{...}{}
+\item{python_version}{The version of python to install. Default is \code{3.8}}
 }
 \description{
 Prepare SCP python environment
