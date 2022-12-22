@@ -1540,6 +1540,7 @@ RunPaCMAP.default <- function(object, assay = NULL,
 
   check_Python("pacmap")
   pacmap <- import("pacmap")
+
   operator <- pacmap$PaCMAP(
     n_components = as.integer(n_components), n_neighbors = n.neighbors, MN_ratio = MN_ratio, FP_ratio = FP_ratio,
     pair_neighbors = pair_neighbors, pair_MN = pair_MN, pair_FP = pair_FP, distance = distance_method,
@@ -1703,12 +1704,12 @@ RunPHATE.default <- function(object, assay = NULL,
 
   check_Python("phate")
   phate <- import("phate")
+
   if (is.numeric(knn_max) && length(knn_max) > 0) {
     knn_max <- as.integer(knn_max)
   } else {
     knn_max <- NULL
   }
-
   operator <- phate$PHATE(
     n_components = as.integer(n_components),
     knn = as.integer(knn),
@@ -2101,7 +2102,6 @@ RunLargeVis.default <- function(object, assay = NULL,
     set.seed(seed = seed.use)
   }
 
-  check_R("uwot")
   embedding <- uwot::lvish(
     X = object, perplexity = perplexity, n_neighbors = n_neighbors, n_components = n_components, metric = metric,
     n_epochs = n_epochs, learning_rate = learning_rate, scale = scale, init = init, init_sdev = init_sdev,

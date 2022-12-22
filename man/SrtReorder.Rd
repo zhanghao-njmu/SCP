@@ -12,7 +12,7 @@ SrtReorder(
   assay = NULL,
   log = TRUE,
   distance_metric = "euclidean",
-  reorder_FUN = "mean"
+  reorder_FUN = base::mean
 )
 }
 \arguments{

@@ -605,6 +605,7 @@ AddModuleScore2 <- function(object, slot = "data", features, pool = NULL, nbin =
 #' ClassDimPlot(pancreas_sub, "CC_classification")
 #' ExpDimPlot(pancreas_sub, "CC_G2M")
 #'
+#' \dontrun{
 #' data("panc8_sub")
 #' panc8_sub <- Integration_SCP(panc8_sub,
 #'   batch = "tech", integration_method = "Seurat"
@@ -632,24 +633,23 @@ AddModuleScore2 <- function(object, slot = "data", features, pool = NULL, nbin =
 #' pancreas_sub <- Standard_SCP(pancreas_sub, assay = "GO")
 #' ClassDimPlot(pancreas_sub, "SubCellType")
 #'
-#' if (interactive()) {
-#'   pancreas_sub[["tech"]] <- "Mouse"
-#'   panc_merge <- Integration_SCP(
-#'     srtList = list(panc8_sub, pancreas_sub),
-#'     assay = "GO",
-#'     batch = "tech", integration_method = "Seurat"
-#'   )
-#'   ClassDimPlot(panc_merge, group.by = c("tech", "celltype", "SubCellType", "Phase"))
+#' pancreas_sub[["tech"]] <- "Mouse"
+#' panc_merge <- Integration_SCP(
+#'   srtList = list(panc8_sub, pancreas_sub),
+#'   assay = "GO",
+#'   batch = "tech", integration_method = "Seurat"
+#' )
+#' ClassDimPlot(panc_merge, group.by = c("tech", "celltype", "SubCellType", "Phase"))
 #'
-#'   genenames <- make.unique(stringr::str_to_title(rownames(panc8_sub[["RNA"]])))
-#'   panc8_sub <- RenameFeatures(panc8_sub, newnames = genenames, assay = "RNA")
-#'   head(rownames(panc8_sub))
-#'   panc_merge <- Integration_SCP(
-#'     srtList = list(panc8_sub, pancreas_sub),
-#'     assay = "RNA",
-#'     batch = "tech", integration_method = "Seurat"
-#'   )
-#'   ClassDimPlot(panc_merge, group.by = c("tech", "celltype", "SubCellType", "Phase"))
+#' genenames <- make.unique(stringr::str_to_title(rownames(panc8_sub[["RNA"]])))
+#' panc8_sub <- RenameFeatures(panc8_sub, newnames = genenames, assay = "RNA")
+#' head(rownames(panc8_sub))
+#' panc_merge <- Integration_SCP(
+#'   srtList = list(panc8_sub, pancreas_sub),
+#'   assay = "RNA",
+#'   batch = "tech", integration_method = "Seurat"
+#' )
+#' ClassDimPlot(panc_merge, group.by = c("tech", "celltype", "SubCellType", "Phase"))
 #' }
 #'
 #' @importFrom Seurat AddModuleScore AddMetaData
@@ -3983,6 +3983,11 @@ srt_to_adata <- function(srt, features = NULL,
                          assay_X = "RNA", slot_X = "counts",
                          assay_layers = c("spliced", "unspliced"), slot_layers = "counts",
                          convert_tools = FALSE, convert_misc = FALSE, verbose = TRUE) {
+  env <- env_exist()
+  if (isFALSE(env)) {
+    warning("SCP python environment does not exist. Create it with the PrepareEnv function...", immediate. = TRUE)
+    PrepareEnv()
+  }
   if (!inherits(srt, "Seurat")) {
     stop("'srt' is not a Seurat object.")
   }
@@ -4334,7 +4339,7 @@ RunPAGA <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_layers
                     infer_pseudotime = FALSE, root_group = NULL, root_cell = NULL, n_dcs = 10, n_branchings = 0, min_group_size = 0.01,
                     show_plot = TRUE, dpi = 300, save = FALSE, dirpath = "./", fileprefix = "",
                     return_seurat = !is.null(srt)) {
-  check_Python("scanpy", envname = "SCP")
+  check_Python("scanpy")
   if (all(is.null(srt), is.null(adata), is.null(h5ad))) {
     stop("One of 'srt', 'adata' or 'h5ad' must be provided.")
   }
@@ -4466,9 +4471,9 @@ RunSCVELO <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_laye
                       calculate_velocity_genes = FALSE,
                       show_plot = TRUE, dpi = 300, save = FALSE, dirpath = "./", fileprefix = "",
                       return_seurat = !is.null(srt)) {
-  check_Python("scvelo", envname = "SCP")
+  check_Python("scvelo")
   if (isTRUE(magic_impute)) {
-    check_Python("magic-impute", envname = "SCP")
+    check_Python("magic-impute")
   }
   if (all(is.null(srt), is.null(adata), is.null(h5ad))) {
     stop("One of 'srt', 'adata' or 'h5ad' must be provided.")
@@ -4554,7 +4559,7 @@ RunPalantir <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_la
                         max_iterations = 25, n_jobs = 8, point_size = 20,
                         show_plot = TRUE, dpi = 300, save = FALSE, dirpath = "./", fileprefix = "",
                         return_seurat = !is.null(srt)) {
-  check_Python("palantir", envname = "SCP")
+  check_Python("palantir")
   if (all(is.null(srt), is.null(adata), is.null(h5ad))) {
     stop("One of 'srt', 'adata' or 'h5ad' must be provided.")
   }
@@ -4625,9 +4630,9 @@ RunCellRank <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_la
                         denoise = FALSE, kinetics = FALSE, axis = "equal",
                         show_plot = TRUE, dpi = 300, save = FALSE, dirpath = "./", fileprefix = "",
                         return_seurat = !is.null(srt)) {
-  check_Python("cellrank", envname = "SCP")
+  check_Python("cellrank")
   if (isTRUE(magic_impute)) {
-    check_Python("magic-impute", envname = "SCP")
+    check_Python("magic-impute")
   }
   if (all(is.null(srt), is.null(adata), is.null(h5ad))) {
     stop("One of 'srt', 'adata' or 'h5ad' must be provided.")
@@ -4692,7 +4697,7 @@ RunDynamo <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_laye
                       max_iterations = 25, n_jobs = 1, point_size = 20,
                       show_plot = TRUE, dpi = 300, save = FALSE, dirpath = "./", fileprefix = "",
                       return_seurat = !is.null(srt)) {
-  check_Python("dynamo-release", envname = "SCP")
+  check_Python("dynamo-release")
   if (all(is.null(srt), is.null(adata), is.null(h5ad))) {
     stop("One of 'srt', 'adata' or 'h5ad' must be provided.")
   }

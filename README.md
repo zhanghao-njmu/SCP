@@ -68,11 +68,13 @@ devtools::install_github("zhanghao-njmu/SCP")
 
 To run functions such as `RunPAGA` or `RunSCVELO`, SCP requires
 [conda](https://docs.conda.io/en/latest/miniconda.html) to create a
-separate python environment.
+separate python environment. The default environment name is
+`'SCP_env'`. You can specify the environment name for SCP by setting
+`options(SCP_env_name='new_name')`
 
-You can use `PrepareEnv()` to create the SCP python environment. If
-conda binary not found, it will automatically download and install a
-miniconda.
+Now, you can run `PrepareEnv()` to create the python environment for
+SCP. If the conda binary is not found, it will automatically download
+and install miniconda.
 
 ``` r
 SCP::PrepareEnv()
