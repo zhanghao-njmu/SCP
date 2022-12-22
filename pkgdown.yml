@@ -2,7 +2,7 @@ pandoc: 2.19.2
 pkgdown: 2.0.7
 pkgdown_sha: ~
 articles: {}
-last_built: 2022-12-21T16:33Z
+last_built: 2022-12-22T13:37Z
 urls:
   reference: https://zhanghao-njmu.github.io/SCP/reference
   article: https://zhanghao-njmu.github.io/SCP/articles

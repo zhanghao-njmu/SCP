@@ -26,7 +26,7 @@
     
     <a class="navbar-brand me-2" href="index.html">SCP</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.5.9012</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.5.9013</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -94,8 +94,8 @@
 <div class="section level4">
 <h4 id="create-scp-python-environment">Create SCP python environment<a class="anchor" aria-label="anchor" href="#create-scp-python-environment"></a>
 </h4>
-<p>To run functions such as <code>RunPAGA</code> or <code>RunSCVELO</code>, SCP requires <a href="https://docs.conda.io/en/latest/miniconda.html" class="external-link">conda</a> to create a separate python environment.</p>
-<p>You can use <code><a href="reference/PrepareEnv.html">PrepareEnv()</a></code> to create the SCP python environment. If conda binary not found, it will automatically download and install a miniconda.</p>
+<p>To run functions such as <code>RunPAGA</code> or <code>RunSCVELO</code>, SCP requires <a href="https://docs.conda.io/en/latest/miniconda.html" class="external-link">conda</a> to create a separate python environment. The default environment name is <code>'SCP_env'</code>. You can specify the environment name for SCP by setting <code>options(SCP_env_name='new_name')</code></p>
+<p>Now, you can run <code><a href="reference/PrepareEnv.html">PrepareEnv()</a></code> to create the python environment for SCP. If the conda binary is not found, it will automatically download and install miniconda.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">SCP</span><span class="fu">::</span><span class="fu"><a href="reference/PrepareEnv.html">PrepareEnv</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>Or run <code>PrepareEnv(conda_binary = "/path/to/conda")</code> to use a particular conda binary.</p>
