@@ -274,7 +274,13 @@
     <loc>https://zhanghao-njmu.github.io/SCP/reference/adjcolors.html</loc>
   </url>
   <url>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/as_matrix.html</loc>
+  </url>
+  <url>
     <loc>https://zhanghao-njmu.github.io/SCP/reference/blendcolors.html</loc>
+  </url>
+  <url>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/check_DataType.html</loc>
   </url>
   <url>
     <loc>https://zhanghao-njmu.github.io/SCP/reference/check_Python.html</loc>
@@ -283,7 +289,19 @@
     <loc>https://zhanghao-njmu.github.io/SCP/reference/check_R.html</loc>
   </url>
   <url>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/check_srtList.html</loc>
+  </url>
+  <url>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/check_srtMerge.html</loc>
+  </url>
+  <url>
     <loc>https://zhanghao-njmu.github.io/SCP/reference/compute_velocity_on_grid.html</loc>
+  </url>
+  <url>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/conda_install.html</loc>
+  </url>
+  <url>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/conda_python.html</loc>
   </url>
   <url>
     <loc>https://zhanghao-njmu.github.io/SCP/reference/db_DoubletDetection.html</loc>
@@ -298,13 +316,25 @@
     <loc>https://zhanghao-njmu.github.io/SCP/reference/db_scds.html</loc>
   </url>
   <url>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/download.html</loc>
+  </url>
+  <url>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/env_exist.html</loc>
+  </url>
+  <url>
     <loc>https://zhanghao-njmu.github.io/SCP/reference/exist_Python_pkgs.html</loc>
   </url>
   <url>
     <loc>https://zhanghao-njmu.github.io/SCP/reference/fastMNN_integrate.html</loc>
   </url>
   <url>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/find_conda.html</loc>
+  </url>
+  <url>
     <loc>https://zhanghao-njmu.github.io/SCP/reference/index.html</loc>
+  </url>
+  <url>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/invoke.html</loc>
   </url>
   <url>
     <loc>https://zhanghao-njmu.github.io/SCP/reference/isOutlier.html</loc>
@@ -341,5 +371,8 @@
   </url>
   <url>
     <loc>https://zhanghao-njmu.github.io/SCP/reference/theme_scp.html</loc>
+  </url>
+  <url>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/unnest.html</loc>
   </url>
 </urlset>

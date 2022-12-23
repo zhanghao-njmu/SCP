@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">SCP</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.5.9013</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.5.9014</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -61,11 +61,27 @@
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
     <dl><dt>conda</dt>
-<dd></dd>
+<dd><p>The path to a conda executable. Use <code>"auto"</code> to allow SCP to automatically find an appropriate conda binary.</p></dd>
+
+
+<dt>miniconda_repo</dt>
+<dd><p>Repositories for miniconda. Default is <code>https://repo.anaconda.com/miniconda</code></p></dd>
 
 
 <dt>python_version</dt>
 <dd><p>The version of python to install. Default is <code>3.8</code></p></dd>
+
+
+<dt>envname</dt>
+<dd><p>The name of a conda environment.</p></dd>
+
+
+<dt>force</dt>
+<dd><p>Whether to force a new environment to be created. If <code>TRUE</code>, the existing environment will be recreated. Default is <code>FALSE</code></p></dd>
+
+
+<dt>...</dt>
+<dd><p>Other arguments passed to <code><a href="https://rstudio.github.io/reticulate/reference/conda-tools.html" class="external-link">conda_install</a></code></p></dd>
 
 </dl></div>
 

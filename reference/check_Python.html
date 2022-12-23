@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">SCP</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.5.9013</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.5.9014</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -60,16 +60,28 @@
 
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
-    <dl><dt>envname</dt>
-<dd><p>The name of, or path to, a Python environment.</p></dd>
+    <dl><dt>packages</dt>
+<dd><p>A character vector, indicating package names which should be installed or removed. Use <code>⁠&lt;package&gt;==&lt;version&gt;</code>⁠ to request the installation of a specific version of a package.</p></dd>
+
+
+<dt>envname</dt>
+<dd><p>The name of a conda environment.</p></dd>
+
+
+<dt>conda</dt>
+<dd><p>The path to a conda executable. Use <code>"auto"</code> to allow SCP to automatically find an appropriate conda binary.</p></dd>
 
 
 <dt>force</dt>
-<dd><p>Whether to force package installation. Default is FALSE.</p></dd>
+<dd><p>Whether to force package installation. Default is <code>FALSE</code>.</p></dd>
+
+
+<dt>pip</dt>
+<dd><p>Whether to use pip for package installation. By default, packages are installed from the active conda channels.</p></dd>
 
 
 <dt>...</dt>
-<dd></dd>
+<dd><p>Other arguments passed to <code><a href="https://rstudio.github.io/reticulate/reference/conda-tools.html" class="external-link">conda_install</a></code></p></dd>
 
 </dl></div>
 
