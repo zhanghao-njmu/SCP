@@ -51,7 +51,7 @@ VelocityPlot(
 )
 }
 \arguments{
-\item{return_layer}{}
+\item{seed}{}
 }
 \description{
 Velocity Plot

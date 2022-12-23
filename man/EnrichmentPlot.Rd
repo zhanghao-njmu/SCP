@@ -38,8 +38,6 @@ EnrichmentPlot(
 )
 }
 \arguments{
-\item{group_use}{}
-
 \item{pvalueCutoff}{pvalueCutoff}
 
 \item{padjustCutoff}{padjustCutoff}
@@ -51,6 +49,8 @@ EnrichmentPlot(
 \item{topTerm}{Number of terms to plot if \code{plot_type="bar"} or \code{plot_type="lollipop"}.}
 
 \item{topWord}{Number of features to plot if \code{plot_type="wordcloud"}.}
+
+\item{legend.direction}{}
 
 \item{combine}{combine}
 

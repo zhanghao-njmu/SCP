@@ -56,7 +56,7 @@ GeneConvert <- function(geneID, geneID_from_IDtype = "symbol", geneID_to_IDtype 
   }
 
   if (missing(geneID)) {
-    stop("geneID must be provided.")
+    stop("\"geneID\" must be provided.")
   }
   if (is.null(species_to)) {
     species_to <- species_from
@@ -719,7 +719,7 @@ CellScoring <- function(srt, features = NULL, slot = "data", assay = "RNA", spli
   }
 
   if (!is.list(features) || length(names(features)) == 0) {
-    stop("'features' must be named list")
+    stop("\"features\" must be a named list")
   }
   expressed <- names(which(rowSums(GetAssayData(srt, slot = slot, assay = assay) > 0) > 0))
   features <- lapply(setNames(names(features), names(features)), function(x) features[[x]][features[[x]] %in% expressed])
@@ -1066,7 +1066,7 @@ RunDEtest <- function(srt, group_by = NULL, group1 = NULL, group2 = NULL, cells1
   if (isTRUE(FindConservedMarkers)) {
     check_R(c("multtest", "metap"))
     if (is.null(grouping.var)) {
-      stop("'grouping.var' must be provided when performing FindConservedMarkers")
+      stop("\"grouping.var\" must be provided when performing FindConservedMarkers")
     }
   }
   status <- check_DataType(srt, slot = slot, assay = assay)
@@ -1101,7 +1101,7 @@ RunDEtest <- function(srt, group_by = NULL, group1 = NULL, group2 = NULL, cells1
   if (!is.null(cells1) || !is.null(group1)) {
     if (is.null(cells1)) {
       if (is.null(group_by)) {
-        stop("'group_by' must be provided when 'group1' specified")
+        stop("\"group_by\" must be provided when \"group1\" specified")
       }
       cells1 <- colnames(srt)[srt[[group_by, drop = TRUE]] %in% group1]
     }
@@ -1476,7 +1476,7 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
       "CellTalk" = "symbol", "CellChat" = "symbol"
     )
     if (!any(db %in% names(default_IDtypes)) && is.null(custom_TERM2GENE)) {
-      stop("'db' is invalid.")
+      stop("\"db\" is invalid.")
     }
     if (!is.null(custom_TERM2GENE)) {
       if (length(db) > 1) {
@@ -2406,11 +2406,11 @@ RunEnrichment <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_t
     }
     slot <- paste0("DEtest_", group_by)
     if (!slot %in% names(srt@tools) || length(grep(pattern = "AllMarkers", names(srt@tools[[slot]]))) == 0) {
-      stop("Cannot find the DEtest result for the group '", group_by, "'. You may perform RunDEtest first.")
+      stop("Cannot find the DEtest result for the group \"", group_by, "\". You may perform RunDEtest first.")
     }
     index <- grep(pattern = paste0("AllMarkers_", test.use), names(srt@tools[[slot]]))[1]
     if (is.na(index)) {
-      stop("Cannot find the 'AllMarkers_", test.use, "' in the DEtest result.")
+      stop("Cannot find the \"AllMarkers_", test.use, "\" in the DEtest result.")
     }
     de <- names(srt@tools[[slot]])[index]
     de_df <- srt@tools[[slot]][[de]]
@@ -2643,11 +2643,11 @@ RunGSEA <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_thresho
     }
     slot <- paste0("DEtest_", group_by)
     if (!slot %in% names(srt@tools) || length(grep(pattern = "AllMarkers", names(srt@tools[[slot]]))) == 0) {
-      stop("Cannot find the DEtest result for the group '", group_by, "'. You may perform RunDEtest first.")
+      stop("Cannot find the DEtest result for the group \"", group_by, "\". You may perform RunDEtest first.")
     }
     index <- grep(pattern = paste0("AllMarkers_", test.use), names(srt@tools[[slot]]))[1]
     if (is.na(index)) {
-      stop("Cannot find the 'AllMarkers_", test.use, "' in the DEtest result.")
+      stop("Cannot find the \"AllMarkers_", test.use, "\" in the DEtest result.")
     }
     de <- names(srt@tools[[slot]])[index]
     de_df <- srt@tools[[slot]][[de]]
@@ -2673,10 +2673,10 @@ RunGSEA <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_thresho
     stop("geneScore must be the same length with geneID")
   }
   if (all(geneScore > 0) && scoreType != "pos") {
-    warning("All values in the geneScore are greater than zero and scoreType is '", scoreType, "', maybe you should switch to scoreType = 'pos'.", immediate. = TRUE)
+    warning("All values in the geneScore are greater than zero and scoreType is \"", scoreType, "\", maybe you should switch to scoreType = 'pos'.", immediate. = TRUE)
   }
   if (all(geneScore < 0) && scoreType != "neg") {
-    warning("All values in the geneScore are less than zero and scoreType is '", scoreType, "', maybe you should switch to scoreType = 'neg'.", immediate. = TRUE)
+    warning("All values in the geneScore are less than zero and scoreType is \"", scoreType, "\", maybe you should switch to scoreType = 'neg'.", immediate. = TRUE)
   }
   input <- data.frame(geneID = geneID, geneScore = geneScore, geneID_groups = geneID_groups)
   input <- input[!geneID %in% geneID_exclude, ]
@@ -3547,7 +3547,7 @@ RunMonocle3 <- function(srt, annotation = NULL, assay = NULL, slot = "counts",
 #' )
 #' ht_result$plot
 #'
-#' p <- DynamicPlot(
+#' DynamicPlot(
 #'   srt = pancreas_sub,
 #'   lineages = c("Lineage1", "Lineage2"),
 #'   features = c("Nnat", "Irx1"),
@@ -3555,7 +3555,6 @@ RunMonocle3 <- function(srt, annotation = NULL, assay = NULL, slot = "counts",
 #'   compare_lineages = TRUE,
 #'   compare_features = FALSE
 #' )
-#' p
 #' @export
 RunDynamicFeatures <- function(srt, lineages, features = NULL, suffix = lineages,
                                n_candidates = 1000, minfreq = 5,
@@ -3571,7 +3570,7 @@ RunDynamicFeatures <- function(srt, lineages, features = NULL, suffix = lineages
   cat(paste0("[", time_start, "] ", "Start RunDynamicFeatures\n"))
   message("Threads used: ", BPPARAM$workers)
 
-  check_R(c("mgcv"))
+  check_R("mgcv")
   meta <- c()
   gene <- c()
   if (!is.null(features)) {
@@ -3616,7 +3615,7 @@ RunDynamicFeatures <- function(srt, lineages, features = NULL, suffix = lineages
     srt_sub <- subset(srt, cell = rownames(na.omit(srt[[l]])))
     if (is.null(features)) {
       if (is.null(n_candidates)) {
-        stop("'features' or 'n_candidates' must provided at least one.")
+        stop("\"features\" or \"n_candidates\" must provided at least one.")
       }
       HVF <- VariableFeatures(FindVariableFeatures(srt_sub, nfeatures = n_candidates, assay = assay), assay = assay)
       HVF_counts <- srt_sub[[assay]]@counts[HVF, , drop = FALSE]
@@ -3662,7 +3661,7 @@ RunDynamicFeatures <- function(srt, lineages, features = NULL, suffix = lineages
       names(family) <- features
     }
     if (length(family) != length(features)) {
-      stop("'family' must be 1 or a vector of the same length as the feature.")
+      stop("\"family\" must be one character or a vector of the same length as the feature.")
     }
   }
 
@@ -3989,7 +3988,7 @@ srt_to_adata <- function(srt, features = NULL,
     PrepareEnv()
   }
   if (!inherits(srt, "Seurat")) {
-    stop("'srt' is not a Seurat object.")
+    stop("\"srt\" is not a Seurat object.")
   }
   if (is.null(features)) {
     features <- rownames(srt[[assay_X]])
@@ -4046,7 +4045,7 @@ srt_to_adata <- function(srt, features = NULL,
           layer <- layer[, colnames(X)]
         } else {
           stop(
-            "The following features in the '", assay_X, "' assay can not be found in the '", assay, "' assay:\n  ",
+            "The following features in the \"", assay_X, "\" assay can not be found in the \"", assay, "\" assay:\n  ",
             paste0(head(colnames(X)[!colnames(X) %in% colnames(layer)], 10), collapse = ","), "..."
           )
         }
@@ -4054,7 +4053,7 @@ srt_to_adata <- function(srt, features = NULL,
       layer_list[[assay]] <- layer
     } else {
       if (isTRUE(verbose)) {
-        message("Assay '", assay, "' is in the srt object but not converted.")
+        message("Assay \"", assay, "\" is in the srt object but not converted.")
       }
     }
   }
@@ -4107,7 +4106,7 @@ srt_to_adata <- function(srt, features = NULL,
     }
   } else {
     if (isTRUE(verbose)) {
-      message("'misc' slot is not converted.")
+      message("\"misc\" slot is not converted.")
     }
   }
   if (isTRUE(convert_tools)) {
@@ -4118,7 +4117,7 @@ srt_to_adata <- function(srt, features = NULL,
     }
   } else {
     if (isTRUE(verbose)) {
-      message("'tools' slot is not converted.")
+      message("\"tools\" slot is not converted.")
     }
   }
   if (length(uns_list) > 0) {
@@ -4152,7 +4151,7 @@ srt_to_adata <- function(srt, features = NULL,
 #' @export
 adata_to_srt <- function(adata) {
   if (!inherits(adata, "python.builtin.object")) {
-    stop("'adata' is not a Python object.")
+    stop("\"adata\" is not a python.builtin.object.")
   }
   x <- t(adata$X)
   if (!inherits(x, "dgCMatrix")) {
@@ -4185,7 +4184,7 @@ adata_to_srt <- function(adata) {
     for (k in iterate(adata$obsm$keys())) {
       obsm <- tryCatch(adata$obsm[[k]], error = identity)
       if (inherits(obsm, "error")) {
-        warning("'obsm: ", k, "' will not be converted. You may need to convert it manually.", immediate. = TRUE)
+        warning("\"obsm: ", k, "\" will not be converted. You may need to convert it manually.", immediate. = TRUE)
         next
       }
       k <- gsub(pattern = "^X_", replacement = "", x = k)
@@ -4198,7 +4197,7 @@ adata_to_srt <- function(adata) {
     for (k in iterate(adata$obsp$keys())) {
       obsp <- tryCatch(adata$obsp[[k]], error = identity)
       if (inherits(obsp, "error")) {
-        warning("'obsp: ", k, "' will not be converted. You may need to convert it manually.", immediate. = TRUE)
+        warning("\"obsp: ", k, "\" will not be converted. You may need to convert it manually.", immediate. = TRUE)
         next
       }
       colnames(obsp) <- adata$obs_names$values
@@ -4216,7 +4215,7 @@ adata_to_srt <- function(adata) {
     for (k in iterate(adata$varm$keys())) {
       varm <- tryCatch(adata$varm[[k]], error = identity)
       if (inherits(varm, "error")) {
-        warning("'varm: ", k, "' will not be converted. You may need to convert it manually.", immediate. = TRUE)
+        warning("\"varm: ", k, "\" will not be converted. You may need to convert it manually.", immediate. = TRUE)
         next
       }
       colnames(varm) <- paste0(k, "_", seq_len(ncol(varm)))
@@ -4228,7 +4227,7 @@ adata_to_srt <- function(adata) {
     for (k in iterate(adata$varp$keys())) {
       varp <- tryCatch(adata$varp[[k]], error = identity)
       if (inherits(varp, "error")) {
-        warning("'varp: ", k, "' will not be converted. You may need to convert it manually.", immediate. = TRUE)
+        warning("\"varp: ", k, "\" will not be converted. You may need to convert it manually.", immediate. = TRUE)
         next
       }
       colnames(varp) <- adata$var_names$values
@@ -4241,14 +4240,14 @@ adata_to_srt <- function(adata) {
     for (k in iterate(adata$uns$keys())) {
       uns <- tryCatch(adata$uns[[k]], error = identity)
       if (inherits(uns, "error")) {
-        warning("'uns: ", k, "' will not be converted. You may need to convert it manually.", immediate. = TRUE)
+        warning("\"uns: ", k, "\" will not be converted. You may need to convert it manually.", immediate. = TRUE)
         next
       }
       uns <- check_python_element(uns)
       if (!inherits(uns, "python.builtin.object")) {
         srt@misc[[k]] <- uns
       } else {
-        warning("'uns: ", k, "' will not be converted. You may need to convert it manually.", immediate. = TRUE)
+        warning("\"uns: ", k, "\" will not be converted. You may need to convert it manually.", immediate. = TRUE)
         next
       }
     }
@@ -4341,13 +4340,13 @@ RunPAGA <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_layers
                     return_seurat = !is.null(srt)) {
   check_Python("scanpy")
   if (all(is.null(srt), is.null(adata), is.null(h5ad))) {
-    stop("One of 'srt', 'adata' or 'h5ad' must be provided.")
+    stop("One of \"srt\", \"adata\" or \"h5ad\" must be provided.")
   }
   if (is.null(group_by)) {
-    stop("'group_by' must be provided.")
+    stop("\"group_by\" must be provided.")
   }
   if (is.null(linear_reduction) && is.null(nonlinear_reduction)) {
-    stop("'linear_reduction' or 'nonlinear_reduction' must be provided at least one.")
+    stop("\"linear_reduction\" or \"nonlinear_reduction\" must be provided at least one.")
   }
   args <- mget(names(formals()))
   args <- lapply(args, function(x) {
@@ -4476,13 +4475,13 @@ RunSCVELO <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_laye
     check_Python("magic-impute")
   }
   if (all(is.null(srt), is.null(adata), is.null(h5ad))) {
-    stop("One of 'srt', 'adata' or 'h5ad' must be provided.")
+    stop("One of \"srt\", \"adata\" or \"h5ad\" must be provided.")
   }
   if (is.null(group_by)) {
-    stop("'group_by' must be provided.")
+    stop("\"roup_by\" must be provided.")
   }
   if (is.null(linear_reduction) && is.null(nonlinear_reduction)) {
-    stop("'linear_reduction' or 'nonlinear_reduction' must be provided at least one.")
+    stop("\"linear_reduction\" or \"nonlinear_reduction\" must be provided at least one.")
   }
   args <- mget(names(formals()))
   args <- lapply(args, function(x) {
@@ -4561,16 +4560,16 @@ RunPalantir <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_la
                         return_seurat = !is.null(srt)) {
   check_Python("palantir")
   if (all(is.null(srt), is.null(adata), is.null(h5ad))) {
-    stop("One of 'srt', 'adata' or 'h5ad' must be provided.")
+    stop("One of \"srt\", \"adata\" or \"h5ad\" must be provided.")
   }
   if (is.null(group_by) && any(!is.null(early_group), !is.null(terminal_groups))) {
-    stop("'group_by' must be provided when early_group or terminal_groups provided.")
+    stop("\"group_by\" must be provided when early_group or terminal_groups provided.")
   }
   if (is.null(linear_reduction) && is.null(nonlinear_reduction)) {
-    stop("'linear_reduction' or 'nonlinear_reduction' must be provided at least one.")
+    stop("\"linear_reduction\" or \"nonlinear_reduction\" must be provided at least one.")
   }
   if (is.null(early_cell) && is.null(early_group)) {
-    stop("'early_cell' or 'early_group' must be provided.")
+    stop("\"early_cell\" or \"early_group\" must be provided.")
   }
   args <- mget(names(formals()))
   args <- lapply(args, function(x) {
@@ -4635,13 +4634,13 @@ RunCellRank <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_la
     check_Python("magic-impute")
   }
   if (all(is.null(srt), is.null(adata), is.null(h5ad))) {
-    stop("One of 'srt', 'adata' or 'h5ad' must be provided.")
+    stop("One of \"srt\", \"adata\" or \"h5ad\" must be provided.")
   }
   if (is.null(group_by)) {
-    stop("'group_by' must be provided.")
+    stop("\"group_by\" must be provided.")
   }
   if (is.null(linear_reduction) && is.null(nonlinear_reduction)) {
-    stop("'linear_reduction' or 'nonlinear_reduction' must be provided at least one.")
+    stop("\"linear_reduction\" or \"nonlinear_reduction\" must be provided at least one.")
   }
   mode <- as.list(mode)
   args <- mget(names(formals()))
@@ -4699,13 +4698,13 @@ RunDynamo <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_laye
                       return_seurat = !is.null(srt)) {
   check_Python("dynamo-release")
   if (all(is.null(srt), is.null(adata), is.null(h5ad))) {
-    stop("One of 'srt', 'adata' or 'h5ad' must be provided.")
+    stop("One of \"srt\", \"adata\" or \"h5ad\" must be provided.")
   }
   if (is.null(group_by)) {
-    stop("'group_by' must be provided.")
+    stop("\"group_by\" must be provided.")
   }
   if (is.null(linear_reduction) && is.null(nonlinear_reduction)) {
-    stop("'linear_reduction' or 'nonlinear_reduction' must be provided at least one.")
+    stop("\"linear_reduction\" or \"nonlinear_reduction\" must be provided at least one.")
   }
   args <- mget(names(formals()))
   args <- lapply(args, function(x) {

@@ -70,7 +70,7 @@ ExpStatPlot(
 )
 }
 \arguments{
-\item{force}{}
+\item{y.min}{}
 }
 \description{
 Violin plot for cell expression.

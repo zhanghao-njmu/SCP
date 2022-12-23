@@ -136,6 +136,8 @@ ClassDimPlot(
 
 \item{split.by}{Name of a metadata column to split plot by.}
 
+\item{cells}{}
+
 \item{palette}{Name of palette to use. Default is "Paired".}
 
 \item{bg_color}{Color value for NA points.}
@@ -155,8 +157,6 @@ ClassDimPlot(
 \item{cols.highlight}{A vector of colors to highlight the cells.}
 
 \item{sizes.highlight}{Size of highlighted cells.}
-
-\item{paga_type}{}
 
 \item{legend.position}{The position of legends ("none", "left", "right", "bottom", "top", or two-element numeric vector)}
 

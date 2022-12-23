@@ -13,7 +13,7 @@ RenameClusters(
 )
 }
 \arguments{
-\item{srt}{}
+\item{keep_levels}{}
 }
 \description{
 Rename clusters for the Seurat object

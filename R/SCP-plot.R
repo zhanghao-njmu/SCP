@@ -401,10 +401,13 @@ palette_scp <- function(x, n = 100, palette = "Paired", palcolor = NULL, type = 
 }
 
 #' Show the palettes collected by SCP
+#'
 #' @param index The index of the palette in SCP palette list. Show all palettes in SCP by default.
 #' @param palette_names Name of the palettes to be shown
 #' @param return_names Whether to return the palette names.
 #' @param return_palettes Whether to return the palettes.
+#' @param palettes
+#' @param type
 #'
 #' @examples
 #' all_palettes <- show_palettes(return_palettes = TRUE)
@@ -482,6 +485,8 @@ show_palettes <- function(palettes = NULL, type = c("discrete", "continuous"), i
 #' @param return_grob
 #' @param verbose
 #' @param ...
+#' @param panel_index
+#' @param respect
 #'
 #' @return If \code{filename} is not specified, no return; otherwise return a list objects:
 #' \itemize{
@@ -598,7 +603,7 @@ panel_fix <- function(x = NULL, panel_index = NULL, respect = NULL,
       if (unitType(width) == "null") {
         if (units != "null") {
           width <- convertWidth(grob[["widths"]][panel_index_w], unitTo = units)
-          if (as.numeric(convertUnit(width, "cm")) < 1e-10) {
+          if (all(unitType(width) == "null") || convertUnit(width, unitTo = "cm", valueOnly = TRUE) < 1e-10) {
             width <- NULL
           }
         } else {
@@ -613,7 +618,7 @@ panel_fix <- function(x = NULL, panel_index = NULL, respect = NULL,
       if (unitType(height) == "null") {
         if (units != "null") {
           height <- convertHeight(grob[["heights"]][panel_index_h], unitTo = units)
-          if (as.numeric(convertUnit(height, "cm")) < 1e-10) {
+          if (all(unitType(height) == "null") || convertUnit(height, unitTo = "cm", valueOnly = TRUE) < 1e-10) {
             height <- NULL
           }
         } else {
@@ -640,7 +645,7 @@ panel_fix <- function(x = NULL, panel_index = NULL, respect = NULL,
         # print(paste0("plot_width:",plot_width," plot_height:",plot_height))
       }
       panel_width <- convertWidth(sum(subgrob[["widths"]]), unitTo = units, valueOnly = TRUE) / as.numeric(grob$grobs[[i]][["children"]][[j]]$vp$width)
-      panel_height <- convertWidth(sum(subgrob[["heights"]]), unitTo = units, valueOnly = TRUE) / as.numeric(grob$grobs[[i]][["children"]][[j]]$vp$height)
+      panel_height <- convertHeight(sum(subgrob[["heights"]]), unitTo = units, valueOnly = TRUE) / as.numeric(grob$grobs[[i]][["children"]][[j]]$vp$height)
       grob <- panel_fix_single(grob, panel_index = i, width = panel_width, height = panel_height, margin = ifelse(depth == 1, margin, 0), units = units, raster = FALSE, return_grob = TRUE)
     } else if (grob$grobs[[i]]$name == "layout") {
       if (isTRUE(verbose)) {
@@ -650,7 +655,7 @@ panel_fix <- function(x = NULL, panel_index = NULL, respect = NULL,
       subgrob <- panel_fix(subgrob, width = width, height = height, margin = space, units = units, raster = raster, dpi = dpi, return_grob = TRUE, verbose = verbose, depth = depth + 1)
       grob$grobs[[i]] <- subgrob
       panel_width <- convertWidth(sum(subgrob[["widths"]]), unitTo = units, valueOnly = TRUE)
-      panel_height <- convertWidth(sum(subgrob[["heights"]]), unitTo = units, valueOnly = TRUE)
+      panel_height <- convertHeight(sum(subgrob[["heights"]]), unitTo = units, valueOnly = TRUE)
       grob <- panel_fix_single(grob, panel_index = i, width = panel_width, height = panel_height, margin = ifelse(depth == 1, margin, 0), units = units, raster = FALSE, respect = TRUE, return_grob = TRUE)
     } else {
       # print("fix the grob")
@@ -703,6 +708,11 @@ panel_fix <- function(x = NULL, panel_index = NULL, respect = NULL,
 #' @param units
 #' @param raster
 #' @param dpi
+#' @param respect
+#' @param return_grob
+#' @param bg_color
+#' @param save
+#' @param verbose
 #'
 #' @importFrom ggplot2 ggsave zeroGrob
 #' @importFrom gtable gtable_add_padding
@@ -752,21 +762,21 @@ panel_fix_single <- function(x, panel_index = NULL, respect = NULL,
   }
 
   if (units != "null") {
-    raw_w <- as.numeric(convertWidth(w, unitTo = units))
-    raw_h <- as.numeric(convertHeight(h, unitTo = units))
-    if (all(as.numeric(convertWidth(w, unitTo = "cm")) < 1e-10)) {
+    raw_w <- convertWidth(w, unitTo = units, valueOnly = TRUE)
+    raw_h <- convertHeight(h, unitTo = units, valueOnly = TRUE)
+    if (all(unitType(w) == "null") || convertUnit(w, unitTo = "cm", valueOnly = TRUE) < 1e-10) {
       raw_w <- 0
     }
-    if (all(as.numeric(convertHeight(h, unitTo = "cm")) < 1e-10)) {
+    if (all(unitType(h) == "null") || convertUnit(h, unitTo = "cm", valueOnly = TRUE) < 1e-10) {
       raw_h <- 0
     }
     if (isTRUE(grob$respect)) {
       raw_aspect <- as.vector(h) / as.vector(w)
     } else {
-      if (raw_w != 0 && raw_h != 0) {
+      if (all(raw_w != 0) && all(raw_h != 0)) {
         raw_aspect <- raw_h / raw_w
       } else {
-        raw_aspect <- as.numeric(convertHeight(unit(1, "npc"), "cm")) / as.numeric(convertWidth(unit(1, "npc"), "cm"))
+        raw_aspect <- convertHeight(unit(1, "npc"), "cm", valueOnly = TRUE) / convertWidth(unit(1, "npc"), "cm", valueOnly = TRUE)
         # raw_aspect <- NULL
       }
     }
@@ -776,8 +786,8 @@ panel_fix_single <- function(x, panel_index = NULL, respect = NULL,
       # print(w)
       # print(h)
       if (width == 0 && height == 0) {
-        width <- as.numeric(convertWidth(unit(0.8, "npc"), units))
-        height <- as.numeric(convertHeight(unit(0.8, "npc"), units))
+        width <- convertWidth(unit(0.8, "npc"), units, valueOnly = TRUE)
+        height <- convertHeight(unit(0.8, "npc"), units, valueOnly = TRUE)
         if (isTRUE(grob$respect)) {
           if (raw_aspect <= 1) {
             height <- width * raw_aspect
@@ -818,7 +828,7 @@ panel_fix_single <- function(x, panel_index = NULL, respect = NULL,
     width <- NULL
     for (i in seq_along(width_raw)) {
       if (inherits(width_raw[i], "unit")) {
-        width[i] <- as.numeric(convertHeight(width_raw[i], unitTo = units))
+        width[i] <- convertWidth(width_raw[i], unitTo = units, valueOnly = TRUE)
       } else {
         width <- width_raw[i]
       }
@@ -827,7 +837,7 @@ panel_fix_single <- function(x, panel_index = NULL, respect = NULL,
     height <- NULL
     for (i in seq_along(height_raw)) {
       if (inherits(height_raw[i], "unit")) {
-        height[i] <- as.numeric(convertHeight(height_raw[i], unitTo = units))
+        height[i] <- convertHeight(height_raw[i], unitTo = units, valueOnly = TRUE)
       } else {
         height <- height_raw[i]
       }
@@ -923,6 +933,7 @@ panel_fix_single <- function(x, panel_index = NULL, respect = NULL,
 }
 
 #' Convert a color with arbitrary transparency to a fixed color
+#'
 #' @param colors
 #'
 #' @param alpha
@@ -1145,7 +1156,6 @@ DefaultReduction <- function(srt, pattern = NULL, min_dim = 2, max_distance = 0.
 #' @param edge_alpha
 #' @param edge_color
 #' @param paga
-#' @param paga_node_palette
 #' @param paga_node_size
 #' @param paga_edge_threshold
 #' @param paga_edge_size
@@ -1201,6 +1211,7 @@ DefaultReduction <- function(srt, pattern = NULL, min_dim = 2, max_distance = 0.
 #' @param stat_plot_position
 #' @param stat_palcolor
 #' @param paga_type
+#' @param cells
 #'
 #' @return A single ggplot object if combine = TRUE; otherwise, a list of ggplot objects
 #'
@@ -1862,6 +1873,7 @@ ClassDimPlot <- function(srt, group.by = "orig.ident", reduction = NULL, dims = 
 #' @param align
 #' @param axis
 #' @param force
+#' @param cells
 #'
 #' @return A single ggplot object if combine = TRUE; otherwise, a list of ggplot objects
 #'
@@ -3277,7 +3289,6 @@ cluster_within_group2 <- function(mat, factor) {
 #' @param heatmap_palette Heatmap expression palette.
 #' @param feature_palette Feature groups palette.
 #' @param cell_palette Column palette.
-#' @param grid_size size for each dot.
 #' @param aggregate_fun
 #' @param slot
 #' @param lib_normalize
@@ -3285,6 +3296,94 @@ cluster_within_group2 <- function(mat, factor) {
 #' @param add_reticle
 #' @param cluster_rows
 #' @param cluster_columns
+#' @param split.by
+#' @param cells
+#' @param exp_cutoff
+#' @param border
+#' @param flip
+#' @param feature_split_by
+#' @param n_split
+#' @param split_method
+#' @param decreasing
+#' @param cluster_features_by
+#' @param cluster_row_slices
+#' @param cluster_column_slices
+#' @param show_row_names
+#' @param show_column_names
+#' @param row_names_side
+#' @param column_names_side
+#' @param row_names_rot
+#' @param column_names_rot
+#' @param row_title_side
+#' @param column_title_side
+#' @param row_title_rot
+#' @param column_title_rot
+#' @param anno_terms
+#' @param anno_keys
+#' @param anno_features
+#' @param terms_width
+#' @param terms_fontsize
+#' @param keys_width
+#' @param keys_fontsize
+#' @param features_width
+#' @param features_fontsize
+#' @param IDtype
+#' @param species
+#' @param db_update
+#' @param db_version
+#' @param convert_species
+#' @param Ensembl_version
+#' @param mirror
+#' @param db
+#' @param TERM2GENE
+#' @param TERM2NAME
+#' @param minGSSize
+#' @param maxGSSize
+#' @param universe
+#' @param GO_simplify
+#' @param GO_simplify_padjustCutoff
+#' @param simplify_method
+#' @param simplify_similarityCutoff
+#' @param pvalueCutoff
+#' @param padjustCutoff
+#' @param topTerm
+#' @param show_termid
+#' @param topWord
+#' @param min_word_length
+#' @param exclude_words
+#' @param nlabel
+#' @param features_label
+#' @param label_size
+#' @param label_color
+#' @param add_bg
+#' @param bg_alpha
+#' @param add_dot
+#' @param dot_size
+#' @param reticle_color
+#' @param add_violin
+#' @param fill.by
+#' @param fill_palette
+#' @param fill_palcolor
+#' @param heatmap_palcolor
+#' @param group_palette
+#' @param group_palcolor
+#' @param cell_split_palette
+#' @param cell_split_palcolor
+#' @param feature_split_palette
+#' @param feature_split_palcolor
+#' @param cell_annotation
+#' @param cell_palcolor
+#' @param cell_annotation_params
+#' @param feature_annotation
+#' @param feature_palcolor
+#' @param feature_annotation_params
+#' @param use_raster
+#' @param raster_device
+#' @param height
+#' @param width
+#' @param units
+#' @param seed
+#' @param ht_params
 #'
 #' @examples
 #' library(dplyr)
@@ -3434,7 +3533,13 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
   if (any(!group.by %in% colnames(srt@meta.data))) {
     stop(group.by[!group.by %in% colnames(srt@meta.data)], " is not in the meta data of the Seurat object.")
   }
-  columns_length <- lapply(srt[[group.by, drop = FALSE]], function(x) length(unique(x))) %>% unlist()
+  group_elements <- lapply(srt[[group.by, drop = FALSE]], function(x) length(unique(x))) %>% unlist()
+  if (any(group_elements == 1) && exp_method == "zscore") {
+    stop(
+      "'zscore' cannot be applied to the group(s) consisting of one element: ",
+      paste0(names(group_elements)[group_elements == 1], collapse = ",")
+    )
+  }
   if (length(group_palette) == 1) {
     group_palette <- rep(group_palette, length(group.by))
   }
@@ -4533,41 +4638,41 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
     fix <- FALSE
   }
   if (is.null(height)) {
-    height <- convertHeight(unit(0.8, "npc"), units)
+    height <- convertHeight(unit(0.8, "npc"), units, valueOnly = TRUE)
   }
   if (is.null(width)) {
-    width <- convertWidth(unit(0.8, "npc"), units)
+    width <- convertWidth(unit(0.8, "npc"), units, valueOnly = TRUE)
   }
   if (isTRUE(flip)) {
     if (length(ha_top_list) > 0) {
-      width <- convertUnit(unit(width, units) + width.HeatmapAnnotation(ha_top_list[[1]]), units)
+      width <- convertWidth(unit(width, units) + width.HeatmapAnnotation(ha_top_list[[1]]), units, valueOnly = TRUE)
     }
     if (!is.null(ha_left)) {
-      height <- convertUnit(unit(height, units) + height.HeatmapAnnotation(ha_left), units)
+      height <- convertHeight(unit(height, units) + height.HeatmapAnnotation(ha_left), units, valueOnly = TRUE)
     }
     if (!is.null(ha_right)) {
-      height <- convertUnit(unit(height, units) + height.HeatmapAnnotation(ha_right), units)
+      height <- convertHeight(unit(height, units) + height.HeatmapAnnotation(ha_right), units, valueOnly = TRUE)
     }
   } else {
     if (length(ha_top_list) > 0) {
-      height <- convertUnit(unit(height, units) + height.HeatmapAnnotation(ha_top_list[[1]]), units)
+      height <- convertHeight(unit(height, units) + height.HeatmapAnnotation(ha_top_list[[1]]), units, valueOnly = TRUE)
     }
     if (!is.null(ha_left)) {
-      width <- convertUnit(unit(width, units) + width.HeatmapAnnotation(ha_left), units)
+      width <- convertWidth(unit(width, units) + width.HeatmapAnnotation(ha_left), units, valueOnly = TRUE)
     }
     if (!is.null(ha_right)) {
-      width <- convertUnit(unit(width, units) + width.HeatmapAnnotation(ha_right), units)
+      width <- convertWidth(unit(width, units) + width.HeatmapAnnotation(ha_right), units, valueOnly = TRUE)
     }
   }
 
-  lgd_width <- convertUnit(unit(unlist(lapply(lgd, width.Legends)), unitType(width.Legends(lgd[[1]]))) + unit(4, "mm"), units)
-  lgd_height <- convertUnit(unit(unlist(lapply(lgd, height.Legends)), unitType(height.Legends(lgd[[1]]))) + unit(4, "mm"), units)
+  lgd_width <- convertWidth(unit(unlist(lapply(lgd, width.Legends)), unitType(width.Legends(lgd[[1]]))) + unit(4, "mm"), units)
+  lgd_height <- convertHeight(unit(unlist(lapply(lgd, height.Legends)), unitType(height.Legends(lgd[[1]]))) + unit(4, "mm"), units)
   lgd_split <- c()
   lgd_group <- 0
   height_cum <- unit(0, units)
   for (i in seq_along(lgd_height)) {
     height_cum <- height_cum + lgd_height[i]
-    if (as.numeric(height_cum) < as.numeric(convertUnit(height - unit(2, "cm"), units))) {
+    if (as.numeric(height_cum) < as.numeric(height - convertHeight(unit(2, "cm"), units, valueOnly = TRUE))) {
       lgd_split <- c(lgd_split, lgd_group)
     } else {
       lgd_group <- lgd_group + 1
@@ -4575,13 +4680,13 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
       height_cum <- lgd_height[i]
     }
   }
-  # print(paste0("height:",round(convertUnit(height-unit(2,"cm"),units),3)))
-  # print(paste0("lgd_sum_height:",paste0(round(sum(lgd_height),3),collapse = ",")))
-  # print(paste0("lgd_height:",paste0(round(lgd_height,3),collapse = ",")))
-  # print(paste0("lgd_split:",paste0(round(lgd_split,3),collapse = ",")))
+  # print(paste0("height:", round(height - convertHeight(unit(2, "cm"), units, valueOnly = TRUE), 3)))
+  # print(paste0("lgd_sum_height:", paste0(round(sum(lgd_height), 3), collapse = ",")))
+  # print(paste0("lgd_height:", paste0(round(lgd_height, 3), collapse = ",")))
+  # print(paste0("lgd_split:", paste0(round(lgd_split, 3), collapse = ",")))
 
   lgd_width_split <- split(lgd_width, lgd_split)
-  width <- convertUnit(unit(width, units = units) + do.call(sum, lapply(lgd_width_split, max)), units)
+  width <- convertWidth(unit(width, units = units) + do.call(sum, lapply(lgd_width_split, max)), units, valueOnly = TRUE)
 
   gTree <- grid.grabExpr(
     {
@@ -4603,8 +4708,8 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
         }
       }
     },
-    height = convertUnit(height, unitTo = "inch"),
-    width = convertUnit(width, unitTo = "inch"),
+    height = unit(height, units = units),
+    width = unit(width, units = units),
     wrap = TRUE,
     wrap.grobs = TRUE
   )
@@ -4642,7 +4747,6 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
 #' @param n_split
 #' @param feature_split_by
 #' @param split_method
-#' @param row_title_size
 #' @param decreasing
 #' @param lib_normalize
 #' @param libsize
@@ -4650,7 +4754,6 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
 #' @param anno_features
 #' @param IDtype
 #' @param species
-#' @param db_IDtype
 #' @param db_update
 #' @param db_version
 #' @param Ensembl_version
@@ -4670,8 +4773,6 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
 #' @param topWord
 #' @param min_word_length
 #' @param exclude_words
-#' @param anno_width
-#' @param anno_fontsize
 #' @param nlabel
 #' @param features_label
 #' @param label_size
@@ -4690,6 +4791,43 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
 #' @param width
 #' @param units
 #' @param seed
+#' @param cells
+#' @param split.by
+#' @param cell_order
+#' @param border
+#' @param flip
+#' @param cluster_features_by
+#' @param cluster_row_slices
+#' @param cluster_column_slices
+#' @param show_row_names
+#' @param show_column_names
+#' @param row_names_side
+#' @param column_names_side
+#' @param row_names_rot
+#' @param column_names_rot
+#' @param row_title_side
+#' @param column_title_side
+#' @param row_title_rot
+#' @param column_title_rot
+#' @param anno_terms
+#' @param terms_width
+#' @param terms_fontsize
+#' @param keys_width
+#' @param keys_fontsize
+#' @param features_width
+#' @param features_fontsize
+#' @param convert_species
+#' @param topTerm
+#' @param show_termid
+#' @param heatmap_palcolor
+#' @param group_palcolor
+#' @param cell_split_palette
+#' @param cell_split_palcolor
+#' @param feature_split_palcolor
+#' @param cell_annotation_params
+#' @param feature_annotation_params
+#' @param raster_device
+#' @param ht_params
 #'
 #' @examples
 #' library(dplyr)
@@ -4751,12 +4889,13 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
 #'
 #' @importFrom circlize colorRamp2
 #' @importFrom ComplexHeatmap Heatmap Legend HeatmapAnnotation anno_empty anno_mark anno_simple anno_textbox draw decorate_heatmap_body width.HeatmapAnnotation height.HeatmapAnnotation width.Legends height.Legends cluster_within_group decorate_annotation row_order %v%
-#' @importFrom grid gpar grid.grabExpr grid.text convertUnit
+#' @importFrom grid gpar grid.grabExpr grid.text
 #' @importFrom gtable gtable_add_padding
 #' @importFrom cowplot plot_grid
 #' @importFrom Seurat GetAssayData
 #' @importFrom stats hclust order.dendrogram as.dendrogram reorder
 #' @importFrom dplyr %>% filter group_by arrange desc across mutate summarise distinct n .data "%>%"
+#' @importFrom Matrix t
 #' @export
 ExpHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, split.by = NULL, max_cells = 100, cell_order = NULL, border = TRUE, flip = FALSE,
                        slot = "counts", assay = "RNA", exp_method = c("zscore", "raw", "fc", "log2fc", "log1p"), lib_normalize = TRUE, libsize = NULL,
@@ -5691,41 +5830,41 @@ ExpHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, spli
     fix <- FALSE
   }
   if (is.null(height)) {
-    height <- convertHeight(unit(0.8, "npc"), units)
+    height <- convertHeight(unit(0.8, "npc"), units, valueOnly = TRUE)
   }
   if (is.null(width)) {
-    width <- convertWidth(unit(0.8, "npc"), units)
+    width <- convertWidth(unit(0.8, "npc"), units, valueOnly = TRUE)
   }
   if (isTRUE(flip)) {
     if (length(ha_top_list) > 0) {
-      width <- convertUnit(unit(width, units) + width.HeatmapAnnotation(ha_top_list[[1]]), units)
+      width <- convertWidth(unit(width, units) + width.HeatmapAnnotation(ha_top_list[[1]]), units, valueOnly = TRUE)
     }
     if (!is.null(ha_left)) {
-      height <- convertUnit(unit(height, units) + height.HeatmapAnnotation(ha_left), units)
+      height <- convertHeight(unit(height, units) + height.HeatmapAnnotation(ha_left), units, valueOnly = TRUE)
     }
     if (!is.null(ha_right)) {
-      height <- convertUnit(unit(height, units) + height.HeatmapAnnotation(ha_right), units)
+      height <- convertHeight(unit(height, units) + height.HeatmapAnnotation(ha_right), units, valueOnly = TRUE)
     }
   } else {
     if (length(ha_top_list) > 0) {
-      height <- convertUnit(unit(height, units) + height.HeatmapAnnotation(ha_top_list[[1]]), units)
+      height <- convertHeight(unit(height, units) + height.HeatmapAnnotation(ha_top_list[[1]]), units, valueOnly = TRUE)
     }
     if (!is.null(ha_left)) {
-      width <- convertUnit(unit(width, units) + width.HeatmapAnnotation(ha_left), units)
+      width <- convertWidth(unit(width, units) + width.HeatmapAnnotation(ha_left), units, valueOnly = TRUE)
     }
     if (!is.null(ha_right)) {
-      width <- convertUnit(unit(width, units) + width.HeatmapAnnotation(ha_right), units)
+      width <- convertWidth(unit(width, units) + width.HeatmapAnnotation(ha_right), units, valueOnly = TRUE)
     }
   }
 
-  lgd_width <- convertUnit(unit(unlist(lapply(lgd, width.Legends)), unitType(width.Legends(lgd[[1]]))) + unit(4, "mm"), units)
-  lgd_height <- convertUnit(unit(unlist(lapply(lgd, height.Legends)), unitType(height.Legends(lgd[[1]]))) + unit(4, "mm"), units)
+  lgd_width <- convertWidth(unit(unlist(lapply(lgd, width.Legends)), unitType(width.Legends(lgd[[1]]))) + unit(4, "mm"), units)
+  lgd_height <- convertHeight(unit(unlist(lapply(lgd, height.Legends)), unitType(height.Legends(lgd[[1]]))) + unit(4, "mm"), units)
   lgd_split <- c()
   lgd_group <- 0
   height_cum <- unit(0, units)
   for (i in seq_along(lgd_height)) {
     height_cum <- height_cum + lgd_height[i]
-    if (as.numeric(height_cum) < as.numeric(convertUnit(height - unit(2, "cm"), units))) {
+    if (as.numeric(height_cum) < as.numeric(height - convertHeight(unit(2, "cm"), units, valueOnly = TRUE))) {
       lgd_split <- c(lgd_split, lgd_group)
     } else {
       lgd_group <- lgd_group + 1
@@ -5733,12 +5872,13 @@ ExpHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, spli
       height_cum <- lgd_height[i]
     }
   }
-  # print(paste0("height:",round(convertUnit(height-unit(2,"cm"),units),3)))
-  # print(paste0("lgd_sum_height:",paste0(round(sum(lgd_height),3),collapse = ",")))
-  # print(paste0("lgd_height:",paste0(round(lgd_height,3),collapse = ",")))
-  # print(paste0("lgd_split:",paste0(round(lgd_split,3),collapse = ",")))
+  # print(paste0("height:", round(height - convertHeight(unit(2, "cm"), units, valueOnly = TRUE), 3)))
+  # print(paste0("lgd_sum_height:", paste0(round(sum(lgd_height), 3), collapse = ",")))
+  # print(paste0("lgd_height:", paste0(round(lgd_height, 3), collapse = ",")))
+  # print(paste0("lgd_split:", paste0(round(lgd_split, 3), collapse = ",")))
+
   lgd_width_split <- split(lgd_width, lgd_split)
-  width <- convertUnit(unit(width, units = units) + do.call(sum, lapply(lgd_width_split, max)), units)
+  width <- convertWidth(unit(width, units = units) + do.call(sum, lapply(lgd_width_split, max)), units, valueOnly = TRUE)
 
   gTree <- grid.grabExpr(
     {
@@ -5760,8 +5900,8 @@ ExpHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, spli
         }
       }
     },
-    height = convertUnit(height, unitTo = "inch"),
-    width = convertUnit(width, unitTo = "inch"),
+    height = unit(height, units = units),
+    width = unit(width, units = units),
     wrap = TRUE,
     wrap.grobs = TRUE
   )
@@ -5822,6 +5962,7 @@ ExpHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, spli
 #' @param align
 #' @param axis
 #' @param force
+#' @param cells
 #'
 #' @examples
 #' data("pancreas_sub")
@@ -6236,6 +6377,38 @@ ExpCorPlot <- function(srt, features, group.by = NULL, split.by = NULL, cells = 
 
 #' CellDensityPlot
 #'
+#' @param srt
+#' @param features
+#' @param group.by
+#' @param split.by
+#' @param flip
+#' @param reverse
+#' @param x_order
+#' @param decreasing
+#' @param palette
+#' @param palcolor
+#' @param cells
+#' @param assay
+#' @param slot
+#' @param keep_empty
+#' @param y.nbreaks
+#' @param y.min
+#' @param y.max
+#' @param same.y.lims
+#' @param theme_use
+#' @param aspect.ratio
+#' @param title
+#' @param subtitle
+#' @param legend.position
+#' @param legend.direction
+#' @param combine
+#' @param nrow
+#' @param ncol
+#' @param byrow
+#' @param align
+#' @param axis
+#' @param force
+#'
 #' @examples
 #' data("pancreas_sub")
 #' CellDensityPlot(pancreas_sub, features = "Sox9", group.by = "SubCellType")
@@ -6430,12 +6603,46 @@ CellDensityPlot <- function(srt, features, group.by, split.by = NULL,
   return(p)
 }
 
-
 FeatureCorHeatmap <- function(srt, features, cells) {
 
 }
 
 #' CellCorHeatmap
+#'
+#' @param srt_query
+#' @param srt_ref
+#' @param bulk_ref
+#' @param query_group
+#' @param ref_group
+#' @param query_assay
+#' @param ref_assay
+#' @param query_reduction
+#' @param ref_reduction
+#' @param query_dims
+#' @param ref_dims
+#' @param query_collapsing
+#' @param ref_collapsing
+#' @param features
+#' @param features_type
+#' @param feature_source
+#' @param nfeatures
+#' @param DEtest_param
+#' @param DE_threshold
+#' @param distance_metric
+#' @param k
+#' @param filter_lowfreq
+#' @param prefix
+#' @param force
+#' @param rows
+#' @param columns
+#' @param cluster_columns
+#' @param cluster_rows
+#' @param nlabel
+#' @param label_cutoff
+#' @param label_by
+#' @param label_size
+#' @param gird_size
+#' @param ...
 #'
 #' @importFrom ComplexHeatmap Heatmap draw
 #' @importFrom circlize colorRamp2
@@ -6623,6 +6830,10 @@ geom_split_violin <- function(mapping = NULL, data = NULL, stat = "ydensity", po
 #' @param align
 #' @param axis
 #' @param force
+#' @param stat_single
+#' @param plot_type
+#' @param y.nbreaks
+#' @param y.min
 #'
 #' @examples
 #' library(dplyr)
@@ -7153,6 +7364,10 @@ ExpStatPlot <- function(srt, features = NULL, group.by = NULL, split.by = NULL, 
 #' @param align
 #' @param axis
 #' @param force
+#' @param flip
+#' @param NA_color
+#' @param NA_stat
+#' @param stat_level
 #'
 #' @examples
 #' data("pancreas_sub")
@@ -7733,6 +7948,7 @@ ClassStatPlot <- function(srt, stat.by = "orig.ident", group.by = NULL, split.by
 #' @param legend.position
 #' @param legend.direction
 #' @param return_layer
+#' @param cells
 #'
 #' @examples
 #' data("pancreas_sub")
@@ -7912,6 +8128,8 @@ LineagePlot <- function(srt, lineages, reduction = NULL, dims = c(1, 2), cells =
 #' @param legend.direction
 #' @param return_layer
 #' @param type
+#' @param cells
+#' @param node_palcolor
 #'
 #' @examples
 #' data("pancreas_sub")
@@ -8089,6 +8307,7 @@ PAGAPlot <- function(srt, paga = srt@misc$paga, type = "connectivities",
 #' @param legend.position
 #' @param legend.direction
 #' @param return_layer
+#' @param node_palcolor
 #'
 #' @importFrom ggplot2 scale_size_identity scale_size_continuous scale_size_discrete scale_alpha_identity scale_alpha_continuous scale_alpha_discrete geom_curve geom_segment geom_point scale_color_manual guide_legend guides labs aes scale_linewidth_continuous
 #' @importFrom ggnewscale new_scale
@@ -8529,6 +8748,9 @@ segementsDf <- function(data, shorten_start, shorten_end, offset) {
 #' @param legend.position
 #' @param legend.direction
 #' @param return_layer
+#' @param cells
+#' @param group_palcolor
+#' @param seed
 #'
 #' @examples
 #' data("pancreas_sub")
@@ -8856,6 +9078,35 @@ compute_velocity_on_grid <- function(X_emb, V_emb,
 
 #' VolcanoPlot
 #'
+#' @param srt
+#' @param group_by
+#' @param test.use
+#' @param DE_threshold
+#' @param x_metric
+#' @param palette
+#' @param palcolor
+#' @param pt.size
+#' @param pt.alpha
+#' @param cols.highlight
+#' @param sizes.highlight
+#' @param alpha.highlight
+#' @param stroke.highlight
+#' @param nlabel
+#' @param features_label
+#' @param label.fg
+#' @param label.bg
+#' @param label.bg.r
+#' @param label.size
+#' @param aspect.ratio
+#' @param xlab
+#' @param ylab
+#' @param combine
+#' @param nrow
+#' @param ncol
+#' @param byrow
+#' @param align
+#' @param axis
+#'
 #' @examples
 #' data("pancreas_sub")
 #' pancreas_sub <- RunDEtest(pancreas_sub, group_by = "CellType", only.pos = FALSE)
@@ -8975,6 +9226,11 @@ VolcanoPlot <- function(srt, group_by = NULL, test.use = "wilcox", DE_threshold 
 }
 
 #' SankeyPlot
+#'
+#' @param node
+#' @param edge
+#' @param node_group
+#' @param group_list
 #'
 #' @export
 SankeyPlot <- function(node, edge, node_group = NULL, group_list = NULL) {
@@ -9262,7 +9518,6 @@ SummaryPlot <- function(srt,
 #' @param exp_method
 #' @param lib_normalize
 #' @param libsize
-#' @param order.by
 #' @param group.by
 #' @param compare_lineages
 #' @param compare_features
@@ -9276,7 +9531,6 @@ SummaryPlot <- function(srt,
 #' @param point_palette
 #' @param point_palcolor
 #' @param add_rug
-#' @param add_density
 #' @param aspect.ratio
 #' @param legend.position
 #' @param legend.direction
@@ -9286,6 +9540,10 @@ SummaryPlot <- function(srt,
 #' @param byrow
 #' @param align
 #' @param axis
+#' @param cells
+#' @param flip
+#' @param reverse
+#' @param x_order
 #'
 #' @examples
 #' data("pancreas_sub")
@@ -9720,7 +9978,6 @@ DynamicPlot <- function(srt, features, lineages, group.by = NULL, cells = NULL, 
 #' @param order_by
 #' @param decreasing
 #' @param feature_split
-#' @param row_title_size
 #' @param n_split
 #' @param feature_split_by
 #' @param split_method
@@ -9748,6 +10005,70 @@ DynamicPlot <- function(srt, features, lineages, group.by = NULL, cells = NULL, 
 #' @param width
 #' @param units
 #' @param seed
+#' @param features
+#' @param border
+#' @param flip
+#' @param family
+#' @param cluster_features_by
+#' @param cluster_rows
+#' @param cluster_row_slices
+#' @param cluster_columns
+#' @param cluster_column_slices
+#' @param show_row_names
+#' @param show_column_names
+#' @param row_names_side
+#' @param column_names_side
+#' @param row_names_rot
+#' @param column_names_rot
+#' @param row_title_side
+#' @param column_title_side
+#' @param row_title_rot
+#' @param column_title_rot
+#' @param anno_terms
+#' @param anno_keys
+#' @param anno_features
+#' @param terms_width
+#' @param terms_fontsize
+#' @param keys_width
+#' @param keys_fontsize
+#' @param features_width
+#' @param features_fontsize
+#' @param IDtype
+#' @param species
+#' @param db_update
+#' @param db_version
+#' @param convert_species
+#' @param Ensembl_version
+#' @param mirror
+#' @param db
+#' @param TERM2GENE
+#' @param TERM2NAME
+#' @param minGSSize
+#' @param maxGSSize
+#' @param universe
+#' @param GO_simplify
+#' @param GO_simplify_padjustCutoff
+#' @param simplify_method
+#' @param simplify_similarityCutoff
+#' @param pvalueCutoff
+#' @param padjustCutoff
+#' @param topTerm
+#' @param show_termid
+#' @param topWord
+#' @param min_word_length
+#' @param exclude_words
+#' @param heatmap_palcolor
+#' @param pseudotime_palcolor
+#' @param feature_split_palette
+#' @param feature_split_palcolor
+#' @param cell_annotation_params
+#' @param feature_annotation_params
+#' @param separate_annotation
+#' @param separate_palette
+#' @param separate_palcolor
+#' @param separate_annotation_params
+#' @param raster_device
+#' @param ht_params
 #'
 #' @examples
 #' data("pancreas_sub")
@@ -9834,7 +10155,7 @@ DynamicPlot <- function(srt, features, lineages, group.by = NULL, cells = NULL, 
 #' @importFrom stats kmeans
 #' @importFrom cowplot ggdraw draw_grob
 #' @importFrom ggplot2 ggplotGrob
-#' @importFrom grid gpar grid.lines grid.text convertUnit convertUnit
+#' @importFrom grid gpar grid.lines grid.text
 #' @importFrom gtable gtable_add_padding
 #' @importFrom Matrix t
 #' @importFrom dplyr %>% filter group_by arrange desc across mutate summarise distinct n .data "%>%"
@@ -10890,41 +11211,41 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineag
     fix <- FALSE
   }
   if (is.null(height)) {
-    height <- convertHeight(unit(0.8, "npc"), units)
+    height <- convertHeight(unit(0.8, "npc"), units, valueOnly = TRUE)
   }
   if (is.null(width)) {
-    width <- convertWidth(unit(0.8, "npc"), units)
+    width <- convertWidth(unit(0.8, "npc"), units, valueOnly = TRUE)
   }
   if (isTRUE(flip)) {
     if (length(ha_top_list) > 0) {
-      width <- convertUnit(unit(width, units) + width.HeatmapAnnotation(ha_top_list[[1]]), units)
+      width <- convertWidth(unit(width, units) + width.HeatmapAnnotation(ha_top_list[[1]]), units, valueOnly = TRUE)
     }
     if (!is.null(ha_left)) {
-      height <- convertUnit(unit(height, units) + height.HeatmapAnnotation(ha_left), units)
+      height <- convertHeight(unit(height, units) + height.HeatmapAnnotation(ha_left), units, valueOnly = TRUE)
     }
     if (!is.null(ha_right)) {
-      height <- convertUnit(unit(height, units) + height.HeatmapAnnotation(ha_right), units)
+      height <- convertHeight(unit(height, units) + height.HeatmapAnnotation(ha_right), units, valueOnly = TRUE)
     }
   } else {
     if (length(ha_top_list) > 0) {
-      height <- convertUnit(unit(height, units) + height.HeatmapAnnotation(ha_top_list[[1]]), units)
+      height <- convertHeight(unit(height, units) + height.HeatmapAnnotation(ha_top_list[[1]]), units, valueOnly = TRUE)
     }
     if (!is.null(ha_left)) {
-      width <- convertUnit(unit(width, units) + width.HeatmapAnnotation(ha_left), units)
+      width <- convertWidth(unit(width, units) + width.HeatmapAnnotation(ha_left), units, valueOnly = TRUE)
     }
     if (!is.null(ha_right)) {
-      width <- convertUnit(unit(width, units) + width.HeatmapAnnotation(ha_right), units)
+      width <- convertWidth(unit(width, units) + width.HeatmapAnnotation(ha_right), units, valueOnly = TRUE)
     }
   }
 
-  lgd_width <- convertUnit(unit(unlist(lapply(lgd, width.Legends)), unitType(width.Legends(lgd[[1]]))) + unit(4, "mm"), units)
-  lgd_height <- convertUnit(unit(unlist(lapply(lgd, height.Legends)), unitType(height.Legends(lgd[[1]]))) + unit(4, "mm"), units)
+  lgd_width <- convertWidth(unit(unlist(lapply(lgd, width.Legends)), unitType(width.Legends(lgd[[1]]))) + unit(4, "mm"), units)
+  lgd_height <- convertHeight(unit(unlist(lapply(lgd, height.Legends)), unitType(height.Legends(lgd[[1]]))) + unit(4, "mm"), units)
   lgd_split <- c()
   lgd_group <- 0
   height_cum <- unit(0, units)
   for (i in seq_along(lgd_height)) {
     height_cum <- height_cum + lgd_height[i]
-    if (as.numeric(height_cum) < as.numeric(convertUnit(height - unit(2, "cm"), units))) {
+    if (as.numeric(height_cum) < as.numeric(height - convertHeight(unit(2, "cm"), units, valueOnly = TRUE))) {
       lgd_split <- c(lgd_split, lgd_group)
     } else {
       lgd_group <- lgd_group + 1
@@ -10932,12 +11253,13 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineag
       height_cum <- lgd_height[i]
     }
   }
-  # print(paste0("height:",round(convertUnit(height-unit(2,"cm"),units),3)))
-  # print(paste0("lgd_sum_height:",paste0(round(sum(lgd_height),3),collapse = ",")))
-  # print(paste0("lgd_height:",paste0(round(lgd_height,3),collapse = ",")))
-  # print(paste0("lgd_split:",paste0(round(lgd_split,3),collapse = ",")))
+  # print(paste0("height:", round(height - convertHeight(unit(2, "cm"), units, valueOnly = TRUE), 3)))
+  # print(paste0("lgd_sum_height:", paste0(round(sum(lgd_height), 3), collapse = ",")))
+  # print(paste0("lgd_height:", paste0(round(lgd_height, 3), collapse = ",")))
+  # print(paste0("lgd_split:", paste0(round(lgd_split, 3), collapse = ",")))
+
   lgd_width_split <- split(lgd_width, lgd_split)
-  width <- convertUnit(unit(width, units = units) + do.call(sum, lapply(lgd_width_split, max)), units)
+  width <- convertWidth(unit(width, units = units) + do.call(sum, lapply(lgd_width_split, max)), units, valueOnly = TRUE)
 
   gTree <- grid.grabExpr(
     {
@@ -10987,8 +11309,8 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineag
         }
       }
     },
-    height = convertUnit(height, unitTo = "inch"),
-    width = convertUnit(width, unitTo = "inch"),
+    height = unit(height, units = units),
+    width = unit(width, units = units),
     wrap = TRUE,
     wrap.grobs = TRUE
   )
@@ -11121,9 +11443,6 @@ ProjectionPlot <- function(srt_query, srt_ref,
 #' @param base_size
 #' @param character_width
 #' @param line_height
-#' @param panel_fix
-#' @param panel_height_scale
-#' @param panel_width
 #' @param align
 #' @param axis
 #' @param srt
@@ -11131,6 +11450,13 @@ ProjectionPlot <- function(srt_query, srt_ref,
 #' @param test.use
 #' @param res
 #' @param group_use
+#' @param word_type
+#' @param word_size
+#' @param min_word_length
+#' @param exclude_words
+#' @param aspect.ratio
+#' @param legend.position
+#' @param legend.direction
 #'
 #' @examples
 #' data("pancreas_sub")
@@ -11431,8 +11757,19 @@ EnrichmentPlot <- function(srt, db = "GO_BP", group_by = NULL, group_use = NULL,
 #' @param srt
 #' @param group_by
 #' @param test.use
+#' @param db
+#' @param pvalueCutoff
+#' @param padjustCutoff
+#' @param topTerm
+#' @param rel_width
+#' @param size
+#' @param alpha
+#' @param palette
+#' @param combine
+#' @param nrow
+#' @param ncol
+#' @param byrow
 #' @param group_use
-#' @param term_use
 #'
 #' @examples
 #' library(dplyr)

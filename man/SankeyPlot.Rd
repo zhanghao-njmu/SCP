@@ -6,6 +6,9 @@
 \usage{
 SankeyPlot(node, edge, node_group = NULL, group_list = NULL)
 }
+\arguments{
+\item{group_list}{}
+}
 \description{
 SankeyPlot
 }
