@@ -35,6 +35,9 @@ VolcanoPlot(
   axis = "lr"
 )
 }
+\arguments{
+\item{axis}{}
+}
 \description{
 VolcanoPlot
 }

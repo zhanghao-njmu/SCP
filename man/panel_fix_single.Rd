@@ -23,7 +23,7 @@ panel_fix_single(
 \arguments{
 \item{x}{}
 
-\item{dpi}{}
+\item{verbose}{}
 }
 \description{
 Set the panel width/height for the single plot.

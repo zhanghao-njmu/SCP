@@ -48,7 +48,7 @@ ExpCorPlot(
 )
 }
 \arguments{
-\item{force}{}
+\item{cells}{}
 }
 \description{
 Features correlation plot

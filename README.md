@@ -69,8 +69,8 @@ devtools::install_github("zhanghao-njmu/SCP")
 To run functions such as `RunPAGA` or `RunSCVELO`, SCP requires
 [conda](https://docs.conda.io/en/latest/miniconda.html) to create a
 separate python environment. The default environment name is
-`'SCP_env'`. You can specify the environment name for SCP by setting
-`options(SCP_env_name='new_name')`
+`"SCP_env"`. You can specify the environment name for SCP by setting
+`options(SCP_env_name="new_name")`
 
 Now, you can run `PrepareEnv()` to create the python environment for
 SCP. If the conda binary is not found, it will automatically download
@@ -80,11 +80,12 @@ and install miniconda.
 SCP::PrepareEnv()
 ```
 
-Or run `PrepareEnv(conda_binary = "/path/to/conda")` to use a particular
-conda binary.
+To force SCP to use a specific conda binary, it is recommended to set
+`reticulate.conda_binary` R option:
 
 ``` r
-SCP::PrepareEnv(conda_binary = "/path/to/conda")
+options(reticulate.conda_binary = "/path/to/conda")
+SCP::PrepareEnv()
 ```
 
 If the download of miniconda or pip packages is slow, you can specify
@@ -204,7 +205,7 @@ ht <- GroupHeatmap(
   group.by = c("CellType", "SubCellType"),
   cell_annotation = c("Phase", "G2M_score", "Neurod2"),
   cell_palette = c("Dark2", "Paired", "Paired"),
-  show_row_names = TRUE,
+  show_row_names = TRUE, row_names_side = "left",
   add_dot = TRUE, add_reticle = TRUE
 )
 print(ht$plot)

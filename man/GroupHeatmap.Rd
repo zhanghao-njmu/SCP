@@ -127,15 +127,13 @@ GroupHeatmap(
 
 \item{feature_split}{A vector of group names for features.}
 
-\item{cluster_columns}{}
-
 \item{heatmap_palette}{Heatmap expression palette.}
 
 \item{cell_palette}{Column palette.}
 
 \item{feature_palette}{Feature groups palette.}
 
-\item{grid_size}{size for each dot.}
+\item{ht_params}{}
 }
 \description{
 GroupHeatmap

@@ -61,6 +61,8 @@ Integration_SCP(
 
 \item{nHVF}{HVF number to use.}
 
+\item{HVF_min_intersection}{}
+
 \item{HVF}{Custom high variable features.}
 
 \item{do_scaling}{Whether to scale the data. If NULL, will automatically determine.}
@@ -78,8 +80,6 @@ Integration_SCP(
 \item{nonlinear_reduction}{Non-linear reduction method name. Can be one of "umap", "umap-naive", "tsne", "dm", "phate", "pacmap", "trimap", "largevis".}
 
 \item{nonlinear_reduction_dims}{Dimensions to calculate when performing non-linear reduction.}
-
-\item{force_nonlinear_reduction}{}
 
 \item{cluster_algorithm}{Algorithm for modularity optimization when finding clusters. Can be one of "louvain", "slm", "leiden".}
 

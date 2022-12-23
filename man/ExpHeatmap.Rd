@@ -104,7 +104,7 @@ ExpHeatmap(
 )
 }
 \arguments{
-\item{seed}{}
+\item{ht_params}{}
 }
 \description{
 ExpHeatmap

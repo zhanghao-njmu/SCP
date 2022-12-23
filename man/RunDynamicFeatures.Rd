@@ -40,7 +40,7 @@ ht_result <- DynamicHeatmap(
 )
 ht_result$plot
 
-p <- DynamicPlot(
+DynamicPlot(
   srt = pancreas_sub,
   lineages = c("Lineage1", "Lineage2"),
   features = c("Nnat", "Irx1"),
@@ -48,5 +48,4 @@ p <- DynamicPlot(
   compare_lineages = TRUE,
   compare_features = FALSE
 )
-p
 }

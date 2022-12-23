@@ -41,6 +41,9 @@ CellCorHeatmap(
   ...
 )
 }
+\arguments{
+\item{...}{}
+}
 \description{
 CellCorHeatmap
 }

@@ -14,11 +14,17 @@ check_Python(
 )
 }
 \arguments{
-\item{envname}{The name of, or path to, a Python environment.}
+\item{packages}{A character vector, indicating package names which should be installed or removed. Use \code{⁠<package>==<version>}⁠ to request the installation of a specific version of a package.}
 
-\item{force}{Whether to force package installation. Default is FALSE.}
+\item{envname}{The name of a conda environment.}
 
-\item{...}{}
+\item{conda}{The path to a conda executable. Use \code{"auto"} to allow SCP to automatically find an appropriate conda binary.}
+
+\item{force}{Whether to force package installation. Default is \code{FALSE}.}
+
+\item{pip}{Whether to use pip for package installation. By default, packages are installed from the active conda channels.}
+
+\item{...}{Other arguments passed to \code{\link[reticulate]{conda_install}}}
 }
 \description{
 Check and install python packages

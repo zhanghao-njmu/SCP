@@ -14,9 +14,17 @@ PrepareEnv(
 )
 }
 \arguments{
-\item{conda}{}
+\item{conda}{The path to a conda executable. Use \code{"auto"} to allow SCP to automatically find an appropriate conda binary.}
+
+\item{miniconda_repo}{Repositories for miniconda. Default is \code{https://repo.anaconda.com/miniconda}}
 
 \item{python_version}{The version of python to install. Default is \code{3.8}}
+
+\item{envname}{The name of a conda environment.}
+
+\item{force}{Whether to force a new environment to be created. If \code{TRUE}, the existing environment will be recreated. Default is \code{FALSE}}
+
+\item{...}{Other arguments passed to \code{\link[reticulate]{conda_install}}}
 }
 \description{
 Prepare SCP python environment

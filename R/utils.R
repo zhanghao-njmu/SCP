@@ -1,10 +1,9 @@
 #' Prepare SCP python environment
 #'
 #' @param python_version The version of python to install. Default is \code{3.8}
-#' @param miniconda_repo
-#' @param force
-#' @param ...
-#' @param conda
+#' @param miniconda_repo  Repositories for miniconda. Default is \code{https://repo.anaconda.com/miniconda}
+#' @param force Whether to force a new environment to be created. If \code{TRUE}, the existing environment will be recreated. Default is \code{FALSE}
+#' @inheritParams check_Python
 #'
 #' @export
 PrepareEnv <- function(conda = "auto", miniconda_repo = "https://repo.anaconda.com/miniconda",
@@ -116,23 +115,23 @@ PrepareEnv <- function(conda = "auto", miniconda_repo = "https://repo.anaconda.c
 
 #' Check and install R packages
 #'
-#' @param pkgs Package to be installed. Package source can be CRAN, Bioconductor or Github, e.g. scmap, davidsjoberg/ggsankey.
-#' @param pkg_names The name of the package that corresponds to the \code{pkgs} parameter, used to check if the package is already installed.
-#' By default, the package name is extracted according to the \code{pkgs} parameter.
-#' @param install_methods Functions for installing R packages. The default is to try to install packages from CRAN, Bioconductor and Github.
-#' @param lib Character vector giving the library directories where to install the packages.
-#' @param force Whether to force package installation. Default is FALSE.
+#' @param packages Package to be installed. Package source can be CRAN, Bioconductor or Github, e.g. scmap, davidsjoberg/ggsankey.
+#' @param package_names The name of the package that corresponds to the \code{packages} parameter, used to check if the package is already installed.
+#' By default, the package name is extracted according to the \code{packages} parameter.
+#' @param install_methods Functions used to install R packages.
+#' @param lib  The location of the library directories where to install the packages.
+#' @param force Whether to force the installation of packages. Default is \code{FALSE}.
 #'
 #' @importFrom rlang %||%
 #' @importFrom utils packageVersion
 #' @export
-check_R <- function(pkgs, pkg_names = NULL, install_methods = c("BiocManager::install", "install.packages", "devtools::install_github"), lib = .libPaths()[1], force = FALSE) {
-  if (length(pkg_names) != 0 && length(pkg_names) != length(pkgs)) {
-    stop("pkg_names must be NULL or a vector of the same length with pkgs")
+check_R <- function(packages, package_names = NULL, install_methods = c("BiocManager::install", "install.packages", "devtools::install_github"), lib = .libPaths()[1], force = FALSE) {
+  if (length(package_names) != 0 && length(package_names) != length(packages)) {
+    stop("package_names must be NULL or a vector of the same length with packages")
   }
   status_list <- list()
-  for (n in seq_along(pkgs)) {
-    pkg <- pkgs[n]
+  for (n in seq_along(packages)) {
+    pkg <- packages[n]
     pkg_info <- pkg
     if (!grepl("/", pkg_info)) {
       pkg_info <- paste0("/", pkg_info)
@@ -142,23 +141,23 @@ check_R <- function(pkgs, pkg_names = NULL, install_methods = c("BiocManager::in
     }
     git <- grep("/", sub(pattern = "(.*/)(.*)(@.*)", replacement = "\\1", x = pkg_info), value = TRUE)
     git <- gsub("/", "", git)
-    pkg_name <- pkg_names[n] %||% sub(pattern = "(.*/)(.*)(@.*)", replacement = "\\2", x = pkg_info)
+    pkg_name <- package_names[n] %||% sub(pattern = "(.*/)(.*)(@.*)", replacement = "\\2", x = pkg_info)
     version <- grep("@", sub(pattern = "(.*/)(.*)(@.*)", replacement = "\\3", x = pkg_info), value = TRUE)
     version <- gsub("@", "", version)
     if (version != "") {
       force <- isTRUE(packageVersion(pkg_name) < package_version(version))
     }
     if (!suppressPackageStartupMessages(requireNamespace(pkg_name, quietly = TRUE)) || isTRUE(force)) {
-      message("Install package: '", pkg_name, "' ...")
+      message("Install package: \"", pkg_name, "\" ...")
       status_list[[pkg]] <- FALSE
       i <- 1
-      while (!isTRUE(status_list[[pkg]])) {
+      while (isFALSE(status_list[[pkg]])) {
         tryCatch(expr = {
           if (grepl("BiocManager", install_methods[i])) {
             if (!requireNamespace("BiocManager", quietly = TRUE)) {
               install.packages("BiocManager", lib = lib)
             }
-            eval(str2lang(paste0(install_methods[i], "('", pkg, "', lib='", lib, "', update = FALSE, upgrade = 'never', ask = FALSE, force = TRUE)")))
+            eval(str2lang(paste0(install_methods[i], "(\"", pkg, "\", lib=\"", lib, "\", update = FALSE, upgrade = \"never\", ask = FALSE, force = TRUE)")))
           } else if (grepl("devtools", install_methods[i])) {
             if (!requireNamespace("devtools", quietly = TRUE)) {
               install.packages("devtools", lib = lib)
@@ -166,9 +165,9 @@ check_R <- function(pkgs, pkg_names = NULL, install_methods = c("BiocManager::in
             if (!requireNamespace("withr", quietly = TRUE)) {
               install.packages("withr", lib = lib)
             }
-            eval(str2lang(paste0("withr::with_libpaths(new = '", lib, "', ", install_methods[i], "('", pkg, "', upgrade = 'never', force = TRUE))")))
+            eval(str2lang(paste0("withr::with_libpaths(new = \"", lib, "\", ", install_methods[i], "(\"", pkg, "\", upgrade = \"never\", force = TRUE))")))
           } else {
-            eval(str2lang(paste0(install_methods[i], "('", pkg, "', lib='", lib, "', force = TRUE)")))
+            eval(str2lang(paste0(install_methods[i], "(\"", pkg, "\", lib=\"", lib, "\", force = TRUE)")))
           }
         }, error = function(e) {
           status_list[[pkg]] <- FALSE
@@ -194,9 +193,7 @@ check_R <- function(pkgs, pkg_names = NULL, install_methods = c("BiocManager::in
 
 #' Check if the python package exists in the environment
 #'
-#' @param packages
-#' @param envname The name of, or path to, a Python environment.
-#'
+#' @inheritParams check_Python
 #' @export
 exist_Python_pkgs <- function(packages, envname = NULL, conda = "auto") {
   envname <- get_envname(envname)
@@ -231,13 +228,13 @@ exist_Python_pkgs <- function(packages, envname = NULL, conda = "auto") {
 
 #' Check and install python packages
 #'
-#' @param envname The name of, or path to, a Python environment.
-#' @param force Whether to force package installation. Default is FALSE.
-#' @param packages
-#' @param pip
-#' @param ...
+#' @param packages A character vector, indicating package names which should be installed or removed. Use \code{⁠<package>==<version>}⁠ to request the installation of a specific version of a package.
+#' @param envname The name of a conda environment.
+#' @param conda The path to a conda executable. Use \code{"auto"} to allow SCP to automatically find an appropriate conda binary.
+#' @param force Whether to force package installation. Default is \code{FALSE}.
+#' @param pip Whether to use pip for package installation. By default, packages are installed from the active conda channels.
+#' @param ... Other arguments passed to \code{\link[reticulate]{conda_install}}
 #'
-#' @importFrom rlang %||%
 #' @export
 check_Python <- function(packages, envname = NULL, conda = "auto", force = FALSE, pip = TRUE, ...) {
   envname <- get_envname(envname)
@@ -270,12 +267,16 @@ check_Python <- function(packages, envname = NULL, conda = "auto", force = FALSE
 
   pkg_installed <- exist_Python_pkgs(packages = packages, envname = envname, conda = conda)
   if (sum(!pkg_installed) > 0) {
-    stop("Failed to install the package(s): ", paste0(names(pkg_installed)[!pkg_installed], collapse = ","), " into the environment '", envname, "'. Please install manually.")
+    stop("Failed to install the package(s): ", paste0(names(pkg_installed)[!pkg_installed], collapse = ","), " into the environment \"", envname, "\". Please install manually.")
   } else {
     return(invisible(NULL))
   }
 }
 
+#' Check if a conda environment exists
+#'
+#' @param envs_dir Directories in which conda environments are located.
+#' @inheritParams check_Python
 env_exist <- function(conda = "auto", envname = NULL, envs_dir = NULL) {
   envname <- get_envname(envname)
   if (identical(conda, "auto")) {
@@ -304,6 +305,9 @@ get_envname <- function(envname = NULL) {
   return(envname)
 }
 
+#' Find an appropriate conda binary
+#'
+#' @export
 find_conda <- function() {
   conda <- tryCatch(reticulate::conda_binary(conda = "auto"), error = identity)
   conda_exist <- !inherits(conda, "error")
@@ -323,6 +327,11 @@ find_conda <- function() {
   return(conda)
 }
 
+#' Installs a list of packages into a specified conda environment
+#'
+#' @inheritParams reticulate::conda_install
+#' @importFrom rlang %||%
+#' @export
 conda_install <- function(envname = NULL, packages, forge = TRUE, channel = character(),
                           pip = FALSE, pip_options = character(), pip_ignore_installed = FALSE,
                           conda = "auto", python_version = NULL, ...) {
@@ -387,6 +396,10 @@ conda_install <- function(envname = NULL, packages, forge = TRUE, channel = char
   invisible(packages)
 }
 
+#' Find the path to Python associated with a conda environment
+#'
+#' @inheritParams reticulate::conda_python
+#' @export
 conda_python <- function(envname = NULL, conda = "auto", all = FALSE) {
   envname <- get_envname(envname)
   envname <- reticulate:::condaenv_resolve(envname)
@@ -401,15 +414,14 @@ conda_python <- function(envname = NULL, conda = "auto", all = FALSE) {
   }
   conda_envs <- reticulate::conda_list(conda = conda)
   conda_envs <- conda_envs[grep(normalizePath(reticulate:::conda_info(conda = conda)$envs_dirs[1]), x = normalizePath(conda_envs$python), fixed = TRUE), , drop = FALSE]
-  env <- subset(conda_envs, conda_envs$name == envname)
+  env <- conda_envs[conda_envs$name == envname, , drop = FALSE]
   if (nrow(env) == 0) {
-    stop("conda environment '", envname, "' not found")
+    stop("conda environment \"", envname, "\" not found")
   }
   python <- if (all) env$python else env$python[[1L]]
-  path.expand(python)
+  return(normalizePath(as.character(python)))
 }
 
-#' @export
 run_Python <- function(command, envir = .GlobalEnv) {
   tryCatch(expr = {
     eval(
@@ -420,18 +432,16 @@ run_Python <- function(command, envir = .GlobalEnv) {
     )
   }, error = function(error) {
     message(error)
-    stop("Failed to run '", command, "'. Please check manually.")
+    stop("Failed to run \"", command, "\". Please check manually.")
   })
 }
 
-#' @param url
+#' Download File from the Internet
 #'
-#' @param destfile
-#' @param methods
-#' @param quiet
-#' @param attempts
-#' @param ...
-#' @param return_status
+#' @param methods Methods to be used for downloading files. The default is to try different download methods in turn until the download is successfully completed.
+#' @inheritParams utils::download.file
+#' @param attempts Number of attempts for each download method.
+#' @param ... Other arguments passed to \code{\link[utils]{download.file}}
 #'
 #' @importFrom utils download.file
 #' @export
@@ -449,7 +459,7 @@ download <- function(url, destfile, methods = c("auto", "wget", "libcurl", "curl
       }, error = function(error) {
         message(error)
         message("Cannot download from the url: ", url)
-        message("Failed to download using '", method, "'. Retry...")
+        message("Failed to download using \"", method, "\". Retry...")
         Sys.sleep(1)
         return(NULL)
       })
@@ -462,19 +472,13 @@ download <- function(url, destfile, methods = c("auto", "wget", "libcurl", "curl
       stop("Download failed.")
     }
   }
-  if (isTRUE(return_status)) {
-    return(status)
-  } else {
-    return(invisible(NULL))
-  }
+  return(invisible(NULL))
 }
 
 kegg_get <- function(url) {
   temp <- tempfile()
   download(url = url, destfile = temp)
-  content <- readLines(temp) %>%
-    strsplit(., "\t") %>%
-    do.call("rbind.data.frame", .)
+  content <- do.call(rbind.data.frame, strsplit(readLines(temp), split = "\t"))
   unlink(temp)
   return(content)
 }
@@ -516,10 +520,16 @@ col2hex <- function(cname) {
   rgb(red = colMat[1, ] / 255, green = colMat[2, ] / 255, blue = colMat[3, ] / 255)
 }
 
-#' @export
+#' Invoke a function with a list of arguments
+#' @param .fn A function, or function name as a string.
+#' @param .args A list of arguments.
+#' @param Other arguments passed to the function.
+#' @param .env Environment in which to evaluate the call. This will be most useful if .fn is a string, or the function has side-effects.
 #' @importFrom rlang caller_env is_null is_scalar_character is_character is_function set_names env env_get env_bind syms call2
-invoke <- function(.fn, .args = list(), ..., .env = caller_env(), .bury = c(".fn", "")) {
+#' @export
+invoke <- function(.fn, .args = list(), ..., .env = caller_env()) {
   args <- c(.args, list(...))
+  .bury <- c(".fn", "")
   if (is_null(.bury) || !length(args)) {
     if (is_scalar_character(.fn)) {
       .fn <- env_get(.env, .fn, inherit = TRUE)
@@ -545,6 +555,10 @@ invoke <- function(.fn, .args = list(), ..., .env = caller_env(), .bury = c(".fn
   .External2(rlang:::ffi_eval, call, .env)
 }
 
+#' Implement similar functions to the \code{unnest} function in the tidyr package
+#' @param data A data frame.
+#' @param cols Columns to unnest.
+#' @param keep_empty By default, you get one row of output for each element of the list your unchopping/unnesting. This means that if there's a size-0 element (like \code{NULL} or an empty data frame), that entire row will be dropped from the output. If you want to preserve all rows, use \code{keep_empty = TRUE} to replace size-0 elements with a single row of missing values.
 #' @export
 unnest <- function(data, cols, keep_empty = FALSE) {
   if (nrow(data) == 0 || length(cols) == 0) {
@@ -565,18 +579,20 @@ unnest <- function(data, cols, keep_empty = FALSE) {
   return(data)
 }
 
+#' Attempts to turn a dgCMatrix into a dense matrix
+#' @param matrix A dgCMatrix
 #' @useDynLib SCP
 #' @export
-as_matrix <- function(mat) {
-  row_pos <- mat@i
-  col_pos <- findInterval(seq(mat@x) - 1, mat@p[-1])
+as_matrix <- function(matrix) {
+  row_pos <- matrix@i
+  col_pos <- findInterval(seq(matrix@x) - 1, matrix@p[-1])
 
-  tmp <- asMatrix(
-    rp = row_pos, cp = col_pos, z = mat@x,
-    nrows = mat@Dim[1], ncols = mat@Dim[2]
+  out <- asMatrix(
+    rp = row_pos, cp = col_pos, z = matrix@x,
+    nrows = matrix@Dim[1], ncols = matrix@Dim[2]
   )
 
-  row.names(tmp) <- mat@Dimnames[[1]]
-  colnames(tmp) <- mat@Dimnames[[2]]
-  return(tmp)
+  row.names(out) <- matrix@Dimnames[[1]]
+  colnames(out) <- matrix@Dimnames[[2]]
+  return(out)
 }

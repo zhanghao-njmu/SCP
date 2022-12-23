@@ -1,3 +1,4 @@
+#' Check and report the type of data
 #' @param srt
 #'
 #' @param data
@@ -40,6 +41,7 @@ check_DataType <- function(srt, data = NULL, slot = "data", assay = NULL) {
   }
 }
 
+#' Check and preprocess a list of seurat objects
 #' @param srtList
 #'
 #' @param batch
@@ -53,6 +55,9 @@ check_DataType <- function(srt, data = NULL, slot = "data", assay = NULL) {
 #' @param vars_to_regress
 #' @param seed
 #' @param ...
+#' @param assay
+#' @param HVF_intersect
+#' @param HVF_min_intersection
 #'
 #' @importFrom Seurat SplitObject GetAssayData Assays NormalizeData FindVariableFeatures SCTransform SCTResults SelectIntegrationFeatures PrepSCTIntegration DefaultAssay DefaultAssay<- VariableFeatures VariableFeatures<-
 #' @importFrom Matrix rowSums
@@ -261,6 +266,7 @@ check_srtList <- function(srtList, batch = "orig.ident", assay = "RNA",
   ))
 }
 
+#' Check and preprocess a seurat object
 #' @param srtMerge
 #'
 #' @param batch
@@ -274,6 +280,9 @@ check_srtList <- function(srtList, batch = "orig.ident", assay = "RNA",
 #' @param vars_to_regress
 #' @param seed
 #' @param ...
+#' @param assay
+#' @param HVF_intersect
+#' @param HVF_min_intersection
 #'
 #' @importFrom Seurat GetAssayData SplitObject SetAssayData VariableFeatures VariableFeatures<-
 #' @export
@@ -339,6 +348,7 @@ check_srtMerge <- function(srtMerge, batch = "orig.ident", assay = "RNA",
 #'  However, due to decimal point preservation during normalization, the calculated nCount is usually a floating point number close to the integer.
 #'  The tolerance is its difference from the integer. Default is 0.1
 #' @param verbose
+#'
 #' @examples
 #' data("pancreas_sub")
 #' raw_counts <- pancreas_sub@assays$RNA@counts
@@ -458,9 +468,11 @@ RenameFeatures <- function(srt, newnames = NULL, assays = NULL) {
 #' Rename clusters for the Seurat object
 #'
 #' @param srt
+#' @param group.by
+#' @param nameslist
+#' @param name
+#' @param keep_levels
 #'
-#' @param newnames
-#' @param assays
 #' @examples
 #' data("pancreas_sub")
 #' levels(pancreas_sub@meta.data[["SubCellType"]])
@@ -608,6 +620,7 @@ SrtReorder <- function(srt, features = NULL, reorder_by = NULL, slot = "data", a
 }
 
 #' Append a Seurat object to another
+#'
 #' @param srt_raw
 #'
 #' @param srt_append
@@ -824,7 +837,7 @@ RunDimReduction <- function(srt, prefix = "", features = NULL, assay = NULL, slo
         dims_estimate <- seq_len(min(ncol(Embeddings(srt, reduction = paste0(prefix, linear_reduction))), 30))
       }
     }
-    message("dims_estimate is ", paste0(range(dims_estimate), collapse = ":"), " for '", linear_reduction, "'")
+    message("dims_estimate is ", paste0(range(dims_estimate), collapse = ":"), " for \"", linear_reduction, "\"")
     srt@reductions[[paste0(prefix, linear_reduction)]]@misc[["dims_estimate"]] <- dims_estimate
     srt@misc[["Default_reduction"]] <- paste0(prefix, linear_reduction)
   } else if (!is.null(nonlinear_reduction)) {
@@ -1857,7 +1870,7 @@ fastMNN_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TR
       }
     } else {
       fastMNN_dims_use <- seq_len(min(ncol(Embeddings(srtIntegrated, reduction = "fastMNN")), 30))
-      message("Set the dims_estimate to ", fastMNN_dims_use, " for 'fastMNN'")
+      message("Set the dims_estimate to ", fastMNN_dims_use, " for \"fastMNN\"")
     }
   }
   srtIntegrated@reductions[["fastMNN"]]@misc[["dims_estimate"]] <- fastMNN_dims_use
@@ -2090,7 +2103,7 @@ Harmony_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TR
       }
     } else {
       Harmony_dims_use <- seq_len(min(ncol(Embeddings(srtIntegrated, reduction = "Harmony")), 30))
-      message("Set the dims_estimate to ", Harmony_dims_use, " for 'Harmony'")
+      message("Set the dims_estimate to ", Harmony_dims_use, " for \"Harmony\"")
     }
   }
   srtIntegrated[["Harmony"]]@misc[["dims_estimate"]] <- Harmony_dims_use
@@ -3677,6 +3690,9 @@ Standard_SCP <- function(srt, prefix = "Standard", assay = "RNA",
 #' @param linear_reduction_params
 #' @param nonlinear_reduction_params
 #' @param force_nonlinear_reduction
+#' @param assay
+#' @param HVF_intersect
+#' @param HVF_min_intersection
 #'
 #' @return A \code{Seurat} object containing the result.
 #'
@@ -3733,7 +3749,7 @@ Integration_SCP <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE
                             do_cluster_finding = TRUE, cluster_algorithm = "louvain", cluster_resolution = 0.6, cluster_reorder = TRUE,
                             seed = 11, ...) {
   if (is.null(srtList) && is.null(srtMerge)) {
-    stop("Must be provided with one of the 'srtList' and 'srtMerge'")
+    stop("Neither \"srtList\" nor \"srtMerge\" was found.")
   }
   if (length(integration_method) == 1 && integration_method %in% c("Uncorrected", "Seurat", "scVI", "MNN", "fastMNN", "Harmony", "Scanorama", "BBKNN", "CSS", "LIGER", "Conos")) {
     args1 <- mget(names(formals()))

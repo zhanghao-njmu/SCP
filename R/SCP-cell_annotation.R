@@ -7,7 +7,6 @@ NULL
 #' @param bulk_ref A cell atlas matrix, e.g., SCP::ref_scHCL
 #' @param k Number of predictions to return.
 #' @param query_assay \code{assay} used in the srt_query
-#' @param force Whether to force to annotate when data type is different.
 #' @param DE_threshold Threshold used to filter the DE features. Default is "p_val < 0.05". If using "roc" test, \code{DE_threshold} should be needs to be reassigned. e.g. "power > 0.5"
 #' @param srt_ref
 #' @param query_group
@@ -126,7 +125,7 @@ RunKNNPredict <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
         features_query <- VariableFeatures(srt_query, assay = query_assay)
       } else if (features_type == "DE" && feature_source %in% c("both", "query")) {
         if (is.null(query_group)) {
-          stop("'query_group' must be provided when 'features_type' is 'DE' and 'feature_source' is 'both' or 'query'")
+          stop("\"query_group\" must be provided when \"features_type\" is \"DE\" and \"feature_source\" is \"both\" or \"query\"")
         } else {
           slot <- paste0("DEtest_", query_group)
           DEtest_param[["force"]] <- TRUE
@@ -347,15 +346,15 @@ RunKNNPredict <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
       nn_method <- "annoy"
     }
   }
-  message("Use '", nn_method, "' method to find neighbors.")
+  message("Use \"", nn_method, "\" method to find neighbors.")
   if (!nn_method %in% c("raw", "annoy", "rann")) {
     stop("nn_method must be one of raw, rann and annoy")
   }
   if (nn_method == "annoy" && !distance_metric %in% c("euclidean", "cosine", "manhattan", "hamming")) {
-    stop("distance_metric must be one of euclidean, cosine, manhattan, and hamming when nn_method='annoy'")
+    stop("distance_metric must be one of euclidean, cosine, manhattan, and hamming when nn_method=\"annoy\"")
   }
   if (isTRUE(return_full_distance_matrix) && nn_method != "raw") {
-    warning("Distance matrix will not be returned besause nn_method is not 'raw'", immediate. = TRUE)
+    warning("Distance matrix will not be returned besause nn_method is not \"raw\"", immediate. = TRUE)
     return_full_distance_matrix <- FALSE
   }
   simil_method <- c(

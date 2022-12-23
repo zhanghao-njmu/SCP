@@ -22,6 +22,8 @@ RecoverCounts(
 \item{tolerance}{When recovering the raw counts, the nCount of each cell is theoretically calculated as an integer.
 However, due to decimal point preservation during normalization, the calculated nCount is usually a floating point number close to the integer.
 The tolerance is its difference from the integer. Default is 0.1}
+
+\item{verbose}{}
 }
 \description{
 Attempt to recover raw counts from the normalized matrix.

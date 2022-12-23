@@ -119,7 +119,7 @@ DynamicHeatmap(
 )
 }
 \arguments{
-\item{seed}{}
+\item{ht_params}{}
 }
 \description{
 Heatmap plot for dynamic features along lineages
