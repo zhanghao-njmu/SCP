@@ -43,7 +43,7 @@ DynamicPlot(
 )
 }
 \arguments{
-\item{axis}{}
+\item{x_order}{}
 }
 \description{
 Plot for dynamic features along lineages.

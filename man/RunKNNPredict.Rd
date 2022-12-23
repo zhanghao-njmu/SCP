@@ -44,8 +44,6 @@ RunKNNPredict(
 \item{k}{Number of predictions to return.}
 
 \item{prefix}{}
-
-\item{force}{Whether to force to annotate when data type is different.}
 }
 \description{
 Annotate single cells using similarity.

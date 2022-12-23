@@ -127,15 +127,13 @@ GroupHeatmap(
 
 \item{feature_split}{A vector of group names for features.}
 
-\item{cluster_columns}{}
-
 \item{heatmap_palette}{Heatmap expression palette.}
 
 \item{cell_palette}{Column palette.}
 
 \item{feature_palette}{Feature groups palette.}
 
-\item{grid_size}{size for each dot.}
+\item{ht_params}{}
 }
 \description{
 GroupHeatmap
@@ -143,7 +141,6 @@ GroupHeatmap
 \examples{
 library(dplyr)
 data("pancreas_sub")
-pancreas_sub <- Standard_SCP(pancreas_sub)
 ht1 <- GroupHeatmap(pancreas_sub,
   features = c(
     "Sox9", "Anxa2", "Bicc1", # Ductal
@@ -163,7 +160,7 @@ de_filter <- filter(pancreas_sub@tools$DEtest_CellType$AllMarkers_wilcox, p_val_
 
 ht2 <- GroupHeatmap(
   srt = pancreas_sub, features = de_filter$gene, group.by = "CellType",
-  split.by = "Phase", cell_split_palcolor = list(c("grey", "gold", "deeppink")),
+  split.by = "Phase", cell_split_palette = "Dark2",
   nlabel = 10, show_row_names = FALSE
 )
 ht2$plot

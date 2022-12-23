@@ -38,6 +38,9 @@ CellDensityPlot(
   force = FALSE
 )
 }
+\arguments{
+\item{force}{}
+}
 \description{
 CellDensityPlot
 }

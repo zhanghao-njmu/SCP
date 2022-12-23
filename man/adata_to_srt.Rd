@@ -21,6 +21,7 @@ srt
 
 ### Or convert a h5ad file to Seurat object
 # library(reticulate)
+# check_Python("scanpy")
 # sc <- import("scanpy")
 # adata <- sc$read_h5ad("pancreas.h5ad")
 # srt <- adata_to_srt(adata)

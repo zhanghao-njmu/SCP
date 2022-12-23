@@ -70,7 +70,7 @@ GraphPlot(
 \arguments{
 \item{node}{}
 
-\item{return_layer}{}
+\item{node_palcolor}{}
 }
 \description{
 GraphPlot

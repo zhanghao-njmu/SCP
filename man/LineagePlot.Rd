@@ -36,7 +36,7 @@ LineagePlot(
 )
 }
 \arguments{
-\item{return_layer}{}
+\item{cells}{}
 }
 \description{
 LineagePlot

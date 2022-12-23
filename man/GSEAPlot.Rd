@@ -40,7 +40,7 @@ GSEAPlot(
 )
 }
 \arguments{
-\item{term_use}{}
+\item{group_use}{}
 }
 \description{
 GSEA Plot

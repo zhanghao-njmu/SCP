@@ -99,6 +99,8 @@ ExpDimPlot(
 
 \item{split.by}{Name of a metadata column to split plot by.}
 
+\item{cells}{}
+
 \item{palette}{Name of palette to use. Default is "Paired".}
 
 \item{bg_color}{Color value for NA points.}
@@ -131,8 +133,6 @@ ExpDimPlot(
 \item{ncol}{Number of columns in the plot grid.}
 
 \item{byrow}{Logical value indicating if the plots should be arrange by row (default) or by column.}
-
-\item{force}{}
 }
 \value{
 A single ggplot object if combine = TRUE; otherwise, a list of ggplot objects

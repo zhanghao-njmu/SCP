@@ -63,18 +63,34 @@ Differential gene test
 \examples{
 library(dplyr)
 data("pancreas_sub")
+
 pancreas_sub <- RunDEtest(pancreas_sub, group_by = "CellType")
+AllMarkers <- filter(pancreas_sub@tools$DEtest_CellType$AllMarkers_wilcox, p_val_adj < 0.05 & avg_log2FC > 1)
+table(AllMarkers$group1)
+ht1 <- ExpHeatmap(pancreas_sub, features = AllMarkers$gene, feature_split = AllMarkers$group1, group.by = "CellType")
+ht1$plot
 
-de_filter <- filter(pancreas_sub@tools$DEtest_CellType$AllMarkers_wilcox, p_val_adj < 0.05 & avg_log2FC > 1)
-ht <- ExpHeatmap(pancreas_sub, features = de_filter$gene, feature_split = de_filter$group1, group.by = "CellType")
-ht$plot
-
-de_top <- de_filter \%>\%
+TopMarkers <- AllMarkers \%>\%
   group_by(gene) \%>\%
   top_n(1, avg_log2FC) \%>\%
   group_by(group1) \%>\%
   top_n(3, avg_log2FC)
-ht <- GroupHeatmap(pancreas_sub, features = de_top$gene, feature_split = de_top$group1, group.by = "CellType")
-ht$plot
+ht2 <- GroupHeatmap(pancreas_sub, features = TopMarkers$gene, feature_split = TopMarkers$group1, group.by = "CellType")
+ht2$plot
+
+pancreas_sub <- RunDEtest(pancreas_sub, group_by = "CellType", FindAllMarkers = FALSE, FindPairedMarkers = TRUE)
+PairedMarkers <- filter(pancreas_sub@tools$DEtest_CellType$PairedMarkers_wilcox, p_val_adj < 0.05 & avg_log2FC > 1)
+table(PairedMarkers$group1)
+ht3 <- ExpHeatmap(pancreas_sub, features = PairedMarkers$gene, feature_split = PairedMarkers$group1, group.by = "CellType")
+ht3$plot
+
+ifnb_sub <- RunDEtest(ifnb_sub, group_by = "seurat_annotations", grouping.var = "stim", FindAllMarkers = FALSE, FindConservedMarkers = TRUE)
+ConservedMarkers <- filter(ifnb_sub@tools$DEtest_seurat_annotations$ConservedMarkers_wilcox, p_val_adj < 0.05 & avg_log2FC > 1)
+table(ConservedMarkers$group1)
+ht4 <- ExpHeatmap(ifnb_sub,
+  features = ConservedMarkers$gene, feature_split = ConservedMarkers$group1,
+  group.by = "seurat_annotations", split.by = "stim"
+)
+ht4$plot
 
 }

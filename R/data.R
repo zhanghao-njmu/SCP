@@ -1,6 +1,6 @@
-#' A subsetted version of 'pancreas' datasets
+#' A subsetted version of mouse 'pancreas' datasets
 #'
-#' \code{pancreas} is a mouse pancreatic endocrinogenesis dataset from \href{https://doi.org/10.1242/dev.173849}{Bastidas-Ponce et al. (2019)}. A total of 1000 cells were downsampled to form the \code{pancreas1k} dataset.
+#' Mouse pancreatic endocrinogenesis dataset from \href{https://doi.org/10.1242/dev.173849}{Bastidas-Ponce et al. (2019)}. A total of 1000 cells were downsampled to form the \code{pancreas_sub} dataset.
 #'
 #' @format A \code{Seurat} object.
 #' @concept data
@@ -30,9 +30,9 @@
 #' }
 "pancreas_sub"
 
-#' A subsetted version of 'panc8' datasets
+#' A subsetted version of human 'panc8' datasets
 #'
-#' \code{panc8} is human pancreatic islet cell datasets produced across four technologies, CelSeq (GSE81076) CelSeq2 (GSE85241), Fluidigm C1 (GSE86469), and SMART-Seq2 (E-MTAB-5061) from \href{https://github.com/satijalab/seurat-data}{SeuratData} package. For each data set in `panc8`, 200 cells were downsampled to form the \code{panc8_sub} dataset.
+#' Human pancreatic islet cell datasets produced across four technologies, CelSeq (GSE81076) CelSeq2 (GSE85241), Fluidigm C1 (GSE86469), and SMART-Seq2 (E-MTAB-5061) from \href{https://github.com/satijalab/seurat-data}{SeuratData} package. For each data set in `panc8`, 200 cells were downsampled to form the \code{panc8_sub} dataset.
 #'
 #' @format A \code{Seurat} object.
 #' @concept data
@@ -58,6 +58,33 @@
 #' }
 #' }
 "panc8_sub"
+
+#' A subsetted version of 'ifnb' datasets
+#'
+#' Human PBMC control/IFNB-stimulated dataset
+#'
+#' @format A \code{Seurat} object.
+#' @concept data
+#' @source \url{https://www.nature.com/articles/nbt.4042}
+#' @examples
+#' \dontrun{
+#' if (interactive()) {
+#'   if (!require("SeuratData", quietly = TRUE)) {
+#'     devtools::install_github("satijalab/seurat-data")
+#'   }
+#'   library(SeuratData)
+#'   library(Seurat)
+#'   suppressWarnings(InstallData("ifnb"))
+#'   data("ifnb")
+#'   set.seed(11)
+#'   cells_sub <- unlist(lapply(split(colnames(ifnb), ifnb$stim), function(x) sample(x, size = 1000)))
+#'   ifnb_sub <- subset(ifnb, cells = cells_sub)
+#'   ifnb_sub <- ifnb_sub[rowSums(ifnb_sub@assays$RNA@counts) > 0, ]
+#'   ifnb_sub <- UpdateSeuratObject(ifnb_sub)
+#'   # usethis::use_data(ifnb_sub, compress = "xz")
+#' }
+#' }
+"ifnb_sub"
 
 # ref_scHCL <- scHCL::ref.expr
 # ref_scMCA <- scMCA::ref.expr

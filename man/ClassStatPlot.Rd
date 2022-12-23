@@ -46,7 +46,7 @@ ClassStatPlot(
 )
 }
 \arguments{
-\item{force}{}
+\item{stat_level}{}
 }
 \description{
 Statistical plot of cell classification

@@ -25,6 +25,8 @@ panel_fix(
 \arguments{
 \item{x}{A ggplot or grob object.}
 
+\item{respect}{}
+
 \item{width}{The width of the panel.}
 
 \item{height}{The height of the panel.}
@@ -34,8 +36,6 @@ panel_fix(
 \item{units}{The units in which \code{height}, \code{width} and \code{margin} are given. Can be \code{mm}, \code{cm}, \code{inches}, etc. See \code{\link[grid]{unit}}.}
 
 \item{save}{NULL or the file name to save.}
-
-\item{...}{}
 }
 \value{
 If \code{filename} is not specified, no return; otherwise return a list objects:

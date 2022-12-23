@@ -3,7 +3,7 @@
 \docType{data}
 \name{pancreas_sub}
 \alias{pancreas_sub}
-\title{A subsetted version of 'pancreas' datasets}
+\title{A subsetted version of mouse 'pancreas' datasets}
 \format{
 A \code{Seurat} object.
 }
@@ -14,7 +14,7 @@ A \code{Seurat} object.
 pancreas_sub
 }
 \description{
-\code{pancreas} is a mouse pancreatic endocrinogenesis dataset from \href{https://doi.org/10.1242/dev.173849}{Bastidas-Ponce et al. (2019)}. A total of 1000 cells were downsampled to form the \code{pancreas1k} dataset.
+Mouse pancreatic endocrinogenesis dataset from \href{https://doi.org/10.1242/dev.173849}{Bastidas-Ponce et al. (2019)}. A total of 1000 cells were downsampled to form the \code{pancreas_sub} dataset.
 }
 \examples{
 \dontrun{

@@ -3,7 +3,7 @@
 \docType{data}
 \name{panc8_sub}
 \alias{panc8_sub}
-\title{A subsetted version of 'panc8' datasets}
+\title{A subsetted version of human 'panc8' datasets}
 \format{
 A \code{Seurat} object.
 }
@@ -14,7 +14,7 @@ A \code{Seurat} object.
 panc8_sub
 }
 \description{
-\code{panc8} is human pancreatic islet cell datasets produced across four technologies, CelSeq (GSE81076) CelSeq2 (GSE85241), Fluidigm C1 (GSE86469), and SMART-Seq2 (E-MTAB-5061) from \href{https://github.com/satijalab/seurat-data}{SeuratData} package. For each data set in `panc8`, 200 cells were downsampled to form the \code{panc8_sub} dataset.
+Human pancreatic islet cell datasets produced across four technologies, CelSeq (GSE81076) CelSeq2 (GSE85241), Fluidigm C1 (GSE86469), and SMART-Seq2 (E-MTAB-5061) from \href{https://github.com/satijalab/seurat-data}{SeuratData} package. For each data set in `panc8`, 200 cells were downsampled to form the \code{panc8_sub} dataset.
 }
 \examples{
 \dontrun{

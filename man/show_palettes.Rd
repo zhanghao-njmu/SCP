@@ -14,6 +14,8 @@ show_palettes(
 )
 }
 \arguments{
+\item{type}{}
+
 \item{index}{The index of the palette in SCP palette list. Show all palettes in SCP by default.}
 
 \item{palette_names}{Name of the palettes to be shown}

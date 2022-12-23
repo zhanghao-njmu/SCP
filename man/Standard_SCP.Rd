@@ -64,8 +64,6 @@ Standard_SCP(
 
 \item{nonlinear_reduction_dims}{Dimensions to calculate when performing non-linear reduction.}
 
-\item{force_nonlinear_reduction}{}
-
 \item{cluster_algorithm}{Algorithm for modularity optimization when finding clusters. Can be one of "louvain", "slm", "leiden".}
 
 \item{cluster_resolution}{Cluster resolution parameter.}
