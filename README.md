@@ -331,7 +331,7 @@ ClassDimPlot(srt = pancreas_sub, group.by = "knnpredict_classification", reducti
 ``` r
 pancreas_sub <- RunPAGA(
   srt = pancreas_sub, group_by = "SubCellType",
-  linear_reduction = "PCA", nonlinear_reduction = "UMAP", return_seurat = TRUE
+  linear_reduction = "PCA", nonlinear_reduction = "UMAP"
 )
 PAGAPlot(srt = pancreas_sub, reduction = "UMAP", label = TRUE, label_insitu = TRUE, label_repel = TRUE)
 ```
@@ -343,7 +343,7 @@ PAGAPlot(srt = pancreas_sub, reduction = "UMAP", label = TRUE, label_insitu = TR
 ``` r
 pancreas_sub <- RunSCVELO(
   srt = pancreas_sub, group_by = "SubCellType",
-  linear_reduction = "PCA", nonlinear_reduction = "UMAP", return_seurat = TRUE
+  linear_reduction = "PCA", nonlinear_reduction = "UMAP"
 )
 VelocityPlot(srt = pancreas_sub, reduction = "UMAP", group_by = "SubCellType")
 ```

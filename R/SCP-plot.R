@@ -4113,8 +4113,7 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
       if (length(features) > nlabel) {
         index_from <- ceiling((length(features_ordered) / nlabel) / 2)
         index_to <- length(features_ordered)
-        index_by <- max(c(floor((index_to - index_from) / (nlabel - 1)), 1), na.rm = TRUE)
-        index <- seq(from = index_from, to = index_to, by = index_by)
+        index <- unique(round(seq(from = index_from, to = index_to, length.out = nlabel)))
       } else {
         index <- seq_along(features_ordered)
       }
@@ -5436,8 +5435,7 @@ ExpHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, spli
       if (length(features) > nlabel) {
         index_from <- ceiling((length(features_ordered) / nlabel) / 2)
         index_to <- length(features_ordered)
-        index_by <- max(c(floor((index_to - index_from) / (nlabel - 1)), 1), na.rm = TRUE)
-        index <- seq(from = index_from, to = index_to, by = index_by)
+        index <- unique(round(seq(from = index_from, to = index_to, length.out = nlabel)))
       } else {
         index <- seq_along(features_ordered)
       }
@@ -10830,8 +10828,7 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineag
       if (length(features) > nlabel) {
         index_from <- ceiling((length(features_ordered) / nlabel) / 2)
         index_to <- length(features_ordered)
-        index_by <- max(c(floor((index_to - index_from) / (nlabel - 1)), 1), na.rm = TRUE)
-        index <- seq(from = index_from, to = index_to, by = index_by)
+        index <- unique(round(seq(from = index_from, to = index_to, length.out = nlabel)))
       } else {
         index <- seq_along(features_ordered)
       }
