@@ -12,9 +12,7 @@ RunDEtest(
   cells1 = NULL,
   cells2 = NULL,
   features = NULL,
-  FindAllMarkers = TRUE,
-  FindPairedMarkers = FALSE,
-  FindConservedMarkers = FALSE,
+  markers_type = c("all", "paired", "conserved", "disturbed"),
   grouping.var = NULL,
   meta.method = metap::maximump,
   test.use = "wilcox",
@@ -37,6 +35,7 @@ RunDEtest(
   progressbar = TRUE,
   force = FALSE,
   seed = 11,
+  verbose = TRUE,
   ...
 )
 }
@@ -44,10 +43,6 @@ RunDEtest(
 \item{srt}{A \code{Seurat} object}
 
 \item{group_by}{group_by}
-
-\item{FindAllMarkers}{Whether to find markers across all cells.}
-
-\item{FindPairedMarkers}{Whether to find markers between pairs of the cell groups.}
 
 \item{fc.threshold}{fc.threshold}
 
@@ -62,12 +57,12 @@ Differential gene test
 }
 \examples{
 library(dplyr)
-data("pancreas_sub")
+data("ifnb_sub")
 
-pancreas_sub <- RunDEtest(pancreas_sub, group_by = "CellType")
-AllMarkers <- filter(pancreas_sub@tools$DEtest_CellType$AllMarkers_wilcox, p_val_adj < 0.05 & avg_log2FC > 1)
+ifnb_sub <- RunDEtest(ifnb_sub, group_by = "seurat_annotations")
+AllMarkers <- filter(ifnb_sub@tools$DEtest_seurat_annotations$AllMarkers_wilcox, p_val_adj < 0.05 & avg_log2FC > 1)
 table(AllMarkers$group1)
-ht1 <- ExpHeatmap(pancreas_sub, features = AllMarkers$gene, feature_split = AllMarkers$group1, group.by = "CellType")
+ht1 <- GroupHeatmap(ifnb_sub, features = AllMarkers$gene, feature_split = AllMarkers$group1, group.by = "seurat_annotations")
 ht1$plot
 
 TopMarkers <- AllMarkers \%>\%
@@ -75,22 +70,40 @@ TopMarkers <- AllMarkers \%>\%
   top_n(1, avg_log2FC) \%>\%
   group_by(group1) \%>\%
   top_n(3, avg_log2FC)
-ht2 <- GroupHeatmap(pancreas_sub, features = TopMarkers$gene, feature_split = TopMarkers$group1, group.by = "CellType")
+ht2 <- GroupHeatmap(ifnb_sub, features = TopMarkers$gene, feature_split = TopMarkers$group1, group.by = "seurat_annotations", show_row_names = TRUE)
 ht2$plot
 
-pancreas_sub <- RunDEtest(pancreas_sub, group_by = "CellType", FindAllMarkers = FALSE, FindPairedMarkers = TRUE)
-PairedMarkers <- filter(pancreas_sub@tools$DEtest_CellType$PairedMarkers_wilcox, p_val_adj < 0.05 & avg_log2FC > 1)
+ifnb_sub <- RunDEtest(ifnb_sub, group_by = "seurat_annotations", markers_type = "paired")
+PairedMarkers <- filter(ifnb_sub@tools$DEtest_seurat_annotations$PairedMarkers_wilcox, p_val_adj < 0.05 & avg_log2FC > 1)
 table(PairedMarkers$group1)
-ht3 <- ExpHeatmap(pancreas_sub, features = PairedMarkers$gene, feature_split = PairedMarkers$group1, group.by = "CellType")
+ht3 <- GroupHeatmap(ifnb_sub, features = PairedMarkers$gene, feature_split = PairedMarkers$group1, group.by = "seurat_annotations")
 ht3$plot
 
-ifnb_sub <- RunDEtest(ifnb_sub, group_by = "seurat_annotations", grouping.var = "stim", FindAllMarkers = FALSE, FindConservedMarkers = TRUE)
+ifnb_sub <- RunDEtest(ifnb_sub, group_by = "seurat_annotations", grouping.var = "stim", markers_type = "conserved")
 ConservedMarkers <- filter(ifnb_sub@tools$DEtest_seurat_annotations$ConservedMarkers_wilcox, p_val_adj < 0.05 & avg_log2FC > 1)
 table(ConservedMarkers$group1)
-ht4 <- ExpHeatmap(ifnb_sub,
+ht4 <- GroupHeatmap(ifnb_sub,
   features = ConservedMarkers$gene, feature_split = ConservedMarkers$group1,
   group.by = "seurat_annotations", split.by = "stim"
 )
 ht4$plot
+
+ifnb_sub <- RunDEtest(ifnb_sub, group_by = "seurat_annotations", grouping.var = "stim", markers_type = "disturbed")
+DisturbedMarkers_STIM <- filter(ifnb_sub@tools$DEtest_seurat_annotations$DisturbedMarkers_wilcox, p_val_adj < 0.05 & avg_log2FC > 1 & var1 == "STIM")
+table(DisturbedMarkers_STIM$group1)
+gene_unique <- names(which(table(DisturbedMarkers_STIM$gene) == 1))
+DisturbedMarkers_STIM_unique <- DisturbedMarkers_STIM[DisturbedMarkers_STIM$gene \%in\% gene_unique, ]
+table(DisturbedMarkers_STIM_unique$group1)
+ht5 <- GroupHeatmap(ifnb_sub,
+  features = DisturbedMarkers_STIM_unique$gene, feature_split = DisturbedMarkers_STIM_unique$group1,
+  group.by = "seurat_annotations", split.by = "stim"
+)
+ht5$plot
+
+ht6 <- GroupHeatmap(ifnb_sub,
+  features = DisturbedMarkers_STIM_unique$gene, feature_split = DisturbedMarkers_STIM_unique$group1,
+  group.by = "seurat_annotations", grouping.var = "stim", numerator = "STIM"
+)
+ht6$plot
 
 }

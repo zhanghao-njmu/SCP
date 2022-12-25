@@ -837,7 +837,7 @@ RunDimReduction <- function(srt, prefix = "", features = NULL, assay = NULL, slo
         dims_estimate <- seq_len(min(ncol(Embeddings(srt, reduction = paste0(prefix, linear_reduction))), 30))
       }
     }
-    message("dims_estimate is ", paste0(range(dims_estimate), collapse = ":"), " for \"", linear_reduction, "\"")
+    message("dims_estimate is ", paste0(range(dims_estimate), collapse = ":"), " for '", linear_reduction, "'")
     srt@reductions[[paste0(prefix, linear_reduction)]]@misc[["dims_estimate"]] <- dims_estimate
     srt@misc[["Default_reduction"]] <- paste0(prefix, linear_reduction)
   } else if (!is.null(nonlinear_reduction)) {
@@ -1870,7 +1870,7 @@ fastMNN_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TR
       }
     } else {
       fastMNN_dims_use <- seq_len(min(ncol(Embeddings(srtIntegrated, reduction = "fastMNN")), 30))
-      message("Set the dims_estimate to ", fastMNN_dims_use, " for \"fastMNN\"")
+      message("Set the dims_estimate to ", fastMNN_dims_use, " for 'fastMNN'")
     }
   }
   srtIntegrated@reductions[["fastMNN"]]@misc[["dims_estimate"]] <- fastMNN_dims_use
@@ -2103,7 +2103,7 @@ Harmony_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TR
       }
     } else {
       Harmony_dims_use <- seq_len(min(ncol(Embeddings(srtIntegrated, reduction = "Harmony")), 30))
-      message("Set the dims_estimate to ", Harmony_dims_use, " for \"Harmony\"")
+      message("Set the dims_estimate to ", Harmony_dims_use, " for 'Harmony'")
     }
   }
   srtIntegrated[["Harmony"]]@misc[["dims_estimate"]] <- Harmony_dims_use
@@ -3749,7 +3749,7 @@ Integration_SCP <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE
                             do_cluster_finding = TRUE, cluster_algorithm = "louvain", cluster_resolution = 0.6, cluster_reorder = TRUE,
                             seed = 11, ...) {
   if (is.null(srtList) && is.null(srtMerge)) {
-    stop("Neither \"srtList\" nor \"srtMerge\" was found.")
+    stop("Neither 'srtList' nor 'srtMerge' was found.")
   }
   if (length(integration_method) == 1 && integration_method %in% c("Uncorrected", "Seurat", "scVI", "MNN", "fastMNN", "Harmony", "Scanorama", "BBKNN", "CSS", "LIGER", "Conos")) {
     args1 <- mget(names(formals()))

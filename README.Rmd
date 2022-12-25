@@ -162,6 +162,7 @@ ht <- GroupHeatmap(
     "Ins1", "Gcg", "Sst", "Ghrl" # Beta, Alpha, Delta, Epsilon
   ),
   group.by = c("CellType", "SubCellType"),
+  heatmap_palette = "YlOrRd",
   cell_annotation = c("Phase", "G2M_score", "Neurod2"),
   cell_palette = c("Dark2", "Paired", "Paired"),
   show_row_names = TRUE, row_names_side = "left",

@@ -125,7 +125,7 @@ RunKNNPredict <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
         features_query <- VariableFeatures(srt_query, assay = query_assay)
       } else if (features_type == "DE" && feature_source %in% c("both", "query")) {
         if (is.null(query_group)) {
-          stop("\"query_group\" must be provided when \"features_type\" is \"DE\" and \"feature_source\" is \"both\" or \"query\"")
+          stop("'query_group' must be provided when 'features_type' is 'DE' and 'feature_source' is 'both' or 'query'")
         } else {
           slot <- paste0("DEtest_", query_group)
           DEtest_param[["force"]] <- TRUE
@@ -346,15 +346,15 @@ RunKNNPredict <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
       nn_method <- "annoy"
     }
   }
-  message("Use \"", nn_method, "\" method to find neighbors.")
+  message("Use '", nn_method, "' method to find neighbors.")
   if (!nn_method %in% c("raw", "annoy", "rann")) {
     stop("nn_method must be one of raw, rann and annoy")
   }
   if (nn_method == "annoy" && !distance_metric %in% c("euclidean", "cosine", "manhattan", "hamming")) {
-    stop("distance_metric must be one of euclidean, cosine, manhattan, and hamming when nn_method=\"annoy\"")
+    stop("distance_metric must be one of euclidean, cosine, manhattan, and hamming when nn_method='annoy'")
   }
   if (isTRUE(return_full_distance_matrix) && nn_method != "raw") {
-    warning("Distance matrix will not be returned besause nn_method is not \"raw\"", immediate. = TRUE)
+    warning("Distance matrix will not be returned besause nn_method is not 'raw'", immediate. = TRUE)
     return_full_distance_matrix <- FALSE
   }
   simil_method <- c(

@@ -3478,7 +3478,7 @@ cluster_within_group2 <- function(mat, factor) {
 #' @importFrom dplyr %>% filter group_by arrange desc across mutate summarise distinct n .data "%>%"
 #' @importFrom Matrix t
 #' @export
-GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL, cells = NULL, aggregate_fun = mean, exp_cutoff = 0, border = TRUE, flip = FALSE,
+GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL, grouping.var = NULL, numerator = NULL, cells = NULL, aggregate_fun = base::mean, exp_cutoff = 0, border = TRUE, flip = FALSE,
                          slot = "counts", assay = "RNA", exp_method = c("zscore", "raw", "fc", "log2fc", "log1p"), lib_normalize = TRUE, libsize = NULL,
                          feature_split = NULL, feature_split_by = NULL, n_split = NULL, split_method = c("kmeans", "hclust", "mfuzz"), decreasing = FALSE,
                          cluster_features_by = NULL, cluster_rows = FALSE, cluster_columns = FALSE, cluster_row_slices = FALSE, cluster_column_slices = FALSE,
@@ -3498,7 +3498,7 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
                          add_dot = FALSE, dot_size = unit(8, "mm"),
                          add_reticle = FALSE, reticle_color = "grey",
                          add_violin = FALSE, fill.by = "feature", fill_palette = "Dark2", fill_palcolor = NULL,
-                         heatmap_palette = "YlOrRd", heatmap_palcolor = NULL, group_palette = "Paired", group_palcolor = NULL,
+                         heatmap_palette = "RdBu", heatmap_palcolor = NULL, group_palette = "Paired", group_palcolor = NULL,
                          cell_split_palette = "jco", cell_split_palcolor = NULL, feature_split_palette = "jama", feature_split_palcolor = NULL,
                          cell_annotation = NULL, cell_palette = "Paired", cell_palcolor = NULL, cell_annotation_params = if (flip) list(width = grid::unit(1, "cm")) else list(height = grid::unit(1, "cm")),
                          feature_annotation = NULL, feature_palette = "Dark2", feature_palcolor = NULL, feature_annotation_params = list(),
@@ -3517,6 +3517,29 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
       "raw" = data_nm,
       paste0(exp_method, "(", data_nm, ")")
     )
+  }
+  if (!is.null(grouping.var) && exp_method != "log2fc") {
+    warning("When 'grouping.var' is specified, 'exp_method' can only be 'log2fc'", immediate. = TRUE)
+    exp_method <- "log2fc"
+  }
+  if (!is.null(grouping.var)) {
+    if (identical(split.by, grouping.var)) {
+      stop("'grouping.var' must be different from 'split.by'")
+    }
+    if (!is.factor(srt[[grouping.var, drop = TRUE]])) {
+      srt[[grouping.var, drop = TRUE]] <- factor(srt[[grouping.var, drop = TRUE]], levels = unique(srt[[grouping.var, drop = TRUE]]))
+    }
+    if (is.null(numerator)) {
+      numerator <- levels(srt@meta.data[, grouping.var])[1]
+      warning("'numerator' is not specified. Use the first level in 'grouping.var': ", numerator, immediate. = TRUE)
+    } else {
+      if (numerator %in% levels(srt@meta.data[, grouping.var])) {
+        stop("'", numerator, "' is not an element of the '", grouping.var, "'")
+      }
+    }
+    srt[["grouping.var.use", drop = TRUE]] <- srt[[grouping.var, drop = TRUE]] == numerator
+    add_dot <- FALSE
+    exp_name <- paste0(numerator, "/", "other\n", exp_method, "(", data_nm, ")")
   }
 
   if (missing(srt)) {
@@ -3630,30 +3653,20 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
     if (!is.factor(srt[[cell_group, drop = TRUE]])) {
       srt[[cell_group, drop = TRUE]] <- factor(srt[[cell_group, drop = TRUE]], levels = unique(srt[[cell_group, drop = TRUE]]))
     }
-    if (is.null(split.by)) {
-      cell_groups[[cell_group]] <- lapply(levels(srt[[cell_group, drop = TRUE]]), function(x) {
-        cells_sub <- colnames(srt)[srt[[cell_group, drop = TRUE]] == x]
-        cells_sub <- intersect(cells, cells_sub)
-        out <- setNames(rep(x, length(cells_sub)), cells_sub)
-        return(out)
-      }) %>% unlist(use.names = TRUE)
-      levels <- levels(srt[[cell_group, drop = TRUE]])
-      cell_groups[[cell_group]] <- factor(cell_groups[[cell_group]], levels = levels[levels %in% cell_groups[[cell_group]]])
-    } else {
+    cell_groups[[cell_group]] <- srt[[cell_group, drop = TRUE]][cells]
+    cell_groups[[cell_group]] <- factor(cell_groups[[cell_group]], levels = levels(cell_groups[[cell_group]])[levels(cell_groups[[cell_group]]) %in% cell_groups[[cell_group]]])
+
+    if (!is.null(split.by)) {
       if (!is.factor(srt[[split.by, drop = TRUE]])) {
         srt[[split.by, drop = TRUE]] <- factor(srt[[split.by, drop = TRUE]], levels = unique(srt[[split.by, drop = TRUE]]))
       }
-      cell_groups[[cell_group]] <- lapply(levels(srt[[cell_group, drop = TRUE]]), function(x) {
-        cells_sub <- colnames(srt)[srt[[cell_group, drop = TRUE]] == x]
-        cells_sub <- intersect(cells, cells_sub)
-        out <- NULL
-        for (sp in levels(srt[[split.by, drop = TRUE]])) {
-          cells_sp <- cells_sub[srt[[split.by, drop = TRUE]][cells_sub] == sp]
-          out <- c(out, setNames(rep(paste0(x, " : ", sp), length(cells_sp)), cells_sp))
-        }
-        return(out)
-      }) %>% unlist(use.names = TRUE)
-      levels <- apply(expand.grid(levels(srt[[split.by, drop = TRUE]]), levels(srt[[cell_group, drop = TRUE]])), 1, function(x) paste0(x[2:1], collapse = " : "))
+      levels <- apply(expand.grid(levels(srt[[split.by, drop = TRUE]]), levels(cell_groups[[cell_group]])), 1, function(x) paste0(x[2:1], collapse = " : "))
+      cell_groups[[cell_group]] <- setNames(paste0(cell_groups[[cell_group]][cells], " : ", srt[[split.by, drop = TRUE]][cells]), cells)
+      cell_groups[[cell_group]] <- factor(cell_groups[[cell_group]], levels = levels[levels %in% cell_groups[[cell_group]]])
+    }
+    if (!is.null(grouping.var)) {
+      levels <- apply(expand.grid(c("TRUE", "FALSE"), levels(cell_groups[[cell_group]])), 1, function(x) paste0(x[2:1], collapse = " ; "))
+      cell_groups[[cell_group]] <- setNames(paste0(cell_groups[[cell_group]][cells], " ; ", srt[["grouping.var.use", drop = TRUE]][cells]), cells)
       cell_groups[[cell_group]] <- factor(cell_groups[[cell_group]], levels = levels[levels %in% cell_groups[[cell_group]]])
     }
   }
@@ -3662,7 +3675,7 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
   gene_unique <- features_unique[features %in% rownames(srt[[assay]])]
   meta <- features[features %in% colnames(srt@meta.data)]
 
-  mat_raw <- as.matrix(rbind(GetAssayData(srt, assay = assay, slot = slot)[gene, cells], t(srt@meta.data[cells, meta, drop = FALSE])))[features, , drop = FALSE]
+  mat_raw <- as.matrix(rbind(GetAssayData(srt, assay = assay, slot = slot)[gene, cells, drop = FALSE], t(srt@meta.data[cells, meta, drop = FALSE])))[features, , drop = FALSE]
   rownames(mat_raw) <- features_unique
   if (isTRUE(lib_normalize) && min(mat_raw, na.rm = TRUE) >= 0) {
     if (!is.null(libsize)) {
@@ -3702,12 +3715,27 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
 
   # data used to plot heatmap
   mat_list <- list()
+
   for (cell_group in group.by) {
     mat_tmp <- mat_raw_list[[cell_group]]
-    mat_tmp <- matrix_process(mat_tmp, method = exp_method)
-    mat_tmp[is.infinite(mat_tmp)] <- max(abs(mat_tmp[!is.infinite(mat_tmp)])) * ifelse(mat_tmp[is.infinite(mat_tmp)] > 0, 1, -1)
-    mat_tmp[is.na(mat_tmp)] <- mean(mat_tmp, na.rm = TRUE)
-    mat_list[[cell_group]] <- mat_tmp
+    if (is.null(grouping.var)) {
+      mat_tmp <- matrix_process(mat_tmp, method = exp_method)
+      mat_tmp[is.infinite(mat_tmp)] <- max(abs(mat_tmp[!is.infinite(mat_tmp)])) * ifelse(mat_tmp[is.infinite(mat_tmp)] > 0, 1, -1)
+      mat_tmp[is.na(mat_tmp)] <- mean(mat_tmp, na.rm = TRUE)
+      mat_list[[cell_group]] <- mat_tmp
+    } else {
+      compare_groups <- strsplit(colnames(mat_tmp), " ; ")
+      names_keep <- names(which(table(sapply(compare_groups, function(x) x[[1]])) == 2))
+      group_keep <- which(sapply(compare_groups, function(x) x[[1]] %in% names_keep))
+      group_TRUE <- intersect(group_keep, which(sapply(compare_groups, function(x) x[[2]]) == "TRUE"))
+      group_FALSE <- intersect(group_keep, which(sapply(compare_groups, function(x) x[[2]]) == "FALSE"))
+      mat_tmp <- log2(mat_tmp[, group_TRUE] / mat_tmp[, group_FALSE])
+      colnames(mat_tmp) <- gsub(" ; .*", "", colnames(mat_tmp))
+      mat_tmp[is.infinite(mat_tmp)] <- max(abs(mat_tmp[!is.infinite(mat_tmp)])) * ifelse(mat_tmp[is.infinite(mat_tmp)] > 0, 1, -1)
+      mat_tmp[is.na(mat_tmp)] <- 0
+      mat_list[[cell_group]] <- mat_tmp
+      cell_groups[[cell_group]] <- factor(gsub(" ; .*", "", cell_groups[[cell_group]]), levels = unique(gsub(" ; .*", "", levels(cell_groups[[cell_group]]))))
+    }
   }
 
   # data used to do clustering
@@ -4276,10 +4304,7 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
               df_out <- data.frame(keyword = terms)
               df_out[["col"]] <- palette_scp(-log10(head(df[, "p.adjust"], topTerm)), type = "continuous", palette = "Spectral", matched = TRUE)
               df_out[["col"]] <- sapply(df_out[["col"]], function(x) blendcolors(c(x, "black")))
-              df_out[["fontsize"]] <- terms_fontsize
-              if (length(df_out[["fontsize"]]) == 0 || any(is.infinite(df_out[["fontsize"]])) || any(is.na(df_out[["fontsize"]]))) {
-                df_out[["fontsize"]] <- 8
-              }
+              df_out[["fontsize"]] <- rep(terms_fontsize, nrow(df_out))
               return(df_out)
             })
             names(terms_list) <- unlist(lapply(nm, function(x) x[[2]]))
@@ -4345,15 +4370,14 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
                   as.data.frame()
                 df <- df[head(order(df[["score"]], decreasing = TRUE), topWord), , drop = FALSE]
               }
-              if (!is.null(df)) {
+              if (nrow(df) > 0) {
                 df[["col"]] <- palette_scp(df[, "score"], type = "continuous", palette = "Spectral", matched = TRUE)
                 df[["col"]] <- sapply(df[["col"]], function(x) blendcolors(c(x, "black")))
                 df[["fontsize"]] <- rescale(df[, "count"], to = keys_fontsize)
-                if (length(df[["fontsize"]]) == 0 || any(is.infinite(df[["fontsize"]])) || any(is.na(df[["fontsize"]]))) {
-                  df[["fontsize"]] <- 8
-                }
+                return(df)
+              } else {
+                return(NULL)
               }
-              return(df)
             })
             names(keys_list) <- unlist(lapply(nm, function(x) x[[2]]))
             keys_list <- keys_list[lapply(keys_list, length) > 0]
@@ -4397,9 +4421,6 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
               df[["col"]] <- palette_scp(df[, "score"], type = "continuous", palette = "Spectral", matched = TRUE)
               df[["col"]] <- sapply(df[["col"]], function(x) blendcolors(c(x, "black")))
               df[["fontsize"]] <- rescale(df[, "count"], to = features_fontsize)
-              if (length(df[["fontsize"]]) == 0 || any(is.infinite(df[["fontsize"]])) || any(is.na(df[["fontsize"]]))) {
-                df[["fontsize"]] <- 8
-              }
               return(df)
             })
             names(features_list) <- unlist(lapply(nm, function(x) x[[2]]))
@@ -5062,7 +5083,7 @@ ExpHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, spli
         for (sp in levels(srt[[split.by, drop = TRUE]])) {
           cells_sp <- cells_sub[srt[[split.by, drop = TRUE]][cells_sub] == sp]
           size <- ifelse(length(cells_sp) > max_cells, max_cells, length(cells_sp))
-          cells_sample <- sample(cells_sub, size)
+          cells_sample <- sample(cells_sp, size)
           cells_tmp <- c(cells_tmp, setNames(rep(paste0(x, " : ", sp), size), cells_sample))
         }
         size <- ifelse(length(cells_tmp) > max_cells, max_cells, length(cells_tmp))
@@ -5081,7 +5102,7 @@ ExpHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, spli
   gene_unique <- features_unique[features %in% rownames(srt[[assay]])]
   meta <- features[features %in% colnames(srt@meta.data)]
   all_cells <- unique(unlist(lapply(cell_groups, names)))
-  mat_raw <- as.matrix(rbind(GetAssayData(srt, assay = assay, slot = slot)[gene, all_cells], t(srt@meta.data[all_cells, meta, drop = FALSE])))[features, , drop = FALSE]
+  mat_raw <- as.matrix(rbind(GetAssayData(srt, assay = assay, slot = slot)[gene, all_cells, drop = FALSE], t(srt@meta.data[all_cells, meta, drop = FALSE])))[features, , drop = FALSE]
   rownames(mat_raw) <- features_unique
   if (isTRUE(lib_normalize) && min(mat_raw, na.rm = TRUE) >= 0) {
     if (!is.null(libsize)) {
@@ -5598,10 +5619,7 @@ ExpHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, spli
               df_out <- data.frame(keyword = terms)
               df_out[["col"]] <- palette_scp(-log10(head(df[, "p.adjust"], topTerm)), type = "continuous", palette = "Spectral", matched = TRUE)
               df_out[["col"]] <- sapply(df_out[["col"]], function(x) blendcolors(c(x, "black")))
-              df_out[["fontsize"]] <- terms_fontsize
-              if (length(df_out[["fontsize"]]) == 0 || any(is.infinite(df_out[["fontsize"]])) || any(is.na(df_out[["fontsize"]]))) {
-                df_out[["fontsize"]] <- 8
-              }
+              df_out[["fontsize"]] <- rep(terms_fontsize, nrow(df_out))
               return(df_out)
             })
             names(terms_list) <- unlist(lapply(nm, function(x) x[[2]]))
@@ -5667,15 +5685,14 @@ ExpHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, spli
                   as.data.frame()
                 df <- df[head(order(df[["score"]], decreasing = TRUE), topWord), , drop = FALSE]
               }
-              if (!is.null(df)) {
+              if (nrow(df) > 0) {
                 df[["col"]] <- palette_scp(df[, "score"], type = "continuous", palette = "Spectral", matched = TRUE)
                 df[["col"]] <- sapply(df[["col"]], function(x) blendcolors(c(x, "black")))
                 df[["fontsize"]] <- rescale(df[, "count"], to = keys_fontsize)
-                if (length(df[["fontsize"]]) == 0 || any(is.infinite(df[["fontsize"]])) || any(is.na(df[["fontsize"]]))) {
-                  df[["fontsize"]] <- 8
-                }
+                return(df)
+              } else {
+                return(NULL)
               }
-              return(df)
             })
             names(keys_list) <- unlist(lapply(nm, function(x) x[[2]]))
             keys_list <- keys_list[lapply(keys_list, length) > 0]
@@ -5719,9 +5736,6 @@ ExpHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, spli
               df[["col"]] <- palette_scp(df[, "score"], type = "continuous", palette = "Spectral", matched = TRUE)
               df[["col"]] <- sapply(df[["col"]], function(x) blendcolors(c(x, "black")))
               df[["fontsize"]] <- rescale(df[, "count"], to = features_fontsize)
-              if (length(df[["fontsize"]]) == 0 || any(is.infinite(df[["fontsize"]])) || any(is.na(df[["fontsize"]]))) {
-                df[["fontsize"]] <- 8
-              }
               return(df)
             })
             names(features_list) <- unlist(lapply(nm, function(x) x[[2]]))
@@ -10430,7 +10444,7 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineag
     Y_libsize <- colSums(GetAssayData(srt, slot = "counts", assay = assay))
     for (l in lineages) {
       cells <- gsub(pattern = l, replacement = "", x = cell_order_list[[l]])
-      mat_tmp <- as.matrix(rbind(GetAssayData(srt, assay = assay, slot = slot)[gene, cells], t(srt@meta.data[cells, meta, drop = FALSE])))[features, , drop = FALSE]
+      mat_tmp <- as.matrix(rbind(GetAssayData(srt, assay = assay, slot = slot)[gene, cells, drop = FALSE], t(srt@meta.data[cells, meta, drop = FALSE])))[features, , drop = FALSE]
       if (isTRUE(lib_normalize) && min(mat_tmp, na.rm = TRUE) >= 0) {
         if (!is.null(libsize)) {
           libsize_use <- libsize
@@ -11009,10 +11023,7 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineag
               df_out <- data.frame(keyword = terms)
               df_out[["col"]] <- palette_scp(-log10(head(df[, "p.adjust"], topTerm)), type = "continuous", palette = "Spectral", matched = TRUE)
               df_out[["col"]] <- sapply(df_out[["col"]], function(x) blendcolors(c(x, "black")))
-              df_out[["fontsize"]] <- terms_fontsize
-              if (length(df_out[["fontsize"]]) == 0 || any(is.infinite(df_out[["fontsize"]])) || any(is.na(df_out[["fontsize"]]))) {
-                df_out[["fontsize"]] <- 8
-              }
+              df_out[["fontsize"]] <- rep(terms_fontsize, nrow(df_out))
               return(df_out)
             })
             names(terms_list) <- unlist(lapply(nm, function(x) x[[2]]))
@@ -11078,15 +11089,14 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineag
                   as.data.frame()
                 df <- df[head(order(df[["score"]], decreasing = TRUE), topWord), , drop = FALSE]
               }
-              if (!is.null(df)) {
+              if (nrow(df) > 0) {
                 df[["col"]] <- palette_scp(df[, "score"], type = "continuous", palette = "Spectral", matched = TRUE)
                 df[["col"]] <- sapply(df[["col"]], function(x) blendcolors(c(x, "black")))
                 df[["fontsize"]] <- rescale(df[, "count"], to = keys_fontsize)
-                if (length(df[["fontsize"]]) == 0 || any(is.infinite(df[["fontsize"]])) || any(is.na(df[["fontsize"]]))) {
-                  df[["fontsize"]] <- 8
-                }
+                return(df)
+              } else {
+                return(NULL)
               }
-              return(df)
             })
             names(keys_list) <- unlist(lapply(nm, function(x) x[[2]]))
             keys_list <- keys_list[lapply(keys_list, length) > 0]
@@ -11130,9 +11140,6 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineag
               df[["col"]] <- palette_scp(df[, "score"], type = "continuous", palette = "Spectral", matched = TRUE)
               df[["col"]] <- sapply(df[["col"]], function(x) blendcolors(c(x, "black")))
               df[["fontsize"]] <- rescale(df[, "count"], to = features_fontsize)
-              if (length(df[["fontsize"]]) == 0 || any(is.infinite(df[["fontsize"]])) || any(is.na(df[["fontsize"]]))) {
-                df[["fontsize"]] <- 8
-              }
               return(df)
             })
             names(features_list) <- unlist(lapply(nm, function(x) x[[2]]))

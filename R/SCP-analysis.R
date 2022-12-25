@@ -42,7 +42,7 @@
 #' homologs_counts <- as(as.matrix(homologs_counts[, -1]), "dgCMatrix")
 #' homologs_counts
 #'
-#' @importFrom dplyr "%>%" group_by mutate .data
+#' @importFrom dplyr "%>%" group_by mutate .data bind_rows
 #' @importFrom reshape2 dcast melt
 #' @importFrom R.cache loadCache saveCache
 #' @importFrom biomaRt listEnsemblArchives useMart listDatasets useDataset getBM listAttributes useEnsembl
@@ -56,7 +56,7 @@ GeneConvert <- function(geneID, geneID_from_IDtype = "symbol", geneID_to_IDtype 
   }
 
   if (missing(geneID)) {
-    stop("\"geneID\" must be provided.")
+    stop("'geneID' must be provided.")
   }
   if (is.null(species_to)) {
     species_to <- species_from
@@ -719,7 +719,7 @@ CellScoring <- function(srt, features = NULL, slot = "data", assay = "RNA", spli
   }
 
   if (!is.list(features) || length(names(features)) == 0) {
-    stop("\"features\" must be a named list")
+    stop("'features' must be a named list")
   }
   expressed <- names(which(rowSums(GetAssayData(srt, slot = slot, assay = assay) > 0) > 0))
   features <- lapply(setNames(names(features), names(features)), function(x) features[[x]][features[[x]] %in% expressed])
@@ -993,16 +993,9 @@ FindConservedMarkers2 <- function(object, grouping.var, ident.1, ident.2 = NULL,
   return(markers.combined)
 }
 
-
-FindDisturbedMarkers <- function(object, grouping.var) {
-
-}
-
 #' Differential gene test
 #'
 #' @param srt A \code{Seurat} object
-#' @param FindAllMarkers Whether to find markers across all cells.
-#' @param FindPairedMarkers Whether to find markers between pairs of the cell groups.
 #' @param group_by group_by
 #' @param fc.threshold fc.threshold
 #' @param min.pct min.pct
@@ -1034,19 +1027,14 @@ FindDisturbedMarkers <- function(object, grouping.var) {
 #' @param features
 #' @param seed
 #'
-#' @importFrom BiocParallel bplapply
-#' @importFrom dplyr bind_rows
-#' @importFrom Seurat FindMarkers Assays
-#' @importFrom stats p.adjust
-#'
 #' @examples
 #' library(dplyr)
-#' data("pancreas_sub")
+#' data("ifnb_sub")
 #'
-#' pancreas_sub <- RunDEtest(pancreas_sub, group_by = "CellType")
-#' AllMarkers <- filter(pancreas_sub@tools$DEtest_CellType$AllMarkers_wilcox, p_val_adj < 0.05 & avg_log2FC > 1)
+#' ifnb_sub <- RunDEtest(ifnb_sub, group_by = "seurat_annotations")
+#' AllMarkers <- filter(ifnb_sub@tools$DEtest_seurat_annotations$AllMarkers_wilcox, p_val_adj < 0.05 & avg_log2FC > 1)
 #' table(AllMarkers$group1)
-#' ht1 <- ExpHeatmap(pancreas_sub, features = AllMarkers$gene, feature_split = AllMarkers$group1, group.by = "CellType")
+#' ht1 <- GroupHeatmap(ifnb_sub, features = AllMarkers$gene, feature_split = AllMarkers$group1, group.by = "seurat_annotations")
 #' ht1$plot
 #'
 #' TopMarkers <- AllMarkers %>%
@@ -1054,39 +1042,63 @@ FindDisturbedMarkers <- function(object, grouping.var) {
 #'   top_n(1, avg_log2FC) %>%
 #'   group_by(group1) %>%
 #'   top_n(3, avg_log2FC)
-#' ht2 <- GroupHeatmap(pancreas_sub, features = TopMarkers$gene, feature_split = TopMarkers$group1, group.by = "CellType")
+#' ht2 <- GroupHeatmap(ifnb_sub, features = TopMarkers$gene, feature_split = TopMarkers$group1, group.by = "seurat_annotations", show_row_names = TRUE)
 #' ht2$plot
 #'
-#' pancreas_sub <- RunDEtest(pancreas_sub, group_by = "CellType", FindAllMarkers = FALSE, FindPairedMarkers = TRUE)
-#' PairedMarkers <- filter(pancreas_sub@tools$DEtest_CellType$PairedMarkers_wilcox, p_val_adj < 0.05 & avg_log2FC > 1)
+#' ifnb_sub <- RunDEtest(ifnb_sub, group_by = "seurat_annotations", markers_type = "paired")
+#' PairedMarkers <- filter(ifnb_sub@tools$DEtest_seurat_annotations$PairedMarkers_wilcox, p_val_adj < 0.05 & avg_log2FC > 1)
 #' table(PairedMarkers$group1)
-#' ht3 <- ExpHeatmap(pancreas_sub, features = PairedMarkers$gene, feature_split = PairedMarkers$group1, group.by = "CellType")
+#' ht3 <- GroupHeatmap(ifnb_sub, features = PairedMarkers$gene, feature_split = PairedMarkers$group1, group.by = "seurat_annotations")
 #' ht3$plot
 #'
-#' ifnb_sub <- RunDEtest(ifnb_sub, group_by = "seurat_annotations", grouping.var = "stim", FindAllMarkers = FALSE, FindConservedMarkers = TRUE)
+#' ifnb_sub <- RunDEtest(ifnb_sub, group_by = "seurat_annotations", grouping.var = "stim", markers_type = "conserved")
 #' ConservedMarkers <- filter(ifnb_sub@tools$DEtest_seurat_annotations$ConservedMarkers_wilcox, p_val_adj < 0.05 & avg_log2FC > 1)
 #' table(ConservedMarkers$group1)
-#' ht4 <- ExpHeatmap(ifnb_sub,
+#' ht4 <- GroupHeatmap(ifnb_sub,
 #'   features = ConservedMarkers$gene, feature_split = ConservedMarkers$group1,
 #'   group.by = "seurat_annotations", split.by = "stim"
 #' )
 #' ht4$plot
 #'
+#' ifnb_sub <- RunDEtest(ifnb_sub, group_by = "seurat_annotations", grouping.var = "stim", markers_type = "disturbed")
+#' DisturbedMarkers_STIM <- filter(ifnb_sub@tools$DEtest_seurat_annotations$DisturbedMarkers_wilcox, p_val_adj < 0.05 & avg_log2FC > 1 & var1 == "STIM")
+#' table(DisturbedMarkers_STIM$group1)
+#' gene_unique <- names(which(table(DisturbedMarkers_STIM$gene) == 1))
+#' DisturbedMarkers_STIM_unique <- DisturbedMarkers_STIM[DisturbedMarkers_STIM$gene %in% gene_unique, ]
+#' table(DisturbedMarkers_STIM_unique$group1)
+#' ht5 <- GroupHeatmap(ifnb_sub,
+#'   features = DisturbedMarkers_STIM_unique$gene, feature_split = DisturbedMarkers_STIM_unique$group1,
+#'   group.by = "seurat_annotations", split.by = "stim"
+#' )
+#' ht5$plot
+#'
+#' ht6 <- GroupHeatmap(ifnb_sub,
+#'   features = DisturbedMarkers_STIM_unique$gene, feature_split = DisturbedMarkers_STIM_unique$group1,
+#'   group.by = "seurat_annotations", grouping.var = "stim", numerator = "STIM"
+#' )
+#' ht6$plot
+#'
+#' @importFrom BiocParallel bplapply
+#' @importFrom Seurat FindMarkers Assays Idents
+#' @importFrom stats p.adjust
 #' @export
 #'
 RunDEtest <- function(srt, group_by = NULL, group1 = NULL, group2 = NULL, cells1 = NULL, cells2 = NULL, features = NULL,
-                      FindAllMarkers = TRUE, FindPairedMarkers = FALSE, FindConservedMarkers = FALSE,
+                      markers_type = c("all", "paired", "conserved", "disturbed"),
                       grouping.var = NULL, meta.method = metap::maximump,
                       test.use = "wilcox", only.pos = TRUE, fc.threshold = 1.5, base = 2, pseudocount.use = 1, mean.fxn = NULL,
                       min.pct = 0.1, min.diff.pct = -Inf, max.cells.per.ident = Inf, latent.vars = NULL,
                       min.cells.feature = 3, min.cells.group = 3,
                       norm.method = "LogNormalize", p.adjust.method = "bonferroni", slot = "data", assay = "RNA",
-                      BPPARAM = BiocParallel::bpparam(), progressbar = TRUE, force = FALSE, seed = 11, ...) {
+                      BPPARAM = BiocParallel::bpparam(), progressbar = TRUE, force = FALSE, seed = 11, verbose = TRUE, ...) {
   set.seed(seed)
-  if (isTRUE(FindConservedMarkers)) {
+  markers_type <- match.arg(markers_type)
+  if (markers_type == "conserved") {
     check_R(c("multtest", "metap"))
+  }
+  if (markers_type %in% c("conserved", "disturbed")) {
     if (is.null(grouping.var)) {
-      stop("\"grouping.var\" must be provided when performing FindConservedMarkers")
+      stop("'grouping.var' must be provided when finding conserved or disturbed markers")
     }
   }
   status <- check_DataType(srt, slot = slot, assay = assay)
@@ -1111,8 +1123,10 @@ RunDEtest <- function(srt, group_by = NULL, group1 = NULL, group2 = NULL, cells1
   }
 
   time_start <- Sys.time()
-  cat(paste0("[", time_start, "] ", "Start DEtest\n"))
-  message("Threads used: ", BPPARAM$workers)
+  if (verbose) {
+    message(paste0("[", time_start, "] ", "Start DEtest\n"))
+    message("Threads used: ", BPPARAM$workers)
+  }
 
   if (fc.threshold < 1) {
     stop("fc.threshold must be greater than or equal to 1")
@@ -1121,7 +1135,7 @@ RunDEtest <- function(srt, group_by = NULL, group1 = NULL, group2 = NULL, cells1
   if (!is.null(cells1) || !is.null(group1)) {
     if (is.null(cells1)) {
       if (is.null(group_by)) {
-        stop("\"group_by\" must be provided when \"group1\" specified")
+        stop("'group_by' must be provided when 'group1' specified")
       }
       cells1 <- colnames(srt)[srt[[group_by, drop = TRUE]] %in% group1]
     }
@@ -1141,9 +1155,11 @@ RunDEtest <- function(srt, group_by = NULL, group1 = NULL, group2 = NULL, cells1
     if (length(cells1) < 3 || length(cells2) < 3) {
       stop("Cell groups must have more than 3 cells")
     }
+    if (verbose) {
+      message("Find ", markers_type, " markers(", test.use, ") for custom cell groups...\n", sep = "")
+    }
 
-    if (isTRUE(FindAllMarkers)) {
-      cat("Perform FindMarkers(", test.use, ") for custom cell groups...\n", sep = "")
+    if (markers_type == "all") {
       markers <- FindMarkers(
         object = Assays(srt, assay), slot = slot,
         cells.1 = cells1,
@@ -1186,8 +1202,7 @@ RunDEtest <- function(srt, group_by = NULL, group1 = NULL, group2 = NULL, cells1
         warning("No markers found.", immediate. = TRUE)
       }
     }
-    if (isTRUE(FindConservedMarkers)) {
-      cat("Perform FindConservedMarkers(", test.use, ") for custom cell groups...\n", sep = "")
+    if (markers_type == "conserved") {
       markers <- FindConservedMarkers2(
         object = srt, assay = assay, slot = slot,
         cells.1 = cells1,
@@ -1232,6 +1247,45 @@ RunDEtest <- function(srt, group_by = NULL, group1 = NULL, group2 = NULL, cells1
         warning("No markers found.", immediate. = TRUE)
       }
     }
+    if (markers_type == "disturbed") {
+      srt_tmp <- srt
+      srt_tmp[[grouping.var, drop = TRUE]][setdiff(colnames(srt_tmp), cells.1)] <- NA
+      srt_tmp <- RunDEtest(
+        srt = srt_tmp, assay = assay, slot = slot,
+        group_by = grouping.var,
+        markers_type = "all",
+        features = features,
+        test.use = test.use,
+        fc.threshold = fc.threshold,
+        base = base,
+        min.pct = min.pct,
+        min.diff.pct = min.diff.pct,
+        max.cells.per.ident = max.cells.per.ident,
+        min.cells.feature = min.cells.feature,
+        min.cells.group = min.cells.group,
+        latent.vars = latent.vars,
+        only.pos = only.pos,
+        norm.method = norm.method,
+        p.adjust.method = p.adjust.method,
+        pseudocount.use = pseudocount.use,
+        mean.fxn = mean.fxn,
+        BPPARAM = BPPARAM,
+        progressbar = FALSE,
+        force = TRUE,
+        seed = seed,
+        verbose = FALSE,
+        ...
+      )
+      markers <- srt_tmp@tools[[paste0("DEtest_", grouping.var)]][[paste0("AllMarkers_", test.use)]]
+      if (!is.null(markers) && nrow(markers) > 0) {
+        colnames(markers) <- gsub("group", "var", colnames(markers))
+        markers[["group1"]] <- group1 %||% "group1"
+        srt@tools[["DEtest_custom"]][[paste0("DisturbedMarkers_", test.use)]] <- markers
+        srt@tools[["DEtest_custom"]][["cells1"]] <- cells1
+      } else {
+        warning("No markers found.", immediate. = TRUE)
+      }
+    }
   } else {
     if (is.null(group_by)) {
       cell_group <- Idents(srt)
@@ -1270,8 +1324,10 @@ RunDEtest <- function(srt, group_by = NULL, group1 = NULL, group2 = NULL, cells1
       ...
     )
 
-    if (isTRUE(FindAllMarkers)) {
-      cat("Perform FindAllMarkers(", test.use, ")...\n", sep = "")
+    if (verbose) {
+      message("Find ", markers_type, " markers(", test.use, ") among groups...\n", sep = "")
+    }
+    if (markers_type == "all") {
       AllMarkers <- bplapply(levels(cell_group), FUN = function(group) {
         cells.1 <- names(cell_group)[which(cell_group == group)]
         cells.2 <- names(cell_group)[which(cell_group != group)]
@@ -1306,11 +1362,10 @@ RunDEtest <- function(srt, group_by = NULL, group1 = NULL, group2 = NULL, cells1
       srt@tools[[paste0("DEtest_", group_by)]][[paste0("AllMarkers_", test.use)]] <- AllMarkers
     }
 
-    if (isTRUE(FindPairedMarkers)) {
+    if (markers_type == "paired") {
       if (nlevels(cell_group) > 30 && (!isTRUE(force))) {
-        warning("Too many groups for FindPairedMarkers function. If you want to force to run, please set \"force=TRUE\"", immediate. = TRUE)
+        warning("Too many groups for FindPairedMarkers function. If you want to force to run, please set 'force=TRUE'", immediate. = TRUE)
       } else {
-        cat("Perform FindPairedMarkers(", test.use, ")...\n", sep = "")
         pair <- expand.grid(x = levels(cell_group), y = levels(cell_group))
         pair <- pair[pair[, 1] != pair[, 2], ]
         PairedMarkers <- bplapply(seq_len(nrow(pair)), function(i) {
@@ -1348,8 +1403,7 @@ RunDEtest <- function(srt, group_by = NULL, group1 = NULL, group2 = NULL, cells1
       }
     }
 
-    if (isTRUE(FindConservedMarkers)) {
-      cat("Perform FindConservedMarkers(", test.use, ")...\n", sep = "")
+    if (markers_type == "conserved") {
       ConservedMarkers <- bplapply(levels(cell_group), FUN = function(group) {
         cells.1 <- names(cell_group)[which(cell_group == group)]
         cells.2 <- names(cell_group)[which(cell_group != group)]
@@ -1388,10 +1442,69 @@ RunDEtest <- function(srt, group_by = NULL, group1 = NULL, group2 = NULL, cells1
       ConservedMarkers <- ConservedMarkers[, c("avg_log2FC", "pct.1", "pct.2", "max_pval", "p_val", "p_val_adj", "gene", "group1", "group2", "test_group_number", "test_group")]
       srt@tools[[paste0("DEtest_", group_by)]][[paste0("ConservedMarkers_", test.use)]] <- ConservedMarkers
     }
+    if (markers_type == "disturbed") {
+      DisturbedMarkers <- bplapply(levels(cell_group), FUN = function(group) {
+        cells.1 <- names(cell_group)[which(cell_group == group)]
+        srt_tmp <- srt
+        srt_tmp[[grouping.var, drop = TRUE]][setdiff(colnames(srt_tmp), cells.1)] <- NA
+        if (length(na.omit(unique(srt_tmp[[grouping.var, drop = TRUE]]))) < 2) {
+          return(NULL)
+        } else {
+          srt_tmp <- RunDEtest(
+            srt = srt_tmp, assay = assay, slot = slot,
+            group_by = grouping.var,
+            markers_type = "all",
+            features = features,
+            test.use = test.use,
+            fc.threshold = fc.threshold,
+            base = base,
+            min.pct = min.pct,
+            min.diff.pct = min.diff.pct,
+            max.cells.per.ident = max.cells.per.ident,
+            min.cells.feature = min.cells.feature,
+            min.cells.group = min.cells.group,
+            latent.vars = latent.vars,
+            only.pos = only.pos,
+            norm.method = norm.method,
+            p.adjust.method = p.adjust.method,
+            pseudocount.use = pseudocount.use,
+            mean.fxn = mean.fxn,
+            BPPARAM = BiocParallel::SerialParam(),
+            progressbar = FALSE,
+            force = TRUE,
+            seed = seed,
+            verbose = FALSE,
+            ...
+          )
+          markers <- srt_tmp@tools[[paste0("DEtest_", grouping.var)]][[paste0("AllMarkers_", test.use)]]
+          if (!is.null(markers) && nrow(markers) > 0) {
+            colnames(markers) <- gsub("group", "var", colnames(markers))
+            markers[["group1"]] <- as.character(group)
+            return(markers)
+          } else {
+            return(NULL)
+          }
+        }
+      }, BPPARAM = BPPARAM)
+      DisturbedMarkers <- do.call(rbind.data.frame, DisturbedMarkers)
+      rownames(DisturbedMarkers) <- NULL
+      DisturbedMarkers[, "group1"] <- factor(DisturbedMarkers[, "group1"], levels = levels(cell_group))
+      if ("p_val" %in% colnames(DisturbedMarkers)) {
+        DisturbedMarkers[, "p_val_adj"] <- p.adjust(DisturbedMarkers[, "p_val"], method = p.adjust.method)
+      }
+      DisturbedMarkers[, "test_group_number"] <- as.integer(table(unique(DisturbedMarkers[, c("gene", "group1")])[["gene"]])[DisturbedMarkers[, "gene"]])
+      DisturbedMarkersMatrix <- as.data.frame.matrix(table(DisturbedMarkers[, c("gene", "group1")]))
+      DisturbedMarkers[, "test_group"] <- apply(DisturbedMarkersMatrix, 1, function(x) {
+        paste0(colnames(DisturbedMarkersMatrix)[x > 0], collapse = ";")
+      })[DisturbedMarkers[, "gene"]]
+      srt@tools[[paste0("DEtest_", group_by)]][[paste0("DisturbedMarkers_", test.use)]] <- DisturbedMarkers
+    }
   }
   time_end <- Sys.time()
-  cat(paste0("[", time_end, "] ", "DEtest done\n"))
-  cat("Elapsed time:", format(round(difftime(time_end, time_start), 2), format = "%Y-%m-%d %H:%M:%S"), "\n")
+  if (verbose) {
+    message(paste0("[", time_end, "] ", "DEtest done\n"))
+    message("Elapsed time:", format(round(difftime(time_end, time_start), 2), format = "%Y-%m-%d %H:%M:%S"), "\n")
+  }
   return(srt)
 }
 
@@ -1496,7 +1609,7 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
       "CellTalk" = "symbol", "CellChat" = "symbol"
     )
     if (!any(db %in% names(default_IDtypes)) && is.null(custom_TERM2GENE)) {
-      stop("\"db\" is invalid.")
+      stop("'db' is invalid.")
     }
     if (!is.null(custom_TERM2GENE)) {
       if (length(db) > 1) {
@@ -2403,6 +2516,7 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
 #' EnrichmentPlot(res = enrich_out, group_use = c("Ngn3 low EP", "Endocrine"), db = "GO_BP")
 #'
 #' @importFrom BiocParallel bplapply
+#' @importFrom dplyr bind_rows
 #' @export
 #'
 RunEnrichment <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_threshold = "avg_log2FC > 0 & p_val_adj < 0.05",
@@ -2426,11 +2540,11 @@ RunEnrichment <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_t
     }
     slot <- paste0("DEtest_", group_by)
     if (!slot %in% names(srt@tools) || length(grep(pattern = "AllMarkers", names(srt@tools[[slot]]))) == 0) {
-      stop("Cannot find the DEtest result for the group \"", group_by, "\". You may perform RunDEtest first.")
+      stop("Cannot find the DEtest result for the group '", group_by, "'. You may perform RunDEtest first.")
     }
     index <- grep(pattern = paste0("AllMarkers_", test.use), names(srt@tools[[slot]]))[1]
     if (is.na(index)) {
-      stop("Cannot find the \"AllMarkers_", test.use, "\" in the DEtest result.")
+      stop("Cannot find the 'AllMarkers_", test.use, "' in the DEtest result.")
     }
     de <- names(srt@tools[[slot]])[index]
     de_df <- srt@tools[[slot]][[de]]
@@ -2626,7 +2740,6 @@ RunEnrichment <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_t
 #' @param DE_threshold
 #' @param geneID_exclude
 #'
-#' @importFrom BiocParallel bplapply
 #' @examples
 #' data("pancreas_sub")
 #' pancreas_sub <- RunDEtest(pancreas_sub, group_by = "CellType", only.pos = FALSE, fc.threshold = 1)
@@ -2640,6 +2753,8 @@ RunEnrichment <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_t
 #' gsea_out <- RunGSEA(geneID = de_df[["gene"]], geneScore = de_df[["avg_log2FC"]], geneID_groups = de_df[["group1"]], db = "GO_BP", species = "Mus_musculus")
 #' GSEAPlot(res = gsea_out, group_use = c("Ngn3 low EP", "Endocrine"), db = "GO_BP")
 #'
+#' @importFrom BiocParallel bplapply
+#' @importFrom dplyr bind_rows
 #' @export
 #'
 RunGSEA <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_threshold = "p_val_adj < 0.05",
@@ -2663,11 +2778,11 @@ RunGSEA <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_thresho
     }
     slot <- paste0("DEtest_", group_by)
     if (!slot %in% names(srt@tools) || length(grep(pattern = "AllMarkers", names(srt@tools[[slot]]))) == 0) {
-      stop("Cannot find the DEtest result for the group \"", group_by, "\". You may perform RunDEtest first.")
+      stop("Cannot find the DEtest result for the group '", group_by, "'. You may perform RunDEtest first.")
     }
     index <- grep(pattern = paste0("AllMarkers_", test.use), names(srt@tools[[slot]]))[1]
     if (is.na(index)) {
-      stop("Cannot find the \"AllMarkers_", test.use, "\" in the DEtest result.")
+      stop("Cannot find the 'AllMarkers_", test.use, "' in the DEtest result.")
     }
     de <- names(srt@tools[[slot]])[index]
     de_df <- srt@tools[[slot]][[de]]
@@ -2693,10 +2808,10 @@ RunGSEA <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_thresho
     stop("geneScore must be the same length with geneID")
   }
   if (all(geneScore > 0) && scoreType != "pos") {
-    warning("All values in the geneScore are greater than zero and scoreType is \"", scoreType, "\", maybe you should switch to scoreType = 'pos'.", immediate. = TRUE)
+    warning("All values in the geneScore are greater than zero and scoreType is '", scoreType, "', maybe you should switch to scoreType = 'pos'.", immediate. = TRUE)
   }
   if (all(geneScore < 0) && scoreType != "neg") {
-    warning("All values in the geneScore are less than zero and scoreType is \"", scoreType, "\", maybe you should switch to scoreType = 'neg'.", immediate. = TRUE)
+    warning("All values in the geneScore are less than zero and scoreType is '", scoreType, "', maybe you should switch to scoreType = 'neg'.", immediate. = TRUE)
   }
   input <- data.frame(geneID = geneID, geneScore = geneScore, geneID_groups = geneID_groups)
   input <- input[!geneID %in% geneID_exclude, ]
@@ -3635,7 +3750,7 @@ RunDynamicFeatures <- function(srt, lineages, features = NULL, suffix = lineages
     srt_sub <- subset(srt, cell = rownames(na.omit(srt[[l]])))
     if (is.null(features)) {
       if (is.null(n_candidates)) {
-        stop("\"features\" or \"n_candidates\" must provided at least one.")
+        stop("'features' or 'n_candidates' must provided at least one.")
       }
       HVF <- VariableFeatures(FindVariableFeatures(srt_sub, nfeatures = n_candidates, assay = assay), assay = assay)
       HVF_counts <- srt_sub[[assay]]@counts[HVF, , drop = FALSE]
@@ -3681,7 +3796,7 @@ RunDynamicFeatures <- function(srt, lineages, features = NULL, suffix = lineages
       names(family) <- features
     }
     if (length(family) != length(features)) {
-      stop("\"family\" must be one character or a vector of the same length as the feature.")
+      stop("'family' must be one character or a vector of the same length as the feature.")
     }
   }
 
@@ -4005,7 +4120,7 @@ srt_to_adata <- function(srt, features = NULL,
   check_Python(c("scanpy", "numpy"))
 
   if (!inherits(srt, "Seurat")) {
-    stop("\"srt\" is not a Seurat object.")
+    stop("'srt' is not a Seurat object.")
   }
   if (is.null(features)) {
     features <- rownames(srt[[assay_X]])
@@ -4062,7 +4177,7 @@ srt_to_adata <- function(srt, features = NULL,
           layer <- layer[, colnames(X)]
         } else {
           stop(
-            "The following features in the \"", assay_X, "\" assay can not be found in the \"", assay, "\" assay:\n  ",
+            "The following features in the '", assay_X, "' assay can not be found in the '", assay, "' assay:\n  ",
             paste0(head(colnames(X)[!colnames(X) %in% colnames(layer)], 10), collapse = ","), "..."
           )
         }
@@ -4070,7 +4185,7 @@ srt_to_adata <- function(srt, features = NULL,
       layer_list[[assay]] <- layer
     } else {
       if (isTRUE(verbose)) {
-        message("Assay \"", assay, "\" is in the srt object but not converted.")
+        message("Assay '", assay, "' is in the srt object but not converted.")
       }
     }
   }
@@ -4123,7 +4238,7 @@ srt_to_adata <- function(srt, features = NULL,
     }
   } else {
     if (isTRUE(verbose)) {
-      message("\"misc\" slot is not converted.")
+      message("'misc' slot is not converted.")
     }
   }
   if (isTRUE(convert_tools)) {
@@ -4134,7 +4249,7 @@ srt_to_adata <- function(srt, features = NULL,
     }
   } else {
     if (isTRUE(verbose)) {
-      message("\"tools\" slot is not converted.")
+      message("'tools' slot is not converted.")
     }
   }
   if (length(uns_list) > 0) {
@@ -4169,7 +4284,7 @@ srt_to_adata <- function(srt, features = NULL,
 #' @export
 adata_to_srt <- function(adata) {
   if (!inherits(adata, "python.builtin.object")) {
-    stop("\"adata\" is not a python.builtin.object.")
+    stop("'adata' is not a python.builtin.object.")
   }
   x <- t(adata$X)
   if (!inherits(x, "dgCMatrix")) {
@@ -4202,7 +4317,7 @@ adata_to_srt <- function(adata) {
     for (k in iterate(adata$obsm$keys())) {
       obsm <- tryCatch(adata$obsm[[k]], error = identity)
       if (inherits(obsm, "error")) {
-        warning("\"obsm: ", k, "\" will not be converted. You may need to convert it manually.", immediate. = TRUE)
+        warning("'obsm: ", k, "' will not be converted. You may need to convert it manually.", immediate. = TRUE)
         next
       }
       k <- gsub(pattern = "^X_", replacement = "", x = k)
@@ -4215,7 +4330,7 @@ adata_to_srt <- function(adata) {
     for (k in iterate(adata$obsp$keys())) {
       obsp <- tryCatch(adata$obsp[[k]], error = identity)
       if (inherits(obsp, "error")) {
-        warning("\"obsp: ", k, "\" will not be converted. You may need to convert it manually.", immediate. = TRUE)
+        warning("'obsp: ", k, "' will not be converted. You may need to convert it manually.", immediate. = TRUE)
         next
       }
       colnames(obsp) <- adata$obs_names$values
@@ -4233,7 +4348,7 @@ adata_to_srt <- function(adata) {
     for (k in iterate(adata$varm$keys())) {
       varm <- tryCatch(adata$varm[[k]], error = identity)
       if (inherits(varm, "error")) {
-        warning("\"varm: ", k, "\" will not be converted. You may need to convert it manually.", immediate. = TRUE)
+        warning("'varm: ", k, "' will not be converted. You may need to convert it manually.", immediate. = TRUE)
         next
       }
       colnames(varm) <- paste0(k, "_", seq_len(ncol(varm)))
@@ -4245,7 +4360,7 @@ adata_to_srt <- function(adata) {
     for (k in iterate(adata$varp$keys())) {
       varp <- tryCatch(adata$varp[[k]], error = identity)
       if (inherits(varp, "error")) {
-        warning("\"varp: ", k, "\" will not be converted. You may need to convert it manually.", immediate. = TRUE)
+        warning("'varp: ", k, "' will not be converted. You may need to convert it manually.", immediate. = TRUE)
         next
       }
       colnames(varp) <- adata$var_names$values
@@ -4258,14 +4373,14 @@ adata_to_srt <- function(adata) {
     for (k in iterate(adata$uns$keys())) {
       uns <- tryCatch(adata$uns[[k]], error = identity)
       if (inherits(uns, "error")) {
-        warning("\"uns: ", k, "\" will not be converted. You may need to convert it manually.", immediate. = TRUE)
+        warning("'uns: ", k, "' will not be converted. You may need to convert it manually.", immediate. = TRUE)
         next
       }
       uns <- check_python_element(uns)
       if (!inherits(uns, "python.builtin.object")) {
         srt@misc[[k]] <- uns
       } else {
-        warning("\"uns: ", k, "\" will not be converted. You may need to convert it manually.", immediate. = TRUE)
+        warning("'uns: ", k, "' will not be converted. You may need to convert it manually.", immediate. = TRUE)
         next
       }
     }
@@ -4358,13 +4473,13 @@ RunPAGA <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_layers
                     return_seurat = !is.null(srt)) {
   check_Python("scanpy")
   if (all(is.null(srt), is.null(adata), is.null(h5ad))) {
-    stop("One of \"srt\", \"adata\" or \"h5ad\" must be provided.")
+    stop("One of 'srt', 'adata' or 'h5ad' must be provided.")
   }
   if (is.null(group_by)) {
-    stop("\"group_by\" must be provided.")
+    stop("'group_by' must be provided.")
   }
   if (is.null(linear_reduction) && is.null(nonlinear_reduction)) {
-    stop("\"linear_reduction\" or \"nonlinear_reduction\" must be provided at least one.")
+    stop("'linear_reduction' or 'nonlinear_reduction' must be provided at least one.")
   }
   args <- mget(names(formals()))
   args <- lapply(args, function(x) {
@@ -4493,13 +4608,13 @@ RunSCVELO <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_laye
     check_Python("magic-impute")
   }
   if (all(is.null(srt), is.null(adata), is.null(h5ad))) {
-    stop("One of \"srt\", \"adata\" or \"h5ad\" must be provided.")
+    stop("One of 'srt', 'adata' or 'h5ad' must be provided.")
   }
   if (is.null(group_by)) {
-    stop("\"roup_by\" must be provided.")
+    stop("'roup_by' must be provided.")
   }
   if (is.null(linear_reduction) && is.null(nonlinear_reduction)) {
-    stop("\"linear_reduction\" or \"nonlinear_reduction\" must be provided at least one.")
+    stop("'linear_reduction' or 'nonlinear_reduction' must be provided at least one.")
   }
   args <- mget(names(formals()))
   args <- lapply(args, function(x) {
@@ -4578,16 +4693,16 @@ RunPalantir <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_la
                         return_seurat = !is.null(srt)) {
   check_Python("palantir")
   if (all(is.null(srt), is.null(adata), is.null(h5ad))) {
-    stop("One of \"srt\", \"adata\" or \"h5ad\" must be provided.")
+    stop("One of 'srt', 'adata' or 'h5ad' must be provided.")
   }
   if (is.null(group_by) && any(!is.null(early_group), !is.null(terminal_groups))) {
-    stop("\"group_by\" must be provided when early_group or terminal_groups provided.")
+    stop("'group_by' must be provided when early_group or terminal_groups provided.")
   }
   if (is.null(linear_reduction) && is.null(nonlinear_reduction)) {
-    stop("\"linear_reduction\" or \"nonlinear_reduction\" must be provided at least one.")
+    stop("'linear_reduction' or 'nonlinear_reduction' must be provided at least one.")
   }
   if (is.null(early_cell) && is.null(early_group)) {
-    stop("\"early_cell\" or \"early_group\" must be provided.")
+    stop("'early_cell' or 'early_group' must be provided.")
   }
   args <- mget(names(formals()))
   args <- lapply(args, function(x) {
@@ -4652,13 +4767,13 @@ RunCellRank <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_la
     check_Python("magic-impute")
   }
   if (all(is.null(srt), is.null(adata), is.null(h5ad))) {
-    stop("One of \"srt\", \"adata\" or \"h5ad\" must be provided.")
+    stop("One of 'srt', 'adata' or 'h5ad' must be provided.")
   }
   if (is.null(group_by)) {
-    stop("\"group_by\" must be provided.")
+    stop("'group_by' must be provided.")
   }
   if (is.null(linear_reduction) && is.null(nonlinear_reduction)) {
-    stop("\"linear_reduction\" or \"nonlinear_reduction\" must be provided at least one.")
+    stop("'linear_reduction' or 'nonlinear_reduction' must be provided at least one.")
   }
   mode <- as.list(mode)
   args <- mget(names(formals()))
@@ -4716,13 +4831,13 @@ RunDynamo <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_laye
                       return_seurat = !is.null(srt)) {
   check_Python("dynamo-release")
   if (all(is.null(srt), is.null(adata), is.null(h5ad))) {
-    stop("One of \"srt\", \"adata\" or \"h5ad\" must be provided.")
+    stop("One of 'srt', 'adata' or 'h5ad' must be provided.")
   }
   if (is.null(group_by)) {
-    stop("\"group_by\" must be provided.")
+    stop("'group_by' must be provided.")
   }
   if (is.null(linear_reduction) && is.null(nonlinear_reduction)) {
-    stop("\"linear_reduction\" or \"nonlinear_reduction\" must be provided at least one.")
+    stop("'linear_reduction' or 'nonlinear_reduction' must be provided at least one.")
   }
   args <- mget(names(formals()))
   args <- lapply(args, function(x) {
