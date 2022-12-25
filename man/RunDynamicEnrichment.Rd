@@ -42,13 +42,13 @@ RunDynamicEnrichment
 data("pancreas_sub")
 pancreas_sub <- RunSlingshot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP")
 pancreas_sub <- RunDynamicFeatures(pancreas_sub, lineages = "Lineage1", n_candidates = 200)
-ht_result1 <- DynamicHeatmap(
+ht1 <- DynamicHeatmap(
   srt = pancreas_sub,
   lineages = "Lineage1",
   cell_annotation = "SubCellType",
   n_split = 4
 )
-ht_result1$plot
+ht1$plot
 
 pancreas_sub <- RunDynamicEnrichment(
   srt = pancreas_sub,
@@ -57,7 +57,7 @@ pancreas_sub <- RunDynamicEnrichment(
   db = "GO_BP",
   species = "Mus_musculus"
 )
-ht_result2 <- DynamicHeatmap(
+ht2 <- DynamicHeatmap(
   srt = pancreas_sub,
   assay = "GO_BP",
   lineages = "Lineage1_GO_BP",
@@ -65,5 +65,5 @@ ht_result2 <- DynamicHeatmap(
   n_split = 4,
   split_method = "kmeans-peaktime"
 )
-ht_result2$plot
+ht2$plot
 }

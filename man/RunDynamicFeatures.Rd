@@ -32,13 +32,13 @@ pancreas_sub <- RunSlingshot(pancreas_sub, group.by = "SubCellType", reduction =
 pancreas_sub <- RunDynamicFeatures(pancreas_sub, lineages = c("Lineage1", "Lineage2"), n_candidates = 200)
 names(pancreas_sub@tools$DynamicFeatures_Lineage1)
 head(pancreas_sub@tools$DynamicFeatures_Lineage1$DynamicFeatures)
-ht_result <- DynamicHeatmap(
+ht <- DynamicHeatmap(
   srt = pancreas_sub,
   lineages = c("Lineage1", "Lineage2"),
   cell_annotation = "SubCellType",
   n_split = 6, reverse_ht = "Lineage1"
 )
-ht_result$plot
+ht$plot
 
 DynamicPlot(
   srt = pancreas_sub,
