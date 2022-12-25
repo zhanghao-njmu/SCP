@@ -91,19 +91,25 @@ ht4$plot
 ifnb_sub <- RunDEtest(ifnb_sub, group_by = "seurat_annotations", grouping.var = "stim", markers_type = "disturbed")
 DisturbedMarkers_STIM <- filter(ifnb_sub@tools$DEtest_seurat_annotations$DisturbedMarkers_wilcox, p_val_adj < 0.05 & avg_log2FC > 1 & var1 == "STIM")
 table(DisturbedMarkers_STIM$group1)
-gene_unique <- names(which(table(DisturbedMarkers_STIM$gene) == 1))
-DisturbedMarkers_STIM_unique <- DisturbedMarkers_STIM[DisturbedMarkers_STIM$gene \%in\% gene_unique, ]
-table(DisturbedMarkers_STIM_unique$group1)
 ht5 <- GroupHeatmap(ifnb_sub,
-  features = DisturbedMarkers_STIM_unique$gene, feature_split = DisturbedMarkers_STIM_unique$group1,
+  features = DisturbedMarkers_STIM$gene, feature_split = DisturbedMarkers_STIM$group1,
   group.by = "seurat_annotations", split.by = "stim"
 )
 ht5$plot
 
+gene_unique <- names(which(table(DisturbedMarkers_STIM$gene) == 1))
+DisturbedMarkers_STIM_unique <- DisturbedMarkers_STIM[DisturbedMarkers_STIM$gene \%in\% gene_unique, ]
+table(DisturbedMarkers_STIM_unique$group1)
 ht6 <- GroupHeatmap(ifnb_sub,
+  features = DisturbedMarkers_STIM_unique$gene, feature_split = DisturbedMarkers_STIM_unique$group1,
+  group.by = "seurat_annotations", split.by = "stim"
+)
+ht6$plot
+
+ht7 <- GroupHeatmap(ifnb_sub,
   features = DisturbedMarkers_STIM_unique$gene, feature_split = DisturbedMarkers_STIM_unique$group1,
   group.by = "seurat_annotations", grouping.var = "stim", numerator = "STIM"
 )
-ht6$plot
+ht7$plot
 
 }

@@ -3533,7 +3533,7 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
       numerator <- levels(srt@meta.data[, grouping.var])[1]
       warning("'numerator' is not specified. Use the first level in 'grouping.var': ", numerator, immediate. = TRUE)
     } else {
-      if (numerator %in% levels(srt@meta.data[, grouping.var])) {
+      if (!numerator %in% levels(srt@meta.data[, grouping.var])) {
         stop("'", numerator, "' is not an element of the '", grouping.var, "'")
       }
     }
