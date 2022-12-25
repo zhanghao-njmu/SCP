@@ -12,7 +12,7 @@ This function performs scVelo workflow in R by reticulate."><!-- mathjax --><scr
     
     <a class="navbar-brand me-2" href="../index.html">SCP</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.5.9014</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.6</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -213,11 +213,11 @@ This function performs scVelo workflow in R by reticulate.</p>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"pancreas_sub"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu">RunSCVELO</span><span class="op">(</span>srt <span class="op">=</span> <span class="va">pancreas_sub</span>, assay_X <span class="op">=</span> <span class="st">"RNA"</span>, group_by <span class="op">=</span> <span class="st">"SubCellType"</span>, linear_reduction <span class="op">=</span> <span class="st">"PCA"</span>, nonlinear_reduction <span class="op">=</span> <span class="st">"UMAP"</span>, return_seurat <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> "misc" slot is not converted.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> "tools" slot is not converted.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 'misc' slot is not converted.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 'tools' slot is not converted.</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Keys should be one or more alphanumeric characters followed by an underscore, setting key from variance_stochastic_ to variancestochastic_</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Keys should be one or more alphanumeric characters followed by an underscore, setting key from variance_velocity_ to variancevelocity_</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>"uns: neighbors" will not be converted. You may need to convert it manually.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'uns: neighbors' will not be converted. You may need to convert it manually.</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">pancreas_sub</span><span class="op">[[</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                     orig.ident nCount_RNA nFeature_RNA     S_score   G2M_score nCount_spliced nFeature_spliced</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> CAGCCGAAGCGATATA SeuratProject      10653         3295  0.33188155  0.54532743          10653             3295</span>
@@ -285,34 +285,34 @@ This function performs scVelo workflow in R by reticulate.</p>
 <span class="r-plt img"><img src="RunSCVELO-4.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="Standard_SCP.html">Standard_SCP</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, normalization_method <span class="op">=</span> <span class="st">"SCT"</span>, nonlinear_reduction <span class="op">=</span> <span class="st">"tsne"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-23 15:18:10] Start Standard_SCP</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-23 15:18:10] Checking srtList... ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-25 20:50:17] Start Standard_SCP</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-25 20:50:17] Checking srtList... ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Data 1/1 of the srtList is raw counts. Perform NormalizeData(LogNormalize) on the data ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform FindVariableFeatures on the data 1/1 of the srtList...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform SCTransform on the data 1 of the srtList...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Use the separate HVF from the existed HVF in srtList...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Number of available HVF: 2000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-23 15:18:28] Finished checking.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-23 15:18:28] Perform linear dimension reduction (pca) on the data...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> dims_estimate is 1:16 for "pca"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-23 15:18:29] Perform FindClusters (louvain) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-23 15:18:30] Reorder clusters...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-23 15:18:30] Perform nonlinear dimension reduction (tsne) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-23 15:18:42] Standard_SCP done</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 32.32 secs </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-25 20:50:32] Finished checking.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-25 20:50:32] Perform linear dimension reduction (pca) on the data...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> dims_estimate is 1:16 for 'pca'</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-25 20:50:34] Perform FindClusters (louvain) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-25 20:50:34] Reorder clusters...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-25 20:50:34] Perform nonlinear dimension reduction (tsne) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2022-12-25 20:50:46] Standard_SCP done</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 29.03 secs </span>
 <span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu">RunSCVELO</span><span class="op">(</span>srt <span class="op">=</span> <span class="va">pancreas_sub</span>, assay_X <span class="op">=</span> <span class="st">"SCT"</span>, group_by <span class="op">=</span> <span class="st">"SubCellType"</span>, linear_reduction <span class="op">=</span> <span class="st">"Standardpca"</span>, nonlinear_reduction <span class="op">=</span> <span class="st">"StandardTSNE2D"</span>, return_seurat <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Assay "RNA" is in the srt object but not converted.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Assay "Ms" is in the srt object but not converted.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Assay "Mu" is in the srt object but not converted.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Assay "stochastic" is in the srt object but not converted.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Assay "variance_stochastic" is in the srt object but not converted.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Assay "velocity" is in the srt object but not converted.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Assay "variance_velocity" is in the srt object but not converted.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> "misc" slot is not converted.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> "tools" slot is not converted.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Assay 'RNA' is in the srt object but not converted.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Assay 'Ms' is in the srt object but not converted.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Assay 'Mu' is in the srt object but not converted.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Assay 'stochastic' is in the srt object but not converted.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Assay 'variance_stochastic' is in the srt object but not converted.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Assay 'velocity' is in the srt object but not converted.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Assay 'variance_velocity' is in the srt object but not converted.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 'misc' slot is not converted.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 'tools' slot is not converted.</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Keys should be one or more alphanumeric characters followed by an underscore, setting key from variance_stochastic_ to variancestochastic_</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Keys should be one or more alphanumeric characters followed by an underscore, setting key from variance_velocity_ to variancevelocity_</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>"uns: neighbors" will not be converted. You may need to convert it manually.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'uns: neighbors' will not be converted. You may need to convert it manually.</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
