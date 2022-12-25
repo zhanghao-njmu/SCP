@@ -1545,8 +1545,8 @@ ClassDimPlot <- function(srt, group.by = "orig.ident", reduction = NULL, dims = 
         net +
         density +
         labs(title = title, subtitle = subtitle_use, x = xlab, y = ylab) +
-        scale_x_continuous(limits = c(min(dat_dim[, paste0(reduction_key, dims[1])]), max(dat_dim[, paste0(reduction_key, dims[1])]))) +
-        scale_y_continuous(limits = c(min(dat_dim[, paste0(reduction_key, dims[2])]), max(dat_dim[, paste0(reduction_key, dims[2])]))) +
+        scale_x_continuous(limits = c(min(dat_dim[, paste0(reduction_key, dims[1])], na.rm = TRUE), max(dat_dim[, paste0(reduction_key, dims[1])], na.rm = TRUE))) +
+        scale_y_continuous(limits = c(min(dat_dim[, paste0(reduction_key, dims[2])], na.rm = TRUE), max(dat_dim[, paste0(reduction_key, dims[2])], na.rm = TRUE))) +
         facet_grid(. ~ split.by) +
         do.call(theme_use, list(
           aspect.ratio = aspect.ratio,
@@ -2196,8 +2196,8 @@ ExpDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), split.by
         net +
         density +
         labs(title = title, subtitle = s, x = xlab, y = ylab) +
-        scale_x_continuous(limits = c(min(dat_use[, paste0(reduction_key, dims[1])]), max(dat_use[, paste0(reduction_key, dims[1])]))) +
-        scale_y_continuous(limits = c(min(dat_use[, paste0(reduction_key, dims[2])]), max(dat_use[, paste0(reduction_key, dims[2])]))) +
+        scale_x_continuous(limits = c(min(dat_use[, paste0(reduction_key, dims[1])], na.rm = TRUE), max(dat_use[, paste0(reduction_key, dims[1])], na.rm = TRUE))) +
+        scale_y_continuous(limits = c(min(dat_use[, paste0(reduction_key, dims[2])], na.rm = TRUE), max(dat_use[, paste0(reduction_key, dims[2])], na.rm = TRUE))) +
         facet_grid(split.by ~ features) +
         do.call(theme_use, list(
           aspect.ratio = aspect.ratio,
@@ -2390,8 +2390,8 @@ ExpDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), split.by
         dat <- cbind(dat_use, dat_exp[row.names(dat_use), f, drop = FALSE])
         dat[, f][dat[, f] <= bg_cutoff] <- NA
         if (any(is.infinite(dat[, f]))) {
-          dat[, f][dat[, f] == max(dat[, f])] <- max(dat[, f][is.finite(dat[, f])])
-          dat[, f][dat[, f] == min(dat[, f])] <- min(dat[, f][is.finite(dat[, f])])
+          dat[, f][dat[, f] == max(dat[, f], na.rm = TRUE)] <- max(dat[, f][is.finite(dat[, f])], na.rm = TRUE)
+          dat[, f][dat[, f] == min(dat[, f], na.rm = TRUE)] <- min(dat[, f][is.finite(dat[, f])], na.rm = TRUE)
         }
         dat[, "cell"] <- rownames(dat)
         dat[, "x"] <- dat[, paste0(reduction_key, dims[1])]
@@ -2426,7 +2426,7 @@ ExpDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), split.by
             }
           }
         }
-        dat[which(dat[, "value"] > max(colors_value)), "value"] <- max(colors_value)
+        dat[which(dat[, "value"] > max(colors_value, na.rm = TRUE)), "value"] <- max(colors_value, na.rm = TRUE)
         if (!is.null(graph)) {
           net_mat <- as.matrix(x = srt[[graph]])[rownames(dat), rownames(dat)]
           net_mat[net_mat == 0] <- NA
@@ -2473,8 +2473,8 @@ ExpDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), split.by
           net +
           density +
           labs(title = title, subtitle = subtitle_use, x = xlab, y = ylab) +
-          scale_x_continuous(limits = c(min(dat_use[, paste0(reduction_key, dims[1])]), max(dat_use[, paste0(reduction_key, dims[1])]))) +
-          scale_y_continuous(limits = c(min(dat_use[, paste0(reduction_key, dims[2])]), max(dat_use[, paste0(reduction_key, dims[2])]))) +
+          scale_x_continuous(limits = c(min(dat_use[, paste0(reduction_key, dims[1])], na.rm = TRUE), max(dat_use[, paste0(reduction_key, dims[1])], na.rm = TRUE))) +
+          scale_y_continuous(limits = c(min(dat_use[, paste0(reduction_key, dims[2])], na.rm = TRUE), max(dat_use[, paste0(reduction_key, dims[2])], na.rm = TRUE))) +
           guides(color = guide_colourbar(
             barwidth = 0.9,
             barheight = 4,
@@ -2826,9 +2826,9 @@ ClassDimPlot3D <- function(srt, group.by = "orig.ident", reduction = NULL, dims 
       ylo <- loess(formula(paste(paste0(reduction_key, dims[2], "All_cells"), l, sep = "~")), data = dat_sub, span = span, degree = 2)
       zlo <- loess(formula(paste(paste0(reduction_key, dims[3], "All_cells"), l, sep = "~")), data = dat_sub, span = span, degree = 2)
       dat_smooth <- data.frame(x = xlo$fitted, y = ylo$fitted, z = zlo$fitted)
-      dat_smooth <- dat_smooth[dat_smooth[["x"]] <= max(dat_use[[paste0(reduction_key, dims[1], "All_cells")]]) & dat_smooth[["x"]] >= min(dat_use[[paste0(reduction_key, dims[1], "All_cells")]]), ]
-      dat_smooth <- dat_smooth[dat_smooth[["y"]] <= max(dat_use[[paste0(reduction_key, dims[2], "All_cells")]]) & dat_smooth[["y"]] >= min(dat_use[[paste0(reduction_key, dims[2], "All_cells")]]), ]
-      dat_smooth <- dat_smooth[dat_smooth[["z"]] <= max(dat_use[[paste0(reduction_key, dims[3], "All_cells")]]) & dat_smooth[["z"]] >= min(dat_use[[paste0(reduction_key, dims[3], "All_cells")]]), ]
+      dat_smooth <- dat_smooth[dat_smooth[["x"]] <= max(dat_use[[paste0(reduction_key, dims[1], "All_cells")]], na.rm = TRUE) & dat_smooth[["x"]] >= min(dat_use[[paste0(reduction_key, dims[1], "All_cells")]], na.rm = TRUE), ]
+      dat_smooth <- dat_smooth[dat_smooth[["y"]] <= max(dat_use[[paste0(reduction_key, dims[2], "All_cells")]], na.rm = TRUE) & dat_smooth[["y"]] >= min(dat_use[[paste0(reduction_key, dims[2], "All_cells")]], na.rm = TRUE), ]
+      dat_smooth <- dat_smooth[dat_smooth[["z"]] <= max(dat_use[[paste0(reduction_key, dims[3], "All_cells")]], na.rm = TRUE) & dat_smooth[["z"]] >= min(dat_use[[paste0(reduction_key, dims[3], "All_cells")]], na.rm = TRUE), ]
       dat_smooth <- unique(na.omit(dat_smooth))
       p <- plotly::add_trace(
         p = p,
@@ -2864,9 +2864,9 @@ ClassDimPlot3D <- function(srt, group.by = "orig.ident", reduction = NULL, dims 
       alpha = 1
     ),
     scene = list(
-      xaxis = list(title = xlab, range = c(min(dat_use[[paste0(reduction_key, dims[1])]]), max(dat_use[[paste0(reduction_key, dims[1])]]))),
-      yaxis = list(title = ylab, range = c(min(dat_use[[paste0(reduction_key, dims[2])]]), max(dat_use[[paste0(reduction_key, dims[2])]]))),
-      zaxis = list(title = zlab, range = c(min(dat_use[[paste0(reduction_key, dims[3])]]), max(dat_use[[paste0(reduction_key, dims[3])]]))),
+      xaxis = list(title = xlab, range = c(min(dat_use[[paste0(reduction_key, dims[1])]], na.rm = TRUE), max(dat_use[[paste0(reduction_key, dims[1])]], na.rm = TRUE))),
+      yaxis = list(title = ylab, range = c(min(dat_use[[paste0(reduction_key, dims[2])]], na.rm = TRUE), max(dat_use[[paste0(reduction_key, dims[2])]], na.rm = TRUE))),
+      zaxis = list(title = zlab, range = c(min(dat_use[[paste0(reduction_key, dims[3])]], na.rm = TRUE), max(dat_use[[paste0(reduction_key, dims[3])]], na.rm = TRUE))),
       aspectratio = list(x = 1, y = 1, z = 1)
     ),
     autosize = FALSE
@@ -3152,9 +3152,9 @@ ExpDimPlot3D <- function(srt, features = NULL, reduction = NULL, dims = c(1, 2, 
       xanchor = "center"
     ),
     scene = list(
-      xaxis = list(title = xlab, range = c(min(dat_use[[paste0(reduction_key, dims[1])]]), max(dat_use[[paste0(reduction_key, dims[1])]]))),
-      yaxis = list(title = ylab, range = c(min(dat_use[[paste0(reduction_key, dims[2])]]), max(dat_use[[paste0(reduction_key, dims[2])]]))),
-      zaxis = list(title = zlab, range = c(min(dat_use[[paste0(reduction_key, dims[3])]]), max(dat_use[[paste0(reduction_key, dims[3])]]))),
+      xaxis = list(title = xlab, range = c(min(dat_use[[paste0(reduction_key, dims[1])]], na.rm = TRUE), max(dat_use[[paste0(reduction_key, dims[1])]], na.rm = TRUE))),
+      yaxis = list(title = ylab, range = c(min(dat_use[[paste0(reduction_key, dims[2])]], na.rm = TRUE), max(dat_use[[paste0(reduction_key, dims[2])]], na.rm = TRUE))),
+      zaxis = list(title = zlab, range = c(min(dat_use[[paste0(reduction_key, dims[3])]], na.rm = TRUE), max(dat_use[[paste0(reduction_key, dims[3])]], na.rm = TRUE))),
       aspectratio = list(x = 1, y = 1, z = 1)
     ),
     updatemenus = list(
@@ -3478,8 +3478,9 @@ cluster_within_group2 <- function(mat, factor) {
 #' @importFrom dplyr %>% filter group_by arrange desc across mutate summarise distinct n .data "%>%"
 #' @importFrom Matrix t
 #' @export
-GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL, grouping.var = NULL, numerator = NULL, cells = NULL, aggregate_fun = base::mean, exp_cutoff = 0, border = TRUE, flip = FALSE,
-                         slot = "counts", assay = "RNA", exp_method = c("zscore", "raw", "fc", "log2fc", "log1p"), lib_normalize = TRUE, libsize = NULL,
+GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL, grouping.var = NULL, numerator = NULL, cells = NULL,
+                         aggregate_fun = base::mean, exp_cutoff = 0, border = TRUE, flip = FALSE,
+                         slot = "counts", assay = "RNA", exp_method = c("zscore", "raw", "fc", "log2fc", "log1p"), limits = NULL, lib_normalize = identical(slot, "counts"), libsize = NULL,
                          feature_split = NULL, feature_split_by = NULL, n_split = NULL, split_method = c("kmeans", "hclust", "mfuzz"), decreasing = FALSE,
                          cluster_features_by = NULL, cluster_rows = FALSE, cluster_columns = FALSE, cluster_row_slices = FALSE, cluster_column_slices = FALSE,
                          show_row_names = FALSE, show_column_names = FALSE, row_names_side = ifelse(flip, "left", "right"), column_names_side = ifelse(flip, "bottom", "top"), row_names_rot = 0, column_names_rot = 90,
@@ -3688,24 +3689,24 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
         warning("Values in 'counts' slot is non-integer. Set the libsize to 1.", immediate. = TRUE)
       }
     }
-    mat_raw[gene_unique, ] <- t(t(mat_raw[gene_unique, ]) / libsize_use * median(libsize_use))
+    mat_raw[gene_unique, ] <- t(t(mat_raw[gene_unique, , drop = FALSE]) / libsize_use * median(libsize_use))
   }
   # dat <- cbind.data.frame(srt@meta.data[cells, group.by, drop = FALSE], t(mat_raw))
 
   mat_raw_list <- list()
   mat_perc_list <- list()
   for (cell_group in names(cell_groups)) {
-    mat_tmp <- t(aggregate(t(mat_raw[features_unique, ]), by = list(cell_groups[[cell_group]][colnames(mat_raw)]), FUN = aggregate_fun))
-    colnames(mat_tmp) <- mat_tmp[1, ]
-    mat_tmp <- mat_tmp[-1, ]
+    mat_tmp <- t(aggregate(t(mat_raw[features_unique, , drop = FALSE]), by = list(cell_groups[[cell_group]][colnames(mat_raw)]), FUN = aggregate_fun))
+    colnames(mat_tmp) <- mat_tmp[1, , drop = FALSE]
+    mat_tmp <- mat_tmp[-1, , drop = FALSE]
     class(mat_tmp) <- "numeric"
     mat_raw_list[[cell_group]] <- mat_tmp
 
-    mat_perc <- aggregate(t(mat_raw[features_unique, ]), by = list(cell_groups[[cell_group]][colnames(mat_raw)]), FUN = function(x) {
+    mat_perc <- aggregate(t(mat_raw[features_unique, , drop = FALSE]), by = list(cell_groups[[cell_group]][colnames(mat_raw)]), FUN = function(x) {
       sum(x > exp_cutoff) / length(x)
     }) %>% t()
-    colnames(mat_perc) <- mat_perc[1, ]
-    mat_perc <- mat_perc[-1, ]
+    colnames(mat_perc) <- mat_perc[1, , drop = FALSE]
+    mat_perc <- mat_perc[-1, , drop = FALSE]
     class(mat_perc) <- "numeric"
     if (isTRUE(flip)) {
       mat_perc <- t(mat_perc)
@@ -3720,7 +3721,7 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
     mat_tmp <- mat_raw_list[[cell_group]]
     if (is.null(grouping.var)) {
       mat_tmp <- matrix_process(mat_tmp, method = exp_method)
-      mat_tmp[is.infinite(mat_tmp)] <- max(abs(mat_tmp[!is.infinite(mat_tmp)])) * ifelse(mat_tmp[is.infinite(mat_tmp)] > 0, 1, -1)
+      mat_tmp[is.infinite(mat_tmp)] <- max(abs(mat_tmp[!is.infinite(mat_tmp)]), na.rm = TRUE) * ifelse(mat_tmp[is.infinite(mat_tmp)] > 0, 1, -1)
       mat_tmp[is.na(mat_tmp)] <- mean(mat_tmp, na.rm = TRUE)
       mat_list[[cell_group]] <- mat_tmp
     } else {
@@ -3731,7 +3732,7 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
       group_FALSE <- intersect(group_keep, which(sapply(compare_groups, function(x) x[[2]]) == "FALSE"))
       mat_tmp <- log2(mat_tmp[, group_TRUE] / mat_tmp[, group_FALSE])
       colnames(mat_tmp) <- gsub(" ; .*", "", colnames(mat_tmp))
-      mat_tmp[is.infinite(mat_tmp)] <- max(abs(mat_tmp[!is.infinite(mat_tmp)])) * ifelse(mat_tmp[is.infinite(mat_tmp)] > 0, 1, -1)
+      mat_tmp[is.infinite(mat_tmp)] <- max(abs(mat_tmp[!is.infinite(mat_tmp)]), na.rm = TRUE) * ifelse(mat_tmp[is.infinite(mat_tmp)] > 0, 1, -1)
       mat_tmp[is.na(mat_tmp)] <- 0
       mat_list[[cell_group]] <- mat_tmp
       cell_groups[[cell_group]] <- factor(gsub(" ; .*", "", cell_groups[[cell_group]]), levels = unique(gsub(" ; .*", "", levels(cell_groups[[cell_group]]))))
@@ -3750,12 +3751,16 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
   # }
   mat_split <- do.call(cbind, mat_list[feature_split_by])
 
-  if (!is.function(exp_method) && exp_method %in% c("zscore", "log2fc")) {
-    b <- ceiling(min(abs(quantile(do.call(cbind, mat_list), c(0.01, 0.99), na.rm = TRUE))) * 2) / 2
-    colors <- colorRamp2(seq(-b, b, length = 100), palette_scp(palette = heatmap_palette, palcolor = heatmap_palcolor))
+  if (is.null(limits)) {
+    if (!is.function(exp_method) && exp_method %in% c("zscore", "log2fc")) {
+      b <- ceiling(min(abs(quantile(do.call(cbind, mat_list), c(0.01, 0.99), na.rm = TRUE)), na.rm = TRUE) * 2) / 2
+      colors <- colorRamp2(seq(-b, b, length = 100), palette_scp(palette = heatmap_palette, palcolor = heatmap_palcolor))
+    } else {
+      b <- quantile(do.call(cbind, mat_list), c(0.01, 0.99), na.rm = TRUE)
+      colors <- colorRamp2(seq(b[1], b[2], length = 100), palette_scp(palette = heatmap_palette, palcolor = heatmap_palcolor))
+    }
   } else {
-    b <- quantile(do.call(cbind, mat_list), c(0.01, 0.99), na.rm = TRUE)
-    colors <- colorRamp2(seq(b[1], b[2], length = 100), palette_scp(palette = heatmap_palette, palcolor = heatmap_palcolor))
+    colors <- colorRamp2(seq(limits[1], limits[2], length = 100), palette_scp(palette = heatmap_palette, palcolor = heatmap_palcolor))
   }
 
   cell_metadata <- cbind.data.frame(
@@ -4209,7 +4214,7 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
         )
       } else {
         col_fun <- colorRamp2(
-          breaks = seq(min(featan_values), max(featan_values), length = 100),
+          breaks = seq(min(featan_values, na.rm = TRUE), max(featan_values, na.rm = TRUE), length = 100),
           colors = palette_scp(palette = palette, palcolor = palcolor)
         )
         ha_feature <- list()
@@ -4919,7 +4924,7 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
 #' @importFrom Matrix t
 #' @export
 ExpHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, split.by = NULL, max_cells = 100, cell_order = NULL, border = TRUE, flip = FALSE,
-                       slot = "counts", assay = "RNA", exp_method = c("zscore", "raw", "fc", "log2fc", "log1p"), lib_normalize = TRUE, libsize = NULL,
+                       slot = "counts", assay = "RNA", exp_method = c("zscore", "raw", "fc", "log2fc", "log1p"), limits = NULL, lib_normalize = identical(slot, "counts"), libsize = NULL,
                        feature_split = NULL, feature_split_by = NULL, n_split = NULL, split_method = c("kmeans", "hclust", "mfuzz"), decreasing = FALSE,
                        cluster_features_by = NULL, cluster_rows = FALSE, cluster_columns = FALSE, cluster_row_slices = FALSE, cluster_column_slices = FALSE,
                        show_row_names = FALSE, show_column_names = FALSE, row_names_side = ifelse(flip, "left", "right"), column_names_side = ifelse(flip, "bottom", "top"), row_names_rot = 0, column_names_rot = 90,
@@ -5115,7 +5120,7 @@ ExpHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, spli
         warning("Values in 'counts' slot is non-integer. Set the libsize to 1.", immediate. = TRUE)
       }
     }
-    mat_raw[gene_unique, ] <- t(t(mat_raw[gene_unique, ]) / libsize_use * median(libsize_use))
+    mat_raw[gene_unique, ] <- t(t(mat_raw[gene_unique, , drop = FALSE]) / libsize_use * median(libsize_use))
   }
 
   # data used to plot heatmap
@@ -5123,7 +5128,7 @@ ExpHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, spli
   for (cell_group in group.by) {
     mat_tmp <- mat_raw[, names(cell_groups[[cell_group]])]
     mat_tmp <- matrix_process(mat_tmp, method = exp_method)
-    mat_tmp[is.infinite(mat_tmp)] <- max(abs(mat_tmp[!is.infinite(mat_tmp)])) * ifelse(mat_tmp[is.infinite(mat_tmp)] > 0, 1, -1)
+    mat_tmp[is.infinite(mat_tmp)] <- max(abs(mat_tmp[!is.infinite(mat_tmp)]), na.rm = TRUE) * ifelse(mat_tmp[is.infinite(mat_tmp)] > 0, 1, -1)
     mat_tmp[is.na(mat_tmp)] <- mean(mat_tmp, na.rm = TRUE)
     mat_list[[cell_group]] <- mat_tmp
   }
@@ -5140,12 +5145,16 @@ ExpHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, spli
   # }
   mat_split <- do.call(cbind, mat_list[feature_split_by])
 
-  if (!is.function(exp_method) && exp_method %in% c("zscore", "log2fc")) {
-    b <- ceiling(min(abs(quantile(do.call(cbind, mat_list), c(0.01, 0.99), na.rm = TRUE))) * 2) / 2
-    colors <- colorRamp2(seq(-b, b, length = 100), palette_scp(palette = heatmap_palette, palcolor = heatmap_palcolor))
+  if (is.null(limits)) {
+    if (!is.function(exp_method) && exp_method %in% c("zscore", "log2fc")) {
+      b <- ceiling(min(abs(quantile(do.call(cbind, mat_list), c(0.01, 0.99), na.rm = TRUE)), na.rm = TRUE) * 2) / 2
+      colors <- colorRamp2(seq(-b, b, length = 100), palette_scp(palette = heatmap_palette, palcolor = heatmap_palcolor))
+    } else {
+      b <- quantile(do.call(cbind, mat_list), c(0.01, 0.99), na.rm = TRUE)
+      colors <- colorRamp2(seq(b[1], b[2], length = 100), palette_scp(palette = heatmap_palette, palcolor = heatmap_palcolor))
+    }
   } else {
-    b <- quantile(do.call(cbind, mat_list), c(0.01, 0.99), na.rm = TRUE)
-    colors <- colorRamp2(seq(b[1], b[2], length = 100), palette_scp(palette = heatmap_palette, palcolor = heatmap_palcolor))
+    colors <- colorRamp2(seq(limits[1], limits[2], length = 100), palette_scp(palette = heatmap_palette, palcolor = heatmap_palcolor))
   }
 
   cell_metadata <- cbind.data.frame(
@@ -5277,7 +5286,7 @@ ExpHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, spli
         )
       } else {
         col_fun <- colorRamp2(
-          breaks = seq(min(cell_anno), max(cell_anno), length = 100),
+          breaks = seq(min(cell_anno, na.rm = TRUE), max(cell_anno, na.rm = TRUE), length = 100),
           colors = palette_scp(palette = palette, palcolor = palcolor)
         )
         for (cell_group in group.by) {
@@ -5524,7 +5533,7 @@ ExpHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, spli
         )
       } else {
         col_fun <- colorRamp2(
-          breaks = seq(min(featan_values), max(featan_values), length = 100),
+          breaks = seq(min(featan_values, na.rm = TRUE), max(featan_values, na.rm = TRUE), length = 100),
           colors = palette_scp(palette = palette, palcolor = palcolor)
         )
         ha_feature <- list()
@@ -6524,10 +6533,10 @@ CellDensityPlot <- function(srt, features, group.by, split.by = NULL,
   }
 
   if (isTRUE(same.y.lims) && is.null(y.max)) {
-    y.max <- max(as.matrix(dat_exp[, features])[is.finite(as.matrix(dat_exp[, features]))])
+    y.max <- max(as.matrix(dat_exp[, features])[is.finite(as.matrix(dat_exp[, features]))], na.rm = TRUE)
   }
   if (isTRUE(same.y.lims) && is.null(y.min)) {
-    y.min <- min(as.matrix(dat_exp[, features])[is.finite(as.matrix(dat_exp[, features]))])
+    y.min <- min(as.matrix(dat_exp[, features])[is.finite(as.matrix(dat_exp[, features]))], na.rm = TRUE)
   }
 
   plist <- list()
@@ -6537,8 +6546,8 @@ CellDensityPlot <- function(srt, features, group.by, split.by = NULL,
       for (s in levels(dat_use[[split.by]])) {
         dat <- dat_use[dat_use[[split.by]] == s, ]
         if (any(is.infinite(dat[, f]))) {
-          dat[, f][dat[, f] == max(dat[, f])] <- max(dat[, f][is.finite(dat[, f])])
-          dat[, f][dat[, f] == min(dat[, f])] <- min(dat[, f][is.finite(dat[, f])])
+          dat[, f][dat[, f] == max(dat[, f], na.rm = TRUE)] <- max(dat[, f][is.finite(dat[, f])], na.rm = TRUE)
+          dat[, f][dat[, f] == min(dat[, f], na.rm = TRUE)] <- min(dat[, f][is.finite(dat[, f])], na.rm = TRUE)
         }
         dat[, "cell"] <- rownames(dat)
         if (x_order == "value") {
@@ -6554,8 +6563,8 @@ CellDensityPlot <- function(srt, features, group.by, split.by = NULL,
         if (length(stat_drop) > 0) {
           dat <- dat[!dat[[g]] %in% stat_drop, , drop = FALSE]
         }
-        y_max_use <- y.max %||% suppressWarnings(max(dat[, "value"][is.finite(x = dat[, "value"])]))
-        y_min_use <- y.min %||% suppressWarnings(min(dat[, "value"][is.finite(x = dat[, "value"])]))
+        y_max_use <- y.max %||% suppressWarnings(max(dat[, "value"][is.finite(x = dat[, "value"])], na.rm = TRUE))
+        y_min_use <- y.min %||% suppressWarnings(min(dat[, "value"][is.finite(x = dat[, "value"])], na.rm = TRUE))
 
         if (!is.null(decreasing)) {
           levels <- dat %>%
@@ -6725,7 +6734,7 @@ CellCorHeatmap <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
   d <- d[rows[rows %in% rownames(d)], columns[columns %in% colnames(d)]]
   ht <- Heatmap(d,
     name = paste(distance_metric, "similarity"), cluster_columns = cluster_columns, cluster_rows = cluster_rows,
-    col = colorRamp2(seq(min(d[is.finite(d)]), max(d[is.finite(d)]), length.out = 3), c("#27408B", "white", "#EE0000")),
+    col = colorRamp2(seq(min(d[is.finite(d)], na.rm = TRUE), max(d[is.finite(d)], na.rm = TRUE), length.out = 3), c("#27408B", "white", "#EE0000")),
     cell_fun = function(j, i, x, y, w, h, fill) {
       grid.rect(x, y,
         width = w, height = h,
@@ -6736,19 +6745,19 @@ CellCorHeatmap <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
         gp = gpar(col = fill, lwd = 1, fill = alpha(fill, 0.5))
       )
       if (label_by == "row") {
-        if (d[i, j] >= max(sort(d[i, ], decreasing = T)[nlabel], label_cutoff)) {
+        if (d[i, j] >= max(c(sort(d[i, ], decreasing = T)[nlabel], label_cutoff), na.rm = TRUE)) {
           # grid.text("*", x, y, gp = gpar(fontsize = 20))
           grid.text(round(d[i, j], 2), x, y, gp = gpar(fontsize = label_size))
         }
       }
       if (label_by == "column") {
-        if (d[i, j] >= max(sort(d[, j], decreasing = T)[nlabel], label_cutoff)) {
+        if (d[i, j] >= max(c(sort(d[, j], decreasing = T)[nlabel], label_cutoff), na.rm = TRUE)) {
           # grid.text("*", x, y, gp = gpar(fontsize = 20))
           grid.text(round(d[i, j], 2), x, y, gp = gpar(fontsize = label_size))
         }
       }
       if (label_by == "both") {
-        if (d[i, j] >= max(sort(d[, j], decreasing = T)[nlabel], label_cutoff) & d[i, j] >= max(sort(d[i, ], decreasing = T)[nlabel], label_cutoff)) {
+        if (d[i, j] >= max(c(sort(d[, j], decreasing = T)[nlabel], label_cutoff), na.rm = TRUE) & d[i, j] >= max(c(sort(d[i, ], decreasing = T)[nlabel], label_cutoff), na.rm = TRUE)) {
           # grid.text("*", x, y, gp = gpar(fontsize = 20))
           grid.text(round(d[i, j], 2), x, y, gp = gpar(fontsize = label_size))
         }
@@ -6940,7 +6949,7 @@ ExpStatPlot <- function(srt, features = NULL, group.by = NULL, split.by = NULL, 
   }
   if (!is.null(bg.by)) {
     df_table <- table(srt[[group.by, drop = TRUE]], srt[[bg.by, drop = TRUE]])
-    if (max(rowSums(df_table > 0)) > 1) {
+    if (max(rowSums(df_table > 0), na.rm = TRUE) > 1) {
       stop("'group.by' must be a division of 'bg.by'")
     }
   }
@@ -7026,10 +7035,10 @@ ExpStatPlot <- function(srt, features = NULL, group.by = NULL, split.by = NULL, 
     }
   }
   if (isTRUE(same.y.lims) && is.null(y.max)) {
-    y.max <- max(as.matrix(dat_exp[, features])[is.finite(as.matrix(dat_exp[, features]))])
+    y.max <- max(as.matrix(dat_exp[, features])[is.finite(as.matrix(dat_exp[, features]))], na.rm = TRUE)
   }
   if (isTRUE(same.y.lims) && is.null(y.min)) {
-    y.min <- min(as.matrix(dat_exp[, features])[is.finite(as.matrix(dat_exp[, features]))])
+    y.min <- min(as.matrix(dat_exp[, features])[is.finite(as.matrix(dat_exp[, features]))], na.rm = TRUE)
   }
 
   if (!is.null(bg.by)) {
@@ -7117,8 +7126,8 @@ ExpStatPlot <- function(srt, features = NULL, group.by = NULL, split.by = NULL, 
           comb <- expand.grid(x = levels(dat[["split.by"]]), y = levels(dat[["group.by"]]))
           dat[, "group"] <- head(factor(paste("a", dat[["split.by"]], "b", dat[["group.by"]], sep = "-"), levels = paste("a", comb[[1]], "b", comb[[2]], sep = "-")), nrow(dat))
 
-          y_max_use <- y.max %||% suppressWarnings(max(dat[, "value"][is.finite(x = dat[, "value"])]))
-          y_min_use <- y.min %||% suppressWarnings(min(dat[, "value"][is.finite(x = dat[, "value"])]))
+          y_max_use <- y.max %||% suppressWarnings(max(dat[, "value"][is.finite(x = dat[, "value"])], na.rm = TRUE))
+          y_min_use <- y.min %||% suppressWarnings(min(dat[, "value"][is.finite(x = dat[, "value"])], na.rm = TRUE))
 
           if (isTRUE(flip)) {
             dat[["group.by"]] <- factor(dat[["group.by"]], levels = rev(levels(dat[["group.by"]])))
@@ -8941,14 +8950,14 @@ VelocityPlot <- function(srt, reduction, dims = c(1, 2), cells = NULL, velocity 
         metR::geom_streamline(
           data = df_field, aes(x = x, y = y, dx = u, dy = v),
           L = streamline_L, min.L = streamline_minL, res = streamline_res,
-          jitter = streamline_jitter, n = streamline_n, size = max(streamline_size) + streamline_bg_stroke, color = streamline_bg_color, alpha = streamline_alpha,
+          jitter = streamline_jitter, n = streamline_n, size = max(streamline_size, na.rm = TRUE) + streamline_bg_stroke, color = streamline_bg_color, alpha = streamline_alpha,
           arrow.type = "closed", arrow.angle = arrow_angle,
           lineend = "round", linejoin = "mitre", inherit.aes = FALSE
         ),
         metR::geom_streamline(
           data = df_field, aes(x = x, y = y, dx = u, dy = v),
           L = streamline_L, min.L = streamline_minL, res = streamline_res,
-          jitter = streamline_jitter, n = streamline_n, size = max(streamline_size), color = streamline_color, alpha = streamline_alpha,
+          jitter = streamline_jitter, n = streamline_n, size = max(streamline_size, na.rm = TRUE), color = streamline_color, alpha = streamline_alpha,
           arrow.type = "closed", arrow.angle = arrow_angle,
           lineend = "round", linejoin = "mitre", inherit.aes = FALSE
         ),
@@ -8965,7 +8974,7 @@ VelocityPlot <- function(srt, reduction, dims = c(1, 2), cells = NULL, velocity 
         metR::geom_streamline(
           data = df_field, aes(x = x, y = y, dx = u, dy = v),
           L = streamline_L, min.L = streamline_minL, res = streamline_res,
-          jitter = streamline_jitter, n = streamline_n, size = max(streamline_size) + streamline_bg_stroke, color = streamline_bg_color, alpha = streamline_alpha,
+          jitter = streamline_jitter, n = streamline_n, size = max(streamline_size, na.rm = TRUE) + streamline_bg_stroke, color = streamline_bg_color, alpha = streamline_alpha,
           arrow.type = "closed", arrow.angle = arrow_angle,
           lineend = "round", linejoin = "mitre", inherit.aes = FALSE
         ),
@@ -9180,7 +9189,7 @@ VolcanoPlot <- function(srt, group_by = NULL, test.use = "wilcox", DE_threshold 
   x_upper <- ifelse(x_upper[1] > 0, x_upper[1], x_upper[2])
   x_lower <- ifelse(x_lower[1] < 0, x_lower[1], x_lower[2])
   if (x_upper > 0 & x_lower < 0) {
-    value_range <- min(abs(c(x_upper, x_lower)))
+    value_range <- min(abs(c(x_upper, x_lower)), na.rm = TRUE)
     x_upper <- value_range
     x_lower <- -value_range
   }
@@ -9237,7 +9246,7 @@ VolcanoPlot <- function(srt, group_by = NULL, test.use = "wilcox", DE_threshold 
       labs(x = xlab, y = ylab) +
       scale_color_gradientn(
         name = ifelse(x_metric == "diff_pct", "log2FC", "diff_pct"), colors = palette_scp(palette = palette, palcolor = palcolor),
-        values = rescale(unique(c(min(df[, color_by], 0), 0, max(df[, color_by])))),
+        values = rescale(unique(c(min(c(df[, color_by], 0), na.rm = TRUE), 0, max(df[, color_by], na.rm = TRUE)))),
         guide = guide_colorbar(frame.colour = "black", ticks.colour = "black", title.hjust = 0, order = 1)
       ) +
       scale_y_continuous(labels = abs) +
@@ -9549,7 +9558,6 @@ SummaryPlot <- function(srt,
 #' @param libsize
 #' @param exp_method
 #' @param lib_normalize
-#' @param libsize
 #' @param group.by
 #' @param compare_lineages
 #' @param compare_features
@@ -9611,7 +9619,7 @@ SummaryPlot <- function(srt,
 #' @importFrom stats runif
 #' @export
 DynamicPlot <- function(srt, features, lineages, group.by = NULL, cells = NULL, slot = "counts", assay = "RNA", family = NULL,
-                        exp_method = c("log1p", "raw", "zscore", "fc", "log2fc"), lib_normalize = TRUE, libsize = NULL,
+                        exp_method = c("log1p", "raw", "zscore", "fc", "log2fc"), lib_normalize = identical(slot, "counts"), libsize = NULL,
                         compare_lineages = TRUE, compare_features = FALSE,
                         add_line = TRUE, add_interval = TRUE, line.size = 1, line_palette = "Dark2", line_palcolor = NULL,
                         add_point = TRUE, pt.size = 1, point_palette = "Paired", point_palcolor = NULL,
@@ -9707,7 +9715,7 @@ DynamicPlot <- function(srt, features, lineages, group.by = NULL, cells = NULL, 
           warning("Values in 'counts' slot is non-integer. Set the libsize to 1.", immediate. = TRUE)
         }
       }
-      raw_matrix[, gene] <- raw_matrix[, gene] / libsize_use * median(Y_libsize)
+      raw_matrix[, gene] <- raw_matrix[, gene, drop = FALSE] / libsize_use * median(Y_libsize)
     }
 
     if (is.function(exp_method)) {
@@ -9745,10 +9753,10 @@ DynamicPlot <- function(srt, features, lineages, group.by = NULL, cells = NULL, 
       upr_matrix <- log1p(upr_matrix)
       lwr_matrix <- log1p(lwr_matrix)
     }
-    raw_matrix[is.infinite(raw_matrix)] <- max(abs(raw_matrix[!is.infinite(raw_matrix)])) * ifelse(raw_matrix[is.infinite(raw_matrix)] > 0, 1, -1)
+    raw_matrix[is.infinite(raw_matrix)] <- max(abs(raw_matrix[!is.infinite(raw_matrix)]), na.rm = TRUE) * ifelse(raw_matrix[is.infinite(raw_matrix)] > 0, 1, -1)
     fitted_matrix[is.infinite(fitted_matrix)] <- max(abs(fitted_matrix[!is.infinite(fitted_matrix)])) * ifelse(fitted_matrix[is.infinite(fitted_matrix)] > 0, 1, -1)
-    upr_matrix[is.infinite(upr_matrix)] <- max(abs(upr_matrix[!is.infinite(upr_matrix)])) * ifelse(upr_matrix[is.infinite(upr_matrix)] > 0, 1, -1)
-    lwr_matrix[is.infinite(lwr_matrix)] <- max(abs(lwr_matrix[!is.infinite(lwr_matrix)])) * ifelse(lwr_matrix[is.infinite(lwr_matrix)] > 0, 1, -1)
+    upr_matrix[is.infinite(upr_matrix)] <- max(abs(upr_matrix[!is.infinite(upr_matrix)]), na.rm = TRUE) * ifelse(upr_matrix[is.infinite(upr_matrix)] > 0, 1, -1)
+    lwr_matrix[is.infinite(lwr_matrix)] <- max(abs(lwr_matrix[!is.infinite(lwr_matrix)]), na.rm = TRUE) * ifelse(lwr_matrix[is.infinite(lwr_matrix)] > 0, 1, -1)
 
     raw <- as.data.frame(cbind(cell_metadata[rownames(raw_matrix), c(l, "x_assign")], raw_matrix))
     colnames(raw)[1] <- "Pseudotime"
@@ -10194,7 +10202,8 @@ DynamicPlot <- function(srt, features, lineages, group.by = NULL, cells = NULL, 
 #' @export
 DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineages, use_fitted = FALSE, border = TRUE, flip = FALSE,
                            min_expcells = 20, r.sq = 0.2, dev.expl = 0.2, padjust = 0.05, cell_density = 1, order_by = c("peaktime", "valleytime"),
-                           slot = "counts", assay = "RNA", exp_method = c("zscore", "raw", "fc", "log2fc", "log1p"), lib_normalize = TRUE, libsize = NULL, family = NULL,
+                           slot = "counts", assay = "RNA", exp_method = c("zscore", "raw", "fc", "log2fc", "log1p"), limits = NULL,
+                           lib_normalize = identical(slot, "counts"), libsize = NULL, family = NULL,
                            cluster_features_by = NULL, cluster_rows = FALSE, cluster_row_slices = FALSE, cluster_columns = FALSE, cluster_column_slices = FALSE,
                            show_row_names = FALSE, show_column_names = FALSE, row_names_side = ifelse(flip, "left", "right"), column_names_side = ifelse(flip, "bottom", "top"), row_names_rot = 0, column_names_rot = 90,
                            row_title_side = "left", column_title_side = "top", row_title_rot = 0, column_title_rot = ifelse(flip, 90, 0),
@@ -10349,8 +10358,8 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineag
     srt@meta.data[cell_union, lineages, drop = FALSE]
   )
   if (cell_density != 1) {
-    cell_bin <- cut(Pseudotime_assign, breaks = seq(min(Pseudotime_assign), max(Pseudotime_assign), length.out = 100), include.lowest = TRUE)
-    ncell_bin <- ceiling(max(table(cell_bin)) * cell_density)
+    cell_bin <- cut(Pseudotime_assign, breaks = seq(min(Pseudotime_assign, na.rm = TRUE), max(Pseudotime_assign, na.rm = TRUE), length.out = 100), include.lowest = TRUE)
+    ncell_bin <- ceiling(max(table(cell_bin), na.rm = TRUE) * cell_density)
     message("ncell/bin=", ncell_bin, "(100bins)")
     cell_keep <- unlist(sapply(levels(cell_bin), function(x) {
       cells <- names(Pseudotime_assign)[cell_bin == x]
@@ -10456,7 +10465,7 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineag
             warning("Values in 'counts' slot is non-integer. Set the libsize to 1.", immediate. = TRUE)
           }
         }
-        mat_tmp[gene, ] <- t(t(mat_tmp[gene, ]) / libsize_use * median(Y_libsize))
+        mat_tmp[gene, ] <- t(t(mat_tmp[gene, , drop = FALSE]) / libsize_use * median(Y_libsize))
       }
       colnames(mat_tmp) <- paste0(colnames(mat_tmp), l)
       mat_list[[l]] <- mat_tmp
@@ -10466,7 +10475,7 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineag
 
   # data used to plot heatmap
   mat <- matrix_process(mat_raw, method = exp_method)
-  mat[is.infinite(mat)] <- max(abs(mat[!is.infinite(mat)])) * ifelse(mat[is.infinite(mat)] > 0, 1, -1)
+  mat[is.infinite(mat)] <- max(abs(mat[!is.infinite(mat)]), na.rm = TRUE) * ifelse(mat[is.infinite(mat)] > 0, 1, -1)
   mat[is.na(mat)] <- mean(mat, na.rm = TRUE)
 
   # data used to do spliting
@@ -10480,12 +10489,16 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineag
   # }
   mat_split <- mat[, unlist(cell_order_list[feature_split_by]), drop = FALSE]
 
-  if (!is.function(exp_method) && exp_method %in% c("zscore", "log2fc")) {
-    b <- ceiling(min(abs(quantile(mat, c(0.01, 0.99), na.rm = TRUE))) * 2) / 2
-    colors <- colorRamp2(seq(-b, b, length = 100), palette_scp(palette = heatmap_palette, palcolor = heatmap_palcolor))
+  if (is.null(limits)) {
+    if (!is.function(exp_method) && exp_method %in% c("zscore", "log2fc")) {
+      b <- ceiling(min(abs(quantile(mat, c(0.01, 0.99), na.rm = TRUE)), na.rm = TRUE) * 2) / 2
+      colors <- colorRamp2(seq(-b, b, length = 100), palette_scp(palette = heatmap_palette, palcolor = heatmap_palcolor))
+    } else {
+      b <- quantile(mat, c(0.01, 0.99), na.rm = TRUE)
+      colors <- colorRamp2(seq(b[1], b[2], length = 100), palette_scp(palette = heatmap_palette, palcolor = heatmap_palcolor))
+    }
   } else {
-    b <- quantile(mat, c(0.01, 0.99), na.rm = TRUE)
-    colors <- colorRamp2(seq(b[1], b[2], length = 100), palette_scp(palette = heatmap_palette, palcolor = heatmap_palcolor))
+    colors <- colorRamp2(seq(limits[1], limits[2], length = 100), palette_scp(palette = heatmap_palette, palcolor = heatmap_palcolor))
   }
 
   lgd <- list()
@@ -10494,7 +10507,7 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineag
   ha_top_list <- list()
   pseudotime <- na.omit(unlist(cell_metadata[, lineages]))
   pseudotime_col <- colorRamp2(
-    breaks = seq(min(pseudotime), max(pseudotime), length = 100),
+    breaks = seq(min(pseudotime, na.rm = TRUE), max(pseudotime, na.rm = TRUE), length = 100),
     colors = palette_scp(palette = pseudotime_palette, palcolor = pseudotime_palcolor)
   )
   for (l in lineages) {
@@ -10548,7 +10561,7 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineag
         )
       } else {
         col_fun <- colorRamp2(
-          breaks = seq(min(cell_anno), max(cell_anno), length = 100),
+          breaks = seq(min(cell_anno, na.rm = TRUE), max(cell_anno, na.rm = TRUE), length = 100),
           colors = palette_scp(palette = palette, palcolor = palcolor)
         )
         for (l in lineages) {
@@ -10928,7 +10941,7 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineag
         )
       } else {
         col_fun <- colorRamp2(
-          breaks = seq(min(featan_values), max(featan_values), length = 100),
+          breaks = seq(min(featan_values, na.rm = TRUE), max(featan_values, na.rm = TRUE), length = 100),
           colors = palette_scp(palette = palette, palcolor = palcolor)
         )
         ha_feature <- list()
@@ -11585,7 +11598,7 @@ EnrichmentPlot <- function(srt, db = "GO_BP", group_by = NULL, group_use = NULL,
           na.value = "grey80",
           guide = "none"
         ) +
-        scale_y_continuous(limits = c(0, 1.3 * max(df[["metric"]])), expand = expansion(0, 0)) +
+        scale_y_continuous(limits = c(0, 1.3 * max(df[["metric"]], na.rm = TRUE)), expand = expansion(0, 0)) +
         facet_grid(Database ~ Groups, scales = "free") +
         theme_scp(
           aspect.ratio = aspect.ratio,
@@ -11628,9 +11641,9 @@ EnrichmentPlot <- function(srt, db = "GO_BP", group_by = NULL, group_use = NULL,
       )) +
         geom_point(aes(size = .data[["Count"]]), shape = 21, color = "white", stroke = 1) +
         geom_segment(aes(yend = 0, xend = .data[["Description"]], color = .data[["metric"]]), linewidth = 2, lineend = "butt") +
-        scale_size(name = "Count", range = c(3, 6), breaks = ceiling(seq(min(df[["Count"]]), max(df[["Count"]]), length.out = 3))) +
+        scale_size(name = "Count", range = c(3, 6), breaks = ceiling(seq(min(df[["Count"]], na.rm = TRUE), max(df[["Count"]], na.rm = TRUE), length.out = 3))) +
         guides(size = guide_legend(override.aes = list(colour = "black", shape = 16), order = 1)) +
-        scale_y_continuous(limits = c(0, 1.2 * max(df[["EnrichmentScore"]])), expand = expansion(0, 0)) +
+        scale_y_continuous(limits = c(0, 1.2 * max(df[["EnrichmentScore"]], na.rm = TRUE)), expand = expansion(0, 0)) +
         labs(x = "", y = "Enrichment Score") +
         scale_fill_gradientn(
           name = paste0("-log10(", metric, ")"),
@@ -11738,7 +11751,7 @@ EnrichmentPlot <- function(srt, db = "GO_BP", group_by = NULL, group_use = NULL,
           name = "Score:", colours = colors, values = rescale(colors_value),
           guide = guide_colorbar(frame.colour = "black", ticks.colour = "black", title.hjust = 0)
         ) +
-        scale_size(name = "Count", range = word_size, breaks = ceiling(seq(min(df[["count"]]), max(df[["count"]]), length.out = 3))) +
+        scale_size(name = "Count", range = word_size, breaks = ceiling(seq(min(df[["count"]], na.rm = TRUE), max(df[["count"]], na.rm = TRUE), length.out = 3))) +
         guides(size = guide_legend(override.aes = list(colour = "black", label = "G"), order = 1)) +
         facet_grid(Database ~ Groups, scales = "free") +
         coord_flip() +
@@ -12006,18 +12019,18 @@ GSEAPlot <- function(srt, db = "GO_BP", group_by = NULL, group_use = NULL, test.
       col <- rep("white", length(y))
       y_pos <- which(y > 0)
       y_pos_i <- cut(y[y_pos],
-        breaks = seq(min(y[y_pos]), max(y[y_pos]), len = 100),
+        breaks = seq(min(y[y_pos], na.rm = TRUE), max(y[y_pos], na.rm = TRUE), len = 100),
         include.lowest = TRUE
       )
       y_neg <- which(y < 0)
       y_neg_i <- cut(y[y_neg],
-        breaks = seq(min(y[y_neg]), max(y[y_neg]), len = 100),
+        breaks = seq(min(y[y_neg], na.rm = TRUE), max(y[y_neg], na.rm = TRUE), len = 100),
         include.lowest = TRUE
       )
       col[y_pos] <- colorRampPalette(c("#F5DCDC", "#C40003"))(100)[y_pos_i]
       col[y_neg] <- colorRampPalette(c("#1D008F", "#DDDCF5"))(100)[y_neg_i]
-      ymin <- min(p2$data$ymin)
-      ymax <- max(p2$data$ymax - p2$data$ymin) * 0.3
+      ymin <- min(p2$data$ymin, na.rm = TRUE)
+      ymax <- max(p2$data$ymax - p2$data$ymin, na.rm = TRUE) * 0.3
       xmin <- which(!duplicated(col))
       xmax <- xmin + as.numeric(table(col)[as.character(unique(col))])
       d <- data.frame(
@@ -12161,8 +12174,8 @@ gseaScores <- function(geneList, geneSet, exponent = 1) {
   Pmiss[!hits] <- 1 / (N - Nh)
   Pmiss <- cumsum(Pmiss)
   runningES <- Phit - Pmiss
-  max.ES <- max(runningES)
-  min.ES <- min(runningES)
+  max.ES <- max(runningES, na.rm = TRUE)
+  min.ES <- min(runningES, na.rm = TRUE)
   if (abs(max.ES) > abs(min.ES)) {
     ES <- max.ES
   } else {

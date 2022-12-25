@@ -14,7 +14,7 @@ DynamicPlot(
   assay = "RNA",
   family = NULL,
   exp_method = c("log1p", "raw", "zscore", "fc", "log2fc"),
-  lib_normalize = TRUE,
+  lib_normalize = identical(slot, "counts"),
   libsize = NULL,
   compare_lineages = TRUE,
   compare_features = FALSE,

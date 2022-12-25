@@ -1080,9 +1080,16 @@ FindConservedMarkers2 <- function(object, grouping.var, ident.1, ident.2 = NULL,
 #'
 #' ht7 <- GroupHeatmap(ifnb_sub,
 #'   features = DisturbedMarkers_STIM_unique$gene, feature_split = DisturbedMarkers_STIM_unique$group1,
-#'   group.by = "seurat_annotations", grouping.var = "stim", numerator = "STIM"
+#'   group.by = "seurat_annotations", grouping.var = "stim", numerator = "STIM", limits = c(-1, 1)
 #' )
 #' ht7$plot
+#'
+#' ht8 <- GroupHeatmap(ifnb_sub,
+#'   features = DisturbedMarkers_STIM_unique$gene, feature_split = DisturbedMarkers_STIM_unique$group1,
+#'   group.by = "seurat_annotations", grouping.var = "stim", numerator = "STIM",
+#'   slot = "data", aggregate_fun = function(x) mean(expm1(x)) + 1
+#' )
+#' ht8$plot
 #'
 #' @importFrom BiocParallel bplapply
 #' @importFrom Seurat FindMarkers Assays Idents
