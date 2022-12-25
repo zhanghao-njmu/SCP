@@ -3687,13 +3687,13 @@ RunMonocle3 <- function(srt, annotation = NULL, assay = NULL, slot = "counts",
 #' pancreas_sub <- RunDynamicFeatures(pancreas_sub, lineages = c("Lineage1", "Lineage2"), n_candidates = 200)
 #' names(pancreas_sub@tools$DynamicFeatures_Lineage1)
 #' head(pancreas_sub@tools$DynamicFeatures_Lineage1$DynamicFeatures)
-#' ht_result <- DynamicHeatmap(
+#' ht <- DynamicHeatmap(
 #'   srt = pancreas_sub,
 #'   lineages = c("Lineage1", "Lineage2"),
 #'   cell_annotation = "SubCellType",
 #'   n_split = 6, reverse_ht = "Lineage1"
 #' )
-#' ht_result$plot
+#' ht$plot
 #'
 #' DynamicPlot(
 #'   srt = pancreas_sub,
@@ -3973,13 +3973,13 @@ RunDynamicFeatures <- function(srt, lineages, features = NULL, suffix = lineages
 #' data("pancreas_sub")
 #' pancreas_sub <- RunSlingshot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP")
 #' pancreas_sub <- RunDynamicFeatures(pancreas_sub, lineages = "Lineage1", n_candidates = 200)
-#' ht_result1 <- DynamicHeatmap(
+#' ht1 <- DynamicHeatmap(
 #'   srt = pancreas_sub,
 #'   lineages = "Lineage1",
 #'   cell_annotation = "SubCellType",
 #'   n_split = 4
 #' )
-#' ht_result1$plot
+#' ht1$plot
 #'
 #' pancreas_sub <- RunDynamicEnrichment(
 #'   srt = pancreas_sub,
@@ -3988,7 +3988,7 @@ RunDynamicFeatures <- function(srt, lineages, features = NULL, suffix = lineages
 #'   db = "GO_BP",
 #'   species = "Mus_musculus"
 #' )
-#' ht_result2 <- DynamicHeatmap(
+#' ht2 <- DynamicHeatmap(
 #'   srt = pancreas_sub,
 #'   assay = "GO_BP",
 #'   lineages = "Lineage1_GO_BP",
@@ -3996,7 +3996,7 @@ RunDynamicFeatures <- function(srt, lineages, features = NULL, suffix = lineages
 #'   n_split = 4,
 #'   split_method = "kmeans-peaktime"
 #' )
-#' ht_result2$plot
+#' ht2$plot
 #' @export
 RunDynamicEnrichment <- function(srt, lineages,
                                  score_method = "AUCell", ncore = 1,
@@ -4084,13 +4084,6 @@ RunDynamicEnrichment <- function(srt, lineages,
       suffix = paste(lineages, term, sep = "_"),
       assay = term
     )
-    # ht_result <- DynamicHeatmap(
-    #   srt = srt, assay = term,use_fitted = F,
-    #   lineages = c("Lineage1", "Lineage2"),
-    #   cell_annotation = "SubCellType",
-    #     reverse_ht = 1, use_raster = F
-    # )
-    # ht_result$plot
   }
 
   time_end <- Sys.time()
@@ -4306,7 +4299,6 @@ adata_to_srt <- function(adata) {
   rownames(x) <- adata$var_names$values
   colnames(x) <- adata$obs_names$values
 
-
   metadata <- NULL
   if (length(adata$obs_keys()) > 0) {
     metadata <- as.data.frame(adata$obs)
@@ -4318,11 +4310,11 @@ adata_to_srt <- function(adata) {
   if (length(adata$layers$keys()) > 0) {
     for (k in iterate(adata$layers$keys())) {
       layer <- t(adata$layers[[k]])
-      rownames(layer) <- adata$var_names$values
-      colnames(layer) <- adata$obs_names$values
       if (!inherits(layer, "dgCMatrix")) {
         layer <- as.sparse(layer[1:nrow(layer), ])
       }
+      rownames(layer) <- adata$var_names$values
+      colnames(layer) <- adata$obs_names$values
       srt[[k]] <- CreateAssayObject(counts = layer)
     }
   }
@@ -4332,6 +4324,9 @@ adata_to_srt <- function(adata) {
       if (inherits(obsm, "error")) {
         warning("'obsm: ", k, "' will not be converted. You may need to convert it manually.", immediate. = TRUE)
         next
+      }
+      if (!inherits(obsm, "matrix")) {
+        obsm <- as.matrix(obsm)
       }
       k <- gsub(pattern = "^X_", replacement = "", x = k)
       colnames(obsm) <- paste0(k, "_", seq_len(ncol(obsm)))
@@ -4345,6 +4340,9 @@ adata_to_srt <- function(adata) {
       if (inherits(obsp, "error")) {
         warning("'obsp: ", k, "' will not be converted. You may need to convert it manually.", immediate. = TRUE)
         next
+      }
+      if (!inherits(obsp, "dgCMatrix")) {
+        obsp <- as.sparse(obsp[1:nrow(obsp), ])
       }
       colnames(obsp) <- adata$obs_names$values
       rownames(obsp) <- adata$obs_names$values
@@ -4364,6 +4362,9 @@ adata_to_srt <- function(adata) {
         warning("'varm: ", k, "' will not be converted. You may need to convert it manually.", immediate. = TRUE)
         next
       }
+      if (!inherits(varm, "matrix")) {
+        varm <- as.matrix(varm)
+      }
       colnames(varm) <- paste0(k, "_", seq_len(ncol(varm)))
       rownames(varm) <- adata$var_names$values
       srt[["RNA"]]@misc[["feature.loadings"]][[k]] <- varm
@@ -4375,6 +4376,9 @@ adata_to_srt <- function(adata) {
       if (inherits(varp, "error")) {
         warning("'varp: ", k, "' will not be converted. You may need to convert it manually.", immediate. = TRUE)
         next
+      }
+      if (!inherits(varp, "matrix")) {
+        varp <- as.matrix(varp)
       }
       colnames(varp) <- adata$var_names$values
       rownames(varp) <- adata$var_names$values

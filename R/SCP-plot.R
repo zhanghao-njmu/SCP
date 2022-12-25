@@ -3691,7 +3691,6 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
     }
     mat_raw[gene_unique, ] <- t(t(mat_raw[gene_unique, , drop = FALSE]) / libsize_use * median(libsize_use))
   }
-  # dat <- cbind.data.frame(srt@meta.data[cells, group.by, drop = FALSE], t(mat_raw))
 
   mat_raw_list <- list()
   mat_perc_list <- list()
@@ -3716,7 +3715,6 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
 
   # data used to plot heatmap
   mat_list <- list()
-
   for (cell_group in group.by) {
     mat_tmp <- mat_raw_list[[cell_group]]
     if (is.null(grouping.var)) {
