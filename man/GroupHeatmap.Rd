@@ -9,15 +9,18 @@ GroupHeatmap(
   features = NULL,
   group.by = NULL,
   split.by = NULL,
+  grouping.var = NULL,
+  numerator = NULL,
   cells = NULL,
-  aggregate_fun = mean,
+  aggregate_fun = base::mean,
   exp_cutoff = 0,
   border = TRUE,
   flip = FALSE,
   slot = "counts",
   assay = "RNA",
   exp_method = c("zscore", "raw", "fc", "log2fc", "log1p"),
-  lib_normalize = TRUE,
+  limits = NULL,
+  lib_normalize = identical(slot, "counts"),
   libsize = NULL,
   feature_split = NULL,
   feature_split_by = NULL,
@@ -88,7 +91,7 @@ GroupHeatmap(
   fill.by = "feature",
   fill_palette = "Dark2",
   fill_palcolor = NULL,
-  heatmap_palette = "YlOrRd",
+  heatmap_palette = "RdBu",
   heatmap_palcolor = NULL,
   group_palette = "Paired",
   group_palcolor = NULL,
@@ -141,7 +144,6 @@ GroupHeatmap
 \examples{
 library(dplyr)
 data("pancreas_sub")
-pancreas_sub <- Standard_SCP(pancreas_sub)
 ht1 <- GroupHeatmap(pancreas_sub,
   features = c(
     "Sox9", "Anxa2", "Bicc1", # Ductal
@@ -161,7 +163,7 @@ de_filter <- filter(pancreas_sub@tools$DEtest_CellType$AllMarkers_wilcox, p_val_
 
 ht2 <- GroupHeatmap(
   srt = pancreas_sub, features = de_filter$gene, group.by = "CellType",
-  split.by = "Phase", cell_split_palcolor = list(c("grey", "gold", "deeppink")),
+  split.by = "Phase", cell_split_palette = "Dark2",
   nlabel = 10, show_row_names = FALSE
 )
 ht2$plot

@@ -203,6 +203,7 @@ ht <- GroupHeatmap(
     "Ins1", "Gcg", "Sst", "Ghrl" # Beta, Alpha, Delta, Epsilon
   ),
   group.by = c("CellType", "SubCellType"),
+  heatmap_palette = "YlOrRd",
   cell_annotation = c("Phase", "G2M_score", "Neurod2"),
   cell_palette = c("Dark2", "Paired", "Paired"),
   show_row_names = TRUE, row_names_side = "left",
@@ -331,7 +332,7 @@ ClassDimPlot(srt = pancreas_sub, group.by = "knnpredict_classification", reducti
 ``` r
 pancreas_sub <- RunPAGA(
   srt = pancreas_sub, group_by = "SubCellType",
-  linear_reduction = "PCA", nonlinear_reduction = "UMAP", return_seurat = TRUE
+  linear_reduction = "PCA", nonlinear_reduction = "UMAP"
 )
 PAGAPlot(srt = pancreas_sub, reduction = "UMAP", label = TRUE, label_insitu = TRUE, label_repel = TRUE)
 ```
@@ -343,7 +344,7 @@ PAGAPlot(srt = pancreas_sub, reduction = "UMAP", label = TRUE, label_insitu = TR
 ``` r
 pancreas_sub <- RunSCVELO(
   srt = pancreas_sub, group_by = "SubCellType",
-  linear_reduction = "PCA", nonlinear_reduction = "UMAP", return_seurat = TRUE
+  linear_reduction = "PCA", nonlinear_reduction = "UMAP"
 )
 VelocityPlot(srt = pancreas_sub, reduction = "UMAP", group_by = "SubCellType")
 ```
@@ -378,7 +379,7 @@ ht <- ExpHeatmap(
 print(ht$plot)
 ```
 
-<img src="README/README-DEGsPlot-1.png" width="100%" style="display: block; margin: auto;" />
+<img src="README/README-ExpHeatmap-1.png" width="100%" style="display: block; margin: auto;" />
 
 ### Enrichment analysis(over-representation)
 

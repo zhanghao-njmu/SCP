@@ -65,11 +65,11 @@ RunKNNMap <- function(srt_query, srt_ref, query_assay = NULL, ref_assay = NULL, 
   }
   projection_method <- match.arg(projection_method)
   if (projection_method == "model" && !"model" %in% names(srt_ref[[ref_umap]]@misc)) {
-    message("No UMAP model detected. Set the projection_method to \"knn\"")
+    message("No UMAP model detected. Set the projection_method to 'knn'")
     projection_method <- "knn"
   }
   if (projection_method == "model" && !distance_metric %in% c("euclidean", "cosine", "manhattan", "hamming")) {
-    stop("distance_metric must be one of euclidean, cosine, manhattan, and hamming when projection_method=\"model\"")
+    stop("distance_metric must be one of euclidean, cosine, manhattan, and hamming when projection_method='model'")
   }
   simil_method <- c(
     "cosine", "correlation", "jaccard", "ejaccard", "dice", "edice", "hamman",
@@ -142,12 +142,12 @@ RunKNNMap <- function(srt_query, srt_ref, query_assay = NULL, ref_assay = NULL, 
       nn_method <- "annoy"
     }
   }
-  message("Use \"", nn_method, "\" method to find neighbors.")
+  message("Use '", nn_method, "' method to find neighbors.")
   if (!nn_method %in% c("raw", "annoy", "rann")) {
     stop("nn_method must be one of raw, rann and annoy")
   }
   if (nn_method == "annoy" && !distance_metric %in% c("euclidean", "cosine", "manhattan", "hamming")) {
-    stop("distance_metric must be one of euclidean, cosine, manhattan, and hamming when nn_method=\"annoy\"")
+    stop("distance_metric must be one of euclidean, cosine, manhattan, and hamming when nn_method='annoy'")
   }
 
   if (nn_method %in% c("annoy", "rann")) {
@@ -320,11 +320,11 @@ RunPCAMap <- function(srt_query, srt_ref, query_assay = NULL, ref_assay = srt_re
   }
   projection_method <- match.arg(projection_method)
   if (projection_method == "model" && !"model" %in% names(srt_ref[[ref_umap]]@misc)) {
-    message("No UMAP model detected. Set the projection_method to \"knn\"")
+    message("No UMAP model detected. Set the projection_method to 'knn'")
     projection_method <- "knn"
   }
   if (projection_method == "model" && !distance_metric %in% c("euclidean", "cosine", "manhattan", "hamming")) {
-    stop("distance_metric must be one of euclidean, cosine, manhattan, and hamming when projection_method=\"model\"")
+    stop("distance_metric must be one of euclidean, cosine, manhattan, and hamming when projection_method='model'")
   }
 
   pca.out <- srt_ref[[ref_pca]]
@@ -415,7 +415,7 @@ RunSeuratMap <- function(srt_query, srt_ref, query_assay = NULL, ref_assay = srt
       srt_ref <- Standard_SCP(srt_ref)
       ref_pca <- "Standardpca"
     }
-    cat("Set the ref_pca to \"", ref_pca, "\"\n", sep = "")
+    cat("Set the ref_pca to '", ref_pca, "'\n", sep = "")
   }
   if (is.null(ref_umap)) {
     ref_umap <- sort(Reductions(srt_ref)[grep("umap", Reductions(srt_ref), ignore.case = TRUE)])[1]
@@ -427,11 +427,11 @@ RunSeuratMap <- function(srt_query, srt_ref, query_assay = NULL, ref_assay = srt
   }
   projection_method <- match.arg(projection_method)
   if (projection_method == "model" && !"model" %in% names(srt_ref[[ref_umap]]@misc)) {
-    message("No UMAP model detected. Set the projection_method to \"knn\"")
+    message("No UMAP model detected. Set the projection_method to 'knn'")
     projection_method <- "knn"
   }
   if (projection_method == "model" && !distance_metric %in% c("euclidean", "cosine", "manhattan", "hamming")) {
-    stop("distance_metric must be one of euclidean, cosine, manhattan, and hamming when projection_method=\"model\"")
+    stop("distance_metric must be one of euclidean, cosine, manhattan, and hamming when projection_method='model'")
   }
 
   status_query <- check_DataType(data = GetAssayData(srt_query, slot = "data", assay = query_assay))
@@ -534,11 +534,11 @@ RunCSSMap <- function(srt_query, srt_ref, query_assay = NULL, ref_assay = srt_re
   }
   projection_method <- match.arg(projection_method)
   if (projection_method == "model" && !"model" %in% names(srt_ref[[ref_umap]]@misc)) {
-    message("No UMAP model detected. Set the projection_method to \"knn\"")
+    message("No UMAP model detected. Set the projection_method to 'knn'")
     projection_method <- "knn"
   }
   if (projection_method == "model" && !distance_metric %in% c("euclidean", "cosine", "manhattan", "hamming")) {
-    stop("distance_metric must be one of euclidean, cosine, manhattan, and hamming when projection_method=\"model\"")
+    stop("distance_metric must be one of euclidean, cosine, manhattan, and hamming when projection_method='model'")
   }
 
   ref_assay <- srt_ref[[ref_css]]@assay.used
@@ -641,11 +641,11 @@ RunSymphonyMap <- function(srt_query, srt_ref, query_assay = NULL, ref_assay = s
   }
   projection_method <- match.arg(projection_method)
   if (projection_method == "model" && !"model" %in% names(srt_ref[[ref_umap]]@misc)) {
-    message("No UMAP model detected. Set the projection_method to \"knn\"")
+    message("No UMAP model detected. Set the projection_method to 'knn'")
     projection_method <- "knn"
   }
   if (projection_method == "model" && !distance_metric %in% c("euclidean", "cosine", "manhattan", "hamming")) {
-    stop("distance_metric must be one of euclidean, cosine, manhattan, and hamming when projection_method=\"model\"")
+    stop("distance_metric must be one of euclidean, cosine, manhattan, and hamming when projection_method='model'")
   }
 
   status_query <- check_DataType(data = GetAssayData(srt_query, slot = "data", assay = query_assay))
