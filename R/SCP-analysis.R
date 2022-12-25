@@ -1080,7 +1080,7 @@ FindConservedMarkers2 <- function(object, grouping.var, ident.1, ident.2 = NULL,
 #'
 #' ht7 <- GroupHeatmap(ifnb_sub,
 #'   features = DisturbedMarkers_STIM_unique$gene, feature_split = DisturbedMarkers_STIM_unique$group1,
-#'   group.by = "seurat_annotations", grouping.var = "stim", numerator = "STIM", limits = c(-1, 1)
+#'   group.by = "seurat_annotations", grouping.var = "stim", numerator = "STIM", limits = c(-2, 2)
 #' )
 #' ht7$plot
 #'

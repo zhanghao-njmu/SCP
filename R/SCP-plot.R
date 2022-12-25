@@ -4373,7 +4373,7 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
                   as.data.frame()
                 df <- df[head(order(df[["score"]], decreasing = TRUE), topWord), , drop = FALSE]
               }
-              if (nrow(df) > 0) {
+              if (isTRUE(nrow(df) > 0)) {
                 df[["col"]] <- palette_scp(df[, "score"], type = "continuous", palette = "Spectral", matched = TRUE)
                 df[["col"]] <- sapply(df[["col"]], function(x) blendcolors(c(x, "black")))
                 df[["fontsize"]] <- rescale(df[, "count"], to = keys_fontsize)
@@ -5692,7 +5692,7 @@ ExpHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, spli
                   as.data.frame()
                 df <- df[head(order(df[["score"]], decreasing = TRUE), topWord), , drop = FALSE]
               }
-              if (nrow(df) > 0) {
+              if (isTRUE(nrow(df) > 0)) {
                 df[["col"]] <- palette_scp(df[, "score"], type = "continuous", palette = "Spectral", matched = TRUE)
                 df[["col"]] <- sapply(df[["col"]], function(x) blendcolors(c(x, "black")))
                 df[["fontsize"]] <- rescale(df[, "count"], to = keys_fontsize)
@@ -11100,7 +11100,7 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineag
                   as.data.frame()
                 df <- df[head(order(df[["score"]], decreasing = TRUE), topWord), , drop = FALSE]
               }
-              if (nrow(df) > 0) {
+              if (isTRUE(nrow(df) > 0)) {
                 df[["col"]] <- palette_scp(df[, "score"], type = "continuous", palette = "Spectral", matched = TRUE)
                 df[["col"]] <- sapply(df[["col"]], function(x) blendcolors(c(x, "black")))
                 df[["fontsize"]] <- rescale(df[, "count"], to = keys_fontsize)
