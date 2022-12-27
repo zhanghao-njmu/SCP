@@ -3514,10 +3514,7 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
     exp_name <- paste0(as.character(x = formals()$exp_method), "(", data_nm, ")")
   } else {
     exp_method <- match.arg(exp_method)
-    exp_name <- switch(exp_method,
-      "raw" = data_nm,
-      paste0(exp_method, "(", data_nm, ")")
-    )
+    exp_name <- paste0(exp_method, "(", data_nm, ")")
   }
   if (!is.null(grouping.var) && exp_method != "log2fc") {
     warning("When 'grouping.var' is specified, 'exp_method' can only be 'log2fc'", immediate. = TRUE)
@@ -3687,6 +3684,11 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
       if (isTRUE(isfloat)) {
         libsize_use <- rep(1, length(libsize_use))
         warning("Values in 'counts' slot is non-integer. Set the libsize to 1.", immediate. = TRUE)
+        if (!is.null(grouping.var)) {
+          exp_name <- paste0(numerator, "/", "other\n", exp_method, "(", slot, ")")
+        } else {
+          exp_name <- paste0(exp_method, "(", slot, ")")
+        }
       }
     }
     mat_raw[gene_unique, ] <- t(t(mat_raw[gene_unique, , drop = FALSE]) / libsize_use * median(libsize_use))
@@ -4952,10 +4954,7 @@ ExpHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, spli
     exp_name <- paste0(as.character(x = formals()$exp_method), "(", data_nm, ")")
   } else {
     exp_method <- match.arg(exp_method)
-    exp_name <- switch(exp_method,
-      "raw" = data_nm,
-      paste0(exp_method, "(", data_nm, ")")
-    )
+    exp_name <- paste0(exp_method, "(", data_nm, ")")
   }
 
   if (missing(srt)) {
@@ -7093,7 +7092,7 @@ ExpStatPlot <- function(srt, features = NULL, group.by = NULL, split.by = NULL, 
           }
           dat[, "features"] <- rep(f, nrow(dat))
           if (nrow(dat) > 0 && ((is.character(x = sort) && nchar(x = sort) > 0) || sort)) {
-            df_sort <- aggregate(dat[, "value", drop = FALSE], by = list(dat[["group.by"]]), mean)
+            df_sort <- aggregate(dat[, "value", drop = FALSE], by = list(dat[["group.by"]]), median)
             if (is.character(sort) && sort == "increasing") {
               decreasing <- FALSE
             } else {
@@ -9636,10 +9635,7 @@ DynamicPlot <- function(srt, features, lineages, group.by = NULL, cells = NULL, 
     exp_name <- paste0(as.character(x = formals()$exp_method), "(", data_nm, ")")
   } else {
     exp_method <- match.arg(exp_method)
-    exp_name <- switch(exp_method,
-      "raw" = data_nm,
-      paste0(exp_method, "(", data_nm, ")")
-    )
+    exp_name <- paste0(exp_method, "(", data_nm, ")")
   }
 
   gene <- features[features %in% rownames(srt[[assay]])]
@@ -10237,10 +10233,7 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineag
     exp_name <- paste0(as.character(x = formals()$exp_method), "(", data_nm, ")")
   } else {
     exp_method <- match.arg(exp_method)
-    exp_name <- switch(exp_method,
-      "raw" = data_nm,
-      paste0(exp_method, "(", data_nm, ")")
-    )
+    exp_name <- paste0(exp_method, "(", data_nm, ")")
   }
   if (missing(srt)) {
     stop("srt must be provided.")
