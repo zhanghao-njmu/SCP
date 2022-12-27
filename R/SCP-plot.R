@@ -6743,19 +6743,19 @@ CellCorHeatmap <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
         gp = gpar(col = fill, lwd = 1, fill = alpha(fill, 0.5))
       )
       if (label_by == "row") {
-        if (d[i, j] >= max(c(sort(d[i, ], decreasing = T)[nlabel], label_cutoff), na.rm = TRUE)) {
+        if (d[i, j] >= max(c(sort(d[i, ], decreasing = TRUE)[nlabel], label_cutoff), na.rm = TRUE)) {
           # grid.text("*", x, y, gp = gpar(fontsize = 20))
           grid.text(round(d[i, j], 2), x, y, gp = gpar(fontsize = label_size))
         }
       }
       if (label_by == "column") {
-        if (d[i, j] >= max(c(sort(d[, j], decreasing = T)[nlabel], label_cutoff), na.rm = TRUE)) {
+        if (d[i, j] >= max(c(sort(d[, j], decreasing = TRUE)[nlabel], label_cutoff), na.rm = TRUE)) {
           # grid.text("*", x, y, gp = gpar(fontsize = 20))
           grid.text(round(d[i, j], 2), x, y, gp = gpar(fontsize = label_size))
         }
       }
       if (label_by == "both") {
-        if (d[i, j] >= max(c(sort(d[, j], decreasing = T)[nlabel], label_cutoff), na.rm = TRUE) & d[i, j] >= max(c(sort(d[i, ], decreasing = T)[nlabel], label_cutoff), na.rm = TRUE)) {
+        if (d[i, j] >= max(c(sort(d[, j], decreasing = TRUE)[nlabel], label_cutoff), na.rm = TRUE) & d[i, j] >= max(c(sort(d[i, ], decreasing = TRUE)[nlabel], label_cutoff), na.rm = TRUE)) {
           # grid.text("*", x, y, gp = gpar(fontsize = 20))
           grid.text(round(d[i, j], 2), x, y, gp = gpar(fontsize = label_size))
         }
@@ -7084,7 +7084,7 @@ ExpStatPlot <- function(srt, features = NULL, group.by = NULL, split.by = NULL, 
           dat[, "split.by"] <- dat[, split.by]
           dat[, "bg.by"] <- dat[, bg.by]
           stat <- table(dat[, "group.by"], dat[, "split.by"])
-          stat_drop <- which(stat == 1, arr.ind = T)
+          stat_drop <- which(stat == 1, arr.ind = TRUE)
           if (nrow(stat_drop) > 0) {
             for (i in 1:nrow(stat_drop)) {
               dat <- dat[!(dat[, "group.by"] == rownames(stat)[stat_drop[i, 1]] & dat[, "split.by"] == colnames(stat)[stat_drop[i, 2]]), ]

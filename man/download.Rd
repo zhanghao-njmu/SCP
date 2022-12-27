@@ -10,8 +10,7 @@ download(
   methods = c("auto", "wget", "libcurl", "curl", "wininet", "internal"),
   quiet = FALSE,
   ...,
-  attempts = 2,
-  return_status = FALSE
+  attempts = 2
 )
 }
 \arguments{
