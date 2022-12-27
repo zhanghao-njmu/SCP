@@ -835,26 +835,167 @@ CellScoring <- function(srt, features = NULL, slot = "data", assay = "RNA", spli
   return(srt)
 }
 
+metap <- function(p, method = c("maximump", "minimump", "wilkinsonp", "meanp", "sump", "votep"), ...) {
+  method <- match.arg(method)
+  res <- do.call(method, args = list(p = p, ...))
+  return(res)
+}
+
+#' @importFrom stats pbeta
+wilkinsonp <- function(p, r = 1, alpha = 0.05, log.p = FALSE) {
+  alpha <- ifelse(alpha > 1, alpha / 100, alpha)
+  stopifnot(alpha > 0, alpha < 1)
+  alpha <- ifelse(alpha > 0.5, 1 - alpha, alpha)
+  keep <- (p >= 0) & (p <= 1)
+  invalid <- sum(1L * keep) < 2
+  if (invalid) {
+    warning("Must have at least two valid p values")
+    res <- list(
+      p = NA_real_, pr = NA_real_, r = r, critp = NA_real_,
+      alpha = alpha, validp = p[keep]
+    )
+  } else {
+    pi <- p[keep]
+    k <- length(pi)
+    if (k != length(p)) {
+      warning("Some studies omitted")
+    }
+    if ((r < 1) | (r > k)) {
+      r <- 1
+      warning("Illegal r set to 1")
+    }
+    pi <- sort(pi)
+    pr <- pi[r]
+    res <- list(
+      p = pbeta(pr, r, k + 1 - r, log.p = log.p),
+      pr = pr, r = r, critp = qbeta(alpha, r, k + 1 - r),
+      alpha = alpha, validp = pi
+    )
+  }
+  res
+}
+
+maximump <- function(p, alpha = 0.05, log.p = FALSE) {
+  keep <- (p >= 0) & (p <= 1)
+  validp <- p[keep]
+  k <- length(validp)
+  res <- wilkinsonp(p, r = k, alpha, log.p)
+  res
+}
+
+minimump <- function(p, alpha = 0.05, log.p = FALSE) {
+  res <- wilkinsonp(p, r = 1, alpha, log.p)
+  res
+}
+
+#' @importFrom stats pnorm
+meanp <- function(p) {
+  keep <- (p >= 0) & (p <= 1)
+  invalid <- sum(1L * keep) < 4
+  if (invalid) {
+    warning("Must have at least four valid p values")
+    res <- list(z = NA_real_, p = NA_real_, validp = p[keep])
+  } else {
+    pi <- mean(p[keep])
+    k <- length(p[keep])
+    z <- (0.5 - pi) * sqrt(12 * k)
+    if (k != length(p)) {
+      warning("Some studies omitted")
+    }
+    res <- list(
+      z = z, p = pnorm(z, lower.tail = FALSE),
+      validp = p[keep]
+    )
+  }
+  res
+}
+
+#' @importFrom stats pnorm
+sump <- function(p) {
+  keep <- (p >= 0) & (p <= 1)
+  invalid <- sum(1L * keep) < 2
+  if (invalid) {
+    warning("Must have at least two valid p values")
+    res <- list(p = NA_real_, conservativep = NA_real_, validp = p[keep])
+  } else {
+    sigmap <- sum(p[keep])
+    k <- length(p[keep])
+    conservativep <- exp(k * log(sigmap) - lgamma(k + 1))
+    nterm <- floor(sigmap) + 1
+    denom <- lfactorial(k)
+    psum <- 0
+    terms <- vector("numeric", nterm)
+    for (i in 1:nterm) {
+      terms[i] <- lchoose(k, i - 1) + k * log(sigmap -
+        i + 1) - denom
+      pm <- 2 * (i %% 2) - 1
+      psum <- psum + pm * exp(terms[i])
+    }
+    if (k != length(p)) {
+      warning("Some studies omitted")
+    }
+    if (sigmap > 20) {
+      warning("Likely to be unreliable, check with another method")
+    }
+    res <- list(
+      p = psum, conservativep = conservativep,
+      validp = p[keep]
+    )
+  }
+  res
+}
+
+#' @importFrom stats binom.test
+votep <- function(p, alpha = 0.5) {
+  alpha <- ifelse(alpha > 1, alpha / 100, alpha)
+  stopifnot(alpha > 0, alpha < 1)
+  keep <- (p >= 0) & (p <= 1)
+  alp <- vector("numeric", 2)
+  if (alpha <= 0.5) {
+    alp[1] <- alpha
+    alp[2] <- 1 - alpha
+  } else {
+    alp[2] <- alpha
+    alp[1] <- 1 - alpha
+  }
+  invalid <- sum(1L * keep) < 2
+  if (invalid) {
+    warning("Must have at least two valid p values")
+    res <- list(
+      p = NA_real_, pos = NA_integer_, neg = NA_integer_,
+      alpha = alpha, validp = p[keep]
+    )
+  } else {
+    pi <- p[keep]
+    k <- length(pi)
+    pos <- sum(1L * (pi < alp[1]))
+    neg <- sum(1L * (pi > alp[2]))
+    if (k != length(p)) {
+      warning("Some studies omitted")
+    }
+    if ((pos + neg) <= 0) {
+      warning("All p values are within specified limits of alpha")
+      p <- 1
+    } else {
+      p <- binom.test(pos, pos + neg, 0.5, alternative = "greater")$p.value
+    }
+    res <- list(
+      p = p, pos = pos, neg = neg, alpha = alpha,
+      validp = pi
+    )
+  }
+  res
+}
+
 #' @importFrom SeuratObject PackageCheck FetchData WhichCells SetIdent Idents
 #' @importFrom Seurat FindMarkers FoldChange
 FindConservedMarkers2 <- function(object, grouping.var, ident.1, ident.2 = NULL, cells.1 = NULL, cells.2 = NULL, features = NULL,
                                   test.use = "wilcox", logfc.threshold = 0.25, base = 2, pseudocount.use = 1, mean.fxn = NULL,
                                   min.pct = 0.1, min.diff.pct = -Inf, max.cells.per.ident = Inf, latent.vars = NULL, only.pos = FALSE,
-                                  assay = "RNA", slot = "data", min.cells.group = 3, min.cells.feature = 3, meta.method = metap::maximump,
+                                  assay = "RNA", slot = "data", min.cells.group = 3, min.cells.feature = 3,
+                                  meta.method = c("maximump", "minimump", "wilkinsonp", "meanp", "sump", "votep"),
                                   norm.method = "LogNormalize", verbose = TRUE, ...) {
-  metap.installed <- PackageCheck("metap", error = FALSE)
-  if (!metap.installed[1]) {
-    stop("Please install the metap package to use FindConservedMarkers.",
-      "\nThis can be accomplished with the following commands: ",
-      "\n----------------------------------------", "\ninstall.packages('BiocManager')",
-      "\nBiocManager::install('multtest')", "\ninstall.packages('metap')",
-      "\n----------------------------------------",
-      call. = FALSE
-    )
-  }
-  if (!is.function(x = meta.method)) {
-    stop("meta.method should be a function from the metap package. Please see https://cran.r-project.org/web/packages/metap/metap.pdf for a detailed description of the available functions.")
-  }
+  meta.method <- match.arg(meta.method)
   object.var <- FetchData(object = object, vars = grouping.var)
   levels.split <- names(x = sort(x = table(object.var[, 1])))
   num.groups <- length(levels.split)
@@ -976,12 +1117,9 @@ FindConservedMarkers2 <- function(object, grouping.var, ident.1, ident.2 = NULL,
   if (length(x = pval.codes) > 1) {
     markers.combined[["max_pval"]] <- apply(X = markers.combined[, pval.codes, drop = FALSE], MARGIN = 1, FUN = max)
     combined.pval <- data.frame(cp = apply(X = markers.combined[, pval.codes, drop = FALSE], MARGIN = 1, FUN = function(x) {
-      return(meta.method(x)$p)
+      return(metap(x, method = meta.method)$p)
     }))
-    meta.method.name <- as.character(x = formals()$meta.method)
-    if (length(x = meta.method.name) == 3) {
-      meta.method.name <- meta.method.name[3]
-    }
+    meta.method.name <- meta.method
     colnames(x = combined.pval) <- paste0(meta.method.name, "_p_val")
     markers.combined <- cbind(markers.combined, combined.pval)
     markers.combined[, "p_val"] <- markers.combined[, paste0(meta.method.name, "_p_val")]
@@ -1098,7 +1236,7 @@ FindConservedMarkers2 <- function(object, grouping.var, ident.1, ident.2 = NULL,
 #'
 RunDEtest <- function(srt, group_by = NULL, group1 = NULL, group2 = NULL, cells1 = NULL, cells2 = NULL, features = NULL,
                       markers_type = c("all", "paired", "conserved", "disturbed"),
-                      grouping.var = NULL, meta.method = metap::maximump,
+                      grouping.var = NULL, meta.method = c("maximump", "minimump", "wilkinsonp", "meanp", "sump", "votep"),
                       test.use = "wilcox", only.pos = TRUE, fc.threshold = 1.5, base = 2, pseudocount.use = 1, mean.fxn = NULL,
                       min.pct = 0.1, min.diff.pct = -Inf, max.cells.per.ident = Inf, latent.vars = NULL,
                       min.cells.feature = 3, min.cells.group = 3,
@@ -1106,9 +1244,7 @@ RunDEtest <- function(srt, group_by = NULL, group1 = NULL, group2 = NULL, cells1
                       BPPARAM = BiocParallel::bpparam(), progressbar = TRUE, force = FALSE, seed = 11, verbose = TRUE, ...) {
   set.seed(seed)
   markers_type <- match.arg(markers_type)
-  if (markers_type == "conserved") {
-    check_R(c("qqconf", "multtest", "metap"))
-  }
+  meta.method <- match.arg(meta.method)
   if (markers_type %in% c("conserved", "disturbed")) {
     if (is.null(grouping.var)) {
       stop("'grouping.var' must be provided when finding conserved or disturbed markers")
@@ -1262,7 +1398,7 @@ RunDEtest <- function(srt, group_by = NULL, group1 = NULL, group2 = NULL, cells1
     }
     if (markers_type == "disturbed") {
       srt_tmp <- srt
-      srt_tmp[[grouping.var, drop = TRUE]][setdiff(colnames(srt_tmp), cells.1)] <- NA
+      srt_tmp[[grouping.var, drop = TRUE]][setdiff(colnames(srt_tmp), cells1)] <- NA
       srt_tmp <- RunDEtest(
         srt = srt_tmp, assay = assay, slot = slot,
         group_by = grouping.var,
@@ -4106,7 +4242,7 @@ RunDynamicEnrichment <- function(srt, lineages,
 #' # adata$write_h5ad("pancreas_sub.h5ad")
 #' # adata$write_loom("pancreas_sub.loom", write_obsm_varm = TRUE)
 #'
-#' @importFrom reticulate import
+#' @importFrom reticulate import np_array
 #' @importFrom Seurat GetAssayData
 #' @importFrom Matrix t
 #' @export
@@ -4153,10 +4289,9 @@ srt_to_adata <- function(srt, features = NULL,
 
   X <- t(GetAssayData(srt, assay = assay_X, slot = slot_X)[features, , drop = FALSE])
   adata <- sc$AnnData(
-    X = X,
+    X = np_array(X, dtype = np$float32),
     obs = obs,
-    var = cbind(data.frame(features = features), var),
-    dtype = np$float32
+    var = cbind(data.frame(features = features), var)
   )
   adata$var_names <- features
   if (length(VariableFeatures(srt, assay = assay_X) > 0)) {

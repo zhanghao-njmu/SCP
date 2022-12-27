@@ -14,7 +14,7 @@ RunDEtest(
   features = NULL,
   markers_type = c("all", "paired", "conserved", "disturbed"),
   grouping.var = NULL,
-  meta.method = metap::maximump,
+  meta.method = c("maximump", "minimump", "wilkinsonp", "meanp", "sump", "votep"),
   test.use = "wilcox",
   only.pos = TRUE,
   fc.threshold = 1.5,
