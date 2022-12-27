@@ -9,6 +9,7 @@
 #' @export
 check_DataType <- function(srt, data = NULL, slot = "data", assay = NULL) {
   if (is.null(data)) {
+    assay <- assay %||% DefaultAssay(srt)
     data <- GetAssayData(srt, slot = slot, assay = assay)
   }
   isfinite <- all(is.finite(range(data, na.rm = TRUE)))

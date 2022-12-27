@@ -1107,7 +1107,7 @@ RunDEtest <- function(srt, group_by = NULL, group1 = NULL, group2 = NULL, cells1
   set.seed(seed)
   markers_type <- match.arg(markers_type)
   if (markers_type == "conserved") {
-    check_R(c("multtest", "metap"))
+    check_R(c("qqconf", "multtest", "metap"))
   }
   if (markers_type %in% c("conserved", "disturbed")) {
     if (is.null(grouping.var)) {
@@ -1314,7 +1314,7 @@ RunDEtest <- function(srt, group_by = NULL, group1 = NULL, group2 = NULL, cells1
       out <- sample(cell, size = min(max.cells.per.ident, length(cell)), replace = FALSE)
       return(out)
     })
-    cell_group <- setNames(unlist(lapply(cell_group, function(x) x), use.names = F), unlist(lapply(cell_group, names)))
+    cell_group <- setNames(unlist(lapply(cell_group, function(x) x), use.names = FALSE), unlist(lapply(cell_group, names)))
 
     args1 <- list(
       object = Assays(srt, assay),
@@ -2251,7 +2251,7 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
           download(url = url, destfile = temp)
           lr <- read.table(temp, header = TRUE, sep = "\t", stringsAsFactors = FALSE, fill = TRUE, quote = "")
           download(url = "http://tcm.zju.edu.cn/celltalkdb/index.php", destfile = temp)
-          version <- grep(pattern = "Latest update", x = readLines(temp), value = T)
+          version <- grep(pattern = "Latest update", x = readLines(temp), value = TRUE)
           version <- gsub(pattern = "(.*Latest update: )|(</span>)", replacement = "", x = version)
           unlink(temp)
 
@@ -2304,7 +2304,7 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
             "Danio_rerio" = "zebrafish"
           )))[["interaction"]]
           download(url = "https://github.com/sqjin/CellChat/blob/master/DESCRIPTION", destfile = temp)
-          version <- grep(pattern = "Version", x = readLines(temp), value = T)
+          version <- grep(pattern = "Version", x = readLines(temp), value = TRUE)
           version <- gsub(pattern = "(.*Version: )|(</td>)", replacement = "", x = version)
           unlink(temp)
 
@@ -2394,7 +2394,7 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
       #   # bg_all <- AnnotationDbi::select(MeSH.db, keys=keys(MeSH.db,keytype = "MESHID"),columns = c("MESHID","MESHTERM"),keytype = "MESHID")
       #   # saveRDS(bg_all,"./MeSHID2Term.rds")
       #   bg_all <- readRDS("./MeSHID2Term.rds")
-      #   bg <- merge(x = bg, by.x = "MESHID", y = bg_all, by.y = "MESHID", all.x = T)
+      #   bg <- merge(x = bg, by.x = "MESHID", y = bg_all, by.y = "MESHID", all.x = TRUE)
       #   bg[which(is.na(bg$MESHTERM)), "MESHTERM"] <- bg[which(is.na(bg$MESHTERM)), "MESHID"]
       #   assign(paste0(sps, "_meshall"), bg)
       #
@@ -3298,7 +3298,7 @@ orderCells <- function(cds, root_state = NULL, num_paths = NULL, reverse = NULL)
     old_W <- monocle::reducedDimW(cds)
     cds <- project2MST(cds, monocle:::project_point_to_line_segment)
     monocle::minSpanningTree(cds) <- cds@auxOrderingData[[cds@dim_reduce_type]]$pr_graph_cell_proj_tree
-    root_cell_idx <- which(igraph::V(old_mst)$name == root_cell, arr.ind = T)
+    root_cell_idx <- which(igraph::V(old_mst)$name == root_cell, arr.ind = TRUE)
     cells_mapped_to_graph_root <- which(cds@auxOrderingData[["DDRTree"]]$pr_graph_cell_proj_closest_vertex == root_cell_idx)
     if (length(cells_mapped_to_graph_root) == 0) {
       cells_mapped_to_graph_root <- root_cell_idx
@@ -3381,7 +3381,7 @@ project2MST <- function(cds, Projection_Method) {
   cds@auxOrderingData[["DDRTree"]]$pr_graph_cell_proj_closest_vertex <- closest_vertex_df
   cds
 }
-extract_ddrtree_ordering <- function(cds, root_cell, verbose = T) {
+extract_ddrtree_ordering <- function(cds, root_cell, verbose = TRUE) {
   dp <- monocle::cellPairwiseDistances(cds)
   dp_mst <- monocle::minSpanningTree(cds)
   curr_state <- 1
@@ -3767,14 +3767,6 @@ RunDynamicFeatures <- function(srt, lineages, features = NULL, suffix = lineages
       }
       HVF <- VariableFeatures(FindVariableFeatures(srt_sub, nfeatures = n_candidates, assay = assay), assay = assay)
       HVF_counts <- srt_sub[[assay]]@counts[HVF, , drop = FALSE]
-      # freq <- aggregate(HVF_counts@x,
-      #   by = list(HVF_counts@i),
-      #   FUN = function(x) length(unique(x))
-      # )
-      # sum(freq$x>=(minfreq-1))
-      # sum(apply(HVF_counts, 1, function(x) {
-      #   length(unique(x))
-      # }) >= minfreq)
       HVF <- HVF[apply(HVF_counts, 1, function(x) {
         length(unique(x))
       }) >= minfreq]
@@ -4463,14 +4455,14 @@ check_python_element <- function(x, depth = maxDepth(x)) {
 #'
 #' @examples
 #' data("pancreas_sub")
-#' pancreas_sub <- RunPAGA(srt = pancreas_sub, assay_X = "RNA", group_by = "SubCellType", linear_reduction = "PCA", nonlinear_reduction = "UMAP", return_seurat = TRUE)
+#' pancreas_sub <- RunPAGA(srt = pancreas_sub, assay_X = "RNA", group_by = "SubCellType", linear_reduction = "PCA", nonlinear_reduction = "UMAP")
 #' ClassDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "draw_graph_fr")
 #' PAGAPlot(pancreas_sub, reduction = "UMAP")
 #' ClassDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", paga = pancreas_sub@misc$paga)
 #'
 #' pancreas_sub <- RunPAGA(
 #'   srt = pancreas_sub, group_by = "SubCellType", linear_reduction = "PCA", nonlinear_reduction = "UMAP",
-#'   embedded_with_PAGA = TRUE, infer_pseudotime = TRUE, root_group = "Ductal", return_seurat = TRUE
+#'   embedded_with_PAGA = TRUE, infer_pseudotime = TRUE, root_group = "Ductal"
 #' )
 #' head(pancreas_sub[[]])
 #' names(pancreas_sub@reductions)
@@ -4594,7 +4586,7 @@ RunPAGA <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_layers
 #'
 #' @examples
 #' data("pancreas_sub")
-#' pancreas_sub <- RunSCVELO(srt = pancreas_sub, assay_X = "RNA", group_by = "SubCellType", linear_reduction = "PCA", nonlinear_reduction = "UMAP", return_seurat = TRUE)
+#' pancreas_sub <- RunSCVELO(srt = pancreas_sub, assay_X = "RNA", group_by = "SubCellType", linear_reduction = "PCA", nonlinear_reduction = "UMAP")
 #' head(pancreas_sub[[]])
 #' names(pancreas_sub@assays)
 #'
@@ -4604,7 +4596,7 @@ RunPAGA <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_layers
 #' ClassDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", pt.size = NA, velocity = "stochastic")
 #'
 #' pancreas_sub <- Standard_SCP(pancreas_sub, normalization_method = "SCT", nonlinear_reduction = "tsne")
-#' pancreas_sub <- RunSCVELO(srt = pancreas_sub, assay_X = "SCT", group_by = "SubCellType", linear_reduction = "Standardpca", nonlinear_reduction = "StandardTSNE2D", return_seurat = TRUE)
+#' pancreas_sub <- RunSCVELO(srt = pancreas_sub, assay_X = "SCT", group_by = "SubCellType", linear_reduction = "Standardpca", nonlinear_reduction = "StandardTSNE2D")
 #'
 #' @export
 #'
@@ -4690,7 +4682,7 @@ RunSCVELO <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_laye
 #' pancreas_sub <- RunPalantir(
 #'   srt = pancreas_sub, group_by = "SubCellType", linear_reduction = "PCA", nonlinear_reduction = "UMAP",
 #'   early_group = "Ductal", use_early_cell_as_start = TRUE,
-#'   terminal_groups = c("Alpha", "Beta", "Delta", "Epsilon"), return_seurat = TRUE
+#'   terminal_groups = c("Alpha", "Beta", "Delta", "Epsilon")
 #' )
 #' head(pancreas_sub[[]])
 #' ExpDimPlot(pancreas_sub, c("palantir_pseudotime", "palantir_diff_potential"))

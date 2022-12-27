@@ -92,6 +92,7 @@ PrepareEnv <- function(conda = "auto", miniconda_repo = "https://repo.anaconda.c
   )
   check_Python(packages = packages, envname = envname, conda = conda, pip = TRUE, ...)
 
+  Sys.unsetenv("RETICULATE_PYTHON")
   python_path <- conda_python(conda = conda, envname = envname)
   reticulate::use_python(python_path, required = TRUE)
 
@@ -438,14 +439,14 @@ run_Python <- function(command, envir = .GlobalEnv) {
 
 #' Download File from the Internet
 #'
-#' @param methods Methods to be used for downloading files. The default is to try different download methods in turn until the download is successfully completed.
 #' @inheritParams utils::download.file
+#' @param methods Methods to be used for downloading files. The default is to try different download methods in turn until the download is successfully completed.
 #' @param attempts Number of attempts for each download method.
 #' @param ... Other arguments passed to \code{\link[utils]{download.file}}
 #'
 #' @importFrom utils download.file
 #' @export
-download <- function(url, destfile, methods = c("auto", "wget", "libcurl", "curl", "wininet", "internal"), quiet = FALSE, ..., attempts = 2, return_status = FALSE) {
+download <- function(url, destfile, methods = c("auto", "wget", "libcurl", "curl", "wininet", "internal"), quiet = FALSE, ..., attempts = 2) {
   if (missing(url) || missing(destfile)) {
     stop("'url' and 'destfile' must be both provided.")
   }

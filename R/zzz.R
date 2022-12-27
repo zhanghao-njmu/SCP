@@ -10,27 +10,35 @@
     packageStartupMessage("Conda and SCP environment not found.\nIf you have already created an SCP python environment using conda, you can specify the conda path by setting options(reticulate.conda_binary = \"/path/to/conda\") before loading the package.")
   }
   if (isTRUE(env) && isTRUE(getOption("SCP_env_init", default = TRUE))) {
-    try({
-      python_path <- conda_python(conda = conda)
-      reticulate::use_python(python_path, required = TRUE)
-      pyinfo <- utils::capture.output(reticulate::py_config())
-      pyinfo_mesg <- c(
-        "====================== SCP conda environment ======================",
-        paste0("conda:          ", conda),
-        paste0("environment:    ", paste0(envs_dir, "/", get_envname())),
-        "======================== SCP python config ========================",
-        pyinfo,
-        "==================================================================="
-      )
-      invisible(lapply(pyinfo_mesg, packageStartupMessage))
-      invisible(run_Python(command = "import matplotlib", envir = .GlobalEnv))
-      if (!interactive()) {
-        invisible(run_Python(command = "matplotlib.use('pdf')", envir = .GlobalEnv))
-      }
-      invisible(run_Python(command = "import matplotlib.pyplot as plt", envir = .GlobalEnv))
-      invisible(run_Python(command = "import scanpy", envir = .GlobalEnv))
-      packageStartupMessage("Conda path can be specified with the command `options(reticulate.conda_binary = \"/path/to/conda\")` before loading the package")
-      packageStartupMessage("SCP python environment can be disabled with the command `options(SCP_env_init = FALSE)` before loading the package")
-    })
+    status <- tryCatch(
+      {
+        Sys.unsetenv("RETICULATE_PYTHON")
+        python_path <- conda_python(conda = conda)
+        reticulate::use_python(python_path, required = TRUE)
+
+        pyinfo <- utils::capture.output(reticulate::py_config())
+        pyinfo_mesg <- c(
+          "====================== SCP conda environment ======================",
+          paste0("conda:          ", conda),
+          paste0("environment:    ", paste0(envs_dir, "/", get_envname())),
+          "======================== SCP python config ========================",
+          pyinfo,
+          "==================================================================="
+        )
+        invisible(lapply(pyinfo_mesg, packageStartupMessage))
+        invisible(run_Python(command = "import matplotlib", envir = .GlobalEnv))
+        if (!interactive()) {
+          invisible(run_Python(command = "matplotlib.use('pdf')", envir = .GlobalEnv))
+        }
+        invisible(run_Python(command = "import matplotlib.pyplot as plt", envir = .GlobalEnv))
+        invisible(run_Python(command = "import scanpy", envir = .GlobalEnv))
+        packageStartupMessage("Conda path can be specified with the command `options(reticulate.conda_binary = \"/path/to/conda\")` before loading the package")
+        packageStartupMessage("SCP python environment can be disabled with the command `options(SCP_env_init = FALSE)` before loading the package")
+      },
+      error = identity
+    )
+    if (inherits(status, "error")) {
+      print(status)
+    }
   }
 }

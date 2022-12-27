@@ -247,7 +247,7 @@ PrepareSCExplorer <- function(object,
   base_dir <- R.utils::getAbsolutePath(base_dir)
   if (!dir.exists(base_dir)) {
     message("Create SCExplorer base directory: ", base_dir)
-    dir.create(base_dir, recursive = T, showWarnings = FALSE)
+    dir.create(base_dir, recursive = TRUE, showWarnings = FALSE)
   }
   DataFile_full <- paste0(base_dir, "/", DataFile)
   MetaFile_full <- paste0(base_dir, "/", MetaFile)

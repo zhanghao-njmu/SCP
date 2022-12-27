@@ -85,14 +85,14 @@ Run PAGA analysis
 }
 \examples{
 data("pancreas_sub")
-pancreas_sub <- RunPAGA(srt = pancreas_sub, assay_X = "RNA", group_by = "SubCellType", linear_reduction = "PCA", nonlinear_reduction = "UMAP", return_seurat = TRUE)
+pancreas_sub <- RunPAGA(srt = pancreas_sub, assay_X = "RNA", group_by = "SubCellType", linear_reduction = "PCA", nonlinear_reduction = "UMAP")
 ClassDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "draw_graph_fr")
 PAGAPlot(pancreas_sub, reduction = "UMAP")
 ClassDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", paga = pancreas_sub@misc$paga)
 
 pancreas_sub <- RunPAGA(
   srt = pancreas_sub, group_by = "SubCellType", linear_reduction = "PCA", nonlinear_reduction = "UMAP",
-  embedded_with_PAGA = TRUE, infer_pseudotime = TRUE, root_group = "Ductal", return_seurat = TRUE
+  embedded_with_PAGA = TRUE, infer_pseudotime = TRUE, root_group = "Ductal"
 )
 head(pancreas_sub[[]])
 names(pancreas_sub@reductions)
