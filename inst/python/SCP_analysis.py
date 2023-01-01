@@ -42,7 +42,7 @@ def SCVELO(adata=None, h5ad=None, group_by=None, n_jobs=1,
       adata = scv.read(h5ad)
 
     if group_by is None :
-      print("group_by must be provided.")
+      print("'group_by' must be provided.")
       exit()
       
     if linear_reduction is None and nonlinear_reduction is None:
@@ -59,7 +59,15 @@ def SCVELO(adata=None, h5ad=None, group_by=None, n_jobs=1,
       else:
         basis="basis"
         adata.obsm["basis"]=adata.obsm[linear_reduction][:,0:2]
-
+    
+    if "spliced" not in adata.layers.keys():
+      print("'spliced' data must be provided.")
+      exit()
+      
+    if "unspliced" not in adata.layers.keys():
+      print("'unspliced' data must be provided.")
+      exit()
+      
     if type(mode) is str:
       mode=[mode]
 

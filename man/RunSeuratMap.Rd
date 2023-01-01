@@ -27,7 +27,7 @@ RunSeuratMap(
 )
 }
 \arguments{
-\item{vote_fun}{}
+\item{ref_assay}{}
 }
 \description{
 Single-cell reference mapping with Seurat method

@@ -9,6 +9,7 @@ RecoverCounts(
   assay = NULL,
   min_count = c(1, 2, 3),
   tolerance = 0.1,
+  sf = NULL,
   verbose = TRUE
 )
 }
@@ -23,7 +24,7 @@ RecoverCounts(
 However, due to decimal point preservation during normalization, the calculated nCount is usually a floating point number close to the integer.
 The tolerance is its difference from the integer. Default is 0.1}
 
-\item{verbose}{}
+\item{sf}{Set the scaling factor manually.}
 }
 \description{
 Attempt to recover raw counts from the normalized matrix.

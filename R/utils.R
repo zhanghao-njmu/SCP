@@ -17,21 +17,26 @@ PrepareEnv <- function(conda = "auto", miniconda_repo = "https://repo.anaconda.c
     conda <- find_conda()
   }
 
-  envs_dir <- reticulate:::conda_info(conda = conda)$envs_dirs[1]
-  env <- env_exist(conda = conda, envname = envname, envs_dir = envs_dir)
-  if (isTRUE(force) && isTRUE(env)) {
-    unlink(paste0(envs_dir, "/", envname), recursive = TRUE)
+  if (is.null(conda)) {
     env <- FALSE
+  } else {
+    envs_dir <- reticulate:::conda_info(conda = conda)$envs_dirs[1]
+    env <- env_exist(conda = conda, envname = envname, envs_dir = envs_dir)
+    if (isTRUE(force) && isTRUE(env)) {
+      unlink(paste0(envs_dir, "/", envname), recursive = TRUE)
+      env <- FALSE
+    }
   }
 
   if (isTRUE(env)) {
     python_path <- conda_python(conda = conda, envname = envname)
     installed_python_version <- reticulate:::python_version(python_path)
     if (installed_python_version < numeric_version("3.7.0") || installed_python_version >= numeric_version("3.10.0")) {
-      stop("The python version in the installed SCP environment does not match the requirements. You need to remove and recreate the SCP environment.")
+      stop("The python version in the installed SCP environment does not match the requirements. You need to recreate the SCP environment.")
     }
   } else {
     if (is.null(conda)) {
+      message("Conda not found. Installing miniconda...")
       options(timeout = 360)
       version <- "3"
       info <- as.list(Sys.info())
