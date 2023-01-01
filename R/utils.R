@@ -17,11 +17,15 @@ PrepareEnv <- function(conda = "auto", miniconda_repo = "https://repo.anaconda.c
     conda <- find_conda()
   }
 
-  envs_dir <- reticulate:::conda_info(conda = conda)$envs_dirs[1]
-  env <- env_exist(conda = conda, envname = envname, envs_dir = envs_dir)
-  if (isTRUE(force) && isTRUE(env)) {
-    unlink(paste0(envs_dir, "/", envname), recursive = TRUE)
+  if (is.null(conda)) {
     env <- FALSE
+  } else {
+    envs_dir <- reticulate:::conda_info(conda = conda)$envs_dirs[1]
+    env <- env_exist(conda = conda, envname = envname, envs_dir = envs_dir)
+    if (isTRUE(force) && isTRUE(env)) {
+      unlink(paste0(envs_dir, "/", envname), recursive = TRUE)
+      env <- FALSE
+    }
   }
 
   if (isTRUE(env)) {

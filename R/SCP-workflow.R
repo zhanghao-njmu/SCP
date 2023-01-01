@@ -349,6 +349,7 @@ check_srtMerge <- function(srtMerge, batch = "orig.ident", assay = "RNA",
 #'  However, due to decimal point preservation during normalization, the calculated nCount is usually a floating point number close to the integer.
 #'  The tolerance is its difference from the integer. Default is 0.1
 #' @param verbose
+#' @param sf Set the scaling factor manually.
 #'
 #' @examples
 #' data("pancreas_sub")
@@ -367,7 +368,7 @@ check_srtMerge <- function(srtMerge, batch = "orig.ident", assay = "RNA",
 #' @importFrom Seurat GetAssayData SetAssayData
 #' @importFrom SeuratObject as.sparse
 #' @export
-RecoverCounts <- function(srt, assay = NULL, min_count = c(1, 2, 3), tolerance = 0.1, verbose = TRUE) {
+RecoverCounts <- function(srt, assay = NULL, min_count = c(1, 2, 3), tolerance = 0.1, sf = NULL, verbose = TRUE) {
   assay <- assay %||% DefaultAssay(srt)
   counts <- GetAssayData(srt, assay = assay, slot = "counts")
   if (!inherits(counts, "dgCMatrix")) {
@@ -384,16 +385,21 @@ RecoverCounts <- function(srt, assay = NULL, min_count = c(1, 2, 3), tolerance =
     if (isTRUE(verbose)) {
       message("The data is presumed to be log-normalized.")
     }
-    counts <- expm1(counts)
+    fun <- select.list(c("expm1", "exp", "none"), title = "Select a data transformation function:")
+    if (fun %in% c("expm1", "exp")) {
+      counts <- do.call(fun, list(counts))
+    }
   }
   if (status == "raw_normalized_counts") {
     if (isTRUE(verbose)) {
       message("The data is presumed to be normalized without log transformation.")
     }
   }
-  sf <- unique(round(colSums(counts)))
-  if (isTRUE(verbose)) {
-    message("The presumed scale factor: ", paste0(head(sf, 10), collapse = ", "))
+  if (is.null(sf)) {
+    sf <- unique(round(colSums(counts)))
+    if (isTRUE(verbose)) {
+      message("The presumed scale factor: ", paste0(head(sf, 10), collapse = ", "))
+    }
   }
   if (length(sf) == 1) {
     counts <- counts / sf

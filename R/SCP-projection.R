@@ -6,7 +6,6 @@ NULL
 #' @param srt_query
 #' @param srt_ref
 #' @param ref_umap
-#' @param force
 #' @param ref_group
 #' @param features
 #' @param nfeatures
@@ -19,6 +18,8 @@ NULL
 #' @param k
 #' @param distance_metric
 #' @param vote_fun
+#' @param query_assay
+#' @param ref_assay
 #'
 #' @examples
 #' data("panc8_sub")
@@ -262,13 +263,14 @@ RunKNNMap <- function(srt_query, srt_ref, query_assay = NULL, ref_assay = NULL, 
 #' @param ref_pca
 #' @param ref_dims
 #' @param ref_umap
-#' @param force
 #' @param ref_group
 #' @param projection_method
 #' @param nn_method
 #' @param k
 #' @param distance_metric
 #' @param vote_fun
+#' @param query_assay
+#' @param ref_assay
 #'
 #' @examples
 #' data("panc8_sub")
@@ -367,7 +369,6 @@ RunPCAMap <- function(srt_query, srt_ref, query_assay = NULL, ref_assay = srt_re
 #' @param ref_pca
 #' @param ref_dims
 #' @param ref_umap
-#' @param force
 #' @param ref_group
 #' @param normalization.method
 #' @param reduction_project_method
@@ -380,6 +381,8 @@ RunPCAMap <- function(srt_query, srt_ref, query_assay = NULL, ref_assay = srt_re
 #' @param k
 #' @param distance_metric
 #' @param vote_fun
+#' @param query_assay
+#' @param ref_assay
 #'
 #' @examples
 #' data("panc8_sub")
@@ -472,13 +475,14 @@ RunSeuratMap <- function(srt_query, srt_ref, query_assay = NULL, ref_assay = srt
 #' @param srt_ref
 #' @param ref_css
 #' @param ref_umap
-#' @param force
 #' @param ref_group
 #' @param projection_method
 #' @param nn_method
 #' @param k
 #' @param distance_metric
 #' @param vote_fun
+#' @param query_assay
+#' @param ref_assay
 #'
 #' @examples
 #' data("panc8_sub")
