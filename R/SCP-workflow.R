@@ -352,19 +352,20 @@ check_srtMerge <- function(srtMerge, batch = "orig.ident", assay = "RNA",
 #' @param sf Set the scaling factor manually.
 #'
 #' @examples
-#' data("pancreas_sub")
-#' raw_counts <- pancreas_sub@assays$RNA@counts
+#' if (interactive()) {
+#'   data("pancreas_sub")
+#'   raw_counts <- pancreas_sub@assays$RNA@counts
 #'
-#' # Normalized the data
-#' pancreas_sub <- Seurat::NormalizeData(pancreas_sub)
+#'   # Normalized the data
+#'   pancreas_sub <- Seurat::NormalizeData(pancreas_sub)
 #'
-#' # Now replace counts with the log-normalized data matrix
-#' pancreas_sub@assays$RNA@counts <- pancreas_sub@assays$RNA@data
+#'   # Now replace counts with the log-normalized data matrix
+#'   pancreas_sub@assays$RNA@counts <- pancreas_sub@assays$RNA@data
 #'
-#' # Recover the counts and compare with the raw counts matrix
-#' pancreas_sub <- RecoverCounts(pancreas_sub)
-#' identical(raw_counts, pancreas_sub@assays$RNA@counts)
-#'
+#'   # Recover the counts and compare with the raw counts matrix
+#'   pancreas_sub <- RecoverCounts(pancreas_sub)
+#'   identical(raw_counts, pancreas_sub@assays$RNA@counts)
+#' }
 #' @importFrom Seurat GetAssayData SetAssayData
 #' @importFrom SeuratObject as.sparse
 #' @export
