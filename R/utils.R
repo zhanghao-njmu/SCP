@@ -71,8 +71,10 @@ PrepareEnv <- function(conda = "auto", miniconda_repo = "https://repo.anaconda.c
       } else {
         miniconda_path <- reticulate::miniconda_path()
       }
+      unlink(miniconda_path, recursive = TRUE)
       reticulate::install_miniconda(path = miniconda_path, force = TRUE, update = FALSE)
       conda <- reticulate:::miniconda_conda(miniconda_path)
+      envs_dir <- reticulate:::conda_info(conda = conda)$envs_dirs[1]
     }
     if (python_version < numeric_version("3.7.0") || python_version >= numeric_version("3.10.0")) {
       stop("SCP currently only support python version 3.7-3.9!")
