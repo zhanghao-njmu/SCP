@@ -92,8 +92,8 @@ PrepareEnv <- function(conda = "auto", miniconda_repo = "https://repo.anaconda.c
   }
 
   packages <- c(
-    "numpy==1.21.6", "numba==0.55.2", "scikit-learn==1.1.2", "python-igraph==0.10.2",
-    "scipy", "pandas", "matplotlib", "versioned-hdf5", "leidenalg", "scanpy", "scvelo", "palantir"
+    "numpy==1.21.6", "numba==0.55.2", "scikit-learn==1.1.2", "pandas==1.3.5", "python-igraph==0.10.2",
+    "scipy", "matplotlib", "versioned-hdf5", "leidenalg", "scanpy", "scvelo", "palantir"
   )
   check_Python(packages = packages, envname = envname, conda = conda, pip = TRUE, ...)
 
@@ -379,6 +379,8 @@ conda_install <- function(envname = NULL, packages, forge = TRUE, channel = char
     }
   }
   if (pip) {
+    # target_dir <- system2(command = python, args = c("-c \"import site; print(site.getsitepackages()[0])\""), stdout = TRUE)
+    # pip_options <- c(pip_options, paste("--target", target_dir))
     result <- reticulate:::pip_install(
       python = python, packages = packages,
       pip_options = pip_options, ignore_installed = pip_ignore_installed,
