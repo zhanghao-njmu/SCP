@@ -312,21 +312,21 @@
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Show cell-cell graph on the plot</span></span></span>
 <span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="Standard_SCP.html">Standard_SCP</a></span><span class="op">(</span><span class="va">pancreas_sub</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-01-01 12:53:47] Start Standard_SCP</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-01-01 12:53:47] Checking srtList... ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-01-02 10:25:19] Start Standard_SCP</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-01-02 10:25:19] Checking srtList... ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Data 1/1 of the srtList is raw counts. Perform NormalizeData(LogNormalize) on the data ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform FindVariableFeatures on the data 1/1 of the srtList...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Use the separate HVF from the existed HVF in srtList...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Number of available HVF: 2000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-01-01 12:53:48] Finished checking.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-01-01 12:53:48] Perform ScaleData on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-01-01 12:53:48] Perform linear dimension reduction (pca) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-01-02 10:25:20] Finished checking.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-01-02 10:25:20] Perform ScaleData on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-01-02 10:25:20] Perform linear dimension reduction (pca) on the data...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> dims_estimate is 1:18 for 'pca'</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-01-01 12:53:50] Perform FindClusters (louvain) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-01-01 12:53:50] Reorder clusters...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-01-01 12:53:50] Perform nonlinear dimension reduction (umap) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-01-01 12:53:56] Standard_SCP done</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 9.19 secs </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-01-02 10:25:21] Perform FindClusters (louvain) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-01-02 10:25:21] Reorder clusters...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-01-02 10:25:21] Perform nonlinear dimension reduction (umap) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-01-02 10:25:28] Standard_SCP done</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 9.02 secs </span>
 <span class="r-in"><span><span class="fu">ClassDimPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, group.by <span class="op">=</span> <span class="st">"CellType"</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span>, graph <span class="op">=</span> <span class="st">"Standardpca_SNN"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="ClassDimPlot-9.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="fu">ClassDimPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, group.by <span class="op">=</span> <span class="st">"CellType"</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span>, graph <span class="op">=</span> <span class="st">"Standardpca_SNN"</span>, edge_color <span class="op">=</span> <span class="st">"grey80"</span><span class="op">)</span></span></span>
@@ -352,7 +352,7 @@
 <span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="RunPAGA.html">RunPAGA</a></span><span class="op">(</span>srt <span class="op">=</span> <span class="va">pancreas_sub</span>, group_by <span class="op">=</span> <span class="st">"SubCellType"</span>, linear_reduction <span class="op">=</span> <span class="st">"PCA"</span>, nonlinear_reduction <span class="op">=</span> <span class="st">"UMAP"</span>, return_seurat <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>SCP_env python environment does not exist. Create it with the PrepareEnv function...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> + '/usr/share/miniconda/bin/conda' 'create' '--yes' '--name' 'SCP_env' 'python=3.8' '--quiet' '-c' 'conda-forge'</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Try to install numpy==1.21.6,numba==0.55.2,scikit-learn==1.1.2,python-igraph==0.10.2,scipy,pandas,matplotlib,versioned-hdf5,leidenalg,scanpy,scvelo,palantir ...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Try to install numpy==1.21.6,numba==0.55.2,scikit-learn==1.1.2,pandas==1.3.5,python-igraph==0.10.2,scipy,matplotlib,versioned-hdf5,leidenalg,scanpy,scvelo,palantir ...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ====================== SCP conda environment ======================</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> conda: /usr/share/miniconda/bin/conda</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> environment: /usr/share/miniconda/envs/SCP_env</span>
