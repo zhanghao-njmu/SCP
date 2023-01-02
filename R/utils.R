@@ -379,8 +379,8 @@ conda_install <- function(envname = NULL, packages, forge = TRUE, channel = char
     }
   }
   if (pip) {
-    target_dir <- system2(command = python, args = c("-c 'import site; print(site.getsitepackages()[0])'"), stdout = TRUE)
-    pip_options <- c(pip_options, paste("--target", target_dir))
+    # target_dir <- system2(command = python, args = c("-c \"import site; print(site.getsitepackages()[0])\""), stdout = TRUE)
+    # pip_options <- c(pip_options, paste("--target", target_dir))
     result <- reticulate:::pip_install(
       python = python, packages = packages,
       pip_options = pip_options, ignore_installed = pip_ignore_installed,
