@@ -3415,7 +3415,7 @@ cluster_within_group2 <- function(mat, factor) {
 #' ht3 <- GroupHeatmap(
 #'   srt = pancreas_sub, features = de_filter$gene, feature_split = de_filter$group1, group.by = "CellType",
 #'   nlabel = 20, show_row_names = FALSE,
-#'   species = "Mus_musculus", anno_terms = TRUE, anno_keys = TRUE, anno_features = TRUE
+#'   species = "Mus_musculus", db = "GO_BP", anno_terms = TRUE, anno_keys = TRUE, anno_features = TRUE
 #' )
 #' ht3$plot
 #'
@@ -4897,7 +4897,7 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
 #'
 #' ht5 <- ExpHeatmap(
 #'   srt = pancreas_sub, features = de_filter$gene, feature_split = de_filter$group1, group.by = "CellType",
-#'   species = "Mus_musculus", anno_terms = TRUE, anno_keys = TRUE, anno_features = TRUE
+#'   species = "Mus_musculus", db = "GO_BP", anno_terms = TRUE, anno_keys = TRUE, anno_features = TRUE
 #' )
 #' ht5$plot
 #'
