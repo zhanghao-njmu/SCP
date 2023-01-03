@@ -151,7 +151,7 @@ ht4$plot
 
 ht5 <- ExpHeatmap(
   srt = pancreas_sub, features = de_filter$gene, feature_split = de_filter$group1, group.by = "CellType",
-  species = "Mus_musculus", anno_terms = TRUE, anno_keys = TRUE, anno_features = TRUE
+  species = "Mus_musculus", db = "GO_BP", anno_terms = TRUE, anno_keys = TRUE, anno_features = TRUE
 )
 ht5$plot
 

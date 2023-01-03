@@ -1724,10 +1724,12 @@ ListDB <- function(species = c("Homo_sapiens", "Mus_musculus"), db = c(
 #' )
 #' str(custom_TERM2GENE)
 #' db_list <- PrepareDB(
-#'   species = c("Homo_sapiens", "Mus_musculus"), db = "CellCycle", convert_species = TRUE, db_update = TRUE,
+#'   species = c("Homo_sapiens", "Mus_musculus"), db = "CellCycle", convert_species = TRUE,
 #'   custom_TERM2GENE = custom_TERM2GENE, custom_species = "Homo_sapiens", custom_IDtype = "symbol", custom_version = "Seurat_v4"
 #' )
 #' ListDB(db = "CellCycle")
+#'
+#' db_list <- PrepareDB(species = "Mus_musculus", db = "CellCycle")
 #' head(db_list[["Mus_musculus"]][["CellCycle"]][["TERM2GENE"]])
 #'
 #' @importFrom R.cache loadCache saveCache readCacheHeader
@@ -1757,9 +1759,6 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
       "GeneType" = "entrez_id", "Enzyme" = "entrez_id", "TF" = "symbol", "SP" = "symbol",
       "CellTalk" = "symbol", "CellChat" = "symbol"
     )
-    if (!any(db %in% names(default_IDtypes)) && is.null(custom_TERM2GENE)) {
-      stop("'db' is invalid.")
-    }
     if (!is.null(custom_TERM2GENE)) {
       if (length(db) > 1) {
         stop("When building a custom database, the length of 'db' must be 1.")
@@ -1856,10 +1855,12 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
             db_list[[db_species[subterm]]][[subterm]][["TERM2NAME"]] <- TERM2NAME
             db_list[[db_species[subterm]]][[subterm]][["semData"]] <- semData
             db_list[[db_species[subterm]]][[subterm]][["version"]] <- version
-            saveCache(db_list[[db_species[subterm]]][[subterm]],
-              key = list(version, as.character(db_species[subterm]), subterm),
-              comment = paste0(version, " nterm:", length(TERM2NAME[[1]]), "|", db_species[subterm], "-", subterm)
-            )
+            if (sps == db_species[subterm]) {
+              saveCache(db_list[[db_species[subterm]]][[subterm]],
+                key = list(version, as.character(db_species[subterm]), subterm),
+                comment = paste0(version, " nterm:", length(TERM2NAME[[1]]), "|", db_species[subterm], "-", subterm)
+              )
+            }
           }
         }
 
@@ -1902,10 +1903,12 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
           db_list[[db_species["KEGG"]]][["KEGG"]][["TERM2GENE"]] <- TERM2GENE
           db_list[[db_species["KEGG"]]][["KEGG"]][["TERM2NAME"]] <- TERM2NAME
           db_list[[db_species["KEGG"]]][["KEGG"]][["version"]] <- version
-          saveCache(db_list[[db_species["KEGG"]]][["KEGG"]],
-            key = list(version, as.character(db_species["KEGG"]), "KEGG"),
-            comment = paste0(version, " nterm:", length(TERM2NAME[[1]]), "|", db_species["KEGG"], "-KEGG")
-          )
+          if (sps == db_species["KEGG"]) {
+            saveCache(db_list[[db_species["KEGG"]]][["KEGG"]],
+              key = list(version, as.character(db_species["KEGG"]), "KEGG"),
+              comment = paste0(version, " nterm:", length(TERM2NAME[[1]]), "|", db_species["KEGG"], "-KEGG")
+            )
+          }
         }
 
         ## WikiPathway ---------------------------------------------------------------------------
@@ -1954,10 +1957,12 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
           db_list[[db_species["WikiPathway"]]][["WikiPathway"]][["TERM2GENE"]] <- TERM2GENE
           db_list[[db_species["WikiPathway"]]][["WikiPathway"]][["TERM2NAME"]] <- TERM2NAME
           db_list[[db_species["WikiPathway"]]][["WikiPathway"]][["version"]] <- version
-          saveCache(db_list[[db_species["WikiPathway"]]][["WikiPathway"]],
-            key = list(version, as.character(db_species["WikiPathway"]), "WikiPathway"),
-            comment = paste0(version, " nterm:", length(TERM2NAME[[1]]), "|", db_species["WikiPathway"], "-WikiPathway")
-          )
+          if (sps == db_species["WikiPathway"]) {
+            saveCache(db_list[[db_species["WikiPathway"]]][["WikiPathway"]],
+              key = list(version, as.character(db_species["WikiPathway"]), "WikiPathway"),
+              comment = paste0(version, " nterm:", length(TERM2NAME[[1]]), "|", db_species["WikiPathway"], "-WikiPathway")
+            )
+          }
         }
 
         ## Pathwaycommons ---------------------------------------------------------------------------
@@ -1991,10 +1996,12 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
           db_list[[db_species["Reactome"]]][["Reactome"]][["TERM2GENE"]] <- TERM2GENE
           db_list[[db_species["Reactome"]]][["Reactome"]][["TERM2NAME"]] <- TERM2NAME
           db_list[[db_species["Reactome"]]][["Reactome"]][["version"]] <- version
-          saveCache(db_list[[db_species["Reactome"]]][["Reactome"]],
-            key = list(version, as.character(db_species["Reactome"]), "Reactome"),
-            comment = paste0(version, " nterm:", length(TERM2NAME[[1]]), "|", db_species["Reactome"], "-Reactome")
-          )
+          if (sps == db_species["Reactome"]) {
+            saveCache(db_list[[db_species["Reactome"]]][["Reactome"]],
+              key = list(version, as.character(db_species["Reactome"]), "Reactome"),
+              comment = paste0(version, " nterm:", length(TERM2NAME[[1]]), "|", db_species["Reactome"], "-Reactome")
+            )
+          }
         }
 
         ## Protein complex ---------------------------------------------------------------------------
@@ -2043,10 +2050,12 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
           db_list[[db_species["ProteinComplex"]]][["ProteinComplex"]][["TERM2GENE"]] <- TERM2GENE
           db_list[[db_species["ProteinComplex"]]][["ProteinComplex"]][["TERM2NAME"]] <- TERM2NAME
           db_list[[db_species["ProteinComplex"]]][["ProteinComplex"]][["version"]] <- version
-          saveCache(db_list[[db_species["ProteinComplex"]]][["ProteinComplex"]],
-            key = list(version, as.character(db_species["ProteinComplex"]), "ProteinComplex"),
-            comment = paste0(version, " nterm:", length(TERM2NAME[[1]]), "|", db_species["ProteinComplex"], "-ProteinComplex")
-          )
+          if (sps == db_species["ProteinComplex"]) {
+            saveCache(db_list[[db_species["ProteinComplex"]]][["ProteinComplex"]],
+              key = list(version, as.character(db_species["ProteinComplex"]), "ProteinComplex"),
+              comment = paste0(version, " nterm:", length(TERM2NAME[[1]]), "|", db_species["ProteinComplex"], "-ProteinComplex")
+            )
+          }
         }
 
         ## DGI ---------------------------------------------------------------------------
@@ -2082,10 +2091,12 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
           db_list[[db_species["DGI"]]][["DGI"]][["TERM2GENE"]] <- TERM2GENE
           db_list[[db_species["DGI"]]][["DGI"]][["TERM2NAME"]] <- TERM2NAME
           db_list[[db_species["DGI"]]][["DGI"]][["version"]] <- version
-          saveCache(db_list[[db_species["DGI"]]][["DGI"]],
-            key = list(version, as.character(db_species["DGI"]), "DGI"),
-            comment = paste0(version, " nterm:", length(TERM2NAME[[1]]), "|", db_species["DGI"], "-DGI")
-          )
+          if (sps == db_species["DGI"]) {
+            saveCache(db_list[[db_species["DGI"]]][["DGI"]],
+              key = list(version, as.character(db_species["DGI"]), "DGI"),
+              comment = paste0(version, " nterm:", length(TERM2NAME[[1]]), "|", db_species["DGI"], "-DGI")
+            )
+          }
         }
 
         ## MP ---------------------------------------------------------------------------
@@ -2136,10 +2147,12 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
           db_list[[db_species["MP"]]][["MP"]][["TERM2GENE"]] <- TERM2GENE
           db_list[[db_species["MP"]]][["MP"]][["TERM2NAME"]] <- TERM2NAME
           db_list[[db_species["MP"]]][["MP"]][["version"]] <- version
-          saveCache(db_list[[db_species["MP"]]][["MP"]],
-            key = list(version, as.character(db_species["MP"]), "MP"),
-            comment = paste0(version, " nterm:", length(TERM2NAME[[1]]), "|", db_species["MP"], "-MP")
-          )
+          if (sps == db_species["MP"]) {
+            saveCache(db_list[[db_species["MP"]]][["MP"]],
+              key = list(version, as.character(db_species["MP"]), "MP"),
+              comment = paste0(version, " nterm:", length(TERM2NAME[[1]]), "|", db_species["MP"], "-MP")
+            )
+          }
         }
 
         ## DO ---------------------------------------------------------------------------
@@ -2172,10 +2185,12 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
           db_list[[db_species["DO"]]][["DO"]][["TERM2GENE"]] <- TERM2GENE
           db_list[[db_species["DO"]]][["DO"]][["TERM2NAME"]] <- TERM2NAME
           db_list[[db_species["DO"]]][["DO"]][["version"]] <- version
-          saveCache(db_list[[db_species["DO"]]][["DO"]],
-            key = list(version, as.character(db_species["DO"]), "DO"),
-            comment = paste0(version, " nterm:", length(TERM2NAME[[1]]), "|", db_species["DO"], "-DO")
-          )
+          if (sps == db_species["DO"]) {
+            saveCache(db_list[[db_species["DO"]]][["DO"]],
+              key = list(version, as.character(db_species["DO"]), "DO"),
+              comment = paste0(version, " nterm:", length(TERM2NAME[[1]]), "|", db_species["DO"], "-DO")
+            )
+          }
         }
 
         ## PFAM ---------------------------------------------------------------------------
@@ -2197,10 +2212,12 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
           db_list[[db_species["PFAM"]]][["PFAM"]][["TERM2GENE"]] <- TERM2GENE
           db_list[[db_species["PFAM"]]][["PFAM"]][["TERM2NAME"]] <- TERM2NAME
           db_list[[db_species["PFAM"]]][["PFAM"]][["version"]] <- version
-          saveCache(db_list[[db_species["PFAM"]]][["PFAM"]],
-            key = list(version, as.character(db_species["PFAM"]), "PFAM"),
-            comment = paste0(version, " nterm:", length(TERM2NAME[[1]]), "|", db_species["PFAM"], "-PFAM")
-          )
+          if (sps == db_species["PFAM"]) {
+            saveCache(db_list[[db_species["PFAM"]]][["PFAM"]],
+              key = list(version, as.character(db_species["PFAM"]), "PFAM"),
+              comment = paste0(version, " nterm:", length(TERM2NAME[[1]]), "|", db_species["PFAM"], "-PFAM")
+            )
+          }
         }
 
         ## Chromosome ---------------------------------------------------------------------------
@@ -2218,10 +2235,12 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
           db_list[[db_species["Chromosome"]]][["Chromosome"]][["TERM2GENE"]] <- TERM2GENE
           db_list[[db_species["Chromosome"]]][["Chromosome"]][["TERM2NAME"]] <- TERM2NAME
           db_list[[db_species["Chromosome"]]][["Chromosome"]][["version"]] <- version
-          saveCache(db_list[[db_species["Chromosome"]]][["Chromosome"]],
-            key = list(version, as.character(db_species["Chromosome"]), "Chromosome"),
-            comment = paste0(version, " nterm:", length(TERM2NAME[[1]]), "|", db_species["Chromosome"], "-Chromosome")
-          )
+          if (sps == db_species["Chromosome"]) {
+            saveCache(db_list[[db_species["Chromosome"]]][["Chromosome"]],
+              key = list(version, as.character(db_species["Chromosome"]), "Chromosome"),
+              comment = paste0(version, " nterm:", length(TERM2NAME[[1]]), "|", db_species["Chromosome"], "-Chromosome")
+            )
+          }
         }
 
         ## GeneType ---------------------------------------------------------------------------
@@ -2238,10 +2257,12 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
           db_list[[db_species["GeneType"]]][["GeneType"]][["TERM2GENE"]] <- TERM2GENE
           db_list[[db_species["GeneType"]]][["GeneType"]][["TERM2NAME"]] <- TERM2NAME
           db_list[[db_species["GeneType"]]][["GeneType"]][["version"]] <- version
-          saveCache(db_list[[db_species["GeneType"]]][["GeneType"]],
-            key = list(version, as.character(db_species["GeneType"]), "GeneType"),
-            comment = paste0(version, " nterm:", length(TERM2NAME[[1]]), "|", db_species["GeneType"], "-GeneType")
-          )
+          if (sps == db_species["GeneType"]) {
+            saveCache(db_list[[db_species["GeneType"]]][["GeneType"]],
+              key = list(version, as.character(db_species["GeneType"]), "GeneType"),
+              comment = paste0(version, " nterm:", length(TERM2NAME[[1]]), "|", db_species["GeneType"], "-GeneType")
+            )
+          }
         }
 
         ## Enzyme ---------------------------------------------------------------------------
@@ -2279,10 +2300,12 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
           db_list[[db_species["Enzyme"]]][["Enzyme"]][["TERM2GENE"]] <- TERM2GENE
           db_list[[db_species["Enzyme"]]][["Enzyme"]][["TERM2NAME"]] <- TERM2NAME
           db_list[[db_species["Enzyme"]]][["Enzyme"]][["version"]] <- version
-          saveCache(db_list[[db_species["Enzyme"]]][["Enzyme"]],
-            key = list(version, as.character(db_species["Enzyme"]), "Enzyme"),
-            comment = paste0(version, " nterm:", length(TERM2NAME[[1]]), "|", db_species["Enzyme"], "-Enzyme")
-          )
+          if (sps == db_species["Enzyme"]) {
+            saveCache(db_list[[db_species["Enzyme"]]][["Enzyme"]],
+              key = list(version, as.character(db_species["Enzyme"]), "Enzyme"),
+              comment = paste0(version, " nterm:", length(TERM2NAME[[1]]), "|", db_species["Enzyme"], "-Enzyme")
+            )
+          }
         }
 
         ## TF ---------------------------------------------------------------------------
@@ -2320,10 +2343,12 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
           db_list[[db_species["TF"]]][["TF"]][["TERM2GENE"]] <- TERM2GENE
           db_list[[db_species["TF"]]][["TF"]][["TERM2NAME"]] <- TERM2NAME
           db_list[[db_species["TF"]]][["TF"]][["version"]] <- version
-          saveCache(db_list[[db_species["TF"]]][["TF"]],
-            key = list(version, as.character(db_species["TF"]), "TF"),
-            comment = paste0(version, " nterm:", length(TERM2NAME[[1]]), "|", db_species["TF"], "-TF")
-          )
+          if (sps == db_species["TF"]) {
+            saveCache(db_list[[db_species["TF"]]][["TF"]],
+              key = list(version, as.character(db_species["TF"]), "TF"),
+              comment = paste0(version, " nterm:", length(TERM2NAME[[1]]), "|", db_species["TF"], "-TF")
+            )
+          }
         }
 
         ## SP ---------------------------------------------------------------------------
@@ -2358,10 +2383,12 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
           db_list[[db_species["SP"]]][["SP"]][["TERM2GENE"]] <- TERM2GENE
           db_list[[db_species["SP"]]][["SP"]][["TERM2NAME"]] <- TERM2NAME
           db_list[[db_species["SP"]]][["SP"]][["version"]] <- version
-          saveCache(db_list[[db_species["SP"]]][["SP"]],
-            key = list(version, as.character(db_species["SP"]), "SP"),
-            comment = paste0(version, " nterm:", length(TERM2NAME[[1]]), "|", db_species["SP"], "-SP")
-          )
+          if (sps == db_species["SP"]) {
+            saveCache(db_list[[db_species["SP"]]][["SP"]],
+              key = list(version, as.character(db_species["SP"]), "SP"),
+              comment = paste0(version, " nterm:", length(TERM2NAME[[1]]), "|", db_species["SP"], "-SP")
+            )
+          }
         }
 
         ## CellTalk ---------------------------------------------------------------------------
@@ -2405,10 +2432,12 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
           db_list[[db_species["CellTalk"]]][["CellTalk"]][["TERM2GENE"]] <- TERM2GENE
           db_list[[db_species["CellTalk"]]][["CellTalk"]][["TERM2NAME"]] <- TERM2NAME
           db_list[[db_species["CellTalk"]]][["CellTalk"]][["version"]] <- version
-          saveCache(db_list[[db_species["CellTalk"]]][["CellTalk"]],
-            key = list(version, as.character(db_species["CellTalk"]), "CellTalk"),
-            comment = paste0(version, " nterm:", length(TERM2NAME[[1]]), "|", db_species["CellTalk"], "-CellTalk")
-          )
+          if (sps == db_species["CellTalk"]) {
+            saveCache(db_list[[db_species["CellTalk"]]][["CellTalk"]],
+              key = list(version, as.character(db_species["CellTalk"]), "CellTalk"),
+              comment = paste0(version, " nterm:", length(TERM2NAME[[1]]), "|", db_species["CellTalk"], "-CellTalk")
+            )
+          }
         }
 
         ## CellChat ---------------------------------------------------------------------------
@@ -2460,10 +2489,12 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
           db_list[[db_species["CellChat"]]][["CellChat"]][["TERM2GENE"]] <- TERM2GENE
           db_list[[db_species["CellChat"]]][["CellChat"]][["TERM2NAME"]] <- TERM2NAME
           db_list[[db_species["CellChat"]]][["CellChat"]][["version"]] <- version
-          saveCache(db_list[[db_species["CellChat"]]][["CellChat"]],
-            key = list(version, as.character(db_species["CellChat"]), "CellChat"),
-            comment = paste0(version, " nterm:", length(TERM2NAME[[1]]), "|", db_species["CellChat"], "-CellChat")
-          )
+          if (sps == db_species["CellChat"]) {
+            saveCache(db_list[[db_species["CellChat"]]][["CellChat"]],
+              key = list(version, as.character(db_species["CellChat"]), "CellChat"),
+              comment = paste0(version, " nterm:", length(TERM2NAME[[1]]), "|", db_species["CellChat"], "-CellChat")
+            )
+          }
         }
       } else {
         ## Custom ---------------------------------------------------------------------------
@@ -2490,10 +2521,12 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
         db_list[[db_species[db]]][[db]][["TERM2GENE"]] <- TERM2GENE
         db_list[[db_species[db]]][[db]][["TERM2NAME"]] <- TERM2NAME
         db_list[[db_species[db]]][[db]][["version"]] <- custom_version
-        saveCache(db_list[[db_species[db]]][[db]],
-          key = list(custom_version, as.character(db_species[db]), db),
-          comment = paste0(custom_version, " nterm:", length(TERM2NAME[[1]]), "|", db_species[db], "-", db)
-        )
+        if (sps == db_species[db]) {
+          saveCache(db_list[[db_species[db]]][[db]],
+            key = list(custom_version, as.character(db_species[db]), db),
+            comment = paste0(custom_version, " nterm:", length(TERM2NAME[[1]]), "|", db_species[db], "-", db)
+          )
+        }
       }
 
       # ## MeSH ---------------------------------------------------------------------------
@@ -2561,9 +2594,14 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
         db_info <- db_list[[sp_from]][[names(sp_from)]]
         TERM2GENE <- db_info[["TERM2GENE"]]
         TERM2NAME <- db_info[["TERM2NAME"]]
+        if (is.na(default_IDtypes[term])) {
+          IDtype <- colnames(TERM2GENE)[2]
+        } else {
+          IDtype <- default_IDtypes[term]
+        }
         res <- GeneConvert(
-          geneID = as.character(unique(TERM2GENE[, default_IDtypes[term]])),
-          geneID_from_IDtype = default_IDtypes[term],
+          geneID = as.character(unique(TERM2GENE[, IDtype])),
+          geneID_from_IDtype = IDtype,
           geneID_to_IDtype = "ensembl_id",
           species_from = sp_from,
           species_to = sps,
@@ -2571,7 +2609,7 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
           mirror = mirror
         )
         map <- res$geneID_collapse
-        TERM2GENE[["ensembl_id-converted"]] <- map[as.character(TERM2GENE[, default_IDtypes[term]]), "ensembl_id"]
+        TERM2GENE[["ensembl_id-converted"]] <- map[as.character(TERM2GENE[, IDtype]), "ensembl_id"]
         TERM2GENE <- unnest(TERM2GENE, cols = "ensembl_id-converted", keep_empty = FALSE)
         TERM2GENE <- TERM2GENE[, c("Term", "ensembl_id-converted")]
         colnames(TERM2GENE) <- c("Term", "ensembl_id")
@@ -2597,9 +2635,14 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
         message("Convert ID types for the database: ", term)
         TERM2GENE <- db_list[[sps]][[term]][["TERM2GENE"]]
         TERM2NAME <- db_list[[sps]][[term]][["TERM2NAME"]]
+        if (is.na(default_IDtypes[term])) {
+          IDtype <- colnames(TERM2GENE)[2]
+        } else {
+          IDtype <- default_IDtypes[term]
+        }
         res <- GeneConvert(
-          geneID = as.character(unique(TERM2GENE[, default_IDtypes[term]])),
-          geneID_from_IDtype = default_IDtypes[term],
+          geneID = as.character(unique(TERM2GENE[, IDtype])),
+          geneID_from_IDtype = IDtype,
           geneID_to_IDtype = IDtypes,
           species_from = sps,
           species_to = sps,
@@ -2608,7 +2651,7 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
         )
         map <- res$geneID_collapse
         for (type in IDtypes) {
-          TERM2GENE[[type]] <- map[as.character(TERM2GENE[, default_IDtypes[term]]), type]
+          TERM2GENE[[type]] <- map[as.character(TERM2GENE[, IDtype]), type]
           TERM2GENE <- unnest(TERM2GENE, cols = type, keep_empty = TRUE)
         }
         db_list[[sps]][[term]][["TERM2GENE"]] <- TERM2GENE

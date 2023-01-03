@@ -171,7 +171,7 @@ ht2$plot
 ht3 <- GroupHeatmap(
   srt = pancreas_sub, features = de_filter$gene, feature_split = de_filter$group1, group.by = "CellType",
   nlabel = 20, show_row_names = FALSE,
-  species = "Mus_musculus", anno_terms = TRUE, anno_keys = TRUE, anno_features = TRUE
+  species = "Mus_musculus", db = "GO_BP", anno_terms = TRUE, anno_keys = TRUE, anno_features = TRUE
 )
 ht3$plot
 
