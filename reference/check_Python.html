@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">SCP</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.6.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.6.9001</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -54,6 +54,7 @@
 <span>  conda <span class="op">=</span> <span class="st">"auto"</span>,</span>
 <span>  force <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  pip <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  pip_options <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">character</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -80,11 +81,24 @@
 <dd><p>Whether to use pip for package installation. By default, packages are installed from the active conda channels.</p></dd>
 
 
+<dt>pip_options</dt>
+<dd><p>An optional character vector of additional command line arguments to be passed to <code>pip</code>. Only relevant when <code>pip = TRUE</code>.</p></dd>
+
+
 <dt>...</dt>
 <dd><p>Other arguments passed to <code><a href="https://rstudio.github.io/reticulate/reference/conda-tools.html" class="external-link">conda_install</a></code></p></dd>
 
 </dl></div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">check_Python</span><span class="op">(</span>packages <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"bbknn"</span>, <span class="st">"scanorama"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Try to install bbknn,scanorama ...</span>
+<span class="r-in"><span><span class="fu">check_Python</span><span class="op">(</span>packages <span class="op">=</span> <span class="st">"scvi-tools"</span>, envname <span class="op">=</span> <span class="st">"SCP_env"</span>, pip_options <span class="op">=</span> <span class="st">"-i https://pypi.tuna.tsinghua.edu.cn/simple"</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Try to install scvi-tools ...</span>
+<span class="r-in"><span></span></span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside></div>
 

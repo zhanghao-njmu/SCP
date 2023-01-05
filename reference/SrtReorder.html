@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">SCP</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.6.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.6.9001</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -55,15 +55,38 @@
 <span>  slot <span class="op">=</span> <span class="st">"data"</span>,</span>
 <span>  assay <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  log <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  distance_metric <span class="op">=</span> <span class="st">"euclidean"</span>,</span>
-<span>  reorder_FUN <span class="op">=</span> <span class="fu">base</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span></span>
+<span>  distance_metric <span class="op">=</span> <span class="st">"euclidean"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
-    <dl><dt>reorder_FUN</dt>
-<dd></dd>
+    <dl><dt>srt</dt>
+<dd><p>A Seurat object.</p></dd>
+
+
+<dt>features</dt>
+<dd><p>Features used to reorder idents.</p></dd>
+
+
+<dt>reorder_by</dt>
+<dd><p>Reorder groups instead of idents.</p></dd>
+
+
+<dt>slot</dt>
+<dd><p>Specific slot to get data from.</p></dd>
+
+
+<dt>assay</dt>
+<dd><p>Specific assay to get data from.</p></dd>
+
+
+<dt>log</dt>
+<dd><p>Whether log1p transformation needs to be applied. Default is <code>TRUE</code>.</p></dd>
+
+
+<dt>distance_metric</dt>
+<dd><p>Metric to compute distance. Default is "euclidean".</p></dd>
 
 </dl></div>
 

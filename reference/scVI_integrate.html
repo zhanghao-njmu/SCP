@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">SCP</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.6.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.6.9001</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -79,8 +79,72 @@
 
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
-    <dl><dt>num_threads</dt>
+    <dl><dt>srtMerge</dt>
+<dd><p>A merged <code>Seurat</code> object with batch information.</p></dd>
+
+
+<dt>batch</dt>
+<dd><p>Metadata column name containing the batch information.</p></dd>
+
+
+<dt>append</dt>
+<dd><p>Whether append results into the <code>srtMerge</code>. Only valid when srtMerge is provided.</p></dd>
+
+
+<dt>srtList</dt>
+<dd><p>A list of <code>Seurat</code> object.</p></dd>
+
+
+<dt>do_normalization</dt>
+<dd><p>Whether to normalize the data. If NULL, will automatically determine.</p></dd>
+
+
+<dt>normalization_method</dt>
+<dd><p>Normalization method.Can be one of "LogNormalize", "SCT".</p></dd>
+
+
+<dt>do_HVF_finding</dt>
+<dd><p>Whether to find the high variable features(HVF). If NULL, will automatically determine.</p></dd>
+
+
+<dt>HVF_source</dt>
+<dd><p>Source of the HVF. Can be one of "separate" and "global".</p></dd>
+
+
+<dt>nHVF</dt>
+<dd><p>HVF number to use.</p></dd>
+
+
+<dt>HVF_min_intersection</dt>
 <dd></dd>
+
+
+<dt>HVF</dt>
+<dd><p>Custom high variable features.</p></dd>
+
+
+<dt>nonlinear_reduction</dt>
+<dd><p>Non-linear reduction method name. Can be one of "umap", "umap-naive", "tsne", "dm", "phate", "pacmap", "trimap", "largevis".</p></dd>
+
+
+<dt>nonlinear_reduction_dims</dt>
+<dd><p>Dimensions to calculate when performing non-linear reduction.</p></dd>
+
+
+<dt>cluster_algorithm</dt>
+<dd><p>Algorithm for modularity optimization when finding clusters. Can be one of "louvain", "slm", "leiden".</p></dd>
+
+
+<dt>cluster_resolution</dt>
+<dd><p>Cluster resolution parameter.</p></dd>
+
+
+<dt>cluster_reorder</dt>
+<dd><p>Whether to reorder the cluster names using hierarchical clustering.</p></dd>
+
+
+<dt>seed</dt>
+<dd><p>Set a random seed.</p></dd>
 
 </dl></div>
 
