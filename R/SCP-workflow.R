@@ -1,9 +1,9 @@
 #' Check and report the type of data
-#' @param srt
 #'
-#' @param data
-#' @param slot
-#' @param assay
+#' @param srt A Seurat object
+#' @param data Use a data instead of getting it from a Seurat object.
+#' @param slot Specific slot to get data from.
+#' @param assay Specific assay to get data from.
 #'
 #' @importFrom Seurat DefaultAssay GetAssayData
 #' @export
@@ -43,22 +43,8 @@ check_DataType <- function(srt, data = NULL, slot = "data", assay = NULL) {
 }
 
 #' Check and preprocess a list of seurat objects
-#' @param srtList
 #'
-#' @param batch
-#' @param do_normalization
-#' @param normalization_method
-#' @param do_HVF_finding
-#' @param HVF_source
-#' @param HVF_method
-#' @param nHVF
-#' @param HVF
-#' @param vars_to_regress
-#' @param seed
-#' @param ...
-#' @param assay
-#' @param HVF_intersect
-#' @param HVF_min_intersection
+#' @inheritParams Integration_SCP
 #'
 #' @importFrom Seurat SplitObject GetAssayData Assays NormalizeData FindVariableFeatures SCTransform SCTResults SelectIntegrationFeatures PrepSCTIntegration DefaultAssay DefaultAssay<- VariableFeatures VariableFeatures<-
 #' @importFrom Matrix rowSums
@@ -267,24 +253,8 @@ check_srtList <- function(srtList, batch = "orig.ident", assay = "RNA",
   ))
 }
 
-#' Check and preprocess a seurat object
-#' @param srtMerge
-#'
-#' @param batch
-#' @param do_normalization
-#' @param normalization_method
-#' @param do_HVF_finding
-#' @param HVF_source
-#' @param HVF_method
-#' @param nHVF
-#' @param HVF
-#' @param vars_to_regress
-#' @param seed
-#' @param ...
-#' @param assay
-#' @param HVF_intersect
-#' @param HVF_min_intersection
-#'
+#' Check and preprocess a merged seurat object
+#' @inheritParams Integration_SCP
 #' @importFrom Seurat GetAssayData SplitObject SetAssayData VariableFeatures VariableFeatures<-
 #' @export
 check_srtMerge <- function(srtMerge, batch = "orig.ident", assay = "RNA",
@@ -344,32 +314,31 @@ check_srtMerge <- function(srtMerge, batch = "orig.ident", assay = "RNA",
 #'
 #' @param srt A Seurat object.
 #' @param assay Name of assay to recover counts.
+#' @param trans The transformation function to applied when data is presumed to be log-normalized.
 #' @param min_count Minimum UMI count of genes.
 #' @param tolerance When recovering the raw counts, the nCount of each cell is theoretically calculated as an integer.
 #'  However, due to decimal point preservation during normalization, the calculated nCount is usually a floating point number close to the integer.
 #'  The tolerance is its difference from the integer. Default is 0.1
-#' @param verbose
 #' @param sf Set the scaling factor manually.
+#' @param verbose Show messages.
 #'
 #' @examples
-#' if (interactive()) {
-#'   data("pancreas_sub")
-#'   raw_counts <- pancreas_sub@assays$RNA@counts
+#' data("pancreas_sub")
+#' raw_counts <- pancreas_sub@assays$RNA@counts
 #'
-#'   # Normalized the data
-#'   pancreas_sub <- Seurat::NormalizeData(pancreas_sub)
+#' # Normalized the data
+#' pancreas_sub <- Seurat::NormalizeData(pancreas_sub)
 #'
-#'   # Now replace counts with the log-normalized data matrix
-#'   pancreas_sub@assays$RNA@counts <- pancreas_sub@assays$RNA@data
+#' # Now replace counts with the log-normalized data matrix
+#' pancreas_sub@assays$RNA@counts <- pancreas_sub@assays$RNA@data
 #'
-#'   # Recover the counts and compare with the raw counts matrix
-#'   pancreas_sub <- RecoverCounts(pancreas_sub)
-#'   identical(raw_counts, pancreas_sub@assays$RNA@counts)
-#' }
+#' # Recover the counts and compare with the raw counts matrix
+#' pancreas_sub <- RecoverCounts(pancreas_sub)
+#' identical(raw_counts, pancreas_sub@assays$RNA@counts)
 #' @importFrom Seurat GetAssayData SetAssayData
 #' @importFrom SeuratObject as.sparse
 #' @export
-RecoverCounts <- function(srt, assay = NULL, min_count = c(1, 2, 3), tolerance = 0.1, sf = NULL, verbose = TRUE) {
+RecoverCounts <- function(srt, assay = NULL, trans = c("expm1", "exp", "none"), min_count = c(1, 2, 3), tolerance = 0.1, sf = NULL, verbose = TRUE) {
   assay <- assay %||% DefaultAssay(srt)
   counts <- GetAssayData(srt, assay = assay, slot = "counts")
   if (!inherits(counts, "dgCMatrix")) {
@@ -386,9 +355,12 @@ RecoverCounts <- function(srt, assay = NULL, min_count = c(1, 2, 3), tolerance =
     if (isTRUE(verbose)) {
       message("The data is presumed to be log-normalized.")
     }
-    fun <- select.list(c("expm1", "exp", "none"), title = "Select a data transformation function:")
-    if (fun %in% c("expm1", "exp")) {
-      counts <- do.call(fun, list(counts))
+    trans <- match.arg(trans)
+    if (trans %in% c("expm1", "exp")) {
+      if (isTRUE(verbose)) {
+        message("Perform ", trans, " on the raw data.")
+      }
+      counts <- do.call(trans, list(counts))
     }
   }
   if (status == "raw_normalized_counts") {
@@ -431,13 +403,13 @@ RecoverCounts <- function(srt, assay = NULL, min_count = c(1, 2, 3), tolerance =
 
 #' Rename features for the Seurat object
 #'
-#' @param srt
-#'
-#' @param newnames
-#' @param assays
+#' @param srt A Seurat object.
+#' @param newnames A vector with the same length of features in Seurat object, or characters named with old features.
+#' @param assays Assays to rename.
 #'
 #' @examples
 #' data("panc8_sub")
+#' head(rownames(panc8_sub))
 #' # Simply convert genes from human to mouse and preprocess the data
 #' genenames <- make.unique(stringr::str_to_title(rownames(panc8_sub)))
 #' panc8_rename <- RenameFeatures(panc8_sub, newnames = genenames)
@@ -475,11 +447,11 @@ RenameFeatures <- function(srt, newnames = NULL, assays = NULL) {
 
 #' Rename clusters for the Seurat object
 #'
-#' @param srt
-#' @param group.by
-#' @param nameslist
-#' @param name
-#' @param keep_levels
+#' @param srt A Seurat object.
+#' @param group.by The old group used to rename cells.
+#' @param nameslist A named list of new cluster value.
+#' @param name The name of the new cluster stored in the Seurat object.
+#' @param keep_levels If the old group is a factor, keep the order of the levels.
 #'
 #' @examples
 #' data("pancreas_sub")
@@ -555,14 +527,13 @@ RenameClusters <- function(srt, group.by, nameslist = list(), name = "newcluster
 
 #' Reorder idents by the gene expression
 #'
-#' @param srt
-#' @param features
-#' @param reorder_by
-#' @param slot
-#' @param assay
-#' @param log
-#' @param distance_metric
-#' @param reorder_FUN
+#' @param srt A Seurat object.
+#' @param features Features used to reorder idents.
+#' @param reorder_by Reorder groups instead of idents.
+#' @param slot Specific slot to get data from.
+#' @param assay Specific assay to get data from.
+#' @param log Whether log1p transformation needs to be applied. Default is \code{TRUE}.
+#' @param distance_metric Metric to compute distance. Default is "euclidean".
 #'
 #' @importFrom Seurat VariableFeatures DefaultAssay DefaultAssay<- AverageExpression Idents<-
 #' @importFrom SeuratObject as.sparse
@@ -570,7 +541,7 @@ RenameClusters <- function(srt, group.by, nameslist = list(), name = "newcluster
 #' @importFrom Matrix t colMeans
 #' @export
 SrtReorder <- function(srt, features = NULL, reorder_by = NULL, slot = "data", assay = NULL, log = TRUE,
-                       distance_metric = "euclidean", reorder_FUN = base::mean) {
+                       distance_metric = "euclidean") {
   assay <- assay %||% DefaultAssay(srt)
   if (is.null(features)) {
     features <- VariableFeatures(srt, assay = assay)
@@ -620,7 +591,7 @@ SrtReorder <- function(srt, features = NULL, reorder_by = NULL, slot = "data", a
   data.dist <- as.dist(d)
   hc <- hclust(d = data.dist)
   dd <- as.dendrogram(hc)
-  dd_ordered <- reorder(dd, wts = colMeans(data.avg[features, , drop = FALSE]), agglo.FUN = reorder_FUN)
+  dd_ordered <- reorder(dd, wts = colMeans(data.avg[features, , drop = FALSE]), agglo.FUN = base::mean)
   ident_new <- unname(setNames(object = seq_along(labels(dd_ordered)), nm = labels(dd_ordered))[as.character(srt$ident)])
   ident_new <- factor(ident_new, levels = seq_along(labels(dd_ordered)))
   Idents(srt) <- srt$ident <- ident_new
@@ -629,13 +600,12 @@ SrtReorder <- function(srt, features = NULL, reorder_by = NULL, slot = "data", a
 
 #' Append a Seurat object to another
 #'
-#' @param srt_raw
-#'
-#' @param srt_append
-#' @param slots
-#' @param pattern
-#' @param overwrite
-#' @param verbose
+#' @param srt_raw A Seurat object to be appended.
+#' @param srt_append New Seurat object to append.
+#' @param slots slots names.
+#' @param pattern A character string containing a regular expression. All data with matching names will be considered for appending.
+#' @param overwrite Whether to overwrite.
+#' @param verbose Show messages.
 #'
 #' @importFrom methods slotNames slot slot<-
 #' @export
@@ -703,28 +673,28 @@ SrtAppend <- function(srt_raw, srt_append,
   return(srt_raw)
 }
 
-#' RunDimReduction
+#' Run dimensionality reduction
 #'
-#' @param srt
-#' @param prefix
-#' @param features
-#' @param assay
-#' @param linear_reduction "pca", "ica", "nmf", "mds", "glmpca"
-#' @param linear_reduction_dims
-#' @param force_linear_reduction
-#' @param nonlinear_reduction "umap", "umap-naive", "tsne", "dm", "phate", "pacmap", "trimap", "largevis"
-#' @param reduction_use
-#' @param reduction_dims
-#' @param nonlinear_reduction_dims
-#' @param verbose
-#' @param seed
-#' @param slot
-#' @param linear_reduction_params
-#' @param neighbor_use
-#' @param graph_use
-#' @param distance_use
-#' @param nonlinear_reduction_params
-#' @param force_nonlinear_reduction
+#' @param srt A Seurat object.
+#' @param prefix The prefix used to name the result.
+#' @param features Use features expression data to run linear or nonlinear dimensionality reduction.
+#' @param assay Specific assay to get data from.
+#' @param slot Specific slot to get data from.
+#' @param linear_reduction Method of linear dimensionality reduction. Options are "pca", "ica", "nmf", "mds", "glmpca".
+#' @param linear_reduction_dims Total number of dimensions to compute and store for \code{linear_reduction}.
+#' @param linear_reduction_params Other parameters passed to the \code{linear_reduction} method.
+#' @param force_linear_reduction Whether force to do linear dimensionality reduction.
+#' @param nonlinear_reduction Method of nonlinear dimensionality reduction. Options are "umap", "umap-naive", "tsne", "dm", "phate", "pacmap", "trimap", "largevis"
+#' @param nonlinear_reduction_dims Total number of dimensions to compute and store for \code{nonlinear_reduction}.
+#' @param reduction_use Which dimensional reduction to use as input for \code{nonlinear_reduction}.
+#' @param reduction_dims Which dimensions to use as input for \code{nonlinear_reduction}, used only if \code{features} is \code{NULL}.
+#' @param neighbor_use Name of neighbor to use for the \code{nonlinear_reduction}.
+#' @param graph_use Name of graph to use for the \code{nonlinear_reduction}.
+#' @param distance_use Name of distance to use for the \code{nonlinear_reduction}.
+#' @param nonlinear_reduction_params  Other parameters passed to the \code{nonlinear_reduction} method.
+#' @param force_nonlinear_reduction Whether force to do nonlinear dimensionality reduction.
+#' @param verbose Show messages.
+#' @param seed Set a seed.
 #'
 #' @importFrom Seurat Embeddings RunPCA RunICA RunTSNE Reductions DefaultAssay DefaultAssay<- Key Key<-
 #' @export
@@ -732,8 +702,8 @@ RunDimReduction <- function(srt, prefix = "", features = NULL, assay = NULL, slo
                             linear_reduction = NULL, linear_reduction_dims = 100,
                             linear_reduction_params = list(), force_linear_reduction = FALSE,
                             nonlinear_reduction = NULL, nonlinear_reduction_dims = 2,
-                            reduction_use = NULL, reduction_dims = NULL, neighbor_use = NULL,
-                            graph_use = NULL, distance_use = NULL,
+                            reduction_use = NULL, reduction_dims = NULL,
+                            neighbor_use = NULL, graph_use = NULL, distance_use = NULL,
                             nonlinear_reduction_params = list(), force_nonlinear_reduction = TRUE,
                             verbose = TRUE, seed = 11) {
   set.seed(seed)
@@ -937,35 +907,7 @@ RunDimReduction <- function(srt, prefix = "", features = NULL, assay = NULL, slo
 
 #' Uncorrected_integrate
 #'
-#' @param srtMerge
-#'
-#' @param batch
-#' @param append
-#' @param srtList
-#' @param do_normalization
-#' @param normalization_method
-#' @param do_HVF_finding
-#' @param HVF_source
-#' @param HVF_method
-#' @param nHVF
-#' @param HVF
-#' @param do_scaling
-#' @param vars_to_regress
-#' @param regression_model
-#' @param linear_reduction
-#' @param linear_reduction_dims
-#' @param linear_reduction_dims_use
-#' @param force_linear_reduction
-#' @param nonlinear_reduction
-#' @param nonlinear_reduction_dims
-#' @param do_cluster_finding
-#' @param cluster_algorithm
-#' @param cluster_resolution
-#' @param cluster_reorder
-#' @param linear_reduction_params
-#' @param nonlinear_reduction_params
-#' @param force_nonlinear_reduction
-#' @param seed
+#' @inheritParams Integration_SCP
 #'
 #' @importFrom Seurat GetAssayData SetAssayData VariableFeatures VariableFeatures<-
 #' @importFrom dplyr "%>%"
@@ -1090,37 +1032,7 @@ Uncorrected_integrate <- function(srtMerge = NULL, batch = "orig.ident", append 
 
 #' Seurat_integrate
 #'
-#' @param srtMerge
-#'
-#' @param batch
-#' @param append
-#' @param srtList
-#' @param do_normalization
-#' @param normalization_method
-#' @param do_HVF_finding
-#' @param HVF_source
-#' @param HVF_method
-#' @param nHVF
-#' @param HVF
-#' @param do_scaling
-#' @param vars_to_regress
-#' @param regression_model
-#' @param linear_reduction
-#' @param linear_reduction_dims
-#' @param linear_reduction_dims_use
-#' @param force_linear_reduction
-#' @param nonlinear_reduction
-#' @param nonlinear_reduction_dims
-#' @param do_cluster_finding
-#' @param cluster_algorithm
-#' @param cluster_resolution
-#' @param cluster_reorder
-#' @param linear_reduction_params
-#' @param nonlinear_reduction_params
-#' @param force_nonlinear_reduction
-#' @param FindIntegrationAnchors_params
-#' @param IntegrateData_params
-#' @param seed
+#' @inheritParams Integration_SCP
 #'
 #' @importFrom Seurat GetAssayData ScaleData SetAssayData FindIntegrationAnchors IntegrateData DefaultAssay DefaultAssay<- FindNeighbors FindClusters Idents
 #' @importFrom dplyr "%>%"
@@ -1339,28 +1251,7 @@ Seurat_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRU
 
 #' scVI_integrate
 #'
-#' @param srtMerge
-#' @param batch
-#' @param append
-#' @param srtList
-#' @param do_normalization
-#' @param normalization_method
-#' @param do_HVF_finding
-#' @param HVF_source
-#' @param HVF_method
-#' @param nHVF
-#' @param HVF
-#' @param nonlinear_reduction
-#' @param nonlinear_reduction_dims
-#' @param force_nonlinear_reduction
-#' @param do_cluster_finding
-#' @param cluster_algorithm
-#' @param cluster_resolution
-#' @param cluster_reorder
-#' @param SCVI_params
-#' @param seed
-#' @param nonlinear_reduction_params
-#' @param num_threads
+#' @inheritParams Integration_SCP
 #'
 #' @importFrom Seurat CreateSeuratObject GetAssayData SetAssayData DefaultAssay DefaultAssay<- Embeddings FindNeighbors FindClusters Idents VariableFeatures VariableFeatures<-
 #' @importFrom dplyr "%>%"
@@ -1529,36 +1420,7 @@ scVI_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE,
 
 #' MNN_integrate
 #'
-#' @param srtMerge
-#'
-#' @param batch
-#' @param append
-#' @param srtList
-#' @param do_normalization
-#' @param normalization_method
-#' @param do_HVF_finding
-#' @param HVF_source
-#' @param HVF_method
-#' @param nHVF
-#' @param HVF
-#' @param nonlinear_reduction
-#' @param nonlinear_reduction_dims
-#' @param do_cluster_finding
-#' @param cluster_algorithm
-#' @param cluster_resolution
-#' @param cluster_reorder
-#' @param do_scaling
-#' @param vars_to_regress
-#' @param regression_model
-#' @param linear_reduction
-#' @param linear_reduction_dims
-#' @param linear_reduction_dims_use
-#' @param linear_reduction_params
-#' @param force_linear_reduction
-#' @param nonlinear_reduction_params
-#' @param force_nonlinear_reduction
-#' @param mnnCorrect_params
-#' @param seed
+#' @inheritParams Integration_SCP
 #'
 #' @importFrom Seurat CreateSeuratObject GetAssayData SetAssayData DefaultAssay DefaultAssay<- Embeddings FindNeighbors FindClusters Idents VariableFeatures VariableFeatures<-
 #' @importFrom dplyr "%>%"
@@ -1736,29 +1598,7 @@ MNN_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE, 
 
 #' fastMNN_integrate
 #'
-#' @param srtMerge
-#'
-#' @param batch
-#' @param append
-#' @param srtList
-#' @param do_normalization
-#' @param normalization_method
-#' @param do_HVF_finding
-#' @param HVF_source
-#' @param HVF_method
-#' @param nHVF
-#' @param HVF
-#' @param fastMNN_dims_use
-#' @param nonlinear_reduction
-#' @param nonlinear_reduction_dims
-#' @param do_cluster_finding
-#' @param cluster_algorithm
-#' @param cluster_resolution
-#' @param cluster_reorder
-#' @param nonlinear_reduction_params
-#' @param force_nonlinear_reduction
-#' @param fastMNN_params
-#' @param seed
+#' @inheritParams Integration_SCP
 #'
 #' @importFrom Seurat CreateSeuratObject GetAssayData SetAssayData DefaultAssay DefaultAssay<- Embeddings FindNeighbors FindClusters Idents VariableFeatures VariableFeatures<-
 #' @importFrom dplyr "%>%"
@@ -1942,37 +1782,7 @@ fastMNN_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TR
 
 #' Harmony_integrate
 #'
-#' @param srtMerge
-#'
-#' @param batch
-#' @param append
-#' @param srtList
-#' @param do_normalization
-#' @param normalization_method
-#' @param do_HVF_finding
-#' @param HVF_source
-#' @param HVF_method
-#' @param nHVF
-#' @param HVF
-#' @param do_scaling
-#' @param vars_to_regress
-#' @param regression_model
-#' @param linear_reduction
-#' @param linear_reduction_dims
-#' @param linear_reduction_dims_use
-#' @param force_linear_reduction
-#' @param Harmony_dims_use
-#' @param nonlinear_reduction
-#' @param nonlinear_reduction_dims
-#' @param do_cluster_finding
-#' @param cluster_algorithm
-#' @param cluster_resolution
-#' @param cluster_reorder
-#' @param linear_reduction_params
-#' @param nonlinear_reduction_params
-#' @param force_nonlinear_reduction
-#' @param RunHarmony_params
-#' @param seed
+#' @inheritParams Integration_SCP
 #'
 #' @importFrom Seurat GetAssayData ScaleData SetAssayData DefaultAssay DefaultAssay<- Embeddings FindNeighbors FindClusters Idents VariableFeatures VariableFeatures<-
 #' @importFrom dplyr "%>%"
@@ -2175,36 +1985,7 @@ Harmony_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TR
 
 #' Scanorama_integrate
 #'
-#' @param srtMerge
-#'
-#' @param batch
-#' @param append
-#' @param srtList
-#' @param do_normalization
-#' @param normalization_method
-#' @param do_HVF_finding
-#' @param HVF_source
-#' @param HVF_method
-#' @param nHVF
-#' @param HVF
-#' @param do_scaling
-#' @param vars_to_regress
-#' @param regression_model
-#' @param linear_reduction
-#' @param linear_reduction_dims
-#' @param linear_reduction_dims_use
-#' @param force_linear_reduction
-#' @param nonlinear_reduction
-#' @param nonlinear_reduction_dims
-#' @param do_cluster_finding
-#' @param cluster_algorithm
-#' @param cluster_resolution
-#' @param cluster_reorder
-#' @param linear_reduction_params
-#' @param nonlinear_reduction_params
-#' @param force_nonlinear_reduction
-#' @param scanorama_params
-#' @param seed
+#' @inheritParams Integration_SCP
 #'
 #' @importFrom Seurat GetAssayData ScaleData SetAssayData DefaultAssay DefaultAssay<- SplitObject CreateAssayObject CreateDimReducObject Embeddings FindNeighbors FindClusters Idents
 #' @importFrom Matrix t
@@ -2405,36 +2186,7 @@ Scanorama_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = 
 
 #' BBKNN_integrate
 #'
-#' @param srtMerge
-#'
-#' @param batch
-#' @param append
-#' @param srtList
-#' @param do_normalization
-#' @param normalization_method
-#' @param do_HVF_finding
-#' @param HVF_source
-#' @param HVF_method
-#' @param nHVF
-#' @param HVF
-#' @param do_scaling
-#' @param vars_to_regress
-#' @param regression_model
-#' @param linear_reduction
-#' @param linear_reduction_dims
-#' @param linear_reduction_dims_use
-#' @param force_linear_reduction
-#' @param nonlinear_reduction_dims
-#' @param do_cluster_finding
-#' @param cluster_algorithm
-#' @param cluster_resolution
-#' @param cluster_reorder
-#' @param linear_reduction_params
-#' @param nonlinear_reduction
-#' @param nonlinear_reduction_params
-#' @param force_nonlinear_reduction
-#' @param bbknn_params
-#' @param seed
+#' @inheritParams Integration_SCP
 #'
 #' @importFrom Seurat GetAssayData ScaleData SetAssayData DefaultAssay DefaultAssay<- as.Graph Embeddings FindClusters Idents VariableFeatures VariableFeatures<-
 #' @importFrom Matrix t
@@ -2621,36 +2373,7 @@ BBKNN_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE
 
 #' CSS_integrate
 #'
-#' @param srtMerge
-#'
-#' @param batch
-#' @param append
-#' @param srtList
-#' @param do_normalization
-#' @param normalization_method
-#' @param do_HVF_finding
-#' @param HVF_source
-#' @param HVF_method
-#' @param nHVF
-#' @param HVF
-#' @param do_scaling
-#' @param vars_to_regress
-#' @param regression_model
-#' @param linear_reduction
-#' @param linear_reduction_dims
-#' @param linear_reduction_dims_use
-#' @param force_linear_reduction
-#' @param nonlinear_reduction
-#' @param nonlinear_reduction_dims
-#' @param do_cluster_finding
-#' @param cluster_algorithm
-#' @param cluster_resolution
-#' @param cluster_reorder
-#' @param linear_reduction_params
-#' @param nonlinear_reduction_params
-#' @param force_nonlinear_reduction
-#' @param CSS_params
-#' @param seed
+#' @inheritParams Integration_SCP
 #'
 #' @importFrom Seurat GetAssayData ScaleData SetAssayData DefaultAssay DefaultAssay<- Embeddings FindNeighbors FindClusters Idents VariableFeatures VariableFeatures<-
 #' @importFrom dplyr "%>%"
@@ -2694,7 +2417,7 @@ CSS_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE, 
 
   set.seed(seed)
   check_R("quadbiolab/simspec")
-  suppressPackageStartupMessages(require("qlcMatrix"))
+  suppressPackageStartupMessages(requireNamespace("qlcMatrix"))
 
   if (is.null(srtList) && is.null(srtMerge)) {
     stop("srtList and srtMerge were all empty.")
@@ -2837,32 +2560,7 @@ CSS_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE, 
 
 #' LIGER_integrate
 #'
-#' @param srtMerge
-#'
-#' @param batch
-#' @param append
-#' @param srtList
-#' @param do_normalization
-#' @param normalization_method
-#' @param do_HVF_finding
-#' @param HVF_source
-#' @param HVF_method
-#' @param nHVF
-#' @param HVF
-#' @param do_scaling
-#' @param vars_to_regress
-#' @param regression_model
-#' @param nonlinear_reduction
-#' @param nonlinear_reduction_dims
-#' @param do_cluster_finding
-#' @param cluster_algorithm
-#' @param cluster_resolution
-#' @param cluster_reorder
-#' @param nonlinear_reduction_params
-#' @param force_nonlinear_reduction
-#' @param optimizeALS_params
-#' @param quantilenorm_params
-#' @param seed
+#' @inheritParams Integration_SCP
 #'
 #' @importFrom Seurat GetAssayData ScaleData SetAssayData DefaultAssay DefaultAssay<- Embeddings FindNeighbors FindClusters Idents VariableFeatures VariableFeatures<-
 #' @importFrom dplyr "%>%"
@@ -3060,36 +2758,7 @@ LIGER_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE
 
 #' Conos_integrate
 #'
-#' @param srtMerge
-#' @param batch
-#' @param append
-#' @param srtList
-#' @param do_normalization
-#' @param normalization_method
-#' @param do_HVF_finding
-#' @param HVF_source
-#' @param HVF_method
-#' @param nHVF
-#' @param HVF
-#' @param do_scaling
-#' @param vars_to_regress
-#' @param regression_model
-#' @param linear_reduction_dims
-#' @param linear_reduction_dims_use
-#' @param force_linear_reduction
-#' @param nonlinear_reduction_dims
-#' @param do_cluster_finding
-#' @param cluster_algorithm
-#' @param cluster_resolution
-#' @param cluster_reorder
-#' @param linear_reduction
-#' @param linear_reduction_params
-#' @param nonlinear_reduction
-#' @param nonlinear_reduction_params
-#' @param force_nonlinear_reduction
-#' @param buildGraph_params
-#' @param num_threads
-#' @param seed
+#' @inheritParams Integration_SCP
 #'
 #' @return
 #'
@@ -3279,30 +2948,7 @@ Conos_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE
 
 #' ZINBWaVE_integrate
 #'
-#' @param srtMerge
-#' @param batch
-#' @param append
-#' @param srtList
-#' @param do_normalization
-#' @param normalization_method
-#' @param do_HVF_finding
-#' @param HVF_source
-#' @param HVF_method
-#' @param nHVF
-#' @param HVF
-#' @param do_scaling
-#' @param vars_to_regress
-#' @param regression_model
-#' @param nonlinear_reduction
-#' @param nonlinear_reduction_dims
-#' @param do_cluster_finding
-#' @param cluster_algorithm
-#' @param cluster_resolution
-#' @param cluster_reorder
-#' @param nonlinear_reduction_params
-#' @param force_nonlinear_reduction
-#' @param zinbwave_params
-#' @param seed
+#' @inheritParams Integration_SCP
 #'
 #' @return
 #' @importFrom Seurat CreateSeuratObject as.SingleCellExperiment GetAssayData ScaleData SetAssayData DefaultAssay DefaultAssay<- Embeddings FindNeighbors FindClusters Idents VariableFeatures VariableFeatures<-
@@ -3500,7 +3146,7 @@ ZINBWaVE_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = T
 #' @param srt A \code{Seurat} object.
 #' @param prefix The prefix used to name the result.
 #'
-#' @return A \code{Seurat} object containing the result.
+#' @return A \code{Seurat} object.
 #'
 #' @examples
 #' data("pancreas_sub")
@@ -3702,7 +3348,7 @@ Standard_SCP <- function(srt, prefix = "Standard", assay = "RNA",
 #' @param HVF_intersect
 #' @param HVF_min_intersection
 #'
-#' @return A \code{Seurat} object containing the result.
+#' @return A \code{Seurat} object.
 #'
 #' @examples
 #' data("panc8_sub")

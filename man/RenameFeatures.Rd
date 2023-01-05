@@ -7,15 +7,18 @@
 RenameFeatures(srt, newnames = NULL, assays = NULL)
 }
 \arguments{
-\item{srt}{}
+\item{srt}{A Seurat object.}
 
-\item{assays}{}
+\item{newnames}{A vector with the same length of features in Seurat object, or characters named with old features.}
+
+\item{assays}{Assays to rename.}
 }
 \description{
 Rename features for the Seurat object
 }
 \examples{
 data("panc8_sub")
+head(rownames(panc8_sub))
 # Simply convert genes from human to mouse and preprocess the data
 genenames <- make.unique(stringr::str_to_title(rownames(panc8_sub)))
 panc8_rename <- RenameFeatures(panc8_sub, newnames = genenames)

@@ -10,6 +10,7 @@ check_Python(
   conda = "auto",
   force = FALSE,
   pip = TRUE,
+  pip_options = character(),
   ...
 )
 }
@@ -24,8 +25,15 @@ check_Python(
 
 \item{pip}{Whether to use pip for package installation. By default, packages are installed from the active conda channels.}
 
+\item{pip_options}{An optional character vector of additional command line arguments to be passed to \code{pip}. Only relevant when \code{pip = TRUE}.}
+
 \item{...}{Other arguments passed to \code{\link[reticulate]{conda_install}}}
 }
 \description{
 Check and install python packages
+}
+\examples{
+check_Python(packages = c("bbknn", "scanorama"))
+check_Python(packages = "scvi-tools", envname = "SCP_env", pip_options = "-i https://pypi.tuna.tsinghua.edu.cn/simple")
+
 }

@@ -26,7 +26,7 @@ RunMonocle3(
 )
 }
 \arguments{
-\item{seed}{}
+\item{clusters}{}
 }
 \description{
 Run Monocle3 analysis

@@ -149,8 +149,6 @@ db_DoubletDetection <- function(srt, assay = "RNA", db_rate = ncol(srt) / 1000 *
   return(srt)
 }
 
-## db_Solo
-
 #' Run doublet-calling for single cell RNA-seq data.
 #'
 #' Identification of heterotypic (or neotypic) doublets in single-cell RNAseq data.

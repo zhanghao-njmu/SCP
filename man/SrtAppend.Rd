@@ -14,9 +14,17 @@ SrtAppend(
 )
 }
 \arguments{
-\item{srt_raw}{}
+\item{srt_raw}{A Seurat object to be appended.}
 
-\item{verbose}{}
+\item{srt_append}{New Seurat object to append.}
+
+\item{slots}{slots names.}
+
+\item{pattern}{A character string containing a regular expression. All data with matching names will be considered for appending.}
+
+\item{overwrite}{Whether to overwrite.}
+
+\item{verbose}{Show messages.}
 }
 \description{
 Append a Seurat object to another

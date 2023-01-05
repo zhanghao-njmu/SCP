@@ -33,7 +33,7 @@ CellScoring(
 )
 }
 \arguments{
-\item{...}{}
+\item{seed}{}
 }
 \description{
 CellScoring

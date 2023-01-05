@@ -23,7 +23,7 @@ RunMonocle2(
 )
 }
 \arguments{
-\item{root_state}{}
+\item{seed}{}
 }
 \description{
 Run Monocle2 analysis

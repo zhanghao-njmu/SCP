@@ -40,8 +40,6 @@ RunGSEA(
 
 \item{geneID_groups}{geneID_groups}
 
-\item{geneID_exclude}{}
-
 \item{IDtype}{IDtype}
 
 \item{result_IDtype}{result_IDtype}
@@ -51,6 +49,8 @@ RunGSEA(
 \item{db}{enrichment database}
 
 \item{db_update}{db_update}
+
+\item{convert_species}{}
 
 \item{TERM2GENE}{TERM2GENE}
 

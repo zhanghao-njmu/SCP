@@ -50,7 +50,7 @@ RunDEtest(
 
 \item{force}{force}
 
-\item{seed}{}
+\item{verbose}{}
 }
 \description{
 Differential gene test

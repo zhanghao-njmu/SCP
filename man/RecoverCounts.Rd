@@ -7,6 +7,7 @@
 RecoverCounts(
   srt,
   assay = NULL,
+  trans = c("expm1", "exp", "none"),
   min_count = c(1, 2, 3),
   tolerance = 0.1,
   sf = NULL,
@@ -18,6 +19,8 @@ RecoverCounts(
 
 \item{assay}{Name of assay to recover counts.}
 
+\item{trans}{The transformation function to applied when data is presumed to be log-normalized.}
+
 \item{min_count}{Minimum UMI count of genes.}
 
 \item{tolerance}{When recovering the raw counts, the nCount of each cell is theoretically calculated as an integer.
@@ -25,23 +28,23 @@ However, due to decimal point preservation during normalization, the calculated 
 The tolerance is its difference from the integer. Default is 0.1}
 
 \item{sf}{Set the scaling factor manually.}
+
+\item{verbose}{Show messages.}
 }
 \description{
 Attempt to recover raw counts from the normalized matrix.
 }
 \examples{
-if (interactive()) {
-  data("pancreas_sub")
-  raw_counts <- pancreas_sub@assays$RNA@counts
+data("pancreas_sub")
+raw_counts <- pancreas_sub@assays$RNA@counts
 
-  # Normalized the data
-  pancreas_sub <- Seurat::NormalizeData(pancreas_sub)
+# Normalized the data
+pancreas_sub <- Seurat::NormalizeData(pancreas_sub)
 
-  # Now replace counts with the log-normalized data matrix
-  pancreas_sub@assays$RNA@counts <- pancreas_sub@assays$RNA@data
+# Now replace counts with the log-normalized data matrix
+pancreas_sub@assays$RNA@counts <- pancreas_sub@assays$RNA@data
 
-  # Recover the counts and compare with the raw counts matrix
-  pancreas_sub <- RecoverCounts(pancreas_sub)
-  identical(raw_counts, pancreas_sub@assays$RNA@counts)
-}
+# Recover the counts and compare with the raw counts matrix
+pancreas_sub <- RecoverCounts(pancreas_sub)
+identical(raw_counts, pancreas_sub@assays$RNA@counts)
 }

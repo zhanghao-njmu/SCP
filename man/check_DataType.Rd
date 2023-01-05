@@ -7,9 +7,13 @@
 check_DataType(srt, data = NULL, slot = "data", assay = NULL)
 }
 \arguments{
-\item{srt}{}
+\item{srt}{A Seurat object}
 
-\item{assay}{}
+\item{data}{Use a data instead of getting it from a Seurat object.}
+
+\item{slot}{Specific slot to get data from.}
+
+\item{assay}{Specific assay to get data from.}
 }
 \description{
 Check and report the type of data
