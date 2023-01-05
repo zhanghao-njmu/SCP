@@ -33,7 +33,7 @@ RunDynamicEnrichment(
 )
 }
 \arguments{
-\item{seed}{}
+\item{convert_species}{}
 }
 \description{
 RunDynamicEnrichment

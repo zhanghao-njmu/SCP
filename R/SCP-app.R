@@ -438,7 +438,7 @@ FetchH5 <- function(DataFile, MetaFile, name = NULL,
 #' @param title
 #' @param initial_dataset
 #' @param initial_reduction
-#' @param initial_metaname
+#' @param initial_group
 #' @param initial_feature
 #' @param initial_assay
 #' @param initial_slot
@@ -502,7 +502,7 @@ RunSCExplorer <- function(base_dir = "SCExplorer",
                           title = "SCExplorer",
                           initial_dataset = NULL,
                           initial_reduction = NULL,
-                          initial_metaname = NULL,
+                          initial_group = NULL,
                           initial_feature = NULL,
                           initial_assay = NULL,
                           initial_slot = NULL,
@@ -574,8 +574,8 @@ RunSCExplorer <- function(base_dir = "SCExplorer",
   if (is.null(initial_reduction)) {
     initial_reduction <- default_reduction
   }
-  if (is.null(initial_metaname)) {
-    initial_metaname <- "orig.ident"
+  if (is.null(initial_group)) {
+    initial_group <- "orig.ident"
   }
   if (is.null(initial_feature)) {
     initial_feature <- meta_features_name[1]
@@ -584,11 +584,11 @@ RunSCExplorer <- function(base_dir = "SCExplorer",
   initial_srt_tmp <- SCP::FetchH5(
     DataFile = DataFile, MetaFile = MetaFile, name = initial_dataset,
     features = initial_feature, slot = initial_slot, assay = initial_assay,
-    metanames = initial_metaname, reduction = initial_reduction
+    metanames = initial_group, reduction = initial_reduction
   )
 
   initial_p1_dim <- SCP::ClassDimPlot(
-    srt = initial_srt_tmp, group.by = initial_metaname, reduction = initial_reduction, raster = initial_raster,
+    srt = initial_srt_tmp, group.by = initial_group, reduction = initial_reduction, raster = initial_raster,
     label = ifelse(initial_label == "Yes", TRUE, FALSE), palette = initial_palette1, theme_use = initial_theme1,
     ncol = initial_ncol, byrow = ifelse(initial_arrange == "Row", TRUE, FALSE), force = TRUE
   )
@@ -600,7 +600,7 @@ RunSCExplorer <- function(base_dir = "SCExplorer",
   )
   initial_p2_dim <- SCP::panel_fix(initial_p2_dim, height = initial_size, raster = FALSE, verbose = FALSE)
   initial_p2_vln <- SCP::ExpStatPlot(
-    srt = initial_srt_tmp, features = initial_feature, group.by = initial_metaname,
+    srt = initial_srt_tmp, features = initial_feature, group.by = initial_group,
     calculate_coexp = ifelse(initial_coExp == "Yes", TRUE, FALSE), palette = initial_palette2,
     ncol = initial_ncol, byrow = ifelse(initial_arrange == "Row", TRUE, FALSE), force = TRUE
   )
@@ -609,7 +609,7 @@ RunSCExplorer <- function(base_dir = "SCExplorer",
   initial_plot3d <- max(sapply(names(initial_srt_tmp@reductions), function(r) dim(initial_srt_tmp[[r]])[2])) >= 3
   if (isTRUE(initial_plot3d)) {
     initial_p1_3d <- SCP::ClassDimPlot3D(
-      srt = initial_srt_tmp, group.by = initial_metaname, reduction = initial_reduction, palette = initial_palette1,
+      srt = initial_srt_tmp, group.by = initial_group, reduction = initial_reduction, palette = initial_palette1,
       force = TRUE
     )
     initial_p2_3d <- SCP::ExpDimPlot3D(
@@ -645,7 +645,7 @@ RunSCExplorer <- function(base_dir = "SCExplorer",
             inputId = "class1",
             label = "Select a categorical variable",
             choices = meta_groups_name,
-            selected = initial_metaname
+            selected = initial_group
           ),
           selectInput(
             inputId = "split1",
@@ -795,7 +795,7 @@ RunSCExplorer <- function(base_dir = "SCExplorer",
             inputId = "group2",
             label = "Select a grouping variable",
             choices = c("None", meta_groups_name),
-            selected = initial_metaname
+            selected = initial_group
           ),
           radioButtons(
             inputId = "coExp2",

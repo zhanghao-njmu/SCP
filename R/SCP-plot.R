@@ -141,16 +141,18 @@ theme_blank <- function(add_coord = TRUE, xlab = "Dim1", ylab = "Dim2", xlen_npc
 #' The default palette for SCP plot function.
 #'
 #' @param x A vector of character/factor or numeric values for color mapping.
-#' @param palette Palette name. All palette names can be queried with \code{names(SCP:::palette_list)}.
+#' @param palette Palette name. All palette names can be queried with \code{show_palettes()}.
 #' @param type Type of \code{x}.Can be one of "auto","discrete" or "continuous". The default is "auto", which automatically detects if \code{x} is a numeric value.
 #' If it is numeric, then \code{x} is interpolated to the palette color of length 100 in ascending order.
 #' Otherwise, the color is assigned to \code{x} according to its type number.
 #' @param matched Whether to return a matched color vector of length \code{x}
 #' @param reverse Whether to invert the colors.
 #' @param NA_keep Whether to keep the color assignment to NA in \code{x}.
-#' @param NA_color NA colors if NA_keep is \code{TRUE}.
+#' @param NA_color NA color if NA_keep is \code{TRUE}.
 #' @param n
 #' @param palcolor
+#' @seealso
+#' \code{\link{show_palettes}}
 #'
 #' @examples
 #' x <- c(1:3, NA, 3:5)
@@ -163,7 +165,6 @@ theme_blank <- function(add_coord = TRUE, xlab = "Dim1", ylab = "Dim2", xlen_npc
 #' all_palettes <- show_palettes(return_palettes = TRUE)
 #' names(all_palettes)
 #'
-#' @seealso [show_palettes()]
 #' \dontrun{
 #' if (interactive()) {
 #'   check_R(c("stringr", "RColorBrewer", "ggsci", "Redmonder", "rcartocolor", "nord", "viridis", "pals", "oompaBase", "dichromat", "jcolors"))
@@ -865,7 +866,7 @@ panel_fix_single <- function(x, panel_index = NULL, respect = NULL,
         if (is.null(g$vp)) {
           g$vp <- viewport()
         }
-        child_list <- NULL
+        # child_list <- NULL
         for (j in seq_along(g[["children"]])) {
           child <- g[["children"]][[j]]
           child_nm <- names(g[["children"]])[j]
@@ -1649,7 +1650,7 @@ ClassDimPlot <- function(srt, group.by = "orig.ident", reduction = NULL, dims = 
         stat_plot_list <- list()
         for (i in seq_len(nrow(coor_df))) {
           stat_plot_list[[i]] <- annotation_custom(ggplotGrob(stat_plot[[coor_df[i, "group"]]] + theme_void() + theme(legend.position = "none")),
-            x = coor_df[i, "x"] - x_range * stat_plot_size / 2, y = coor_df[i, "y"] - y_range * stat_plot_size / 2,
+            xmin = coor_df[i, "x"] - x_range * stat_plot_size / 2, ymin = coor_df[i, "y"] - y_range * stat_plot_size / 2,
             xmax = coor_df[i, "x"] + x_range * stat_plot_size / 2, ymax = coor_df[i, "y"] + y_range * stat_plot_size / 2
           )
         }
@@ -1956,6 +1957,7 @@ ExpDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), split.by
                        xlab = NULL, ylab = NULL, lab_cex = 1, xlen_npc = 0.15, ylen_npc = 0.15,
                        legend.position = "right", legend.direction = "vertical",
                        combine = TRUE, nrow = NULL, ncol = NULL, byrow = TRUE, align = "hv", axis = "lr", force = FALSE) {
+  require("ggrepel", quietly = TRUE)
   check_R("exaexa/scattermore")
   if (is.null(features)) {
     stop("'features' must be provided.")
@@ -2595,7 +2597,6 @@ ExpDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), split.by
             as.data.frame()
           label_df[, "label"] <- f
           label_df[, "rank"] <- seq_len(nrow(label_df))
-          require(ggrepel)
           if (isTRUE(label_repel)) {
             p <- p + annotate(
               geom = "point", x = label_df[["x"]], y = label_df[["y"]],
@@ -4011,7 +4012,7 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
             warning("The Mfuzz package was not found. Switch split_method to 'kmeans'", immediate. = TRUE)
             split_method <- "kmeans"
           } else {
-            require("Mfuzz")
+            require("Mfuzz", quietly = TRUE)
             mat_split_tmp <- mat_split
             colnames(mat_split_tmp) <- make.unique(colnames(mat_split_tmp))
             eset <- new("ExpressionSet", exprs = mat_split_tmp)
@@ -5328,7 +5329,7 @@ ExpHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, spli
             warning("The Mfuzz package was not found. Switch split_method to 'kmeans'", immediate. = TRUE)
             split_method <- "kmeans"
           } else {
-            require("Mfuzz")
+            require("Mfuzz", quietly = TRUE)
             mat_split_tmp <- mat_split
             colnames(mat_split_tmp) <- make.unique(colnames(mat_split_tmp))
             eset <- new("ExpressionSet", exprs = mat_split_tmp)
@@ -5996,6 +5997,7 @@ ExpHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, spli
 #' @importFrom stats quantile
 #' @importFrom ggplot2 ggplot aes geom_point geom_smooth geom_density_2d stat_density_2d labs scale_x_continuous scale_y_continuous facet_grid scale_color_gradientn scale_fill_gradientn scale_colour_gradient scale_fill_gradient guide_colorbar scale_color_identity scale_fill_identity guide_colourbar geom_hex stat_summary_hex
 #' @importFrom ggnewscale new_scale_color new_scale_fill
+#' @importFrom ggrepel geom_text_repel
 #' @importFrom gtable gtable_add_cols
 #' @importFrom cowplot plot_grid get_legend draw_grob
 #' @importFrom Matrix t
@@ -6011,8 +6013,8 @@ ExpCorPlot <- function(srt, features, group.by = NULL, split.by = NULL, cells = 
                        theme_use = "theme_scp", title = NULL, subtitle = NULL,
                        legend.position = "right", legend.direction = "vertical",
                        combine = TRUE, nrow = NULL, ncol = NULL, byrow = TRUE, align = "hv", axis = "lr", force = FALSE) {
+  require("ggrepel", quietly = TRUE)
   check_R("exaexa/scattermore")
-  require(ggrepel)
   if (is.null(features)) {
     stop("'features' must be provided.")
   }
@@ -7849,7 +7851,6 @@ ClassStatPlot <- function(srt, stat.by = "orig.ident", group.by = NULL, split.by
       }
       if (plot_type == "sankey") {
         check_R("davidsjoberg/ggsankey")
-        require("dplyr")
         colors <- palette_scp(c(unique(unlist(lapply(dat_all[, stat.by, drop = FALSE], levels))), NA), palette = palette, palcolor = palcolor, NA_keep = TRUE, NA_color = NA_color)
         legend_list <- list()
         for (l in stat.by) {
@@ -10706,7 +10707,7 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineag
             warning("The Mfuzz package was not found. Switch split_method to 'kmeans'", immediate. = TRUE)
             split_method <- "kmeans"
           } else {
-            require("Mfuzz")
+            require("Mfuzz", quietly = TRUE)
             eset <- new("ExpressionSet", exprs = mat_split)
             eset <- Mfuzz::standardise(eset)
             min_fuzzification <- Mfuzz::mestimate(eset)

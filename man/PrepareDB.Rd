@@ -29,7 +29,7 @@ PrepareDB(
 
 \item{db_update}{Whether update the database to the latest version.}
 
-\item{convert_species}{}
+\item{custom_version}{}
 }
 \value{
 A list containing the database.

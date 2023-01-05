@@ -38,7 +38,7 @@
       error = identity
     )
     if (inherits(status, "error")) {
-      print(status)
+      packageStartupMessage(status)
     }
   }
 }

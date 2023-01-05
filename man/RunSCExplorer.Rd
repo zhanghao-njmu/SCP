@@ -11,7 +11,7 @@ RunSCExplorer(
   title = "SCExplorer",
   initial_dataset = NULL,
   initial_reduction = NULL,
-  initial_metaname = NULL,
+  initial_group = NULL,
   initial_feature = NULL,
   initial_assay = NULL,
   initial_slot = NULL,
