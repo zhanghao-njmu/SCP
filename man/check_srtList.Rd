@@ -37,13 +37,13 @@ check_srtList(
 
 \item{nHVF}{HVF number to use.}
 
-\item{HVF_min_intersection}{}
-
 \item{HVF}{Custom high variable features.}
 
 \item{vars_to_regress}{Variables to regress out.}
 
 \item{seed}{Set a random seed.}
+
+\item{...}{}
 }
 \description{
 Check and preprocess a list of seurat objects

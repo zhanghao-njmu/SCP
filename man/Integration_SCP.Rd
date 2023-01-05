@@ -61,8 +61,6 @@ Integration_SCP(
 
 \item{nHVF}{HVF number to use.}
 
-\item{HVF_min_intersection}{}
-
 \item{HVF}{Custom high variable features.}
 
 \item{do_scaling}{Whether to scale the data. If NULL, will automatically determine.}
@@ -88,6 +86,8 @@ Integration_SCP(
 \item{cluster_reorder}{Whether to reorder the cluster names using hierarchical clustering.}
 
 \item{seed}{Set a random seed.}
+
+\item{...}{}
 }
 \value{
 A \code{Seurat} object.

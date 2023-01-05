@@ -54,8 +54,6 @@ LIGER_integrate(
 
 \item{nHVF}{HVF number to use.}
 
-\item{HVF_min_intersection}{}
-
 \item{HVF}{Custom high variable features.}
 
 \item{do_scaling}{Whether to scale the data. If NULL, will automatically determine.}
