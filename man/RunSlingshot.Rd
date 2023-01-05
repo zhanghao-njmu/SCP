@@ -21,7 +21,7 @@ RunSlingshot(
 )
 }
 \arguments{
-\item{...}{}
+\item{dims}{}
 }
 \description{
 RunSlingshot

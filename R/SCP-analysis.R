@@ -51,7 +51,7 @@
 GeneConvert <- function(geneID, geneID_from_IDtype = "symbol", geneID_to_IDtype = "entrez_id",
                         species_from = "Homo_sapiens", species_to = NULL,
                         Ensembl_version = 103, attempts = 5, mirror = NULL) {
-  if (require("httr", quietly = TRUE)) {
+  if (requireNamespace("httr", quietly = TRUE)) {
     httr::set_config(httr::config(ssl_verifypeer = FALSE, ssl_verifyhost = FALSE))
   }
 
@@ -445,11 +445,10 @@ LengthCheck <- function(values, cutoff = 0) {
   }, FUN.VALUE = logical(1)))
 }
 
-
-#' @importFrom Seurat UpdateSymbolList
+#' @importFrom Seurat UpdateSymbolList CaseMatch
 #' @importFrom SeuratObject DefaultAssay GetAssayData CheckGC
 #' @importFrom BiocParallel bplapply bpaggregate
-#' @export
+#' @importFrom stats rnorm
 AddModuleScore2 <- function(object, slot = "data", features, pool = NULL, nbin = 24, ctrl = 100,
                             k = FALSE, assay = NULL, name = "Cluster", seed = 1, search = FALSE,
                             BPPARAM = BiocParallel::bpparam(), ...) {
@@ -585,7 +584,6 @@ AddModuleScore2 <- function(object, slot = "data", features, pool = NULL, nbin =
 #'
 #' @param srt
 #' @param features
-#' @param ncores
 #' @param method
 #' @param classification
 #' @param name
@@ -593,6 +591,22 @@ AddModuleScore2 <- function(object, slot = "data", features, pool = NULL, nbin =
 #' @param assay
 #' @param new_assay
 #' @param ...
+#' @param split.by
+#' @param IDtype
+#' @param species
+#' @param db
+#' @param termnames
+#' @param db_update
+#' @param db_version
+#' @param convert_species
+#' @param Ensembl_version
+#' @param mirror
+#' @param minGSSize
+#' @param maxGSSize
+#' @param BPPARAM
+#' @param progressbar
+#' @param force
+#' @param seed
 #'
 #' @examples
 #' data("pancreas_sub")
@@ -1154,7 +1168,6 @@ FindConservedMarkers2 <- function(object, grouping.var, ident.1, ident.2 = NULL,
 #' @param base
 #' @param min.diff.pct
 #' @param norm.method
-#' @param FindConservedMarkers
 #' @param grouping.var
 #' @param meta.method
 #' @param pseudocount.use
@@ -1164,6 +1177,8 @@ FindConservedMarkers2 <- function(object, grouping.var, ident.1, ident.2 = NULL,
 #' @param p.adjust.method
 #' @param features
 #' @param seed
+#' @param markers_type
+#' @param verbose
 #'
 #' @examples
 #' library(dplyr)
@@ -1667,7 +1682,8 @@ RunDEtest <- function(srt, group_by = NULL, group1 = NULL, group2 = NULL, cells1
 #' @examples
 #' ListDB(species = "Homo_sapiens")
 #'
-ListDB <- function(species = c("Homo_sapiens", "Mus_musculus"), db = c(
+ListDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
+                   db = c(
                      "GO_BP", "GO_CC", "GO_MF", "KEGG", "WikiPathway", "Reactome",
                      "ProteinComplex", "DGI", "MP", "DO", "PFAM",
                      "Chromosome", "GeneType", "Enzyme", "TF", "SP", "CellTalk", "CellChat"
@@ -1701,6 +1717,11 @@ ListDB <- function(species = c("Homo_sapiens", "Mus_musculus"), db = c(
 #' @param Ensembl_version
 #' @param mirror
 #' @param convert_species
+#' @param custom_TERM2GENE
+#' @param custom_TERM2NAME
+#' @param custom_species
+#' @param custom_IDtype
+#' @param custom_version
 #'
 #' @return A list containing the database.
 #'
@@ -1817,7 +1838,7 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
             stop("Stop the preparation.")
           }
         }
-        suppressPackageStartupMessages(library(org_sp, character.only = TRUE))
+        suppressPackageStartupMessages(require(org_sp, character.only = TRUE, quietly = TRUE))
         orgdb <- get(org_sp)
         orgdbCHR <- get(paste0(gsub(pattern = ".db", "", org_sp), "CHR"))
       }
@@ -2695,6 +2716,7 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
 #' @param test.use
 #' @param DE_threshold
 #' @param geneID_exclude
+#' @param convert_species
 #'
 #' @examples
 #' data("pancreas_sub")
@@ -2802,7 +2824,7 @@ RunEnrichment <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_t
   input <- input[!is.na(input[[IDtype]]), ]
 
   message("Permform enrichment...")
-  suppressPackageStartupMessages(library("DOSE"))
+  suppressPackageStartupMessages(requireNamespace("DOSE", quietly = TRUE))
   comb <- expand.grid(group = levels(geneID_groups), term = db, stringsAsFactors = FALSE)
   res_list <- bplapply(seq_len(nrow(comb)),
     FUN = function(i, id) {
@@ -2931,6 +2953,7 @@ RunEnrichment <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_t
 #' @param test.use
 #' @param DE_threshold
 #' @param geneID_exclude
+#' @param convert_species
 #'
 #' @examples
 #' data("pancreas_sub")
@@ -3063,7 +3086,7 @@ RunGSEA <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_thresho
   input <- input[!is.na(input[[IDtype]]), ]
 
   message("Permform GSEA...")
-  suppressPackageStartupMessages(library("DOSE"))
+  suppressPackageStartupMessages(requireNamespace("DOSE", quietly = TRUE))
   comb <- expand.grid(group = levels(geneID_groups), term = db, stringsAsFactors = FALSE)
   res_list <- BiocParallel::bplapply(seq_len(nrow(comb)),
     FUN = function(i, id) {
@@ -3207,6 +3230,7 @@ RunGSEA <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_thresho
 #' @param lineage_palette
 #' @param seed
 #' @param ...
+#' @param dims
 #'
 #' @examples
 #' data("pancreas_sub")
@@ -3314,6 +3338,7 @@ RunSlingshot <- function(srt, group.by, reduction = NULL, dims = NULL, start = N
 #' @param residualModelFormulaStr
 #' @param pseudo_expr
 #' @param root_state
+#' @param seed
 #'
 #' @examples
 #' if (interactive()) {
@@ -3341,6 +3366,7 @@ RunSlingshot <- function(srt, group.by, reduction = NULL, dims = NULL, start = N
 #' @importFrom SeuratObject as.sparse
 #' @importFrom igraph as_data_frame
 #' @importFrom ggplot2 geom_segment
+#' @importFrom utils select.list
 #' @export
 RunMonocle2 <- function(srt, annotation = NULL, assay = NULL, slot = "counts", expressionFamily = "negbinomial.size",
                         features = NULL, feature_type = "HVF", disp_filter = "mean_expression >= 0.1 & dispersion_empirical >= 1 * dispersion_fit",
@@ -3348,7 +3374,7 @@ RunMonocle2 <- function(srt, annotation = NULL, assay = NULL, slot = "counts", e
                         root_state = NULL, seed = 11) {
   set.seed(seed)
   check_R(c("monocle", "DDRTree", "BiocGenerics", "Biobase", "VGAM", "utils"))
-  require("DDRTree", quietly = TRUE)
+  requireNamespace("DDRTree", quietly = TRUE)
 
   assay <- assay %||% DefaultAssay(srt)
   expr_matrix <- as.sparse(GetAssayData(srt, assay = assay, slot = slot))
@@ -3379,7 +3405,7 @@ RunMonocle2 <- function(srt, annotation = NULL, assay = NULL, slot = "counts", e
   message("features number: ", length(features))
   cds <- monocle::setOrderingFilter(cds, features)
   p <- monocle::plot_ordering_genes(cds)
-  suppressWarnings(print(p))
+  suppressWarnings(print(panel_fix(p, verbose = FALSE)))
 
   cds <- monocle::reduceDimension(
     cds = cds,
@@ -3411,7 +3437,7 @@ RunMonocle2 <- function(srt, annotation = NULL, assay = NULL, slot = "counts", e
       trajectory
     p <- p + p_anno
   }
-  suppressWarnings(print(p))
+  suppressWarnings(print(panel_fix(p, verbose = FALSE)))
   if (is.null(root_state)) {
     root_state <- select.list(sort(unique(cds[["State"]])), title = "Select the root state to order cells:")
     if (root_state == "" || length(root_state) == 0) {
@@ -3426,7 +3452,7 @@ RunMonocle2 <- function(srt, annotation = NULL, assay = NULL, slot = "counts", e
   p1 <- ClassDimPlot(srt, group.by = "Monocle2_State", reduction = reduction_method, label = TRUE, force = TRUE) + trajectory
   p2 <- ExpDimPlot(srt, features = "Monocle2_Pseudotime", reduction = reduction_method) + trajectory
   p <- p1 + p2
-  print(p)
+  suppressWarnings(print(panel_fix(p, verbose = FALSE)))
   return(srt)
 }
 
@@ -3615,7 +3641,6 @@ extract_ddrtree_ordering <- function(cds, root_cell, verbose = TRUE) {
 #' @param assay
 #' @param slot
 #' @param reduction
-#' @param cluster
 #' @param graph
 #' @param partition_qval
 #' @param k
@@ -3628,6 +3653,7 @@ extract_ddrtree_ordering <- function(cds, root_cell, verbose = TRUE) {
 #' @param root_pr_nodes
 #' @param root_cells
 #' @param seed
+#' @param clusters
 #'
 #' @examples
 #' if (interactive()) {
@@ -3679,7 +3705,7 @@ extract_ddrtree_ordering <- function(cds, root_cell, verbose = TRUE) {
 #' @importFrom ggplot2 geom_segment
 #' @importFrom ggrepel geom_text_repel
 #' @importFrom ggnewscale new_scale_color
-#' @importFrom utils packageVersion
+#' @importFrom utils packageVersion select.list
 #' @export
 RunMonocle3 <- function(srt, annotation = NULL, assay = NULL, slot = "counts",
                         reduction = DefaultReduction(srt), clusters = NULL, graph = NULL, partition_qval = 0.05,
@@ -3690,7 +3716,7 @@ RunMonocle3 <- function(srt, annotation = NULL, assay = NULL, slot = "counts",
   if (!requireNamespace("monocle3", quietly = TRUE) || packageVersion("monocle3") < package_version("1.2.0")) {
     check_R(c("cole-trapnell-lab/monocle3"), force = TRUE)
   }
-  require("DDRTree", quietly = TRUE)
+  requireNamespace("DDRTree", quietly = TRUE)
 
   assay <- assay %||% DefaultAssay(srt)
   expr_matrix <- as.sparse(GetAssayData(srt, assay = assay, slot = slot))
@@ -3768,8 +3794,10 @@ RunMonocle3 <- function(srt, annotation = NULL, assay = NULL, slot = "counts",
   }
   srt[["Monocle3_clusters"]] <- cds@clusters[["UMAP"]]$clusters
   srt[["Monocle3_partitions"]] <- cds@clusters[["UMAP"]]$partitions
-  p <- ClassDimPlot(srt, c("Monocle3_partitions", "Monocle3_clusters"), reduction = reduction, label = FALSE, nrow = 1, force = TRUE)
-  print(p)
+  p1 <- ClassDimPlot(srt, "Monocle3_partitions", reduction = reduction, label = FALSE, force = TRUE)
+  p2 <- ClassDimPlot(srt, "Monocle3_clusters", reduction = reduction, label = FALSE, force = TRUE)
+  p <- p1 + p2
+  suppressWarnings(print(panel_fix(p, verbose = FALSE)))
   if (is.null(use_partition)) {
     use_partition <- select.list(c(TRUE, FALSE), title = "Whether to use partitions to learn disjoint graph in each partition?")
     if (use_partition == "" || length(use_partition) == 0) {
@@ -3816,10 +3844,10 @@ RunMonocle3 <- function(srt, annotation = NULL, assay = NULL, slot = "counts",
       trajectory + milestones
     p <- p + p_anno
   }
-  suppressWarnings(print(p))
+  suppressWarnings(print(panel_fix(p, verbose = FALSE)))
 
   if (is.null(root_pr_nodes) && is.null(root_cells)) {
-    root_pr_nodes <- utils::select.list(names(pps), title = "Select the root nodes to order cells, or leave blank for interactive selection:", multiple = TRUE)
+    root_pr_nodes <- select.list(names(pps), title = "Select the root nodes to order cells, or leave blank for interactive selection:", multiple = TRUE)
     if (root_pr_nodes == "" || length(root_pr_nodes) == 0) {
       root_pr_nodes <- NULL
     }
@@ -3836,7 +3864,7 @@ RunMonocle3 <- function(srt, annotation = NULL, assay = NULL, slot = "counts",
     theme(legend.position = "none") +
     trajectory)
   p <- p1 + p2
-  print(p)
+  suppressWarnings(print(panel_fix(p, verbose = FALSE)))
   return(srt)
 }
 
@@ -4119,7 +4147,6 @@ RunDynamicFeatures <- function(srt, lineages, features = NULL, suffix = lineages
 #' @param r.sq
 #' @param dev.expl
 #' @param padjust
-#' @param geneID
 #' @param IDtype
 #' @param species
 #' @param db
@@ -4134,6 +4161,7 @@ RunDynamicFeatures <- function(srt, lineages, features = NULL, suffix = lineages
 #' @param BPPARAM
 #' @param progressbar
 #' @param seed
+#' @param convert_species
 #'
 #' @importFrom Seurat NormalizeData VariableFeatures FindVariableFeatures as.SingleCellExperiment AddMetaData
 #' @importFrom stats p.adjust
@@ -4274,6 +4302,8 @@ RunDynamicEnrichment <- function(srt, lineages,
 #' @param convert_tools
 #' @param convert_misc
 #' @param assay_layers Assays to convert as layers in anndata object.
+#' @param features
+#' @param verbose
 #'
 #' @return A \code{anndata} object.
 #' @examples
@@ -4563,7 +4593,11 @@ adata_to_srt <- function(adata) {
         warning("'uns: ", k, "' will not be converted. You may need to convert it manually.", immediate. = TRUE)
         next
       }
-      uns <- check_python_element(uns)
+      uns <- tryCatch(check_python_element(uns), error = identity)
+      if (inherits(uns, "error")) {
+        warning("'uns: ", k, "' will not be converted. You may need to convert it manually.", immediate. = TRUE)
+        next
+      }
       if (!inherits(uns, "python.builtin.object")) {
         srt@misc[[k]] <- uns
       } else {
@@ -4577,7 +4611,7 @@ adata_to_srt <- function(adata) {
 
 maxDepth <- function(x, depth = 0) {
   if (is.list(x)) {
-    return(max(sapply(x, maxDepth, depth + 1)))
+    return(max(unlist(lapply(x, maxDepth, depth + 1))))
   } else {
     return(depth)
   }
@@ -4714,7 +4748,6 @@ RunPAGA <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_layers
   }
 }
 
-
 #' Run scVelo analysis
 #'
 #' scVelo is a scalable toolkit for RNA velocity analysis in single cells.
@@ -4740,8 +4773,6 @@ RunPAGA <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_layers
 #' @param arrow_length arrow_length.
 #' @param arrow_size arrow_size.
 #' @param calculate_velocity_genes calculate_velocity_genes.
-#' @param s_genes s_genes.
-#' @param g2m_genes g2m_genes.
 #' @param save save.
 #' @param dirpath dirpath.
 #' @param fileprefix fileprefix.

@@ -94,10 +94,6 @@ RunSCVELO(
 \item{fileprefix}{fileprefix.}
 
 \item{return_seurat}{}
-
-\item{s_genes}{s_genes.}
-
-\item{g2m_genes}{g2m_genes.}
 }
 \value{
 A \code{anndata} object.

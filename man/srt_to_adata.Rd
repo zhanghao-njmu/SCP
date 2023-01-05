@@ -22,6 +22,8 @@ srt_to_adata(
 \item{assay_X}{Assays to convert as X(main data matrix) in anndata object.}
 
 \item{assay_layers}{Assays to convert as layers in anndata object.}
+
+\item{verbose}{}
 }
 \value{
 A \code{anndata} object.

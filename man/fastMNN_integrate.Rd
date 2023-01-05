@@ -33,9 +33,39 @@ fastMNN_integrate(
 )
 }
 \arguments{
-\item{srtMerge}{}
+\item{srtMerge}{A merged \code{Seurat} object with batch information.}
 
-\item{seed}{}
+\item{batch}{Metadata column name containing the batch information.}
+
+\item{append}{Whether append results into the \code{srtMerge}. Only valid when srtMerge is provided.}
+
+\item{srtList}{A list of \code{Seurat} object.}
+
+\item{do_normalization}{Whether to normalize the data. If NULL, will automatically determine.}
+
+\item{normalization_method}{Normalization method.Can be one of "LogNormalize", "SCT".}
+
+\item{do_HVF_finding}{Whether to find the high variable features(HVF). If NULL, will automatically determine.}
+
+\item{HVF_source}{Source of the HVF. Can be one of "separate" and "global".}
+
+\item{nHVF}{HVF number to use.}
+
+\item{HVF_min_intersection}{}
+
+\item{HVF}{Custom high variable features.}
+
+\item{nonlinear_reduction}{Non-linear reduction method name. Can be one of "umap", "umap-naive", "tsne", "dm", "phate", "pacmap", "trimap", "largevis".}
+
+\item{nonlinear_reduction_dims}{Dimensions to calculate when performing non-linear reduction.}
+
+\item{cluster_algorithm}{Algorithm for modularity optimization when finding clusters. Can be one of "louvain", "slm", "leiden".}
+
+\item{cluster_resolution}{Cluster resolution parameter.}
+
+\item{cluster_reorder}{Whether to reorder the cluster names using hierarchical clustering.}
+
+\item{seed}{Set a random seed.}
 }
 \description{
 fastMNN_integrate

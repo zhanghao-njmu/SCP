@@ -35,6 +35,7 @@ PrepareEnv <- function(conda = "auto", miniconda_repo = "https://repo.anaconda.c
       stop("The python version in the installed SCP environment does not match the requirements. You need to recreate the SCP environment.")
     }
   } else {
+    force <- TRUE
     if (is.null(conda)) {
       message("Conda not found. Installing miniconda...")
       options(timeout = 360)
@@ -97,7 +98,7 @@ PrepareEnv <- function(conda = "auto", miniconda_repo = "https://repo.anaconda.c
     "numpy==1.21.6", "numba==0.55.2", "scikit-learn==1.1.2", "pandas==1.3.5", "python-igraph==0.10.2",
     "scipy", "matplotlib", "versioned-hdf5", "leidenalg", "scanpy", "scvelo", "palantir"
   )
-  check_Python(packages = packages, envname = envname, conda = conda, pip = TRUE, ...)
+  check_Python(packages = packages, envname = envname, conda = conda, force = force, ...)
 
   Sys.unsetenv("RETICULATE_PYTHON")
   python_path <- conda_python(conda = conda, envname = envname)
@@ -241,10 +242,15 @@ exist_Python_pkgs <- function(packages, envname = NULL, conda = "auto") {
 #' @param conda The path to a conda executable. Use \code{"auto"} to allow SCP to automatically find an appropriate conda binary.
 #' @param force Whether to force package installation. Default is \code{FALSE}.
 #' @param pip Whether to use pip for package installation. By default, packages are installed from the active conda channels.
+#' @param pip_options An optional character vector of additional command line arguments to be passed to \code{pip}. Only relevant when \code{pip = TRUE}.
 #' @param ... Other arguments passed to \code{\link[reticulate]{conda_install}}
 #'
+#' @examples
+#' check_Python(packages = c("bbknn", "scanorama"))
+#' check_Python(packages = "scvi-tools", envname = "SCP_env", pip_options = "-i https://pypi.tuna.tsinghua.edu.cn/simple")
+#'
 #' @export
-check_Python <- function(packages, envname = NULL, conda = "auto", force = FALSE, pip = TRUE, ...) {
+check_Python <- function(packages, envname = NULL, conda = "auto", force = FALSE, pip = TRUE, pip_options = character(), ...) {
   envname <- get_envname(envname)
   if (identical(conda, "auto")) {
     conda <- find_conda()
@@ -259,6 +265,7 @@ check_Python <- function(packages, envname = NULL, conda = "auto", force = FALSE
   }
   if (isTRUE(force)) {
     pkg_installed <- setNames(rep(FALSE, length(packages)), packages)
+    pip_options <- c(pip_options, "--force-reinstall")
   } else {
     pkg_installed <- exist_Python_pkgs(packages = packages, envname = envname, conda = conda)
   }
@@ -269,7 +276,7 @@ check_Python <- function(packages, envname = NULL, conda = "auto", force = FALSE
       pkgs_to_install <- c("pip", pkgs_to_install)
     }
     tryCatch(expr = {
-      conda_install(conda = conda, packages = pkgs_to_install, envname = envname, pip = pip, ...)
+      conda_install(conda = conda, packages = pkgs_to_install, envname = envname, pip = pip, pip_options = pip_options, ...)
     }, error = identity)
   }
 
@@ -339,7 +346,6 @@ find_conda <- function() {
 #'
 #' @inheritParams reticulate::conda_install
 #' @importFrom rlang %||%
-#' @export
 conda_install <- function(envname = NULL, packages, forge = TRUE, channel = character(),
                           pip = FALSE, pip_options = character(), pip_ignore_installed = FALSE,
                           conda = "auto", python_version = NULL, ...) {
@@ -409,7 +415,6 @@ conda_install <- function(envname = NULL, packages, forge = TRUE, channel = char
 #' Find the path to Python associated with a conda environment
 #'
 #' @inheritParams reticulate::conda_python
-#' @export
 conda_python <- function(envname = NULL, conda = "auto", all = FALSE) {
   envname <- get_envname(envname)
   envname <- reticulate:::condaenv_resolve(envname)

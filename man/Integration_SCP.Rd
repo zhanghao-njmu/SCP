@@ -90,7 +90,7 @@ Integration_SCP(
 \item{seed}{Set a random seed.}
 }
 \value{
-A \code{Seurat} object containing the result.
+A \code{Seurat} object.
 }
 \description{
 Single cell pipeline for the integration of multiple datasets.

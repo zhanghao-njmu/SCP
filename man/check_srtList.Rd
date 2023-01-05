@@ -23,9 +23,27 @@ check_srtList(
 )
 }
 \arguments{
-\item{srtList}{}
+\item{srtList}{A list of \code{Seurat} object.}
+
+\item{batch}{Metadata column name containing the batch information.}
+
+\item{do_normalization}{Whether to normalize the data. If NULL, will automatically determine.}
+
+\item{normalization_method}{Normalization method.Can be one of "LogNormalize", "SCT".}
+
+\item{do_HVF_finding}{Whether to find the high variable features(HVF). If NULL, will automatically determine.}
+
+\item{HVF_source}{Source of the HVF. Can be one of "separate" and "global".}
+
+\item{nHVF}{HVF number to use.}
 
 \item{HVF_min_intersection}{}
+
+\item{HVF}{Custom high variable features.}
+
+\item{vars_to_regress}{Variables to regress out.}
+
+\item{seed}{Set a random seed.}
 }
 \description{
 Check and preprocess a list of seurat objects
