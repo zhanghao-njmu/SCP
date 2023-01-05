@@ -4594,6 +4594,10 @@ adata_to_srt <- function(adata) {
         next
       }
       uns <- tryCatch(check_python_element(uns), error = identity)
+      if (inherits(uns, "error")) {
+        warning("'uns: ", k, "' will not be converted. You may need to convert it manually.", immediate. = TRUE)
+        next
+      }
       if (!inherits(uns, "python.builtin.object")) {
         srt@misc[[k]] <- uns
       } else {
