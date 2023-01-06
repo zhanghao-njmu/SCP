@@ -2760,8 +2760,6 @@ LIGER_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE
 #'
 #' @inheritParams Integration_SCP
 #'
-#' @return
-#'
 #' @importFrom Seurat GetAssayData ScaleData SetAssayData DefaultAssay DefaultAssay<- Embeddings FindNeighbors FindClusters Idents VariableFeatures VariableFeatures<-
 #' @importFrom dplyr "%>%"
 #' @export
@@ -2950,7 +2948,6 @@ Conos_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE
 #'
 #' @inheritParams Integration_SCP
 #'
-#' @return
 #' @importFrom Seurat CreateSeuratObject as.SingleCellExperiment GetAssayData ScaleData SetAssayData DefaultAssay DefaultAssay<- Embeddings FindNeighbors FindClusters Idents VariableFeatures VariableFeatures<-
 #' @importFrom dplyr "%>%"
 ZINBWaVE_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE, srtList = NULL, assay = "RNA",
@@ -3314,17 +3311,21 @@ Standard_SCP <- function(srt, prefix = "Standard", assay = "RNA",
 #'
 #' Single cell pipeline for the integration of multiple datasets.
 #'
-#' @param srtList A list of \code{Seurat} object.
 #' @param srtMerge A merged \code{Seurat} object with batch information.
 #' @param batch Metadata column name containing the batch information.
 #' @param append Whether append results into the \code{srtMerge}. Only valid when srtMerge is provided.
+#' @param srtList A list of \code{Seurat} object.
+#' @param assay
 #' @param integration_method Integration method. Can be one of "Uncorrected", "Seurat", "scVI", "MNN", "fastMNN", "Harmony", "Scanorama", "BBKNN", "CSS", "LIGER", "Conos".
 #' @param do_normalization Whether to normalize the data. If NULL, will automatically determine.
 #' @param normalization_method Normalization method.Can be one of "LogNormalize", "SCT".
 #' @param do_HVF_finding Whether to find the high variable features(HVF). If NULL, will automatically determine.
-#' @param HVF_source Source of the HVF. Can be one of "separate" and "global".
 #' @param nHVF HVF number to use.
+#' @param HVF_source Source of the HVF. Can be one of "separate" and "global".
+#' @param HVF_method
 #' @param HVF Custom high variable features.
+#' @param HVF_intersect
+#' @param HVF_min_intersection
 #' @param do_scaling Whether to scale the data. If NULL, will automatically determine.
 #' @param vars_to_regress Variables to regress out.
 #' @param regression_model Use a linear model or generalized linear model (poisson, negative binomial) for the regression. Options are "linear" (default), "poisson", and "negbinom".
@@ -3337,16 +3338,12 @@ Standard_SCP <- function(srt, prefix = "Standard", assay = "RNA",
 #' @param cluster_resolution Cluster resolution parameter.
 #' @param cluster_reorder Whether to reorder the cluster names using hierarchical clustering.
 #' @param seed Set a random seed.
-#' @param HVF_method
 #' @param force_linear_reduction
 #' @param do_cluster_finding
-#' @param ...
 #' @param linear_reduction_params
 #' @param nonlinear_reduction_params
 #' @param force_nonlinear_reduction
-#' @param assay
-#' @param HVF_intersect
-#' @param HVF_min_intersection
+#' @param ...
 #'
 #' @return A \code{Seurat} object.
 #'

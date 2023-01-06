@@ -51,8 +51,6 @@ scVI_integrate(
 
 \item{nHVF}{HVF number to use.}
 
-\item{HVF_min_intersection}{}
-
 \item{HVF}{Custom high variable features.}
 
 \item{nonlinear_reduction}{Non-linear reduction method name. Can be one of "umap", "umap-naive", "tsne", "dm", "phate", "pacmap", "trimap", "largevis".}

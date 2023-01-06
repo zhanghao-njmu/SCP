@@ -3279,6 +3279,245 @@ cluster_within_group2 <- function(mat, factor) {
   return(dend)
 }
 
+#' @importFrom ComplexHeatmap HeatmapAnnotation anno_empty anno_block anno_textbox
+#' @importFrom grid gpar
+#' @importFrom dplyr %>% filter group_by arrange desc across mutate summarise distinct n .data "%>%"
+heatmap_enrichment <- function(geneID, geneID_groups, feature_split_palette = "jama", ha_right = NULL, flip = FALSE,
+                               anno_terms = FALSE, anno_keys = FALSE, anno_features = FALSE,
+                               terms_width = unit(4, "in"), terms_fontsize = 8,
+                               keys_width = unit(2, "in"), keys_fontsize = c(6, 10),
+                               features_width = unit(2, "in"), features_fontsize = c(6, 10),
+                               IDtype = "symbol", species = "Homo_sapiens", db_update = FALSE, db_version = "latest", convert_species = FALSE, Ensembl_version = 103, mirror = NULL,
+                               db = "GO_BP", TERM2GENE = NULL, TERM2NAME = NULL, minGSSize = 10, maxGSSize = 500, universe = NULL,
+                               GO_simplify = FALSE, GO_simplify_padjustCutoff = 0.2, simplify_method = "Rel", simplify_similarityCutoff = 0.7,
+                               pvalueCutoff = NULL, padjustCutoff = 0.05, topTerm = 5, show_termid = FALSE, topWord = 20, min_word_length = 3,
+                               exclude_words = c("cell", "cellular", "dna", "rna", "protein", "development", "organization", "system", "regulation", "positive", "negative", "response", "process")) {
+  res <- NULL
+  if (isTRUE(anno_keys) || isTRUE(anno_features) || isTRUE(anno_terms)) {
+    if (isTRUE(flip)) {
+      stop("anno_keys, anno_features and anno_terms can only be used when flip is FALSE.")
+    }
+    if (all(is.na(geneID_groups))) {
+      geneID_groups <- rep(1, length(geneID))
+    }
+    res <- RunEnrichment(
+      geneID = geneID, geneID_groups = geneID_groups, IDtype = IDtype, species = species,
+      db_update = db_update, db_version = db_version, convert_species = convert_species, Ensembl_version = Ensembl_version, mirror = mirror,
+      db = db, TERM2GENE = TERM2GENE, TERM2NAME = TERM2NAME, minGSSize = minGSSize, maxGSSize = maxGSSize, universe = universe,
+      GO_simplify = GO_simplify, GO_simplify_padjustCutoff = GO_simplify_padjustCutoff, simplify_method = simplify_method, simplify_similarityCutoff = simplify_similarityCutoff
+    )
+    if (isTRUE(GO_simplify) && any(db %in% c("GO_BP", "GO_CC", "GO_MF"))) {
+      db[db %in% c("GO_BP", "GO_CC", "GO_MF")] <- paste0(db[db %in% c("GO_BP", "GO_CC", "GO_MF")], "_sim")
+    }
+    if (nrow(res$enrichment) == 0) {
+      warning("No enrichment result found.", immediate. = TRUE)
+    } else {
+      metric <- ifelse(is.null(padjustCutoff), "pvalue", "p.adjust")
+      pvalueCutoff <- ifelse(is.null(pvalueCutoff), 1, pvalueCutoff)
+      padjustCutoff <- ifelse(is.null(padjustCutoff), 1, padjustCutoff)
+
+      df <- res$enrichment %>%
+        filter(Database %in% db) %>%
+        group_by(Database, Groups) %>%
+        filter(.data[["pvalue"]] <= pvalueCutoff & .data[["p.adjust"]] <= padjustCutoff) %>%
+        arrange(desc(-.data[["pvalue"]])) %>%
+        as.data.frame()
+      if (nrow(df) == 0) {
+        warning(
+          "No term enriched using the threshold: ",
+          paste0("pvalueCutoff = ", pvalueCutoff), "; ",
+          paste0("padjustCutoff = ", padjustCutoff),
+          immediate. = TRUE
+        )
+      } else {
+        df_list <- split.data.frame(df, ~ Database + Groups)
+        df_list <- df_list[lapply(df_list, nrow) > 0]
+
+        for (enrich in db) {
+          nm <- strsplit(names(df_list), "\\.")
+          subdf_list <- df_list[unlist(lapply(nm, function(x) x[[1]])) %in% enrich]
+          if (length(subdf_list) == 0) {
+            warning(
+              "No ", enrich, " term enriched using the threshold: ",
+              paste0("pvalueCutoff = ", pvalueCutoff), "; ",
+              paste0("padjustCutoff = ", padjustCutoff),
+              immediate. = TRUE
+            )
+            next
+          }
+          nm <- strsplit(names(subdf_list), "\\.")
+
+          ha_terms <- NULL
+          if (isTRUE(anno_terms)) {
+            terms_list <- lapply(subdf_list, function(df) {
+              if (isTRUE(show_termid)) {
+                terms <- paste(head(df$ID, topTerm), head(df$Description, topTerm))
+              } else {
+                terms <- head(df$Description, topTerm)
+                terms <- paste(toupper(substr(terms, 1, 1)), substr(terms, 2, nchar(terms)), sep = "")
+              }
+              df_out <- data.frame(keyword = terms)
+              df_out[["col"]] <- palette_scp(-log10(head(df[, "p.adjust"], topTerm)), type = "continuous", palette = "Spectral", matched = TRUE)
+              df_out[["col"]] <- sapply(df_out[["col"]], function(x) blendcolors(c(x, "black")))
+              df_out[["fontsize"]] <- rep(terms_fontsize, nrow(df_out))
+              return(df_out)
+            })
+            names(terms_list) <- unlist(lapply(nm, function(x) x[[2]]))
+            if (length(intersect(geneID_groups, names(terms_list))) > 0) {
+              ha_terms <- HeatmapAnnotation(
+                "terms_empty" = anno_empty(width = unit(0.05, "in"), border = FALSE, which = "row"),
+                "terms_split" = anno_block(
+                  gp = gpar(fill = palette_scp(geneID_groups, type = "discrete", palette = feature_split_palette)),
+                  width = unit(0.1, "in"),
+                  which = "row"
+                ),
+                "terms" = anno_textbox(
+                  align_to = geneID_groups, text = terms_list, max_width = terms_width,
+                  word_wrap = TRUE, add_new_line = TRUE,
+                  background_gp = gpar(fill = "grey98", col = "black"), round_corners = TRUE,
+                  which = "row"
+                ),
+                which = "row", gap = unit(0, "points")
+              )
+              names(ha_terms) <- paste0(names(ha_terms), "_", enrich)
+            }
+          }
+
+          ha_keys <- NULL
+          if (isTRUE(anno_keys)) {
+            check_R("jokergoo/simplifyEnrichment")
+            keys_list <- lapply(subdf_list, function(df) {
+              if (df$Database[1] %in% c("GO_BP", "GO_CC", "GO_MF")) {
+                df0 <- simplifyEnrichment::keyword_enrichment_from_GO(df[["ID"]])
+                if (nrow(df0 > 0)) {
+                  df <- df0 %>%
+                    summarise(
+                      keyword = .data[["keyword"]],
+                      score = -(log10(.data[["padj"]])),
+                      count = .data[["n_term"]],
+                      Database = df[["Database"]][1],
+                      Groups = df[["Groups"]][1]
+                    ) %>%
+                    filter(nchar(.data[["keyword"]]) >= min_word_length) %>%
+                    filter(!tolower(.data[["keyword"]]) %in% tolower(exclude_words)) %>%
+                    distinct() %>%
+                    mutate(angle = 90 * sample(c(0, 1), n(), replace = TRUE, prob = c(60, 40))) %>%
+                    as.data.frame()
+                  df <- df[head(order(df[["score"]], decreasing = TRUE), topWord), , drop = FALSE]
+                } else {
+                  df <- NULL
+                }
+              } else {
+                df <- df %>%
+                  mutate(keyword = strsplit(as.character(.data[["Description"]]), " ")) %>%
+                  unnest(cols = "keyword") %>%
+                  group_by(.data[["keyword"]], Database, Groups) %>%
+                  summarise(
+                    keyword = .data[["keyword"]],
+                    score = sum(-(log10(.data[[metric]]))),
+                    count = n(),
+                    Database = .data[["Database"]],
+                    Groups = .data[["Groups"]],
+                    .groups = "keep"
+                  ) %>%
+                  filter(nchar(.data[["keyword"]]) >= min_word_length) %>%
+                  filter(!tolower(.data[["keyword"]]) %in% tolower(exclude_words)) %>%
+                  distinct() %>%
+                  mutate(angle = 90 * sample(c(0, 1), n(), replace = TRUE, prob = c(60, 40))) %>%
+                  as.data.frame()
+                df <- df[head(order(df[["score"]], decreasing = TRUE), topWord), , drop = FALSE]
+              }
+              if (isTRUE(nrow(df) > 0)) {
+                df[["col"]] <- palette_scp(df[, "score"], type = "continuous", palette = "Spectral", matched = TRUE)
+                df[["col"]] <- sapply(df[["col"]], function(x) blendcolors(c(x, "black")))
+                df[["fontsize"]] <- rescale(df[, "count"], to = keys_fontsize)
+                return(df)
+              } else {
+                return(NULL)
+              }
+            })
+            names(keys_list) <- unlist(lapply(nm, function(x) x[[2]]))
+            keys_list <- keys_list[lapply(keys_list, length) > 0]
+            if (length(intersect(geneID_groups, names(keys_list))) > 0) {
+              ha_keys <- HeatmapAnnotation(
+                "keys_empty" = anno_empty(width = unit(0.05, "in"), border = FALSE, which = "row"),
+                "keys_split" = anno_block(
+                  gp = gpar(fill = palette_scp(geneID_groups, type = "discrete", palette = feature_split_palette)),
+                  width = unit(0.1, "in"),
+                  which = "row"
+                ),
+                "keys" = anno_textbox(
+                  align_to = geneID_groups, text = keys_list, max_width = keys_width,
+                  background_gp = gpar(fill = "grey98", col = "black"), round_corners = TRUE,
+                  which = "row"
+                ),
+                which = "row", gap = unit(0, "points")
+              )
+              names(ha_keys) <- paste0(names(ha_keys), "_", enrich)
+            }
+          }
+
+          ha_features <- NULL
+          if (isTRUE(anno_features)) {
+            features_list <- lapply(subdf_list, function(df) {
+              df <- df %>%
+                mutate(keyword = strsplit(as.character(.data[["geneID"]]), "/")) %>%
+                unnest(cols = "keyword") %>%
+                group_by(.data[["keyword"]], Database, Groups) %>%
+                summarise(
+                  keyword = .data[["keyword"]],
+                  score = sum(-(log10(.data[[metric]]))),
+                  count = n(),
+                  Database = .data[["Database"]],
+                  Groups = .data[["Groups"]],
+                  .groups = "keep"
+                ) %>%
+                filter(!tolower(.data[["keyword"]]) %in% tolower(exclude_words)) %>%
+                distinct() %>%
+                mutate(angle = 90 * sample(c(0, 1), n(), replace = TRUE, prob = c(60, 40))) %>%
+                as.data.frame()
+              df <- df[head(order(df[["score"]], decreasing = TRUE), topWord), ]
+              df[["col"]] <- palette_scp(df[, "score"], type = "continuous", palette = "Spectral", matched = TRUE)
+              df[["col"]] <- sapply(df[["col"]], function(x) blendcolors(c(x, "black")))
+              df[["fontsize"]] <- rescale(df[, "count"], to = features_fontsize)
+              return(df)
+            })
+            names(features_list) <- unlist(lapply(nm, function(x) x[[2]]))
+            if (length(intersect(geneID_groups, names(features_list))) > 0) {
+              ha_features <- HeatmapAnnotation(
+                "feat_empty" = anno_empty(width = unit(0.05, "in"), border = FALSE, which = "row"),
+                "feat_split" = anno_block(
+                  gp = gpar(fill = palette_scp(geneID_groups, type = "discrete", palette = feature_split_palette)),
+                  width = unit(0.1, "in"),
+                  which = "row"
+                ),
+                "feat" = anno_textbox(
+                  align_to = geneID_groups, text = features_list, max_width = features_width,
+                  background_gp = gpar(fill = "grey98", col = "black"), round_corners = TRUE,
+                  which = "row"
+                ),
+                which = "row", gap = unit(0, "points")
+              )
+              names(ha_features) <- paste0(names(ha_features), "_", enrich)
+            }
+          }
+
+          ha_enrichment <- list(ha_terms, ha_keys, ha_features)
+          ha_enrichment <- ha_enrichment[sapply(ha_enrichment, length) > 0]
+          ha_enrichment <- do.call(c, ha_enrichment)
+
+          if (is.null(ha_right)) {
+            ha_right <- ha_enrichment
+          } else {
+            ha_right <- c(ha_right, ha_enrichment)
+          }
+        }
+      }
+    }
+  }
+  return(list(ha_right = ha_right, res = res))
+}
+
 #' GroupHeatmap
 #'
 #' @param srt A \code{Seurat} object.
@@ -4241,225 +4480,21 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
     }
   }
 
-  res <- NULL
-  if (isTRUE(anno_keys) || isTRUE(anno_features) || isTRUE(anno_terms)) {
-    if (isTRUE(flip)) {
-      stop("anno_keys, anno_features and anno_terms can only be used when flip is FALSE.")
-    }
-    geneID <- feature_metadata[, "features"]
-    geneID_groups <- feature_metadata[, "feature_split"]
-    if (all(is.na(geneID_groups))) {
-      geneID_groups <- rep(1, length(geneID))
-    }
-    res <- RunEnrichment(
-      geneID = geneID, geneID_groups = geneID_groups, IDtype = IDtype, species = species,
-      db_update = db_update, db_version = db_version, convert_species = convert_species, Ensembl_version = Ensembl_version, mirror = mirror,
-      db = db, TERM2GENE = TERM2GENE, TERM2NAME = TERM2NAME, minGSSize = minGSSize, maxGSSize = maxGSSize, universe = universe,
-      GO_simplify = GO_simplify, GO_simplify_padjustCutoff = GO_simplify_padjustCutoff, simplify_method = simplify_method, simplify_similarityCutoff = simplify_similarityCutoff
-    )
-    if (isTRUE(GO_simplify) && any(db %in% c("GO_BP", "GO_CC", "GO_MF"))) {
-      db[db %in% c("GO_BP", "GO_CC", "GO_MF")] <- paste0(db[db %in% c("GO_BP", "GO_CC", "GO_MF")], "_sim")
-    }
-    if (nrow(res$enrichment) == 0) {
-      warning("No enrichment result found.", immediate. = TRUE)
-    } else {
-      metric <- ifelse(is.null(padjustCutoff), "pvalue", "p.adjust")
-      pvalueCutoff <- ifelse(is.null(pvalueCutoff), 1, pvalueCutoff)
-      padjustCutoff <- ifelse(is.null(padjustCutoff), 1, padjustCutoff)
-
-      df <- res$enrichment %>%
-        filter(Database %in% db) %>%
-        group_by(Database, Groups) %>%
-        filter(.data[["pvalue"]] <= pvalueCutoff & .data[["p.adjust"]] <= padjustCutoff) %>%
-        arrange(desc(-.data[["pvalue"]])) %>%
-        as.data.frame()
-      if (nrow(df) == 0) {
-        warning(
-          "No term enriched using the threshold: ",
-          paste0("pvalueCutoff = ", pvalueCutoff), "; ",
-          paste0("padjustCutoff = ", padjustCutoff),
-          immediate. = TRUE
-        )
-      } else {
-        df_list <- split.data.frame(df, ~ Database + Groups)
-        df_list <- df_list[lapply(df_list, nrow) > 0]
-
-        for (enrich in db) {
-          nm <- strsplit(names(df_list), "\\.")
-          subdf_list <- df_list[unlist(lapply(nm, function(x) x[[1]])) %in% enrich]
-          if (length(subdf_list) == 0) {
-            warning(
-              "No ", enrich, " term enriched using the threshold: ",
-              paste0("pvalueCutoff = ", pvalueCutoff), "; ",
-              paste0("padjustCutoff = ", padjustCutoff),
-              immediate. = TRUE
-            )
-            next
-          }
-          nm <- strsplit(names(subdf_list), "\\.")
-
-          ha_terms <- NULL
-          if (isTRUE(anno_terms)) {
-            terms_list <- lapply(subdf_list, function(df) {
-              if (isTRUE(show_termid)) {
-                terms <- paste(head(df$ID, topTerm), head(df$Description, topTerm))
-              } else {
-                terms <- head(df$Description, topTerm)
-                terms <- paste(toupper(substr(terms, 1, 1)), substr(terms, 2, nchar(terms)), sep = "")
-              }
-              df_out <- data.frame(keyword = terms)
-              df_out[["col"]] <- palette_scp(-log10(head(df[, "p.adjust"], topTerm)), type = "continuous", palette = "Spectral", matched = TRUE)
-              df_out[["col"]] <- sapply(df_out[["col"]], function(x) blendcolors(c(x, "black")))
-              df_out[["fontsize"]] <- rep(terms_fontsize, nrow(df_out))
-              return(df_out)
-            })
-            names(terms_list) <- unlist(lapply(nm, function(x) x[[2]]))
-            ha_terms <- HeatmapAnnotation(
-              "terms_empty" = anno_empty(width = unit(0.05, "in"), border = FALSE, which = "row"),
-              "terms_split" = anno_block(
-                gp = gpar(fill = palette_scp(geneID_groups, type = "discrete", palette = feature_split_palette)),
-                width = unit(0.1, "in"),
-                which = "row"
-              ),
-              "terms" = anno_textbox(
-                align_to = geneID_groups, text = terms_list, max_width = terms_width,
-                word_wrap = TRUE, add_new_line = TRUE,
-                background_gp = gpar(fill = "grey98", col = "black"), round_corners = TRUE,
-                which = "row"
-              ),
-              which = "row", gap = unit(0, "points")
-            )
-            names(ha_terms) <- paste0(names(ha_terms), "_", enrich)
-          }
-
-          ha_keys <- NULL
-          if (isTRUE(anno_keys)) {
-            check_R("jokergoo/simplifyEnrichment")
-            keys_list <- lapply(subdf_list, function(df) {
-              if (df$Database[1] %in% c("GO_BP", "GO_CC", "GO_MF")) {
-                df0 <- simplifyEnrichment::keyword_enrichment_from_GO(df[["ID"]])
-                if (nrow(df0 > 0)) {
-                  df <- df0 %>%
-                    summarise(
-                      keyword = .data[["keyword"]],
-                      score = -(log10(.data[["padj"]])),
-                      count = .data[["n_term"]],
-                      Database = df[["Database"]][1],
-                      Groups = df[["Groups"]][1]
-                    ) %>%
-                    filter(nchar(.data[["keyword"]]) >= min_word_length) %>%
-                    filter(!tolower(.data[["keyword"]]) %in% tolower(exclude_words)) %>%
-                    distinct() %>%
-                    mutate(angle = 90 * sample(c(0, 1), n(), replace = TRUE, prob = c(60, 40))) %>%
-                    as.data.frame()
-                  df <- df[head(order(df[["score"]], decreasing = TRUE), topWord), , drop = FALSE]
-                } else {
-                  df <- NULL
-                }
-              } else {
-                df <- df %>%
-                  mutate(keyword = strsplit(as.character(.data[["Description"]]), " ")) %>%
-                  unnest(cols = "keyword") %>%
-                  group_by(.data[["keyword"]], Database, Groups) %>%
-                  summarise(
-                    keyword = .data[["keyword"]],
-                    score = sum(-(log10(.data[[metric]]))),
-                    count = n(),
-                    Database = .data[["Database"]],
-                    Groups = .data[["Groups"]],
-                    .groups = "keep"
-                  ) %>%
-                  filter(nchar(.data[["keyword"]]) >= min_word_length) %>%
-                  filter(!tolower(.data[["keyword"]]) %in% tolower(exclude_words)) %>%
-                  distinct() %>%
-                  mutate(angle = 90 * sample(c(0, 1), n(), replace = TRUE, prob = c(60, 40))) %>%
-                  as.data.frame()
-                df <- df[head(order(df[["score"]], decreasing = TRUE), topWord), , drop = FALSE]
-              }
-              if (isTRUE(nrow(df) > 0)) {
-                df[["col"]] <- palette_scp(df[, "score"], type = "continuous", palette = "Spectral", matched = TRUE)
-                df[["col"]] <- sapply(df[["col"]], function(x) blendcolors(c(x, "black")))
-                df[["fontsize"]] <- rescale(df[, "count"], to = keys_fontsize)
-                return(df)
-              } else {
-                return(NULL)
-              }
-            })
-            names(keys_list) <- unlist(lapply(nm, function(x) x[[2]]))
-            keys_list <- keys_list[lapply(keys_list, length) > 0]
-            ha_keys <- HeatmapAnnotation(
-              "keys_empty" = anno_empty(width = unit(0.05, "in"), border = FALSE, which = "row"),
-              "keys_split" = anno_block(
-                gp = gpar(fill = palette_scp(geneID_groups, type = "discrete", palette = feature_split_palette)),
-                width = unit(0.1, "in"),
-                which = "row"
-              ),
-              "keys" = anno_textbox(
-                align_to = geneID_groups, text = keys_list, max_width = keys_width,
-                background_gp = gpar(fill = "grey98", col = "black"), round_corners = TRUE,
-                which = "row"
-              ),
-              which = "row", gap = unit(0, "points")
-            )
-            names(ha_keys) <- paste0(names(ha_keys), "_", enrich)
-          }
-
-          ha_features <- NULL
-          if (isTRUE(anno_features)) {
-            features_list <- lapply(subdf_list, function(df) {
-              df <- df %>%
-                mutate(keyword = strsplit(as.character(.data[["geneID"]]), "/")) %>%
-                unnest(cols = "keyword") %>%
-                group_by(.data[["keyword"]], Database, Groups) %>%
-                summarise(
-                  keyword = .data[["keyword"]],
-                  score = sum(-(log10(.data[[metric]]))),
-                  count = n(),
-                  Database = .data[["Database"]],
-                  Groups = .data[["Groups"]],
-                  .groups = "keep"
-                ) %>%
-                filter(!tolower(.data[["keyword"]]) %in% tolower(exclude_words)) %>%
-                distinct() %>%
-                mutate(angle = 90 * sample(c(0, 1), n(), replace = TRUE, prob = c(60, 40))) %>%
-                as.data.frame()
-              df <- df[head(order(df[["score"]], decreasing = TRUE), topWord), ]
-              df[["col"]] <- palette_scp(df[, "score"], type = "continuous", palette = "Spectral", matched = TRUE)
-              df[["col"]] <- sapply(df[["col"]], function(x) blendcolors(c(x, "black")))
-              df[["fontsize"]] <- rescale(df[, "count"], to = features_fontsize)
-              return(df)
-            })
-            names(features_list) <- unlist(lapply(nm, function(x) x[[2]]))
-            ha_features <- HeatmapAnnotation(
-              "feat_empty" = anno_empty(width = unit(0.05, "in"), border = FALSE, which = "row"),
-              "feat_split" = anno_block(
-                gp = gpar(fill = palette_scp(geneID_groups, type = "discrete", palette = feature_split_palette)),
-                width = unit(0.1, "in"),
-                which = "row"
-              ),
-              "feat" = anno_textbox(
-                align_to = geneID_groups, text = features_list, max_width = features_width,
-                background_gp = gpar(fill = "grey98", col = "black"), round_corners = TRUE,
-                which = "row"
-              ),
-              which = "row", gap = unit(0, "points")
-            )
-            names(ha_features) <- paste0(names(ha_features), "_", enrich)
-          }
-
-          ha_enrichment <- list(ha_terms, ha_keys, ha_features)
-          ha_enrichment <- ha_enrichment[sapply(ha_enrichment, length) > 0]
-          ha_enrichment <- do.call(c, ha_enrichment)
-
-          if (is.null(ha_right)) {
-            ha_right <- ha_enrichment
-          } else {
-            ha_right <- c(ha_right, ha_enrichment)
-          }
-        }
-      }
-    }
-  }
+  enrichment <- heatmap_enrichment(
+    geneID = feature_metadata[, "features"], geneID_groups = feature_metadata[, "feature_split"],
+    feature_split_palette = feature_split_palette, ha_right = ha_right, flip = flip,
+    anno_terms = anno_terms, anno_keys = anno_keys, anno_features = anno_features,
+    terms_width = terms_width, terms_fontsize = terms_fontsize,
+    keys_width = keys_width, keys_fontsize = keys_fontsize,
+    features_width = features_width, features_fontsize = features_fontsize,
+    IDtype = IDtype, species = species, db_update = db_update, db_version = db_version, convert_species = convert_species, Ensembl_version = Ensembl_version, mirror = mirror,
+    db = db, TERM2GENE = TERM2GENE, TERM2NAME = TERM2NAME, minGSSize = minGSSize, maxGSSize = maxGSSize, universe = universe,
+    GO_simplify = GO_simplify, GO_simplify_padjustCutoff = GO_simplify_padjustCutoff, simplify_method = simplify_method, simplify_similarityCutoff = simplify_similarityCutoff,
+    pvalueCutoff = pvalueCutoff, padjustCutoff = padjustCutoff, topTerm = topTerm, show_termid = show_termid, topWord = topWord, min_word_length = min_word_length,
+    exclude_words = exclude_words
+  )
+  res <- enrichment$res
+  ha_right <- enrichment$ha_right
 
   ht_list <- NULL
   vlnplots_list <- NULL
@@ -5557,225 +5592,21 @@ ExpHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, spli
     }
   }
 
-  res <- NULL
-  if (isTRUE(anno_keys) || isTRUE(anno_features) || isTRUE(anno_terms)) {
-    if (isTRUE(flip)) {
-      stop("anno_keys, anno_features and anno_terms can only be used when flip is FALSE.")
-    }
-    geneID <- feature_metadata[, "features"]
-    geneID_groups <- feature_metadata[, "feature_split"]
-    if (all(is.na(geneID_groups))) {
-      geneID_groups <- rep(1, length(geneID))
-    }
-    res <- RunEnrichment(
-      geneID = geneID, geneID_groups = geneID_groups, IDtype = IDtype, species = species,
-      db_update = db_update, db_version = db_version, convert_species = convert_species, Ensembl_version = Ensembl_version, mirror = mirror,
-      db = db, TERM2GENE = TERM2GENE, TERM2NAME = TERM2NAME, minGSSize = minGSSize, maxGSSize = maxGSSize, universe = universe,
-      GO_simplify = GO_simplify, GO_simplify_padjustCutoff = GO_simplify_padjustCutoff, simplify_method = simplify_method, simplify_similarityCutoff = simplify_similarityCutoff
-    )
-    if (isTRUE(GO_simplify) && any(db %in% c("GO_BP", "GO_CC", "GO_MF"))) {
-      db[db %in% c("GO_BP", "GO_CC", "GO_MF")] <- paste0(db[db %in% c("GO_BP", "GO_CC", "GO_MF")], "_sim")
-    }
-    if (nrow(res$enrichment) == 0) {
-      warning("No enrichment result found.", immediate. = TRUE)
-    } else {
-      metric <- ifelse(is.null(padjustCutoff), "pvalue", "p.adjust")
-      pvalueCutoff <- ifelse(is.null(pvalueCutoff), 1, pvalueCutoff)
-      padjustCutoff <- ifelse(is.null(padjustCutoff), 1, padjustCutoff)
-
-      df <- res$enrichment %>%
-        filter(Database %in% db) %>%
-        group_by(Database, Groups) %>%
-        filter(.data[["pvalue"]] <= pvalueCutoff & .data[["p.adjust"]] <= padjustCutoff) %>%
-        arrange(desc(-.data[["pvalue"]])) %>%
-        as.data.frame()
-      if (nrow(df) == 0) {
-        warning(
-          "No term enriched using the threshold: ",
-          paste0("pvalueCutoff = ", pvalueCutoff), "; ",
-          paste0("padjustCutoff = ", padjustCutoff),
-          immediate. = TRUE
-        )
-      } else {
-        df_list <- split.data.frame(df, ~ Database + Groups)
-        df_list <- df_list[lapply(df_list, nrow) > 0]
-
-        for (enrich in db) {
-          nm <- strsplit(names(df_list), "\\.")
-          subdf_list <- df_list[unlist(lapply(nm, function(x) x[[1]])) %in% enrich]
-          if (length(subdf_list) == 0) {
-            warning(
-              "No ", enrich, " term enriched using the threshold: ",
-              paste0("pvalueCutoff = ", pvalueCutoff), "; ",
-              paste0("padjustCutoff = ", padjustCutoff),
-              immediate. = TRUE
-            )
-            next
-          }
-          nm <- strsplit(names(subdf_list), "\\.")
-
-          ha_terms <- NULL
-          if (isTRUE(anno_terms)) {
-            terms_list <- lapply(subdf_list, function(df) {
-              if (isTRUE(show_termid)) {
-                terms <- paste(head(df$ID, topTerm), head(df$Description, topTerm))
-              } else {
-                terms <- head(df$Description, topTerm)
-                terms <- paste(toupper(substr(terms, 1, 1)), substr(terms, 2, nchar(terms)), sep = "")
-              }
-              df_out <- data.frame(keyword = terms)
-              df_out[["col"]] <- palette_scp(-log10(head(df[, "p.adjust"], topTerm)), type = "continuous", palette = "Spectral", matched = TRUE)
-              df_out[["col"]] <- sapply(df_out[["col"]], function(x) blendcolors(c(x, "black")))
-              df_out[["fontsize"]] <- rep(terms_fontsize, nrow(df_out))
-              return(df_out)
-            })
-            names(terms_list) <- unlist(lapply(nm, function(x) x[[2]]))
-            ha_terms <- HeatmapAnnotation(
-              "terms_empty" = anno_empty(width = unit(0.05, "in"), border = FALSE, which = "row"),
-              "terms_split" = anno_block(
-                gp = gpar(fill = palette_scp(geneID_groups, type = "discrete", palette = feature_split_palette)),
-                width = unit(0.1, "in"),
-                which = "row"
-              ),
-              "terms" = anno_textbox(
-                align_to = geneID_groups, text = terms_list, max_width = terms_width,
-                word_wrap = TRUE, add_new_line = TRUE,
-                background_gp = gpar(fill = "grey98", col = "black"), round_corners = TRUE,
-                which = "row"
-              ),
-              which = "row", gap = unit(0, "points")
-            )
-            names(ha_terms) <- paste0(names(ha_terms), "_", enrich)
-          }
-
-          ha_keys <- NULL
-          if (isTRUE(anno_keys)) {
-            check_R("jokergoo/simplifyEnrichment")
-            keys_list <- lapply(subdf_list, function(df) {
-              if (df$Database[1] %in% c("GO_BP", "GO_CC", "GO_MF")) {
-                df0 <- simplifyEnrichment::keyword_enrichment_from_GO(df[["ID"]])
-                if (nrow(df0 > 0)) {
-                  df <- df0 %>%
-                    summarise(
-                      keyword = .data[["keyword"]],
-                      score = -(log10(.data[["padj"]])),
-                      count = .data[["n_term"]],
-                      Database = df[["Database"]][1],
-                      Groups = df[["Groups"]][1]
-                    ) %>%
-                    filter(nchar(.data[["keyword"]]) >= min_word_length) %>%
-                    filter(!tolower(.data[["keyword"]]) %in% tolower(exclude_words)) %>%
-                    distinct() %>%
-                    mutate(angle = 90 * sample(c(0, 1), n(), replace = TRUE, prob = c(60, 40))) %>%
-                    as.data.frame()
-                  df <- df[head(order(df[["score"]], decreasing = TRUE), topWord), , drop = FALSE]
-                } else {
-                  df <- NULL
-                }
-              } else {
-                df <- df %>%
-                  mutate(keyword = strsplit(as.character(.data[["Description"]]), " ")) %>%
-                  unnest(cols = "keyword") %>%
-                  group_by(.data[["keyword"]], Database, Groups) %>%
-                  summarise(
-                    keyword = .data[["keyword"]],
-                    score = sum(-(log10(.data[[metric]]))),
-                    count = n(),
-                    Database = .data[["Database"]],
-                    Groups = .data[["Groups"]],
-                    .groups = "keep"
-                  ) %>%
-                  filter(nchar(.data[["keyword"]]) >= min_word_length) %>%
-                  filter(!tolower(.data[["keyword"]]) %in% tolower(exclude_words)) %>%
-                  distinct() %>%
-                  mutate(angle = 90 * sample(c(0, 1), n(), replace = TRUE, prob = c(60, 40))) %>%
-                  as.data.frame()
-                df <- df[head(order(df[["score"]], decreasing = TRUE), topWord), , drop = FALSE]
-              }
-              if (isTRUE(nrow(df) > 0)) {
-                df[["col"]] <- palette_scp(df[, "score"], type = "continuous", palette = "Spectral", matched = TRUE)
-                df[["col"]] <- sapply(df[["col"]], function(x) blendcolors(c(x, "black")))
-                df[["fontsize"]] <- rescale(df[, "count"], to = keys_fontsize)
-                return(df)
-              } else {
-                return(NULL)
-              }
-            })
-            names(keys_list) <- unlist(lapply(nm, function(x) x[[2]]))
-            keys_list <- keys_list[lapply(keys_list, length) > 0]
-            ha_keys <- HeatmapAnnotation(
-              "keys_empty" = anno_empty(width = unit(0.05, "in"), border = FALSE, which = "row"),
-              "keys_split" = anno_block(
-                gp = gpar(fill = palette_scp(geneID_groups, type = "discrete", palette = feature_split_palette)),
-                width = unit(0.1, "in"),
-                which = "row"
-              ),
-              "keys" = anno_textbox(
-                align_to = geneID_groups, text = keys_list, max_width = keys_width,
-                background_gp = gpar(fill = "grey98", col = "black"), round_corners = TRUE,
-                which = "row"
-              ),
-              which = "row", gap = unit(0, "points")
-            )
-            names(ha_keys) <- paste0(names(ha_keys), "_", enrich)
-          }
-
-          ha_features <- NULL
-          if (isTRUE(anno_features)) {
-            features_list <- lapply(subdf_list, function(df) {
-              df <- df %>%
-                mutate(keyword = strsplit(as.character(.data[["geneID"]]), "/")) %>%
-                unnest(cols = "keyword") %>%
-                group_by(.data[["keyword"]], Database, Groups) %>%
-                summarise(
-                  keyword = .data[["keyword"]],
-                  score = sum(-(log10(.data[[metric]]))),
-                  count = n(),
-                  Database = .data[["Database"]],
-                  Groups = .data[["Groups"]],
-                  .groups = "keep"
-                ) %>%
-                filter(!tolower(.data[["keyword"]]) %in% tolower(exclude_words)) %>%
-                distinct() %>%
-                mutate(angle = 90 * sample(c(0, 1), n(), replace = TRUE, prob = c(60, 40))) %>%
-                as.data.frame()
-              df <- df[head(order(df[["score"]], decreasing = TRUE), topWord), ]
-              df[["col"]] <- palette_scp(df[, "score"], type = "continuous", palette = "Spectral", matched = TRUE)
-              df[["col"]] <- sapply(df[["col"]], function(x) blendcolors(c(x, "black")))
-              df[["fontsize"]] <- rescale(df[, "count"], to = features_fontsize)
-              return(df)
-            })
-            names(features_list) <- unlist(lapply(nm, function(x) x[[2]]))
-            ha_features <- HeatmapAnnotation(
-              "feat_empty" = anno_empty(width = unit(0.05, "in"), border = FALSE, which = "row"),
-              "feat_split" = anno_block(
-                gp = gpar(fill = palette_scp(geneID_groups, type = "discrete", palette = feature_split_palette)),
-                width = unit(0.1, "in"),
-                which = "row"
-              ),
-              "feat" = anno_textbox(
-                align_to = geneID_groups, text = features_list, max_width = features_width,
-                background_gp = gpar(fill = "grey98", col = "black"), round_corners = TRUE,
-                which = "row"
-              ),
-              which = "row", gap = unit(0, "points")
-            )
-            names(ha_features) <- paste0(names(ha_features), "_", enrich)
-          }
-
-          ha_enrichment <- list(ha_terms, ha_keys, ha_features)
-          ha_enrichment <- ha_enrichment[sapply(ha_enrichment, length) > 0]
-          ha_enrichment <- do.call(c, ha_enrichment)
-
-          if (is.null(ha_right)) {
-            ha_right <- ha_enrichment
-          } else {
-            ha_right <- c(ha_right, ha_enrichment)
-          }
-        }
-      }
-    }
-  }
+  enrichment <- heatmap_enrichment(
+    geneID = feature_metadata[, "features"], geneID_groups = feature_metadata[, "feature_split"],
+    feature_split_palette = feature_split_palette, ha_right = ha_right, flip = flip,
+    anno_terms = anno_terms, anno_keys = anno_keys, anno_features = anno_features,
+    terms_width = terms_width, terms_fontsize = terms_fontsize,
+    keys_width = keys_width, keys_fontsize = keys_fontsize,
+    features_width = features_width, features_fontsize = features_fontsize,
+    IDtype = IDtype, species = species, db_update = db_update, db_version = db_version, convert_species = convert_species, Ensembl_version = Ensembl_version, mirror = mirror,
+    db = db, TERM2GENE = TERM2GENE, TERM2NAME = TERM2NAME, minGSSize = minGSSize, maxGSSize = maxGSSize, universe = universe,
+    GO_simplify = GO_simplify, GO_simplify_padjustCutoff = GO_simplify_padjustCutoff, simplify_method = simplify_method, simplify_similarityCutoff = simplify_similarityCutoff,
+    pvalueCutoff = pvalueCutoff, padjustCutoff = padjustCutoff, topTerm = topTerm, show_termid = show_termid, topWord = topWord, min_word_length = min_word_length,
+    exclude_words = exclude_words
+  )
+  res <- enrichment$res
+  ha_right <- enrichment$ha_right
 
   ht_list <- NULL
   for (cell_group in group.by) {
@@ -6461,10 +6292,10 @@ ExpCorPlot <- function(srt, features, group.by = NULL, split.by = NULL, cells = 
 #' @importFrom ggplot2 ggplot scale_fill_manual labs scale_y_discrete scale_x_continuous facet_grid labs coord_flip element_text element_line
 #' @importFrom cowplot plot_grid
 #' @export
-CellDensityPlot <- function(srt, features, group.by, split.by = NULL,
+CellDensityPlot <- function(srt, features, group.by, split.by = NULL, assay = NULL, slot = "data",
                             flip = FALSE, reverse = FALSE, x_order = c("value", "rank"),
                             decreasing = NULL, palette = "Paired", palcolor = NULL,
-                            cells = NULL, assay = NULL, slot = "data", keep_empty = FALSE,
+                            cells = NULL, keep_empty = FALSE,
                             y.nbreaks = 4, y.min = NULL, y.max = NULL, same.y.lims = FALSE,
                             theme_use = "theme_scp", aspect.ratio = NULL, title = NULL, subtitle = NULL,
                             legend.position = "right", legend.direction = "vertical",
@@ -10959,225 +10790,21 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineag
     }
   }
 
-  res <- NULL
-  if (isTRUE(anno_keys) || isTRUE(anno_features) || isTRUE(anno_terms)) {
-    if (isTRUE(flip)) {
-      stop("anno_keys, anno_features and anno_terms can only be used when flip is FALSE.")
-    }
-    geneID <- feature_metadata[, "features"]
-    geneID_groups <- feature_metadata[, "feature_split"]
-    if (all(is.na(geneID_groups))) {
-      geneID_groups <- rep(1, length(geneID))
-    }
-    res <- RunEnrichment(
-      geneID = geneID, geneID_groups = geneID_groups, IDtype = IDtype, species = species,
-      db_update = db_update, db_version = db_version, convert_species = convert_species, Ensembl_version = Ensembl_version, mirror = mirror,
-      db = db, TERM2GENE = TERM2GENE, TERM2NAME = TERM2NAME, minGSSize = minGSSize, maxGSSize = maxGSSize, universe = universe,
-      GO_simplify = GO_simplify, GO_simplify_padjustCutoff = GO_simplify_padjustCutoff, simplify_method = simplify_method, simplify_similarityCutoff = simplify_similarityCutoff
-    )
-    if (isTRUE(GO_simplify) && any(db %in% c("GO_BP", "GO_CC", "GO_MF"))) {
-      db[db %in% c("GO_BP", "GO_CC", "GO_MF")] <- paste0(db[db %in% c("GO_BP", "GO_CC", "GO_MF")], "_sim")
-    }
-    if (nrow(res$enrichment) == 0) {
-      warning("No enrichment result found.", immediate. = TRUE)
-    } else {
-      metric <- ifelse(is.null(padjustCutoff), "pvalue", "p.adjust")
-      pvalueCutoff <- ifelse(is.null(pvalueCutoff), 1, pvalueCutoff)
-      padjustCutoff <- ifelse(is.null(padjustCutoff), 1, padjustCutoff)
-
-      df <- res$enrichment %>%
-        filter(Database %in% db) %>%
-        group_by(Database, Groups) %>%
-        filter(.data[["pvalue"]] <= pvalueCutoff & .data[["p.adjust"]] <= padjustCutoff) %>%
-        arrange(desc(-.data[["pvalue"]])) %>%
-        as.data.frame()
-      if (nrow(df) == 0) {
-        warning(
-          "No term enriched using the threshold: ",
-          paste0("pvalueCutoff = ", pvalueCutoff), "; ",
-          paste0("padjustCutoff = ", padjustCutoff),
-          immediate. = TRUE
-        )
-      } else {
-        df_list <- split.data.frame(df, ~ Database + Groups)
-        df_list <- df_list[lapply(df_list, nrow) > 0]
-
-        for (enrich in db) {
-          nm <- strsplit(names(df_list), "\\.")
-          subdf_list <- df_list[unlist(lapply(nm, function(x) x[[1]])) %in% enrich]
-          if (length(subdf_list) == 0) {
-            warning(
-              "No ", enrich, " term enriched using the threshold: ",
-              paste0("pvalueCutoff = ", pvalueCutoff), "; ",
-              paste0("padjustCutoff = ", padjustCutoff),
-              immediate. = TRUE
-            )
-            next
-          }
-          nm <- strsplit(names(subdf_list), "\\.")
-
-          ha_terms <- NULL
-          if (isTRUE(anno_terms)) {
-            terms_list <- lapply(subdf_list, function(df) {
-              if (isTRUE(show_termid)) {
-                terms <- paste(head(df$ID, topTerm), head(df$Description, topTerm))
-              } else {
-                terms <- head(df$Description, topTerm)
-                terms <- paste(toupper(substr(terms, 1, 1)), substr(terms, 2, nchar(terms)), sep = "")
-              }
-              df_out <- data.frame(keyword = terms)
-              df_out[["col"]] <- palette_scp(-log10(head(df[, "p.adjust"], topTerm)), type = "continuous", palette = "Spectral", matched = TRUE)
-              df_out[["col"]] <- sapply(df_out[["col"]], function(x) blendcolors(c(x, "black")))
-              df_out[["fontsize"]] <- rep(terms_fontsize, nrow(df_out))
-              return(df_out)
-            })
-            names(terms_list) <- unlist(lapply(nm, function(x) x[[2]]))
-            ha_terms <- HeatmapAnnotation(
-              "terms_empty" = anno_empty(width = unit(0.05, "in"), border = FALSE, which = "row"),
-              "terms_split" = anno_block(
-                gp = gpar(fill = palette_scp(geneID_groups, type = "discrete", palette = feature_split_palette)),
-                width = unit(0.1, "in"),
-                which = "row"
-              ),
-              "terms" = anno_textbox(
-                align_to = geneID_groups, text = terms_list, max_width = terms_width,
-                word_wrap = TRUE, add_new_line = TRUE,
-                background_gp = gpar(fill = "grey98", col = "black"), round_corners = TRUE,
-                which = "row"
-              ),
-              which = "row", gap = unit(0, "points")
-            )
-            names(ha_terms) <- paste0(names(ha_terms), "_", enrich)
-          }
-
-          ha_keys <- NULL
-          if (isTRUE(anno_keys)) {
-            check_R("jokergoo/simplifyEnrichment")
-            keys_list <- lapply(subdf_list, function(df) {
-              if (df$Database[1] %in% c("GO_BP", "GO_CC", "GO_MF")) {
-                df0 <- simplifyEnrichment::keyword_enrichment_from_GO(df[["ID"]])
-                if (nrow(df0 > 0)) {
-                  df <- df0 %>%
-                    summarise(
-                      keyword = .data[["keyword"]],
-                      score = -(log10(.data[["padj"]])),
-                      count = .data[["n_term"]],
-                      Database = df[["Database"]][1],
-                      Groups = df[["Groups"]][1]
-                    ) %>%
-                    filter(nchar(.data[["keyword"]]) >= min_word_length) %>%
-                    filter(!tolower(.data[["keyword"]]) %in% tolower(exclude_words)) %>%
-                    distinct() %>%
-                    mutate(angle = 90 * sample(c(0, 1), n(), replace = TRUE, prob = c(60, 40))) %>%
-                    as.data.frame()
-                  df <- df[head(order(df[["score"]], decreasing = TRUE), topWord), , drop = FALSE]
-                } else {
-                  df <- NULL
-                }
-              } else {
-                df <- df %>%
-                  mutate(keyword = strsplit(as.character(.data[["Description"]]), " ")) %>%
-                  unnest(cols = "keyword") %>%
-                  group_by(.data[["keyword"]], Database, Groups) %>%
-                  summarise(
-                    keyword = .data[["keyword"]],
-                    score = sum(-(log10(.data[[metric]]))),
-                    count = n(),
-                    Database = .data[["Database"]],
-                    Groups = .data[["Groups"]],
-                    .groups = "keep"
-                  ) %>%
-                  filter(nchar(.data[["keyword"]]) >= min_word_length) %>%
-                  filter(!tolower(.data[["keyword"]]) %in% tolower(exclude_words)) %>%
-                  distinct() %>%
-                  mutate(angle = 90 * sample(c(0, 1), n(), replace = TRUE, prob = c(60, 40))) %>%
-                  as.data.frame()
-                df <- df[head(order(df[["score"]], decreasing = TRUE), topWord), , drop = FALSE]
-              }
-              if (isTRUE(nrow(df) > 0)) {
-                df[["col"]] <- palette_scp(df[, "score"], type = "continuous", palette = "Spectral", matched = TRUE)
-                df[["col"]] <- sapply(df[["col"]], function(x) blendcolors(c(x, "black")))
-                df[["fontsize"]] <- rescale(df[, "count"], to = keys_fontsize)
-                return(df)
-              } else {
-                return(NULL)
-              }
-            })
-            names(keys_list) <- unlist(lapply(nm, function(x) x[[2]]))
-            keys_list <- keys_list[lapply(keys_list, length) > 0]
-            ha_keys <- HeatmapAnnotation(
-              "keys_empty" = anno_empty(width = unit(0.05, "in"), border = FALSE, which = "row"),
-              "keys_split" = anno_block(
-                gp = gpar(fill = palette_scp(geneID_groups, type = "discrete", palette = feature_split_palette)),
-                width = unit(0.1, "in"),
-                which = "row"
-              ),
-              "keys" = anno_textbox(
-                align_to = geneID_groups, text = keys_list, max_width = keys_width,
-                background_gp = gpar(fill = "grey98", col = "black"), round_corners = TRUE,
-                which = "row"
-              ),
-              which = "row", gap = unit(0, "points")
-            )
-            names(ha_keys) <- paste0(names(ha_keys), "_", enrich)
-          }
-
-          ha_features <- NULL
-          if (isTRUE(anno_features)) {
-            features_list <- lapply(subdf_list, function(df) {
-              df <- df %>%
-                mutate(keyword = strsplit(as.character(.data[["geneID"]]), "/")) %>%
-                unnest(cols = "keyword") %>%
-                group_by(.data[["keyword"]], Database, Groups) %>%
-                summarise(
-                  keyword = .data[["keyword"]],
-                  score = sum(-(log10(.data[[metric]]))),
-                  count = n(),
-                  Database = .data[["Database"]],
-                  Groups = .data[["Groups"]],
-                  .groups = "keep"
-                ) %>%
-                filter(!tolower(.data[["keyword"]]) %in% tolower(exclude_words)) %>%
-                distinct() %>%
-                mutate(angle = 90 * sample(c(0, 1), n(), replace = TRUE, prob = c(60, 40))) %>%
-                as.data.frame()
-              df <- df[head(order(df[["score"]], decreasing = TRUE), topWord), ]
-              df[["col"]] <- palette_scp(df[, "score"], type = "continuous", palette = "Spectral", matched = TRUE)
-              df[["col"]] <- sapply(df[["col"]], function(x) blendcolors(c(x, "black")))
-              df[["fontsize"]] <- rescale(df[, "count"], to = features_fontsize)
-              return(df)
-            })
-            names(features_list) <- unlist(lapply(nm, function(x) x[[2]]))
-            ha_features <- HeatmapAnnotation(
-              "feat_empty" = anno_empty(width = unit(0.05, "in"), border = FALSE, which = "row"),
-              "feat_split" = anno_block(
-                gp = gpar(fill = palette_scp(geneID_groups, type = "discrete", palette = feature_split_palette)),
-                width = unit(0.1, "in"),
-                which = "row"
-              ),
-              "feat" = anno_textbox(
-                align_to = geneID_groups, text = features_list, max_width = features_width,
-                background_gp = gpar(fill = "grey98", col = "black"), round_corners = TRUE,
-                which = "row"
-              ),
-              which = "row", gap = unit(0, "points")
-            )
-            names(ha_features) <- paste0(names(ha_features), "_", enrich)
-          }
-
-          ha_enrichment <- list(ha_terms, ha_keys, ha_features)
-          ha_enrichment <- ha_enrichment[sapply(ha_enrichment, length) > 0]
-          ha_enrichment <- do.call(c, ha_enrichment)
-
-          if (is.null(ha_right)) {
-            ha_right <- ha_enrichment
-          } else {
-            ha_right <- c(ha_right, ha_enrichment)
-          }
-        }
-      }
-    }
-  }
+  enrichment <- heatmap_enrichment(
+    geneID = feature_metadata[, "features"], geneID_groups = feature_metadata[, "feature_split"],
+    feature_split_palette = feature_split_palette, ha_right = ha_right, flip = flip,
+    anno_terms = anno_terms, anno_keys = anno_keys, anno_features = anno_features,
+    terms_width = terms_width, terms_fontsize = terms_fontsize,
+    keys_width = keys_width, keys_fontsize = keys_fontsize,
+    features_width = features_width, features_fontsize = features_fontsize,
+    IDtype = IDtype, species = species, db_update = db_update, db_version = db_version, convert_species = convert_species, Ensembl_version = Ensembl_version, mirror = mirror,
+    db = db, TERM2GENE = TERM2GENE, TERM2NAME = TERM2NAME, minGSSize = minGSSize, maxGSSize = maxGSSize, universe = universe,
+    GO_simplify = GO_simplify, GO_simplify_padjustCutoff = GO_simplify_padjustCutoff, simplify_method = simplify_method, simplify_similarityCutoff = simplify_similarityCutoff,
+    pvalueCutoff = pvalueCutoff, padjustCutoff = padjustCutoff, topTerm = topTerm, show_termid = show_termid, topWord = topWord, min_word_length = min_word_length,
+    exclude_words = exclude_words
+  )
+  res <- enrichment$res
+  ha_right <- enrichment$ha_right
 
   ht_list <- NULL
   for (l in lineages) {
