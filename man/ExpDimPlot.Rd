@@ -16,13 +16,15 @@ ExpDimPlot(
   show_stat = TRUE,
   palette = ifelse(isTRUE(compare_features), "Set1", "Spectral"),
   palcolor = NULL,
-  bg_cutoff = 0,
-  bg_color = "grey80",
   pt.size = NULL,
   pt.alpha = 1,
+  bg_cutoff = 0,
+  bg_color = "grey80",
   keep_scale = NULL,
   lower_quantile = 0,
   upper_quantile = 0.99,
+  lower_cutoff = NULL,
+  upper_cutoff = NULL,
   add_density = FALSE,
   density_color = "grey80",
   density_filled = FALSE,
@@ -35,7 +37,7 @@ ExpDimPlot(
   stroke.highlight = 0.5,
   calculate_coexp = FALSE,
   compare_features = FALSE,
-  color_blend_mode = "blend",
+  color_blend_mode = c("blend", "mix", "screen", "multiply"),
   label = FALSE,
   label.size = 4,
   label.fg = "white",
@@ -64,7 +66,7 @@ ExpDimPlot(
   edge_alpha = 0.1,
   edge_color = "grey40",
   hex = FALSE,
-  hex.size = 0.5,
+  hex.linewidth = 0.5,
   hex.color = "grey90",
   hex.bins = 50,
   hex.binwidth = NULL,
@@ -99,15 +101,13 @@ ExpDimPlot(
 
 \item{split.by}{Name of a metadata column to split plot by.}
 
-\item{cells}{}
-
 \item{palette}{Name of palette to use. Default is "Paired".}
-
-\item{bg_color}{Color value for NA points.}
 
 \item{pt.size}{Point size for plotting.}
 
 \item{pt.alpha}{Point transparency.}
+
+\item{bg_color}{Color value for NA points.}
 
 \item{keep_scale}{How to handle the color scale across multiple plots. Options are:
 \itemize{
@@ -115,6 +115,8 @@ ExpDimPlot(
   \item{"all" (universal scaling):}{ The plots for all features and conditions are scaled to the maximum expression value for the feature with the highest overall expression.}
   \item{NULL (no scaling):}{ Each individual plot is scaled to the maximum expression value of the feature in the condition provided to 'split.by'. Be aware setting NULL will result in color scales that are not comparable between plots.}
 }}
+
+\item{upper_cutoff}{}
 
 \item{cells.highlight}{A vector of names of cells to highlight.}
 
@@ -142,12 +144,20 @@ Plotting cell points on a reduced 2D plane and coloring according to the express
 }
 \examples{
 data("pancreas_sub")
+pancreas_sub <- Standard_SCP(pancreas_sub)
 ExpDimPlot(pancreas_sub, features = "G2M_score", reduction = "UMAP")
 ExpDimPlot(pancreas_sub, features = "G2M_score", reduction = "UMAP", hex = TRUE)
 
 pancreas_sub <- RunSlingshot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP")
 ExpDimPlot(pancreas_sub, features = "Lineage3", reduction = "UMAP", lineages = "Lineage3")
 ExpDimPlot(pancreas_sub, features = "Lineage3", reduction = "UMAP", lineages = "Lineage3", lineages_span = 0.1)
+
+ExpDimPlot(pancreas_sub, c("Ins1", "Gcg", "Sst", "Ghrl"), reduction = "UMAP")
+ExpDimPlot(pancreas_sub, c("Ins1", "Gcg", "Sst", "Ghrl"), reduction = "UMAP", lower_quantile = 0, upper_quantile = 0.8)
+ExpDimPlot(pancreas_sub, c("Ins1", "Gcg", "Sst", "Ghrl"), reduction = "UMAP", lower_cutoff = 1, upper_cutoff = 4)
+ExpDimPlot(pancreas_sub, c("Ins1", "Gcg", "Sst", "Ghrl"), reduction = "UMAP", bg_cutoff = 1, lower_cutoff = 1, upper_cutoff = 4)
+ExpDimPlot(pancreas_sub, c("Ins1", "Gcg", "Sst", "Ghrl"), reduction = "UMAP", keep_scale = "all")
+ExpDimPlot(pancreas_sub, c("Sst", "Ghrl"), split.by = "Phase", reduction = "UMAP", keep_scale = "feature")
 
 ExpDimPlot(pancreas_sub,
   features = c("Ins1", "Gcg", "Sst", "Ghrl"), pt.size = 1,

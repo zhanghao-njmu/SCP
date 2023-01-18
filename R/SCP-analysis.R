@@ -2332,35 +2332,70 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
         ## TF ---------------------------------------------------------------------------
         if (any(db == "TF") && (!"TF" %in% names(db_list[[sps]]))) {
           message("Preparing database: TF")
-          temp <- tempfile()
-          url <- paste0("http://bioinfo.life.hust.edu.cn/AnimalTFDB4/static/download/TF_list_final/", sps, "_TF")
-          download(url = url, destfile = temp)
-          tf <- read.table(temp, header = TRUE, sep = "\t", stringsAsFactors = FALSE, fill = TRUE, quote = "")
-          url <- paste0("http://bioinfo.life.hust.edu.cn/AnimalTFDB4/static/download/Cof_list_final/", sps, "_Cof")
-          download(url = url, destfile = temp)
-          tfco <- read.table(temp, header = TRUE, sep = "\t", stringsAsFactors = FALSE, fill = TRUE, quote = "")
-          if (!"Symbol" %in% colnames(tf)) {
-            if (isTRUE(convert_species) && db_species["TF"] != "Homo_sapiens") {
-              warning("Use the human annotation to create the TF database for ", sps, immediate. = TRUE)
-              db_species["TF"] <- "Homo_sapiens"
-              url <- paste0("http://bioinfo.life.hust.edu.cn/AnimalTFDB4/static/download/TF_list_final/Homo_sapiens_TF")
+
+          # AnimalTFDB4
+          status <- tryCatch(
+            {
+              temp <- tempfile()
+              url <- paste0("http://bioinfo.life.hust.edu.cn/AnimalTFDB4/static/download/TF_list_final/", sps, "_TF")
               download(url = url, destfile = temp)
               tf <- read.table(temp, header = TRUE, sep = "\t", stringsAsFactors = FALSE, fill = TRUE, quote = "")
-              url <- paste0("http://bioinfo.life.hust.edu.cn/AnimalTFDB4/static/download/Cof_list_final/Homo_sapiens_Cof")
+              url <- paste0("http://bioinfo.life.hust.edu.cn/AnimalTFDB4/static/download/Cof_list_final/", sps, "_Cof")
               download(url = url, destfile = temp)
               tfco <- read.table(temp, header = TRUE, sep = "\t", stringsAsFactors = FALSE, fill = TRUE, quote = "")
-            } else {
-              stop("Stop the preparation.")
+              if (!"Symbol" %in% colnames(tf)) {
+                if (isTRUE(convert_species) && db_species["TF"] != "Homo_sapiens") {
+                  warning("Use the human annotation to create the TF database for ", sps, immediate. = TRUE)
+                  db_species["TF"] <- "Homo_sapiens"
+                  url <- paste0("http://bioinfo.life.hust.edu.cn/AnimalTFDB4/static/download/TF_list_final/Homo_sapiens_TF")
+                  download(url = url, destfile = temp)
+                  tf <- read.table(temp, header = TRUE, sep = "\t", stringsAsFactors = FALSE, fill = TRUE, quote = "")
+                  url <- paste0("http://bioinfo.life.hust.edu.cn/AnimalTFDB4/static/download/Cof_list_final/Homo_sapiens_Cof")
+                  download(url = url, destfile = temp)
+                  tfco <- read.table(temp, header = TRUE, sep = "\t", stringsAsFactors = FALSE, fill = TRUE, quote = "")
+                } else {
+                  stop("Stop the preparation.")
+                }
+              }
+              unlink(temp)
+              version <- "AnimalTFDB4"
+            },
+            error = identity
+          )
+
+          # AnimalTFDB3
+          if (inherits(status, "error")) {
+            temp <- tempfile()
+            url <- paste0("https://raw.githubusercontent.com/GuoBioinfoLab/AnimalTFDB3/master/AnimalTFDB3/static/AnimalTFDB3/download/", sps, "_TF")
+            download(url = url, destfile = temp)
+            tf <- read.table(temp, header = TRUE, sep = "\t", stringsAsFactors = FALSE, fill = TRUE, quote = "")
+            url <- paste0("https://raw.githubusercontent.com/GuoBioinfoLab/AnimalTFDB3/master/AnimalTFDB3/static/AnimalTFDB3/download/", sps, "_TF_cofactors")
+            download(url = url, destfile = temp)
+            tfco <- read.table(temp, header = TRUE, sep = "\t", stringsAsFactors = FALSE, fill = TRUE, quote = "")
+            if (!"Symbol" %in% colnames(tf)) {
+              if (isTRUE(convert_species) && db_species["TF"] != "Homo_sapiens") {
+                warning("Use the human annotation to create the TF database for ", sps, immediate. = TRUE)
+                db_species["TF"] <- "Homo_sapiens"
+                url <- paste0("https://raw.githubusercontent.com/GuoBioinfoLab/AnimalTFDB3/master/AnimalTFDB3/static/AnimalTFDB3/download/Homo_sapiens_TF")
+                download(url = url, destfile = temp)
+                tf <- read.table(temp, header = TRUE, sep = "\t", stringsAsFactors = FALSE, fill = TRUE, quote = "")
+                url <- paste0("https://raw.githubusercontent.com/GuoBioinfoLab/AnimalTFDB3/master/AnimalTFDB3/static/AnimalTFDB3/download/Homo_sapiens_TF_cofactors")
+                download(url = url, destfile = temp)
+                tfco <- read.table(temp, header = TRUE, sep = "\t", stringsAsFactors = FALSE, fill = TRUE, quote = "")
+              } else {
+                stop("Stop the preparation.")
+              }
             }
+            unlink(temp)
+            version <- "AnimalTFDB3"
           }
-          unlink(temp)
+
           TERM2GENE <- rbind(data.frame("Term" = "TF", "symbol" = tf[["Symbol"]]), data.frame("Term" = "TF cofactor", "symbol" = tfco[["Symbol"]]))
           TERM2NAME <- data.frame("Term" = c("TF", "TF cofactor"), "Name" = c("TF", "TF cofactor"))
           colnames(TERM2GENE) <- c("Term", default_IDtypes["TF"])
           colnames(TERM2NAME) <- c("Term", "Name")
           TERM2GENE <- na.omit(unique(TERM2GENE))
           TERM2NAME <- na.omit(unique(TERM2NAME))
-          version <- "AnimalTFDB4"
           db_list[[db_species["TF"]]][["TF"]][["TERM2GENE"]] <- TERM2GENE
           db_list[[db_species["TF"]]][["TF"]][["TERM2NAME"]] <- TERM2NAME
           db_list[[db_species["TF"]]][["TF"]][["version"]] <- version

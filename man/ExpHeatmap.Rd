@@ -83,7 +83,7 @@ ExpHeatmap(
   heatmap_palcolor = NULL,
   group_palette = "Paired",
   group_palcolor = NULL,
-  cell_split_palette = "jco",
+  cell_split_palette = "jama",
   cell_split_palcolor = NULL,
   feature_split_palette = "jama",
   feature_split_palcolor = NULL,
@@ -129,29 +129,29 @@ ht2 <- ExpHeatmap(
 )
 ht2$plot
 
-pancreas_sub <- AnnotateFeatures(pancreas_sub, species = "Mus_musculus", db = c("TF", "SP"))
 ht3 <- ExpHeatmap(
+  srt = pancreas_sub, features = de_filter$gene, feature_split = de_filter$group1, group.by = "CellType",
+  species = "Mus_musculus", db = "GO_BP", anno_terms = TRUE, anno_keys = TRUE, anno_features = TRUE
+)
+ht3$plot
+
+pancreas_sub <- AnnotateFeatures(pancreas_sub, species = "Mus_musculus", db = c("TF", "SP"))
+ht4 <- ExpHeatmap(
   srt = pancreas_sub, features = de_filter$gene, n_split = 4, group.by = "CellType",
   heatmap_palette = "viridis",
   feature_annotation = c("TF", "SP"),
   feature_palcolor = list(c("gold", "steelblue"), c("forestgreen")),
   cell_annotation = c("Phase", "G2M_score"), cell_palette = c("Dark2", "Purples")
 )
-ht3$plot
+ht4$plot
 
-ht4 <- ExpHeatmap(
+ht5 <- ExpHeatmap(
   srt = pancreas_sub, features = de_filter$gene, n_split = 4, group.by = "CellType",
   heatmap_palette = "viridis",
   feature_annotation = c("TF", "SP"),
   feature_palcolor = list(c("gold", "steelblue"), c("forestgreen")),
   cell_annotation = c("Phase", "G2M_score"), cell_palette = c("Dark2", "Purples"),
   flip = TRUE, column_title_rot = 45
-)
-ht4$plot
-
-ht5 <- ExpHeatmap(
-  srt = pancreas_sub, features = de_filter$gene, feature_split = de_filter$group1, group.by = "CellType",
-  species = "Mus_musculus", db = "GO_BP", anno_terms = TRUE, anno_keys = TRUE, anno_features = TRUE
 )
 ht5$plot
 

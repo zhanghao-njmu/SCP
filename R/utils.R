@@ -599,6 +599,9 @@ unnest <- function(data, cols, keep_empty = FALSE) {
 #' @useDynLib SCP
 #' @export
 as_matrix <- function(matrix) {
+  if (!inherits(matrix, "dgCMatrix")) {
+    stop("matrix is not a dgCMatrix.")
+  }
   row_pos <- matrix@i
   col_pos <- findInterval(seq(matrix@x) - 1, matrix@p[-1])
 

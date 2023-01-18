@@ -310,7 +310,7 @@ ProjectionPlot(
 ``` r
 data("ref_scMCA")
 pancreas_sub <- RunKNNPredict(srt_query = pancreas_sub, bulk_ref = ref_scMCA, filter_lowfreq = 20)
-ClassDimPlot(srt = pancreas_sub, group.by = "knnpredict_classification", reduction = "UMAP", label = TRUE)
+ClassDimPlot(srt = pancreas_sub, group.by = "KNNPredict_classification", reduction = "UMAP", label = TRUE)
 ```
 
 <img src="README/README-RunKNNPredict-bulk-1.png" width="100%" style="display: block; margin: auto;" />
@@ -322,10 +322,32 @@ pancreas_sub <- RunKNNPredict(
   srt_query = pancreas_sub, srt_ref = panc8_rename,
   ref_group = "celltype", filter_lowfreq = 20
 )
-ClassDimPlot(srt = pancreas_sub, group.by = "knnpredict_classification", reduction = "UMAP", label = TRUE)
+ClassDimPlot(srt = pancreas_sub, group.by = "KNNPredict_classification", reduction = "UMAP", label = TRUE)
 ```
 
 <img src="README/README-RunKNNPredict-scrna-1.png" width="100%" style="display: block; margin: auto;" />
+
+``` r
+pancreas_sub <- RunKNNPredict(
+  srt_query = pancreas_sub, srt_ref = panc8_rename,
+  query_group = "SubCellType", ref_group = "celltype",
+  return_full_distance_matrix = TRUE
+)
+ClassDimPlot(srt = pancreas_sub, group.by = "KNNPredict_classification", reduction = "UMAP", label = TRUE)
+```
+
+<img src="README/README-RunKNNPredict-scrna-2.png" width="100%" style="display: block; margin: auto;" />
+
+``` r
+ht <- CellCorHeatmap(
+  srt_query = pancreas_sub, srt_ref = panc8_rename,
+  query_group = "SubCellType", ref_group = "celltype",
+  nlabel = 3, width = 4, height = 3
+)
+print(ht$plot)
+```
+
+<img src="README/README-RunKNNPredict-scrna-3.png" width="100%" style="display: block; margin: auto;" />
 
 ### PAGA analysis
 
@@ -374,7 +396,7 @@ ht <- ExpHeatmap(
   srt = pancreas_sub, group.by = "CellType", features = DEGs$gene, feature_split = DEGs$group1,
   species = "Mus_musculus", db = c("GO_BP", "KEGG", "WikiPathway"), anno_terms = TRUE,
   feature_annotation = c("TF", "SP"), feature_palcolor = list(c("gold", "steelblue"), c("forestgreen")),
-  height = 6, width = 5
+  height = 5, width = 4
 )
 print(ht$plot)
 ```
@@ -464,7 +486,7 @@ ht <- DynamicHeatmap(
   separate_annotation = list("SubCellType", c("Nnat", "Irx1")), separate_palette = c("Paired", "Set1"),
   feature_annotation = c("TF", "SP"), feature_palcolor = list(c("gold", "steelblue"), c("forestgreen")),
   pseudotime_label = 25, pseudotime_label_color = "red",
-  height = 6, width = 5
+  height = 5, width = 2
 )
 print(ht$plot)
 ```
