@@ -436,8 +436,8 @@ RunCellQC <- function(srt, assay = "RNA",
   }
 
   if (return_filtered) {
-    srt <- subset(srt, cell = WhichCells(srt, expression = CellQC == "Pass"))
-    srt@meta.data[, qc_nm] <- NULL
+    srt <- srt[, srt$CellQC == "Pass"]
+    srt@meta.data[, intersect(qc_nm, colnames(srt@meta.data))] <- NULL
   }
 
   return(srt)

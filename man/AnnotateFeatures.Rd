@@ -22,11 +22,7 @@ AnnotateFeatures(
 )
 }
 \arguments{
-\item{mirror}{}
-
-\item{anno_TF}{Whether to add the transcription factor/cofactor annotation.}
-
-\item{anno_LR}{Whether to add the ligand/receptor annotation.}
+\item{convert_species}{}
 }
 \description{
 AnnotateFeatures

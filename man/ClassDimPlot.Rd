@@ -13,11 +13,11 @@ ClassDimPlot(
   cells = NULL,
   show_na = FALSE,
   show_stat = TRUE,
+  pt.size = NULL,
+  pt.alpha = 1,
   palette = "Paired",
   palcolor = NULL,
   bg_color = "grey80",
-  pt.size = NULL,
-  pt.alpha = 1,
   label = FALSE,
   label.size = 4,
   label.fg = "white",
@@ -101,7 +101,7 @@ ClassDimPlot(
   streamline_bg_color = "white",
   streamline_bg_stroke = 0.5,
   hex = FALSE,
-  hex.size = 0.5,
+  hex.linewidth = 0.5,
   hex.count = TRUE,
   hex.bins = 50,
   hex.binwidth = NULL,
@@ -138,13 +138,13 @@ ClassDimPlot(
 
 \item{cells}{}
 
-\item{palette}{Name of palette to use. Default is "Paired".}
-
-\item{bg_color}{Color value for NA points.}
-
 \item{pt.size}{Point size for plotting.}
 
 \item{pt.alpha}{Point transparency.}
+
+\item{palette}{Name of palette to use. Default is "Paired".}
+
+\item{bg_color}{Color value for NA points.}
 
 \item{label}{Whether to label the groups.}
 

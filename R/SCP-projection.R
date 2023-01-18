@@ -73,14 +73,14 @@ RunKNNMap <- function(srt_query, srt_ref, query_assay = NULL, ref_assay = NULL, 
     stop("distance_metric must be one of euclidean, cosine, manhattan, and hamming when projection_method='model'")
   }
   simil_method <- c(
-    "cosine", "correlation", "jaccard", "ejaccard", "dice", "edice", "hamman",
-    "simple matching", "faith"
+    "pearson", "spearman", "cosine", "correlation", "jaccard", "ejaccard", "dice", "edice",
+    "hamman", "simple matching", "faith"
   )
   dist_method <- c(
     "euclidean", "chisquared", "kullback", "manhattan", "maximum", "canberra",
     "minkowski", "hamming"
   )
-  if (!distance_metric %in% c(simil_method, dist_method, "pearson", "spearman")) {
+  if (!distance_metric %in% c(simil_method, dist_method)) {
     stop(distance_metric, " method is invalid.")
   }
   if (projection_method == "model") {

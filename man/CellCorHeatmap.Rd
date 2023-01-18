@@ -14,7 +14,7 @@ CellCorHeatmap(
   ref_assay = NULL,
   query_reduction = NULL,
   ref_reduction = NULL,
-  query_dims = ref_dims,
+  query_dims = 1:30,
   ref_dims = 1:30,
   query_collapsing = !is.null(query_group),
   ref_collapsing = TRUE,
@@ -27,23 +27,92 @@ CellCorHeatmap(
   distance_metric = "cosine",
   k = 30,
   filter_lowfreq = 0,
-  prefix = "knnpredict",
-  force = FALSE,
-  rows = NULL,
-  columns = NULL,
-  cluster_columns = TRUE,
-  cluster_rows = TRUE,
-  nlabel = 3,
+  prefix = "KNNPredict",
+  border = TRUE,
+  flip = FALSE,
+  limits = NULL,
+  cluster_rows = FALSE,
+  cluster_columns = FALSE,
+  show_row_names = FALSE,
+  show_column_names = FALSE,
+  row_names_side = "left",
+  column_names_side = "top",
+  row_names_rot = 0,
+  column_names_rot = 90,
+  row_title_side = "left",
+  column_title_side = "top",
+  row_title_rot = 90,
+  column_title_rot = 0,
+  nlabel = 0,
   label_cutoff = 0,
   label_by = "row",
   label_size = 10,
-  gird_size = unit(8, "mm"),
-  ...
+  heatmap_palette = "RdBu",
+  heatmap_palcolor = NULL,
+  query_group_palette = "Paired",
+  query_group_palcolor = NULL,
+  ref_group_palette = "jama",
+  ref_group_palcolor = NULL,
+  query_cell_annotation = NULL,
+  query_cell_palette = "Paired",
+  query_cell_palcolor = NULL,
+  query_cell_annotation_params = if (flip) list(height = grid::unit(1, "cm")) else
+    list(width = grid::unit(1, "cm")),
+  ref_cell_annotation = NULL,
+  ref_cell_palette = "Paired",
+  ref_cell_palcolor = NULL,
+  ref_cell_annotation_params = if (flip) list(width = grid::unit(1, "cm")) else
+    list(height = grid::unit(1, "cm")),
+  use_raster = NULL,
+  raster_device = "png",
+  height = NULL,
+  width = NULL,
+  units = "inch",
+  seed = 11,
+  ht_params = list()
 )
 }
 \arguments{
-\item{...}{}
+\item{label_size}{}
 }
 \description{
 CellCorHeatmap
+}
+\examples{
+data("pancreas_sub")
+pancreas_sub <- Standard_SCP(pancreas_sub)
+ht1 <- CellCorHeatmap(srt_query = pancreas_sub, query_group = "SubCellType")
+ht1$plot
+
+data("panc8_sub")
+# Simply convert genes from human to mouse and preprocess the data
+genenames <- make.unique(stringr::str_to_title(rownames(panc8_sub)))
+panc8_sub <- RenameFeatures(panc8_sub, newnames = genenames)
+panc8_sub <- check_srtMerge(panc8_sub, batch = "tech")[["srtMerge"]]
+
+ht2 <- CellCorHeatmap(
+  srt_query = pancreas_sub, srt_ref = panc8_sub, nlabel = 3, label_cutoff = 0.6,
+  query_group = "SubCellType", ref_group = "celltype",
+  query_cell_annotation = "Phase", query_cell_palette = "Set2",
+  ref_cell_annotation = "tech", ref_cell_palette = "Set3",
+  width = 4, height = 3
+)
+ht2$plot
+
+ht3 <- CellCorHeatmap(
+  srt_query = pancreas_sub, srt_ref = panc8_sub,
+  query_group = "SubCellType", query_collapsing = FALSE, cluster_rows = TRUE,
+  ref_group = "celltype", ref_collapsing = FALSE, cluster_columns = TRUE
+)
+ht3$plot
+
+ht4 <- CellCorHeatmap(
+  srt_query = pancreas_sub, srt_ref = panc8_sub,
+  show_row_names = TRUE, show_column_names = TRUE,
+  query_group = "SubCellType", ref_group = "celltype",
+  query_cell_annotation = c("Sox9", "Rbp4", "Gcg"),
+  ref_cell_annotation = c("Sox9", "Rbp4", "Gcg")
+)
+ht4$plot
+
 }

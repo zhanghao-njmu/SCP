@@ -35,15 +35,15 @@ NULL
 #' data("ref_scMCA")
 #' pancreas_sub <- Standard_SCP(pancreas_sub)
 #' pancreas_sub <- RunKNNPredict(srt_query = pancreas_sub, bulk_ref = ref_scMCA)
-#' ClassDimPlot(pancreas_sub, group.by = "knnpredict_classification", label = TRUE)
+#' ClassDimPlot(pancreas_sub, group.by = "KNNPredict_classification", label = TRUE)
 #'
 #' # Removal of low credible cell types from the predicted results
 #' pancreas_sub <- RunKNNPredict(srt_query = pancreas_sub, bulk_ref = ref_scMCA, filter_lowfreq = 30)
-#' ClassDimPlot(pancreas_sub, group.by = "knnpredict_classification", label = TRUE)
+#' ClassDimPlot(pancreas_sub, group.by = "KNNPredict_classification", label = TRUE)
 #'
 #' # Annotate clusters using bulk RNA-seq data
 #' pancreas_sub <- RunKNNPredict(srt_query = pancreas_sub, query_group = "SubCellType", bulk_ref = ref_scMCA)
-#' ClassDimPlot(pancreas_sub, group.by = "knnpredict_classification", label = TRUE)
+#' ClassDimPlot(pancreas_sub, group.by = "KNNPredict_classification", label = TRUE)
 #'
 #' # Annotate using single cell RNA-seq data
 #' data("panc8_sub")
@@ -53,23 +53,22 @@ NULL
 #' panc8_sub <- check_srtMerge(panc8_sub, batch = "tech")[["srtMerge"]]
 #'
 #' pancreas_sub <- RunKNNPredict(srt_query = pancreas_sub, srt_ref = panc8_sub, ref_group = "celltype")
-#' ClassDimPlot(pancreas_sub, group.by = "knnpredict_classification", label = TRUE)
-#' ExpDimPlot(pancreas_sub, features = "knnpredict_simil")
+#' ClassDimPlot(pancreas_sub, group.by = "KNNPredict_classification", label = TRUE)
+#' ExpDimPlot(pancreas_sub, features = "KNNPredict_simil")
 #'
 #' pancreas_sub <- RunKNNPredict(
 #'   srt_query = pancreas_sub, srt_ref = panc8_sub,
 #'   ref_group = "celltype", ref_collapsing = FALSE
 #' )
-#' ClassDimPlot(pancreas_sub, group.by = "knnpredict_classification", label = TRUE)
-#' ExpDimPlot(pancreas_sub, features = "knnpredict_prob")
+#' ClassDimPlot(pancreas_sub, group.by = "KNNPredict_classification", label = TRUE)
+#' ExpDimPlot(pancreas_sub, features = "KNNPredict_prob")
 #'
 #' pancreas_sub <- RunKNNPredict(
 #'   srt_query = pancreas_sub, srt_ref = panc8_sub,
-#'   query_group = "SubCellType", ref_group = "celltype",
-#'   query_collapsing = TRUE, ref_collapsing = TRUE
+#'   query_group = "SubCellType", ref_group = "celltype"
 #' )
-#' ClassDimPlot(pancreas_sub, group.by = "knnpredict_classification", label = TRUE)
-#' ExpDimPlot(pancreas_sub, features = "knnpredict_simil")
+#' ClassDimPlot(pancreas_sub, group.by = "KNNPredict_classification", label = TRUE)
+#' ExpDimPlot(pancreas_sub, features = "KNNPredict_simil")
 #'
 #' # Annotate with DE gene instead of HVF
 #' pancreas_sub <- RunKNNPredict(
@@ -77,20 +76,20 @@ NULL
 #'   ref_group = "celltype",
 #'   features_type = "DE", feature_source = "ref"
 #' )
-#' ClassDimPlot(pancreas_sub, group.by = "knnpredict_classification", label = TRUE)
-#' ExpDimPlot(pancreas_sub, features = "knnpredict_simil")
+#' ClassDimPlot(pancreas_sub, group.by = "KNNPredict_classification", label = TRUE)
+#' ExpDimPlot(pancreas_sub, features = "KNNPredict_simil")
 #'
 #' pancreas_sub <- RunKNNPredict(
 #'   srt_query = pancreas_sub, srt_ref = panc8_sub,
 #'   query_group = "SubCellType", ref_group = "celltype",
 #'   features_type = "DE", feature_source = "both"
 #' )
-#' ClassDimPlot(pancreas_sub, group.by = "knnpredict_classification", label = TRUE)
-#' ExpDimPlot(pancreas_sub, features = "knnpredict_simil")
+#' ClassDimPlot(pancreas_sub, group.by = "KNNPredict_classification", label = TRUE)
+#' ExpDimPlot(pancreas_sub, features = "KNNPredict_simil")
 #'
 #' @importFrom methods as
 #' @importFrom Matrix colSums t rowSums
-#' @importFrom Seurat DefaultAssay GetAssayData FindVariableFeatures VariableFeatures AverageExpression
+#' @importFrom Seurat DefaultAssay GetAssayData FindVariableFeatures VariableFeatures AverageExpression FindNeighbors
 #' @importFrom dplyr bind_rows group_by top_n pull
 #' @importFrom rlang %||%
 #' @export
@@ -98,13 +97,15 @@ NULL
 RunKNNPredict <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
                           query_group = NULL, ref_group = NULL,
                           query_assay = NULL, ref_assay = NULL,
-                          query_reduction = NULL, ref_reduction = NULL, query_dims = ref_dims, ref_dims = 1:30,
-                          query_collapsing = !is.null(query_group), ref_collapsing = TRUE, return_full_distance_matrix = FALSE,
+                          query_reduction = NULL, ref_reduction = NULL,
+                          query_dims = 1:30, ref_dims = 1:30,
+                          query_collapsing = !is.null(query_group), ref_collapsing = TRUE,
+                          return_full_distance_matrix = FALSE,
                           features = NULL, features_type = c("HVF", "DE"), feature_source = "both", nfeatures = 2000,
                           DEtest_param = list(max.cells.per.ident = 200, test.use = "wilcox"),
                           DE_threshold = "p_val_adj < 0.05",
                           nn_method = NULL, distance_metric = "cosine", k = 30,
-                          filter_lowfreq = 0, prefix = "knnpredict") {
+                          filter_lowfreq = 0, prefix = "KNNPredict") {
   check_R(c("RcppParallel", "proxyC"))
   query_assay <- query_assay %||% DefaultAssay(srt_query)
   features_type <- match.arg(features_type, choices = c("HVF", "DE"))
@@ -178,7 +179,7 @@ RunKNNPredict <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
     }
     features_common <- intersect(features, rownames(bulk_ref))
     message("Use ", length(features_common), " common features to calculate distance.")
-    ref <- t(bulk_ref[features_common, ])
+    ref <- t(bulk_ref[features_common, , drop = FALSE])
   } else if (!is.null(srt_ref)) {
     ref_assay <- ref_assay %||% DefaultAssay(srt_ref)
     if (!is.null(ref_group)) {
@@ -203,8 +204,6 @@ RunKNNPredict <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
     }
     if (isTRUE(use_reduction)) {
       message("Use the reduction to calculate distance metric.")
-      ref_collapsing <- FALSE
-      query_collapsing <- FALSE
       if (!is.null(query_dims) && !is.null(ref_dims) && length(query_dims) == length(ref_dims)) {
         query <- Embeddings(srt_query, reduction = query_reduction)[, query_dims]
         ref <- Embeddings(srt_ref, reduction = ref_reduction)[, ref_dims]
@@ -293,16 +292,17 @@ RunKNNPredict <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
     } else {
       stop("Length of query_group must be one or length of srt_query.")
     }
-  } else {
-    query_collapsing <- FALSE
   }
   if (!isTRUE(use_reduction)) {
     query_assay <- query_assay %||% DefaultAssay(srt_query)
     if (isTRUE(query_collapsing)) {
+      if (is.null(query_group)) {
+        stop("query_group must be provided when query_collapsing is TRUE.")
+      }
       query <- AverageExpression(object = srt_query, features = colnames(ref), slot = "data", assays = query_assay, group.by = "query_group", verbose = FALSE)[[1]]
       query <- t(log1p(query))
     } else {
-      query <- t(GetAssayData(srt_query, slot = "data", assay = query_assay)[colnames(ref), ])
+      query <- t(GetAssayData(srt_query, slot = "data", assay = query_assay)[colnames(ref), , drop = FALSE])
     }
   }
 
@@ -358,14 +358,14 @@ RunKNNPredict <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
     return_full_distance_matrix <- FALSE
   }
   simil_method <- c(
-    "cosine", "correlation", "jaccard", "ejaccard", "dice", "edice", "hamman",
-    "simple matching", "faith"
+    "cosine", "pearson", "spearman", "correlation", "jaccard", "ejaccard", "dice", "edice",
+    "hamman", "simple matching", "faith"
   )
   dist_method <- c(
     "euclidean", "chisquared", "kullback", "manhattan", "maximum", "canberra",
     "minkowski", "hamming"
   )
-  if (!distance_metric %in% c(simil_method, dist_method, "pearson", "spearman")) {
+  if (!distance_metric %in% c(simil_method, dist_method)) {
     stop(distance_metric, " method is invalid.")
   }
 
@@ -417,7 +417,7 @@ RunKNNPredict <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
 
   message("Predict cell type...")
   match_prob <- NULL
-  if (!is.null(srt_ref) && !isTRUE(ref_collapsing)) {
+  if (!is.null(srt_ref) && (isFALSE(ref_collapsing) || isTRUE(use_reduction))) {
     level <- as.character(unique(srt_ref[["ref_group", drop = TRUE]]))
     if (k == 1) {
       match_best <- srt_ref[["ref_group", drop = TRUE]][match_k_cell[, 1]]
@@ -447,7 +447,13 @@ RunKNNPredict <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
     match_best <- match_k_cell[, 1]
   }
 
-  result <- list(features = features)
+  result <- list(
+    features = features, nn_method = nn_method, distance_metric = distance_metric, k = k,
+    other_params = list(
+      query_group = query_group, query_reduction = query_reduction, query_assay = query_assay, query_dims = query_dims, query_collapsing = query_collapsing,
+      ref_group = ref_group, ref_reduction = ref_reduction, ref_assay = ref_assay, ref_dims = ref_dims, ref_collapsing = ref_collapsing
+    )
+  )
   result[["match_best"]] <- match_best
   if (!is.null(match_prob)) {
     result[["match_prob"]] <- match_prob
@@ -455,7 +461,7 @@ RunKNNPredict <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
   result[["match_k_cell"]] <- match_k_cell
   result[["match_k_distance"]] <- match_k_distance
   if (isTRUE(return_full_distance_matrix)) {
-    result[["distance_matrix"]] <- d[seq_len(nrow(d)), ]
+    result[["distance_matrix"]] <- d[seq_len(nrow(d)), , drop = FALSE]
   }
 
   srt_query@tools[[paste0(prefix, "_classification")]] <- result

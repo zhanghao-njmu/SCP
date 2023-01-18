@@ -6,16 +6,14 @@
 #' @param assays
 #' @param overwrite
 #' @param species
-#' @param anno_TF Whether to add the transcription factor/cofactor annotation.
-#' @param anno_LR Whether to add the ligand/receptor annotation.
 #' @param merge_gtf_by
 #' @param IDtype
-#' @param anno_db
 #' @param db
 #' @param db_update
 #' @param db_version
 #' @param Ensembl_version
 #' @param mirror
+#' @param convert_species
 #'
 #' @return
 #' @export

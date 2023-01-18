@@ -95,7 +95,7 @@ GroupHeatmap(
   heatmap_palcolor = NULL,
   group_palette = "Paired",
   group_palcolor = NULL,
-  cell_split_palette = "jco",
+  cell_split_palette = "jama",
   cell_split_palcolor = NULL,
   feature_split_palette = "jama",
   feature_split_palcolor = NULL,
@@ -183,6 +183,7 @@ de_top <- de_filter \%>\%
   top_n(3, avg_log2FC)
 ht4 <- GroupHeatmap(pancreas_sub,
   features = de_top$gene, feature_split = de_top$group1, group.by = "CellType",
+  heatmap_palette = "YlOrRd",
   cell_annotation = c("Phase", "G2M_score", "Neurod2"), cell_palette = c("Dark2", "Paired", "Paired"),
   cell_annotation_params = list(height = grid::unit(0.5, "in")),
   feature_annotation = c("TF", "SP"),
@@ -193,6 +194,7 @@ ht4$plot
 
 ht5 <- GroupHeatmap(pancreas_sub,
   features = de_top$gene, feature_split = de_top$group1, group.by = "CellType",
+  heatmap_palette = "YlOrRd",
   cell_annotation = c("Phase", "G2M_score", "Neurod2"), cell_palette = c("Dark2", "Paired", "Paired"),
   cell_annotation_params = list(width = grid::unit(0.5, "in")),
   feature_annotation = c("TF", "SP"),

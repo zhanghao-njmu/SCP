@@ -82,8 +82,8 @@ check_srtList <- function(srtList, batch = "orig.ident", assay = "RNA",
     sort(rownames(GetAssayData(x, slot = "counts", assay = assay)))
   })
   if (length(unique(genelist)) != 1) {
-    warning("'srtList' have different feature names! Will subset the common features for downstream analysis!", immediate. = TRUE)
     cf <- lapply(srtList, function(x) rownames(x[[assay]])) %>% Reduce(intersect, .)
+    warning("'srtList' have different feature names! Will subset the common features(", length(cf), ") for downstream analysis!", immediate. = TRUE)
     for (i in seq_along(srtList)) {
       srtList[[i]][[assay]] <- subset(srtList[[i]][[assay]], features = cf)
     }
