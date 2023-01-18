@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">SCP</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.6.9001</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.7</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -118,13 +118,13 @@
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">ifnb_sub</span> <span class="op">&lt;-</span> <span class="fu">RunDEtest</span><span class="op">(</span><span class="va">ifnb_sub</span>, group_by <span class="op">=</span> <span class="st">"seurat_annotations"</span><span class="op">)</span></span></span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Data in the 'data' slot is raw counts. Perform NormalizeData(LogNormalize) on the data.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-01-05 16:57:09] Start DEtest</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-01-18 09:00:29] Start DEtest</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Threads used: 1</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Find all markers(wilcox) among groups...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |==============================================================================================================| 100%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-01-05 16:57:30] DEtest done</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:20.55 secs</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-01-18 09:00:56] DEtest done</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:26.97 secs</span>
 <span class="r-in"><span><span class="va">AllMarkers</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">ifnb_sub</span><span class="op">@</span><span class="va">tools</span><span class="op">$</span><span class="va">DEtest_seurat_annotations</span><span class="op">$</span><span class="va">AllMarkers_wilcox</span>, <span class="va">p_val_adj</span> <span class="op">&lt;</span> <span class="fl">0.05</span> <span class="op">&amp;</span> <span class="va">avg_log2FC</span> <span class="op">&gt;</span> <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">AllMarkers</span><span class="op">$</span><span class="va">group1</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -152,13 +152,13 @@
 <span class="r-plt img"><img src="RunDEtest-2.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">ifnb_sub</span> <span class="op">&lt;-</span> <span class="fu">RunDEtest</span><span class="op">(</span><span class="va">ifnb_sub</span>, group_by <span class="op">=</span> <span class="st">"seurat_annotations"</span>, markers_type <span class="op">=</span> <span class="st">"paired"</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-01-05 16:57:35] Start DEtest</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-01-18 09:01:07] Start DEtest</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Threads used: 1</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Find paired markers(wilcox) among groups...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |==============================================================================================================| 100%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-01-05 16:59:22] DEtest done</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:1.78 mins</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-01-18 09:03:39] DEtest done</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:2.54 mins</span>
 <span class="r-in"><span><span class="va">PairedMarkers</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">ifnb_sub</span><span class="op">@</span><span class="va">tools</span><span class="op">$</span><span class="va">DEtest_seurat_annotations</span><span class="op">$</span><span class="va">PairedMarkers_wilcox</span>, <span class="va">p_val_adj</span> <span class="op">&lt;</span> <span class="fl">0.05</span> <span class="op">&amp;</span> <span class="va">avg_log2FC</span> <span class="op">&gt;</span> <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">PairedMarkers</span><span class="op">$</span><span class="va">group1</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -181,7 +181,7 @@
 <span class="r-plt img"><img src="RunDEtest-3.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">ifnb_sub</span> <span class="op">&lt;-</span> <span class="fu">RunDEtest</span><span class="op">(</span><span class="va">ifnb_sub</span>, group_by <span class="op">=</span> <span class="st">"seurat_annotations"</span>, grouping.var <span class="op">=</span> <span class="st">"stim"</span>, markers_type <span class="op">=</span> <span class="st">"conserved"</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-01-05 16:59:58] Start DEtest</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-01-18 09:04:54] Start DEtest</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Threads used: 1</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Find conserved markers(wilcox) among groups...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%</span>
@@ -189,8 +189,8 @@
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Only a single group was tested</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |==============================================================================================================| 100%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-01-05 17:00:28] DEtest done</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:30.2 secs</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-01-18 09:05:35] DEtest done</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:40.31 secs</span>
 <span class="r-in"><span><span class="va">ConservedMarkers</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">ifnb_sub</span><span class="op">@</span><span class="va">tools</span><span class="op">$</span><span class="va">DEtest_seurat_annotations</span><span class="op">$</span><span class="va">ConservedMarkers_wilcox</span>, <span class="va">p_val_adj</span> <span class="op">&lt;</span> <span class="fl">0.05</span> <span class="op">&amp;</span> <span class="va">avg_log2FC</span> <span class="op">&gt;</span> <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">ConservedMarkers</span><span class="op">$</span><span class="va">group1</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -209,13 +209,13 @@
 <span class="r-plt img"><img src="RunDEtest-4.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">ifnb_sub</span> <span class="op">&lt;-</span> <span class="fu">RunDEtest</span><span class="op">(</span><span class="va">ifnb_sub</span>, group_by <span class="op">=</span> <span class="st">"seurat_annotations"</span>, grouping.var <span class="op">=</span> <span class="st">"stim"</span>, markers_type <span class="op">=</span> <span class="st">"disturbed"</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-01-05 17:00:42] Start DEtest</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-01-18 09:06:00] Start DEtest</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Threads used: 1</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Find disturbed markers(wilcox) among groups...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |==============================================================================================================| 100%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-01-05 17:00:52] DEtest done</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:10.47 secs</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-01-18 09:06:17] DEtest done</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:16.89 secs</span>
 <span class="r-in"><span><span class="va">DisturbedMarkers_STIM</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">ifnb_sub</span><span class="op">@</span><span class="va">tools</span><span class="op">$</span><span class="va">DEtest_seurat_annotations</span><span class="op">$</span><span class="va">DisturbedMarkers_wilcox</span>, <span class="va">p_val_adj</span> <span class="op">&lt;</span> <span class="fl">0.05</span> <span class="op">&amp;</span> <span class="va">avg_log2FC</span> <span class="op">&gt;</span> <span class="fl">1</span> <span class="op">&amp;</span> <span class="va">var1</span> <span class="op">==</span> <span class="st">"STIM"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">DisturbedMarkers_STIM</span><span class="op">$</span><span class="va">group1</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
