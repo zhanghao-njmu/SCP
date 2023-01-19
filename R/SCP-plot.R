@@ -4083,7 +4083,7 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
         align_to = split(seq_along(levels(cell_groups[[cell_group]])), gsub(pattern = " : .*", replacement = "", x = levels(cell_groups[[cell_group]]))),
         panel_fun = getFunction("panel_fun", where = environment()),
         which = ifelse(flip, "row", "column"),
-        show_name = i == 1
+        show_name = FALSE
       )
       ha_cell_group <- do.call("HeatmapAnnotation", args = c(anno, which = ifelse(flip, "row", "column"), show_annotation_name = TRUE, annotation_name_side = ifelse(flip, "top", "left"), border = TRUE))
       ha_top_list[[cell_group]] <- ha_cell_group
@@ -4717,10 +4717,10 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
     fix <- FALSE
   }
   if (is.null(height)) {
-    height <- convertHeight(max(unit(1, "npc"), unit(7, "in")), units, valueOnly = TRUE)
+    height <- convertHeight(max(unit(0.9, "npc"), unit(5, "in")), units, valueOnly = TRUE)
   }
   if (is.null(width)) {
-    width <- convertWidth(max(unit(1, "npc"), unit(7, "in")), units, valueOnly = TRUE)
+    width <- convertWidth(max(unit(0.9, "npc"), unit(5, "in")), units, valueOnly = TRUE)
   }
   if (isTRUE(flip)) {
     if (length(ha_top_list) > 0) {
@@ -4743,6 +4743,8 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
       width <- convertWidth(unit(width, units) + width.HeatmapAnnotation(ha_right), units, valueOnly = TRUE)
     }
   }
+  lgd_max_width <- max(convertWidth(unit(unlist(lapply(lgd, width.Legends)), unitType(width.Legends(lgd[[1]]))) + unit(4, "mm"), unitTo = units, valueOnly = TRUE))
+  width <- convertWidth(unit(width, units = units) + unit(lgd_max_width, units = units), units, valueOnly = TRUE)
 
   if (isTRUE(fix)) {
     gTree <- grid.grabExpr(
@@ -5282,7 +5284,7 @@ ExpHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, spli
         align_to = split(seq_along(cell_groups[[cell_group]]), gsub(pattern = " : .*", replacement = "", x = cell_groups[[cell_group]])),
         panel_fun = getFunction("panel_fun", where = environment()),
         which = ifelse(flip, "row", "column"),
-        show_name = i == 1
+        show_name = FALSE
       )
       ha_cell_group <- do.call("HeatmapAnnotation", args = c(anno, which = ifelse(flip, "row", "column"), show_annotation_name = TRUE, annotation_name_side = ifelse(flip, "top", "left"), border = TRUE))
       ha_top_list[[cell_group]] <- ha_cell_group
@@ -5731,10 +5733,10 @@ ExpHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, spli
     fix <- FALSE
   }
   if (is.null(height)) {
-    height <- convertHeight(max(unit(1, "npc"), unit(7, "in")), units, valueOnly = TRUE)
+    height <- convertHeight(max(unit(0.9, "npc"), unit(5, "in")), units, valueOnly = TRUE)
   }
   if (is.null(width)) {
-    width <- convertWidth(max(unit(1, "npc"), unit(7, "in")), units, valueOnly = TRUE)
+    width <- convertWidth(max(unit(0.9, "npc"), unit(5, "in")), units, valueOnly = TRUE)
   }
   if (isTRUE(flip)) {
     if (length(ha_top_list) > 0) {
@@ -5757,6 +5759,8 @@ ExpHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, spli
       width <- convertWidth(unit(width, units) + width.HeatmapAnnotation(ha_right), units, valueOnly = TRUE)
     }
   }
+  lgd_max_width <- max(convertWidth(unit(unlist(lapply(lgd, width.Legends)), unitType(width.Legends(lgd[[1]]))) + unit(4, "mm"), unitTo = units, valueOnly = TRUE))
+  width <- convertWidth(unit(width, units = units) + unit(lgd_max_width, units = units), units, valueOnly = TRUE)
 
   if (isTRUE(fix)) {
     gTree <- grid.grabExpr(
@@ -6875,14 +6879,14 @@ CellCorHeatmap <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
           align_to = split(seq_along(levels(cell_groups[[query_group]])), levels(cell_groups[[query_group]])),
           panel_fun = getFunction("panel_fun", where = environment()),
           which = ifelse(flip, "column", "row"),
-          show_name = TRUE
+          show_name = FALSE
         )
       } else {
         anno[[query_group]] <- anno_block(
           align_to = split(seq_along(cell_groups[[query_group]]), cell_groups[[query_group]]),
           panel_fun = getFunction("panel_fun", where = environment()),
           which = ifelse(flip, "column", "row"),
-          show_name = TRUE
+          show_name = FALSE
         )
       }
       ha_cell_group <- do.call("HeatmapAnnotation", args = c(anno, which = ifelse(flip, "column", "row"), show_annotation_name = TRUE, annotation_name_side = ifelse(flip, "left", "bottom"), border = TRUE))
@@ -6913,14 +6917,14 @@ CellCorHeatmap <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
           align_to = split(seq_along(levels(cell_groups[[ref_group]])), levels(cell_groups[[ref_group]])),
           panel_fun = getFunction("panel_fun", where = environment()),
           which = ifelse(!flip, "column", "row"),
-          show_name = TRUE
+          show_name = FALSE
         )
       } else {
         anno[[ref_group]] <- anno_block(
           align_to = split(seq_along(cell_groups[[ref_group]]), cell_groups[[ref_group]]),
           panel_fun = getFunction("panel_fun", where = environment()),
           which = ifelse(!flip, "column", "row"),
-          show_name = TRUE
+          show_name = FALSE
         )
       }
       ha_cell_group <- do.call("HeatmapAnnotation", args = c(anno, which = ifelse(!flip, "column", "row"), show_annotation_name = TRUE, annotation_name_side = ifelse(!flip, "left", "bottom"), border = TRUE))
@@ -7361,10 +7365,10 @@ CellCorHeatmap <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
     fix <- FALSE
   }
   if (is.null(width)) {
-    width <- convertWidth(max(unit(1, "npc"), unit(7, "in")), units, valueOnly = TRUE)
+    width <- convertWidth(max(unit(0.9, "npc"), unit(5, "in")), units, valueOnly = TRUE)
   }
   if (is.null(height)) {
-    height <- convertHeight(max(unit(1, "npc"), unit(7, "in")), units, valueOnly = TRUE)
+    height <- convertHeight(max(unit(0.9, "npc"), unit(5, "in")), units, valueOnly = TRUE)
   }
   if (isTRUE(flip)) {
     if (length(ha_query_list) > 0) {
@@ -7381,6 +7385,9 @@ CellCorHeatmap <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
       width <- convertWidth(unit(width, units) + width.HeatmapAnnotation(ha_query_list[[1]]), units, valueOnly = TRUE)
     }
   }
+  lgd_max_width <- max(convertWidth(unit(unlist(lapply(lgd, width.Legends)), unitType(width.Legends(lgd[[1]]))) + unit(4, "mm"), unitTo = units, valueOnly = TRUE))
+  width <- convertWidth(unit(width, units = units) + unit(lgd_max_width, units = units), units, valueOnly = TRUE)
+
   if (isTRUE(fix)) {
     gTree <- grid.grabExpr(
       {
@@ -11720,10 +11727,10 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineag
     fix <- FALSE
   }
   if (is.null(height)) {
-    height <- convertHeight(max(unit(1, "npc"), unit(7, "in")), units, valueOnly = TRUE)
+    height <- convertHeight(max(unit(0.9, "npc"), unit(5, "in")), units, valueOnly = TRUE)
   }
   if (is.null(width)) {
-    width <- convertWidth(max(unit(1, "npc"), unit(7, "in")), units, valueOnly = TRUE)
+    width <- convertWidth(max(unit(0.9, "npc"), unit(5, "in")), units, valueOnly = TRUE)
   }
   if (isTRUE(flip)) {
     if (length(ha_top_list) > 0) {
@@ -11746,6 +11753,8 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineag
       width <- convertWidth(unit(width, units) + width.HeatmapAnnotation(ha_right), units, valueOnly = TRUE)
     }
   }
+  lgd_max_width <- max(convertWidth(unit(unlist(lapply(lgd, width.Legends)), unitType(width.Legends(lgd[[1]]))) + unit(4, "mm"), unitTo = units, valueOnly = TRUE))
+  width <- convertWidth(unit(width, units = units) + unit(lgd_max_width, units = units), units, valueOnly = TRUE)
 
   if (isTRUE(fix)) {
     gTree <- grid.grabExpr(
