@@ -342,7 +342,8 @@ ClassDimPlot(srt = pancreas_sub, group.by = "KNNPredict_classification", reducti
 ht <- CellCorHeatmap(
   srt_query = pancreas_sub, srt_ref = panc8_rename,
   query_group = "SubCellType", ref_group = "celltype",
-  nlabel = 3, width = 4, height = 3
+  nlabel = 3, label_by = "row",
+  show_row_names = TRUE, show_column_names = TRUE
 )
 print(ht$plot)
 ```
