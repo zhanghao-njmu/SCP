@@ -76,8 +76,8 @@
 <span class="r-in"><span><span class="va">panc8_sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="RenameFeatures.html">RenameFeatures</a></span><span class="op">(</span><span class="va">panc8_sub</span>, newnames <span class="op">=</span> <span class="va">genenames</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Rename features for the assay: RNA</span>
 <span class="r-in"><span><span class="va">panc8_sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="check_srtMerge.html">check_srtMerge</a></span><span class="op">(</span><span class="va">panc8_sub</span>, batch <span class="op">=</span> <span class="st">"tech"</span><span class="op">)</span><span class="op">[[</span><span class="st">"srtMerge"</span><span class="op">]</span><span class="op">]</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-01-18 09:48:14] Spliting srtMerge into srtList... ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-01-18 09:48:16] Checking srtList... ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-01-19 05:00:01] Spliting srtMerge into srtList... ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-01-19 05:00:02] Checking srtList... ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Data 1/5 of the srtList is normalized without log transformation. Perform NormalizeData(LogNormalize) on the data...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform FindVariableFeatures on the data 1/5 of the srtList...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Data 2/5 of the srtList is normalized without log transformation. Perform NormalizeData(LogNormalize) on the data...</span>
@@ -90,26 +90,26 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform FindVariableFeatures on the data 5/5 of the srtList...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Use the separate HVF from the existed HVF in srtList...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Number of available HVF: 2000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-01-18 09:48:21] Finished checking.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-01-19 05:00:06] Finished checking.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Annotation</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"pancreas_sub"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="Standard_SCP.html">Standard_SCP</a></span><span class="op">(</span><span class="va">pancreas_sub</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-01-18 09:48:23] Start Standard_SCP</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-01-18 09:48:23] Checking srtList... ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-01-19 05:00:10] Start Standard_SCP</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-01-19 05:00:10] Checking srtList... ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Data 1/1 of the srtList is raw counts. Perform NormalizeData(LogNormalize) on the data ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform FindVariableFeatures on the data 1/1 of the srtList...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Use the separate HVF from the existed HVF in srtList...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Number of available HVF: 2000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-01-18 09:48:27] Finished checking.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-01-18 09:48:27] Perform ScaleData on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-01-18 09:48:28] Perform linear dimension reduction (pca) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-01-19 05:00:12] Finished checking.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-01-19 05:00:12] Perform ScaleData on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-01-19 05:00:12] Perform linear dimension reduction (pca) on the data...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> dims_estimate is 1:18 for 'pca'</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-01-18 09:48:29] Perform FindClusters (louvain) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-01-18 09:48:30] Reorder clusters...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-01-18 09:48:30] Perform nonlinear dimension reduction (umap) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-01-18 09:48:42] Standard_SCP done</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 18.8 secs </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-01-19 05:00:13] Perform FindClusters (louvain) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-01-19 05:00:13] Reorder clusters...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-01-19 05:00:14] Perform nonlinear dimension reduction (umap) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-01-19 05:00:23] Standard_SCP done</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 13.5 secs </span>
 <span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu">RunScmap</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  srt_query <span class="op">=</span> <span class="va">pancreas_sub</span>, srt_ref <span class="op">=</span> <span class="va">panc8_sub</span>,</span></span>
 <span class="r-in"><span>  ref_group <span class="op">=</span> <span class="st">"celltype"</span>, method <span class="op">=</span> <span class="st">"scmapCluster"</span></span></span>

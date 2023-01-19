@@ -112,7 +112,7 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span>                                                         identifier version                               comment</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 6 Rcache v0.1.7 (R package R.cache by Henrik Bengtsson)              0.1.7 3.16.0 nterm:15975|Homo_sapiens-GO_BP</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    timestamp                date         db_version            db_name</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6 1674031921 2023-01-18 08:52:00 3.16.0 nterm:15975 Homo_sapiens-GO_BP</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6 1674100922 2023-01-19 04:02:02 3.16.0 nterm:15975 Homo_sapiens-GO_BP</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                                                                    file</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 6 /home/runner/.cache/R/R.cache/9a33e14dc99b256952de599e15c222ab.Rcache</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">db_list</span><span class="op">[[</span><span class="st">"Homo_sapiens"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"GO_BP"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"TERM2GENE"</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span></span>
@@ -154,13 +154,13 @@
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ==============================</span>
 <span class="r-in"><span><span class="fu"><a href="ListDB.html">ListDB</a></span><span class="op">(</span>species <span class="op">=</span> <span class="st">"Homo_sapiens"</span>, db <span class="op">=</span> <span class="st">"MP"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                                                         identifier version</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 Rcache v0.1.7 (R package R.cache by Henrik Bengtsson)              0.1.7</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 Rcache v0.1.7 (R package R.cache by Henrik Bengtsson)              0.1.7</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                                                                     comment  timestamp                date</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 2023-01-16 08:00(converted from Mus_musculus) nterm:10107|Homo_sapiens-MP 1674032075 2023-01-18 08:54:34</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 2023-01-16 08:00(converted from Mus_musculus) nterm:10107|Homo_sapiens-MP 1674101062 2023-01-19 04:04:21</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                                                  db_version         db_name</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 2023-01-16 08:00(converted from Mus_musculus) nterm:10107 Homo_sapiens-MP</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 2023-01-16 08:00(converted from Mus_musculus) nterm:10107 Homo_sapiens-MP</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                                                                    file</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 /home/runner/.cache/R/R.cache/2c6309238a831951e934321463fcb730.Rcache</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 /home/runner/.cache/R/R.cache/2c6309238a831951e934321463fcb730.Rcache</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">db_list</span><span class="op">[[</span><span class="st">"Homo_sapiens"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"MP"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"TERM2GENE"</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>         Term      ensembl_id symbol entrez_id</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1 MP:0000600 ENSG00000139687    RB1      5925</span>
@@ -196,12 +196,41 @@
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Connect to the Ensembl archives...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Using the 103 version of biomart...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Connect to the biomart...</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in curl::curl_fetch_memory(url, handle = handle):</span> Timeout was reached: [feb2021.archive.ensembl.org:443] Operation timed out after 10000 milliseconds with 0 bytes received</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Connect to the dataset hsapiens_gene_ensembl ...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Match and convert the geneID...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 18241 genes mapped with entrez_id</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ==============================</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 18241 genes mapped</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 662 genes unmapped</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ==============================</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Convert ID types for the database: GO_BP</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Connect to the Ensembl archives...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Using the 103 version of biomart...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Connect to the biomart...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Connect to the dataset mfascicularis_gene_ensembl ...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Match and convert the geneID...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 15879 genes mapped with ensembl_id</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ==============================</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 15879 genes mapped</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 0 genes unmapped</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ==============================</span>
 <span class="r-in"><span><span class="fu"><a href="ListDB.html">ListDB</a></span><span class="op">(</span>species <span class="op">=</span> <span class="st">"Macaca_fascicularis"</span>, db <span class="op">=</span> <span class="st">"GO_BP"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] identifier version    comment    timestamp  date       db_version db_name    file      </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;0 rows&gt; (or 0-length row.names)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                                         identifier version</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 Rcache v0.1.7 (R package R.cache by Henrik Bengtsson)              0.1.7</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                                                     comment  timestamp                date</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 3.16.0(converted from Homo_sapiens) nterm:15749|Macaca_fascicularis-GO_BP 1674101899 2023-01-19 04:18:19</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                        db_version                   db_name</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 3.16.0(converted from Homo_sapiens) nterm:15749 Macaca_fascicularis-GO_BP</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                                                    file</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 /home/runner/.cache/R/R.cache/0d5f702d5c404ddc978b61ccbd47a90b.Rcache</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">db_list</span><span class="op">[[</span><span class="st">"Macaca_fascicularis"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"GO_BP"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"TERM2GENE"</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         Term         ensembl_id  symbol entrez_id</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 GO:0000002 ENSMFAG00000039141  STOML2 102124083</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 GO:0000002 ENSMFAG00000000469 PRIMPOL      &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 GO:0000002 ENSMFAG00000032819   SSBP1 102146146</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 GO:0000002 ENSMFAG00000036094    DNA2      &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5 GO:0000002 ENSMFAG00000002805   POLG2      &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6 GO:0000002 ENSMFAG00000014218 RANBP3L 102115779</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">ccgenes</span> <span class="op">&lt;-</span> <span class="fu"><a href="CC_GenePrefetch.html">CC_GenePrefetch</a></span><span class="op">(</span><span class="st">"Homo_sapiens"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">custom_TERM2GENE</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span></span></span>
@@ -222,19 +251,61 @@
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Using the 103 version of biomart...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Connect to the biomart...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Connect to the dataset hsapiens_gene_ensembl ...</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in curl::curl_fetch_memory(url, handle = handle):</span> Timeout was reached: [feb2021.archive.ensembl.org:443] Operation timed out after 10001 milliseconds with 0 bytes received</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Match and convert the geneID...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 97 genes mapped with ensembl_symbol</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ==============================</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 97 genes mapped</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 0 genes unmapped</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ==============================</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Species: Mus_musculus</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Use the Homo_sapiens annotation to create the CellCycle database for Mus_musculus</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Convert species for the database: CellCycle</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Connect to the Ensembl archives...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Using the 103 version of biomart...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Connect to the biomart...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Connect to the dataset hsapiens_gene_ensembl ...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Match and convert the geneID...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 97 genes mapped with ensembl_symbol</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ==============================</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 97 genes mapped</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 0 genes unmapped</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ==============================</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Convert ID types for the database: CellCycle</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Connect to the Ensembl archives...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Using the 103 version of biomart...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Connect to the biomart...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Connect to the dataset mmusculus_gene_ensembl ...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Match and convert the geneID...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 94 genes mapped with ensembl_id</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ==============================</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 94 genes mapped</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 0 genes unmapped</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ==============================</span>
 <span class="r-in"><span><span class="fu"><a href="ListDB.html">ListDB</a></span><span class="op">(</span>db <span class="op">=</span> <span class="st">"CellCycle"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                                                         identifier version                                  comment</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 7 Rcache v0.1.7 (R package R.cache by Henrik Bengtsson)              0.1.7 Seurat_v4 nterm:2|Homo_sapiens-CellCycle</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    timestamp                date        db_version                db_name</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 7 1674032268 2023-01-18 08:57:48 Seurat_v4 nterm:2 Homo_sapiens-CellCycle</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                                         identifier version</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8 Rcache v0.1.7 (R package R.cache by Henrik Bengtsson)              0.1.7</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 Rcache v0.1.7 (R package R.cache by Henrik Bengtsson)              0.1.7</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                                                 comment  timestamp                date</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8                              Seurat_v4 nterm:2|Homo_sapiens-CellCycle 1674101922 2023-01-19 04:18:42</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 Seurat_v4(converted from Homo_sapiens) nterm:2|Mus_musculus-CellCycle 1674101937 2023-01-19 04:18:56</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                       db_version                db_name</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8                              Seurat_v4 nterm:2 Homo_sapiens-CellCycle</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 Seurat_v4(converted from Homo_sapiens) nterm:2 Mus_musculus-CellCycle</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                                                                    file</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 7 /home/runner/.cache/R/R.cache/7eeb18e69d06066547bf0c0038774651.Rcache</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8 /home/runner/.cache/R/R.cache/7eeb18e69d06066547bf0c0038774651.Rcache</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 /home/runner/.cache/R/R.cache/0a6a5861c4521ca291de6c96159106f5.Rcache</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">db_list</span> <span class="op">&lt;-</span> <span class="fu">PrepareDB</span><span class="op">(</span>species <span class="op">=</span> <span class="st">"Mus_musculus"</span>, db <span class="op">=</span> <span class="st">"CellCycle"</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Species: Mus_musculus</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Loaded cached db: CellCycle version:Seurat_v4(converted from Homo_sapiens) nterm:2 created:2023-01-19 04:18:56</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">db_list</span><span class="op">[[</span><span class="st">"Mus_musculus"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"CellCycle"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"TERM2GENE"</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      Term         ensembl_id symbol entrez_id</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 S_genes ENSMUSG00000005410   Mcm5     17218</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 S_genes ENSMUSG00000027342   Pcna     18538</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 S_genes ENSMUSG00000025747   Tyms     22171</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 S_genes ENSMUSG00000024742   Fen1     14156</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5 S_genes ENSMUSG00000029730   Mcm7     17220</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6 S_genes ENSMUSG00000022673   Mcm4     17217</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

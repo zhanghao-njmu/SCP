@@ -114,9 +114,42 @@
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Connect to the Ensembl archives...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Using the 103 version of biomart...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Connect to the biomart...</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in curl::curl_fetch_memory(url, handle = handle):</span> Timeout was reached: [feb2021.archive.ensembl.org:443] Operation timed out after 10000 milliseconds with 0 bytes received</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Connect to the dataset hsapiens_gene_ensembl ...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Connect to the dataset mmusculus_gene_ensembl ...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Match and convert the geneID...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 5 genes mapped with ensembl_symbol</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ==============================</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 5 genes mapped</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 0 genes unmapped</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ==============================</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in str(res):</span> object 'res' not found</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> List of 7</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ geneID_res     :'data.frame':	5 obs. of  4 variables:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ from_IDtype: chr [1:5] "ensembl_symbol" "ensembl_symbol" "ensembl_symbol" "ensembl_symbol" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ from_geneID: chr [1:5] "CTCF" "CDK1" "TOP2A" "AURKA" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ to_IDtype  : chr [1:5] "entrez_id" "entrez_id" "entrez_id" "entrez_id" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ to_geneID  : int [1:5] 13018 12534 21973 20878 17345</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ geneID_collapse:'data.frame':	5 obs. of  2 variables:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ from_geneID: chr [1:5] "AURKA" "CDK1" "CTCF" "MKI67" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ entrez_id  :List of 5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ : int 20878</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ : int 12534</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ : int 13018</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ : int 17345</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ : int 21973</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ geneID_expand  :'data.frame':	5 obs. of  2 variables:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ from_geneID: chr [1:5] "AURKA" "CDK1" "CTCF" "MKI67" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ entrez_id  : int [1:5] 20878 12534 13018 17345 21973</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ Ensembl_version: chr "103"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ Datasets       :'data.frame':	202 obs. of  3 variables:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ dataset    : 'AsIs' chr [1:202] "abrachyrhynchus_gene_ensembl" "acalliptera_gene_ensembl" "acarolinensis_gene_ensembl" "acchrysaetos_gene_ensembl" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ description: 'AsIs' chr [1:202] "Pink-footed goose genes (ASM259213v1)" "Eastern happy genes (fAstCal1.2)" "Anole lizard genes (AnoCar2.0)" "Golden eagle genes (bAquChr1.2)" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ version    : 'AsIs' chr [1:202] "ASM259213v1" "fAstCal1.2" "AnoCar2.0" "bAquChr1.2" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ Attributes     :'data.frame':	3183 obs. of  3 variables:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ name       : chr [1:3183] "ensembl_gene_id" "ensembl_gene_id_version" "ensembl_transcript_id" "ensembl_transcript_id_version" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ description: chr [1:3183] "Gene stable ID" "Gene stable ID version" "Transcript stable ID" "Transcript stable ID version" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ page       : chr [1:3183] "feature_page" "feature_page" "feature_page" "feature_page" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ geneID_unmapped: chr(0) </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Convert the human genes to mouse homologs and replace the raw counts in a Seurat object.</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"pancreas_sub"</span><span class="op">)</span></span></span>
