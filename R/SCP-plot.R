@@ -3369,7 +3369,7 @@ heatmap_enrichment <- function(geneID, geneID_groups, feature_split_palette = "j
                 terms <- paste(toupper(substr(terms, 1, 1)), substr(terms, 2, nchar(terms)), sep = "")
               }
               df_out <- data.frame(keyword = terms)
-              df_out[["col"]] <- palette_scp(-log10(head(df[, "p.adjust"], topTerm)), type = "continuous", palette = "Spectral", matched = TRUE)
+              df_out[["col"]] <- palette_scp(-log10(head(df[, metric], topTerm)), type = "continuous", palette = "Spectral", matched = TRUE)
               df_out[["col"]] <- sapply(df_out[["col"]], function(x) blendcolors(c(x, "black")))
               df_out[["fontsize"]] <- rep(terms_fontsize, nrow(df_out))
               return(df_out)
@@ -3421,7 +3421,7 @@ heatmap_enrichment <- function(geneID, geneID_groups, feature_split_palette = "j
                 }
               } else {
                 df <- df %>%
-                  mutate(keyword = strsplit(as.character(.data[["Description"]]), " ")) %>%
+                  mutate(keyword = strsplit(tolower(as.character(.data[["Description"]])), " ")) %>%
                   unnest(cols = "keyword") %>%
                   group_by(.data[["keyword"]], Database, Groups) %>%
                   summarise(
@@ -12116,10 +12116,11 @@ EnrichmentPlot <- function(srt, db = "GO_BP", group_by = NULL, group_use = NULL,
 
   if (plot_type == "bar") {
     plist <- suppressWarnings(lapply(df_list, function(df) {
-      df <- df[head(order(df[[metric]]), topTerm), ]
+      df <- df[head(seq_len(nrow(df)), topTerm), ]
       df[["metric"]] <- -log10(df[[metric]])
+      df[["Description"]] <- paste(toupper(substr(df[["Description"]], 1, 1)), substr(df[["Description"]], 2, nchar(df[["Description"]])), sep = "")
       df[["Description"]] <- str_wrap(df[["Description"]], width = character_width)
-      df[["Description"]] <- factor(df[["Description"]], levels = df[order(df[, "metric"]), "Description"])
+      df[["Description"]] <- factor(df[["Description"]], levels = rev(df[["Description"]]))
 
       p <- ggplot(df, aes(
         x = .data[["Description"]], y = .data[["metric"]],
@@ -12156,7 +12157,7 @@ EnrichmentPlot <- function(srt, db = "GO_BP", group_by = NULL, group_use = NULL,
     }))
   } else if (plot_type == "lollipop") {
     plist <- suppressWarnings(lapply(df_list, function(df) {
-      df <- df[head(order(df[[metric]]), topTerm), ]
+      df <- df[head(seq_len(nrow(df)), topTerm), ]
       df[["GeneRatio"]] <- sapply(df[["GeneRatio"]], function(x) {
         sp <- str_split(string = x, pattern = "/")[[1]]
         GeneRatio <- as.numeric(sp[1]) / as.numeric(sp[2])
@@ -12168,8 +12169,9 @@ EnrichmentPlot <- function(srt, db = "GO_BP", group_by = NULL, group_use = NULL,
       })
       df[["EnrichmentScore"]] <- df[["GeneRatio"]] / df[["BgRatio"]]
       df[["metric"]] <- -log10(df[[metric]])
+      df[["Description"]] <- paste(toupper(substr(df[["Description"]], 1, 1)), substr(df[["Description"]], 2, nchar(df[["Description"]])), sep = "")
       df[["Description"]] <- str_wrap(df[["Description"]], width = character_width)
-      df[["Description"]] <- factor(df[["Description"]], levels = df[order(df[, "EnrichmentScore"]), "Description"])
+      df[["Description"]] <- factor(df[["Description"]], levels = df[order(df[["EnrichmentScore"]]), "Description"])
 
       p <- ggplot(df, aes(
         x = .data[["Description"]], y = .data[["EnrichmentScore"]],
@@ -12242,7 +12244,7 @@ EnrichmentPlot <- function(srt, db = "GO_BP", group_by = NULL, group_use = NULL,
           }
         } else {
           df <- df %>%
-            mutate(keyword = strsplit(as.character(.data[["Description"]]), " ")) %>%
+            mutate(keyword = strsplit(tolower(as.character(.data[["Description"]])), " ")) %>%
             unnest(cols = "keyword") %>%
             group_by(.data[["keyword"]], Database, Groups) %>%
             summarise(
