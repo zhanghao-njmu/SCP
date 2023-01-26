@@ -302,6 +302,7 @@ VolcanoPlot(srt = pancreas_sub, group_by = "CellType")
 ```{r ExpHeatmap, fig.height=6, fig.width=17}
 DEGs <- pancreas_sub@tools$DEtest_CellType$AllMarkers_wilcox
 DEGs <- DEGs[with(DEGs, avg_log2FC > 1 & p_val_adj < 0.05), ]
+# Annotate features with transcription factors and surface proteins
 pancreas_sub <- AnnotateFeatures(pancreas_sub, species = "Mus_musculus", db = c("TF", "SP"))
 ht <- ExpHeatmap(
   srt = pancreas_sub, group.by = "CellType", features = DEGs$gene, feature_split = DEGs$group1,
