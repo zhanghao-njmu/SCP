@@ -98,6 +98,42 @@ SCP::PrepareEnv(
 )
 ```
 
+Available miniconda repositories:
+
+-   <https://repo.anaconda.com/miniconda> (default)
+
+-   <http://mirrors.aliyun.com/anaconda/miniconda>
+
+-   <https://mirrors.bfsu.edu.cn/anaconda/miniconda>
+
+-   <https://mirrors.pku.edu.cn/anaconda/miniconda>
+
+-   <https://mirror.nju.edu.cn/anaconda/miniconda>
+
+-   <https://mirrors.sustech.edu.cn/anaconda/miniconda>
+
+-   <https://mirrors.xjtu.edu.cn/anaconda/miniconda>
+
+-   <https://mirrors.hit.edu.cn/anaconda/miniconda>
+
+Available PyPI mirrors:
+
+-   <https://pypi.python.org/simple> (default)
+
+-   <https://mirrors.aliyun.com/pypi/simple>
+
+-   <https://pypi.tuna.tsinghua.edu.cn/simple>
+
+-   <https://mirrors.pku.edu.cn/pypi/simple>
+
+-   <https://mirror.nju.edu.cn/pypi/web/simple>
+
+-   <https://mirrors.sustech.edu.cn/pypi/simple>
+
+-   <https://mirrors.xjtu.edu.cn/pypi/simple>
+
+-   <https://mirrors.hit.edu.cn/pypi/web/simple>
+
 ## Installation in a isolated R environment using renv
 
 If there are some R package version conflicts, or you do not want to

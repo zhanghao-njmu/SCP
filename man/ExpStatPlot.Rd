@@ -92,5 +92,15 @@ ExpStatPlot(pancreas_sub,
     "Ins1", "Gcg", "Sst", "Ghrl" # Beta, Alpha, Delta, Epsilon
   ),
   group.by = "SubCellType", bg.by = "CellType", stack = TRUE, flip = TRUE
+)
+ExpStatPlot(pancreas_sub,
+  features = c(
+    "Sox9", "Anxa2", "Bicc1", # Ductal
+    "Neurog3", "Hes6", # EPs
+    "Fev", "Neurod1", # Pre-endocrine
+    "Rbp4", "Pyy", # Endocrine
+    "Ins1", "Gcg", "Sst", "Ghrl" # Beta, Alpha, Delta, Epsilon
+  ), fill.by = "expression", palette = "Reds",
+  group.by = "SubCellType", bg.by = "CellType", stack = TRUE, flip = TRUE
 ) \%>\% panel_fix_single(width = 10, height = 5)
 }

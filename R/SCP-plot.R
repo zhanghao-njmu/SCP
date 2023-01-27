@@ -7311,7 +7311,13 @@ CellCorHeatmap <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
         inds <- inds[duplicated(inds)]
       }
       if (length(inds) > 0) {
-        grid.text(round(value[inds], 2), x[inds], y[inds], gp = gpar(fontsize = label_size))
+        theta <- seq(pi / 8, 2 * pi, length.out = 16)
+        lapply(theta, function(i) {
+          x_out <- x[inds] + unit(cos(i) * label_size / 30, "mm")
+          y_out <- y[inds] + unit(sin(i) * label_size / 30, "mm")
+          grid.text(round(value[inds], 2), x = x_out, y = y_out, gp = gpar(fontsize = label_size, col = "white"))
+        })
+        grid.text(round(value[inds], 2), x[inds], y[inds], gp = gpar(fontsize = label_size, col = "black"))
       }
     }
   }
@@ -7576,6 +7582,16 @@ geom_split_violin <- function(mapping = NULL, data = NULL, stat = "ydensity", po
 #'     "Ins1", "Gcg", "Sst", "Ghrl" # Beta, Alpha, Delta, Epsilon
 #'   ),
 #'   group.by = "SubCellType", bg.by = "CellType", stack = TRUE, flip = TRUE
+#' )
+#' ExpStatPlot(pancreas_sub,
+#'   features = c(
+#'     "Sox9", "Anxa2", "Bicc1", # Ductal
+#'     "Neurog3", "Hes6", # EPs
+#'     "Fev", "Neurod1", # Pre-endocrine
+#'     "Rbp4", "Pyy", # Endocrine
+#'     "Ins1", "Gcg", "Sst", "Ghrl" # Beta, Alpha, Delta, Epsilon
+#'   ), fill.by = "expression", palette = "Reds",
+#'   group.by = "SubCellType", bg.by = "CellType", stack = TRUE, flip = TRUE
 #' ) %>% panel_fix_single(width = 10, height = 5)
 #' @importFrom Seurat DefaultAssay
 #' @importFrom gtable gtable_add_cols gtable_add_rows gtable_add_grob gtable_add_padding
@@ -7827,8 +7843,8 @@ ExpStatPlot <- function(srt, features = NULL, group.by = NULL, split.by = NULL, 
             p <- p + do.call(theme_use, list(
               aspect.ratio = aspect.ratio,
               strip.text.x = element_text(angle = 45),
-              axis.text.x = if (isTRUE(stack)) element_blank() else element_text(),
-              axis.ticks.x = if (isTRUE(stack)) element_blank() else element_line(),
+              # axis.text.x = if (isTRUE(stack)) element_blank() else element_text(),
+              # axis.ticks.x = if (isTRUE(stack)) element_blank() else element_line(),
               panel.grid.major.x = element_line(color = "grey", linetype = 2),
               legend.position = legend.position,
               legend.direction = legend.direction
@@ -7838,8 +7854,8 @@ ExpStatPlot <- function(srt, features = NULL, group.by = NULL, split.by = NULL, 
               aspect.ratio = aspect.ratio,
               axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1),
               strip.text.y = element_text(angle = 0),
-              axis.text.y = if (isTRUE(stack)) element_blank() else element_text(),
-              axis.ticks.y = if (isTRUE(stack)) element_blank() else element_line(),
+              # axis.text.y = if (isTRUE(stack)) element_blank() else element_text(),
+              # axis.ticks.y = if (isTRUE(stack)) element_blank() else element_line(),
               panel.grid.major.y = element_line(color = "grey", linetype = 2),
               legend.position = legend.position,
               legend.direction = legend.direction
@@ -7866,6 +7882,7 @@ ExpStatPlot <- function(srt, features = NULL, group.by = NULL, split.by = NULL, 
           } else {
             p <- p + geom_violin(scale = "width", adjust = adjust, trim = TRUE, alpha = alpha, position = position_dodge())
           }
+
           if (length(comparisons) > 0) {
             check_R("ggpubr")
             p <- p + ggpubr::stat_compare_means(
@@ -7932,7 +7949,15 @@ ExpStatPlot <- function(srt, features = NULL, group.by = NULL, split.by = NULL, 
             p <- p + scale_x_discrete(drop = !keep_empty)
           }
 
-          p <- p + scale_y_continuous(limits = c(y_min_use, y_max_use), trans = y.trans, n.breaks = y.nbreaks)
+          if (isTRUE(stack)) {
+            p <- p + scale_y_continuous(
+              limits = c(y_min_use, y_max_use), trans = y.trans,
+              breaks = c(y_min_use, y_max_use), labels = c(round(y_min_use, 1), round(y_max_use, 1))
+            )
+          } else {
+            p <- p + scale_y_continuous(limits = c(y_min_use, y_max_use), trans = y.trans, n.breaks = y.nbreaks)
+          }
+
           if (fill.by != "expression") {
             p <- p + scale_fill_manual(name = paste0(keynm, ":"), values = colors, breaks = levels_order, drop = FALSE) +
               scale_color_manual(name = paste0(keynm, ":"), values = colors, breaks = levels_order, drop = FALSE) +
@@ -7964,27 +7989,24 @@ ExpStatPlot <- function(srt, features = NULL, group.by = NULL, split.by = NULL, 
         plist <- lapply(seq_along(plist), FUN = function(i) {
           p <- plist[[i]]
           if (i != 1) {
-            p <- p + theme(
+            suppressWarnings(p <- p + theme(
               legend.position = "none",
               plot.title = element_blank(),
               plot.subtitle = element_blank(),
               axis.title = element_blank(),
               axis.text.y = element_blank(),
-              axis.ticks.y = element_blank(),
-              plot.margin = margin(
-                t = 0.2, r = -0.06, b = 0.2, l = -0.06,
-                unit = "cm"
-              )
-            )
+              axis.text.x = element_text(hjust = c(0, 1)),
+              axis.ticks.length.y = unit(0, "pt"),
+              plot.margin = unit(c(0, -0.5, 0, 0), "mm")
+            ))
           } else {
-            p <- p + theme(
+            suppressWarnings(p <- p + theme(
               legend.position = "none",
               axis.title.x = element_blank(),
-              plot.margin = margin(
-                t = 0.2, r = -0.06, b = 0.2, l = 0.2,
-                unit = "cm"
-              )
-            )
+              axis.text.x = element_text(hjust = c(0, 1)),
+              axis.ticks.length.y = unit(0, "pt"),
+              plot.margin = unit(c(0, -0.5, 0, 0), "mm")
+            ))
           }
           return(ggplotGrob(p))
         })
@@ -7999,28 +8021,25 @@ ExpStatPlot <- function(srt, features = NULL, group.by = NULL, split.by = NULL, 
         plist <- lapply(seq_along(plist), FUN = function(i) {
           p <- plist[[i]]
           if (i != length(plist)) {
-            p <- p + theme(
+            suppressWarnings(p <- p + theme(
               legend.position = "none",
               axis.title = element_blank(),
               axis.text.x = element_blank(),
-              axis.ticks.x = element_blank(),
-              plot.margin = margin(
-                t = -0.06, r = 0.2, b = -0.06, l = 0.2,
-                unit = "cm"
-              )
-            )
+              axis.text.y = element_text(vjust = c(0, 1)),
+              axis.ticks.length.x = unit(0, "pt"),
+              plot.margin = unit(c(-0.5, 0, 0, 0), "mm")
+            ))
             if (i == 1) {
               p <- p + theme(plot.title = element_blank(), plot.subtitle = element_blank())
             }
           } else {
-            p <- p + theme(
+            suppressWarnings(p <- p + theme(
               legend.position = "none",
               axis.title.y = element_blank(),
-              plot.margin = margin(
-                t = -0.06, r = 0.2, b = 0.2, l = 0.2,
-                unit = "cm"
-              )
-            )
+              axis.text.y = element_text(vjust = c(0, 1)),
+              axis.ticks.length.x = unit(0, "pt"),
+              plot.margin = unit(c(-0.5, 0, 0, 0), "mm")
+            ))
           }
           return(ggplotGrob(p))
         })
