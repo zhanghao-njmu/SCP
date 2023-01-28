@@ -54,7 +54,6 @@ Imports:
     sf,
     simplifyEnrichment (>= 1.5.2),
     slingshot,
-    stringr,
     uwot
 Remotes:
     jokergoo/ComplexHeatmap,

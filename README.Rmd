@@ -266,7 +266,7 @@ ClassDimPlot(
 ### Cell projection between single-cell datasets
 
 ```{r RunKNNMap}
-panc8_rename <- RenameFeatures(srt = panc8_sub, newnames = make.unique(stringr::str_to_title(rownames(panc8_sub))), assays = "RNA")
+panc8_rename <- RenameFeatures(srt = panc8_sub, newnames = make.unique(capitalize(rownames(panc8_sub), force_tolower = TRUE)), assays = "RNA")
 pancreas_sub <- RunKNNMap(srt_query = pancreas_sub, srt_ref = panc8_rename, ref_umap = "SeuratUMAP2D")
 ProjectionPlot(
   srt_query = pancreas_sub, srt_ref = panc8_rename,

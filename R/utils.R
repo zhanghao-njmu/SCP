@@ -614,3 +614,25 @@ as_matrix <- function(matrix) {
   colnames(out) <- matrix@Dimnames[[2]]
   return(out)
 }
+
+#' Capitalizes the characters
+#' Making the first letter uppercase
+#'
+#' @param x A vector of character strings to be capitalized.
+#' @param force_tolower Whether to force the remaining letters to be lowercase.
+#' @export
+capitalize <- function(x, force_tolower = FALSE) {
+  if (!inherits(x, "character")) {
+    stop("x must be the type of character.")
+  }
+  if (isTRUE(force_tolower)) {
+    paste(toupper(substr(x, 1, 1)), tolower(substr(x, 2, nchar(x))), sep = "")
+  } else {
+    paste(toupper(substr(x, 1, 1)), substr(x, 2, nchar(x)), sep = "")
+  }
+}
+
+str_wrap <- function(x, width = 80) {
+  x_wrap <- unlist(lapply(x, function(i) paste0(strwrap(i, width = width), collapse = "\n")))
+  return(x_wrap)
+}
