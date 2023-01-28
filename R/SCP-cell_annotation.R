@@ -48,7 +48,7 @@ NULL
 #' # Annotate using single cell RNA-seq data
 #' data("panc8_sub")
 #' # Simply convert genes from human to mouse and preprocess the data
-#' genenames <- make.unique(stringr::str_to_title(rownames(panc8_sub)))
+#' genenames <- make.unique(capitalize(rownames(panc8_sub), force_tolower = TRUE))
 #' panc8_sub <- RenameFeatures(panc8_sub, newnames = genenames)
 #' panc8_sub <- check_srtMerge(panc8_sub, batch = "tech")[["srtMerge"]]
 #'
@@ -509,7 +509,7 @@ RunKNNPredict <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
 #' @examples
 #' data("panc8_sub")
 #' # Simply convert genes from human to mouse and preprocess the data
-#' genenames <- make.unique(stringr::str_to_title(rownames(panc8_sub)))
+#' genenames <- make.unique(capitalize(rownames(panc8_sub), force_tolower = TRUE))
 #' panc8_sub <- RenameFeatures(panc8_sub, newnames = genenames)
 #' panc8_sub <- check_srtMerge(panc8_sub, batch = "tech")[["srtMerge"]]
 #'
@@ -651,7 +651,7 @@ RunScmap <- function(srt_query, srt_ref, ref_group = NULL, method = "scmapCluste
 #' @examples
 #' data("panc8_sub")
 #' # Simply convert genes from human to mouse and preprocess the data
-#' genenames <- make.unique(stringr::str_to_title(rownames(panc8_sub)))
+#' genenames <- make.unique(capitalize(rownames(panc8_sub), force_tolower = TRUE))
 #' panc8_sub <- RenameFeatures(panc8_sub, newnames = genenames)
 #' panc8_sub <- check_srtMerge(panc8_sub, batch = "tech")[["srtMerge"]]
 #'

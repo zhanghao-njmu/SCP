@@ -655,7 +655,7 @@ AddModuleScore2 <- function(object, slot = "data", features, pool = NULL, nbin =
 #' )
 #' ClassDimPlot(panc_merge, group.by = c("tech", "celltype", "SubCellType", "Phase"))
 #'
-#' genenames <- make.unique(stringr::str_to_title(rownames(panc8_sub[["RNA"]])))
+#' genenames <- make.unique(capitalize(rownames(panc8_sub[["RNA"]]), force_tolower = TRUE))
 #' panc8_sub <- RenameFeatures(panc8_sub, newnames = genenames, assay = "RNA")
 #' head(rownames(panc8_sub))
 #' panc_merge <- Integration_SCP(

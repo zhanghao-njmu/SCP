@@ -22,7 +22,8 @@ conda_install(
 
 \item{packages}{A character vector, indicating package names which should be
 installed or removed. Use  \verb{<package>==<version>} to request the installation
-of a specific version of a package.}
+of a specific version of a package. A \code{NULL} value for \code{\link[reticulate:conda_remove]{conda_remove()}}
+will be interpretted to \code{"--all"}, removing the entire environment.}
 
 \item{forge}{Boolean; include the \href{https://conda-forge.org/}{conda-forge}
 repository?}

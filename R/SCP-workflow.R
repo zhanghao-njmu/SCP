@@ -411,7 +411,7 @@ RecoverCounts <- function(srt, assay = NULL, trans = c("expm1", "exp", "none"), 
 #' data("panc8_sub")
 #' head(rownames(panc8_sub))
 #' # Simply convert genes from human to mouse and preprocess the data
-#' genenames <- make.unique(stringr::str_to_title(rownames(panc8_sub)))
+#' genenames <- make.unique(capitalize(rownames(panc8_sub), force_tolower = TRUE))
 #' panc8_rename <- RenameFeatures(panc8_sub, newnames = genenames)
 #' head(rownames(panc8_rename))
 #'

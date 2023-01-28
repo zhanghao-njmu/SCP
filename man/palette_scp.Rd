@@ -68,7 +68,7 @@ if (interactive()) {
   nord_palettes <- nord::nord_palettes
   viridis_names <- c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")
   viridis_palettes <- lapply(setNames(viridis_names, viridis_names), function(x) viridis::viridis(100, option = x))
-  ocean_names <- names(pals:::syspals)[str_detect(names(pals:::syspals), "ocean")]
+  ocean_names <- names(pals:::syspals)[grep("ocean", names(pals:::syspals))]
   ocean_palettes <- pals:::syspals[ocean_names]
   dichromat_palettes <- dichromat::colorschemes
   jcolors_names <- paste0("jcolors-", c("default", "pal2", "pal3", "pal4", "pal5", "pal6", "pal7", "pal8", "pal9", "pal10", "pal11", "pal12", "rainbow"))
