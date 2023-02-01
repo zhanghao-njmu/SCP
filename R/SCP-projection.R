@@ -201,7 +201,7 @@ RunKNNMap <- function(srt_query, srt_ref, query_assay = NULL, ref_assay = NULL, 
       match_k_distance <- t(as.matrix(apply(d, 2, function(x) x[order(x, decreasing = FALSE)[1:k]])))
     }
     knn_cells <- match_k_cell
-    refumap_all <- srt_ref[[ref_umap]]@cell.embeddings[knn_cells, ]
+    refumap_all <- srt_ref[[ref_umap]]@cell.embeddings[knn_cells, , drop = FALSE]
     group <- rep(colnames(d), k)
   }
 

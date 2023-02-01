@@ -88,8 +88,8 @@ NULL
 #' ExpDimPlot(pancreas_sub, features = "KNNPredict_simil")
 #'
 #' @importFrom methods as
-#' @importFrom Matrix colSums t rowSums
-#' @importFrom Seurat DefaultAssay GetAssayData FindVariableFeatures VariableFeatures AverageExpression FindNeighbors
+#' @importFrom Matrix t colSums rowSums
+#' @importFrom Seurat DefaultAssay GetAssayData FindVariableFeatures VariableFeatures AverageExpression FindNeighbors as.sparse
 #' @importFrom dplyr bind_rows group_by top_n pull
 #' @importFrom rlang %||%
 #' @export

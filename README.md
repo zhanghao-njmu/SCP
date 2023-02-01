@@ -4,13 +4,12 @@
 <!-- badges: start -->
 
 [![version](https://img.shields.io/github/r-package/v/zhanghao-njmu/SCP)](https://github.com/zhanghao-njmu/SCP)
-[![R-CMD-check](https://github.com/zhanghao-njmu/SCP/workflows/R-CMD-check/badge.svg)](https://github.com/zhanghao-njmu/SCP/actions)
 [![codesize](https://img.shields.io/github/languages/code-size/zhanghao-njmu/SCP.svg)](https://github.com/zhanghao-njmu/SCP)
 
 <!-- badges: end -->
 
-The SCP package provides a comprehensive set of tools for single cell
-data processing and downstream analysis.
+SCP provides a comprehensive set of tools for single cell data
+processing and downstream analysis.
 
 The package includes facilities for:
 
