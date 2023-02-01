@@ -2179,7 +2179,7 @@ Scanorama_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = 
 #'
 #' @inheritParams Integration_SCP
 #'
-#' @importFrom Seurat GetAssayData ScaleData SetAssayData DefaultAssay DefaultAssay<- as.Graph Embeddings FindClusters Idents VariableFeatures VariableFeatures<-
+#' @importFrom Seurat GetAssayData ScaleData SetAssayData DefaultAssay DefaultAssay<- as.Graph Embeddings FindClusters Idents VariableFeatures VariableFeatures<- as.sparse
 #' @importFrom Matrix t
 #' @importFrom dplyr "%>%"
 #' @importFrom reticulate import

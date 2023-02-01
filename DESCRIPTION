@@ -34,7 +34,7 @@ Imports:
     graphics,
     igraph,
     intrinsicDimension,
-    Matrix,
+    Matrix (>= 1.5-3),
     methods,
     mgcv,
     org.Hs.eg.db,
