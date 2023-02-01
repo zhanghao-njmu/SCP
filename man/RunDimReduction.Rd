@@ -18,9 +18,8 @@ RunDimReduction(
   nonlinear_reduction_dims = 2,
   reduction_use = NULL,
   reduction_dims = NULL,
-  neighbor_use = NULL,
   graph_use = NULL,
-  distance_use = NULL,
+  neighbor_use = NULL,
   nonlinear_reduction_params = list(),
   force_nonlinear_reduction = TRUE,
   verbose = TRUE,
@@ -54,11 +53,9 @@ RunDimReduction(
 
 \item{reduction_dims}{Which dimensions to use as input for \code{nonlinear_reduction}, used only if \code{features} is \code{NULL}.}
 
-\item{neighbor_use}{Name of neighbor to use for the \code{nonlinear_reduction}.}
-
 \item{graph_use}{Name of graph to use for the \code{nonlinear_reduction}.}
 
-\item{distance_use}{Name of distance to use for the \code{nonlinear_reduction}.}
+\item{neighbor_use}{Name of neighbor to use for the \code{nonlinear_reduction}.}
 
 \item{nonlinear_reduction_params}{Other parameters passed to the \code{nonlinear_reduction} method.}
 

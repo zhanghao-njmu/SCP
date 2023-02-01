@@ -13,7 +13,6 @@ RunTriMap(object, ...)
   reduction = "pca",
   dims = NULL,
   features = NULL,
-  distance = NULL,
   assay = DefaultAssay(object = object),
   slot = "data",
   n_components = 2,

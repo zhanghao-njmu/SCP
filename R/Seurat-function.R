@@ -833,7 +833,7 @@ RunUMAP2 <- function(object, ...) {
 #' @importFrom Seurat LogSeuratCommand
 #' @export
 RunUMAP2.Seurat <- function(object,
-                            reduction = "pca", dims = NULL, features = NULL, neighbor = NULL, graph = NULL, distance = NULL,
+                            reduction = "pca", dims = NULL, features = NULL, neighbor = NULL, graph = NULL,
                             assay = DefaultAssay(object = object), slot = "data",
                             umap.method = "uwot", reduction.model = NULL,
                             return.model = FALSE, n.neighbors = 30L, n.components = 2L,
@@ -843,8 +843,8 @@ RunUMAP2.Seurat <- function(object,
                             seed.use = 42L, verbose = TRUE,
                             reduction.name = "umap", reduction.key = "UMAP_",
                             ...) {
-  if (sum(c(is.null(x = dims), is.null(x = features), is.null(neighbor), is.null(x = graph), is.null(distance))) == 5) {
-    stop("Please specify only one of the following arguments: dims, features, neighbor, graph or distance")
+  if (sum(c(is.null(x = dims), is.null(x = features), is.null(neighbor), is.null(x = graph))) == 4) {
+    stop("Please specify only one of the following arguments: dims, features, neighbor or graph")
   }
   if (!is.null(x = features)) {
     data.use <- as.matrix(x = t(x = GetAssayData(object = object, slot = slot, assay = assay)[features, , drop = FALSE]))
@@ -893,19 +893,8 @@ RunUMAP2.Seurat <- function(object,
       )
     }
     data.use <- object[[graph]]
-  } else if (!is.null(x = distance)) {
-    if (!inherits(x = object[[distance]], what = "Graph")) {
-      stop(
-        "Please specify a Graph object name(save the distance matrix), ",
-        "instead of the name of a ",
-        class(object[[distance]]),
-        " object",
-        call. = FALSE
-      )
-    }
-    data.use <- as.dist(as.matrix(object[[distance]]))
   } else {
-    stop("Please specify one of dims, features, neighbor, graph or distance")
+    stop("Please specify one of dims, features, neighbor, or graph")
   }
   object[[reduction.name]] <- RunUMAP2(
     object = data.use, assay = assay,
@@ -1014,6 +1003,7 @@ RunUMAP2.default <- function(object, assay = NULL,
     umap.config$verbose <- verbose
     if (is.na(umap.config$a) || is.na(umap.config$b)) {
       umap.config[c("a", "b")] <- umap:::find.ab.params(umap.config$spread, umap.config$min_dist)
+      umap.config$min_dist <- umap::umap.defaults$min_dist
     }
 
     if (inherits(x = object, what = "dist")) {
@@ -1202,7 +1192,6 @@ RunUMAP2.default <- function(object, assay = NULL,
       } else {
         embeddings <- out
       }
-      embeddings <- out$embedding
       rownames(x = embeddings) <- row.names(object[["idx"]])
       colnames(x = embeddings) <- paste0(reduction.key, 1:n.components)
       reduction <- CreateDimReducObject(
@@ -1303,7 +1292,6 @@ RunUMAP2.default <- function(object, assay = NULL,
       } else {
         embeddings <- out
       }
-      embeddings <- out$embedding
       rownames(x = embeddings) <- row.names(object)
       colnames(x = embeddings) <- paste0(reduction.key, 1:n.components)
       reduction <- CreateDimReducObject(
@@ -1356,7 +1344,6 @@ RunUMAP2.default <- function(object, assay = NULL,
         X = NULL, nn_method = object, model = model, n_epochs = n.epochs,
         n_threads = 1, verbose = verbose
       )
-
       rownames(x = embeddings) <- row.names(object[["idx"]])
       colnames(x = embeddings) <- paste0(reduction.key, 1:n.components)
       reduction <- CreateDimReducObject(
@@ -1797,7 +1784,7 @@ RunTriMap <- function(object, ...) {
 #' @export
 #' @importFrom Seurat LogSeuratCommand
 #' @method RunTriMap Seurat
-RunTriMap.Seurat <- function(object, reduction = "pca", dims = NULL, features = NULL, distance = NULL,
+RunTriMap.Seurat <- function(object, reduction = "pca", dims = NULL, features = NULL,
                              assay = DefaultAssay(object = object), slot = "data",
                              n_components = 2, n_inliers = 12, n_outliers = 4, n_random = 3, distance_method = "euclidean",
                              lr = 0.1, n_iters = 400, triplets = NULL, weights = NULL, use_dist_matrix = FALSE, knn_tuple = NULL,
@@ -1805,8 +1792,8 @@ RunTriMap.Seurat <- function(object, reduction = "pca", dims = NULL, features = 
                              reduction.name = "trimap", reduction.key = "TriMap_",
                              verbose = TRUE, seed.use = 11L,
                              ...) {
-  if (sum(c(is.null(x = dims), is.null(x = features), is.null(distance))) == 3) {
-    stop("Please specify only one of the following arguments: dims, features or distance")
+  if (sum(c(is.null(x = dims), is.null(x = features))) == 2) {
+    stop("Please specify only one of the following arguments: dims, features")
   }
   if (!is.null(x = features)) {
     data.use <- as.matrix(x = t(x = GetAssayData(object = object, slot = slot, assay = assay)[features, , drop = FALSE]))
@@ -1833,19 +1820,8 @@ RunTriMap.Seurat <- function(object, reduction = "pca", dims = NULL, features = 
         call. = FALSE
       )
     }
-  } else if (!is.null(x = distance)) {
-    if (!inherits(x = object[[distance]], what = "Graph")) {
-      stop(
-        "Please specify a Graph object name(save the distance matrix), ",
-        "instead of the name of a ",
-        class(object[[distance]]),
-        " object",
-        call. = FALSE
-      )
-    }
-    data.use <- as.dist(as.matrix(object[[distance]]))
   } else {
-    stop("Please specify one of dims, features or distance")
+    stop("Please specify one of dims, features")
   }
   object[[reduction.name]] <- RunTriMap(
     object = data.use, assay = assay,
@@ -1981,7 +1957,7 @@ RunLargeVis <- function(object, ...) {
 #' @concept dimensional_reduction
 #' @importFrom Seurat LogSeuratCommand
 #' @export
-RunLargeVis.Seurat <- function(object, reduction = "pca", dims = NULL, features = NULL, distance = NULL,
+RunLargeVis.Seurat <- function(object, reduction = "pca", dims = NULL, features = NULL,
                                assay = DefaultAssay(object = object), slot = "data",
                                perplexity = 50, n_neighbors = perplexity * 3, n_components = 2, metric = "euclidean",
                                n_epochs = -1, learning_rate = 1, scale = "maxabs", init = "lvrandom", init_sdev = NULL,
@@ -1992,8 +1968,8 @@ RunLargeVis.Seurat <- function(object, reduction = "pca", dims = NULL, features 
                                reduction.name = "largevis", reduction.key = "LargeVis_",
                                verbose = TRUE, seed.use = 11L,
                                ...) {
-  if (sum(c(is.null(x = dims), is.null(x = features), is.null(x = distance))) == 3) {
-    stop("Please specify only one of the following arguments: dims, features or distance")
+  if (sum(c(is.null(x = dims), is.null(x = features))) == 3) {
+    stop("Please specify only one of the following arguments: dims, features")
   }
   if (!is.null(x = features)) {
     data.use <- as.matrix(x = t(x = GetAssayData(object = object, slot = slot, assay = assay)[features, , drop = FALSE]))
@@ -2020,19 +1996,8 @@ RunLargeVis.Seurat <- function(object, reduction = "pca", dims = NULL, features 
         call. = FALSE
       )
     }
-  } else if (!is.null(x = distance)) {
-    if (!inherits(x = object[[distance]], what = "Graph")) {
-      stop(
-        "Please specify a Graph object name(save the distance matrix), ",
-        "instead of the name of a ",
-        class(object[[distance]]),
-        " object",
-        call. = FALSE
-      )
-    }
-    data.use <- as.dist(as.matrix(object[[distance]]))
   } else {
-    stop("Please specify one of dims, features or distance")
+    stop("Please specify one of dims, features")
   }
   object[[reduction.name]] <- RunLargeVis(
     object = data.use, assay = assay,

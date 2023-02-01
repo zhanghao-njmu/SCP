@@ -161,7 +161,7 @@ check_srtList <- function(srtList, batch = "orig.ident", assay = "RNA",
     if (is.null(HVF)) {
       if (isTRUE(do_HVF_finding) || is.null(do_HVF_finding) || length(VariableFeatures(srtList[[i]], assay = assay)) == 0) {
         cat("Perform FindVariableFeatures on the data ", i, "/", length(srtList), " of the srtList...\n", sep = "")
-        srtList[[i]] <- FindVariableFeatures(srtList[[i]], assay = assay, nfeatures = nHVF, selection.method = HVF_method, verbose = FALSE)
+        srtList[[i]] <- suppressWarnings(FindVariableFeatures(srtList[[i]], assay = assay, nfeatures = nHVF, selection.method = HVF_method, verbose = FALSE))
       }
     }
 
@@ -690,7 +690,6 @@ SrtAppend <- function(srt_raw, srt_append,
 #' @param reduction_dims Which dimensions to use as input for \code{nonlinear_reduction}, used only if \code{features} is \code{NULL}.
 #' @param neighbor_use Name of neighbor to use for the \code{nonlinear_reduction}.
 #' @param graph_use Name of graph to use for the \code{nonlinear_reduction}.
-#' @param distance_use Name of distance to use for the \code{nonlinear_reduction}.
 #' @param nonlinear_reduction_params  Other parameters passed to the \code{nonlinear_reduction} method.
 #' @param force_nonlinear_reduction Whether force to do nonlinear dimensionality reduction.
 #' @param verbose Show messages.
@@ -703,27 +702,26 @@ RunDimReduction <- function(srt, prefix = "", features = NULL, assay = NULL, slo
                             linear_reduction_params = list(), force_linear_reduction = FALSE,
                             nonlinear_reduction = NULL, nonlinear_reduction_dims = 2,
                             reduction_use = NULL, reduction_dims = NULL,
-                            neighbor_use = NULL, graph_use = NULL, distance_use = NULL,
+                            graph_use = NULL, neighbor_use = NULL,
                             nonlinear_reduction_params = list(), force_nonlinear_reduction = TRUE,
                             verbose = TRUE, seed = 11) {
   set.seed(seed)
+  assay <- assay %||% DefaultAssay(srt)
   if (!is.null(linear_reduction)) {
     if (any(!linear_reduction %in% c("pca", "ica", "nmf", "mds", "glmpca", Reductions(srt))) || length(linear_reduction) > 1) {
       stop("'linear_reduction' must be one of 'pca', 'ica', 'nmf', 'mds', 'glmpca'.")
     }
-    if (is.null(linear_reduction_dims)) {
-      linear_reduction_dims <- 100
-    }
+    linear_reduction_dims <- min(linear_reduction_dims, nrow(srt[[assay]]) - 1, ncol(srt[[assay]]) - 1, na.rm = TRUE)
   }
   if (!is.null(nonlinear_reduction)) {
     if (any(!nonlinear_reduction %in% c("umap", "umap-naive", "tsne", "dm", "phate", "pacmap", "trimap", "largevis", Reductions(srt))) || length(nonlinear_reduction) > 1) {
       stop("'nonlinear_reduction' must be one of 'umap', 'tsne', 'dm', 'phate', 'pacmap', 'trimap', 'largevis'.")
     }
-    if (is.null(features) && is.null(reduction_use) && is.null(graph_use)) {
-      stop("'features', 'reduction_use' or 'graph_use' must be provided when running nonlinear reduction.")
+    if (is.null(features) && is.null(reduction_use) && is.null(graph_use) && is.null(neighbor_use)) {
+      stop("'features', 'reduction_use', 'graph_use', or 'neighbor_use' must be provided when running nonlinear reduction.")
     }
+    nonlinear_reduction_dims <- min(nonlinear_reduction_dims, nrow(srt[[assay]]) - 1, ncol(srt[[assay]]) - 1, na.rm = TRUE)
   }
-  assay <- assay %||% DefaultAssay(srt)
   if (!is.null(linear_reduction)) {
     if (!isTRUE(force_linear_reduction)) {
       if (linear_reduction %in% Reductions(srt)) {
@@ -815,7 +813,6 @@ RunDimReduction <- function(srt, prefix = "", features = NULL, assay = NULL, slo
         dims_estimate <- seq_len(min(ncol(Embeddings(srt, reduction = paste0(prefix, linear_reduction))), 30))
       }
     }
-    message("dims_estimate is ", paste0(range(dims_estimate), collapse = ":"), " for '", linear_reduction, "'")
     srt@reductions[[paste0(prefix, linear_reduction)]]@misc[["dims_estimate"]] <- dims_estimate
     srt@misc[["Default_reduction"]] <- paste0(prefix, linear_reduction)
   } else if (!is.null(nonlinear_reduction)) {
@@ -838,9 +835,6 @@ RunDimReduction <- function(srt, prefix = "", features = NULL, assay = NULL, slo
     }
     if (!is.null(graph_use) && !nonlinear_reduction %in% c("umap", "umap-naive")) {
       stop("'graph_use' only support 'umap' or 'umap-naive' method")
-    }
-    if (!is.null(distance_use) && !nonlinear_reduction %in% c("umap", "umap-naive", "trimap", "largevis")) {
-      stop("'distance_use' only support 'umap', 'umap-naive', 'trimap', 'largevis' method")
     }
     fun_use <- switch(nonlinear_reduction,
       "umap" = "RunUMAP2",
@@ -885,9 +879,6 @@ RunDimReduction <- function(srt, prefix = "", features = NULL, assay = NULL, slo
     }
     if (!is.null(graph_use)) {
       params[["graph"]] <- graph_use
-    }
-    if (!is.null(distance_use)) {
-      params[["distance"]] <- distance_use
     }
     names(params)[names(params) == "components_nm"] <- components_nm
     for (nm in names(other_params)) {
@@ -1189,7 +1180,7 @@ Seurat_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRU
     verbose = FALSE, seed = seed
   )
   if (is.null(linear_reduction_dims_use)) {
-    linear_reduction_dims_use <- srtIntegrated@reductions[[paste0("Seurat", linear_reduction)]]@misc[["dims_estimate"]]
+    linear_reduction_dims_use <- srtIntegrated@reductions[[paste0("Seurat", linear_reduction)]]@misc[["dims_estimate"]] %||% 1:30
   }
 
   srtIntegrated <- tryCatch(
@@ -1536,7 +1527,7 @@ MNN_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE, 
     verbose = FALSE, seed = seed
   )
   if (is.null(linear_reduction_dims_use)) {
-    linear_reduction_dims_use <- srtIntegrated@reductions[[paste0("MNN", linear_reduction)]]@misc[["dims_estimate"]]
+    linear_reduction_dims_use <- srtIntegrated@reductions[[paste0("MNN", linear_reduction)]]@misc[["dims_estimate"]] %||% 1:30
   }
 
   srtIntegrated <- tryCatch(
@@ -1888,7 +1879,7 @@ Harmony_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TR
     verbose = FALSE, seed = seed
   )
   if (is.null(linear_reduction_dims_use)) {
-    linear_reduction_dims_use <- srtMerge@reductions[[paste0("Harmony", linear_reduction)]]@misc[["dims_estimate"]]
+    linear_reduction_dims_use <- srtMerge@reductions[[paste0("Harmony", linear_reduction)]]@misc[["dims_estimate"]] %||% 1:30
   }
 
   cat(paste0("[", Sys.time(), "]", " Perform integration(Harmony) on the data...\n"))
@@ -2124,7 +2115,7 @@ Scanorama_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = 
     verbose = FALSE, seed = seed
   )
   if (is.null(linear_reduction_dims_use)) {
-    linear_reduction_dims_use <- srtIntegrated@reductions[[paste0("Scanorama", linear_reduction)]]@misc[["dims_estimate"]]
+    linear_reduction_dims_use <- srtIntegrated@reductions[[paste0("Scanorama", linear_reduction)]]@misc[["dims_estimate"]] %||% 1:30
   }
 
   srtIntegrated <- tryCatch(
@@ -2294,11 +2285,11 @@ BBKNN_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE
     verbose = FALSE, seed = seed
   )
   if (is.null(linear_reduction_dims_use)) {
-    linear_reduction_dims_use <- srtMerge@reductions[[paste0("BBKNN", linear_reduction)]]@misc[["dims_estimate"]]
+    linear_reduction_dims_use <- srtMerge@reductions[[paste0("BBKNN", linear_reduction)]]@misc[["dims_estimate"]] %||% 1:30
   }
 
   cat(paste0("[", Sys.time(), "]", " Perform integration(BBKNN) on the data...\n"))
-  emb <- Embeddings(srtMerge, reduction = paste0("BBKNN", linear_reduction))[, linear_reduction_dims_use]
+  emb <- Embeddings(srtMerge, reduction = paste0("BBKNN", linear_reduction))[, linear_reduction_dims_use, drop = FALSE]
   params <- list(
     pca = emb,
     batch_list = srtMerge[[batch, drop = TRUE]]
@@ -2307,13 +2298,33 @@ BBKNN_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE
     params[[nm]] <- bbknn_params[[nm]]
   }
   bem <- invoke(.fn = bbknn$bbknn_matrix, .args = params)
+  n.neighbors <- bem[[3]]$n_neighbors
+  srtIntegrated <- srtMerge
 
   bbknn_graph <- as.sparse(bem[[2]][1:nrow(bem[[2]]), ])
   rownames(bbknn_graph) <- colnames(bbknn_graph) <- rownames(emb)
   bbknn_graph <- as.Graph(bbknn_graph)
   bbknn_graph@assay.used <- assay
-  srtMerge@graphs[["BBKNN"]] <- bbknn_graph
-  srtIntegrated <- srtMerge
+  srtIntegrated@graphs[["BBKNN"]] <- bbknn_graph
+
+  bbknn_dist <- t(as.sparse(bem[[1]][1:nrow(bem[[1]]), ]))
+  rownames(bbknn_dist) <- colnames(bbknn_dist) <- rownames(emb)
+  val <- split(bbknn_dist@x, rep(1:ncol(bbknn_dist), diff(bbknn_dist@p)))
+  pos <- split(bbknn_dist@i + 1, rep(1:ncol(bbknn_dist), diff(bbknn_dist@p)))
+  idx <- t(mapply(function(x, y) {
+    out <- y[head(order(x, decreasing = F), n.neighbors)]
+    length(out) <- n.neighbors
+    return(out)
+  }, x = val, y = pos))
+  idx[is.na(idx)] <- seq_len(nrow(idx))
+  dist <- t(mapply(function(x, y) {
+    out <- y[head(order(x, decreasing = F), n.neighbors)]
+    length(out) <- n.neighbors
+    out[is.na(out)] <- 0
+    return(out)
+  }, x = val, y = val))
+  srtIntegrated[["BBKNN_neighbors"]] <- new(Class = "Neighbor", nn.idx = idx, nn.dist = dist, alg.info = list(), cell.names = rownames(emb))
+  nonlinear_reduction_params[["n.neighbors"]] <- n.neighbors
 
   srtIntegrated <- tryCatch(
     {
@@ -2342,9 +2353,8 @@ BBKNN_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE
         cat("Perform nonlinear dimension reduction (", nr, ") on the data...\n", sep = "")
         for (n in nonlinear_reduction_dims) {
           srtIntegrated <- RunDimReduction(
-            srt = srtIntegrated, prefix = "BBKNN",
-            graph_use = "BBKNN",
-            nonlinear_reduction = nr, nonlinear_reduction_dims = n,
+            srt = srtIntegrated, prefix = "BBKNN", neighbor_use = "BBKNN_neighbors",
+            nonlinear_reduction = nonlinear_reduction, nonlinear_reduction_dims = n,
             nonlinear_reduction_params = nonlinear_reduction_params,
             force_nonlinear_reduction = force_nonlinear_reduction,
             verbose = FALSE, seed = seed
@@ -2476,7 +2486,7 @@ CSS_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE, 
     verbose = FALSE, seed = seed
   )
   if (is.null(linear_reduction_dims_use)) {
-    linear_reduction_dims_use <- srtMerge@reductions[[paste0("CSS", linear_reduction)]]@misc[["dims_estimate"]]
+    linear_reduction_dims_use <- srtMerge@reductions[[paste0("CSS", linear_reduction)]]@misc[["dims_estimate"]] %||% 1:30
   }
 
   cat(paste0("[", Sys.time(), "]", " Perform integration(CSS) on the data...\n"))
@@ -2869,7 +2879,7 @@ Conos_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE
   }
 
   if (is.null(linear_reduction_dims_use)) {
-    linear_reduction_dims_use <- 1:max(unlist(lapply(srtList, function(srt) srt@reductions[[linear_reduction]]@misc[["dims_estimate"]])))
+    linear_reduction_dims_use <- 1:max(unlist(lapply(srtList, function(srt) srt@reductions[[linear_reduction]]@misc[["dims_estimate"]] %||% 1:30)))
   }
 
   cat(paste0("[", Sys.time(), "]", " Perform integration(Conos) on the data...\n"))
@@ -2887,6 +2897,7 @@ Conos_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE
   conos_graph <- as.Graph(conos_graph)
   conos_graph@assay.used <- DefaultAssay(srtIntegrated)
   srtIntegrated@graphs[["Conos"]] <- conos_graph
+  nonlinear_reduction_params[["n.neighbors"]] <- min(rowSums(conos_graph > 0))
 
   srtIntegrated <- tryCatch(
     {
@@ -2915,8 +2926,7 @@ Conos_integrate <- function(srtMerge = NULL, batch = "orig.ident", append = TRUE
         cat("Perform nonlinear dimension reduction (", nr, ") on the data...\n", sep = "")
         for (n in nonlinear_reduction_dims) {
           srtIntegrated <- RunDimReduction(
-            srt = srtIntegrated, prefix = "Conos",
-            graph_use = "Conos",
+            srt = srtIntegrated, prefix = "Conos", graph_use = "Conos",
             nonlinear_reduction = nr, nonlinear_reduction_dims = n,
             nonlinear_reduction_params = nonlinear_reduction_params,
             force_nonlinear_reduction = force_nonlinear_reduction,
@@ -3234,7 +3244,7 @@ Standard_SCP <- function(srt, prefix = "Standard", assay = "RNA",
       verbose = FALSE, seed = seed
     )
     if (is.null(linear_reduction_dims_use)) {
-      linear_reduction_dims_use <- srt@reductions[[paste0(prefix, lr)]]@misc[["dims_estimate"]]
+      linear_reduction_dims_use <- srt@reductions[[paste0(prefix, lr)]]@misc[["dims_estimate"]] %||% 1:30
     }
 
     srt <- tryCatch(
