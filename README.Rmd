@@ -168,9 +168,13 @@ renv::restore(project = "~/SCP_env")
 
 The analysis is based on a subsetted version of [mouse pancreas data](https://doi.org/10.1242/dev.173849).
 
-```{r library}
+```{r library,results='markup'}
 library(SCP)
 data("pancreas_sub")
+print(pancreas_sub)
+```
+
+```{r EDA}
 ClassDimPlot(
   srt = pancreas_sub, group.by = c("CellType", "SubCellType"),
   reduction = "UMAP", theme_use = "theme_blank"

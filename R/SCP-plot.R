@@ -3291,7 +3291,7 @@ cluster_within_group2 <- function(mat, factor) {
 
 #' @importFrom ComplexHeatmap HeatmapAnnotation anno_empty anno_block anno_textbox
 #' @importFrom grid gpar
-#' @importFrom dplyr %>% filter group_by arrange desc across mutate summarise distinct n .data "%>%"
+#' @importFrom dplyr %>% filter group_by arrange desc across reframe mutate distinct n .data "%>%"
 heatmap_enrichment <- function(geneID, geneID_groups, feature_split_palette = "jama", ha_right = NULL, flip = FALSE,
                                anno_terms = FALSE, anno_keys = FALSE, anno_features = FALSE,
                                terms_width = unit(4, "in"), terms_fontsize = 8,
@@ -3401,7 +3401,7 @@ heatmap_enrichment <- function(geneID, geneID_groups, feature_split_palette = "j
                 df0 <- simplifyEnrichment::keyword_enrichment_from_GO(df[["ID"]])
                 if (nrow(df0 > 0)) {
                   df <- df0 %>%
-                    summarise(
+                    reframe(
                       keyword = .data[["keyword"]],
                       score = -(log10(.data[["padj"]])),
                       count = .data[["n_term"]],
@@ -3422,7 +3422,7 @@ heatmap_enrichment <- function(geneID, geneID_groups, feature_split_palette = "j
                   mutate(keyword = strsplit(tolower(as.character(.data[["Description"]])), " ")) %>%
                   unnest(cols = "keyword") %>%
                   group_by(.data[["keyword"]], Database, Groups) %>%
-                  summarise(
+                  reframe(
                     keyword = .data[["keyword"]],
                     score = sum(-(log10(.data[[metric]]))),
                     count = n(),
@@ -3474,7 +3474,7 @@ heatmap_enrichment <- function(geneID, geneID_groups, feature_split_palette = "j
                 mutate(keyword = strsplit(as.character(.data[["geneID"]]), "/")) %>%
                 unnest(cols = "keyword") %>%
                 group_by(.data[["keyword"]], Database, Groups) %>%
-                summarise(
+                reframe(
                   keyword = .data[["keyword"]],
                   score = sum(-(log10(.data[[metric]]))),
                   count = n(),
@@ -3634,6 +3634,10 @@ heatmap_enrichment <- function(geneID, geneID_groups, feature_split_palette = "j
 #' @param units
 #' @param seed
 #' @param ht_params
+#' @param grouping.var
+#' @param numerator
+#' @param limits
+#' @param raster_by_magick
 #'
 #' @examples
 #' library(dplyr)
@@ -3727,7 +3731,7 @@ heatmap_enrichment <- function(geneID, geneID_groups, feature_split_palette = "j
 #' @importFrom ggplot2 ggplotGrob theme_void theme facet_null
 #' @importFrom cowplot plot_grid
 #' @importFrom methods getFunction
-#' @importFrom dplyr %>% filter group_by arrange desc across mutate summarise distinct n .data "%>%"
+#' @importFrom dplyr %>% filter group_by arrange desc across mutate distinct n .data "%>%"
 #' @importFrom Matrix t
 #' @export
 GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL, grouping.var = NULL, numerator = NULL, cells = NULL,
@@ -3755,9 +3759,12 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
                          cell_split_palette = "jama", cell_split_palcolor = NULL, feature_split_palette = "jama", feature_split_palcolor = NULL,
                          cell_annotation = NULL, cell_palette = "Paired", cell_palcolor = NULL, cell_annotation_params = if (flip) list(width = grid::unit(1, "cm")) else list(height = grid::unit(1, "cm")),
                          feature_annotation = NULL, feature_palette = "Dark2", feature_palcolor = NULL, feature_annotation_params = list(),
-                         use_raster = NULL, raster_device = "png", height = NULL, width = NULL, units = "inch",
+                         use_raster = NULL, raster_device = "png", raster_by_magick = FALSE, height = NULL, width = NULL, units = "inch",
                          seed = 11, ht_params = list()) {
   set.seed(seed)
+  if (isTRUE(raster_by_magick)) {
+    check_R("magick")
+  }
 
   split_method <- match.arg(split_method)
   data_nm <- c(ifelse(isTRUE(lib_normalize), "normalized", ""), slot)
@@ -4691,6 +4698,7 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
       border = border,
       use_raster = use_raster,
       raster_device = raster_device,
+      raster_by_magick = raster_by_magick,
       width = if (is.numeric(width)) unit(width, units = units) else NULL,
       height = if (is.numeric(height)) unit(height, units = units) else NULL
     )
@@ -4936,6 +4944,8 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
 #' @param feature_annotation_params
 #' @param raster_device
 #' @param ht_params
+#' @param limits
+#' @param raster_by_magick
 #'
 #' @examples
 #' library(dplyr)
@@ -5001,7 +5011,7 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
 #' @importFrom cowplot plot_grid
 #' @importFrom Seurat GetAssayData
 #' @importFrom stats hclust order.dendrogram as.dendrogram reorder
-#' @importFrom dplyr %>% filter group_by arrange desc across mutate summarise distinct n .data "%>%"
+#' @importFrom dplyr %>% filter group_by arrange desc across mutate distinct n .data "%>%"
 #' @importFrom Matrix t
 #' @export
 ExpHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, split.by = NULL, max_cells = 100, cell_order = NULL, border = TRUE, flip = FALSE,
@@ -5024,9 +5034,12 @@ ExpHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, spli
                        cell_split_palette = "jama", cell_split_palcolor = NULL, feature_split_palette = "jama", feature_split_palcolor = NULL,
                        cell_annotation = NULL, cell_palette = "Paired", cell_palcolor = NULL, cell_annotation_params = list(),
                        feature_annotation = NULL, feature_palette = "Dark2", feature_palcolor = NULL, feature_annotation_params = list(),
-                       use_raster = NULL, raster_device = "png", height = NULL, width = NULL, units = "inch",
+                       use_raster = NULL, raster_device = "png", raster_by_magick = FALSE, height = NULL, width = NULL, units = "inch",
                        seed = 11, ht_params = list()) {
   set.seed(seed)
+  if (isTRUE(raster_by_magick)) {
+    check_R("magick")
+  }
 
   split_method <- match.arg(split_method)
   data_nm <- c(ifelse(isTRUE(lib_normalize), "normalized", ""), slot)
@@ -5696,6 +5709,7 @@ ExpHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, spli
       border = border,
       use_raster = use_raster,
       raster_device = raster_device,
+      raster_by_magick = raster_by_magick,
       width = if (is.numeric(width)) unit(width, units = units) else NULL,
       height = if (is.numeric(height)) unit(height, units = units) else NULL
     )
@@ -6622,6 +6636,7 @@ FeatureCorHeatmap <- function(srt, features, cells) {
 #' @param seed
 #' @param ht_params
 #' @param label_size
+#' @param raster_by_magick
 #'
 #' @examples
 #' data("pancreas_sub")
@@ -6666,7 +6681,7 @@ FeatureCorHeatmap <- function(srt, features, cells) {
 #' @importFrom ggplot2 ggplotGrob theme_void theme facet_null
 #' @importFrom cowplot plot_grid
 #' @importFrom methods getFunction
-#' @importFrom dplyr %>% filter group_by arrange desc across mutate summarise distinct n .data "%>%"
+#' @importFrom dplyr %>% filter group_by arrange desc across mutate distinct n .data "%>%"
 #' @importFrom Matrix t
 #' @export
 CellCorHeatmap <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
@@ -6690,8 +6705,12 @@ CellCorHeatmap <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
                            ref_group_palette = "jama", ref_group_palcolor = NULL,
                            query_cell_annotation = NULL, query_cell_palette = "Paired", query_cell_palcolor = NULL, query_cell_annotation_params = if (flip) list(height = grid::unit(1, "cm")) else list(width = grid::unit(1, "cm")),
                            ref_cell_annotation = NULL, ref_cell_palette = "Paired", ref_cell_palcolor = NULL, ref_cell_annotation_params = if (flip) list(width = grid::unit(1, "cm")) else list(height = grid::unit(1, "cm")),
-                           use_raster = NULL, raster_device = "png", height = NULL, width = NULL, units = "inch",
+                           use_raster = NULL, raster_device = "png", raster_by_magick = FALSE, height = NULL, width = NULL, units = "inch",
                            seed = 11, ht_params = list()) {
+  if (isTRUE(raster_by_magick)) {
+    check_R("magick")
+  }
+
   simil_method <- c(
     "cosine", "pearson", "spearman", "correlation", "jaccard", "ejaccard", "dice", "edice",
     "hamman", "simple matching", "faith"
@@ -7346,6 +7365,7 @@ CellCorHeatmap <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
     border = border,
     use_raster = use_raster,
     raster_device = raster_device,
+    raster_by_magick = raster_by_magick,
     width = if (is.numeric(width)) unit(width, units = units) else NULL,
     height = if (is.numeric(height)) unit(height, units = units) else NULL
   )
@@ -8152,7 +8172,7 @@ ExpStatPlot <- function(srt, features = NULL, group.by = NULL, split.by = NULL, 
 #' ClassStatPlot(pancreas_sub, stat.by = c("Ductal", "Endocrine", "G1S", "G2M"), plot_type = "venn")
 #' ClassStatPlot(pancreas_sub, stat.by = c("Ductal", "Endocrine", "G1S", "G2M"), plot_type = "upset")
 #'
-#' @importFrom dplyr group_by across all_of mutate "%>%" .data summarise
+#' @importFrom dplyr group_by across all_of mutate "%>%" .data
 #' @importFrom stats quantile xtabs
 #' @importFrom ggplot2 ggplot ggplotGrob aes labs position_stack position_dodge2 scale_x_continuous scale_y_continuous geom_col geom_area geom_vline scale_fill_manual scale_fill_identity scale_color_identity scale_fill_gradientn guides guide_legend element_line coord_polar annotate geom_sf theme_void after_stat
 #' @importFrom ggnewscale new_scale_color new_scale_fill
@@ -10805,6 +10825,8 @@ DynamicPlot <- function(srt, features, lineages, group.by = NULL, cells = NULL, 
 #' @param separate_annotation_params
 #' @param raster_device
 #' @param ht_params
+#' @param limits
+#' @param raster_by_magick
 #'
 #' @examples
 #' data("pancreas_sub")
@@ -10896,7 +10918,7 @@ DynamicPlot <- function(srt, features, lineages, group.by = NULL, cells = NULL, 
 #' @importFrom grid gpar grid.lines grid.text
 #' @importFrom gtable gtable_add_padding
 #' @importFrom Matrix t
-#' @importFrom dplyr %>% filter group_by arrange desc across mutate summarise distinct n .data "%>%"
+#' @importFrom dplyr %>% filter group_by arrange desc across mutate reframe distinct n .data "%>%"
 #' @export
 DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineages, use_fitted = FALSE, border = TRUE, flip = FALSE,
                            min_expcells = 20, r.sq = 0.2, dev.expl = 0.2, padjust = 0.05, cell_density = 1, order_by = c("peaktime", "valleytime"),
@@ -10925,9 +10947,12 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineag
                            cell_annotation = NULL, cell_palette = "Paired", cell_palcolor = NULL, cell_annotation_params = list(),
                            feature_annotation = NULL, feature_palette = "Dark2", feature_palcolor = NULL, feature_annotation_params = list(),
                            separate_annotation = NULL, separate_palette = "Paired", separate_palcolor = NULL, separate_annotation_params = if (flip) list(width = grid::unit(2, "cm")) else list(height = grid::unit(2, "cm")),
-                           reverse_ht = NULL, use_raster = NULL, raster_device = "png", height = NULL, width = NULL, units = "inch",
+                           reverse_ht = NULL, use_raster = NULL, raster_device = "png", raster_by_magick = FALSE, height = NULL, width = NULL, units = "inch",
                            seed = 11, ht_params = list()) {
   set.seed(seed)
+  if (isTRUE(raster_by_magick)) {
+    check_R("magick")
+  }
 
   split_method <- match.arg(split_method)
   order_by <- match.arg(order_by)
@@ -11720,6 +11745,7 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineag
       border = border,
       use_raster = use_raster,
       raster_device = raster_device,
+      raster_by_magick = raster_by_magick,
       width = if (is.numeric(width)) unit(width, units = units) else NULL,
       height = if (is.numeric(height)) unit(height, units = units) else NULL
     )
@@ -12066,7 +12092,7 @@ ProjectionPlot <- function(srt_query, srt_ref,
 #' EnrichmentPlot(pancreas_sub, db = c("MP", "DO"), group_by = "CellType", group_use = c("Ductal", "Endocrine"), plot_type = "lollipop")
 #'
 #' @importFrom ggplot2 ggplot geom_bar geom_text labs scale_fill_manual scale_y_continuous facet_grid coord_flip scale_color_gradientn scale_fill_gradientn scale_size guides geom_segment expansion guide_colorbar
-#' @importFrom dplyr group_by filter arrange desc across mutate summarise distinct n .data
+#' @importFrom dplyr group_by filter arrange desc across mutate reframe distinct n .data
 #' @importFrom stats formula
 #' @export
 #'
@@ -12242,7 +12268,7 @@ EnrichmentPlot <- function(srt, db = "GO_BP", group_by = NULL, group_use = NULL,
           df0 <- simplifyEnrichment::keyword_enrichment_from_GO(df[["ID"]])
           if (nrow(df0 > 0)) {
             df <- df0 %>%
-              summarise(
+              reframe(
                 keyword = .data[["keyword"]],
                 score = -(log10(.data[["padj"]])),
                 count = .data[["n_term"]],
@@ -12263,7 +12289,7 @@ EnrichmentPlot <- function(srt, db = "GO_BP", group_by = NULL, group_use = NULL,
             mutate(keyword = strsplit(tolower(as.character(.data[["Description"]])), " ")) %>%
             unnest(cols = "keyword") %>%
             group_by(.data[["keyword"]], Database, Groups) %>%
-            summarise(
+            reframe(
               keyword = .data[["keyword"]],
               score = sum(-(log10(.data[[metric]]))),
               count = n(),
@@ -12283,7 +12309,7 @@ EnrichmentPlot <- function(srt, db = "GO_BP", group_by = NULL, group_use = NULL,
           mutate(keyword = strsplit(as.character(.data[["geneID"]]), "/")) %>%
           unnest(cols = "keyword") %>%
           group_by(.data[["keyword"]], Database, Groups) %>%
-          summarise(
+          reframe(
             keyword = .data[["keyword"]],
             score = sum(-(log10(.data[[metric]]))),
             count = n(),

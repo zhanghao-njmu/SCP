@@ -49,7 +49,6 @@ check_DataType <- function(srt, data = NULL, slot = "data", assay = NULL) {
 #' @importFrom Seurat SplitObject GetAssayData Assays NormalizeData FindVariableFeatures SCTransform SCTResults SelectIntegrationFeatures PrepSCTIntegration DefaultAssay DefaultAssay<- VariableFeatures VariableFeatures<-
 #' @importFrom Signac RunTFIDF
 #' @importFrom Matrix rowSums
-#' @importFrom dplyr "%>%" arrange desc filter .data
 #' @importFrom utils head
 #' @export
 #'
@@ -109,7 +108,7 @@ check_srtList <- function(srtList, batch = NULL, assay = NULL,
       srtMerge <- Reduce(merge, srtList)
       srtList <- SplitObject(object = srtMerge, split.by = batch)
     }
-    cf <- lapply(srtList, function(srt) rownames(srt[[assay]])) %>% Reduce(intersect, .)
+    cf <- Reduce(intersect, lapply(srtList, function(srt) rownames(srt[[assay]])))
     warning("'srtList' have different feature names! Will subset the common features(", length(cf), ") for downstream analysis!", immediate. = TRUE)
     for (i in seq_along(srtList)) {
       srtList[[i]][[assay]] <- subset(srtList[[i]][[assay]], features = cf)
@@ -229,18 +228,13 @@ check_srtList <- function(srtList, batch = NULL, assay = NULL,
         }
         model <- srtList[[i]]@assays$SCT@SCTModel.list[[index]]
         feature.attr <- SCTResults(object = model, slot = "feature.attributes")
-        nfeatures <- min(nHVF, nrow(x = feature.attr))
-        top.features <- rownames(x = feature.attr)[head(order(feature.attr$residual_variance,
-          decreasing = TRUE
-        ), n = nfeatures)]
-        VariableFeatures(object = srtList[[i]], assay = DefaultAssay(srtList[[i]])) <- top.features
-        srtList[[i]]@assays$SCT@meta.features <- feature.attr
       } else {
-        VariableFeatures(srtList[[i]], assay = DefaultAssay(srtList[[i]])) <- srtList[[i]]@assays$SCT@meta.features %>%
-          arrange(desc(.data[["residual_variance"]])) %>%
-          rownames() %>%
-          head(n = nHVF)
+        feature.attr <- srtList[[i]]@assays$SCT@meta.features
       }
+      nfeatures <- min(nHVF, nrow(x = feature.attr))
+      top.features <- rownames(x = feature.attr)[head(order(feature.attr$residual_variance, decreasing = TRUE), n = nfeatures)]
+      VariableFeatures(srtList[[i]], assay = DefaultAssay(srtList[[i]])) <- top.features
+      srtList[[i]]@assays$SCT@meta.features <- feature.attr
     }
   }
 
@@ -977,7 +971,6 @@ RunDimReduction <- function(srt, prefix = "", features = NULL, assay = NULL, slo
 #' @inheritParams Integration_SCP
 #'
 #' @importFrom Seurat GetAssayData SetAssayData VariableFeatures VariableFeatures<-
-#' @importFrom dplyr "%>%"
 #' @export
 Uncorrected_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtList = NULL, assay = NULL,
                                   do_normalization = NULL, normalization_method = "LogNormalize",
@@ -1016,13 +1009,8 @@ Uncorrected_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, 
     stop("srtList and srtMerge were all empty.")
   }
   if (!is.null(srtList) && !is.null(srtMerge)) {
-    cell1 <- lapply(srtList, colnames) %>%
-      unlist() %>%
-      unique() %>%
-      sort()
-    cell2 <- colnames(srtMerge) %>%
-      unique() %>%
-      sort()
+    cell1 <- sort(unique(unlist(lapply(srtList, colnames))))
+    cell2 <- sort(unique(colnames(srtMerge)))
     if (!identical(cell1, cell2)) {
       stop("srtList and srtMerge have different cells.")
     }
@@ -1106,7 +1094,6 @@ Uncorrected_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, 
 #'
 #' @importFrom Seurat GetAssayData ScaleData SetAssayData FindIntegrationAnchors IntegrateData DefaultAssay DefaultAssay<- FindNeighbors FindClusters Idents
 #' @importFrom Signac RunTFIDF
-#' @importFrom dplyr "%>%"
 #' @export
 Seurat_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtList = NULL, assay = NULL,
                              do_normalization = NULL, normalization_method = "LogNormalize",
@@ -1151,13 +1138,8 @@ Seurat_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtLi
     stop("srtList and srtMerge were all empty.")
   }
   if (!is.null(srtList) && !is.null(srtMerge)) {
-    cell1 <- lapply(srtList, colnames) %>%
-      unlist() %>%
-      unique() %>%
-      sort()
-    cell2 <- colnames(srtMerge) %>%
-      unique() %>%
-      sort()
+    cell1 <- sort(unique(unlist(lapply(srtList, colnames))))
+    cell2 <- sort(unique(colnames(srtMerge)))
     if (!identical(cell1, cell2)) {
       stop("srtList and srtMerge have different cells.")
     }
@@ -1391,7 +1373,6 @@ Seurat_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtLi
 #'
 #' @importFrom Seurat CreateSeuratObject GetAssayData SetAssayData DefaultAssay DefaultAssay<- Embeddings FindNeighbors FindClusters Idents VariableFeatures VariableFeatures<-
 #' @importFrom reticulate import
-#' @importFrom dplyr "%>%"
 #' @export
 scVI_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtList = NULL, assay = NULL,
                            do_normalization = NULL, normalization_method = "LogNormalize",
@@ -1431,13 +1412,8 @@ scVI_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtList
     stop("srtList and srtMerge were all empty.")
   }
   if (!is.null(srtList) && !is.null(srtMerge)) {
-    cell1 <- lapply(srtList, colnames) %>%
-      unlist() %>%
-      unique() %>%
-      sort()
-    cell2 <- colnames(srtMerge) %>%
-      unique() %>%
-      sort()
+    cell1 <- sort(unique(unlist(lapply(srtList, colnames))))
+    cell2 <- sort(unique(colnames(srtMerge)))
     if (!identical(cell1, cell2)) {
       stop("srtList and srtMerge have different cells.")
     }
@@ -1582,7 +1558,6 @@ scVI_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtList
 #' @inheritParams Integration_SCP
 #'
 #' @importFrom Seurat CreateSeuratObject GetAssayData SetAssayData DefaultAssay DefaultAssay<- Embeddings FindNeighbors FindClusters Idents VariableFeatures VariableFeatures<-
-#' @importFrom dplyr "%>%"
 #' @export
 MNN_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtList = NULL, assay = NULL,
                           do_normalization = NULL, normalization_method = "LogNormalize",
@@ -1629,13 +1604,8 @@ MNN_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtList 
     stop("srtList and srtMerge were all empty.")
   }
   if (!is.null(srtList) && !is.null(srtMerge)) {
-    cell1 <- lapply(srtList, colnames) %>%
-      unlist() %>%
-      unique() %>%
-      sort()
-    cell2 <- colnames(srtMerge) %>%
-      unique() %>%
-      sort()
+    cell1 <- sort(unique(unlist(lapply(srtList, colnames))))
+    cell2 <- sort(unique(colnames(srtMerge)))
     if (!identical(cell1, cell2)) {
       stop("srtList and srtMerge have different cells.")
     }
@@ -1788,7 +1758,6 @@ MNN_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtList 
 #' @inheritParams Integration_SCP
 #'
 #' @importFrom Seurat CreateSeuratObject GetAssayData SetAssayData DefaultAssay DefaultAssay<- Embeddings FindNeighbors FindClusters Idents VariableFeatures VariableFeatures<-
-#' @importFrom dplyr "%>%"
 #' @export
 fastMNN_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtList = NULL, assay = NULL,
                               do_normalization = NULL, normalization_method = "LogNormalize",
@@ -1820,13 +1789,8 @@ fastMNN_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtL
     stop("srtList and srtMerge were all empty.")
   }
   if (!is.null(srtList) && !is.null(srtMerge)) {
-    cell1 <- lapply(srtList, colnames) %>%
-      unlist() %>%
-      unique() %>%
-      sort()
-    cell2 <- colnames(srtMerge) %>%
-      unique() %>%
-      sort()
+    cell1 <- sort(unique(unlist(lapply(srtList, colnames))))
+    cell2 <- sort(unique(colnames(srtMerge)))
     if (!identical(cell1, cell2)) {
       stop("srtList and srtMerge have different cells.")
     }
@@ -1961,7 +1925,6 @@ fastMNN_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtL
 #' @inheritParams Integration_SCP
 #'
 #' @importFrom Seurat GetAssayData ScaleData SetAssayData DefaultAssay DefaultAssay<- Embeddings FindNeighbors FindClusters Idents VariableFeatures VariableFeatures<-
-#' @importFrom dplyr "%>%"
 #' @export
 Harmony_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtList = NULL, assay = NULL,
                               do_normalization = NULL, normalization_method = "LogNormalize",
@@ -2009,13 +1972,8 @@ Harmony_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtL
     stop("srtList and srtMerge were all empty.")
   }
   if (!is.null(srtList) && !is.null(srtMerge)) {
-    cell1 <- lapply(srtList, colnames) %>%
-      unlist() %>%
-      unique() %>%
-      sort()
-    cell2 <- colnames(srtMerge) %>%
-      unique() %>%
-      sort()
+    cell1 <- sort(unique(unlist(lapply(srtList, colnames))))
+    cell2 <- sort(unique(colnames(srtMerge)))
     if (!identical(cell1, cell2)) {
       stop("srtList and srtMerge have different cells.")
     }
@@ -2166,7 +2124,6 @@ Harmony_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtL
 #'
 #' @importFrom Seurat GetAssayData ScaleData SetAssayData DefaultAssay DefaultAssay<- SplitObject CreateAssayObject CreateDimReducObject Embeddings FindNeighbors FindClusters Idents
 #' @importFrom Matrix t
-#' @importFrom dplyr "%>%"
 #' @importFrom reticulate import
 #' @importFrom stats sd
 #' @export
@@ -2217,13 +2174,8 @@ Scanorama_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, sr
     stop("srtList and srtMerge were all empty.")
   }
   if (!is.null(srtList) && !is.null(srtMerge)) {
-    cell1 <- lapply(srtList, colnames) %>%
-      unlist() %>%
-      unique() %>%
-      sort()
-    cell2 <- colnames(srtMerge) %>%
-      unique() %>%
-      sort()
+    cell1 <- sort(unique(unlist(lapply(srtList, colnames))))
+    cell2 <- sort(unique(colnames(srtMerge)))
     if (!identical(cell1, cell2)) {
       stop("srtList and srtMerge have different cells.")
     }
@@ -2377,7 +2329,6 @@ Scanorama_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, sr
 #'
 #' @importFrom Seurat GetAssayData ScaleData SetAssayData DefaultAssay DefaultAssay<- as.Graph Embeddings FindClusters Idents VariableFeatures VariableFeatures<- as.sparse
 #' @importFrom Matrix t
-#' @importFrom dplyr "%>%"
 #' @importFrom reticulate import
 #' @export
 BBKNN_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtList = NULL, assay = NULL,
@@ -2426,13 +2377,8 @@ BBKNN_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtLis
     stop("srtList and srtMerge were all empty.")
   }
   if (!is.null(srtList) && !is.null(srtMerge)) {
-    cell1 <- lapply(srtList, colnames) %>%
-      unlist() %>%
-      unique() %>%
-      sort()
-    cell2 <- colnames(srtMerge) %>%
-      unique() %>%
-      sort()
+    cell1 <- sort(unique(unlist(lapply(srtList, colnames))))
+    cell2 <- sort(unique(colnames(srtMerge)))
     if (!identical(cell1, cell2)) {
       stop("srtList and srtMerge have different cells.")
     }
@@ -2596,7 +2542,6 @@ BBKNN_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtLis
 #' @inheritParams Integration_SCP
 #'
 #' @importFrom Seurat GetAssayData ScaleData SetAssayData DefaultAssay DefaultAssay<- Embeddings FindNeighbors FindClusters Idents VariableFeatures VariableFeatures<-
-#' @importFrom dplyr "%>%"
 #' @export
 CSS_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtList = NULL, assay = NULL,
                           do_normalization = NULL, normalization_method = "LogNormalize",
@@ -2645,13 +2590,8 @@ CSS_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtList 
     stop("srtList and srtMerge were all empty.")
   }
   if (!is.null(srtList) && !is.null(srtMerge)) {
-    cell1 <- lapply(srtList, colnames) %>%
-      unlist() %>%
-      unique() %>%
-      sort()
-    cell2 <- colnames(srtMerge) %>%
-      unique() %>%
-      sort()
+    cell1 <- sort(unique(unlist(lapply(srtList, colnames))))
+    cell2 <- sort(unique(colnames(srtMerge)))
     if (!identical(cell1, cell2)) {
       stop("srtList and srtMerge have different cells.")
     }
@@ -2802,7 +2742,6 @@ CSS_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtList 
 #' @inheritParams Integration_SCP
 #'
 #' @importFrom Seurat GetAssayData ScaleData SetAssayData DefaultAssay DefaultAssay<- Embeddings FindNeighbors FindClusters Idents VariableFeatures VariableFeatures<-
-#' @importFrom dplyr "%>%"
 #' @export
 LIGER_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtList = NULL, assay = NULL,
                             do_normalization = NULL, normalization_method = "LogNormalize",
@@ -2834,13 +2773,8 @@ LIGER_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtLis
     stop("srtList and srtMerge were all empty.")
   }
   if (!is.null(srtList) && !is.null(srtMerge)) {
-    cell1 <- lapply(srtList, colnames) %>%
-      unlist() %>%
-      unique() %>%
-      sort()
-    cell2 <- colnames(srtMerge) %>%
-      unique() %>%
-      sort()
+    cell1 <- sort(unique(unlist(lapply(srtList, colnames))))
+    cell2 <- sort(unique(colnames(srtMerge)))
     if (!identical(cell1, cell2)) {
       stop("srtList and srtMerge have different cells.")
     }
@@ -3002,7 +2936,6 @@ LIGER_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtLis
 #' @inheritParams Integration_SCP
 #'
 #' @importFrom Seurat GetAssayData ScaleData SetAssayData DefaultAssay DefaultAssay<- Embeddings FindNeighbors FindClusters Idents VariableFeatures VariableFeatures<-
-#' @importFrom dplyr "%>%"
 #' @importFrom igraph as_adjacency_matrix
 #' @export
 Conos_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtList = NULL, assay = NULL,
@@ -3050,13 +2983,8 @@ Conos_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtLis
     stop("srtList and srtMerge were all empty.")
   }
   if (!is.null(srtList) && !is.null(srtMerge)) {
-    cell1 <- lapply(srtList, colnames) %>%
-      unlist() %>%
-      unique() %>%
-      sort()
-    cell2 <- colnames(srtMerge) %>%
-      unique() %>%
-      sort()
+    cell1 <- sort(unique(unlist(lapply(srtList, colnames))))
+    cell2 <- sort(unique(colnames(srtMerge)))
     if (!identical(cell1, cell2)) {
       stop("srtList and srtMerge have different cells.")
     }
@@ -3209,7 +3137,6 @@ Conos_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtLis
 #' @inheritParams Integration_SCP
 #'
 #' @importFrom Seurat GetAssayData ScaleData SetAssayData DefaultAssay DefaultAssay<- SplitObject CreateAssayObject CreateDimReducObject Embeddings FindNeighbors FindClusters Idents
-#' @importFrom dplyr "%>%"
 #' @export
 ComBat_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtList = NULL, assay = NULL,
                              do_normalization = NULL, normalization_method = "LogNormalize",
@@ -3256,13 +3183,8 @@ ComBat_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtLi
     stop("srtList and srtMerge were all empty.")
   }
   if (!is.null(srtList) && !is.null(srtMerge)) {
-    cell1 <- lapply(srtList, colnames) %>%
-      unlist() %>%
-      unique() %>%
-      sort()
-    cell2 <- colnames(srtMerge) %>%
-      unique() %>%
-      sort()
+    cell1 <- sort(unique(unlist(lapply(srtList, colnames))))
+    cell2 <- sort(unique(colnames(srtMerge)))
     if (!identical(cell1, cell2)) {
       stop("srtList and srtMerge have different cells.")
     }
@@ -3437,7 +3359,6 @@ ComBat_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtLi
 #' cowplot::plot_grid(plotlist = plist2)
 #'
 #' @importFrom Seurat Assays GetAssayData NormalizeData SCTransform SCTResults ScaleData SetAssayData DefaultAssay DefaultAssay<- FindNeighbors FindClusters Idents VariableFeatures VariableFeatures<-
-#' @importFrom dplyr "%>%" filter arrange desc
 #' @importFrom Matrix rowSums
 #' @export
 Standard_SCP <- function(srt, prefix = "Standard", assay = NULL,
