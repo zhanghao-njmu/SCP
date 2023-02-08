@@ -643,6 +643,8 @@ RunSymphonyMap <- function(srt_query, srt_ref, query_assay = NULL, ref_assay = s
       message("Set ref_umap to ", ref_umap)
     }
   }
+  ref_pca_dims <- srt_ref[[ref_harmony]]@misc$reduction_dims
+
   projection_method <- match.arg(projection_method)
   if (projection_method == "model" && !"model" %in% names(srt_ref[[ref_umap]]@misc)) {
     message("No UMAP model detected. Set the projection_method to 'knn'")
@@ -664,7 +666,10 @@ RunSymphonyMap <- function(srt_query, srt_ref, query_assay = NULL, ref_assay = s
   ref <- buildReferenceFromSeurat(
     obj = srt_ref,
     assay = ref_assay,
-    pca = ref_pca, harmony = ref_harmony, umap = ref_umap
+    pca = ref_pca,
+    pca_dims = ref_pca_dims,
+    harmony = ref_harmony,
+    umap = ref_umap
   )
   message("Run mapQuery")
   res <- mapQuery(
@@ -708,14 +713,17 @@ RunSymphonyMap <- function(srt_query, srt_ref, query_assay = NULL, ref_assay = s
 #' @importFrom Matrix rowMeans
 #' @importFrom Seurat Key Embeddings
 #'
-buildReferenceFromSeurat <- function(obj, assay = "RNA", pca = "pca", harmony = "harmony", umap = "umap") {
+buildReferenceFromSeurat <- function(obj, assay = "RNA", pca = "pca", pca_dims = NULL, harmony = "harmony", umap = "umap") {
   if (!assay %in% c("RNA", "SCT")) {
     stop("Only supported assays are RNA or SCT.")
+  }
+  if (is.null(pca_dims)) {
+    pca_dims <- seq_len(ncol(Embeddings(obj, pca)))
   }
   res <- list()
   ## TODO: check that these objects are all correctly initialized
   res$Z_corr <- t(Embeddings(obj, harmony))
-  res$Z_orig <- t(Embeddings(obj, pca))
+  res$Z_orig <- t(Embeddings(obj, pca)[, pca_dims, drop = FALSE])
   message("Saved embeddings")
 
   res$R <- t(obj[[harmony]]@misc$R)
@@ -745,7 +753,7 @@ buildReferenceFromSeurat <- function(obj, assay = "RNA", pca = "pca", harmony = 
   res$vargenes_means_sds <- vargenes_means_sds
   message("Saved variable gene information for ", nrow(vargenes_means_sds), " genes.")
 
-  res$loadings <- obj[[pca]]@feature.loadings
+  res$loadings <- obj[[pca]]@feature.loadings[, pca_dims, drop = FALSE]
   message("Saved PCA loadings.")
 
   res$meta_data <- obj@meta.data

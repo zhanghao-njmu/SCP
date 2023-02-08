@@ -2269,6 +2269,7 @@ RunHarmony2.Seurat <- function(object,
   if (length(dims.use) == 1) {
     stop("only specified one dimension in dims.use")
   }
+  embedding <- embedding[, dims.use, drop = FALSE]
   metavars_df <- FetchData(object, group.by.vars)
 
   harmonyObject <- harmony::HarmonyMatrix(
@@ -2295,7 +2296,11 @@ RunHarmony2.Seurat <- function(object,
       stdev = as.numeric(apply(harmonyEmbed, 2, stats::sd)),
       assay = assay.use,
       key = reduction.save,
-      misc = list(R = harmonyClusters)
+      misc = list(
+        R = harmonyClusters,
+        reduction_use = reduction,
+        reduction_dims = dims.use
+      )
     )
   })
 

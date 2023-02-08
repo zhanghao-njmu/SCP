@@ -5,6 +5,7 @@
 
 [![version](https://img.shields.io/github/r-package/v/zhanghao-njmu/SCP)](https://github.com/zhanghao-njmu/SCP)
 [![codesize](https://img.shields.io/github/languages/code-size/zhanghao-njmu/SCP.svg)](https://github.com/zhanghao-njmu/SCP)
+[![license](https://img.shields.io/github/license/zhanghao-njmu/SCP)](https://github.com/zhanghao-njmu/SCP)
 
 <!-- badges: end -->
 
@@ -17,8 +18,9 @@ The package includes facilities for:
 -   Pipelines embedded with multiple methods for normalization, feature
     reduction, and cell population identification (standard Seurat
     workflow).
--   Pipelines embedded with multiple data integration methods, including
-    Uncorrected, [Seurat](https://github.com/satijalab/seurat),
+-   Pipelines embedded with multiple integration methods for scRNA-seq
+    or scATAC-seq data, including Uncorrected,
+    [Seurat](https://github.com/satijalab/seurat),
     [scVI](https://github.com/scverse/scvi-tools),
     [MNN](http://www.bioconductor.org/packages/release/bioc/html/batchelor.html),
     [fastMNN](http://www.bioconductor.org/packages/release/bioc/html/batchelor.html),
@@ -27,7 +29,8 @@ The package includes facilities for:
     [BBKNN](https://github.com/Teichlab/bbknn),
     [CSS](https://github.com/quadbiolab/simspec),
     [LIGER](https://github.com/welch-lab/liger),
-    [Conos](https://github.com/kharchenkolab/conos).
+    [Conos](https://github.com/kharchenkolab/conos),
+    [ComBat](https://bioconductor.org/packages/release/bioc/html/sva.html).
 -   Multiple single cell downstream analyses such as identification of
     differential features, enrichment analysis, GSEA analysis,
     identification of dynamic features,
@@ -567,15 +570,19 @@ if (interactive()) {
 }
 ```
 
-![SCExplorer](README/README-SCExplorer-1.png)
-![SCExplorer](README/README-SCExplorer-2.png)
+![SCExplorer1](README/README-SCExplorer-1.png)
+![SCExplorer2](README/README-SCExplorer-2.png)
+
+### Other visualization examples
+
+[**ClassDimPlot**](https://zhanghao-njmu.github.io/SCP/reference/ClassDimPlot.html)![Example1](README/README-Example-1.jpg)
+[**ClassStatPlot**](https://zhanghao-njmu.github.io/SCP/reference/ClassStatPlot.html)![Example2](README/README-Example-2.jpg)
+[**GroupHeatmap**](https://zhanghao-njmu.github.io/SCP/reference/GroupHeatmap.html)![Example3](README/README-Example-3.jpg)
 
 More examples of SCP can be found in the documentation of the functions,
 such as
 [Integration_SCP](https://zhanghao-njmu.github.io/SCP/reference/Integration_SCP.html),
 [RunKNNMap](https://zhanghao-njmu.github.io/SCP/reference/RunKNNMap.html),
 [RunMonocle3](https://zhanghao-njmu.github.io/SCP/reference/RunMonocle3.html),
-[ClassDimPlot](https://zhanghao-njmu.github.io/SCP/reference/ClassDimPlot.html),
-[GroupHeatmap](https://zhanghao-njmu.github.io/SCP/reference/GroupHeatmap.html),
-[RunSCExplorer](https://zhanghao-njmu.github.io/SCP/reference/RunSCExplorer.html),
+[RunPalantir](https://zhanghao-njmu.github.io/SCP/reference/RunPalantir.html),
 etc.

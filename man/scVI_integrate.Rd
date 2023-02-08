@@ -6,19 +6,19 @@
 \usage{
 scVI_integrate(
   srtMerge = NULL,
-  batch = "orig.ident",
+  batch = NULL,
   append = TRUE,
   srtList = NULL,
-  assay = "RNA",
+  assay = NULL,
   do_normalization = NULL,
   normalization_method = "LogNormalize",
   do_HVF_finding = TRUE,
   HVF_source = "separate",
   HVF_method = "vst",
   nHVF = 2000,
-  HVF_intersect = FALSE,
   HVF_min_intersection = 1,
   HVF = NULL,
+  scVI_dims_use = NULL,
   nonlinear_reduction = "umap",
   nonlinear_reduction_dims = c(2, 3),
   nonlinear_reduction_params = list(),
@@ -27,7 +27,9 @@ scVI_integrate(
   cluster_algorithm = "louvain",
   cluster_resolution = 0.6,
   cluster_reorder = TRUE,
+  model = "SCVI",
   SCVI_params = list(),
+  PEAKVI_params = list(),
   num_threads = 8,
   seed = 11
 )
