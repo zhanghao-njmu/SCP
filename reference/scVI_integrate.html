@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">SCP</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.7</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -50,19 +50,19 @@
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">scVI_integrate</span><span class="op">(</span></span>
 <span>  srtMerge <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  batch <span class="op">=</span> <span class="st">"orig.ident"</span>,</span>
+<span>  batch <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  append <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  srtList <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  assay <span class="op">=</span> <span class="st">"RNA"</span>,</span>
+<span>  assay <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  do_normalization <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  normalization_method <span class="op">=</span> <span class="st">"LogNormalize"</span>,</span>
 <span>  do_HVF_finding <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  HVF_source <span class="op">=</span> <span class="st">"separate"</span>,</span>
 <span>  HVF_method <span class="op">=</span> <span class="st">"vst"</span>,</span>
 <span>  nHVF <span class="op">=</span> <span class="fl">2000</span>,</span>
-<span>  HVF_intersect <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  HVF_min_intersection <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  HVF <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  scVI_dims_use <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  nonlinear_reduction <span class="op">=</span> <span class="st">"umap"</span>,</span>
 <span>  nonlinear_reduction_dims <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">3</span><span class="op">)</span>,</span>
 <span>  nonlinear_reduction_params <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
@@ -71,7 +71,9 @@
 <span>  cluster_algorithm <span class="op">=</span> <span class="st">"louvain"</span>,</span>
 <span>  cluster_resolution <span class="op">=</span> <span class="fl">0.6</span>,</span>
 <span>  cluster_reorder <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  model <span class="op">=</span> <span class="st">"SCVI"</span>,</span>
 <span>  SCVI_params <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  PEAKVI_params <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  num_threads <span class="op">=</span> <span class="fl">8</span>,</span>
 <span>  seed <span class="op">=</span> <span class="fl">11</span></span>
 <span><span class="op">)</span></span></code></pre></div>

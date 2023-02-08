@@ -5,14 +5,14 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<meta name="description" content="The SCP package provides a comprehensive set of tools for single cell data processing and downstream analysis.">
+<meta name="description" content="SCP provides a comprehensive set of tools for single cell data processing and downstream analysis.">
 <title>Single Cell Pipeline • SCP</title>
 <script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="deps/bootstrap-5.2.2/bootstrap.min.css" rel="stylesheet">
 <script src="deps/bootstrap-5.2.2/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- bootstrap-toc --><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@v1.0.1/dist/bootstrap-toc.min.js" integrity="sha256-4veVQbu7//Lk5TSmc7YV48MxtMy98e26cf5MrgZYnwo=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Single Cell Pipeline">
-<meta property="og:description" content="The SCP package provides a comprehensive set of tools for single cell data processing and downstream analysis.">
+<meta property="og:description" content="SCP provides a comprehensive set of tools for single cell data processing and downstream analysis.">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
@@ -26,7 +26,7 @@
     
     <a class="navbar-brand me-2" href="index.html">SCP</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.7</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -63,12 +63,12 @@
 <!-- badges: start -->
 
 <!-- badges: end -->
-<p>The SCP package provides a comprehensive set of tools for single cell data processing and downstream analysis.</p>
+<p>SCP provides a comprehensive set of tools for single cell data processing and downstream analysis.</p>
 <p>The package includes facilities for:</p>
 <ul>
 <li>Integrated single cell quality control methods.</li>
 <li>Pipelines embedded with multiple methods for normalization, feature reduction, and cell population identification (standard Seurat workflow).</li>
-<li>Pipelines embedded with multiple data integration methods, including Uncorrected, <a href="https://github.com/satijalab/seurat" class="external-link">Seurat</a>, <a href="https://github.com/scverse/scvi-tools" class="external-link">scVI</a>, <a href="http://www.bioconductor.org/packages/release/bioc/html/batchelor.html" class="external-link">MNN</a>, <a href="http://www.bioconductor.org/packages/release/bioc/html/batchelor.html" class="external-link">fastMNN</a>, <a href="https://github.com/immunogenomics/harmony" class="external-link">Harmony</a>, <a href="https://github.com/brianhie/scanorama" class="external-link">Scanorama</a>, <a href="https://github.com/Teichlab/bbknn" class="external-link">BBKNN</a>, <a href="https://github.com/quadbiolab/simspec" class="external-link">CSS</a>, <a href="https://github.com/welch-lab/liger" class="external-link">LIGER</a>, <a href="https://github.com/kharchenkolab/conos" class="external-link">Conos</a>.</li>
+<li>Pipelines embedded with multiple integration methods for scRNA-seq or scATAC-seq data, including Uncorrected, <a href="https://github.com/satijalab/seurat" class="external-link">Seurat</a>, <a href="https://github.com/scverse/scvi-tools" class="external-link">scVI</a>, <a href="http://www.bioconductor.org/packages/release/bioc/html/batchelor.html" class="external-link">MNN</a>, <a href="http://www.bioconductor.org/packages/release/bioc/html/batchelor.html" class="external-link">fastMNN</a>, <a href="https://github.com/immunogenomics/harmony" class="external-link">Harmony</a>, <a href="https://github.com/brianhie/scanorama" class="external-link">Scanorama</a>, <a href="https://github.com/Teichlab/bbknn" class="external-link">BBKNN</a>, <a href="https://github.com/quadbiolab/simspec" class="external-link">CSS</a>, <a href="https://github.com/welch-lab/liger" class="external-link">LIGER</a>, <a href="https://github.com/kharchenkolab/conos" class="external-link">Conos</a>, <a href="https://bioconductor.org/packages/release/bioc/html/sva.html" class="external-link">ComBat</a>.</li>
 <li>Multiple single cell downstream analyses such as identification of differential features, enrichment analysis, GSEA analysis, identification of dynamic features, <a href="https://github.com/theislab/paga" class="external-link">PAGA</a>, <a href="https://github.com/theislab/scvelo" class="external-link">RNA velocity</a>, <a href="https://github.com/dpeerlab/Palantir" class="external-link">Palantir</a>, <a href="http://cole-trapnell-lab.github.io/monocle-release" class="external-link">Monocle2</a>, <a href="https://cole-trapnell-lab.github.io/monocle3" class="external-link">Monocle3</a>, etc.</li>
 <li>Multiple methods for automatic annotation of single-cell data and methods for projection between single-cell datasets.</li>
 <li>High quality data visualization methods.</li>
@@ -487,8 +487,13 @@
 <span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu">shiny</span><span class="fu">::</span><span class="fu"><a href="https://shiny.rstudio.com/reference/shiny/latest/runApp.html" class="external-link">runApp</a></span><span class="op">(</span><span class="va">app</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-<p><img src="README/README-SCExplorer-1.png" alt="SCExplorer"><img src="README/README-SCExplorer-2.png" alt="SCExplorer"></p>
-<p>More examples of SCP can be found in the documentation of the functions, such as <a href="https://zhanghao-njmu.github.io/SCP/reference/Integration_SCP.html">Integration_SCP</a>, <a href="https://zhanghao-njmu.github.io/SCP/reference/RunKNNMap.html">RunKNNMap</a>, <a href="https://zhanghao-njmu.github.io/SCP/reference/RunMonocle3.html">RunMonocle3</a>, <a href="https://zhanghao-njmu.github.io/SCP/reference/ClassDimPlot.html">ClassDimPlot</a>, <a href="https://zhanghao-njmu.github.io/SCP/reference/GroupHeatmap.html">GroupHeatmap</a>, <a href="https://zhanghao-njmu.github.io/SCP/reference/RunSCExplorer.html">RunSCExplorer</a>, etc.</p>
+<p><img src="README/README-SCExplorer-1.png" alt="SCExplorer1"><img src="README/README-SCExplorer-2.png" alt="SCExplorer2"></p>
+</div>
+<div class="section level3">
+<h3 id="other-visualization-examples">Other visualization examples<a class="anchor" aria-label="anchor" href="#other-visualization-examples"></a>
+</h3>
+<p><a href="https://zhanghao-njmu.github.io/SCP/reference/ClassDimPlot.html"><strong>ClassDimPlot</strong></a><img src="README/README-Example-1.jpg" alt="Example1"><a href="https://zhanghao-njmu.github.io/SCP/reference/ClassStatPlot.html"><strong>ClassStatPlot</strong></a><img src="README/README-Example-2.jpg" alt="Example2"><a href="https://zhanghao-njmu.github.io/SCP/reference/GroupHeatmap.html"><strong>GroupHeatmap</strong></a><img src="README/README-Example-3.jpg" alt="Example3"></p>
+<p>More examples of SCP can be found in the documentation of the functions, such as <a href="https://zhanghao-njmu.github.io/SCP/reference/Integration_SCP.html">Integration_SCP</a>, <a href="https://zhanghao-njmu.github.io/SCP/reference/RunKNNMap.html">RunKNNMap</a>, <a href="https://zhanghao-njmu.github.io/SCP/reference/RunMonocle3.html">RunMonocle3</a>, <a href="https://zhanghao-njmu.github.io/SCP/reference/RunPalantir.html">RunPalantir</a>, etc.</p>
 </div>
 </div>
 </div>
@@ -526,8 +531,8 @@
 <h2 data-toc-skip>Dev status</h2>
 <ul class="list-unstyled">
 <li><a href="https://github.com/zhanghao-njmu/SCP" class="external-link"><img src="https://img.shields.io/github/r-package/v/zhanghao-njmu/SCP" alt="version"></a></li>
-<li><a href="https://github.com/zhanghao-njmu/SCP/actions" class="external-link"><img src="https://github.com/zhanghao-njmu/SCP/workflows/R-CMD-check/badge.svg" alt="R-CMD-check"></a></li>
 <li><a href="https://github.com/zhanghao-njmu/SCP" class="external-link"><img src="https://img.shields.io/github/languages/code-size/zhanghao-njmu/SCP.svg" alt="codesize"></a></li>
+<li><a href="https://github.com/zhanghao-njmu/SCP" class="external-link"><img src="https://img.shields.io/github/license/zhanghao-njmu/SCP" alt="license"></a></li>
 </ul>
 </div>
 
