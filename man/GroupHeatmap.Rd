@@ -110,6 +110,7 @@ GroupHeatmap(
   feature_annotation_params = list(),
   use_raster = NULL,
   raster_device = "png",
+  raster_by_magick = FALSE,
   height = NULL,
   width = NULL,
   units = "inch",
@@ -136,7 +137,7 @@ GroupHeatmap(
 
 \item{feature_palette}{Feature groups palette.}
 
-\item{ht_params}{}
+\item{raster_by_magick}{}
 }
 \description{
 GroupHeatmap

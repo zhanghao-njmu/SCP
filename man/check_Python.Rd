@@ -34,6 +34,7 @@ Check and install python packages
 }
 \examples{
 check_Python(packages = c("bbknn", "scanorama"))
-check_Python(packages = "scvi-tools", envname = "SCP_env", pip_options = "-i https://pypi.tuna.tsinghua.edu.cn/simple")
-
+\dontrun{
+check_Python(packages = "scvi-tools==0.20.0", envname = "SCP_env", pip_options = "-i https://pypi.tuna.tsinghua.edu.cn/simple")
+}
 }

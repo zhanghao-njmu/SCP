@@ -247,8 +247,9 @@ exist_Python_pkgs <- function(packages, envname = NULL, conda = "auto") {
 #'
 #' @examples
 #' check_Python(packages = c("bbknn", "scanorama"))
-#' check_Python(packages = "scvi-tools", envname = "SCP_env", pip_options = "-i https://pypi.tuna.tsinghua.edu.cn/simple")
-#'
+#' \dontrun{
+#' check_Python(packages = "scvi-tools==0.20.0", envname = "SCP_env", pip_options = "-i https://pypi.tuna.tsinghua.edu.cn/simple")
+#' }
 #' @export
 check_Python <- function(packages, envname = NULL, conda = "auto", force = FALSE, pip = TRUE, pip_options = character(), ...) {
   envname <- get_envname(envname)

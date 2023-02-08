@@ -112,6 +112,7 @@ DynamicHeatmap(
   reverse_ht = NULL,
   use_raster = NULL,
   raster_device = "png",
+  raster_by_magick = FALSE,
   height = NULL,
   width = NULL,
   units = "inch",
@@ -120,7 +121,7 @@ DynamicHeatmap(
 )
 }
 \arguments{
-\item{ht_params}{}
+\item{raster_by_magick}{}
 }
 \description{
 Heatmap plot for dynamic features along lineages

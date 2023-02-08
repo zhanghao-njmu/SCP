@@ -65,6 +65,7 @@ CellCorHeatmap(
     list(height = grid::unit(1, "cm")),
   use_raster = NULL,
   raster_device = "png",
+  raster_by_magick = FALSE,
   height = NULL,
   width = NULL,
   units = "inch",
@@ -73,7 +74,7 @@ CellCorHeatmap(
 )
 }
 \arguments{
-\item{label_size}{}
+\item{raster_by_magick}{}
 }
 \description{
 CellCorHeatmap

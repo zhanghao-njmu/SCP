@@ -97,6 +97,7 @@ ExpHeatmap(
   feature_annotation_params = list(),
   use_raster = NULL,
   raster_device = "png",
+  raster_by_magick = FALSE,
   height = NULL,
   width = NULL,
   units = "inch",
@@ -105,7 +106,7 @@ ExpHeatmap(
 )
 }
 \arguments{
-\item{ht_params}{}
+\item{raster_by_magick}{}
 }
 \description{
 ExpHeatmap

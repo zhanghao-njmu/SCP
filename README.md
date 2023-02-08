@@ -194,13 +194,22 @@ data](https://doi.org/10.1242/dev.173849).
 ``` r
 library(SCP)
 data("pancreas_sub")
+print(pancreas_sub)
+#> An object of class Seurat 
+#> 47874 features across 1000 samples within 3 assays 
+#> Active assay: RNA (15958 features, 0 variable features)
+#>  2 other assays present: spliced, unspliced
+#>  2 dimensional reductions calculated: PCA, UMAP
+```
+
+``` r
 ClassDimPlot(
   srt = pancreas_sub, group.by = c("CellType", "SubCellType"),
   reduction = "UMAP", theme_use = "theme_blank"
 )
 ```
 
-<img src="README/README-library-1.png" width="100%" style="display: block; margin: auto;" />
+<img src="README/README-EDA-1.png" width="100%" style="display: block; margin: auto;" />
 
 ``` r
 ClassDimPlot(
@@ -209,7 +218,7 @@ ClassDimPlot(
 )
 ```
 
-<img src="README/README-library-2.png" width="100%" style="display: block; margin: auto;" />
+<img src="README/README-EDA-2.png" width="100%" style="display: block; margin: auto;" />
 
 ``` r
 ExpDimPlot(
@@ -218,7 +227,7 @@ ExpDimPlot(
 )
 ```
 
-<img src="README/README-library-3.png" width="100%" style="display: block; margin: auto;" />
+<img src="README/README-EDA-3.png" width="100%" style="display: block; margin: auto;" />
 
 ``` r
 ExpDimPlot(
@@ -228,7 +237,7 @@ ExpDimPlot(
 )
 ```
 
-<img src="README/README-library-4.png" width="100%" style="display: block; margin: auto;" />
+<img src="README/README-EDA-4.png" width="100%" style="display: block; margin: auto;" />
 
 ``` r
 ht <- GroupHeatmap(
@@ -250,7 +259,7 @@ ht <- GroupHeatmap(
 print(ht$plot)
 ```
 
-<img src="README/README-library-5.png" width="100%" style="display: block; margin: auto;" />
+<img src="README/README-EDA-5.png" width="100%" style="display: block; margin: auto;" />
 
 ### CellQC
 
