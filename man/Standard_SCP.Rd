@@ -7,7 +7,7 @@
 Standard_SCP(
   srt,
   prefix = "Standard",
-  assay = "RNA",
+  assay = NULL,
   do_normalization = NULL,
   normalization_method = "LogNormalize",
   do_HVF_finding = TRUE,
@@ -18,7 +18,7 @@ Standard_SCP(
   vars_to_regress = NULL,
   regression_model = "linear",
   linear_reduction = "pca",
-  linear_reduction_dims = 100,
+  linear_reduction_dims = 50,
   linear_reduction_dims_use = NULL,
   linear_reduction_params = list(),
   force_linear_reduction = FALSE,
@@ -81,19 +81,25 @@ Single cell pipeline for the single dataset.
 \examples{
 data("pancreas_sub")
 pancreas_sub <- Standard_SCP(srt = pancreas_sub)
-ClassDimPlot(pancreas_sub, group.by = "CellType")
+ClassDimPlot(pancreas_sub, group.by = "SubCellType")
 
 # Use a combination of different linear or non-linear dimension reduction methods
+linear_reductions <- c("pca", "ica", "nmf", "mds", "glmpca")
 pancreas_sub <- Standard_SCP(
   srt = pancreas_sub,
-  linear_reduction = c("pca", "ica", "nmf", "mds", "glmpca"),
+  linear_reduction = linear_reductions,
   nonlinear_reduction = "umap"
 )
+plist1 <- lapply(linear_reductions, function(lr) ClassDimPlot(pancreas_sub, group.by = "SubCellType", reduction = paste0("Standard", lr, "UMAP2D"), theme = "theme_blank"))
+cowplot::plot_grid(plotlist = plist1)
+
+nonlinear_reductions <- c("umap", "tsne", "dm", "phate", "pacmap", "trimap", "largevis")
 pancreas_sub <- Standard_SCP(
   srt = pancreas_sub,
   linear_reduction = "pca",
-  nonlinear_reduction = c("umap", "tsne", "dm", "phate", "pacmap", "trimap", "largevis")
+  nonlinear_reduction = nonlinear_reductions
 )
-names(pancreas_sub@reductions)
+plist2 <- lapply(nonlinear_reductions, function(nr) ClassDimPlot(pancreas_sub, group.by = "SubCellType", reduction = paste0("Standardpca", toupper(nr), "2D"), theme = "theme_blank"))
+cowplot::plot_grid(plotlist = plist2)
 
 }

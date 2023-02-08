@@ -6,10 +6,10 @@
 \usage{
 Integration_SCP(
   srtMerge = NULL,
-  batch = "orig.ident",
+  batch,
   append = TRUE,
   srtList = NULL,
-  assay = "RNA",
+  assay = NULL,
   integration_method = "Uncorrected",
   do_normalization = NULL,
   normalization_method = "LogNormalize",
@@ -17,14 +17,13 @@ Integration_SCP(
   HVF_source = "separate",
   HVF_method = "vst",
   nHVF = 2000,
-  HVF_intersect = FALSE,
   HVF_min_intersection = 1,
   HVF = NULL,
   do_scaling = TRUE,
   vars_to_regress = NULL,
   regression_model = "linear",
   linear_reduction = "pca",
-  linear_reduction_dims = 100,
+  linear_reduction_dims = 50,
   linear_reduction_dims_use = NULL,
   linear_reduction_params = list(),
   force_linear_reduction = FALSE,
@@ -49,7 +48,7 @@ Integration_SCP(
 
 \item{srtList}{A list of \code{Seurat} object.}
 
-\item{integration_method}{Integration method. Can be one of "Uncorrected", "Seurat", "scVI", "MNN", "fastMNN", "Harmony", "Scanorama", "BBKNN", "CSS", "LIGER", "Conos".}
+\item{integration_method}{Integration method. Can be one of "Uncorrected", "Seurat", "scVI", "MNN", "fastMNN", "Harmony", "Scanorama", "BBKNN", "CSS", "LIGER", "Conos", "ComBat".}
 
 \item{do_normalization}{Whether to normalize the data. If NULL, will automatically determine.}
 
@@ -107,20 +106,9 @@ panc8_sub <- Integration_SCP(
 )
 ClassDimPlot(panc8_sub, group.by = c("tech", "celltype"))
 
-panc8_sub <- Integration_SCP(
-  srtMerge = panc8_sub, batch = "tech", integration_method = "Seurat",
-  HVF_intersect = TRUE
-)
-ClassDimPlot(panc8_sub, group.by = c("tech", "celltype"))
-
-panc8_sub <- Integration_SCP(
-  srtMerge = panc8_sub, batch = "tech", integration_method = "Seurat",
-  HVF_intersect = TRUE, HVF_min_intersection = length(unique(panc8_sub$tech))
-)
-ClassDimPlot(panc8_sub, group.by = c("tech", "celltype"))
-
 \dontrun{
-for (method in c("Uncorrected", "Seurat", "scVI", "MNN", "fastMNN", "Harmony", "Scanorama", "BBKNN", "CSS", "LIGER", "Conos")) {
+integration_methods <- c("Uncorrected", "Seurat", "scVI", "MNN", "fastMNN", "Harmony", "Scanorama", "BBKNN", "CSS", "LIGER", "Conos")
+for (method in integration_methods) {
   panc8_sub <- Integration_SCP(
     srtMerge = panc8_sub, batch = "tech",
     integration_method = method, nonlinear_reduction = "umap"
@@ -128,12 +116,13 @@ for (method in c("Uncorrected", "Seurat", "scVI", "MNN", "fastMNN", "Harmony", "
   print(ClassDimPlot(panc8_sub, group.by = c("tech", "celltype"), reduction = paste0(method, "UMAP2D"), theme_use = "theme_blank"))
 }
 
+nonlinear_reductions <- c("umap", "tsne", "dm", "phate", "pacmap", "trimap", "largevis")
 panc8_sub <- Integration_SCP(
   srtMerge = panc8_sub, batch = "tech", integration_method = "Seurat",
-  nonlinear_reduction = c("umap", "tsne", "dm", "phate", "pacmap", "trimap", "largevis")
+  nonlinear_reduction = nonlinear_reductions
 )
-for (reduc in c("umap", "tsne", "dm", "phate", "pacmap", "trimap", "largevis")) {
-  print(ClassDimPlot(panc8_sub, group.by = c("tech", "celltype"), reduction = paste0("Seurat", reduc, "2D"), theme_use = "theme_blank"))
+for (nr in nonlinear_reductions) {
+  print(ClassDimPlot(panc8_sub, group.by = c("tech", "celltype"), reduction = paste0("Seurat", nr, "2D"), theme_use = "theme_blank"))
 }
 }
 

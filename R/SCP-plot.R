@@ -1559,7 +1559,7 @@ ClassDimPlot <- function(srt, group.by = "orig.ident", reduction = NULL, dims = 
       if (isTRUE(raster)) {
         p <- p + scattermore::geom_scattermore(
           data = dat[is.na(dat[, "group.by"]), , drop = FALSE],
-          mapping = aes(x = .data[["x"]], y = .data[["y"]], color = .data[["group.by"]]),
+          mapping = aes(x = .data[["x"]], y = .data[["y"]]), color = bg_color,
           pointsize = floor(pt.size), alpha = pt.alpha, pixels = raster.dpi
         ) + scattermore::geom_scattermore(
           data = dat[!is.na(dat[, "group.by"]), , drop = FALSE],

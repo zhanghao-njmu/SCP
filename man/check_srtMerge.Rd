@@ -6,15 +6,14 @@
 \usage{
 check_srtMerge(
   srtMerge,
-  batch = "orig.ident",
-  assay = "RNA",
+  batch = NULL,
+  assay = NULL,
   do_normalization = NULL,
   normalization_method = "LogNormalize",
   do_HVF_finding = TRUE,
   HVF_source = "separate",
   HVF_method = "vst",
   nHVF = 2000,
-  HVF_intersect = FALSE,
   HVF_min_intersection = 1,
   HVF = NULL,
   vars_to_regress = NULL,
