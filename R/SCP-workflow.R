@@ -2747,6 +2747,7 @@ LIGER_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtLis
                             do_normalization = NULL, normalization_method = "LogNormalize",
                             do_HVF_finding = TRUE, HVF_source = "separate", HVF_method = "vst", nHVF = 2000, HVF_min_intersection = 1, HVF = NULL,
                             do_scaling = TRUE, vars_to_regress = NULL, regression_model = "linear",
+                            LIGER_dims_use = NULL,
                             nonlinear_reduction = "umap", nonlinear_reduction_dims = c(2, 3), nonlinear_reduction_params = list(), force_nonlinear_reduction = TRUE,
                             do_cluster_finding = TRUE, cluster_algorithm = "louvain", cluster_resolution = 0.6, cluster_reorder = TRUE,
                             optimizeALS_params = list(), quantilenorm_params = list(), seed = 11) {
@@ -2809,21 +2810,22 @@ LIGER_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtLis
       nHVF = nHVF, HVF_min_intersection = HVF_min_intersection, HVF = HVF,
       vars_to_regress = vars_to_regress, seed = seed
     )
+    srtList <- checked[["srtList"]]
     srtMerge <- checked[["srtMerge"]]
     HVF <- checked[["HVF"]]
     assay <- checked[["assay"]]
     type <- checked[["type"]]
   }
 
-  if (isTRUE(do_scaling) || (is.null(do_scaling) && any(!HVF %in% rownames(GetAssayData(srtMerge, slot = "scale.data", assay = DefaultAssay(srtMerge)))))) {
-    cat(paste0("[", Sys.time(), "]", " Perform ScaleData on the data(do not center for LIGER)...\n"))
-    srtMerge <- ScaleData(object = srtMerge, assay = DefaultAssay(srtMerge), features = HVF, split.by = batch, do.center = FALSE, vars.to.regress = vars_to_regress, model.use = regression_model, verbose = FALSE)
+  scale.data <- list()
+  for (i in seq_along(srtList)) {
+    srt <- srtList[[i]]
+    if (isTRUE(do_scaling) || (is.null(do_scaling) && any(!HVF %in% rownames(GetAssayData(srt, slot = "scale.data", assay = DefaultAssay(srt)))))) {
+      cat(paste0("[", Sys.time(), "]", " Perform ScaleData on the data ", i, " ...\n"))
+      srt <- ScaleData(object = srt, assay = DefaultAssay(srt), features = HVF, do.center = FALSE, vars.to.regress = vars_to_regress, model.use = regression_model, verbose = FALSE)
+    }
+    scale.data[[i]] <- t(x = GetAssayData(object = srt, slot = "scale.data", assay = DefaultAssay(srt)))
   }
-
-  split.cells <- split(x = colnames(x = srtMerge), f = srtMerge[[batch]])
-  scale.data <- lapply(X = split.cells, FUN = function(x) {
-    return(t(x = GetAssayData(object = srtMerge, slot = "scale.data", assay = DefaultAssay(srtMerge))[, x]))
-  })
 
   cat(paste0("[", Sys.time(), "]", " Perform integration(LIGER) on the data...\n"))
   params1 <- list(
@@ -2872,7 +2874,9 @@ LIGER_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtLis
   )
   srtIntegrated <- srtMerge
   srtMerge <- NULL
-  LIGER_dims_use <- seq_len(ncol(Embeddings(srtIntegrated, reduction = "LIGER")))
+  if (is.null(LIGER_dims_use)) {
+    LIGER_dims_use <- 1:ncol(srtIntegrated[["LIGER"]]@cell.embeddings)
+  }
 
   srtIntegrated <- tryCatch(
     {
@@ -3562,7 +3566,7 @@ Standard_SCP <- function(srt, prefix = "Standard", assay = NULL,
 #' ClassDimPlot(panc8_sub, group.by = c("tech", "celltype"))
 #'
 #' \dontrun{
-#' integration_methods <- c("Uncorrected", "Seurat", "scVI", "MNN", "fastMNN", "Harmony", "Scanorama", "BBKNN", "CSS", "LIGER", "Conos")
+#' integration_methods <- c("Uncorrected", "Seurat", "scVI", "MNN", "fastMNN", "Harmony", "Scanorama", "BBKNN", "CSS", "LIGER", "Conos", "ComBat")
 #' for (method in integration_methods) {
 #'   panc8_sub <- Integration_SCP(
 #'     srtMerge = panc8_sub, batch = "tech",

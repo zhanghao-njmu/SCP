@@ -90,7 +90,6 @@ NULL
 #' @importFrom methods as
 #' @importFrom Matrix t colSums rowSums
 #' @importFrom Seurat DefaultAssay GetAssayData FindVariableFeatures VariableFeatures AverageExpression FindNeighbors as.sparse
-#' @importFrom dplyr bind_rows group_by top_n pull
 #' @importFrom rlang %||%
 #' @export
 #'
@@ -142,10 +141,10 @@ RunKNNPredict <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
           de <- names(srt_query@tools[[slot]])[index]
           message("Use the DE features from ", de, " to calculate distance metric.")
           de_df <- srt_query@tools[[slot]][[de]]
-          de_df <- filter(de_df, eval(rlang::parse_expr(DE_threshold)))
-          de_top <- de_df %>%
-            group_by(gene) %>%
-            top_n(1, avg_log2FC)
+          de_df <- de_df[with(de_df, eval(rlang::parse_expr(DE_threshold))), , drop = FALSE]
+          rownames(de_df) <- seq_len(nrow(de_df))
+          de_df <- de_df[order(de_df[["avg_log2FC"]], decreasing = TRUE), , drop = FALSE]
+          de_top <- de_df[!duplicated(de_df[["gene"]]), , drop = FALSE]
           stat <- sort(table(de_top$group1))
           stat <- stat[stat > 0]
           mat <- matrix(FALSE, nrow = max(stat), ncol = length(stat))
@@ -155,15 +154,15 @@ RunKNNPredict <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
           }
           nfeatures <- sum(cumsum(rowSums(mat)) <= nfeatures)
           if (test.use == "roc") {
-            features_query <- de_top %>%
-              group_by(group1) %>%
-              top_n(nfeatures, power) %>%
-              pull("gene")
+            features_query <- unlist(by(de_top, list(de_top[["group1"]]), function(x) {
+              x <- x[order(x[["power"]], decreasing = TRUE), , drop = FALSE]
+              head(x[["gene"]], nfeatures)
+            }))
           } else {
-            features_query <- de_top %>%
-              group_by(group1) %>%
-              top_n(nfeatures, -p_val) %>%
-              pull("gene")
+            features_query <- unlist(by(de_top, list(de_top[["group1"]]), function(x) {
+              x <- x[order(x[["p_val"]], decreasing = FALSE), , drop = FALSE]
+              head(x[["gene"]], nfeatures)
+            }))
           }
           message("DE features number of the query data: ", length(features_query))
         }
@@ -233,10 +232,10 @@ RunKNNPredict <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
           de <- names(srt_ref@tools[[slot]])[index]
           message("Use the DE features from ", de, " to calculate distance metric.")
           de_df <- srt_ref@tools[[slot]][[de]]
-          de_df <- filter(de_df, eval(rlang::parse_expr(DE_threshold)))
-          de_top <- de_df %>%
-            group_by(gene) %>%
-            top_n(1, avg_log2FC)
+          de_df <- de_df[with(de_df, eval(rlang::parse_expr(DE_threshold))), , drop = FALSE]
+          rownames(de_df) <- seq_len(nrow(de_df))
+          de_df <- de_df[order(de_df[["avg_log2FC"]], decreasing = TRUE), , drop = FALSE]
+          de_top <- de_df[!duplicated(de_df[["gene"]]), , drop = FALSE]
           stat <- sort(table(de_top$group1))
           stat <- stat[stat > 0]
           mat <- matrix(FALSE, nrow = max(stat), ncol = length(stat))
@@ -246,15 +245,15 @@ RunKNNPredict <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
           }
           nfeatures <- sum(cumsum(rowSums(mat)) <= nfeatures)
           if (test.use == "roc") {
-            features_ref <- de_top %>%
-              group_by(group1) %>%
-              top_n(nfeatures, power) %>%
-              pull("gene")
+            features_ref <- unlist(by(de_top, list(de_top[["group1"]]), function(x) {
+              x <- x[order(x[["power"]], decreasing = TRUE), , drop = FALSE]
+              head(x[["gene"]], nfeatures)
+            }))
           } else {
-            features_ref <- de_top %>%
-              group_by(group1) %>%
-              top_n(nfeatures, -p_val) %>%
-              pull("gene")
+            features_ref <- unlist(by(de_top, list(de_top[["group1"]]), function(x) {
+              x <- x[order(x[["p_val"]], decreasing = FALSE), , drop = FALSE]
+              head(x[["gene"]], nfeatures)
+            }))
           }
           message("DE features number of the ref data: ", length(features_ref))
         } else {
@@ -335,7 +334,7 @@ RunKNNPredict <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
   # }",
   #     depends = c("RcppArmadillo")
   #   )
-  #   cors <- parDist(t(query), method = "custom", func = CosineCPP) %>% as.matrix()
+  #   cors <- as.matrix(parDist(t(query), method = "custom", func = CosineCPP))
   #   cors <- cors[colnames(ref.expr), colnames(tst.expr)]
   #
 
@@ -433,12 +432,11 @@ RunKNNPredict <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
         match_freq <- as.list(setNames(object = rep(k, nrow(match_k_cell)), rn))
         match_freq <- lapply(setNames(names(match_freq), names(match_freq)), function(x) setNames(k, match_k_cell[x, 1]))
       }
-      match_prob <- lapply(match_freq, function(x) {
+      match_prob <- do.call(rbind, lapply(match_freq, function(x) {
         x[level[!level %in% names(x)]] <- 0
         x <- x / sum(x)
         return(x)
-      }) %>%
-        bind_rows()
+      }))
       match_prob <- as.matrix(match_prob)
       rownames(match_prob) <- names(match_freq)
       match_best <- apply(match_prob, 1, function(x) names(x)[order(x, decreasing = TRUE)][1])
