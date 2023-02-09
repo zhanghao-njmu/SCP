@@ -42,7 +42,6 @@
 #' homologs_counts <- as(as.matrix(homologs_counts[, -1]), "dgCMatrix")
 #' homologs_counts
 #'
-#' @importFrom dplyr "%>%" group_by mutate .data bind_rows
 #' @importFrom reshape2 dcast melt
 #' @importFrom R.cache loadCache saveCache
 #' @importFrom biomaRt listEnsemblArchives useMart listDatasets useDataset getBM listAttributes useEnsembl
@@ -367,18 +366,20 @@ GeneConvert <- function(geneID, geneID_from_IDtype = "symbol", geneID_to_IDtype 
     ), "\n",
     paste0(rep("=", 30), collapse = ""), "\n"
   )
-  geneID_res <- bind_rows(geneID_res_list) %>% unique()
-  if (is.null(geneID_res) || nrow(geneID_res) == 0) {
-    warning(paste0("No gene mapped"), immediate. = TRUE)
+  geneID_res <- unique(do.call(rbind, geneID_res_list))
+  if (is.null(geneID_res) || nrow(geneID_res) == 0 || all(is.na(geneID_res[["to_geneID"]]))) {
+    warning(paste0("None of the gene IDs were converted"), immediate. = TRUE)
     return(list(geneID_res = NULL, geneID_collapse = NULL, geneID_expand = NULL, Datasets = Datasets, Attributes = Attributes))
   }
-  geneID_collapse <- geneID_res %>%
-    group_by(.data[["from_geneID"]], .data[["to_IDtype"]]) %>%
-    mutate(
-      from_geneID = unique(.data[["from_geneID"]]),
-      to_IDtype = unique(.data[["to_IDtype"]]),
-      to_geneID = list(unique(.data[["to_geneID"]][!.data[["to_geneID"]] %in% c("", NA)]))
+  geneID_res_stat <- by(geneID_res, list(geneID_res[["from_geneID"]], geneID_res[["to_IDtype"]]), function(x) {
+    data.frame(
+      from_IDtype = unique(x[["from_IDtype"]]),
+      from_geneID = unique(x[["from_geneID"]]),
+      to_IDtype = unique(x[["to_IDtype"]]),
+      to_geneID = I(list(unique(x[["to_geneID"]][!x[["to_geneID"]] %in% c("", NA)])))
     )
+  })
+  geneID_collapse <- do.call(rbind, geneID_res_stat)
   geneID_collapse <- unique(as.data.frame(geneID_collapse[, c("from_geneID", "to_IDtype", "to_geneID")]))
   geneID_collapse <- geneID_collapse[sapply(geneID_collapse$to_geneID, length) > 0, ]
   geneID_collapse <- reshape2::dcast(geneID_collapse, formula = from_geneID ~ to_IDtype, value.var = "to_geneID")
@@ -2765,7 +2766,6 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
 #' EnrichmentPlot(res = enrich_out, group_use = c("Ngn3 low EP", "Endocrine"), db = "GO_BP")
 #'
 #' @importFrom BiocParallel bplapply
-#' @importFrom dplyr bind_rows
 #' @export
 #'
 RunEnrichment <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_threshold = "avg_log2FC > 0 & p_val_adj < 0.05",
@@ -2797,7 +2797,8 @@ RunEnrichment <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_t
     }
     de <- names(srt@tools[[slot]])[index]
     de_df <- srt@tools[[slot]][[de]]
-    de_df <- dplyr::filter(de_df, eval(rlang::parse_expr(DE_threshold)))
+    de_df <- de_df[with(de_df, eval(rlang::parse_expr(DE_threshold))), , drop = FALSE]
+    rownames(de_df) <- seq_len(nrow(de_df))
 
     geneID <- de_df[["gene"]]
     geneID_groups <- de_df[["group1"]]
@@ -2891,13 +2892,12 @@ RunEnrichment <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_t
         result[, "Database"] <- term
         result[, "Groups"] <- group
         result[, "BgVersion"] <- as.character(db_list[[species]][[term]][["version"]])
-        IDlist <- result$geneID %>%
-          strsplit("/")
-        result$geneID <- lapply(IDlist, function(x) {
+        IDlist <- strsplit(result$geneID, split = "/")
+        result$geneID <- unlist(lapply(IDlist, function(x) {
           result_ID <- geneMap[geneMap[, IDtype] %in% x, result_IDtype]
           remain_ID <- x[!x %in% geneMap[, IDtype]]
           paste0(c(result_ID, remain_ID), collapse = "/")
-        }) %>% unlist()
+        }))
         enrich_res@result <- result
         enrich_res@gene2Symbol <- as.character(gene_mapid)
 
@@ -2942,7 +2942,7 @@ RunEnrichment <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_t
   results <- c(raw_list, sim_list)
   results <- results[!sapply(results, is.null)]
   results <- results[intersect(c(nm, paste0(nm, "_sim")), names(results))]
-  res_enrichment <- bind_rows(lapply(results, function(x) x@result))
+  res_enrichment <- do.call(rbind, lapply(results, function(x) x@result))
   rownames(res_enrichment) <- NULL
 
   time_end <- Sys.time()
@@ -3004,7 +3004,6 @@ RunEnrichment <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_t
 #' GSEAPlot(res = gsea_out, group_use = c("Ngn3 low EP", "Endocrine"), db = "GO_BP")
 #'
 #' @importFrom BiocParallel bplapply
-#' @importFrom dplyr bind_rows
 #' @export
 #'
 RunGSEA <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_threshold = "p_val_adj < 0.05",
@@ -3036,7 +3035,8 @@ RunGSEA <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_thresho
     }
     de <- names(srt@tools[[slot]])[index]
     de_df <- srt@tools[[slot]][[de]]
-    de_df <- dplyr::filter(de_df, eval(rlang::parse_expr(DE_threshold)))
+    de_df <- de_df[with(de_df, eval(rlang::parse_expr(DE_threshold))), , drop = FALSE]
+    rownames(de_df) <- seq_len(nrow(de_df))
 
     geneID <- de_df[["gene"]]
     geneScore <- de_df[["avg_log2FC"]]
@@ -3184,13 +3184,12 @@ RunGSEA <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_thresho
         result[, "Database"] <- term
         result[, "Groups"] <- group
         result[, "BgVersion"] <- as.character(db_list[[species]][[term]][["version"]])
-        IDlist <- result$core_enrichment %>%
-          strsplit("/")
-        result$core_enrichment <- lapply(IDlist, function(x) {
+        IDlist <- strsplit(result$core_enrichment, "/")
+        result$core_enrichment <- unlist(lapply(IDlist, function(x) {
           result_ID <- input[input[, IDtype] %in% x, result_IDtype]
           remain_ID <- x[!x %in% input[, IDtype]]
           paste0(c(result_ID, remain_ID), collapse = "/")
-        }) %>% unlist()
+        }))
         enrich_res@result <- result
         enrich_res@gene2Symbol <- as.character(gene_mapid)
 
@@ -3234,7 +3233,7 @@ RunGSEA <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_thresho
   results <- c(raw_list, sim_list)
   results <- results[!sapply(results, is.null)]
   results <- results[intersect(c(nm, paste0(nm, "_sim")), names(results))]
-  res_enrichment <- bind_rows(lapply(results, function(x) x@result))
+  res_enrichment <- do.call(rbind, lapply(results, function(x) x@result))
   rownames(res_enrichment) <- NULL
 
   time_end <- Sys.time()

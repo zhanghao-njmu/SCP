@@ -91,6 +91,7 @@ Suggests:
     scDblFinder,
     scmap,
     styler,
+    sva,
     SingleR,
     testthat (>= 3.0.0),
     UCell,
@@ -98,4 +99,4 @@ Suggests:
 LinkingTo: Rcpp
 RoxygenNote: 7.2.3
 Config/testthat/edition: 3
-URL: https://github.com/zhanghao-njmu/SCP/, https://zhanghao-njmu.github.io/SCP/
+URL: https://github.com/zhanghao-njmu/SCP

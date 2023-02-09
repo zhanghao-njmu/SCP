@@ -21,6 +21,7 @@ LIGER_integrate(
   do_scaling = TRUE,
   vars_to_regress = NULL,
   regression_model = "linear",
+  LIGER_dims_use = NULL,
   nonlinear_reduction = "umap",
   nonlinear_reduction_dims = c(2, 3),
   nonlinear_reduction_params = list(),

@@ -107,7 +107,7 @@ panc8_sub <- Integration_SCP(
 ClassDimPlot(panc8_sub, group.by = c("tech", "celltype"))
 
 \dontrun{
-integration_methods <- c("Uncorrected", "Seurat", "scVI", "MNN", "fastMNN", "Harmony", "Scanorama", "BBKNN", "CSS", "LIGER", "Conos")
+integration_methods <- c("Uncorrected", "Seurat", "scVI", "MNN", "fastMNN", "Harmony", "Scanorama", "BBKNN", "CSS", "LIGER", "Conos", "ComBat")
 for (method in integration_methods) {
   panc8_sub <- Integration_SCP(
     srtMerge = panc8_sub, batch = "tech",

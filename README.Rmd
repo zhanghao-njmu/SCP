@@ -30,7 +30,7 @@ knitr::opts_chunk$set(
 
 SCP provides a comprehensive set of tools for single cell data processing and downstream analysis.
 
-The package includes facilities for:
+The package includes the following facilities:
 
 -   Integrated single cell quality control methods.
 -   Pipelines embedded with multiple methods for normalization, feature reduction, and cell population identification (standard Seurat workflow).
@@ -174,6 +174,8 @@ data("pancreas_sub")
 print(pancreas_sub)
 ```
 
+Data exploration:
+
 ```{r EDA}
 ClassDimPlot(
   srt = pancreas_sub, group.by = c("CellType", "SubCellType"),
@@ -256,24 +258,46 @@ Example data for integration is a subsetted version of [panc8(eight human pancre
 ```{r Integration_SCP}
 data("panc8_sub")
 panc8_sub <- Integration_SCP(srtMerge = panc8_sub, batch = "tech", integration_method = "Seurat")
-panc8_sub <- Integration_SCP(srtMerge = panc8_sub, batch = "tech", integration_method = "Harmony")
 ClassDimPlot(
   srt = panc8_sub, group.by = c("celltype", "tech"), reduction = "SeuratUMAP2D",
   title = "Seurat", theme_use = "theme_blank"
 )
-ClassDimPlot(
-  srt = panc8_sub, group.by = c("celltype", "tech"), reduction = "HarmonyUMAP2D",
-  title = "Harmony", theme_use = "theme_blank"
-)
+```
+
+UMAP embeddings based on different integration methods in SCP:
+
+```{r all_integration, echo=FALSE, fig.height=13.5, fig.width=8.5}
+library(ggplot2)
+library(cowplot)
+library(gtable)
+integration_methods <- c("Uncorrected", "Seurat", "scVI", "MNN", "fastMNN", "Harmony", "Scanorama", "BBKNN", "CSS", "LIGER", "Conos", "ComBat")
+plist <- list()
+
+for (method in integration_methods) {
+  panc8_sub <- Integration_SCP(
+    srtMerge = panc8_sub, batch = "tech",
+    integration_method = method, nonlinear_reduction = "umap"
+  )
+  plist[[method]] <- ClassDimPlot(panc8_sub,
+    title = method, group.by = c("celltype"), reduction = paste0(method, "UMAP2D"), theme_use = "theme_blank",
+    show_stat = F, xlab = "UMAP_1", ylab = "UMAP_2", legend.position = "none"
+  )
+}
+p <- plot_grid(plotlist = plist, ncol = 3)
+grob <- ggplotGrob(p)
+legend <- get_legend(ClassDimPlot(panc8_sub, group.by = c("celltype"), reduction = paste0(method, "UMAP2D"), theme_use = "theme_blank", legend.position = "bottom", legend.direction = "horizontal"))
+grob <- gtable_add_rows(grob, sum(legend$heights) + unit(1, "cm"), 0)
+grob <- gtable_add_grob(grob, legend, t = 1, l = min(grob$layout[grepl(pattern = "panel", x = grob$layout$name), "l"]))
+panel_fix(grob, height = 2)
 ```
 
 ### Cell projection between single-cell datasets
 
 ```{r RunKNNMap}
 panc8_rename <- RenameFeatures(srt = panc8_sub, newnames = make.unique(capitalize(rownames(panc8_sub), force_tolower = TRUE)), assays = "RNA")
-pancreas_sub <- RunKNNMap(srt_query = pancreas_sub, srt_ref = panc8_rename, ref_umap = "SeuratUMAP2D")
+srt_query <- RunKNNMap(srt_query = pancreas_sub, srt_ref = panc8_rename, ref_umap = "SeuratUMAP2D")
 ProjectionPlot(
-  srt_query = pancreas_sub, srt_ref = panc8_rename,
+  srt_query = srt_query, srt_ref = panc8_rename,
   query_group = "SubCellType", ref_group = "celltype"
 )
 ```

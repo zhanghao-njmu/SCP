@@ -92,9 +92,6 @@ theme_blank <- function(add_coord = TRUE, xlab = "Dim1", ylab = "Dim2", xlen_npc
     legend.background = element_blank(),
     legend.box.margin = margin(0, 0, 0, 0),
     legend.margin = margin(0, 0, 0, 0),
-    plot.subtitle = element_blank(),
-    plot.caption = element_blank(),
-    plot.tag = element_blank(),
     plot.margin = margin(0, 0, 15, 15),
     complete = FALSE
   )
@@ -1275,7 +1272,7 @@ DefaultReduction <- function(srt, pattern = NULL, min_dim = 2, max_distance = 0.
 #'   show_stat = FALSE, legend.position = "none", theme_use = "theme_blank"
 #' )
 #' @importFrom Seurat Reductions Embeddings Key
-#' @importFrom dplyr group_by summarize "%>%" .data
+#' @importFrom dplyr group_by "%>%" .data
 #' @importFrom ggplot2 ggplot ggplotGrob aes geom_point geom_density_2d stat_density_2d geom_segment labs scale_x_continuous scale_y_continuous scale_size_continuous facet_grid scale_color_manual scale_fill_manual guides guide_legend geom_hex geom_path theme_void annotation_custom scale_linewidth_continuous after_stat
 #' @importFrom ggrepel geom_text_repel
 #' @importFrom ggnewscale new_scale_color new_scale_fill new_scale
@@ -1934,7 +1931,7 @@ ClassDimPlot <- function(srt, group.by = "orig.ident", reduction = NULL, dims = 
 #' show_col(c("red", "green", blendcolors(c("red", "green"), mode = "multiply")), ncol = 4)
 #' text(3.5, -0.5, "multiply", cex = 1.2)
 #' @importFrom Seurat Reductions Embeddings Key
-#' @importFrom dplyr group_by summarize "%>%" .data
+#' @importFrom dplyr group_by "%>%" .data
 #' @importFrom stats quantile
 #' @importFrom ggplot2 ggplot aes geom_point geom_density_2d stat_density_2d geom_segment labs scale_x_continuous scale_y_continuous scale_size_continuous facet_grid scale_color_gradientn scale_fill_gradientn scale_colour_gradient scale_fill_gradient guide_colorbar scale_color_identity scale_fill_identity guide_colourbar geom_hex stat_summary_hex geom_path scale_linewidth_continuous after_stat
 #' @importFrom ggnewscale new_scale_color new_scale_fill
@@ -2031,12 +2028,9 @@ ExpDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), split.by
     status <- check_DataType(srt, slot = slot, assay = assay)
     message("Data type detected in ", slot, " slot: ", status)
     if (status %in% c("raw_counts", "raw_normalized_counts")) {
-      srt[["CoExp"]] <- GetAssayData(srt, slot = slot, assay = assay)[features_gene, , drop = FALSE] %>%
-        apply(2, function(x) exp(mean(log(x))))
+      srt[["CoExp"]] <- apply(GetAssayData(srt, slot = slot, assay = assay)[features_gene, , drop = FALSE], 2, function(x) exp(mean(log(x))))
     } else if (status == "log_normalized_counts") {
-      srt[["CoExp"]] <- GetAssayData(srt, slot = slot, assay = assay)[features_gene, , drop = FALSE] %>%
-        apply(c(1, 2), expm1) %>%
-        apply(2, function(x) log1p(exp(mean(log(x)))))
+      srt[["CoExp"]] <- apply(expm1(GetAssayData(srt, slot = slot, assay = assay)[features_gene, , drop = FALSE]), 2, function(x) log1p(exp(mean(log(x)))))
     } else {
       stop("Can not determine the data type.")
     }
@@ -2271,11 +2265,11 @@ ExpDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), split.by
 
       legend2 <- NULL
       if (isTRUE(label)) {
-        label_df <- p$data %>%
-          reshape2::melt(measure.vars = features) %>%
+        label_df <- reshape2::melt(p$data, measure.vars = features)
+        label_df <- label_df %>%
           group_by(variable) %>%
           filter(value >= quantile(value, 0.95, na.rm = TRUE) & value <= quantile(value, 0.99, na.rm = TRUE)) %>%
-          summarize(x = median(.data[["x"]]), y = median(.data[["y"]])) %>%
+          reframe(x = median(.data[["x"]]), y = median(.data[["y"]])) %>%
           as.data.frame()
         colnames(label_df)[1] <- "label"
         label_df <- label_df[!is.na(label_df[, "label"]), ]
@@ -2605,7 +2599,7 @@ ExpDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), split.by
         if (isTRUE(label)) {
           label_df <- p$data %>%
             filter(value >= quantile(value, 0.95, na.rm = TRUE) & value <= quantile(value, 0.99, na.rm = TRUE)) %>%
-            summarize(x = median(.data[["x"]]), y = median(.data[["y"]])) %>%
+            reframe(x = median(.data[["x"]]), y = median(.data[["y"]])) %>%
             as.data.frame()
           label_df[, "label"] <- f
           label_df[, "rank"] <- seq_len(nrow(label_df))
@@ -2793,7 +2787,8 @@ ClassDimPlot3D <- function(srt, group.by = "orig.ident", reduction = NULL, dims 
   }
 
   p <- plotly::plot_ly(data = dat_use, width = width, height = height)
-  p <- p %>% plotly::add_trace(
+  p <- plotly::add_trace(
+    p = p,
     data = dat_use,
     x = dat_use[[paste0(reduction_key, dims[1], "All_cells")]],
     y = dat_use[[paste0(reduction_key, dims[2], "All_cells")]],
@@ -2812,7 +2807,8 @@ ClassDimPlot3D <- function(srt, group.by = "orig.ident", reduction = NULL, dims 
     visible = TRUE
   )
   if (!is.null(cells.highlight_use)) {
-    p <- p %>% plotly::add_trace(
+    p <- plotly::add_trace(
+      p = p,
       x = dat_use_highlight[[paste0(reduction_key, dims[1], "All_cells")]],
       y = dat_use_highlight[[paste0(reduction_key, dims[2], "All_cells")]],
       z = dat_use_highlight[[paste0(reduction_key, dims[3], "All_cells")]],
@@ -2860,7 +2856,8 @@ ClassDimPlot3D <- function(srt, group.by = "orig.ident", reduction = NULL, dims 
     }
   }
 
-  p <- p %>% plotly::layout(
+  p <- plotly::layout(
+    p = p,
     title = list(
       text = paste0("Total", " (nCells:", nrow(dat_use), ")"),
       font = list(size = 16, color = "black"),
@@ -2988,12 +2985,9 @@ ExpDimPlot3D <- function(srt, features = NULL, reduction = NULL, dims = c(1, 2, 
     status <- check_DataType(srt, slot = slot, assay = assay)
     message("Data type detected in ", slot, " slot: ", status)
     if (status %in% c("raw_counts", "raw_normalized_counts")) {
-      srt[["CoExp"]] <- GetAssayData(srt, slot = slot, assay = assay)[features_gene, , drop = FALSE] %>%
-        apply(2, function(x) exp(mean(log(x))))
+      srt[["CoExp"]] <- apply(GetAssayData(srt, slot = slot, assay = assay)[features_gene, , drop = FALSE], 2, function(x) exp(mean(log(x))))
     } else if (status == "log_normalized_counts") {
-      srt[["CoExp"]] <- GetAssayData(srt, slot = slot, assay = assay)[features_gene, , drop = FALSE] %>%
-        apply(c(1, 2), expm1) %>%
-        apply(2, function(x) log1p(exp(mean(log(x)))))
+      srt[["CoExp"]] <- apply(expm1(GetAssayData(srt, slot = slot, assay = assay)[features_gene, , drop = FALSE]), 2, function(x) log1p(exp(mean(log(x)))))
     } else {
       stop("Can not determine the data type.")
     }
@@ -3049,7 +3043,8 @@ ExpDimPlot3D <- function(srt, features = NULL, reduction = NULL, dims = c(1, 2, 
   }
 
   p <- plotly::plot_ly(data = dat_use, width = width, height = height)
-  p <- p %>% plotly::add_trace(
+  p <- plotly::add_trace(
+    p = p,
     data = dat_use,
     x = dat_use[[paste0(reduction_key, dims[1], "All_cells")]],
     y = dat_use[[paste0(reduction_key, dims[2], "All_cells")]],
@@ -3072,7 +3067,8 @@ ExpDimPlot3D <- function(srt, features = NULL, reduction = NULL, dims = c(1, 2, 
     visible = TRUE
   )
   if (!is.null(cells.highlight)) {
-    p <- p %>% plotly::add_trace(
+    p <- plotly::add_trace(
+      p = p,
       x = dat_use_highlight[[paste0(reduction_key, dims[1], "All_cells")]],
       y = dat_use_highlight[[paste0(reduction_key, dims[2], "All_cells")]],
       z = dat_use_highlight[[paste0(reduction_key, dims[3], "All_cells")]],
@@ -3149,7 +3145,8 @@ ExpDimPlot3D <- function(srt, features = NULL, reduction = NULL, dims = c(1, 2, 
     )
   }
 
-  p <- p %>% plotly::layout(
+  p <- plotly::layout(
+    p = p,
     title = list(
       text = paste0("All_cells", " (nCells:", nrow(dat_use), ")"),
       font = list(size = 16, color = "black"),
@@ -3812,7 +3809,7 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
   if (any(!group.by %in% colnames(srt@meta.data))) {
     stop(group.by[!group.by %in% colnames(srt@meta.data)], " is not in the meta data of the Seurat object.")
   }
-  group_elements <- lapply(srt[[group.by, drop = FALSE]], function(x) length(unique(x))) %>% unlist()
+  group_elements <- unlist(lapply(srt[[group.by, drop = FALSE]], function(x) length(unique(x))))
   if (any(group_elements == 1) && exp_method == "zscore") {
     stop(
       "'zscore' cannot be applied to the group(s) consisting of one element: ",
@@ -3962,9 +3959,9 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
     class(mat_tmp) <- "numeric"
     mat_raw_list[[cell_group]] <- mat_tmp
 
-    mat_perc <- aggregate(t(mat_raw[features_unique, , drop = FALSE]), by = list(cell_groups[[cell_group]][colnames(mat_raw)]), FUN = function(x) {
+    mat_perc <- t(aggregate(t(mat_raw[features_unique, , drop = FALSE]), by = list(cell_groups[[cell_group]][colnames(mat_raw)]), FUN = function(x) {
       sum(x > exp_cutoff) / length(x)
-    }) %>% t()
+    }))
     colnames(mat_perc) <- mat_perc[1, , drop = FALSE]
     mat_perc <- mat_perc[-1, , drop = FALSE]
     class(mat_perc) <- "numeric"
@@ -5158,21 +5155,21 @@ ExpHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, spli
       srt[[cell_group, drop = TRUE]] <- factor(srt[[cell_group, drop = TRUE]], levels = unique(srt[[cell_group, drop = TRUE]]))
     }
     if (is.null(split.by)) {
-      cell_groups[[cell_group]] <- lapply(levels(srt[[cell_group, drop = TRUE]]), function(x) {
+      cell_groups[[cell_group]] <- unlist(lapply(levels(srt[[cell_group, drop = TRUE]]), function(x) {
         cells_sub <- colnames(srt)[which(srt[[cell_group, drop = TRUE]] == x)]
         cells_sub <- intersect(cells, cells_sub)
         size <- ifelse(length(cells_sub) > max_cells, max_cells, length(cells_sub))
         cells_sample <- sample(cells_sub, size)
         out <- setNames(rep(x, size), cells_sample)
         return(out)
-      }) %>% unlist(use.names = TRUE)
+      }), use.names = TRUE)
       levels <- levels(srt[[cell_group, drop = TRUE]])
       cell_groups[[cell_group]] <- factor(cell_groups[[cell_group]], levels = levels[levels %in% cell_groups[[cell_group]]])
     } else {
       if (!is.factor(srt[[split.by, drop = TRUE]])) {
         srt[[split.by, drop = TRUE]] <- factor(srt[[split.by, drop = TRUE]], levels = unique(srt[[split.by, drop = TRUE]]))
       }
-      cell_groups[[cell_group]] <- lapply(levels(srt[[cell_group, drop = TRUE]]), function(x) {
+      cell_groups[[cell_group]] <- unlist(lapply(levels(srt[[cell_group, drop = TRUE]]), function(x) {
         cells_sub <- colnames(srt)[srt[[cell_group, drop = TRUE]] == x]
         cells_sub <- intersect(cells, cells_sub)
         cells_tmp <- NULL
@@ -5185,7 +5182,7 @@ ExpHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, spli
         size <- ifelse(length(cells_tmp) > max_cells, max_cells, length(cells_tmp))
         out <- sample(cells_tmp, size)
         return(out)
-      }) %>% unlist(use.names = TRUE)
+      }), use.names = TRUE)
       levels <- apply(expand.grid(levels(srt[[split.by, drop = TRUE]]), levels(srt[[cell_group, drop = TRUE]])), 1, function(x) paste0(x[2:1], collapse = " : "))
       cell_groups[[cell_group]] <- factor(cell_groups[[cell_group]], levels = levels[levels %in% cell_groups[[cell_group]]])
     }
@@ -5917,7 +5914,7 @@ ExpHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, spli
 #' ExpCorPlot(pancreas_sub, features = c("Ghrl", "Gcg", "Ins1", "Ins2"), group.by = "SubCellType")
 #' @importFrom Seurat Reductions Embeddings Key
 #' @importFrom SeuratObject as.sparse
-#' @importFrom dplyr group_by summarize "%>%" .data
+#' @importFrom dplyr group_by "%>%" .data
 #' @importFrom stats quantile
 #' @importFrom ggplot2 ggplot aes geom_point geom_smooth geom_density_2d stat_density_2d labs scale_x_continuous scale_y_continuous facet_grid scale_color_gradientn scale_fill_gradientn scale_colour_gradient scale_fill_gradient guide_colorbar scale_color_identity scale_fill_identity guide_colourbar geom_hex stat_summary_hex
 #' @importFrom ggnewscale new_scale_color new_scale_fill
@@ -6006,12 +6003,9 @@ ExpCorPlot <- function(srt, features, group.by = NULL, split.by = NULL, cells = 
       warning(paste(features_meta, collapse = ","), "is not used when calculating co-expression", immediate. = TRUE)
     }
     if (status %in% c("raw_counts", "raw_normalized_counts")) {
-      srt[["CoExp"]] <- GetAssayData(srt, slot = slot, assay = assay)[features_gene, , drop = FALSE] %>%
-        apply(2, function(x) exp(mean(log(x))))
+      srt[["CoExp"]] <- apply(GetAssayData(srt, slot = slot, assay = assay)[features_gene, , drop = FALSE], 2, function(x) exp(mean(log(x))))
     } else if (status == "log_normalized_counts") {
-      srt[["CoExp"]] <- GetAssayData(srt, slot = slot, assay = assay)[features_gene, , drop = FALSE] %>%
-        apply(c(1, 2), expm1) %>%
-        apply(2, function(x) log1p(exp(mean(log(x)))))
+      srt[["CoExp"]] <- apply(expm1(GetAssayData(srt, slot = slot, assay = assay)[features_gene, , drop = FALSE]), 2, function(x) log1p(exp(mean(log(x)))))
     } else {
       stop("Can not determine the data type.")
     }
@@ -6786,11 +6780,11 @@ CellCorHeatmap <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
   if (!is.factor(srt_query[[query_group, drop = TRUE]])) {
     srt_query[[query_group, drop = TRUE]] <- factor(srt_query[[query_group, drop = TRUE]], levels = unique(srt_query[[query_group, drop = TRUE]]))
   }
-  cell_groups[["query_group"]] <- lapply(levels(srt_query[[query_group, drop = TRUE]]), function(x) {
+  cell_groups[["query_group"]] <- unlist(lapply(levels(srt_query[[query_group, drop = TRUE]]), function(x) {
     cells_sub <- colnames(srt_query)[which(srt_query[[query_group, drop = TRUE]] == x)]
     out <- setNames(object = rep(x, length(cells_sub)), nm = cells_sub)
     return(out)
-  }) %>% unlist(use.names = TRUE)
+  }), use.names = TRUE)
   levels <- levels(srt_query[[query_group, drop = TRUE]])
   cell_groups[["query_group"]] <- factor(cell_groups[["query_group"]], levels = levels[levels %in% cell_groups[["query_group"]]])
 
@@ -6798,11 +6792,11 @@ CellCorHeatmap <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
   if (!is.factor(srt_ref[[ref_group, drop = TRUE]])) {
     srt_ref[[ref_group, drop = TRUE]] <- factor(srt_ref[[ref_group, drop = TRUE]], levels = unique(srt_ref[[ref_group, drop = TRUE]]))
   }
-  cell_groups[["ref_group"]] <- lapply(levels(srt_ref[[ref_group, drop = TRUE]]), function(x) {
+  cell_groups[["ref_group"]] <- unlist(lapply(levels(srt_ref[[ref_group, drop = TRUE]]), function(x) {
     cells_sub <- colnames(srt_ref)[which(srt_ref[[ref_group, drop = TRUE]] == x)]
     out <- setNames(object = rep(x, length(cells_sub)), nm = cells_sub)
     return(out)
-  }) %>% unlist(use.names = TRUE)
+  }), use.names = TRUE)
   levels <- levels(srt_ref[[ref_group, drop = TRUE]])
   cell_groups[["ref_group"]] <- factor(cell_groups[["ref_group"]], levels = levels[levels %in% cell_groups[["ref_group"]]])
 
@@ -7706,12 +7700,9 @@ ExpStatPlot <- function(srt, features = NULL, group.by = NULL, split.by = NULL, 
     status <- check_DataType(srt, slot = slot, assay = assay)
     message("Data type detected in ", slot, " slot: ", status)
     if (status %in% c("raw_counts", "raw_normalized_counts")) {
-      srt[["CoExp"]] <- GetAssayData(srt, slot = slot, assay = assay)[features_gene, , drop = FALSE] %>%
-        apply(2, function(x) exp(mean(log(x))))
+      srt[["CoExp"]] <- apply(GetAssayData(srt, slot = slot, assay = assay)[features_gene, , drop = FALSE], 2, function(x) exp(mean(log(x))))
     } else if (status == "log_normalized_counts") {
-      srt[["CoExp"]] <- GetAssayData(srt, slot = slot, assay = assay)[features_gene, , drop = FALSE] %>%
-        apply(c(1, 2), expm1) %>%
-        apply(2, function(x) log1p(exp(mean(log(x)))))
+      srt[["CoExp"]] <- apply(expm1(GetAssayData(srt, slot = slot, assay = assay)[features_gene, , drop = FALSE]), 2, function(x) log1p(exp(mean(log(x)))))
     } else {
       stop("Can not determine the data type.")
     }
@@ -12013,7 +12004,7 @@ ProjectionPlot <- function(srt_query, srt_ref,
   names(color) <- p2$data$group.by
   p2 <- p2 + guides(color = guide_legend(
     title = paste0("Query: ", query_group),
-    override.aes = list(size = 4.5, shape = 21, color = "black", fill = color[levels(p2$data$group.by)])
+    override.aes = list(size = 4.5, shape = 21, color = "black", fill = na.omit(color[levels(p2$data$group.by)]))
   ))
   p2legend <- get_legend(p2)
   # p2legend <- gtable_filter(ggplot_gtable(ggplot_build(p2)), "guide-box")
@@ -12404,7 +12395,7 @@ EnrichmentPlot <- function(srt, db = "GO_BP", group_by = NULL, group_use = NULL,
 #' @importFrom ggrepel geom_text_repel
 #' @importFrom grDevices colorRamp
 #' @importFrom cowplot plot_grid get_legend
-#' @importFrom dplyr case_when filter pull
+#' @importFrom dplyr case_when filter pull %>%
 #' @importFrom stats quantile
 #' @importFrom gtable gtable_add_rows gtable_add_grob
 #' @importFrom grid textGrob

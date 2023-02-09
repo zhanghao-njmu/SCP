@@ -12,7 +12,7 @@
 SCP provides a comprehensive set of tools for single cell data
 processing and downstream analysis.
 
-The package includes facilities for:
+The package includes the following facilities:
 
 -   Integrated single cell quality control methods.
 -   Pipelines embedded with multiple methods for normalization, feature
@@ -202,6 +202,8 @@ print(pancreas_sub)
 #>  2 dimensional reductions calculated: PCA, UMAP
 ```
 
+Data exploration:
+
 ``` r
 ClassDimPlot(
   srt = pancreas_sub, group.by = c("CellType", "SubCellType"),
@@ -321,7 +323,6 @@ human pancreas datasets)](https://github.com/satijalab/seurat-data)
 ``` r
 data("panc8_sub")
 panc8_sub <- Integration_SCP(srtMerge = panc8_sub, batch = "tech", integration_method = "Seurat")
-panc8_sub <- Integration_SCP(srtMerge = panc8_sub, batch = "tech", integration_method = "Harmony")
 ClassDimPlot(
   srt = panc8_sub, group.by = c("celltype", "tech"), reduction = "SeuratUMAP2D",
   title = "Seurat", theme_use = "theme_blank"
@@ -330,22 +331,17 @@ ClassDimPlot(
 
 <img src="README/README-Integration_SCP-1.png" width="100%" style="display: block; margin: auto;" />
 
-``` r
-ClassDimPlot(
-  srt = panc8_sub, group.by = c("celltype", "tech"), reduction = "HarmonyUMAP2D",
-  title = "Harmony", theme_use = "theme_blank"
-)
-```
+UMAP embeddings based on different integration methods in SCP:
 
-<img src="README/README-Integration_SCP-2.png" width="100%" style="display: block; margin: auto;" />
+<img src="README/README-all_integration-1.png" width="100%" style="display: block; margin: auto;" />
 
 ### Cell projection between single-cell datasets
 
 ``` r
 panc8_rename <- RenameFeatures(srt = panc8_sub, newnames = make.unique(capitalize(rownames(panc8_sub), force_tolower = TRUE)), assays = "RNA")
-pancreas_sub <- RunKNNMap(srt_query = pancreas_sub, srt_ref = panc8_rename, ref_umap = "SeuratUMAP2D")
+srt_query <- RunKNNMap(srt_query = pancreas_sub, srt_ref = panc8_rename, ref_umap = "SeuratUMAP2D")
 ProjectionPlot(
-  srt_query = pancreas_sub, srt_ref = panc8_rename,
+  srt_query = srt_query, srt_ref = panc8_rename,
   query_group = "SubCellType", ref_group = "celltype"
 )
 ```
