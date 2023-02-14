@@ -1051,6 +1051,12 @@ Uncorrected_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, 
     type <- checked[["type"]]
   }
 
+  if (normalization_method == "TFIDF") {
+    cat(paste0("[", Sys.time(), "]", " normalization_method is 'TFIDF'. Use 'lsi' workflow...\n"))
+    do_scaling <- FALSE
+    linear_reduction <- "svd"
+  }
+
   cat(paste0("[", Sys.time(), "]", " Perform integration(Uncorrected) on the data...\n"))
   srtIntegrated <- Standard_SCP(
     srt = srtMerge, prefix = "Uncorrected", assay = DefaultAssay(srtMerge),
@@ -3064,7 +3070,7 @@ Conos_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtLis
   }
 
   cat(paste0("[", Sys.time(), "]", " Perform integration(Conos) on the data...\n"))
-  message("Conos using ", linear_reduction, "(dims_max:", maxdims, ")", ") as input")
+  message("Conos using ", linear_reduction, "(dims_max:", maxdims, ") as input")
   srtList_con <- conos::Conos$new(srtList, n.cores = num_threads)
   params <- list(
     ncomps = maxdims,

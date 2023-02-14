@@ -20,7 +20,7 @@ Imports:
     circlize,
     clusterProfiler,
     cowplot,
-    dplyr,
+    dplyr (>= 1.1.0),
     ggnewscale,
     ggplot2 (>= 3.4.0),
     ggtree (>= 3.6.1),

@@ -8190,7 +8190,7 @@ ClassStatPlot <- function(srt, stat.by = "orig.ident", group.by = NULL, split.by
   }
   if (is.null(group.by)) {
     group.by <- "No.group.by"
-    srt[["No.group.by"]] <- factor(paste0(stat.by, collapse = ","))
+    srt[[group.by]] <- factor(paste0(stat.by, collapse = ","))
   }
   if (is.null(split.by)) {
     split.by <- "All_cells"
@@ -8241,8 +8241,9 @@ ClassStatPlot <- function(srt, stat.by = "orig.ident", group.by = NULL, split.by
   if (plot_type %in% c("venn", "upset")) {
     if (is.null(stat_level)) {
       stat_level <- lapply(stat.by, function(stat) {
-        levels(srt[[stat, drop = TRUE]])[1]
+        levels(srt[[stat, drop = TRUE]])[1] %||% sort(unique(srt[[stat, drop = TRUE]]))[1]
       })
+      message("stat_level is set to ", paste0(stat_level, collapse = ","))
     } else {
       if (length(stat_level) == 1) {
         stat_level <- rep(stat_level, length(stat.by))
@@ -8255,9 +8256,7 @@ ClassStatPlot <- function(srt, stat.by = "orig.ident", group.by = NULL, split.by
       names(stat_level) <- stat.by
     }
     for (i in stat.by) {
-      if (!is.logical(srt[[i, drop = TRUE]])) {
-        srt[[i, drop = TRUE]] <- srt[[i, drop = TRUE]] %in% stat_level[[i]]
-      }
+      srt[[i, drop = TRUE]] <- srt[[i, drop = TRUE]] %in% stat_level[[i]]
     }
   }
   if (any(group.by != "No.group.by") && plot_type %in% c("sankey", "chord", "venn", "upset")) {
@@ -8516,7 +8515,7 @@ ClassStatPlot <- function(srt, stat.by = "orig.ident", group.by = NULL, split.by
           geom_text_repel(
             data = dat_title, aes(label = label, x = x, y = y),
             fontface = "bold",
-            colour = label.fg, size = label.size + 1,
+            colour = label.fg, size = label.size + 0.5,
             bg.color = label.bg, bg.r = label.bg.r,
             point.size = NA, max.overlaps = 100,
             min.segment.length = 0, segment.colour = "black"
@@ -8530,8 +8529,15 @@ ClassStatPlot <- function(srt, stat.by = "orig.ident", group.by = NULL, split.by
           ) +
           scale_fill_identity() +
           scale_color_identity() +
-          theme_void()
-        p <- p + labs(title = title, subtitle = subtitle)
+          theme(
+            plot.title = element_text(hjust = 0.5),
+            plot.background = element_blank(),
+            panel.background = element_blank(),
+            axis.title.y = element_blank(),
+            axis.text = element_blank(),
+            axis.ticks = element_blank()
+          )
+        p <- p + labs(x = s, title = title, subtitle = subtitle)
       }
       if (plot_type == "upset") {
         check_R("ggupset")
@@ -8548,7 +8554,7 @@ ClassStatPlot <- function(srt, stat.by = "orig.ident", group.by = NULL, split.by
             point.size = NA, max.overlaps = 100,
             min.segment.length = 0, segment.colour = "black"
           ) +
-          labs(title = title, subtitle = subtitle, x = "", y = "Intersection size") +
+          labs(title = title, subtitle = subtitle, x = s, y = "Intersection size") +
           ggupset::scale_x_upset(sets = stat.by, n_intersections = 20) +
           scale_fill_gradientn(colors = palette_scp(palette = "material-indigo")) +
           theme_scp(
