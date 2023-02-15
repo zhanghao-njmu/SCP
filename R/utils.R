@@ -95,8 +95,8 @@ PrepareEnv <- function(conda = "auto", miniconda_repo = "https://repo.anaconda.c
   }
 
   packages <- c(
-    "numpy==1.21.6", "numba==0.55.2", "scikit-learn==1.1.2", "pandas==1.3.5", "python-igraph==0.10.2",
-    "scipy", "matplotlib", "versioned-hdf5", "leidenalg", "scanpy", "scvelo", "palantir"
+    "numpy==1.21.6", "numba==0.55.2", "scikit-learn==1.1.2", "pandas==1.3.5", "python-igraph==0.10.2", "matplotlib==3.6.3",
+    "scipy", "versioned-hdf5", "leidenalg", "scanpy", "scvelo", "palantir"
   )
   check_Python(packages = packages, envname = envname, conda = conda, force = force, ...)
 

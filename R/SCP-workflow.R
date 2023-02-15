@@ -104,7 +104,7 @@ check_srtList <- function(srtList, batch = NULL, assay = NULL,
   })
   if (length(unique(features_list)) != 1) {
     if (type == "Chromatin") {
-      warning("The peaks in assay ", assay, " is different between batches. Creating a common set of peaks by 'merge' function...")
+      warning("The peaks in assay ", assay, " is different between batches. Creating a common set of peaks and may take a long time...")
       srtMerge <- Reduce(merge, srtList)
       srtList <- SplitObject(object = srtMerge, split.by = batch)
     }
