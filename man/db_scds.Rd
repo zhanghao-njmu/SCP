@@ -21,6 +21,6 @@ Run doublet-calling with scds
 \examples{
 data("pancreas_sub")
 pancreas_sub <- db_scds(pancreas_sub, method = "hybrid")
-ClassDimPlot(pancreas_sub, reduction = "umap", group.by = "db.scds_hybrid_class")
-ExpDimPlot(pancreas_sub, reduction = "umap", features = "db.scds_hybrid_score")
+CellDimPlot(pancreas_sub, reduction = "umap", group.by = "db.scds_hybrid_class")
+FeatureDimPlot(pancreas_sub, reduction = "umap", features = "db.scds_hybrid_score")
 }

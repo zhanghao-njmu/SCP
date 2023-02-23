@@ -8,7 +8,7 @@ AnnotateFeatures(
   srt,
   species = "Homo_sapiens",
   IDtype = c("symbol", "ensembl_id", "entrez_id"),
-  db = "TF",
+  db = NULL,
   db_update = FALSE,
   db_version = "latest",
   convert_species = FALSE,
@@ -16,7 +16,8 @@ AnnotateFeatures(
   mirror = NULL,
   gtf = NULL,
   merge_gtf_by = "gene_name",
-  attribute = c("gene_id", "gene_name", "gene_type"),
+  columns = c("seqname", "feature", "start", "end", "strand", "gene_id", "gene_name",
+    "gene_type"),
   assays = "RNA",
   overwrite = FALSE
 )
@@ -37,5 +38,5 @@ head(pancreas_sub[["RNA"]]@meta.features)
 
 ## Annotate features using a GTF file
 # pancreas_sub <- AnnotateFeatures(pancreas_sub, gtf = "/data/reference/CellRanger/refdata-gex-mm10-2020-A/genes/genes.gtf")
-
+# head(pancreas_sub[["RNA"]]@meta.features)
 }

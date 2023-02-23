@@ -10,7 +10,7 @@ RunDynamicEnrichment(
   score_method = "AUCell",
   ncore = 1,
   slot = "data",
-  assay = "RNA",
+  assay = NULL,
   min_expcells = 20,
   r.sq = 0.2,
   dev.expl = 0.2,

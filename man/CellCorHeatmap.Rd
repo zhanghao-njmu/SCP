@@ -54,13 +54,13 @@ CellCorHeatmap(
   ref_group_palette = "jama",
   ref_group_palcolor = NULL,
   query_cell_annotation = NULL,
-  query_cell_palette = "Paired",
-  query_cell_palcolor = NULL,
+  query_cell_annotation_palette = "Paired",
+  query_cell_annotation_palcolor = NULL,
   query_cell_annotation_params = if (flip) list(height = grid::unit(1, "cm")) else
     list(width = grid::unit(1, "cm")),
   ref_cell_annotation = NULL,
-  ref_cell_palette = "Paired",
-  ref_cell_palcolor = NULL,
+  ref_cell_annotation_palette = "Paired",
+  ref_cell_annotation_palcolor = NULL,
   ref_cell_annotation_params = if (flip) list(width = grid::unit(1, "cm")) else
     list(height = grid::unit(1, "cm")),
   use_raster = NULL,
@@ -94,8 +94,8 @@ panc8_sub <- check_srtMerge(panc8_sub, batch = "tech")[["srtMerge"]]
 ht2 <- CellCorHeatmap(
   srt_query = pancreas_sub, srt_ref = panc8_sub, nlabel = 3, label_cutoff = 0.6,
   query_group = "SubCellType", ref_group = "celltype",
-  query_cell_annotation = "Phase", query_cell_palette = "Set2",
-  ref_cell_annotation = "tech", ref_cell_palette = "Set3",
+  query_cell_annotation = "Phase", query_cell_annotation_palette = "Set2",
+  ref_cell_annotation = "tech", ref_cell_annotation_palette = "Set3",
   width = 4, height = 3
 )
 ht2$plot

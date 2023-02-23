@@ -314,8 +314,8 @@ PrepareSCExplorer <- function(object,
 #' pancreas_sub <- Standard_SCP(pancreas_sub)
 #' PrepareSCExplorer(pancreas_sub, base_dir = "./SCExplorer")
 #' srt <- FetchH5(DataFile = "./SCExplorer/Data.hdf5", MetaFile = "./SCExplorer/Meta.hdf5", features = c("Ins1", "Ghrl"), metanames = c("SubCellType", "Phase"), reduction = "UMAP")
-#' ClassDimPlot(srt, group.by = c("SubCellType", "Phase"), reduction = "UMAP")
-#' ExpDimPlot(srt, features = c("Ins1", "Ghrl"), reduction = "UMAP")
+#' CellDimPlot(srt, group.by = c("SubCellType", "Phase"), reduction = "UMAP")
+#' FeatureDimPlot(srt, features = c("Ins1", "Ghrl"), reduction = "UMAP")
 #' }
 #' @importFrom Seurat CreateSeuratObject CreateDimReducObject
 #' @importFrom Matrix sparseMatrix
@@ -587,20 +587,20 @@ RunSCExplorer <- function(base_dir = "SCExplorer",
     metanames = initial_group, reduction = initial_reduction
   )
 
-  initial_p1_dim <- SCP::ClassDimPlot(
+  initial_p1_dim <- SCP::CellDimPlot(
     srt = initial_srt_tmp, group.by = initial_group, reduction = initial_reduction, raster = initial_raster,
     label = ifelse(initial_label == "Yes", TRUE, FALSE), palette = initial_palette1, theme_use = initial_theme1,
     ncol = initial_ncol, byrow = ifelse(initial_arrange == "Row", TRUE, FALSE), force = TRUE
   )
   initial_p1_dim <- SCP::panel_fix(initial_p1_dim, height = initial_size, raster = FALSE, verbose = FALSE)
-  initial_p2_dim <- SCP::ExpDimPlot(
+  initial_p2_dim <- SCP::FeatureDimPlot(
     srt = initial_srt_tmp, features = initial_feature, reduction = initial_reduction, slot = "data", raster = initial_raster,
     calculate_coexp = ifelse(initial_coExp == "Yes", TRUE, FALSE), palette = initial_palette2, theme_use = initial_theme2,
     ncol = initial_ncol, byrow = ifelse(initial_arrange == "Row", TRUE, FALSE)
   )
   initial_p2_dim <- SCP::panel_fix(initial_p2_dim, height = initial_size, raster = FALSE, verbose = FALSE)
-  initial_p2_vln <- SCP::ExpStatPlot(
-    srt = initial_srt_tmp, features = initial_feature, group.by = initial_group,
+  initial_p2_vln <- SCP::FeatureStatPlot(
+    srt = initial_srt_tmp, stat.by = initial_feature, group.by = initial_group,
     calculate_coexp = ifelse(initial_coExp == "Yes", TRUE, FALSE), palette = initial_palette2,
     ncol = initial_ncol, byrow = ifelse(initial_arrange == "Row", TRUE, FALSE), force = TRUE
   )
@@ -608,11 +608,11 @@ RunSCExplorer <- function(base_dir = "SCExplorer",
 
   initial_plot3d <- max(sapply(names(initial_srt_tmp@reductions), function(r) dim(initial_srt_tmp[[r]])[2])) >= 3
   if (isTRUE(initial_plot3d)) {
-    initial_p1_3d <- SCP::ClassDimPlot3D(
+    initial_p1_3d <- SCP::CellDimPlot3D(
       srt = initial_srt_tmp, group.by = initial_group, reduction = initial_reduction, palette = initial_palette1,
       force = TRUE
     )
-    initial_p2_3d <- SCP::ExpDimPlot3D(
+    initial_p2_3d <- SCP::FeatureDimPlot3D(
       srt = initial_srt_tmp, features = initial_feature, reduction = initial_reduction,
       calculate_coexp = ifelse(initial_coExp == "Yes", TRUE, FALSE)
     )
@@ -626,7 +626,7 @@ RunSCExplorer <- function(base_dir = "SCExplorer",
     navbarPage(
       title = title,
       tabPanel(
-        "Cell classification view",
+        "Cell group view",
         sidebarPanel(
           width = 3,
           selectInput(
@@ -997,7 +997,7 @@ RunSCExplorer <- function(base_dir = "SCExplorer",
       )
 
       raster1 <- input$raster1 == "TRUE"
-      p1_dim <- SCP::ClassDimPlot(
+      p1_dim <- SCP::CellDimPlot(
         srt = srt_tmp, group.by = input$class1, split.by = split1, reduction = input$reduction1, raster = raster1,
         label = ifelse(input$label1 == "Yes", TRUE, FALSE), palette = input$palette1, theme_use = input$theme1,
         ncol = input$ncol1, byrow = ifelse(input$arrange1 == "Row", TRUE, FALSE), force = TRUE
@@ -1015,7 +1015,7 @@ RunSCExplorer <- function(base_dir = "SCExplorer",
 
       plot3d <- max(sapply(names(srt_tmp@reductions), function(r) dim(srt_tmp[[r]])[2])) >= 3
       if (isTRUE(plot3d)) {
-        p1_3d <- SCP::ClassDimPlot3D(
+        p1_3d <- SCP::CellDimPlot3D(
           srt = srt_tmp, group.by = input$class1, reduction = input$reduction1, palette = input$palette1,
           force = TRUE
         )
@@ -1066,7 +1066,7 @@ RunSCExplorer <- function(base_dir = "SCExplorer",
       )
 
       raster2 <- input$raster2 == "TRUE"
-      p2_dim <- SCP::ExpDimPlot(
+      p2_dim <- SCP::FeatureDimPlot(
         srt = srt_tmp, features = input_features, split.by = split2, reduction = input$reduction2, slot = "data", raster = raster2,
         calculate_coexp = ifelse(input$coExp2 == "Yes", TRUE, FALSE), palette = input$palette2, theme_use = input$theme2,
         ncol = input$ncol2, byrow = ifelse(input$arrange2 == "Row", TRUE, FALSE)
@@ -1082,8 +1082,8 @@ RunSCExplorer <- function(base_dir = "SCExplorer",
         res = input$plot_dpi2
       )
 
-      p2_vln <- SCP::ExpStatPlot(
-        srt = srt_tmp, features = input_features, group.by = input$group2, split.by = split2,
+      p2_vln <- SCP::FeatureStatPlot(
+        srt = srt_tmp, stat.by = input_features, group.by = input$group2, split.by = split2,
         calculate_coexp = ifelse(input$coExp2 == "Yes", TRUE, FALSE), palette = input$palette2,
         ncol = input$ncol2, byrow = ifelse(input$arrange2 == "Row", TRUE, FALSE), force = TRUE
       )
@@ -1100,7 +1100,7 @@ RunSCExplorer <- function(base_dir = "SCExplorer",
 
       plot3d <- max(sapply(names(srt_tmp@reductions), function(r) dim(srt_tmp[[r]])[2])) >= 3
       if (isTRUE(plot3d)) {
-        p2_3d <- SCP::ExpDimPlot3D(
+        p2_3d <- SCP::FeatureDimPlot3D(
           srt = srt_tmp, features = input_features, reduction = input$reduction2,
           calculate_coexp = ifelse(input$coExp2 == "Yes", TRUE, FALSE)
         )
@@ -1132,6 +1132,10 @@ RunSCExplorer <- function(base_dir = "SCExplorer",
       devtools::install_github('zhanghao-njmu/SCP')
     }",
     "options(SCP_virtualenv_init = FALSE)",
+    paste0("app_SCP_version <- package_version('", as.character(utils::packageVersion("SCP")), "')"),
+    paste0("if (utils::packageVersion('SCP') < app_SCP_version) {
+      stop(paste0('SCExplorer requires SCP >= ", as.character(utils::packageVersion("SCP")), "'))
+    }"),
     "SCP::check_R(c('shiny', 'shinycssloaders'))",
     "library(shiny)",
     main_code

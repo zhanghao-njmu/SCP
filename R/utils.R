@@ -623,6 +623,9 @@ as_matrix <- function(matrix) {
 #' @param force_tolower Whether to force the remaining letters to be lowercase.
 #' @export
 capitalize <- function(x, force_tolower = FALSE) {
+  if (inherits(x, "factor")) {
+    x <- as.character(x)
+  }
   if (!inherits(x, "character")) {
     stop("x must be the type of character.")
   }
@@ -634,6 +637,9 @@ capitalize <- function(x, force_tolower = FALSE) {
 }
 
 str_wrap <- function(x, width = 80) {
+  if (inherits(x, "factor")) {
+    x <- as.character(x)
+  }
   x_wrap <- unlist(lapply(x, function(i) paste0(strwrap(i, width = width), collapse = "\n")))
   return(x_wrap)
 }

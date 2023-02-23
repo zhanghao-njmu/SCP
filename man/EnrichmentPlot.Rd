@@ -13,8 +13,9 @@ EnrichmentPlot(
   res = NULL,
   pvalueCutoff = NULL,
   padjustCutoff = 0.05,
-  plot_type = c("bar", "lollipop", "wordcloud"),
+  plot_type = c("bar", "lollipop", "wordcloud", "comparison"),
   palette = "Spectral",
+  palcolor = NULL,
   topTerm = 6,
   topWord = 100,
   word_type = c("term", "feature"),
@@ -26,7 +27,7 @@ EnrichmentPlot(
   aspect.ratio = 1,
   base_size = 12,
   character_width = 50,
-  line_height = 0.7,
+  lineheight = 0.7,
   legend.position = "right",
   legend.direction = "vertical",
   combine = TRUE,
@@ -69,12 +70,15 @@ pancreas_sub <- RunDEtest(pancreas_sub, group_by = "CellType")
 pancreas_sub <- RunEnrichment(srt = pancreas_sub, group_by = "CellType", db = "GO_BP", species = "Mus_musculus")
 EnrichmentPlot(pancreas_sub, group_by = "CellType", plot_type = "bar")
 EnrichmentPlot(pancreas_sub, group_by = "CellType", plot_type = "bar", character_width = 30, base_size = 10)
+EnrichmentPlot(pancreas_sub, group_by = "CellType", plot_type = "comparison")
 
+EnrichmentPlot(pancreas_sub, group_by = "CellType", group_use = c("Ductal", "Endocrine"), plot_type = "bar", ncol = 1)
 EnrichmentPlot(pancreas_sub, group_by = "CellType", group_use = c("Ductal", "Endocrine"), plot_type = "lollipop", ncol = 1)
 EnrichmentPlot(pancreas_sub, group_by = "CellType", group_use = c("Ductal", "Endocrine"), plot_type = "wordcloud")
 EnrichmentPlot(pancreas_sub, group_by = "CellType", group_use = c("Ductal", "Endocrine"), plot_type = "wordcloud", word_type = "feature")
+EnrichmentPlot(pancreas_sub, group_by = "CellType", group_use = c("Ductal", "Endocrine"), plot_type = "comparison")
 
 pancreas_sub <- RunEnrichment(srt = pancreas_sub, group_by = "CellType", db = c("MP", "DO"), convert_species = TRUE, species = "Mus_musculus")
-EnrichmentPlot(pancreas_sub, db = c("MP", "DO"), group_by = "CellType", group_use = c("Ductal", "Endocrine"), plot_type = "lollipop")
+EnrichmentPlot(pancreas_sub, db = c("MP", "DO"), group_by = "CellType", group_use = c("Ductal", "Endocrine"))
 
 }

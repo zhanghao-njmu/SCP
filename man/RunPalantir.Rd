@@ -88,7 +88,7 @@ pancreas_sub <- RunPalantir(
   terminal_groups = c("Alpha", "Beta", "Delta", "Epsilon")
 )
 head(pancreas_sub[[]])
-ExpDimPlot(pancreas_sub, c("palantir_pseudotime", "palantir_diff_potential"))
-ExpDimPlot(pancreas_sub, paste0(c("Alpha", "Beta", "Delta", "Epsilon"), "_diff_potential"))
+FeatureDimPlot(pancreas_sub, c("palantir_pseudotime", "palantir_diff_potential"))
+FeatureDimPlot(pancreas_sub, paste0(c("Alpha", "Beta", "Delta", "Epsilon"), "_diff_potential"))
 
 }

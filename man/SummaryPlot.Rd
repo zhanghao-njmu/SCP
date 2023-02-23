@@ -26,9 +26,9 @@ SummaryPlot(
 
 \item{reduction}{Which dimensionality reduction to use.}
 
-\item{Class_palette}{Name of palette to use for ClassDimPlot.}
+\item{Class_palette}{Name of palette to use for CellDimPlot.}
 
-\item{Exp_palette}{Name of palette to use for ExpDimPlot.}
+\item{Exp_palette}{Name of palette to use for FeatureDimPlot.}
 
 \item{size}{Size of each plot.}
 

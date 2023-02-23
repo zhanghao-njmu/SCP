@@ -101,7 +101,7 @@
 
 # load("~/Git/pancreas.rda")
 # pancreas_sub <- subset(pancreas, cells = sample(colnames(pancreas),size = 1000));
-# ClassDimPlot(pancreas_sub,reduction = "umap",group.by = "CellType")
+# CellDimPlot(pancreas_sub,reduction = "umap",group.by = "CellType")
 # save(pancreas_sub, file = "data/pancreas1k.rda",version = 2,compress = "xz")
 
 # lifemap_cell <- readRDS("data/cell_gene_list.rds") %>% bind_rows()

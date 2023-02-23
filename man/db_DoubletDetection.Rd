@@ -15,6 +15,6 @@ Run doublet-calling with DoubletDetection
 \examples{
 data("pancreas_sub")
 pancreas_sub <- db_DoubletDetection(pancreas_sub)
-ClassDimPlot(pancreas_sub, reduction = "umap", group.by = "db.DoubletDetection_class")
-ExpDimPlot(pancreas_sub, reduction = "umap", features = "db.DoubletDetection_score")
+CellDimPlot(pancreas_sub, reduction = "umap", group.by = "db.DoubletDetection_class")
+FeatureDimPlot(pancreas_sub, reduction = "umap", features = "db.DoubletDetection_score")
 }

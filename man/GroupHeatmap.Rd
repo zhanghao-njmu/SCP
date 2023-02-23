@@ -17,7 +17,7 @@ GroupHeatmap(
   border = TRUE,
   flip = FALSE,
   slot = "counts",
-  assay = "RNA",
+  assay = NULL,
   exp_method = c("zscore", "raw", "fc", "log2fc", "log1p"),
   limits = NULL,
   lib_normalize = identical(slot, "counts"),
@@ -27,6 +27,8 @@ GroupHeatmap(
   n_split = NULL,
   split_method = c("kmeans", "hclust", "mfuzz"),
   decreasing = FALSE,
+  fuzzification = NULL,
+  show_fuzzification = FALSE,
   cluster_features_by = NULL,
   cluster_rows = FALSE,
   cluster_columns = FALSE,
@@ -55,6 +57,7 @@ GroupHeatmap(
   species = "Homo_sapiens",
   db_update = FALSE,
   db_version = "latest",
+  db_combine = FALSE,
   convert_species = FALSE,
   Ensembl_version = 103,
   mirror = NULL,
@@ -65,8 +68,8 @@ GroupHeatmap(
   maxGSSize = 500,
   universe = NULL,
   GO_simplify = FALSE,
-  GO_simplify_padjustCutoff = 0.2,
-  simplify_method = "Rel",
+  GO_simplify_cutoff = "p.adjust < 0.05",
+  simplify_method = "Wang",
   simplify_similarityCutoff = 0.7,
   pvalueCutoff = NULL,
   padjustCutoff = 0.05,
@@ -100,13 +103,13 @@ GroupHeatmap(
   feature_split_palette = "jama",
   feature_split_palcolor = NULL,
   cell_annotation = NULL,
-  cell_palette = "Paired",
-  cell_palcolor = NULL,
+  cell_annotation_palette = "Paired",
+  cell_annotation_palcolor = NULL,
   cell_annotation_params = if (flip) list(width = grid::unit(1, "cm")) else list(height =
     grid::unit(1, "cm")),
   feature_annotation = NULL,
-  feature_palette = "Dark2",
-  feature_palcolor = NULL,
+  feature_annotation_palette = "Dark2",
+  feature_annotation_palcolor = NULL,
   feature_annotation_params = list(),
   use_raster = NULL,
   raster_device = "png",
@@ -133,9 +136,9 @@ GroupHeatmap(
 
 \item{heatmap_palette}{Heatmap expression palette.}
 
-\item{cell_palette}{Column palette.}
+\item{cell_annotation_palette}{Column palette.}
 
-\item{feature_palette}{Feature groups palette.}
+\item{feature_annotation_palette}{Feature groups palette.}
 
 \item{raster_by_magick}{}
 }
@@ -185,10 +188,10 @@ de_top <- de_filter \%>\%
 ht4 <- GroupHeatmap(pancreas_sub,
   features = de_top$gene, feature_split = de_top$group1, group.by = "CellType",
   heatmap_palette = "YlOrRd",
-  cell_annotation = c("Phase", "G2M_score", "Neurod2"), cell_palette = c("Dark2", "Paired", "Paired"),
+  cell_annotation = c("Phase", "G2M_score", "Neurod2"), cell_annotation_palette = c("Dark2", "Paired", "Paired"),
   cell_annotation_params = list(height = grid::unit(0.5, "in")),
   feature_annotation = c("TF", "SP"),
-  feature_palcolor = list(c("gold", "steelblue"), c("forestgreen")),
+  feature_annotation_palcolor = list(c("gold", "steelblue"), c("forestgreen")),
   add_dot = TRUE, add_bg = TRUE, show_row_names = TRUE
 )
 ht4$plot
@@ -196,10 +199,10 @@ ht4$plot
 ht5 <- GroupHeatmap(pancreas_sub,
   features = de_top$gene, feature_split = de_top$group1, group.by = "CellType",
   heatmap_palette = "YlOrRd",
-  cell_annotation = c("Phase", "G2M_score", "Neurod2"), cell_palette = c("Dark2", "Paired", "Paired"),
+  cell_annotation = c("Phase", "G2M_score", "Neurod2"), cell_annotation_palette = c("Dark2", "Paired", "Paired"),
   cell_annotation_params = list(width = grid::unit(0.5, "in")),
   feature_annotation = c("TF", "SP"),
-  feature_palcolor = list(c("gold", "steelblue"), c("forestgreen")),
+  feature_annotation_palcolor = list(c("gold", "steelblue"), c("forestgreen")),
   add_dot = TRUE, add_bg = TRUE,
   flip = TRUE, column_title_rot = 45, show_column_names = TRUE
 )

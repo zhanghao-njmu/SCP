@@ -509,14 +509,14 @@ RenameFeatures <- function(srt, newnames = NULL, assays = NULL) {
 #'
 #' # Rename all clusters
 #' pancreas_sub <- RenameClusters(pancreas_sub, group.by = "SubCellType", nameslist = letters[1:8])
-#' ClassDimPlot(pancreas_sub, "newclusters")
+#' CellDimPlot(pancreas_sub, "newclusters")
 #'
 #' # Rename specified clusters
 #' pancreas_sub <- RenameClusters(pancreas_sub,
 #'   group.by = "SubCellType",
 #'   nameslist = list("a" = "Alpha", "b" = "Beta")
 #' )
-#' ClassDimPlot(pancreas_sub, "newclusters")
+#' CellDimPlot(pancreas_sub, "newclusters")
 #'
 #' # Merge and rename clusters
 #' pancreas_sub <- RenameClusters(pancreas_sub,
@@ -524,7 +524,7 @@ RenameFeatures <- function(srt, newnames = NULL, assays = NULL) {
 #'   nameslist = list("EndocrineClusters" = c("Alpha", "Beta", "Epsilon", "Delta")),
 #'   name = "Merged", keep_levels = TRUE
 #' )
-#' ClassDimPlot(pancreas_sub, "Merged")
+#' CellDimPlot(pancreas_sub, "Merged")
 #'
 #' @importFrom stats setNames
 #' @export
@@ -3347,7 +3347,7 @@ ComBat_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtLi
 #' @examples
 #' data("pancreas_sub")
 #' pancreas_sub <- Standard_SCP(srt = pancreas_sub)
-#' ClassDimPlot(pancreas_sub, group.by = "SubCellType")
+#' CellDimPlot(pancreas_sub, group.by = "SubCellType")
 #'
 #' # Use a combination of different linear or non-linear dimension reduction methods
 #' linear_reductions <- c("pca", "ica", "nmf", "mds", "glmpca")
@@ -3356,7 +3356,7 @@ ComBat_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtLi
 #'   linear_reduction = linear_reductions,
 #'   nonlinear_reduction = "umap"
 #' )
-#' plist1 <- lapply(linear_reductions, function(lr) ClassDimPlot(pancreas_sub, group.by = "SubCellType", reduction = paste0("Standard", lr, "UMAP2D"), theme = "theme_blank"))
+#' plist1 <- lapply(linear_reductions, function(lr) CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = paste0("Standard", lr, "UMAP2D"), theme = "theme_blank"))
 #' cowplot::plot_grid(plotlist = plist1)
 #'
 #' nonlinear_reductions <- c("umap", "tsne", "dm", "phate", "pacmap", "trimap", "largevis")
@@ -3365,7 +3365,7 @@ ComBat_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtLi
 #'   linear_reduction = "pca",
 #'   nonlinear_reduction = nonlinear_reductions
 #' )
-#' plist2 <- lapply(nonlinear_reductions, function(nr) ClassDimPlot(pancreas_sub, group.by = "SubCellType", reduction = paste0("Standardpca", toupper(nr), "2D"), theme = "theme_blank"))
+#' plist2 <- lapply(nonlinear_reductions, function(nr) CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = paste0("Standardpca", toupper(nr), "2D"), theme = "theme_blank"))
 #' cowplot::plot_grid(plotlist = plist2)
 #'
 #' @importFrom Seurat Assays GetAssayData NormalizeData SCTransform SCTResults ScaleData SetAssayData DefaultAssay DefaultAssay<- FindNeighbors FindClusters Idents VariableFeatures VariableFeatures<-
@@ -3564,12 +3564,12 @@ Standard_SCP <- function(srt, prefix = "Standard", assay = NULL,
 #' panc8_sub <- Integration_SCP(
 #'   srtMerge = panc8_sub, batch = "tech", integration_method = "Uncorrected"
 #' )
-#' ClassDimPlot(panc8_sub, group.by = c("tech", "celltype"))
+#' CellDimPlot(panc8_sub, group.by = c("tech", "celltype"))
 #'
 #' panc8_sub <- Integration_SCP(
 #'   srtMerge = panc8_sub, batch = "tech", integration_method = "Seurat"
 #' )
-#' ClassDimPlot(panc8_sub, group.by = c("tech", "celltype"))
+#' CellDimPlot(panc8_sub, group.by = c("tech", "celltype"))
 #'
 #' \dontrun{
 #' integration_methods <- c("Uncorrected", "Seurat", "scVI", "MNN", "fastMNN", "Harmony", "Scanorama", "BBKNN", "CSS", "LIGER", "Conos", "ComBat")
@@ -3578,7 +3578,7 @@ Standard_SCP <- function(srt, prefix = "Standard", assay = NULL,
 #'     srtMerge = panc8_sub, batch = "tech",
 #'     integration_method = method, nonlinear_reduction = "umap"
 #'   )
-#'   print(ClassDimPlot(panc8_sub, group.by = c("tech", "celltype"), reduction = paste0(method, "UMAP2D"), theme_use = "theme_blank"))
+#'   print(CellDimPlot(panc8_sub, group.by = c("tech", "celltype"), reduction = paste0(method, "UMAP2D"), theme_use = "theme_blank"))
 #' }
 #'
 #' nonlinear_reductions <- c("umap", "tsne", "dm", "phate", "pacmap", "trimap", "largevis")
@@ -3587,7 +3587,7 @@ Standard_SCP <- function(srt, prefix = "Standard", assay = NULL,
 #'   nonlinear_reduction = nonlinear_reductions
 #' )
 #' for (nr in nonlinear_reductions) {
-#'   print(ClassDimPlot(panc8_sub, group.by = c("tech", "celltype"), reduction = paste0("Seurat", nr, "2D"), theme_use = "theme_blank"))
+#'   print(CellDimPlot(panc8_sub, group.by = c("tech", "celltype"), reduction = paste0("Seurat", nr, "2D"), theme_use = "theme_blank"))
 #' }
 #' }
 #'

@@ -31,7 +31,7 @@ data("panc8_sub")
 srt_ref <- panc8_sub[, panc8_sub$tech != "fluidigmc1"]
 srt_query <- panc8_sub[, panc8_sub$tech == "fluidigmc1"]
 srt_ref <- Integration_SCP(srt_ref, batch = "tech", integration_method = "Harmony")
-ClassDimPlot(srt_ref, group.by = c("celltype", "tech"))
+CellDimPlot(srt_ref, group.by = c("celltype", "tech"))
 
 # Projection
 srt_query <- RunSymphonyMap(srt_query = srt_query, srt_ref = srt_ref, ref_pca = "Harmonypca", ref_harmony = "Harmony", ref_umap = "HarmonyUMAP2D")

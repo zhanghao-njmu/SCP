@@ -30,7 +30,7 @@ RunDEtest(
   norm.method = "LogNormalize",
   p.adjust.method = "bonferroni",
   slot = "data",
-  assay = "RNA",
+  assay = NULL,
   BPPARAM = BiocParallel::bpparam(),
   progressbar = TRUE,
   force = FALSE,
@@ -97,23 +97,23 @@ ht5 <- GroupHeatmap(ifnb_sub,
 )
 ht5$plot
 
-gene_unique <- names(which(table(DisturbedMarkers_STIM$gene) == 1))
-DisturbedMarkers_STIM_unique <- DisturbedMarkers_STIM[DisturbedMarkers_STIM$gene \%in\% gene_unique, ]
-table(DisturbedMarkers_STIM_unique$group1)
+gene_specific <- names(which(table(DisturbedMarkers_STIM$gene) <= 2))
+DisturbedMarkers_STIM_specific <- DisturbedMarkers_STIM[DisturbedMarkers_STIM$gene \%in\% gene_specific, ]
+table(DisturbedMarkers_STIM_specific$group1)
 ht6 <- GroupHeatmap(ifnb_sub,
-  features = DisturbedMarkers_STIM_unique$gene, feature_split = DisturbedMarkers_STIM_unique$group1,
+  features = DisturbedMarkers_STIM_specific$gene, feature_split = DisturbedMarkers_STIM_specific$group1,
   group.by = "seurat_annotations", split.by = "stim"
 )
 ht6$plot
 
 ht7 <- GroupHeatmap(ifnb_sub,
-  features = DisturbedMarkers_STIM_unique$gene, feature_split = DisturbedMarkers_STIM_unique$group1,
+  features = DisturbedMarkers_STIM_specific$gene, feature_split = DisturbedMarkers_STIM_specific$group1,
   group.by = "seurat_annotations", grouping.var = "stim", numerator = "STIM", limits = c(-2, 2)
 )
 ht7$plot
 
 ht8 <- GroupHeatmap(ifnb_sub,
-  features = DisturbedMarkers_STIM_unique$gene, feature_split = DisturbedMarkers_STIM_unique$group1,
+  features = DisturbedMarkers_STIM_specific$gene, feature_split = DisturbedMarkers_STIM_specific$group1,
   group.by = "seurat_annotations", grouping.var = "stim", numerator = "STIM",
   slot = "data", aggregate_fun = function(x) mean(expm1(x)) + 1
 )

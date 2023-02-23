@@ -32,14 +32,14 @@ levels(pancreas_sub@meta.data[["SubCellType"]])
 
 # Rename all clusters
 pancreas_sub <- RenameClusters(pancreas_sub, group.by = "SubCellType", nameslist = letters[1:8])
-ClassDimPlot(pancreas_sub, "newclusters")
+CellDimPlot(pancreas_sub, "newclusters")
 
 # Rename specified clusters
 pancreas_sub <- RenameClusters(pancreas_sub,
   group.by = "SubCellType",
   nameslist = list("a" = "Alpha", "b" = "Beta")
 )
-ClassDimPlot(pancreas_sub, "newclusters")
+CellDimPlot(pancreas_sub, "newclusters")
 
 # Merge and rename clusters
 pancreas_sub <- RenameClusters(pancreas_sub,
@@ -47,6 +47,6 @@ pancreas_sub <- RenameClusters(pancreas_sub,
   nameslist = list("EndocrineClusters" = c("Alpha", "Beta", "Epsilon", "Delta")),
   name = "Merged", keep_levels = TRUE
 )
-ClassDimPlot(pancreas_sub, "Merged")
+CellDimPlot(pancreas_sub, "Merged")
 
 }

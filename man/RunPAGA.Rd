@@ -86,9 +86,9 @@ Run PAGA analysis
 \examples{
 data("pancreas_sub")
 pancreas_sub <- RunPAGA(srt = pancreas_sub, assay_X = "RNA", group_by = "SubCellType", linear_reduction = "PCA", nonlinear_reduction = "UMAP")
-ClassDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "draw_graph_fr")
+CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "draw_graph_fr")
 PAGAPlot(pancreas_sub, reduction = "UMAP")
-ClassDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", paga = pancreas_sub@misc$paga)
+CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", paga = pancreas_sub@misc$paga)
 
 pancreas_sub <- RunPAGA(
   srt = pancreas_sub, group_by = "SubCellType", linear_reduction = "PCA", nonlinear_reduction = "UMAP",
@@ -96,8 +96,8 @@ pancreas_sub <- RunPAGA(
 )
 head(pancreas_sub[[]])
 names(pancreas_sub@reductions)
-ExpDimPlot(pancreas_sub, features = "dpt_pseudotime", reduction = "PAGAUMAP2D")
+FeatureDimPlot(pancreas_sub, features = "dpt_pseudotime", reduction = "PAGAUMAP2D")
 PAGAPlot(pancreas_sub, reduction = "PAGAUMAP2D")
-ClassDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "PAGAUMAP2D", paga = pancreas_sub@misc$paga)
+CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "PAGAUMAP2D", paga = pancreas_sub@misc$paga)
 
 }

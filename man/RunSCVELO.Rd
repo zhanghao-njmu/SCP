@@ -108,10 +108,10 @@ pancreas_sub <- RunSCVELO(srt = pancreas_sub, assay_X = "RNA", group_by = "SubCe
 head(pancreas_sub[[]])
 names(pancreas_sub@assays)
 
-ExpDimPlot(pancreas_sub, c("stochastic_length", "stochastic_confidence"))
-ExpDimPlot(pancreas_sub, "stochastic_pseudotime")
+FeatureDimPlot(pancreas_sub, c("stochastic_length", "stochastic_confidence"))
+FeatureDimPlot(pancreas_sub, "stochastic_pseudotime")
 VelocityPlot(pancreas_sub, reduction = "UMAP", plot_type = "stream")
-ClassDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", pt.size = NA, velocity = "stochastic")
+CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", pt.size = NA, velocity = "stochastic")
 
 pancreas_sub <- Standard_SCP(pancreas_sub, normalization_method = "SCT", nonlinear_reduction = "tsne")
 pancreas_sub <- RunSCVELO(srt = pancreas_sub, assay_X = "SCT", group_by = "SubCellType", linear_reduction = "Standardpca", nonlinear_reduction = "StandardTSNE2D")

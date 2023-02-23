@@ -40,9 +40,9 @@ if (interactive()) {
   trajectory <- pancreas_sub@tools$Monocle3$trajectory
   milestones <- pancreas_sub@tools$Monocle3$milestones
 
-  p1 <- ClassDimPlot(pancreas_sub, group.by = "Monocle3_partitions", reduction = "UMAP", label = TRUE, theme = "theme_blank") + trajectory + milestones
-  p2 <- ClassDimPlot(pancreas_sub, group.by = "Monocle3_clusters", reduction = "UMAP", label = TRUE, theme = "theme_blank") + trajectory
-  p3 <- ExpDimPlot(pancreas_sub, features = "Monocle3_Pseudotime", reduction = "UMAP", theme = "theme_blank") + trajectory
+  p1 <- CellDimPlot(pancreas_sub, group.by = "Monocle3_partitions", reduction = "UMAP", label = TRUE, theme = "theme_blank") + trajectory + milestones
+  p2 <- CellDimPlot(pancreas_sub, group.by = "Monocle3_clusters", reduction = "UMAP", label = TRUE, theme = "theme_blank") + trajectory
+  p3 <- FeatureDimPlot(pancreas_sub, features = "Monocle3_Pseudotime", reduction = "UMAP", theme = "theme_blank") + trajectory
   print(p1 + p2 + p3)
 
   # Select the lineage using monocle3::choose_graph_segments
@@ -50,29 +50,29 @@ if (interactive()) {
   cds_sub <- monocle3::choose_graph_segments(cds, starting_pr_node = NULL, ending_pr_nodes = NULL)
   pancreas_sub$Lineages_1 <- NA
   pancreas_sub$Lineages_1[colnames(cds_sub)] <- pancreas_sub$Monocle3_Pseudotime[colnames(cds_sub)]
-  ClassDimPlot(pancreas_sub, group.by = "SubCellType", lineages = "Lineages_1", lineages_span = 0.1, theme = "theme_blank")
+  CellDimPlot(pancreas_sub, group.by = "SubCellType", lineages = "Lineages_1", lineages_span = 0.1, theme = "theme_blank")
 
   # Use Seurat clusters to infer the trajectories
   pancreas_sub <- Standard_SCP(pancreas_sub)
-  ClassDimPlot(pancreas_sub, group.by = c("Standardclusters", "CellType"), label = TRUE, theme = "theme_blank")
+  CellDimPlot(pancreas_sub, group.by = c("Standardclusters", "CellType"), label = TRUE, theme = "theme_blank")
   pancreas_sub <- RunMonocle3(srt = pancreas_sub, annotation = "CellType", clusters = "Standardclusters")
   trajectory <- pancreas_sub@tools$Monocle3$trajectory
-  p1 <- ClassDimPlot(pancreas_sub, group.by = "Monocle3_partitions", reduction = "StandardUMAP2D", label = TRUE, theme = "theme_blank") + trajectory
-  p2 <- ClassDimPlot(pancreas_sub, group.by = "Monocle3_clusters", reduction = "StandardUMAP2D", label = TRUE, theme = "theme_blank") + trajectory
-  p3 <- ExpDimPlot(pancreas_sub, features = "Monocle3_Pseudotime", reduction = "StandardUMAP2D", theme = "theme_blank") + trajectory
+  p1 <- CellDimPlot(pancreas_sub, group.by = "Monocle3_partitions", reduction = "StandardUMAP2D", label = TRUE, theme = "theme_blank") + trajectory
+  p2 <- CellDimPlot(pancreas_sub, group.by = "Monocle3_clusters", reduction = "StandardUMAP2D", label = TRUE, theme = "theme_blank") + trajectory
+  p3 <- FeatureDimPlot(pancreas_sub, features = "Monocle3_Pseudotime", reduction = "StandardUMAP2D", theme = "theme_blank") + trajectory
   print(p1 + p2 + p3)
 
   # Use custom graphs and cell clusters to infer the partitions and trajectories, respectively
   pancreas_sub <- Standard_SCP(pancreas_sub, cluster_resolution = 5)
-  ClassDimPlot(pancreas_sub, group.by = c("Standardclusters", "CellType"), label = TRUE)
+  CellDimPlot(pancreas_sub, group.by = c("Standardclusters", "CellType"), label = TRUE)
   pancreas_sub <- RunMonocle3(
     srt = pancreas_sub, annotation = "CellType",
     clusters = "Standardclusters", graph = "Standardpca_SNN"
   )
   trajectory <- pancreas_sub@tools$Monocle3$trajectory
-  p1 <- ClassDimPlot(pancreas_sub, group.by = "Monocle3_partitions", reduction = "StandardUMAP2D", label = TRUE, theme = "theme_blank") + trajectory
-  p2 <- ClassDimPlot(pancreas_sub, group.by = "Monocle3_clusters", reduction = "StandardUMAP2D", label = TRUE, theme = "theme_blank") + trajectory
-  p3 <- ExpDimPlot(pancreas_sub, features = "Monocle3_Pseudotime", reduction = "StandardUMAP2D", theme = "theme_blank") + trajectory
+  p1 <- CellDimPlot(pancreas_sub, group.by = "Monocle3_partitions", reduction = "StandardUMAP2D", label = TRUE, theme = "theme_blank") + trajectory
+  p2 <- CellDimPlot(pancreas_sub, group.by = "Monocle3_clusters", reduction = "StandardUMAP2D", label = TRUE, theme = "theme_blank") + trajectory
+  p3 <- FeatureDimPlot(pancreas_sub, features = "Monocle3_Pseudotime", reduction = "StandardUMAP2D", theme = "theme_blank") + trajectory
   print(p1 + p2 + p3)
 }
 }

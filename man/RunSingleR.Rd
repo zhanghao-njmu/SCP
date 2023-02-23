@@ -44,12 +44,12 @@ pancreas_sub <- RunSingleR(
   srt_query = pancreas_sub, srt_ref = panc8_sub,
   query_group = "Standardclusters", ref_group = "celltype",
 )
-ClassDimPlot(pancreas_sub, group.by = "singler_annotation")
+CellDimPlot(pancreas_sub, group.by = "singler_annotation")
 
 pancreas_sub <- RunSingleR(
   srt_query = pancreas_sub, srt_ref = panc8_sub,
   query_group = NULL, ref_group = "celltype"
 )
-ClassDimPlot(pancreas_sub, group.by = "singler_annotation")
+CellDimPlot(pancreas_sub, group.by = "singler_annotation")
 
 }

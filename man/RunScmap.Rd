@@ -36,12 +36,12 @@ pancreas_sub <- RunScmap(
   srt_query = pancreas_sub, srt_ref = panc8_sub,
   ref_group = "celltype", method = "scmapCluster"
 )
-ClassDimPlot(pancreas_sub, group.by = "scmap_annotation")
+CellDimPlot(pancreas_sub, group.by = "scmap_annotation")
 
 pancreas_sub <- RunScmap(
   srt_query = pancreas_sub, srt_ref = panc8_sub,
   ref_group = "celltype", method = "scmapCell"
 )
-ClassDimPlot(pancreas_sub, group.by = "scmap_annotation")
+CellDimPlot(pancreas_sub, group.by = "scmap_annotation")
 
 }

@@ -8,8 +8,8 @@
 #' @examples
 #' data("pancreas_sub")
 #' pancreas_sub <- db_scDblFinder(pancreas_sub)
-#' ClassDimPlot(pancreas_sub, reduction = "umap", group.by = "db.scDblFinder_class")
-#' ExpDimPlot(pancreas_sub, reduction = "umap", features = "db.scDblFinder_score")
+#' CellDimPlot(pancreas_sub, reduction = "umap", group.by = "db.scDblFinder_class")
+#' FeatureDimPlot(pancreas_sub, reduction = "umap", features = "db.scDblFinder_score")
 #' @importFrom Seurat as.SingleCellExperiment
 #' @export
 db_scDblFinder <- function(srt, assay = "RNA", db_rate = ncol(srt) / 1000 * 0.01, ...) {
@@ -39,8 +39,8 @@ db_scDblFinder <- function(srt, assay = "RNA", db_rate = ncol(srt) / 1000 * 0.01
 #' @examples
 #' data("pancreas_sub")
 #' pancreas_sub <- db_scds(pancreas_sub, method = "hybrid")
-#' ClassDimPlot(pancreas_sub, reduction = "umap", group.by = "db.scds_hybrid_class")
-#' ExpDimPlot(pancreas_sub, reduction = "umap", features = "db.scds_hybrid_score")
+#' CellDimPlot(pancreas_sub, reduction = "umap", group.by = "db.scds_hybrid_class")
+#' FeatureDimPlot(pancreas_sub, reduction = "umap", features = "db.scds_hybrid_score")
 #' @importFrom Seurat as.SingleCellExperiment
 #' @export
 db_scds <- function(srt, assay = "RNA", db_rate = ncol(srt) / 1000 * 0.01, method = "hybrid", ...) {
@@ -74,8 +74,8 @@ db_scds <- function(srt, assay = "RNA", db_rate = ncol(srt) / 1000 * 0.01, metho
 #' @examples
 #' data("pancreas_sub")
 #' pancreas_sub <- db_Scrublet(pancreas_sub)
-#' ClassDimPlot(pancreas_sub, reduction = "umap", group.by = "db.Scrublet_class")
-#' ExpDimPlot(pancreas_sub, reduction = "umap", features = "db.Scrublet_score")
+#' CellDimPlot(pancreas_sub, reduction = "umap", group.by = "db.Scrublet_class")
+#' FeatureDimPlot(pancreas_sub, reduction = "umap", features = "db.Scrublet_score")
 #' @importFrom reticulate import
 #' @importFrom Seurat GetAssayData
 #' @export
@@ -115,8 +115,8 @@ db_Scrublet <- function(srt, assay = "RNA", db_rate = ncol(srt) / 1000 * 0.01, .
 #' @examples
 #' data("pancreas_sub")
 #' pancreas_sub <- db_DoubletDetection(pancreas_sub)
-#' ClassDimPlot(pancreas_sub, reduction = "umap", group.by = "db.DoubletDetection_class")
-#' ExpDimPlot(pancreas_sub, reduction = "umap", features = "db.DoubletDetection_score")
+#' CellDimPlot(pancreas_sub, reduction = "umap", group.by = "db.DoubletDetection_class")
+#' FeatureDimPlot(pancreas_sub, reduction = "umap", features = "db.DoubletDetection_score")
 #' @importFrom reticulate import
 #' @importFrom Seurat GetAssayData
 #' @export
@@ -164,8 +164,8 @@ db_DoubletDetection <- function(srt, assay = "RNA", db_rate = ncol(srt) / 1000 *
 #' @examples
 #' data("pancreas_sub")
 #' pancreas_sub <- RunDoubletCalling(pancreas_sub, db_method = "scDblFinder")
-#' ClassDimPlot(pancreas_sub, reduction = "umap", group.by = "db.scDblFinder_class")
-#' ExpDimPlot(pancreas_sub, reduction = "umap", features = "db.scDblFinder_score")
+#' CellDimPlot(pancreas_sub, reduction = "umap", group.by = "db.scDblFinder_class")
+#' FeatureDimPlot(pancreas_sub, reduction = "umap", features = "db.scDblFinder_score")
 #' @export
 #'
 RunDoubletCalling <- function(srt, assay = "RNA", db_method = "scDblFinder", db_rate = ncol(srt) / 1000 * 0.01, ...) {
