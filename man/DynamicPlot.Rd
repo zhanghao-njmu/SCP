@@ -38,8 +38,7 @@ DynamicPlot(
   nrow = NULL,
   ncol = NULL,
   byrow = TRUE,
-  align = "hv",
-  axis = "lr"
+  seed = 11
 )
 }
 \arguments{

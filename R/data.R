@@ -8,6 +8,7 @@
 #' @examples
 #' \dontrun{
 #' if (interactive()) {
+#'   library(Seurat)
 #'   library(reticulate)
 #'   check_Python("scvelo")
 #'   scv <- import("scvelo")
@@ -25,6 +26,7 @@
 #'   pancreas_sub[["PCA"]] <- pancreas_sub[["X_pca"]]
 #'   pancreas_sub[["UMAP"]] <- pancreas_sub[["X_umap"]]
 #'   pancreas_sub[["X_umap"]] <- pancreas_sub[["X_pca"]] <- NULL
+#'   VariableFeatures(pancreas_sub) <- rownames(pancreas_sub[["RNA"]])[which(pancreas_sub[["RNA"]]@meta.features$highly_variable_genes == "True")]
 #'   # usethis::use_data(pancreas_sub, compress = "xz")
 #' }
 #' }

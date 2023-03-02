@@ -10,13 +10,14 @@ panel_fix_single(
   respect = NULL,
   width = NULL,
   height = NULL,
-  margin = 0.5,
+  margin = 0,
   units = "in",
   raster = FALSE,
   dpi = 300,
   return_grob = FALSE,
   bg_color = "white",
   save = NULL,
+  device = NULL,
   verbose = TRUE
 )
 }

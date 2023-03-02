@@ -6,7 +6,7 @@
 \usage{
 CellDimPlot(
   srt,
-  group.by = "orig.ident",
+  group.by,
   reduction = NULL,
   dims = c(1, 2),
   split.by = NULL,
@@ -122,9 +122,8 @@ CellDimPlot(
   nrow = NULL,
   ncol = NULL,
   byrow = TRUE,
-  align = "hv",
-  axis = "lr",
-  force = FALSE
+  force = FALSE,
+  seed = 11
 )
 }
 \arguments{

@@ -521,7 +521,7 @@ RunSCExplorer <- function(base_dir = "SCExplorer",
                           style_script = require("styler", quietly = TRUE),
                           overwrite = FALSE,
                           return_app = TRUE) {
-  check_R(c("shiny", "shinycssloaders"))
+  check_R(c("shiny", "shinycssloaders", "ragg"))
   DataFile_full <- paste0(base_dir, "/", DataFile)
   MetaFile_full <- paste0(base_dir, "/", MetaFile)
   if (!file.exists(DataFile_full) || !file.exists(MetaFile_full)) {

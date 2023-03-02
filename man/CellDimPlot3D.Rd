@@ -6,7 +6,7 @@
 \usage{
 CellDimPlot3D(
   srt,
-  group.by = "orig.ident",
+  group.by,
   reduction = NULL,
   dims = c(1, 2, 3),
   axis_labs = NULL,

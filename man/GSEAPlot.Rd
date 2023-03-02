@@ -18,7 +18,8 @@ GSEAPlot(
   palcolor = NULL,
   topTerm = 6,
   geneSetID = NULL,
-  NES_pos = FALSE,
+  only_pos = FALSE,
+  only_sig = FALSE,
   subplots = 1:3,
   rel_heights = c(1.5, 0.5, 1),
   rel_width = 3,
@@ -39,7 +40,8 @@ GSEAPlot(
   combine = TRUE,
   nrow = NULL,
   ncol = NULL,
-  byrow = TRUE
+  byrow = TRUE,
+  seed = 11
 )
 }
 \arguments{
@@ -53,10 +55,11 @@ library(dplyr)
 data("pancreas_sub")
 pancreas_sub <- RunDEtest(pancreas_sub, group_by = "CellType", only.pos = FALSE, fc.threshold = 1)
 pancreas_sub <- RunGSEA(pancreas_sub, group_by = "CellType", db = "GO_BP", species = "Mus_musculus")
-GSEAPlot(pancreas_sub, group_by = "CellType", group_use = "Ngn3 low EP")
-GSEAPlot(pancreas_sub, group_by = "CellType", group_use = "Ductal", geneSetID = "GO:0006412")
-GSEAPlot(pancreas_sub, group_by = "CellType", group_use = "Endocrine", geneSetID = c("GO:0046903", "GO:0015031", "GO:0007600")) \%>\%
-  panel_fix_single(width = 10)
-GSEAPlot(pancreas_sub, group_by = "CellType", plot_type = "comparison")
-GSEAPlot(pancreas_sub, group_by = "CellType", plot_type = "comparison", pvalueCutoff = 0.05, padjustCutoff = NULL)
+GSEAPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = "Ductal")
+GSEAPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = "Ductal", geneSetID = "GO:0006412")
+GSEAPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = "Endocrine", geneSetID = c("GO:0046903", "GO:0015031", "GO:0007600")) \%>\%
+  panel_fix_single(width = 5)
+GSEAPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", plot_type = "comparison")
+GSEAPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", plot_type = "comparison", only_sig = TRUE)
+GSEAPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", plot_type = "comparison", pvalueCutoff = 0.05, padjustCutoff = NULL, only_pos = TRUE, only_sig = TRUE)
 }

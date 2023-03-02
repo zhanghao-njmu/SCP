@@ -32,7 +32,8 @@ LineagePlot(
   ylen_npc = 0.15,
   legend.position = "right",
   legend.direction = "vertical",
-  return_layer = FALSE
+  return_layer = FALSE,
+  seed = 11
 )
 }
 \arguments{

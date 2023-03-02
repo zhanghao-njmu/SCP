@@ -66,7 +66,6 @@ GroupHeatmap(
   TERM2NAME = NULL,
   minGSSize = 10,
   maxGSSize = 500,
-  universe = NULL,
   GO_simplify = FALSE,
   GO_simplify_cutoff = "p.adjust < 0.05",
   simplify_method = "Wang",
@@ -160,7 +159,7 @@ ht1 <- GroupHeatmap(pancreas_sub,
   show_row_names = TRUE
 )
 ht1$plot
-panel_fix(ht1$plot, height = 5, width = 10, raster = TRUE, dpi = 50)
+panel_fix(ht1$plot, height = 5, width = 7, raster = TRUE, dpi = 50)
 
 pancreas_sub <- RunDEtest(pancreas_sub, group_by = "CellType")
 de_filter <- filter(pancreas_sub@tools$DEtest_CellType$AllMarkers_wilcox, p_val_adj < 0.05 & avg_log2FC > 1)
@@ -226,7 +225,7 @@ ht8 <- GroupHeatmap(pancreas_sub,
   features = de_top$gene, group.by = "CellType", split.by = "Phase", n_split = 4,
   cluster_rows = TRUE, cluster_columns = TRUE, cluster_row_slices = TRUE, cluster_column_slices = TRUE,
   add_dot = TRUE, add_reticle = TRUE, heatmap_palette = "viridis",
-  ht_params = list(row_gap = grid::unit(0, "mm"))
+  show_row_names = TRUE, ht_params = list(row_gap = grid::unit(0, "mm"), row_names_gp = grid::gpar(fontsize = 10))
 )
 ht8$plot
 

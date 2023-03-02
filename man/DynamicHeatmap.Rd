@@ -69,7 +69,6 @@ DynamicHeatmap(
   TERM2NAME = NULL,
   minGSSize = 10,
   maxGSSize = 500,
-  universe = NULL,
   GO_simplify = FALSE,
   GO_simplify_cutoff = "p.adjust < 0.05",
   simplify_method = "Wang",

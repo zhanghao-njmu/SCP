@@ -16,7 +16,7 @@ CellScoring(
   termnames = NULL,
   db_update = FALSE,
   db_version = "latest",
-  convert_species = FALSE,
+  convert_species = TRUE,
   Ensembl_version = 103,
   mirror = NULL,
   minGSSize = 10,
@@ -26,8 +26,6 @@ CellScoring(
   name = "",
   new_assay = FALSE,
   BPPARAM = BiocParallel::bpparam(),
-  progressbar = TRUE,
-  force = FALSE,
   seed = 11,
   ...
 )

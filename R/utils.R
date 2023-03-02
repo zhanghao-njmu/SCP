@@ -494,7 +494,7 @@ download <- function(url, destfile, methods = c("auto", "wget", "libcurl", "curl
 kegg_get <- function(url) {
   temp <- tempfile()
   download(url = url, destfile = temp)
-  content <- do.call(rbind.data.frame, strsplit(readLines(temp), split = "\t"))
+  content <- as.data.frame(do.call(rbind, strsplit(readLines(temp), split = "\t")))
   unlink(temp)
   return(content)
 }
@@ -623,6 +623,9 @@ as_matrix <- function(matrix) {
 #' @param force_tolower Whether to force the remaining letters to be lowercase.
 #' @export
 capitalize <- function(x, force_tolower = FALSE) {
+  if (is.null(x)) {
+    return(NULL)
+  }
   if (inherits(x, "factor")) {
     x <- as.character(x)
   }
@@ -637,6 +640,9 @@ capitalize <- function(x, force_tolower = FALSE) {
 }
 
 str_wrap <- function(x, width = 80) {
+  if (is.null(x)) {
+    return(NULL)
+  }
   if (inherits(x, "factor")) {
     x <- as.character(x)
   }
