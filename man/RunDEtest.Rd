@@ -32,8 +32,6 @@ RunDEtest(
   slot = "data",
   assay = NULL,
   BPPARAM = BiocParallel::bpparam(),
-  progressbar = TRUE,
-  force = FALSE,
   seed = 11,
   verbose = TRUE,
   ...
@@ -48,9 +46,9 @@ RunDEtest(
 
 \item{min.pct}{min.pct}
 
-\item{force}{force}
-
 \item{verbose}{}
+
+\item{force}{force}
 }
 \description{
 Differential gene test

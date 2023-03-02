@@ -16,13 +16,13 @@ FeatureStatPlot(
   assay = NULL,
   keep_empty = FALSE,
   stat_single = FALSE,
-  plot_type = c("violin", "box", "bar"),
+  plot_type = c("violin", "box", "bar", "dot", "col"),
   palette = "Paired",
   palcolor = NULL,
   alpha = 1,
   bg_palette = "Paired",
   bg_palcolor = NULL,
-  bg_apha = 0.5,
+  bg_apha = 0.2,
   add_box = FALSE,
   box_color = "black",
   box_width = 0.1,
@@ -42,19 +42,18 @@ FeatureStatPlot(
   alpha.highlight = 1,
   calculate_coexp = FALSE,
   compare_features = FALSE,
+  same.y.lims = FALSE,
   y.min = NULL,
   y.max = NULL,
-  same.y.lims = FALSE,
   y.trans = "identity",
   y.nbreaks = 5,
   sort = FALSE,
   stack = FALSE,
   flip = FALSE,
-  comparisons = list(),
+  comparisons = NULL,
   ref_group = NULL,
   pairwise_method = "wilcox.test",
-  symnum.args = list(cutpoints = c(0, 1e-04, 0.001, 0.01, 0.05, 2), symbols = c("****",
-    "***", "**", "*", "ns")),
+  sig_label = "p.signif",
   multiplegroup_comparisons = FALSE,
   multiple_method = "kruskal.test",
   theme_use = "theme_scp",
@@ -69,9 +68,8 @@ FeatureStatPlot(
   nrow = NULL,
   ncol = NULL,
   byrow = TRUE,
-  align = "hv",
-  axis = "lr",
-  force = FALSE
+  force = FALSE,
+  seed = 11
 )
 }
 \arguments{
@@ -86,6 +84,8 @@ data("pancreas_sub")
 FeatureStatPlot(pancreas_sub, stat.by = c("G2M_score", "Fev"), group.by = "SubCellType")
 FeatureStatPlot(pancreas_sub, stat.by = c("G2M_score", "Fev"), group.by = "SubCellType", plot_type = "box")
 FeatureStatPlot(pancreas_sub, stat.by = c("G2M_score", "Fev"), group.by = "SubCellType", plot_type = "bar")
+FeatureStatPlot(pancreas_sub, stat.by = c("G2M_score", "Fev"), group.by = "SubCellType", plot_type = "dot")
+FeatureStatPlot(pancreas_sub, stat.by = c("G2M_score", "Fev"), group.by = "SubCellType", plot_type = "col")
 FeatureStatPlot(pancreas_sub, stat.by = c("G2M_score", "Fev"), group.by = "SubCellType", add_box = TRUE)
 FeatureStatPlot(pancreas_sub, stat.by = c("G2M_score", "Fev"), group.by = "SubCellType", add_point = TRUE)
 FeatureStatPlot(pancreas_sub, stat.by = c("G2M_score", "Fev"), group.by = "SubCellType", add_trend = TRUE)
@@ -93,8 +93,9 @@ FeatureStatPlot(pancreas_sub, stat.by = c("G2M_score", "Fev"), group.by = "SubCe
 FeatureStatPlot(pancreas_sub, stat.by = c("Rbp4", "Pyy"), group.by = "SubCellType", fill.by = "expression", palette = "Blues", same.y.lims = TRUE)
 FeatureStatPlot(pancreas_sub, stat.by = c("Rbp4", "Pyy"), group.by = "SubCellType", multiplegroup_comparisons = TRUE)
 FeatureStatPlot(pancreas_sub, stat.by = c("Rbp4", "Pyy"), group.by = "SubCellType", comparisons = list(c("Alpha", "Beta"), c("Alpha", "Delta")))
-FeatureStatPlot(pancreas_sub, stat.by = c("Rbp4", "Pyy"), group.by = "SubCellType", comparisons = list(c("Alpha", "Beta"), c("Alpha", "Delta")), symnum.args = list())
-FeatureStatPlot(pancreas_sub, stat.by = c("Rbp4", "Pyy"), group.by = "SubCellType", bg.by = "CellType", stack = TRUE)
+FeatureStatPlot(pancreas_sub, stat.by = c("Rbp4", "Pyy"), group.by = "SubCellType", comparisons = list(c("Alpha", "Beta"), c("Alpha", "Delta")), sig_label = "p.format")
+FeatureStatPlot(pancreas_sub, stat.by = c("G2M_score", "Fev"), group.by = "SubCellType", split.by = "Phase", comparisons = TRUE)
+FeatureStatPlot(pancreas_sub, stat.by = c("Rbp4", "Pyy"), group.by = "SubCellType", bg.by = "CellType", add_box = TRUE, stack = TRUE)
 FeatureStatPlot(pancreas_sub,
   stat.by = c(
     "Sox9", "Anxa2", "Bicc1", # Ductal
@@ -103,7 +104,7 @@ FeatureStatPlot(pancreas_sub,
     "Rbp4", "Pyy", # Endocrine
     "Ins1", "Gcg", "Sst", "Ghrl" # Beta, Alpha, Delta, Epsilon
   ),
-  group.by = "SubCellType", bg.by = "CellType", stack = TRUE
+  group.by = c("CellType", "SubCellType"), bg.by = "CellType", stack = TRUE
 )
 FeatureStatPlot(pancreas_sub,
   stat.by = c(

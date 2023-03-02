@@ -16,7 +16,6 @@ RunDynamicFeatures(
   assay = NULL,
   libsize = NULL,
   BPPARAM = BiocParallel::bpparam(),
-  progressbar = TRUE,
   seed = 11
 )
 }

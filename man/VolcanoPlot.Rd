@@ -30,9 +30,7 @@ VolcanoPlot(
   combine = TRUE,
   nrow = NULL,
   ncol = NULL,
-  byrow = TRUE,
-  align = "hv",
-  axis = "lr"
+  byrow = TRUE
 )
 }
 \arguments{

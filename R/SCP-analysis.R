@@ -248,7 +248,7 @@ GeneConvert <- function(geneID, geneID_from_IDtype = "symbol", geneID_to_IDtype 
     }
   }
 
-  message("Match and convert the geneID...\n")
+  message("Match and convert the geneID...")
   if (species_from != species_to) {
     for (from_attr in from_IDtype) {
       if (length(geneID) > 0) {
@@ -525,12 +525,12 @@ AddModuleScore2 <- function(object, slot = "data", features, pool = NULL, nbin =
     ))
   }
   pool <- pool %||% rownames(x = object)
-  data.avg <- Matrix::rowMeans(x = assay.data[pool, ])
+  data.avg <- Matrix::rowMeans(x = assay.data[pool, , drop = FALSE])
   data.avg <- data.avg[order(data.avg)]
   data.cut <- ggplot2::cut_number(x = data.avg + rnorm(n = length(data.avg)) / 1e+30, n = nbin, labels = FALSE, right = FALSE)
   names(x = data.cut) <- names(x = data.avg)
 
-  scores <- bplapply(1:cluster.length, function(i, features, data.cut, assay.data, ctrl) {
+  scores <- bplapply(1:cluster.length, function(i) {
     features.use <- features[[i]]
     # ctrl.use <- data.cut[which(data.cut %in% data.cut[features.use])]
     # ctrl.use <- names(sample(ctrl.use, size = min(ctrl * length(features.use), length(ctrl.use)), replace = FALSE))
@@ -541,7 +541,7 @@ AddModuleScore2 <- function(object, slot = "data", features, pool = NULL, nbin =
     ctrl.scores_i <- Matrix::colMeans(x = assay.data[ctrl.use, , drop = FALSE])
     features.scores_i <- Matrix::colMeans(x = assay.data[features.use, , drop = FALSE])
     return(list(ctrl.scores_i, features.scores_i))
-  }, BPPARAM = BPPARAM, features = features, data.cut = data.cut, assay.data = assay.data, ctrl = ctrl)
+  }, BPPARAM = BPPARAM)
   ctrl.scores <- do.call(rbind, lapply(scores, function(x) x[[1]]))
   features.scores <- do.call(rbind, lapply(scores, function(x) x[[2]]))
 
@@ -667,15 +667,19 @@ AddModuleScore2 <- function(object, slot = "data", features, pool = NULL, nbin =
 #' CellDimPlot(panc_merge, group.by = c("tech", "celltype", "SubCellType", "Phase"))
 #' }
 #'
+#' @importFrom BiocParallel bpprogressbar<- bpRNGseed<- bpworkers
 #' @importFrom Seurat AddModuleScore AddMetaData
 #' @export
 CellScoring <- function(srt, features = NULL, slot = "data", assay = NULL, split.by = NULL,
                         IDtype = "symbol", species = "Homo_sapiens",
-                        db = "GO_BP", termnames = NULL, db_update = FALSE, db_version = "latest", convert_species = FALSE,
+                        db = "GO_BP", termnames = NULL, db_update = FALSE, db_version = "latest", convert_species = TRUE,
                         Ensembl_version = 103, mirror = NULL, minGSSize = 10, maxGSSize = 500,
                         method = "Seurat", classification = TRUE, name = "", new_assay = FALSE,
-                        BPPARAM = BiocParallel::bpparam(), progressbar = TRUE, force = FALSE, seed = 11, ...) {
+                        BPPARAM = BiocParallel::bpparam(), seed = 11, ...) {
   set.seed(seed)
+  bpprogressbar(BPPARAM) <- TRUE
+  bpRNGseed(BPPARAM) <- seed
+
   if (!method %in% c("Seurat", "AUCell", "UCell")) {
     stop("method must be 'Seurat', 'AUCell'or 'UCell'.")
   }
@@ -689,11 +693,11 @@ CellScoring <- function(srt, features = NULL, slot = "data", assay = NULL, split
   if (slot == "data") {
     status <- check_DataType(srt, slot = "data", assay = assay)
     if (status == "raw_counts") {
-      cat("Data is raw counts. Perform NormalizeData(LogNormalize) on the data ...\n", sep = "")
+      message("Data is raw counts. Perform NormalizeData(LogNormalize) on the data ...")
       srt <- suppressWarnings(NormalizeData(object = srt, assay = assay, normalization.method = "LogNormalize", verbose = FALSE))
     }
     if (status == "raw_normalized_counts") {
-      cat("Data is normalized without log transformation. Perform NormalizeData(LogNormalize) on the data...\n", sep = "")
+      message("Data is normalized without log transformation. Perform NormalizeData(LogNormalize) on the data...")
       srt <- suppressWarnings(NormalizeData(object = srt, assay = assay, normalization.method = "LogNormalize", verbose = FALSE))
     }
     if (status == "unknown") {
@@ -748,13 +752,9 @@ CellScoring <- function(srt, features = NULL, slot = "data", assay = NULL, split
   names(features) <- make.names(names(features))
   message("Number of feature lists to be scored: ", length(features))
 
-  if ("progressbar" %in% names(BPPARAM)) {
-    BPPARAM[["progressbar"]] <- progressbar
-  }
-
   time_start <- Sys.time()
-  cat(paste0("[", time_start, "] ", "Start CellScoring\n"))
-  message("Threads used: ", BPPARAM$workers)
+  message(paste0("[", time_start, "] ", "Start CellScoring"))
+  message("Workers: ", bpworkers(BPPARAM))
 
   if (!is.null(split.by)) {
     split_list <- SplitObject(srt, split.by = split.by)
@@ -845,8 +845,8 @@ CellScoring <- function(srt, features = NULL, slot = "data", assay = NULL, split
   }
 
   time_end <- Sys.time()
-  cat(paste0("[", time_end, "] ", "CellScoring done\n"))
-  cat("Elapsed time:", format(round(difftime(time_end, time_start), 2), format = "%Y-%m-%d %H:%M:%S"), "\n")
+  message(paste0("[", time_end, "] ", "CellScoring done"))
+  message("Elapsed time:", format(round(difftime(time_end, time_start), 2), format = "%Y-%m-%d %H:%M:%S"))
 
   return(srt)
 }
@@ -1254,7 +1254,7 @@ FindConservedMarkers2 <- function(object, grouping.var, ident.1, ident.2 = NULL,
 #' )
 #' ht8$plot
 #'
-#' @importFrom BiocParallel bplapply SerialParam
+#' @importFrom BiocParallel bplapply SerialParam bpprogressbar<- bpRNGseed<- bpworkers
 #' @importFrom Seurat FindMarkers Assays Idents
 #' @importFrom stats p.adjust
 #' @export
@@ -1266,7 +1266,7 @@ RunDEtest <- function(srt, group_by = NULL, group1 = NULL, group2 = NULL, cells1
                       min.pct = 0.1, min.diff.pct = -Inf, max.cells.per.ident = Inf, latent.vars = NULL,
                       min.cells.feature = 3, min.cells.group = 3,
                       norm.method = "LogNormalize", p.adjust.method = "bonferroni", slot = "data", assay = NULL,
-                      BPPARAM = BiocParallel::bpparam(), progressbar = TRUE, force = FALSE, seed = 11, verbose = TRUE, ...) {
+                      BPPARAM = BiocParallel::bpparam(), seed = 11, verbose = TRUE, ...) {
   set.seed(seed)
   markers_type <- match.arg(markers_type)
   meta.method <- match.arg(meta.method)
@@ -1294,14 +1294,13 @@ RunDEtest <- function(srt, group_by = NULL, group1 = NULL, group2 = NULL, cells1
       stop("Data in the 'data' slot is unknown. Please check the data type.")
     }
   }
-  if ("progressbar" %in% names(BPPARAM)) {
-    BPPARAM[["progressbar"]] <- progressbar
-  }
+  bpprogressbar(BPPARAM) <- TRUE
+  bpRNGseed(BPPARAM) <- seed
 
   time_start <- Sys.time()
   if (verbose) {
-    message(paste0("[", time_start, "] ", "Start DEtest\n"))
-    message("Threads used: ", BPPARAM$workers)
+    message(paste0("[", time_start, "] ", "Start DEtest"))
+    message("Workers: ", bpworkers(BPPARAM))
   }
 
   if (fc.threshold < 1) {
@@ -1332,7 +1331,7 @@ RunDEtest <- function(srt, group_by = NULL, group1 = NULL, group2 = NULL, cells1
       stop("Cell groups must have more than 3 cells")
     }
     if (verbose) {
-      message("Find ", markers_type, " markers(", test.use, ") for custom cell groups...\n", sep = "")
+      message("Find ", markers_type, " markers(", test.use, ") for custom cell groups...")
     }
 
     if (markers_type == "all") {
@@ -1426,6 +1425,7 @@ RunDEtest <- function(srt, group_by = NULL, group1 = NULL, group2 = NULL, cells1
     if (markers_type == "disturbed") {
       srt_tmp <- srt
       srt_tmp[[grouping.var, drop = TRUE]][setdiff(colnames(srt_tmp), cells1)] <- NA
+      bpprogressbar(BPPARAM) <- FALSE
       srt_tmp <- RunDEtest(
         srt = srt_tmp, assay = assay, slot = slot,
         group_by = grouping.var,
@@ -1446,8 +1446,6 @@ RunDEtest <- function(srt, group_by = NULL, group1 = NULL, group2 = NULL, cells1
         pseudocount.use = pseudocount.use,
         mean.fxn = mean.fxn,
         BPPARAM = BPPARAM,
-        progressbar = FALSE,
-        force = TRUE,
         seed = seed,
         verbose = FALSE,
         ...
@@ -1501,7 +1499,7 @@ RunDEtest <- function(srt, group_by = NULL, group1 = NULL, group2 = NULL, cells1
     )
 
     if (verbose) {
-      message("Find ", markers_type, " markers(", test.use, ") among groups...\n", sep = "")
+      message("Find ", markers_type, " markers(", test.use, ") among groups...")
     }
     if (markers_type == "all") {
       AllMarkers <- bplapply(levels(cell_group), FUN = function(group) {
@@ -1543,49 +1541,45 @@ RunDEtest <- function(srt, group_by = NULL, group1 = NULL, group2 = NULL, cells1
     }
 
     if (markers_type == "paired") {
-      if (nlevels(cell_group) > 30 && (!isTRUE(force))) {
-        warning("Too many groups for FindPairedMarkers function. If you want to force to run, please set 'force=TRUE'", immediate. = TRUE)
-      } else {
-        pair <- expand.grid(x = levels(cell_group), y = levels(cell_group))
-        pair <- pair[pair[, 1] != pair[, 2], ]
-        PairedMarkers <- bplapply(seq_len(nrow(pair)), function(i) {
-          cells.1 <- names(cell_group)[which(cell_group == pair[i, 1])]
-          cells.2 <- names(cell_group)[which(cell_group == pair[i, 2])]
-          if (length(cells.1) < 3 || length(cells.2) < 3) {
-            return(NULL)
-          } else {
-            args1[["cells.1"]] <- cells.1
-            args1[["cells.2"]] <- cells.2
-            markers <- do.call(FindMarkers, args1)
-            if (!is.null(markers) && nrow(markers) > 0) {
-              markers[, "gene"] <- rownames(markers)
-              markers[, "group1"] <- as.character(pair[i, 1])
-              markers[, "group2"] <- as.character(pair[i, 2])
-              return(markers)
-            } else {
-              return(NULL)
-            }
-          }
-        }, BPPARAM = BPPARAM)
-        PairedMarkers <- do.call(rbind.data.frame, PairedMarkers)
-        if (!is.null(PairedMarkers) && nrow(PairedMarkers) > 0) {
-          rownames(PairedMarkers) <- NULL
-          PairedMarkers[, "group1"] <- factor(PairedMarkers[, "group1"], levels = levels(cell_group))
-          if ("p_val" %in% colnames(PairedMarkers)) {
-            PairedMarkers[, "p_val_adj"] <- p.adjust(PairedMarkers[, "p_val"], method = p.adjust.method)
-          }
-          PairedMarkers[, "test_group_number"] <- as.integer(table(PairedMarkers[["gene"]])[PairedMarkers[, "gene"]])
-          PairedMarkersMatrix <- as.data.frame.matrix(table(PairedMarkers[, c("gene", "group1")]))
-          PairedMarkers[, "test_group"] <- apply(PairedMarkersMatrix, 1, function(x) {
-            paste0(colnames(PairedMarkersMatrix)[x > 0], collapse = ";")
-          })[PairedMarkers[, "gene"]]
-          srt@tools[[paste0("DEtest_", group_by)]][[paste0("PairedMarkers_", test.use)]] <- PairedMarkers
-          srt@tools[[paste0("DEtest_", group_by)]][[paste0("PairedMarkersMatrix_", test.use)]] <- PairedMarkersMatrix
+      pair <- expand.grid(x = levels(cell_group), y = levels(cell_group))
+      pair <- pair[pair[, 1] != pair[, 2], ]
+      PairedMarkers <- bplapply(seq_len(nrow(pair)), function(i) {
+        cells.1 <- names(cell_group)[which(cell_group == pair[i, 1])]
+        cells.2 <- names(cell_group)[which(cell_group == pair[i, 2])]
+        if (length(cells.1) < 3 || length(cells.2) < 3) {
+          return(NULL)
         } else {
-          warning("No markers found.", immediate. = TRUE)
-          srt@tools[[paste0("DEtest_", group_by)]][[paste0("PairedMarkers_", test.use)]] <- data.frame()
-          srt@tools[[paste0("DEtest_", group_by)]][[paste0("PairedMarkersMatrix_", test.use)]] <- NULL
+          args1[["cells.1"]] <- cells.1
+          args1[["cells.2"]] <- cells.2
+          markers <- do.call(FindMarkers, args1)
+          if (!is.null(markers) && nrow(markers) > 0) {
+            markers[, "gene"] <- rownames(markers)
+            markers[, "group1"] <- as.character(pair[i, 1])
+            markers[, "group2"] <- as.character(pair[i, 2])
+            return(markers)
+          } else {
+            return(NULL)
+          }
         }
+      }, BPPARAM = BPPARAM)
+      PairedMarkers <- do.call(rbind.data.frame, PairedMarkers)
+      if (!is.null(PairedMarkers) && nrow(PairedMarkers) > 0) {
+        rownames(PairedMarkers) <- NULL
+        PairedMarkers[, "group1"] <- factor(PairedMarkers[, "group1"], levels = levels(cell_group))
+        if ("p_val" %in% colnames(PairedMarkers)) {
+          PairedMarkers[, "p_val_adj"] <- p.adjust(PairedMarkers[, "p_val"], method = p.adjust.method)
+        }
+        PairedMarkers[, "test_group_number"] <- as.integer(table(PairedMarkers[["gene"]])[PairedMarkers[, "gene"]])
+        PairedMarkersMatrix <- as.data.frame.matrix(table(PairedMarkers[, c("gene", "group1")]))
+        PairedMarkers[, "test_group"] <- apply(PairedMarkersMatrix, 1, function(x) {
+          paste0(colnames(PairedMarkersMatrix)[x > 0], collapse = ";")
+        })[PairedMarkers[, "gene"]]
+        srt@tools[[paste0("DEtest_", group_by)]][[paste0("PairedMarkers_", test.use)]] <- PairedMarkers
+        srt@tools[[paste0("DEtest_", group_by)]][[paste0("PairedMarkersMatrix_", test.use)]] <- PairedMarkersMatrix
+      } else {
+        warning("No markers found.", immediate. = TRUE)
+        srt@tools[[paste0("DEtest_", group_by)]][[paste0("PairedMarkers_", test.use)]] <- data.frame()
+        srt@tools[[paste0("DEtest_", group_by)]][[paste0("PairedMarkersMatrix_", test.use)]] <- NULL
       }
     }
 
@@ -1634,6 +1628,8 @@ RunDEtest <- function(srt, group_by = NULL, group1 = NULL, group2 = NULL, cells1
       }
     }
     if (markers_type == "disturbed") {
+      sub_BPPARAM <- SerialParam()
+      bpprogressbar(sub_BPPARAM) <- FALSE
       DisturbedMarkers <- bplapply(levels(cell_group), FUN = function(group) {
         cells.1 <- names(cell_group)[which(cell_group == group)]
         srt_tmp <- srt
@@ -1660,9 +1656,7 @@ RunDEtest <- function(srt, group_by = NULL, group1 = NULL, group2 = NULL, cells1
             p.adjust.method = p.adjust.method,
             pseudocount.use = pseudocount.use,
             mean.fxn = mean.fxn,
-            BPPARAM = SerialParam(),
-            progressbar = FALSE,
-            force = TRUE,
+            BPPARAM = sub_BPPARAM,
             seed = seed,
             verbose = FALSE,
             ...
@@ -1698,8 +1692,8 @@ RunDEtest <- function(srt, group_by = NULL, group1 = NULL, group2 = NULL, cells1
   }
   time_end <- Sys.time()
   if (verbose) {
-    message(paste0("[", time_end, "] ", "DEtest done\n"))
-    message("Elapsed time:", format(round(difftime(time_end, time_start), 2), format = "%Y-%m-%d %H:%M:%S"), "\n")
+    message(paste0("[", time_end, "] ", "DEtest done"))
+    message("Elapsed time:", format(round(difftime(time_end, time_start), 2), format = "%Y-%m-%d %H:%M:%S"))
   }
   return(srt)
 }
@@ -1798,7 +1792,7 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
                       ),
                       db_IDtypes = c("symbol", "entrez_id", "ensembl_id"),
                       db_version = "latest", db_update = FALSE,
-                      convert_species = FALSE,
+                      convert_species = TRUE,
                       Ensembl_version = 103, mirror = NULL,
                       custom_TERM2GENE = NULL, custom_TERM2NAME = NULL,
                       custom_species = NULL, custom_IDtype = NULL, custom_version = NULL) {
@@ -1895,7 +1889,7 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
           bg <- merge(x = bg, by.x = "GOALL", y = bg2, by.y = "GOID", all.x = TRUE)
           for (subterm in terms) {
             message("Preparing database: ", subterm)
-            if (db == "GO") {
+            if (subterm == "GO") {
               TERM2GENE <- bg[, c(1, 2)]
               TERM2NAME <- bg[, c(1, 4)]
               colnames(TERM2GENE) <- c("Term", default_IDtypes[subterm])
@@ -1951,10 +1945,12 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
           }
           TERM2GENE[, 1] <- gsub(pattern = "[^:]+:", replacement = "", x = TERM2GENE[, 1])
           TERM2GENE[, 2] <- gsub(pattern = "[^:]+:", replacement = "", x = TERM2GENE[, 2])
-          kegg_pathwayname_url <- paste0("https://rest.kegg.jp/list/", kegg_db, collapse = "")
+          kegg_pathwayname_url <- paste0("https://rest.kegg.jp/list/", kegg_db, "/", kegg_sp, collapse = "")
           TERM2NAME <- kegg_get(kegg_pathwayname_url)
-          TERM2NAME[, 1] <- gsub(pattern = "path:map", replacement = kegg_sp, TERM2NAME[, 1])
+          TERM2NAME[, 1] <- gsub(pattern = "[^:]+:", replacement = "", x = TERM2NAME[, 1])
+          TERM2NAME[, 2] <- gsub(pattern = paste0(" - ", paste0(unlist(strsplit(sps, split = "_")), collapse = " "), ".*$"), replacement = "", x = TERM2NAME[, 2])
           TERM2NAME <- TERM2NAME[TERM2NAME[, 1] %in% TERM2GENE[, 1], ]
+
           colnames(TERM2GENE) <- c("Term", default_IDtypes["KEGG"])
           colnames(TERM2NAME) <- c("Term", "Name")
           TERM2GENE <- na.omit(unique(TERM2GENE))
@@ -2812,11 +2808,11 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
 #' data("pancreas_sub")
 #' pancreas_sub <- RunDEtest(pancreas_sub, group_by = "CellType")
 #' pancreas_sub <- RunEnrichment(srt = pancreas_sub, group_by = "CellType", db = "GO_BP", species = "Mus_musculus")
-#' EnrichmentPlot(pancreas_sub, group_by = "CellType", db = "GO_BP", plot_type = "comparison")
+#' EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", plot_type = "comparison")
 #'
 #' # Remove redundant GO terms
 #' pancreas_sub <- RunEnrichment(srt = pancreas_sub, group_by = "CellType", db = "GO_BP", GO_simplify = TRUE, species = "Mus_musculus")
-#' EnrichmentPlot(pancreas_sub, group_by = "CellType", db = "GO_BP_sim", plot_type = "comparison")
+#' EnrichmentPlot(pancreas_sub, db = "GO_BP_sim", group_by = "CellType", plot_type = "comparison")
 #'
 #' # Use a combined database
 #' pancreas_sub <- RunEnrichment(
@@ -2825,29 +2821,28 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
 #'   db_combine = TRUE,
 #'   species = "Mus_musculus"
 #' )
-#' EnrichmentPlot(pancreas_sub, group_by = "CellType", db = "Combined", plot_type = "comparison")
+#' EnrichmentPlot(pancreas_sub, db = "Combined", group_by = "CellType", plot_type = "comparison")
 #'
 #' # Or use "geneID" and "geneID_groups" as input to run enrichment
 #' de_df <- dplyr::filter(pancreas_sub@tools$DEtest_CellType$AllMarkers_wilcox, avg_log2FC > 0 & p_val_adj < 0.05)
 #' enrich_out <- RunEnrichment(geneID = de_df[["gene"]], geneID_groups = de_df[["group1"]], db = "GO_BP", species = "Mus_musculus")
 #' EnrichmentPlot(res = enrich_out, db = "GO_BP", plot_type = "comparison")
 #'
-#' @importFrom BiocParallel bplapply ipcid ipclock ipcunlock
+#' @importFrom BiocParallel bplapply bpprogressbar<- bpRNGseed<- bpworkers
+#' @importFrom clusterProfiler enricher simplify
 #' @export
 #'
 RunEnrichment <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_threshold = "avg_log2FC > 0 & p_val_adj < 0.05",
                           geneID = NULL, geneID_groups = NULL, geneID_exclude = NULL, IDtype = "symbol", result_IDtype = "symbol", species = "Homo_sapiens",
-                          db = "GO_BP", db_update = FALSE, db_version = "latest", db_combine = FALSE, convert_species = FALSE, Ensembl_version = 103, mirror = NULL,
-                          TERM2GENE = NULL, TERM2NAME = NULL, minGSSize = 10, maxGSSize = 500, universe = NULL,
+                          db = "GO_BP", db_update = FALSE, db_version = "latest", db_combine = FALSE, convert_species = TRUE, Ensembl_version = 103, mirror = NULL,
+                          TERM2GENE = NULL, TERM2NAME = NULL, minGSSize = 10, maxGSSize = 500,
                           GO_simplify = FALSE, GO_simplify_cutoff = "p.adjust < 0.05", simplify_method = "Wang", simplify_similarityCutoff = 0.7,
-                          BPPARAM = BiocParallel::bpparam(), progressbar = TRUE) {
-  if ("progressbar" %in% names(BPPARAM)) {
-    BPPARAM[["progressbar"]] <- progressbar
-  }
-
+                          BPPARAM = BiocParallel::bpparam(), seed = 11) {
+  bpprogressbar(BPPARAM) <- TRUE
+  bpRNGseed(BPPARAM) <- seed
   time_start <- Sys.time()
-  cat(paste0("[", time_start, "] ", "Start Enrichment\n"))
-  message("Threads used: ", BPPARAM$workers)
+  message(paste0("[", time_start, "] ", "Start Enrichment"))
+  message("Workers: ", bpworkers(BPPARAM))
 
   use_srt <- FALSE
   if (is.null(geneID)) {
@@ -2942,83 +2937,85 @@ RunEnrichment <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_t
   message("Permform enrichment...")
   suppressPackageStartupMessages(requireNamespace("DOSE", quietly = TRUE))
   comb <- expand.grid(group = levels(geneID_groups), term = db, stringsAsFactors = FALSE)
-  res_list <- bplapply(seq_len(nrow(comb)),
-    FUN = function(i, id) {
-      group <- comb[i, "group"]
-      term <- comb[i, "term"]
-      gene <- input[input$geneID_groups == group, IDtype]
-      gene_mapid <- input[input$geneID_groups == group, result_IDtype]
-      TERM2GENE_tmp <- db_list[[species]][[term]][["TERM2GENE"]][, c("Term", IDtype)]
-      TERM2NAME_tmp <- db_list[[species]][[term]][["TERM2NAME"]]
-      dup <- duplicated(TERM2GENE_tmp)
-      na <- rowSums(is.na(TERM2GENE_tmp)) > 0
-      TERM2GENE_tmp <- TERM2GENE_tmp[!(dup | na), ]
-      TERM2NAME_tmp <- TERM2NAME_tmp[TERM2NAME_tmp[["Term"]] %in% TERM2GENE_tmp[["Term"]], ]
-      enrich_res <- suppressPackageStartupMessages({
-        clusterProfiler::enricher(
-          gene = gene,
-          minGSSize = ifelse(term %in% c("Chromosome"), 1, minGSSize),
-          maxGSSize = ifelse(term %in% c("Chromosome"), Inf, maxGSSize),
-          pAdjustMethod = "BH",
-          pvalueCutoff = Inf,
-          qvalueCutoff = Inf,
-          universe = universe,
-          TERM2GENE = TERM2GENE_tmp,
-          TERM2NAME = TERM2NAME_tmp
-        )
-      })
-      if (!is.null(enrich_res) && nrow(enrich_res@result) > 0) {
-        result <- enrich_res@result
-        result[, "Database"] <- term
-        result[, "Groups"] <- group
-        result[, "BgVersion"] <- as.character(db_list[[species]][[term]][["version"]])
-        IDlist <- strsplit(result$geneID, split = "/")
-        result$geneID <- unlist(lapply(IDlist, function(x) {
-          result_ID <- geneMap[geneMap[, IDtype] %in% x, result_IDtype]
-          remain_ID <- x[!x %in% geneMap[, IDtype]]
-          paste0(unique(c(result_ID, remain_ID)), collapse = "/")
-        }))
-        enrich_res@result <- result
-        enrich_res@gene2Symbol <- as.character(gene_mapid)
 
-        if (isTRUE(GO_simplify) && term %in% c("GO", "GO_BP", "GO_CC", "GO_MF")) {
-          sim_res <- enrich_res
-          if (term == "GO") {
-            sim_res@result[["ONTOLOGY"]] <- setNames(TERM2NAME_tmp[["ONTOLOGY"]], TERM2NAME_tmp[["Term"]])[sim_res@result[["ID"]]]
-            sim_res@ontology <- "GOALL"
+  res_list <- bplapply(seq_len(nrow(comb)), function(i) {
+    group <- comb[i, "group"]
+    term <- comb[i, "term"]
+    gene <- input[input$geneID_groups == group, IDtype]
+    gene_mapid <- input[input$geneID_groups == group, result_IDtype]
+    TERM2GENE_tmp <- db_list[[species]][[term]][["TERM2GENE"]][, c("Term", IDtype)]
+    TERM2NAME_tmp <- db_list[[species]][[term]][["TERM2NAME"]]
+    dup <- duplicated(TERM2GENE_tmp)
+    na <- rowSums(is.na(TERM2GENE_tmp)) > 0
+    TERM2GENE_tmp <- TERM2GENE_tmp[!(dup | na), ]
+    TERM2NAME_tmp <- TERM2NAME_tmp[TERM2NAME_tmp[["Term"]] %in% TERM2GENE_tmp[["Term"]], ]
+    enrich_res <- enricher(
+      gene = gene,
+      minGSSize = ifelse(term %in% c("Chromosome"), 1, minGSSize),
+      maxGSSize = ifelse(term %in% c("Chromosome"), Inf, maxGSSize),
+      pAdjustMethod = "BH",
+      pvalueCutoff = Inf,
+      qvalueCutoff = Inf,
+      universe = NULL,
+      TERM2GENE = TERM2GENE_tmp,
+      TERM2NAME = TERM2NAME_tmp
+    )
+
+    if (!is.null(enrich_res) && nrow(enrich_res@result) > 0) {
+      result <- enrich_res@result
+      result[["Database"]] <- term
+      result[["Groups"]] <- group
+      result[["BgVersion"]] <- as.character(db_list[[species]][[term]][["version"]])
+      IDlist <- strsplit(result$geneID, split = "/")
+      result$geneID <- unlist(lapply(IDlist, function(x) {
+        x_result <- NULL
+        for (i in x) {
+          if (i %in% geneMap[[IDtype]]) {
+            x_result <- c(x_result, unique(geneMap[geneMap[[IDtype]] == i, result_IDtype]))
           } else {
-            sim_res@ontology <- gsub(pattern = "GO_", replacement = "", x = term)
-          }
-          nterm_simplify <- sum(with(sim_res@result, eval(rlang::parse_expr(GO_simplify_cutoff))))
-          if (nterm_simplify <= 1) {
-            warning(group, "|", term, " has no term to simplify.", immediate. = TRUE)
-          } else {
-            sim_res@result <- sim_res@result[with(sim_res@result, eval(rlang::parse_expr(GO_simplify_cutoff))), ]
-            semData <- db_list[[species]][[term]][["semData"]]
-            ipclock(id)
-            sim_res <- suppressPackageStartupMessages({
-              clusterProfiler::simplify(sim_res,
-                measure = simplify_method,
-                cutoff = simplify_similarityCutoff,
-                semData = semData
-              )
-            })
-            ipcunlock(id)
-            result_sim <- sim_res@result
-            result_sim[, "Database"] <- paste0(term, "_sim")
-            result_sim[, "Groups"] <- group
-            result_sim[, "BgVersion"] <- as.character(db_list[[species]][[term]][["version"]])
-            sim_res@result <- result_sim
-            enrich_res <- list(enrich_res, sim_res)
-            names(enrich_res) <- paste(group, c(term, paste0(term, "_sim")), sep = "-")
+            x_result <- c(x_result, i)
           }
         }
-        return(enrich_res)
-      } else {
-        return(NULL)
+        return(paste0(x_result, collapse = "/"))
+      }))
+      enrich_res@result <- result
+      enrich_res@gene2Symbol <- as.character(gene_mapid)
+
+      if (isTRUE(GO_simplify) && term %in% c("GO", "GO_BP", "GO_CC", "GO_MF")) {
+        sim_res <- enrich_res
+        if (term == "GO") {
+          sim_res@result[["ONTOLOGY"]] <- setNames(TERM2NAME_tmp[["ONTOLOGY"]], TERM2NAME_tmp[["Term"]])[sim_res@result[["ID"]]]
+          sim_res@ontology <- "GOALL"
+        } else {
+          sim_res@ontology <- gsub(pattern = "GO_", replacement = "", x = term)
+        }
+        nterm_simplify <- sum(with(sim_res@result, eval(rlang::parse_expr(GO_simplify_cutoff))))
+        if (nterm_simplify <= 1) {
+          warning(group, "|", term, " has no term to simplify.", immediate. = TRUE)
+        } else {
+          sim_res@result <- sim_res@result[with(sim_res@result, eval(rlang::parse_expr(GO_simplify_cutoff))), ]
+          semData <- db_list[[species]][[term]][["semData"]]
+          sim_res <- simplify(sim_res,
+            measure = simplify_method,
+            cutoff = simplify_similarityCutoff,
+            semData = semData
+          )
+
+          result_sim <- sim_res@result
+          result_sim[["Database"]] <- paste0(term, "_sim")
+          result_sim[["Groups"]] <- group
+          result_sim[["BgVersion"]] <- as.character(db_list[[species]][[term]][["version"]])
+          sim_res@result <- result_sim
+          enrich_res <- list(enrich_res, sim_res)
+          names(enrich_res) <- paste(group, c(term, paste0(term, "_sim")), sep = "-")
+        }
       }
-    }, BPPARAM = BPPARAM, id = ipcid()
-  )
+    } else {
+      enrich_res <- NULL
+    }
+    return(enrich_res)
+  }, BPPARAM = BPPARAM)
+
   nm <- paste(comb$group, comb$term, sep = "-")
   sim_index <- sapply(res_list, function(x) length(x) == 2)
   sim_list <- unlist(res_list[sim_index], recursive = FALSE)
@@ -3031,8 +3028,8 @@ RunEnrichment <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_t
   rownames(enrichment) <- NULL
 
   time_end <- Sys.time()
-  cat(paste0("[", time_end, "] ", "Enrichment done\n"))
-  cat("Elapsed time:", format(round(difftime(time_end, time_start), 2), format = "%Y-%m-%d %H:%M:%S"), "\n")
+  message(paste0("[", time_end, "] ", "Enrichment done"))
+  message("Elapsed time:", format(round(difftime(time_end, time_start), 2), format = "%Y-%m-%d %H:%M:%S"))
 
   res <- list(enrichment = enrichment, results = results, geneMap = geneMap, input = input)
   if (isTRUE(use_srt)) {
@@ -3079,13 +3076,13 @@ RunEnrichment <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_t
 #' data("pancreas_sub")
 #' pancreas_sub <- RunDEtest(pancreas_sub, group_by = "CellType", only.pos = FALSE, fc.threshold = 1)
 #' pancreas_sub <- RunGSEA(pancreas_sub, group_by = "CellType", db = "GO_BP", species = "Mus_musculus")
-#' GSEAPlot(pancreas_sub, group_by = "CellType", db = "GO_BP", plot_type = "comparison")
-#' GSEAPlot(pancreas_sub, group_by = "CellType", group_use = "Ductal", db = "GO_BP", geneSetID = "GO:0006412")
-#' GSEAPlot(pancreas_sub, group_by = "CellType", group_use = "Endocrine", db = "GO_BP", geneSetID = c("GO:0046903", "GO:0015031", "GO:0007600"))
+#' GSEAPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", plot_type = "comparison")
+#' GSEAPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = "Ductal", geneSetID = "GO:0006412")
+#' GSEAPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = "Endocrine", geneSetID = c("GO:0046903", "GO:0015031", "GO:0007600"))
 #'
 #' # Remove redundant GO terms
 #' pancreas_sub <- RunGSEA(srt = pancreas_sub, group_by = "CellType", db = "GO_BP", GO_simplify = TRUE, species = "Mus_musculus")
-#' GSEAPlot(pancreas_sub, group_by = "CellType", db = "GO_BP_sim", plot_type = "comparison")
+#' GSEAPlot(pancreas_sub, db = "GO_BP_sim", group_by = "CellType", plot_type = "comparison")
 #'
 #' # Use a combined database
 #' pancreas_sub <- RunGSEA(
@@ -3094,29 +3091,28 @@ RunEnrichment <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_t
 #'   db_combine = TRUE,
 #'   species = "Mus_musculus"
 #' )
-#' GSEAPlot(pancreas_sub, group_by = "CellType", db = "Combined", plot_type = "comparison")
+#' GSEAPlot(pancreas_sub, db = "Combined", group_by = "CellType", plot_type = "comparison")
 #'
 #' # Or use "geneID", "geneScore" and "geneID_groups" as input to run GSEA
 #' de_df <- dplyr::filter(pancreas_sub@tools$DEtest_CellType$AllMarkers_wilcox, p_val_adj < 0.05)
 #' gsea_out <- RunGSEA(geneID = de_df[["gene"]], geneScore = de_df[["avg_log2FC"]], geneID_groups = de_df[["group1"]], db = "GO_BP", species = "Mus_musculus")
 #' GSEAPlot(res = gsea_out, db = "GO_BP", plot_type = "comparison")
 #'
-#' @importFrom BiocParallel bplapply ipcid ipclock ipcunlock
+#' @importFrom BiocParallel bplapply bpprogressbar<- bpRNGseed<- bpworkers
+#' @importFrom clusterProfiler GSEA simplify
 #' @export
 #'
 RunGSEA <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_threshold = "p_val_adj < 0.05",
                     geneID = NULL, geneScore = NULL, geneID_groups = NULL, geneID_exclude = NULL, IDtype = "symbol", result_IDtype = "symbol", species = "Homo_sapiens",
-                    db = "GO_BP", db_update = FALSE, db_version = "latest", db_combine = FALSE, convert_species = FALSE, Ensembl_version = 103, mirror = NULL,
-                    TERM2GENE = NULL, TERM2NAME = NULL, minGSSize = 10, maxGSSize = 500, scoreType = "std",
+                    db = "GO_BP", db_update = FALSE, db_version = "latest", db_combine = FALSE, convert_species = TRUE, Ensembl_version = 103, mirror = NULL,
+                    TERM2GENE = NULL, TERM2NAME = NULL, minGSSize = 10, maxGSSize = 500,
                     GO_simplify = FALSE, GO_simplify_cutoff = "p.adjust < 0.05", simplify_method = "Wang", simplify_similarityCutoff = 0.7,
-                    BPPARAM = BiocParallel::bpparam(), progressbar = TRUE) {
-  if ("progressbar" %in% names(BPPARAM)) {
-    BPPARAM[["progressbar"]] <- progressbar
-  }
-
+                    BPPARAM = BiocParallel::bpparam(), seed = 11) {
+  bpprogressbar(BPPARAM) <- TRUE
+  bpRNGseed(BPPARAM) <- seed
   time_start <- Sys.time()
-  cat(paste0("[", time_start, "] ", "Start GSEA\n"))
-  message("Threads used: ", BPPARAM$workers)
+  message(paste0("[", time_start, "] ", "Start GSEA"))
+  message("Workers: ", bpworkers(BPPARAM))
 
   use_srt <- FALSE
   if (is.null(geneID)) {
@@ -3155,12 +3151,13 @@ RunGSEA <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_thresho
   if (length(geneScore) != length(geneID)) {
     stop("geneScore must be the same length with geneID")
   }
-  if (all(geneScore > 0) && scoreType != "pos") {
-    warning("All values in the geneScore are greater than zero and scoreType is '", scoreType, "', maybe you should switch to scoreType = 'pos'.", immediate. = TRUE)
+  if (all(geneScore >= 0)) {
+    stop("All values of geneScore are greater than zero")
   }
-  if (all(geneScore < 0) && scoreType != "neg") {
-    warning("All values in the geneScore are less than zero and scoreType is '", scoreType, "', maybe you should switch to scoreType = 'neg'.", immediate. = TRUE)
+  if (all(geneScore <= 0)) {
+    stop("All values of geneScore are less than zero")
   }
+
   input <- data.frame(geneID = geneID, geneScore = geneScore, geneID_groups = geneID_groups)
   input <- input[!geneID %in% geneID_exclude, ]
 
@@ -3234,114 +3231,90 @@ RunGSEA <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_thresho
   message("Permform GSEA...")
   suppressPackageStartupMessages(requireNamespace("DOSE", quietly = TRUE))
   comb <- expand.grid(group = levels(geneID_groups), term = db, stringsAsFactors = FALSE)
-  res_list <- bplapply(seq_len(nrow(comb)),
-    FUN = function(i, id) {
-      # print(paste0("current", i))
-      group <- comb[i, "group"]
-      term <- comb[i, "term"]
-      geneList <- input[input$geneID_groups == group, "geneScore"]
-      names(geneList) <- input[input$geneID_groups == group, IDtype]
-      gene_mapid <- input[input$geneID_groups == group, result_IDtype]
-      ord <- order(geneList, decreasing = TRUE)
-      geneList <- geneList[ord]
-      gene_mapid <- gene_mapid[ord]
-      TERM2GENE_tmp <- db_list[[species]][[term]][["TERM2GENE"]][, c("Term", IDtype)]
-      TERM2NAME_tmp <- db_list[[species]][[term]][["TERM2NAME"]]
-      dup <- duplicated(TERM2GENE_tmp)
-      na <- rowSums(is.na(TERM2GENE_tmp)) > 0
-      TERM2GENE_tmp <- TERM2GENE_tmp[!(dup | na), ]
-      TERM2NAME_tmp <- TERM2NAME_tmp[TERM2NAME_tmp[["Term"]] %in% TERM2GENE_tmp[["Term"]], ]
-      enrich_res <- tryCatch(
-        {
-          suppressPackageStartupMessages({
-            clusterProfiler::GSEA(
-              geneList = geneList,
-              minGSSize = ifelse(term %in% c("Chromosome"), 1, minGSSize),
-              maxGSSize = ifelse(term %in% c("Chromosome"), Inf, maxGSSize),
-              nPermSimple = 100000,
-              eps = 0,
-              scoreType = scoreType,
-              pAdjustMethod = "BH",
-              pvalueCutoff = Inf,
-              TERM2GENE = TERM2GENE_tmp,
-              TERM2NAME = TERM2NAME_tmp,
-              by = "fgsea",
-              verbose = FALSE
-            )
-          })
-        },
-        error = function(error) {
-          warning("fgseaMultilevel failed to run. Try using fgseaSimple.", immediate. = TRUE)
-          suppressPackageStartupMessages({
-            clusterProfiler::GSEA(
-              geneList = geneList,
-              minGSSize = ifelse(term %in% c("Chromosome"), 1, minGSSize),
-              maxGSSize = ifelse(term %in% c("Chromosome"), Inf, maxGSSize),
-              nPerm = 100000,
-              eps = 0,
-              scoreType = scoreType,
-              pAdjustMethod = "BH",
-              pvalueCutoff = Inf,
-              TERM2GENE = TERM2GENE_tmp,
-              TERM2NAME = TERM2NAME_tmp,
-              by = "fgsea",
-              verbose = FALSE
-            )
-          })
-        }
-      )
+  res_list <- bplapply(seq_len(nrow(comb)), function(i) {
+    group <- comb[i, "group"]
+    term <- comb[i, "term"]
+    geneList <- input[input$geneID_groups == group, "geneScore"]
+    names(geneList) <- input[input$geneID_groups == group, IDtype]
+    gene_mapid <- input[input$geneID_groups == group, result_IDtype]
+    ord <- order(geneList, decreasing = TRUE)
+    geneList <- geneList[ord]
+    gene_mapid <- gene_mapid[ord]
+    TERM2GENE_tmp <- db_list[[species]][[term]][["TERM2GENE"]][, c("Term", IDtype)]
+    TERM2NAME_tmp <- db_list[[species]][[term]][["TERM2NAME"]]
+    dup <- duplicated(TERM2GENE_tmp)
+    na <- rowSums(is.na(TERM2GENE_tmp)) > 0
+    TERM2GENE_tmp <- TERM2GENE_tmp[!(dup | na), ]
+    TERM2NAME_tmp <- TERM2NAME_tmp[TERM2NAME_tmp[["Term"]] %in% TERM2GENE_tmp[["Term"]], ]
+    enrich_res <- GSEA(
+      geneList = geneList,
+      minGSSize = ifelse(term %in% c("Chromosome"), 1, minGSSize),
+      maxGSSize = ifelse(term %in% c("Chromosome"), Inf, maxGSSize),
+      nPermSimple = 100000,
+      eps = 0,
+      scoreType = "std",
+      pAdjustMethod = "BH",
+      pvalueCutoff = Inf,
+      TERM2GENE = TERM2GENE_tmp,
+      TERM2NAME = TERM2NAME_tmp,
+      by = "fgsea",
+      verbose = FALSE
+    )
 
-      if (!is.null(enrich_res) && nrow(enrich_res@result) > 0) {
-        result <- enrich_res@result
-        result[, "Database"] <- term
-        result[, "Groups"] <- group
-        result[, "BgVersion"] <- as.character(db_list[[species]][[term]][["version"]])
-        IDlist <- strsplit(result$core_enrichment, "/")
-        result$core_enrichment <- unlist(lapply(IDlist, function(x) {
-          result_ID <- input[input[, IDtype] %in% x, result_IDtype]
-          remain_ID <- x[!x %in% input[, IDtype]]
-          paste0(unique(c(result_ID, remain_ID)), collapse = "/")
-        }))
-        enrich_res@result <- result
-        enrich_res@gene2Symbol <- as.character(gene_mapid)
-
-        if (isTRUE(GO_simplify) && term %in% c("GO", "GO_BP", "GO_CC", "GO_MF")) {
-          sim_res <- enrich_res
-          if (term == "GO") {
-            enrich_res@result[["ONTOLOGY"]] <- setNames(TERM2NAME_tmp[["ONTOLOGY"]], TERM2NAME_tmp[["Term"]])[enrich_res@result[["ID"]]]
-            sim_res@setType <- "GOALL"
+    if (!is.null(enrich_res) && nrow(enrich_res@result) > 0) {
+      result <- enrich_res@result
+      result[["Database"]] <- term
+      result[["Groups"]] <- group
+      result[["BgVersion"]] <- as.character(db_list[[species]][[term]][["version"]])
+      IDlist <- strsplit(result$core_enrichment, "/")
+      result$core_enrichment <- unlist(lapply(IDlist, function(x) {
+        x_result <- NULL
+        for (i in x) {
+          if (i %in% input[[IDtype]]) {
+            x_result <- c(x_result, unique(geneMap[geneMap[[IDtype]] == i, result_IDtype]))
           } else {
-            sim_res@setType <- gsub(pattern = "GO_", replacement = "", x = term)
-          }
-          nterm_simplify <- sum(with(sim_res@result, eval(rlang::parse_expr(GO_simplify_cutoff))))
-          if (nterm_simplify <= 1) {
-            warning(group, "|", term, " has no term to simplify.", immediate. = TRUE)
-          } else {
-            sim_res@result <- sim_res@result[with(sim_res@result, eval(rlang::parse_expr(GO_simplify_cutoff))), ]
-            semData <- db_list[[species]][[term]][["semData"]]
-            ipclock(id)
-            sim_res <- clusterProfiler::simplify(sim_res,
-              measure = simplify_method,
-              cutoff = simplify_similarityCutoff,
-              semData = semData
-            )
-            ipcunlock(id)
-            result_sim <- sim_res@result
-            result_sim[, "Database"] <- paste0(term, "_sim")
-            result_sim[, "Groups"] <- group
-            result_sim[, "BgVersion"] <- as.character(db_list[[species]][[term]][["version"]])
-            sim_res@result <- result_sim
-            enrich_res <- list(enrich_res, sim_res)
-            names(enrich_res) <- paste(group, c(term, paste0(term, "_sim")), sep = "-")
+            x_result <- c(x_result, i)
           }
         }
+        return(paste0(x_result, collapse = "/"))
+      }))
+      enrich_res@result <- result
+      enrich_res@gene2Symbol <- as.character(gene_mapid)
 
-        return(enrich_res)
-      } else {
-        return(NULL)
+      if (isTRUE(GO_simplify) && term %in% c("GO", "GO_BP", "GO_CC", "GO_MF")) {
+        sim_res <- enrich_res
+        if (term == "GO") {
+          enrich_res@result[["ONTOLOGY"]] <- setNames(TERM2NAME_tmp[["ONTOLOGY"]], TERM2NAME_tmp[["Term"]])[enrich_res@result[["ID"]]]
+          sim_res@setType <- "GOALL"
+        } else {
+          sim_res@setType <- gsub(pattern = "GO_", replacement = "", x = term)
+        }
+        nterm_simplify <- sum(with(sim_res@result, eval(rlang::parse_expr(GO_simplify_cutoff))))
+        if (nterm_simplify <= 1) {
+          warning(group, "|", term, " has no term to simplify.", immediate. = TRUE)
+        } else {
+          sim_res@result <- sim_res@result[with(sim_res@result, eval(rlang::parse_expr(GO_simplify_cutoff))), ]
+          semData <- db_list[[species]][[term]][["semData"]]
+          sim_res <- simplify(sim_res,
+            measure = simplify_method,
+            cutoff = simplify_similarityCutoff,
+            semData = semData
+          )
+          result_sim <- sim_res@result
+          result_sim[["Database"]] <- paste0(term, "_sim")
+          result_sim[["Groups"]] <- group
+          result_sim[["BgVersion"]] <- as.character(db_list[[species]][[term]][["version"]])
+          sim_res@result <- result_sim
+          enrich_res <- list(enrich_res, sim_res)
+          names(enrich_res) <- paste(group, c(term, paste0(term, "_sim")), sep = "-")
+        }
       }
-    }, BPPARAM = BPPARAM, id = ipcid()
-  )
+    } else {
+      enrich_res <- NULL
+    }
+    return(enrich_res)
+  }, BPPARAM = BPPARAM)
+
   nm <- paste(comb$group, comb$term, sep = "-")
   sim_index <- sapply(res_list, function(x) length(x) == 2)
   sim_list <- unlist(res_list[sim_index], recursive = FALSE)
@@ -3354,8 +3327,8 @@ RunGSEA <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_thresho
   rownames(enrichment) <- NULL
 
   time_end <- Sys.time()
-  cat(paste0("[", time_end, "] ", "GSEA done\n"))
-  cat("Elapsed time:", format(round(difftime(time_end, time_start), 2), format = "%Y-%m-%d %H:%M:%S"), "\n")
+  message(paste0("[", time_end, "] ", "GSEA done"))
+  message("Elapsed time:", format(round(difftime(time_end, time_start), 2), format = "%Y-%m-%d %H:%M:%S"))
 
   res <- list(enrichment = enrichment, results = results, geneMap = geneMap, input = input)
   if (isTRUE(use_srt)) {
@@ -4060,22 +4033,21 @@ RunMonocle3 <- function(srt, annotation = NULL, assay = NULL, slot = "counts",
 #' @importFrom Seurat NormalizeData VariableFeatures FindVariableFeatures as.SingleCellExperiment AddMetaData
 #' @importFrom stats p.adjust
 #' @importFrom ggplot2 ggplot aes geom_point geom_abline labs
-#' @importFrom BiocParallel bplapply
+#' @importFrom BiocParallel bplapply bpprogressbar<- bpRNGseed<- bpworkers
 #' @export
 RunDynamicFeatures <- function(srt, lineages, features = NULL, suffix = lineages,
                                n_candidates = 1000, minfreq = 5,
                                family = NULL,
                                slot = "counts", assay = NULL, libsize = NULL,
-                               BPPARAM = BiocParallel::bpparam(), progressbar = TRUE, seed = 11) {
+                               BPPARAM = BiocParallel::bpparam(), seed = 11) {
   set.seed(seed)
-  if ("progressbar" %in% names(BPPARAM)) {
-    BPPARAM[["progressbar"]] <- progressbar
-  }
+  bpprogressbar(BPPARAM) <- TRUE
+  bpRNGseed(BPPARAM) <- seed
   assay <- assay %||% DefaultAssay(srt)
 
   time_start <- Sys.time()
-  cat(paste0("[", time_start, "] ", "Start RunDynamicFeatures\n"))
-  message("Threads used: ", BPPARAM$workers)
+  message(paste0("[", time_start, "] ", "Start RunDynamicFeatures"))
+  message("Workers: ", bpworkers(BPPARAM))
 
   check_R("mgcv")
   meta <- c()
@@ -4281,8 +4253,8 @@ RunDynamicFeatures <- function(srt, lineages, features = NULL, suffix = lineages
   }
 
   time_end <- Sys.time()
-  cat(paste0("[", time_end, "] ", "RunDynamicFeatures done\n"))
-  cat("Elapsed time:", format(round(difftime(time_end, time_start), 2), format = "%Y-%m-%d %H:%M:%S"), "\n")
+  message(paste0("[", time_end, "] ", "RunDynamicFeatures done"))
+  message("Elapsed time:", format(round(difftime(time_end, time_start), 2), format = "%Y-%m-%d %H:%M:%S"))
 
   return(srt)
 }
@@ -4315,11 +4287,6 @@ RunDynamicFeatures <- function(srt, lineages, features = NULL, suffix = lineages
 #' @param seed
 #' @param convert_species
 #'
-#' @importFrom Seurat NormalizeData VariableFeatures FindVariableFeatures as.SingleCellExperiment AddMetaData
-#' @importFrom stats p.adjust
-#' @importFrom BiocParallel bplapply
-#' @importFrom ggplot2 ggplot aes geom_point geom_abline labs
-#'
 #' @examples
 #' data("pancreas_sub")
 #' pancreas_sub <- RunSlingshot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP")
@@ -4348,25 +4315,28 @@ RunDynamicFeatures <- function(srt, lineages, features = NULL, suffix = lineages
 #'   split_method = "kmeans-peaktime"
 #' )
 #' ht2$plot
+#' @importFrom Seurat NormalizeData VariableFeatures FindVariableFeatures as.SingleCellExperiment AddMetaData
+#' @importFrom stats p.adjust
+#' @importFrom BiocParallel bplapply bpprogressbar<- bpRNGseed<- bpworkers
+#' @importFrom ggplot2 ggplot aes geom_point geom_abline labs
 #' @export
 RunDynamicEnrichment <- function(srt, lineages,
                                  score_method = "AUCell", ncore = 1,
                                  slot = "data", assay = NULL,
                                  min_expcells = 20, r.sq = 0.2, dev.expl = 0.2, padjust = 0.05,
                                  IDtype = "symbol", species = "Homo_sapiens",
-                                 db = "GO_BP", db_update = FALSE, db_version = "latest", convert_species = FALSE,
+                                 db = "GO_BP", db_update = FALSE, db_version = "latest", convert_species = TRUE,
                                  Ensembl_version = 103, mirror = NULL,
                                  TERM2GENE = NULL, TERM2NAME = NULL, minGSSize = 10, maxGSSize = 500,
-                                 BPPARAM = BiocParallel::bpparam(), progressbar = TRUE, seed = 11) {
+                                 BPPARAM = BiocParallel::bpparam(), seed = 11) {
   set.seed(seed)
-  if ("progressbar" %in% names(BPPARAM)) {
-    BPPARAM[["progressbar"]] <- progressbar
-  }
+  bpprogressbar(BPPARAM) <- TRUE
+  bpRNGseed(BPPARAM) <- seed
   assay <- assay %||% DefaultAssay(srt)
 
   time_start <- Sys.time()
-  cat(paste0("[", time_start, "] ", "Start RunDynamicFeatures\n"))
-  message("Threads used: ", BPPARAM$workers)
+  message(paste0("[", time_start, "] ", "Start RunDynamicFeatures"))
+  message("Workers: ", bpworkers(BPPARAM))
 
   feature_union <- c()
   cell_union <- c()
@@ -4439,8 +4409,8 @@ RunDynamicEnrichment <- function(srt, lineages,
   }
 
   time_end <- Sys.time()
-  cat(paste0("[", time_end, "] ", "RunDynamicEnrichment done\n"))
-  cat("Elapsed time:", format(round(difftime(time_end, time_start), 2), format = "%Y-%m-%d %H:%M:%S"), "\n")
+  message(paste0("[", time_end, "] ", "RunDynamicEnrichment done"))
+  message("Elapsed time:", format(round(difftime(time_end, time_start), 2), format = "%Y-%m-%d %H:%M:%S"))
 
   return(srt)
 }

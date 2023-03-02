@@ -64,7 +64,6 @@ FeatureHeatmap(
   TERM2NAME = NULL,
   minGSSize = 10,
   maxGSSize = 500,
-  universe = NULL,
   GO_simplify = FALSE,
   GO_simplify_cutoff = "p.adjust < 0.05",
   simplify_method = "Wang",
@@ -124,7 +123,7 @@ ht1 <- FeatureHeatmap(
   split.by = "Phase", cell_split_palette = "Dark2"
 )
 ht1$plot
-panel_fix(ht1$plot, height = 5, width = 10, raster = TRUE, dpi = 50)
+panel_fix(ht1$plot, height = 5, width = 7, raster = TRUE, dpi = 50)
 
 ht2 <- FeatureHeatmap(
   srt = pancreas_sub, features = de_filter$gene, group.by = c("CellType", "SubCellType"), n_split = 4,

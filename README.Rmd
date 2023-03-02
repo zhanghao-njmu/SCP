@@ -205,7 +205,7 @@ ht <- GroupHeatmap(
   ),
   group.by = c("CellType", "SubCellType"),
   heatmap_palette = "YlOrRd",
-  cell_annotation = c("Phase", "G2M_score", "Neurod2"),
+  cell_annotation = c("Phase", "G2M_score", "Cdh2"),
   cell_annotation_palette = c("Dark2", "Paired", "Paired"),
   show_row_names = TRUE, row_names_side = "left",
   add_dot = TRUE, add_reticle = TRUE
@@ -365,7 +365,7 @@ pancreas_sub <- RunDEtest(srt = pancreas_sub, group_by = "CellType", fc.threshol
 VolcanoPlot(srt = pancreas_sub, group_by = "CellType")
 ```
 
-```{r FeatureHeatmap, fig.height=6, fig.width=17}
+```{r FeatureHeatmap, fig.height=6, fig.width=18}
 DEGs <- pancreas_sub@tools$DEtest_CellType$AllMarkers_wilcox
 DEGs <- DEGs[with(DEGs, avg_log2FC > 1 & p_val_adj < 0.05), ]
 # Annotate features with transcription factors and surface proteins
@@ -428,7 +428,7 @@ CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", lineages
 
 ### Dynamic features
 
-```{r DynamicHeatmap, fig.height=9, fig.width=18}
+```{r DynamicHeatmap, fig.height=9, fig.width=19}
 pancreas_sub <- RunDynamicFeatures(srt = pancreas_sub, lineages = c("Lineage1", "Lineage2"), n_candidates = 200)
 ht <- DynamicHeatmap(
   srt = pancreas_sub, lineages = c("Lineage1", "Lineage2"),
@@ -454,13 +454,12 @@ DynamicPlot(
 ```{r FeatureStatPlot, fig.height=6, fig.width=13}
 FeatureStatPlot(
   srt = pancreas_sub, group.by = "SubCellType", bg.by = "CellType",
-  stat.by = c("Sox9", "Neurod2", "Isl1", "Rbp4"),
+  stat.by = c("Sox9", "Neurod2", "Isl1", "Rbp4"), add_box = TRUE,
   comparisons = list(
     c("Ductal", "Ngn3 low EP"),
     c("Ngn3 high EP", "Pre-endocrine"),
     c("Alpha", "Beta")
-  ),
-  multiplegroup_comparisons = TRUE
+  )
 )
 ```
 
@@ -480,6 +479,9 @@ if (interactive()) {
 
 ### Other visualization examples
 
-[**CellDimPlot**](https://zhanghao-njmu.github.io/SCP/reference/CellDimPlot.html)![Example1](README/README-Example-1.jpg) [**CellStatPlot**](https://zhanghao-njmu.github.io/SCP/reference/CellStatPlot.html)![Example2](README/README-Example-2.jpg) [**GroupHeatmap**](https://zhanghao-njmu.github.io/SCP/reference/GroupHeatmap.html)![Example3](README/README-Example-3.jpg)
+[**CellDimPlot**](https://zhanghao-njmu.github.io/SCP/reference/CellDimPlot.html)![Example1](README/README-Example-1.jpg) [**CellStatPlot**](https://zhanghao-njmu.github.io/SCP/reference/CellStatPlot.html)![Example2](README/README-Example-2.jpg)
+[**FeatureStatPlot**](https://zhanghao-njmu.github.io/SCP/reference/FeatureStatPlot.html)![Example3](README/README-Example-3.jpg)
+[**GroupHeatmap**](https://zhanghao-njmu.github.io/SCP/reference/GroupHeatmap.html)![Example3](README/README-Example-4.jpg)
 
-More examples of SCP can be found in the documentation of the functions, such as [Integration_SCP](https://zhanghao-njmu.github.io/SCP/reference/Integration_SCP.html), [RunKNNMap](https://zhanghao-njmu.github.io/SCP/reference/RunKNNMap.html), [RunMonocle3](https://zhanghao-njmu.github.io/SCP/reference/RunMonocle3.html), [RunPalantir](https://zhanghao-njmu.github.io/SCP/reference/RunPalantir.html), etc.
+You can also find more examples in the documentation of the function:
+[Integration_SCP](https://zhanghao-njmu.github.io/SCP/reference/Integration_SCP.html), [RunKNNMap](https://zhanghao-njmu.github.io/SCP/reference/RunKNNMap.html), [RunMonocle3](https://zhanghao-njmu.github.io/SCP/reference/RunMonocle3.html), [RunPalantir](https://zhanghao-njmu.github.io/SCP/reference/RunPalantir.html), etc.

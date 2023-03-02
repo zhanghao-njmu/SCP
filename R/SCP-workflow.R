@@ -3357,7 +3357,7 @@ ComBat_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtLi
 #'   nonlinear_reduction = "umap"
 #' )
 #' plist1 <- lapply(linear_reductions, function(lr) CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = paste0("Standard", lr, "UMAP2D"), theme = "theme_blank"))
-#' cowplot::plot_grid(plotlist = plist1)
+#' patchwork::wrap_plots(plotlist = plist1)
 #'
 #' nonlinear_reductions <- c("umap", "tsne", "dm", "phate", "pacmap", "trimap", "largevis")
 #' pancreas_sub <- Standard_SCP(
@@ -3366,7 +3366,7 @@ ComBat_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtLi
 #'   nonlinear_reduction = nonlinear_reductions
 #' )
 #' plist2 <- lapply(nonlinear_reductions, function(nr) CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = paste0("Standardpca", toupper(nr), "2D"), theme = "theme_blank"))
-#' cowplot::plot_grid(plotlist = plist2)
+#' patchwork::wrap_plots(plotlist = plist2)
 #'
 #' @importFrom Seurat Assays GetAssayData NormalizeData SCTransform SCTResults ScaleData SetAssayData DefaultAssay DefaultAssay<- FindNeighbors FindClusters Idents VariableFeatures VariableFeatures<-
 #' @importFrom Matrix rowSums

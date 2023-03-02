@@ -20,20 +20,19 @@ RunGSEA(
   db_update = FALSE,
   db_version = "latest",
   db_combine = FALSE,
-  convert_species = FALSE,
+  convert_species = TRUE,
   Ensembl_version = 103,
   mirror = NULL,
   TERM2GENE = NULL,
   TERM2NAME = NULL,
   minGSSize = 10,
   maxGSSize = 500,
-  scoreType = "std",
   GO_simplify = FALSE,
   GO_simplify_cutoff = "p.adjust < 0.05",
   simplify_method = "Wang",
   simplify_similarityCutoff = 0.7,
   BPPARAM = BiocParallel::bpparam(),
-  progressbar = TRUE
+  seed = 11
 )
 }
 \arguments{
@@ -76,13 +75,13 @@ Perform the enrichment analysis(GSEA) on the genes
 data("pancreas_sub")
 pancreas_sub <- RunDEtest(pancreas_sub, group_by = "CellType", only.pos = FALSE, fc.threshold = 1)
 pancreas_sub <- RunGSEA(pancreas_sub, group_by = "CellType", db = "GO_BP", species = "Mus_musculus")
-GSEAPlot(pancreas_sub, group_by = "CellType", db = "GO_BP", plot_type = "comparison")
-GSEAPlot(pancreas_sub, group_by = "CellType", group_use = "Ductal", db = "GO_BP", geneSetID = "GO:0006412")
-GSEAPlot(pancreas_sub, group_by = "CellType", group_use = "Endocrine", db = "GO_BP", geneSetID = c("GO:0046903", "GO:0015031", "GO:0007600"))
+GSEAPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", plot_type = "comparison")
+GSEAPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = "Ductal", geneSetID = "GO:0006412")
+GSEAPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = "Endocrine", geneSetID = c("GO:0046903", "GO:0015031", "GO:0007600"))
 
 # Remove redundant GO terms
 pancreas_sub <- RunGSEA(srt = pancreas_sub, group_by = "CellType", db = "GO_BP", GO_simplify = TRUE, species = "Mus_musculus")
-GSEAPlot(pancreas_sub, group_by = "CellType", db = "GO_BP_sim", plot_type = "comparison")
+GSEAPlot(pancreas_sub, db = "GO_BP_sim", group_by = "CellType", plot_type = "comparison")
 
 # Use a combined database
 pancreas_sub <- RunGSEA(
@@ -91,7 +90,7 @@ pancreas_sub <- RunGSEA(
   db_combine = TRUE,
   species = "Mus_musculus"
 )
-GSEAPlot(pancreas_sub, group_by = "CellType", db = "Combined", plot_type = "comparison")
+GSEAPlot(pancreas_sub, db = "Combined", group_by = "CellType", plot_type = "comparison")
 
 # Or use "geneID", "geneScore" and "geneID_groups" as input to run GSEA
 de_df <- dplyr::filter(pancreas_sub@tools$DEtest_CellType$AllMarkers_wilcox, p_val_adj < 0.05)

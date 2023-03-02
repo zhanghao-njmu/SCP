@@ -197,7 +197,7 @@ data("pancreas_sub")
 print(pancreas_sub)
 #> An object of class Seurat 
 #> 47874 features across 1000 samples within 3 assays 
-#> Active assay: RNA (15958 features, 0 variable features)
+#> Active assay: RNA (15958 features, 3467 variable features)
 #>  2 other assays present: spliced, unspliced
 #>  2 dimensional reductions calculated: PCA, UMAP
 ```
@@ -253,7 +253,7 @@ ht <- GroupHeatmap(
   ),
   group.by = c("CellType", "SubCellType"),
   heatmap_palette = "YlOrRd",
-  cell_annotation = c("Phase", "G2M_score", "Neurod2"),
+  cell_annotation = c("Phase", "G2M_score", "Cdh2"),
   cell_annotation_palette = c("Dark2", "Paired", "Paired"),
   show_row_names = TRUE, row_names_side = "left",
   add_dot = TRUE, add_reticle = TRUE
@@ -559,13 +559,12 @@ DynamicPlot(
 ``` r
 FeatureStatPlot(
   srt = pancreas_sub, group.by = "SubCellType", bg.by = "CellType",
-  stat.by = c("Sox9", "Neurod2", "Isl1", "Rbp4"),
+  stat.by = c("Sox9", "Neurod2", "Isl1", "Rbp4"), add_box = TRUE,
   comparisons = list(
     c("Ductal", "Ngn3 low EP"),
     c("Ngn3 high EP", "Pre-endocrine"),
     c("Alpha", "Beta")
-  ),
-  multiplegroup_comparisons = TRUE
+  )
 )
 ```
 
@@ -590,10 +589,10 @@ if (interactive()) {
 
 [**CellDimPlot**](https://zhanghao-njmu.github.io/SCP/reference/CellDimPlot.html)![Example1](README/README-Example-1.jpg)
 [**CellStatPlot**](https://zhanghao-njmu.github.io/SCP/reference/CellStatPlot.html)![Example2](README/README-Example-2.jpg)
-[**GroupHeatmap**](https://zhanghao-njmu.github.io/SCP/reference/GroupHeatmap.html)![Example3](README/README-Example-3.jpg)
+[**FeatureStatPlot**](https://zhanghao-njmu.github.io/SCP/reference/FeatureStatPlot.html)![Example3](README/README-Example-3.jpg)
+[**GroupHeatmap**](https://zhanghao-njmu.github.io/SCP/reference/GroupHeatmap.html)![Example3](README/README-Example-4.jpg)
 
-More examples of SCP can be found in the documentation of the functions,
-such as
+You can also find more examples in the documentation of the function:
 [Integration_SCP](https://zhanghao-njmu.github.io/SCP/reference/Integration_SCP.html),
 [RunKNNMap](https://zhanghao-njmu.github.io/SCP/reference/RunKNNMap.html),
 [RunMonocle3](https://zhanghao-njmu.github.io/SCP/reference/RunMonocle3.html),

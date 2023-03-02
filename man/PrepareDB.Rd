@@ -12,7 +12,7 @@ PrepareDB(
   db_IDtypes = c("symbol", "entrez_id", "ensembl_id"),
   db_version = "latest",
   db_update = FALSE,
-  convert_species = FALSE,
+  convert_species = TRUE,
   Ensembl_version = 103,
   mirror = NULL,
   custom_TERM2GENE = NULL,

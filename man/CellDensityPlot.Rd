@@ -33,9 +33,8 @@ CellDensityPlot(
   nrow = NULL,
   ncol = NULL,
   byrow = TRUE,
-  align = "hv",
-  axis = "lr",
-  force = FALSE
+  force = FALSE,
+  seed = 11
 )
 }
 \arguments{
