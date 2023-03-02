@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">SCP</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -57,16 +57,19 @@
 <span>  res <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  pvalueCutoff <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  padjustCutoff <span class="op">=</span> <span class="fl">0.05</span>,</span>
+<span>  plot_type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"line"</span>, <span class="st">"comparison"</span><span class="op">)</span>,</span>
+<span>  palette <span class="op">=</span> <span class="st">"Spectral"</span>,</span>
+<span>  palcolor <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  topTerm <span class="op">=</span> <span class="fl">6</span>,</span>
 <span>  geneSetID <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  ES_geom <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"line"</span>, <span class="st">"dot"</span><span class="op">)</span>,</span>
+<span>  only_pos <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  only_sig <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  subplots <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">3</span>,</span>
 <span>  rel_heights <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1.5</span>, <span class="fl">0.5</span>, <span class="fl">1</span><span class="op">)</span>,</span>
 <span>  rel_width <span class="op">=</span> <span class="fl">3</span>,</span>
-<span>  size <span class="op">=</span> <span class="fl">1.5</span>,</span>
-<span>  alpha <span class="op">=</span> <span class="fl">1</span>,</span>
-<span>  color <span class="op">=</span> <span class="st">"#6BB82D"</span>,</span>
-<span>  palette <span class="op">=</span> <span class="st">"Set1"</span>,</span>
+<span>  line_size <span class="op">=</span> <span class="fl">1.5</span>,</span>
+<span>  line_alpha <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  line_color <span class="op">=</span> <span class="st">"#6BB82D"</span>,</span>
 <span>  n_coregene <span class="op">=</span> <span class="fl">10</span>,</span>
 <span>  sample_coregene <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  features_label <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -74,13 +77,15 @@
 <span>  label.bg <span class="op">=</span> <span class="st">"white"</span>,</span>
 <span>  label.bg.r <span class="op">=</span> <span class="fl">0.1</span>,</span>
 <span>  label.size <span class="op">=</span> <span class="fl">4</span>,</span>
+<span>  aspect.ratio <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  base_size <span class="op">=</span> <span class="fl">12</span>,</span>
-<span>  title <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  subtitle <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  character_width <span class="op">=</span> <span class="fl">50</span>,</span>
+<span>  lineheight <span class="op">=</span> <span class="fl">0.7</span>,</span>
 <span>  combine <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  nrow <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  ncol <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  byrow <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span>  byrow <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  seed <span class="op">=</span> <span class="fl">11</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -97,30 +102,46 @@
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"pancreas_sub"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="RunDEtest.html">RunDEtest</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, group_by <span class="op">=</span> <span class="st">"CellType"</span>, only.pos <span class="op">=</span> <span class="cn">FALSE</span>, fc.threshold <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Data in the 'data' slot is raw counts. Perform NormalizeData(LogNormalize) on the data.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-02-15 23:55:09] Start DEtest</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Threads used: 1</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-03-02 15:20:31] Start DEtest</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Workers: 1</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Find all markers(wilcox) among groups...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |==============================================================================================================| 100%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-02-16 00:01:40] DEtest done</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:6.51 mins</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-03-02 15:27:39] DEtest done</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:7.14 mins</span>
 <span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="RunGSEA.html">RunGSEA</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, group_by <span class="op">=</span> <span class="st">"CellType"</span>, db <span class="op">=</span> <span class="st">"GO_BP"</span>, species <span class="op">=</span> <span class="st">"Mus_musculus"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-02-16 00:01:40] Start GSEA</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Threads used: 1</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-03-02 15:27:39] Start GSEA</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Workers: 1</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Species: Mus_musculus</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Loaded cached db: GO_BP version:3.16.0 nterm:15992 created:2023-02-15 23:48:26</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Convert ID types for the database: GO_BP</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Connect to the Ensembl archives...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Using the 103 version of biomart...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Connect to the biomart...</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in curl::curl_fetch_memory(url, handle = handle):</span> Timeout was reached: [feb2021.archive.ensembl.org:443] Operation timed out after 10000 milliseconds with 0 bytes received</span>
-<span class="r-in"><span><span class="fu">GSEAPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, group_by <span class="op">=</span> <span class="st">"CellType"</span>, group_use <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Ngn3 low EP"</span>, <span class="st">"Endocrine"</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in GSEAPlot(pancreas_sub, group_by = "CellType", group_use = c("Ngn3 low EP",     "Endocrine")):</span> No enrichment result found. You may perform RunGSEA first.</span>
-<span class="r-in"><span><span class="fu">GSEAPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, group_by <span class="op">=</span> <span class="st">"CellType"</span>, group_use <span class="op">=</span> <span class="st">"Ductal"</span>, geneSetID <span class="op">=</span> <span class="st">"GO:0006412"</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in GSEAPlot(pancreas_sub, group_by = "CellType", group_use = "Ductal",     geneSetID = "GO:0006412"):</span> No enrichment result found. You may perform RunGSEA first.</span>
-<span class="r-in"><span><span class="fu">GSEAPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, group_by <span class="op">=</span> <span class="st">"CellType"</span>, group_use <span class="op">=</span> <span class="st">"Endocrine"</span>, geneSetID <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"GO:0046903"</span>, <span class="st">"GO:0015031"</span>, <span class="st">"GO:0007600"</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span></span>
-<span class="r-in"><span>  <span class="fu"><a href="panel_fix_single.html">panel_fix_single</a></span><span class="op">(</span>width <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in GSEAPlot(pancreas_sub, group_by = "CellType", group_use = "Endocrine",     geneSetID = c("GO:0046903", "GO:0015031", "GO:0007600")):</span> No enrichment result found. You may perform RunGSEA first.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Loaded cached db: GO_BP version:3.16.0 nterm:15992 created:2023-03-02 15:07:23</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Permform GSEA...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |==============================================================================================================| 100%</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |==============================================================================================================| 100%</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |==============================================================================================================| 100%</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |==============================================================================================================| 100%</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |==============================================================================================================| 100%</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |==============================================================================================================| 100%</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-03-02 15:34:18] GSEA done</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:6.66 mins</span>
+<span class="r-in"><span><span class="fu">GSEAPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, db <span class="op">=</span> <span class="st">"GO_BP"</span>, group_by <span class="op">=</span> <span class="st">"CellType"</span>, group_use <span class="op">=</span> <span class="st">"Ductal"</span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="GSEAPlot-1.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span><span class="fu">GSEAPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, db <span class="op">=</span> <span class="st">"GO_BP"</span>, group_by <span class="op">=</span> <span class="st">"CellType"</span>, group_use <span class="op">=</span> <span class="st">"Ductal"</span>, geneSetID <span class="op">=</span> <span class="st">"GO:0006412"</span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="GSEAPlot-2.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span><span class="fu">GSEAPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, db <span class="op">=</span> <span class="st">"GO_BP"</span>, group_by <span class="op">=</span> <span class="st">"CellType"</span>, group_use <span class="op">=</span> <span class="st">"Endocrine"</span>, geneSetID <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"GO:0046903"</span>, <span class="st">"GO:0015031"</span>, <span class="st">"GO:0007600"</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="panel_fix_single.html">panel_fix_single</a></span><span class="op">(</span>width <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="GSEAPlot-3.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span><span class="fu">GSEAPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, db <span class="op">=</span> <span class="st">"GO_BP"</span>, group_by <span class="op">=</span> <span class="st">"CellType"</span>, plot_type <span class="op">=</span> <span class="st">"comparison"</span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="GSEAPlot-4.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span><span class="fu">GSEAPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, db <span class="op">=</span> <span class="st">"GO_BP"</span>, group_by <span class="op">=</span> <span class="st">"CellType"</span>, plot_type <span class="op">=</span> <span class="st">"comparison"</span>, only_sig <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="GSEAPlot-5.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span><span class="fu">GSEAPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, db <span class="op">=</span> <span class="st">"GO_BP"</span>, group_by <span class="op">=</span> <span class="st">"CellType"</span>, plot_type <span class="op">=</span> <span class="st">"comparison"</span>, pvalueCutoff <span class="op">=</span> <span class="fl">0.05</span>, padjustCutoff <span class="op">=</span> <span class="cn">NULL</span>, only_pos <span class="op">=</span> <span class="cn">TRUE</span>, only_sig <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="GSEAPlot-6.png" alt="" width="700" height="433"></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>

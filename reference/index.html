@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">SCP</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -83,22 +83,22 @@
         <dd>CellDensityPlot</dd>
       </dl><dl><dt>
           
+          <code><a href="CellDimPlot.html">CellDimPlot()</a></code> 
+        </dt>
+        <dd>2D-Dimensional reduction plot for classification.</dd>
+      </dl><dl><dt>
+          
+          <code><a href="CellDimPlot3D.html">CellDimPlot3D()</a></code> 
+        </dt>
+        <dd>3D-Dimensional reduction plot for cell classification visualization.</dd>
+      </dl><dl><dt>
+          
           <code><a href="CellScoring.html">CellScoring()</a></code> 
         </dt>
         <dd>CellScoring</dd>
       </dl><dl><dt>
           
-          <code><a href="ClassDimPlot.html">ClassDimPlot()</a></code> 
-        </dt>
-        <dd>2D-Dimensional reduction plot for classification.</dd>
-      </dl><dl><dt>
-          
-          <code><a href="ClassDimPlot3D.html">ClassDimPlot3D()</a></code> 
-        </dt>
-        <dd>3D-Dimensional reduction plot for cell classification visualization.</dd>
-      </dl><dl><dt>
-          
-          <code><a href="ClassStatPlot.html">ClassStatPlot()</a></code> 
+          <code><a href="CellStatPlot.html">CellStatPlot()</a></code> 
         </dt>
         <dd>Statistical plot of cell classification</dd>
       </dl><dl><dt>
@@ -143,27 +143,27 @@
         <dd>EnrichmentPlot</dd>
       </dl><dl><dt>
           
-          <code><a href="ExpCorPlot.html">ExpCorPlot()</a></code> 
+          <code><a href="FeatureCorPlot.html">FeatureCorPlot()</a></code> 
         </dt>
         <dd>Features correlation plot</dd>
       </dl><dl><dt>
           
-          <code><a href="ExpDimPlot.html">ExpDimPlot()</a></code> 
+          <code><a href="FeatureDimPlot.html">FeatureDimPlot()</a></code> 
         </dt>
         <dd>Dimensional reduction plot for expression.</dd>
       </dl><dl><dt>
           
-          <code><a href="ExpDimPlot3D.html">ExpDimPlot3D()</a></code> 
+          <code><a href="FeatureDimPlot3D.html">FeatureDimPlot3D()</a></code> 
         </dt>
         <dd>3D-Dimensional reduction plot for gene expression visualization.</dd>
       </dl><dl><dt>
           
-          <code><a href="ExpHeatmap.html">ExpHeatmap()</a></code> 
+          <code><a href="FeatureHeatmap.html">FeatureHeatmap()</a></code> 
         </dt>
-        <dd>ExpHeatmap</dd>
+        <dd>FeatureHeatmap</dd>
       </dl><dl><dt>
           
-          <code><a href="ExpStatPlot.html">ExpStatPlot()</a></code> 
+          <code><a href="FeatureStatPlot.html">FeatureStatPlot()</a></code> 
         </dt>
         <dd>Violin plot for cell expression.</dd>
       </dl><dl><dt>
@@ -458,9 +458,9 @@
         <dd>Standard_SCP</dd>
       </dl><dl><dt>
           
-          <code><a href="SummaryPlot.html">SummaryPlot()</a></code> 
+          <code><a href="StatPlot.html">StatPlot()</a></code> 
         </dt>
-        <dd>SummaryPlot</dd>
+        <dd>StatPlot</dd>
       </dl><dl><dt>
           
           <code><a href="Uncorrected_integrate.html">Uncorrected_integrate()</a></code> 
@@ -590,6 +590,34 @@ The original python code is on https://github.com/theislab/scvelo/blob/master/sc
         <dd>Find an appropriate conda binary</dd>
       </dl><dl><dt>
           
+          <code><a href="geom_alluvial.html">geom_alluvial()</a></code> 
+        </dt>
+        <dd>geom_alluvial</dd>
+      </dl><dl><dt>
+          
+          <code><a href="geom_alluvial_label.html">geom_alluvial_text()</a></code> <code><a href="geom_alluvial_label.html">geom_alluvial_label()</a></code> 
+        </dt>
+        <dd>geom_alluvial_label</dd>
+      </dl><dl><dt>
+          
+          <code><a href="geom_sankey.html">geom_sankey()</a></code> 
+        </dt>
+        <dd>geom_sankey
+
+Creates a sankey plot which visualize flows between nodes. Each observation needs to have a `x` aesthetic as well as a `next_x` column which declares where that observation should flow.
+Also each observation should have a `node` and a `next_node` aesthetic which provide information about which group in the y-direction. By default each row of the data frame is counted to calculate the size of flows. A manual flow value can be added with the `value` aesthetic.</dd>
+      </dl><dl><dt>
+          
+          <code><a href="geom_sankey_bump.html">geom_sankey_bump()</a></code> 
+        </dt>
+        <dd>geom_sankey_bump</dd>
+      </dl><dl><dt>
+          
+          <code><a href="geom_sankey_label.html">geom_sankey_label()</a></code> <code><a href="geom_sankey_label.html">geom_sankey_text()</a></code> 
+        </dt>
+        <dd>geom_sankey_label</dd>
+      </dl><dl><dt>
+          
           <code><a href="ifnb_sub.html">ifnb_sub</a></code> 
         </dt>
         <dd>A subsetted version of 'ifnb' datasets</dd>
@@ -603,6 +631,11 @@ The original python code is on https://github.com/theislab/scvelo/blob/master/sc
           <code><a href="isOutlier.html">isOutlier()</a></code> 
         </dt>
         <dd>Detect outliers using MAD(Median and Median Absolute Deviation) method</dd>
+      </dl><dl><dt>
+          
+          <code><a href="make_long.html">make_long()</a></code> 
+        </dt>
+        <dd>make_long</dd>
       </dl><dl><dt>
           
           <code><a href="palette_scp.html">palette_scp()</a></code> 
@@ -653,6 +686,11 @@ The original python code is on https://github.com/theislab/scvelo/blob/master/sc
           <code><a href="theme_blank.html">theme_blank()</a></code> 
         </dt>
         <dd>Blank theme</dd>
+      </dl><dl><dt>
+          
+          <code><a href="theme_sankey.html">theme_sankey()</a></code> <code><a href="theme_sankey.html">theme_alluvial()</a></code> <code><a href="theme_sankey.html">theme_sankey_bump()</a></code> 
+        </dt>
+        <dd>sankey_themes</dd>
       </dl><dl><dt>
           
           <code><a href="theme_scp.html">theme_scp()</a></code> 

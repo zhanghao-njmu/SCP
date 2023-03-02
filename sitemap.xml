@@ -31,16 +31,16 @@
     <loc>https://zhanghao-njmu.github.io/SCP/reference/CellDensityPlot.html</loc>
   </url>
   <url>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/CellDimPlot.html</loc>
+  </url>
+  <url>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/CellDimPlot3D.html</loc>
+  </url>
+  <url>
     <loc>https://zhanghao-njmu.github.io/SCP/reference/CellScoring.html</loc>
   </url>
   <url>
-    <loc>https://zhanghao-njmu.github.io/SCP/reference/ClassDimPlot.html</loc>
-  </url>
-  <url>
-    <loc>https://zhanghao-njmu.github.io/SCP/reference/ClassDimPlot3D.html</loc>
-  </url>
-  <url>
-    <loc>https://zhanghao-njmu.github.io/SCP/reference/ClassStatPlot.html</loc>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/CellStatPlot.html</loc>
   </url>
   <url>
     <loc>https://zhanghao-njmu.github.io/SCP/reference/ComBat_integrate.html</loc>
@@ -67,19 +67,19 @@
     <loc>https://zhanghao-njmu.github.io/SCP/reference/EnrichmentPlot.html</loc>
   </url>
   <url>
-    <loc>https://zhanghao-njmu.github.io/SCP/reference/ExpCorPlot.html</loc>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/FeatureCorPlot.html</loc>
   </url>
   <url>
-    <loc>https://zhanghao-njmu.github.io/SCP/reference/ExpDimPlot.html</loc>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/FeatureDimPlot.html</loc>
   </url>
   <url>
-    <loc>https://zhanghao-njmu.github.io/SCP/reference/ExpDimPlot3D.html</loc>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/FeatureDimPlot3D.html</loc>
   </url>
   <url>
-    <loc>https://zhanghao-njmu.github.io/SCP/reference/ExpHeatmap.html</loc>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/FeatureHeatmap.html</loc>
   </url>
   <url>
-    <loc>https://zhanghao-njmu.github.io/SCP/reference/ExpStatPlot.html</loc>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/FeatureStatPlot.html</loc>
   </url>
   <url>
     <loc>https://zhanghao-njmu.github.io/SCP/reference/FetchH5.html</loc>
@@ -256,7 +256,7 @@
     <loc>https://zhanghao-njmu.github.io/SCP/reference/Standard_SCP.html</loc>
   </url>
   <url>
-    <loc>https://zhanghao-njmu.github.io/SCP/reference/SummaryPlot.html</loc>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/StatPlot.html</loc>
   </url>
   <url>
     <loc>https://zhanghao-njmu.github.io/SCP/reference/Uncorrected_integrate.html</loc>
@@ -334,6 +334,21 @@
     <loc>https://zhanghao-njmu.github.io/SCP/reference/find_conda.html</loc>
   </url>
   <url>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/geom_alluvial.html</loc>
+  </url>
+  <url>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/geom_alluvial_label.html</loc>
+  </url>
+  <url>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/geom_sankey.html</loc>
+  </url>
+  <url>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/geom_sankey_bump.html</loc>
+  </url>
+  <url>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/geom_sankey_label.html</loc>
+  </url>
+  <url>
     <loc>https://zhanghao-njmu.github.io/SCP/reference/ifnb_sub.html</loc>
   </url>
   <url>
@@ -344,6 +359,9 @@
   </url>
   <url>
     <loc>https://zhanghao-njmu.github.io/SCP/reference/isOutlier.html</loc>
+  </url>
+  <url>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/make_long.html</loc>
   </url>
   <url>
     <loc>https://zhanghao-njmu.github.io/SCP/reference/palette_scp.html</loc>
@@ -374,6 +392,9 @@
   </url>
   <url>
     <loc>https://zhanghao-njmu.github.io/SCP/reference/theme_blank.html</loc>
+  </url>
+  <url>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/theme_sankey.html</loc>
   </url>
   <url>
     <loc>https://zhanghao-njmu.github.io/SCP/reference/theme_scp.html</loc>

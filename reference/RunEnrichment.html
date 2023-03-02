@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">SCP</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -62,20 +62,20 @@
 <span>  db <span class="op">=</span> <span class="st">"GO_BP"</span>,</span>
 <span>  db_update <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  db_version <span class="op">=</span> <span class="st">"latest"</span>,</span>
-<span>  convert_species <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  db_combine <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  convert_species <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  Ensembl_version <span class="op">=</span> <span class="fl">103</span>,</span>
 <span>  mirror <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  TERM2GENE <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  TERM2NAME <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  minGSSize <span class="op">=</span> <span class="fl">10</span>,</span>
 <span>  maxGSSize <span class="op">=</span> <span class="fl">500</span>,</span>
-<span>  universe <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  GO_simplify <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  GO_simplify_padjustCutoff <span class="op">=</span> <span class="fl">0.2</span>,</span>
-<span>  simplify_method <span class="op">=</span> <span class="st">"Rel"</span>,</span>
+<span>  GO_simplify <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  GO_simplify_cutoff <span class="op">=</span> <span class="st">"p.adjust &lt; 0.05"</span>,</span>
+<span>  simplify_method <span class="op">=</span> <span class="st">"Wang"</span>,</span>
 <span>  simplify_similarityCutoff <span class="op">=</span> <span class="fl">0.7</span>,</span>
 <span>  BPPARAM <span class="op">=</span> <span class="fu">BiocParallel</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/BiocParallel/man/register.html" class="external-link">bpparam</a></span><span class="op">(</span><span class="op">)</span>,</span>
-<span>  progressbar <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span>  seed <span class="op">=</span> <span class="fl">11</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -129,16 +129,8 @@
 <dd><p>maxGSSize</p></dd>
 
 
-<dt>universe</dt>
-<dd><p>universe</p></dd>
-
-
 <dt>GO_simplify</dt>
 <dd><p>GO_simplify</p></dd>
-
-
-<dt>GO_simplify_padjustCutoff</dt>
-<dd><p>GO_simplify_padjustCutoff</p></dd>
 
 
 <dt>simplify_method</dt>
@@ -148,6 +140,14 @@
 <dt>simplify_similarityCutoff</dt>
 <dd><p>simplify_similarityCutoff</p></dd>
 
+
+<dt>GO_simplify_padjustCutoff</dt>
+<dd><p>GO_simplify_padjustCutoff</p></dd>
+
+
+<dt>universe</dt>
+<dd><p>universe</p></dd>
+
 </dl></div>
 
     <div class="section level2">
@@ -155,40 +155,136 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"pancreas_sub"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="RunDEtest.html">RunDEtest</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, group_by <span class="op">=</span> <span class="st">"CellType"</span><span class="op">)</span></span></span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Data in the 'data' slot is raw counts. Perform NormalizeData(LogNormalize) on the data.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-02-16 00:22:41] Start DEtest</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Threads used: 1</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-03-02 16:11:41] Start DEtest</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Workers: 1</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Find all markers(wilcox) among groups...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |==============================================================================================================| 100%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-02-16 00:22:46] DEtest done</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:4.63 secs</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-03-02 16:11:46] DEtest done</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:4.68 secs</span>
 <span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu">RunEnrichment</span><span class="op">(</span>srt <span class="op">=</span> <span class="va">pancreas_sub</span>, group_by <span class="op">=</span> <span class="st">"CellType"</span>, db <span class="op">=</span> <span class="st">"GO_BP"</span>, species <span class="op">=</span> <span class="st">"Mus_musculus"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-02-16 00:22:46] Start Enrichment</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Threads used: 1</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-03-02 16:11:46] Start Enrichment</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Workers: 1</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Species: Mus_musculus</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Loaded cached db: GO_BP version:3.16.0 nterm:15992 created:2023-02-15 23:48:26</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Convert ID types for the database: GO_BP</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Loaded cached db: GO_BP version:3.16.0 nterm:15992 created:2023-03-02 15:07:23</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Permform enrichment...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |==============================================================================================================| 100%</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-03-02 16:12:52] Enrichment done</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:1.1 mins</span>
+<span class="r-in"><span><span class="fu"><a href="EnrichmentPlot.html">EnrichmentPlot</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, db <span class="op">=</span> <span class="st">"GO_BP"</span>, group_by <span class="op">=</span> <span class="st">"CellType"</span>, plot_type <span class="op">=</span> <span class="st">"comparison"</span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="RunEnrichment-1.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Remove redundant GO terms</span></span></span>
+<span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu">RunEnrichment</span><span class="op">(</span>srt <span class="op">=</span> <span class="va">pancreas_sub</span>, group_by <span class="op">=</span> <span class="st">"CellType"</span>, db <span class="op">=</span> <span class="st">"GO_BP"</span>, GO_simplify <span class="op">=</span> <span class="cn">TRUE</span>, species <span class="op">=</span> <span class="st">"Mus_musculus"</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-03-02 16:12:52] Start Enrichment</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Workers: 1</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Species: Mus_musculus</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Loaded cached db: GO_BP version:3.16.0 nterm:15992 created:2023-03-02 15:07:23</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Permform enrichment...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |==============================================================================================================| 100%</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-03-02 16:15:00] Enrichment done</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:2.13 mins</span>
+<span class="r-in"><span><span class="fu"><a href="EnrichmentPlot.html">EnrichmentPlot</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, db <span class="op">=</span> <span class="st">"GO_BP_sim"</span>, group_by <span class="op">=</span> <span class="st">"CellType"</span>, plot_type <span class="op">=</span> <span class="st">"comparison"</span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="RunEnrichment-2.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Use a combined database</span></span></span>
+<span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu">RunEnrichment</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  srt <span class="op">=</span> <span class="va">pancreas_sub</span>, group_by <span class="op">=</span> <span class="st">"CellType"</span>,</span></span>
+<span class="r-in"><span>  db <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"KEGG"</span>, <span class="st">"WikiPathway"</span>, <span class="st">"Reactome"</span>, <span class="st">"PFAM"</span>, <span class="st">"MP"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  db_combine <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
+<span class="r-in"><span>  species <span class="op">=</span> <span class="st">"Mus_musculus"</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-03-02 16:15:00] Start Enrichment</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Workers: 1</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Species: Mus_musculus</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Loaded cached db: MP version:2023-02-27 08:00 nterm:10221 created:2023-03-02 15:12:38</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Install package: "PFAM.db" ...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 'getOption("repos")' replaces Bioconductor standard repositories, see 'help("repositories", package = "BiocManager")'</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> for details.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Replacement repositories:</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>     CRAN: https://cloud.r-project.org</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Bioconductor version 3.16 (BiocManager 1.30.20), R 4.2.2 (2022-10-31)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Installing package(s) 'PFAM.db'</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Install package: "reactome.db" ...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 'getOption("repos")' replaces Bioconductor standard repositories, see 'help("repositories", package = "BiocManager")'</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> for details.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Replacement repositories:</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>     CRAN: https://cloud.r-project.org</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Bioconductor version 3.16 (BiocManager 1.30.20), R 4.2.2 (2022-10-31)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Installing package(s) 'reactome.db'</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Preparing database: KEGG</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Preparing database: WikiPathway</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Preparing database: Reactome</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Preparing database: PFAM</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Convert ID types for the database: KEGG</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Connect to the Ensembl archives...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Using the 103 version of biomart...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Connect to the biomart...</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in curl::curl_fetch_memory(url, handle = handle):</span> Timeout was reached: [feb2021.archive.ensembl.org:443] Operation timed out after 10001 milliseconds with 0 bytes received</span>
-<span class="r-in"><span><span class="fu"><a href="EnrichmentPlot.html">EnrichmentPlot</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, group_by <span class="op">=</span> <span class="st">"CellType"</span>, db <span class="op">=</span> <span class="st">"GO_BP"</span>, plot_type <span class="op">=</span> <span class="st">"bar"</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in EnrichmentPlot(pancreas_sub, group_by = "CellType", db = "GO_BP",     plot_type = "bar"):</span> No enrichment result found. You may perform RunEnrichment first.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Connect to the dataset mmusculus_gene_ensembl ...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Match and convert the geneID...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 8967 genes mapped with entrez_id</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ==============================</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 8967 genes mapped</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 86 genes unmapped</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ==============================</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Convert ID types for the database: WikiPathway</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Connect to the Ensembl archives...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Using the 103 version of biomart...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Connect to the biomart...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Connect to the dataset mmusculus_gene_ensembl ...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Match and convert the geneID...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 4559 genes mapped with entrez_id</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ==============================</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 4559 genes mapped</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 0 genes unmapped</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ==============================</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Convert ID types for the database: Reactome</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Connect to the Ensembl archives...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Using the 103 version of biomart...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Connect to the biomart...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Connect to the dataset mmusculus_gene_ensembl ...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Match and convert the geneID...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 8497 genes mapped with entrez_id</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ==============================</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 8497 genes mapped</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 6 genes unmapped</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ==============================</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Convert ID types for the database: PFAM</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Connect to the Ensembl archives...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Using the 103 version of biomart...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Connect to the biomart...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Connect to the dataset mmusculus_gene_ensembl ...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Match and convert the geneID...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 19123 genes mapped with entrez_id</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ==============================</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 19123 genes mapped</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 72 genes unmapped</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ==============================</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Permform enrichment...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |==============================================================================================================| 100%</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-03-02 16:21:51] Enrichment done</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:6.85 mins</span>
+<span class="r-in"><span><span class="fu"><a href="EnrichmentPlot.html">EnrichmentPlot</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, db <span class="op">=</span> <span class="st">"Combined"</span>, group_by <span class="op">=</span> <span class="st">"CellType"</span>, plot_type <span class="op">=</span> <span class="st">"comparison"</span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="RunEnrichment-3.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Or use "geneID" and "geneID_groups" as input to run enrichment</span></span></span>
 <span class="r-in"><span><span class="va">de_df</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">pancreas_sub</span><span class="op">@</span><span class="va">tools</span><span class="op">$</span><span class="va">DEtest_CellType</span><span class="op">$</span><span class="va">AllMarkers_wilcox</span>, <span class="va">avg_log2FC</span> <span class="op">&gt;</span> <span class="fl">0</span> <span class="op">&amp;</span> <span class="va">p_val_adj</span> <span class="op">&lt;</span> <span class="fl">0.05</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">enrich_out</span> <span class="op">&lt;-</span> <span class="fu">RunEnrichment</span><span class="op">(</span>geneID <span class="op">=</span> <span class="va">de_df</span><span class="op">[[</span><span class="st">"gene"</span><span class="op">]</span><span class="op">]</span>, geneID_groups <span class="op">=</span> <span class="va">de_df</span><span class="op">[[</span><span class="st">"group1"</span><span class="op">]</span><span class="op">]</span>, db <span class="op">=</span> <span class="st">"GO_BP"</span>, species <span class="op">=</span> <span class="st">"Mus_musculus"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-02-16 00:22:58] Start Enrichment</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Threads used: 1</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-03-02 16:21:52] Start Enrichment</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Workers: 1</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Species: Mus_musculus</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Loaded cached db: GO_BP version:3.16.0 nterm:15992 created:2023-02-15 23:48:26</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Convert ID types for the database: GO_BP</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Connect to the Ensembl archives...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Using the 103 version of biomart...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Connect to the biomart...</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in curl::curl_fetch_memory(url, handle = handle):</span> Timeout was reached: [feb2021.archive.ensembl.org:443] Operation timed out after 10001 milliseconds with 0 bytes received</span>
-<span class="r-in"><span><span class="fu"><a href="EnrichmentPlot.html">EnrichmentPlot</a></span><span class="op">(</span>res <span class="op">=</span> <span class="va">enrich_out</span>, group_use <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Ngn3 low EP"</span>, <span class="st">"Endocrine"</span><span class="op">)</span>, db <span class="op">=</span> <span class="st">"GO_BP"</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in EnrichmentPlot(res = enrich_out, group_use = c("Ngn3 low EP",     "Endocrine"), db = "GO_BP"):</span> object 'enrich_out' not found</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Loaded cached db: GO_BP version:3.16.0 nterm:15992 created:2023-03-02 15:07:23</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Permform enrichment...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |==============================================================================================================| 100%</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-03-02 16:22:59] Enrichment done</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:1.11 mins</span>
+<span class="r-in"><span><span class="fu"><a href="EnrichmentPlot.html">EnrichmentPlot</a></span><span class="op">(</span>res <span class="op">=</span> <span class="va">enrich_out</span>, db <span class="op">=</span> <span class="st">"GO_BP"</span>, plot_type <span class="op">=</span> <span class="st">"comparison"</span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="RunEnrichment-4.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

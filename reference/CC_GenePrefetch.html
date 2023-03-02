@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">SCP</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -98,12 +98,229 @@
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Connect to the Ensembl archives...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Using the 103 version of biomart...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Connect to the biomart...</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in curl::curl_fetch_memory(url, handle = handle):</span> Timeout was reached: [feb2021.archive.ensembl.org:443] Operation timed out after 10001 milliseconds with 0 bytes received</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Connect to the dataset hsapiens_gene_ensembl ...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Match and convert the geneID...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 97 genes mapped with ensembl_symbol</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ==============================</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 97 genes mapped</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 0 genes unmapped</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ==============================</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">ccgenes</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> List of 3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ res         : NULL</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ cc_S_genes  : chr [1:43] "MCM5" "PCNA" "TYMS" "FEN1" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ cc_G2M_genes: chr [1:54] "HMGB2" "CDK1" "NUSAP1" "UBE2C" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ res         :List of 7</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ geneID_res     :'data.frame':	99 obs. of  4 variables:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ from_IDtype: chr [1:99] "ensembl_symbol" "ensembl_symbol" "ensembl_symbol" "ensembl_symbol" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ from_geneID: chr [1:99] "NCAPD2" "ANLN" "UBR7" "TACC3" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ to_IDtype  : chr [1:99] "symbol" "symbol" "symbol" "symbol" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ to_geneID  : chr [1:99] "Ncapd2" "Anln" "Ubr7" "Tacc3" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ geneID_collapse:'data.frame':	94 obs. of  2 variables:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ from_geneID: chr [1:94] "ANLN" "ANP32E" "AURKA" "AURKB" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ symbol     :List of 94</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Anln"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Anp32e"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Aurka"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Aurkb"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Birc5"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Blm"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Bub1"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Casp8ap2"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Cbx5"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Ccnb2"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Ccne2"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Cdc20"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Cdc25c"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Cdc45"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Cdc6"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Cdca2"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Cdca3"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Cdca7"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Cdca8"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Cdk1"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Cenpa"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Cenpe"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Cenpf"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Cenpu"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Chaf1b"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Ckap2"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Ckap2l"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Ckap5"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Cks1b"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Cks2"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Clspn"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Ctcf"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Dlgap5"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Dscc1"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Dtl"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "E2f8"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Ect2"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Exo1"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Fen1"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "G2e3"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Gas2l3"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Gins2"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Gmnn"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Gtse1"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Hells"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Hjurp"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Hmgb2"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Hmmr"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Kif11"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Kif20b"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Kif23"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Kif2c"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Lbr"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Mcm4"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Mcm5"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Mcm6"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Mcm7"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Mki67"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Mrpl36"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Msh2"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Nasp"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Ncapd2"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Ndc80"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Nek2"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Nuf2"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Nusap1"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Pcna"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Pimreg"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Pola1"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Polr1b"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Prim1"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Psrc1"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Rad51"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Rad51ap1"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Rangap1"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Rfc2"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Rrm1"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Rrm2"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Slbp"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Smc4"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Tacc3"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Tipin"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Tmpo"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Top2a"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Tpx2"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Ttk"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Tubb4b"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Tyms"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Ube2c"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Ubr7"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Uhrf1"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Ung"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Usp1"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Wdr76"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..- attr(*, "class")= chr "AsIs"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ geneID_expand  :'data.frame':	94 obs. of  2 variables:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ from_geneID: chr [1:94] "ANLN" "ANP32E" "AURKA" "AURKB" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ symbol     :List of 94</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Anln"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Anp32e"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Aurka"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Aurkb"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Birc5"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Blm"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Bub1"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Casp8ap2"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Cbx5"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Ccnb2"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Ccne2"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Cdc20"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Cdc25c"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Cdc45"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Cdc6"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Cdca2"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Cdca3"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Cdca7"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Cdca8"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Cdk1"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Cenpa"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Cenpe"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Cenpf"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Cenpu"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Chaf1b"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Ckap2"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Ckap2l"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Ckap5"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Cks1b"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Cks2"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Clspn"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Ctcf"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Dlgap5"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Dscc1"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Dtl"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "E2f8"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Ect2"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Exo1"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Fen1"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "G2e3"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Gas2l3"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Gins2"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Gmnn"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Gtse1"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Hells"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Hjurp"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Hmgb2"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Hmmr"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Kif11"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Kif20b"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Kif23"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Kif2c"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Lbr"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Mcm4"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Mcm5"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Mcm6"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Mcm7"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Mki67"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Mrpl36"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Msh2"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Nasp"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Ncapd2"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Ndc80"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Nek2"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Nuf2"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Nusap1"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Pcna"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Pimreg"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Pola1"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Polr1b"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Prim1"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Psrc1"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Rad51"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Rad51ap1"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Rangap1"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Rfc2"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Rrm1"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Rrm2"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Slbp"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Smc4"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Tacc3"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Tipin"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Tmpo"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Top2a"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Tpx2"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Ttk"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Tubb4b"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Tyms"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Ube2c"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Ubr7"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Uhrf1"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Ung"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Usp1"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ : chr "Wdr76"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..- attr(*, "class")= chr "AsIs"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ Ensembl_version: chr "103"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ Datasets       :'data.frame':	202 obs. of  3 variables:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ dataset    : 'AsIs' chr [1:202] "abrachyrhynchus_gene_ensembl" "acalliptera_gene_ensembl" "acarolinensis_gene_ensembl" "acchrysaetos_gene_ensembl" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ description: 'AsIs' chr [1:202] "Pink-footed goose genes (ASM259213v1)" "Eastern happy genes (fAstCal1.2)" "Anole lizard genes (AnoCar2.0)" "Golden eagle genes (bAquChr1.2)" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ version    : 'AsIs' chr [1:202] "ASM259213v1" "fAstCal1.2" "AnoCar2.0" "bAquChr1.2" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ Attributes     :'data.frame':	3183 obs. of  3 variables:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ name       : chr [1:3183] "ensembl_gene_id" "ensembl_gene_id_version" "ensembl_transcript_id" "ensembl_transcript_id_version" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ description: chr [1:3183] "Gene stable ID" "Gene stable ID version" "Transcript stable ID" "Transcript stable ID version" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ page       : chr [1:3183] "feature_page" "feature_page" "feature_page" "feature_page" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ geneID_unmapped: chr(0) </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ cc_S_genes  : chr [1:41] "Mcm5" "Pcna" "Tyms" "Fen1" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ cc_G2M_genes: chr [1:53] "Hmgb2" "Cdk1" "Nusap1" "Ube2c" ...</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>

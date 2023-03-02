@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">SCP</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -61,7 +61,7 @@
 <span>  border <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  flip <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  slot <span class="op">=</span> <span class="st">"counts"</span>,</span>
-<span>  assay <span class="op">=</span> <span class="st">"RNA"</span>,</span>
+<span>  assay <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  exp_method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"zscore"</span>, <span class="st">"raw"</span>, <span class="st">"fc"</span>, <span class="st">"log2fc"</span>, <span class="st">"log1p"</span><span class="op">)</span>,</span>
 <span>  limits <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  lib_normalize <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/identical.html" class="external-link">identical</a></span><span class="op">(</span><span class="va">slot</span>, <span class="st">"counts"</span><span class="op">)</span>,</span>
@@ -71,6 +71,8 @@
 <span>  n_split <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  split_method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"kmeans"</span>, <span class="st">"hclust"</span>, <span class="st">"mfuzz"</span><span class="op">)</span>,</span>
 <span>  decreasing <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  fuzzification <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  show_fuzzification <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  cluster_features_by <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  cluster_rows <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  cluster_columns <span class="op">=</span> <span class="cn">FALSE</span>,</span>
@@ -99,6 +101,7 @@
 <span>  species <span class="op">=</span> <span class="st">"Homo_sapiens"</span>,</span>
 <span>  db_update <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  db_version <span class="op">=</span> <span class="st">"latest"</span>,</span>
+<span>  db_combine <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  convert_species <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  Ensembl_version <span class="op">=</span> <span class="fl">103</span>,</span>
 <span>  mirror <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -107,10 +110,9 @@
 <span>  TERM2NAME <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  minGSSize <span class="op">=</span> <span class="fl">10</span>,</span>
 <span>  maxGSSize <span class="op">=</span> <span class="fl">500</span>,</span>
-<span>  universe <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  GO_simplify <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  GO_simplify_padjustCutoff <span class="op">=</span> <span class="fl">0.2</span>,</span>
-<span>  simplify_method <span class="op">=</span> <span class="st">"Rel"</span>,</span>
+<span>  GO_simplify_cutoff <span class="op">=</span> <span class="st">"p.adjust &lt; 0.05"</span>,</span>
+<span>  simplify_method <span class="op">=</span> <span class="st">"Wang"</span>,</span>
 <span>  simplify_similarityCutoff <span class="op">=</span> <span class="fl">0.7</span>,</span>
 <span>  pvalueCutoff <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  padjustCutoff <span class="op">=</span> <span class="fl">0.05</span>,</span>
@@ -144,13 +146,13 @@
 <span>  feature_split_palette <span class="op">=</span> <span class="st">"jama"</span>,</span>
 <span>  feature_split_palcolor <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  cell_annotation <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  cell_palette <span class="op">=</span> <span class="st">"Paired"</span>,</span>
-<span>  cell_palcolor <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  cell_annotation_palette <span class="op">=</span> <span class="st">"Paired"</span>,</span>
+<span>  cell_annotation_palcolor <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  cell_annotation_params <span class="op">=</span> <span class="kw">if</span> <span class="op">(</span><span class="va">flip</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>width <span class="op">=</span> <span class="fu">grid</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/grid/unit.html" class="external-link">unit</a></span><span class="op">(</span><span class="fl">1</span>, <span class="st">"cm"</span><span class="op">)</span><span class="op">)</span> <span class="kw">else</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>height <span class="op">=</span></span>
 <span>    <span class="fu">grid</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/grid/unit.html" class="external-link">unit</a></span><span class="op">(</span><span class="fl">1</span>, <span class="st">"cm"</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>  feature_annotation <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  feature_palette <span class="op">=</span> <span class="st">"Dark2"</span>,</span>
-<span>  feature_palcolor <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  feature_annotation_palette <span class="op">=</span> <span class="st">"Dark2"</span>,</span>
+<span>  feature_annotation_palcolor <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  feature_annotation_params <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  use_raster <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  raster_device <span class="op">=</span> <span class="st">"png"</span>,</span>
@@ -193,11 +195,11 @@
 <dd><p>Heatmap expression palette.</p></dd>
 
 
-<dt>cell_palette</dt>
+<dt>cell_annotation_palette</dt>
 <dd><p>Column palette.</p></dd>
 
 
-<dt>feature_palette</dt>
+<dt>feature_annotation_palette</dt>
 <dd><p>Feature groups palette.</p></dd>
 
 
@@ -226,19 +228,19 @@
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Set `ht_opt$message = FALSE` to turn off this message.</span>
 <span class="r-in"><span><span class="va">ht1</span><span class="op">$</span><span class="va">plot</span></span></span>
 <span class="r-plt img"><img src="GroupHeatmap-1.png" alt="" width="700" height="433"></span>
-<span class="r-in"><span><span class="fu"><a href="panel_fix.html">panel_fix</a></span><span class="op">(</span><span class="va">ht1</span><span class="op">$</span><span class="va">plot</span>, height <span class="op">=</span> <span class="fl">5</span>, width <span class="op">=</span> <span class="fl">10</span>, raster <span class="op">=</span> <span class="cn">TRUE</span>, dpi <span class="op">=</span> <span class="fl">50</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> panel 6 is detected as generated by plot_grid.</span>
+<span class="r-in"><span><span class="fu"><a href="panel_fix.html">panel_fix</a></span><span class="op">(</span><span class="va">ht1</span><span class="op">$</span><span class="va">plot</span>, height <span class="op">=</span> <span class="fl">5</span>, width <span class="op">=</span> <span class="fl">7</span>, raster <span class="op">=</span> <span class="cn">TRUE</span>, dpi <span class="op">=</span> <span class="fl">50</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> panel 3 is detected as generated by patchwork.</span>
 <span class="r-plt img"><img src="GroupHeatmap-2.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="RunDEtest.html">RunDEtest</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, group_by <span class="op">=</span> <span class="st">"CellType"</span><span class="op">)</span></span></span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Data in the 'data' slot is raw counts. Perform NormalizeData(LogNormalize) on the data.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-02-16 00:02:20] Start DEtest</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Threads used: 1</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-03-02 15:37:06] Start DEtest</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Workers: 1</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Find all markers(wilcox) among groups...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |==============================================================================================================| 100%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-02-16 00:02:24] DEtest done</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:4.97 secs</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-03-02 15:37:11] DEtest done</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:4.58 secs</span>
 <span class="r-in"><span><span class="va">de_filter</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">pancreas_sub</span><span class="op">@</span><span class="va">tools</span><span class="op">$</span><span class="va">DEtest_CellType</span><span class="op">$</span><span class="va">AllMarkers_wilcox</span>, <span class="va">p_val_adj</span> <span class="op">&lt;</span> <span class="fl">0.05</span> <span class="op">&amp;</span> <span class="va">avg_log2FC</span> <span class="op">&gt;</span> <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">ht2</span> <span class="op">&lt;-</span> <span class="fu">GroupHeatmap</span><span class="op">(</span></span></span>
@@ -260,22 +262,22 @@
 <span class="r-msg co"><span class="r-pr">#&gt;</span> 'magick' package is suggested to install to give better rasterization.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Set `ht_opt$message = FALSE` to turn off this message.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-02-16 00:02:29] Start Enrichment</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Threads used: 1</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-03-02 15:37:14] Start Enrichment</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Workers: 1</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Species: Mus_musculus</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Loaded cached db: GO_BP version:3.16.0 nterm:15992 created:2023-02-15 23:48:26</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Convert ID types for the database: GO_BP</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Connect to the Ensembl archives...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Using the 103 version of biomart...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Connect to the biomart...</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in curl::curl_fetch_memory(url, handle = handle):</span> Timeout was reached: [feb2021.archive.ensembl.org:443] Operation timed out after 10001 milliseconds with 0 bytes received</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Loaded cached db: GO_BP version:3.16.0 nterm:15992 created:2023-03-02 15:07:23</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Permform enrichment...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |==============================================================================================================| 100%</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-03-02 15:38:08] Enrichment done</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:53.58 secs</span>
 <span class="r-in"><span><span class="va">ht3</span><span class="op">$</span><span class="va">plot</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in eval(expr, envir, enclos):</span> object 'ht3' not found</span>
+<span class="r-plt img"><img src="GroupHeatmap-4.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="AnnotateFeatures.html">AnnotateFeatures</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, species <span class="op">=</span> <span class="st">"Mus_musculus"</span>, db <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"TF"</span>, <span class="st">"SP"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Species: Mus_musculus</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Loaded cached db: TF version:AnimalTFDB4 nterm:2 created:2023-02-15 23:38:02</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Loaded cached db: SP version:cspa nterm:1 created:2023-02-15 23:38:06</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Loaded cached db: TF version:AnimalTFDB4 nterm:2 created:2023-03-02 14:51:36</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Loaded cached db: SP version:cspa nterm:1 created:2023-03-02 14:52:33</span>
 <span class="r-in"><span><span class="va">de_top</span> <span class="op">&lt;-</span> <span class="va">de_filter</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">gene</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/top_n.html" class="external-link">top_n</a></span><span class="op">(</span><span class="fl">1</span>, <span class="va">avg_log2FC</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span></span>
@@ -284,25 +286,25 @@
 <span class="r-in"><span><span class="va">ht4</span> <span class="op">&lt;-</span> <span class="fu">GroupHeatmap</span><span class="op">(</span><span class="va">pancreas_sub</span>,</span></span>
 <span class="r-in"><span>  features <span class="op">=</span> <span class="va">de_top</span><span class="op">$</span><span class="va">gene</span>, feature_split <span class="op">=</span> <span class="va">de_top</span><span class="op">$</span><span class="va">group1</span>, group.by <span class="op">=</span> <span class="st">"CellType"</span>,</span></span>
 <span class="r-in"><span>  heatmap_palette <span class="op">=</span> <span class="st">"YlOrRd"</span>,</span></span>
-<span class="r-in"><span>  cell_annotation <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Phase"</span>, <span class="st">"G2M_score"</span>, <span class="st">"Neurod2"</span><span class="op">)</span>, cell_palette <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Dark2"</span>, <span class="st">"Paired"</span>, <span class="st">"Paired"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  cell_annotation <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Phase"</span>, <span class="st">"G2M_score"</span>, <span class="st">"Neurod2"</span><span class="op">)</span>, cell_annotation_palette <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Dark2"</span>, <span class="st">"Paired"</span>, <span class="st">"Paired"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  cell_annotation_params <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>height <span class="op">=</span> <span class="fu">grid</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/grid/unit.html" class="external-link">unit</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="st">"in"</span><span class="op">)</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  feature_annotation <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"TF"</span>, <span class="st">"SP"</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>  feature_palcolor <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"gold"</span>, <span class="st">"steelblue"</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"forestgreen"</span><span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  feature_annotation_palcolor <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"gold"</span>, <span class="st">"steelblue"</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"forestgreen"</span><span class="op">)</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  add_dot <span class="op">=</span> <span class="cn">TRUE</span>, add_bg <span class="op">=</span> <span class="cn">TRUE</span>, show_row_names <span class="op">=</span> <span class="cn">TRUE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> 'magick' package is suggested to install to give better rasterization.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Set `ht_opt$message = FALSE` to turn off this message.</span>
 <span class="r-in"><span><span class="va">ht4</span><span class="op">$</span><span class="va">plot</span></span></span>
-<span class="r-plt img"><img src="GroupHeatmap-4.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="GroupHeatmap-5.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">ht5</span> <span class="op">&lt;-</span> <span class="fu">GroupHeatmap</span><span class="op">(</span><span class="va">pancreas_sub</span>,</span></span>
 <span class="r-in"><span>  features <span class="op">=</span> <span class="va">de_top</span><span class="op">$</span><span class="va">gene</span>, feature_split <span class="op">=</span> <span class="va">de_top</span><span class="op">$</span><span class="va">group1</span>, group.by <span class="op">=</span> <span class="st">"CellType"</span>,</span></span>
 <span class="r-in"><span>  heatmap_palette <span class="op">=</span> <span class="st">"YlOrRd"</span>,</span></span>
-<span class="r-in"><span>  cell_annotation <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Phase"</span>, <span class="st">"G2M_score"</span>, <span class="st">"Neurod2"</span><span class="op">)</span>, cell_palette <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Dark2"</span>, <span class="st">"Paired"</span>, <span class="st">"Paired"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  cell_annotation <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Phase"</span>, <span class="st">"G2M_score"</span>, <span class="st">"Neurod2"</span><span class="op">)</span>, cell_annotation_palette <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Dark2"</span>, <span class="st">"Paired"</span>, <span class="st">"Paired"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  cell_annotation_params <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>width <span class="op">=</span> <span class="fu">grid</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/grid/unit.html" class="external-link">unit</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="st">"in"</span><span class="op">)</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  feature_annotation <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"TF"</span>, <span class="st">"SP"</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>  feature_palcolor <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"gold"</span>, <span class="st">"steelblue"</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"forestgreen"</span><span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  feature_annotation_palcolor <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"gold"</span>, <span class="st">"steelblue"</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"forestgreen"</span><span class="op">)</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  add_dot <span class="op">=</span> <span class="cn">TRUE</span>, add_bg <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
 <span class="r-in"><span>  flip <span class="op">=</span> <span class="cn">TRUE</span>, column_title_rot <span class="op">=</span> <span class="fl">45</span>, show_column_names <span class="op">=</span> <span class="cn">TRUE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
@@ -310,7 +312,7 @@
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Set `ht_opt$message = FALSE` to turn off this message.</span>
 <span class="r-in"><span><span class="va">ht5</span><span class="op">$</span><span class="va">plot</span></span></span>
-<span class="r-plt img"><img src="GroupHeatmap-5.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="GroupHeatmap-6.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">ht6</span> <span class="op">&lt;-</span> <span class="fu">GroupHeatmap</span><span class="op">(</span><span class="va">pancreas_sub</span>,</span></span>
 <span class="r-in"><span>  features <span class="op">=</span> <span class="va">de_top</span><span class="op">$</span><span class="va">gene</span>, feature_split <span class="op">=</span> <span class="va">de_top</span><span class="op">$</span><span class="va">group1</span>, group.by <span class="op">=</span> <span class="st">"CellType"</span>,</span></span>
@@ -321,7 +323,7 @@
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Set `ht_opt$message = FALSE` to turn off this message.</span>
 <span class="r-in"><span><span class="va">ht6</span><span class="op">$</span><span class="va">plot</span></span></span>
-<span class="r-plt img"><img src="GroupHeatmap-6.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="GroupHeatmap-7.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">ht7</span> <span class="op">&lt;-</span> <span class="fu">GroupHeatmap</span><span class="op">(</span><span class="va">pancreas_sub</span>,</span></span>
 <span class="r-in"><span>  features <span class="op">=</span> <span class="va">de_top</span><span class="op">$</span><span class="va">gene</span>, feature_split <span class="op">=</span> <span class="va">de_top</span><span class="op">$</span><span class="va">group1</span>, group.by <span class="op">=</span> <span class="st">"CellType"</span>,</span></span>
@@ -332,19 +334,19 @@
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Set `ht_opt$message = FALSE` to turn off this message.</span>
 <span class="r-in"><span><span class="va">ht7</span><span class="op">$</span><span class="va">plot</span></span></span>
-<span class="r-plt img"><img src="GroupHeatmap-7.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="GroupHeatmap-8.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">ht8</span> <span class="op">&lt;-</span> <span class="fu">GroupHeatmap</span><span class="op">(</span><span class="va">pancreas_sub</span>,</span></span>
 <span class="r-in"><span>  features <span class="op">=</span> <span class="va">de_top</span><span class="op">$</span><span class="va">gene</span>, group.by <span class="op">=</span> <span class="st">"CellType"</span>, split.by <span class="op">=</span> <span class="st">"Phase"</span>, n_split <span class="op">=</span> <span class="fl">4</span>,</span></span>
 <span class="r-in"><span>  cluster_rows <span class="op">=</span> <span class="cn">TRUE</span>, cluster_columns <span class="op">=</span> <span class="cn">TRUE</span>, cluster_row_slices <span class="op">=</span> <span class="cn">TRUE</span>, cluster_column_slices <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
 <span class="r-in"><span>  add_dot <span class="op">=</span> <span class="cn">TRUE</span>, add_reticle <span class="op">=</span> <span class="cn">TRUE</span>, heatmap_palette <span class="op">=</span> <span class="st">"viridis"</span>,</span></span>
-<span class="r-in"><span>  ht_params <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>row_gap <span class="op">=</span> <span class="fu">grid</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/grid/unit.html" class="external-link">unit</a></span><span class="op">(</span><span class="fl">0</span>, <span class="st">"mm"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  show_row_names <span class="op">=</span> <span class="cn">TRUE</span>, ht_params <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>row_gap <span class="op">=</span> <span class="fu">grid</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/grid/unit.html" class="external-link">unit</a></span><span class="op">(</span><span class="fl">0</span>, <span class="st">"mm"</span><span class="op">)</span>, row_names_gp <span class="op">=</span> <span class="fu">grid</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/grid/gpar.html" class="external-link">gpar</a></span><span class="op">(</span>fontsize <span class="op">=</span> <span class="fl">10</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> 'magick' package is suggested to install to give better rasterization.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Set `ht_opt$message = FALSE` to turn off this message.</span>
 <span class="r-in"><span><span class="va">ht8</span><span class="op">$</span><span class="va">plot</span></span></span>
-<span class="r-plt img"><img src="GroupHeatmap-8.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="GroupHeatmap-9.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

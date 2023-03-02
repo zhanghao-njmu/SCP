@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">SCP</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -74,10 +74,8 @@
 <span>  norm.method <span class="op">=</span> <span class="st">"LogNormalize"</span>,</span>
 <span>  p.adjust.method <span class="op">=</span> <span class="st">"bonferroni"</span>,</span>
 <span>  slot <span class="op">=</span> <span class="st">"data"</span>,</span>
-<span>  assay <span class="op">=</span> <span class="st">"RNA"</span>,</span>
+<span>  assay <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  BPPARAM <span class="op">=</span> <span class="fu">BiocParallel</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/BiocParallel/man/register.html" class="external-link">bpparam</a></span><span class="op">(</span><span class="op">)</span>,</span>
-<span>  progressbar <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  force <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  seed <span class="op">=</span> <span class="fl">11</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  <span class="va">...</span></span>
@@ -102,12 +100,12 @@
 <dd><p>min.pct</p></dd>
 
 
-<dt>force</dt>
-<dd><p>force</p></dd>
-
-
 <dt>verbose</dt>
 <dd></dd>
+
+
+<dt>force</dt>
+<dd><p>force</p></dd>
 
 </dl></div>
 
@@ -118,13 +116,13 @@
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">ifnb_sub</span> <span class="op">&lt;-</span> <span class="fu">RunDEtest</span><span class="op">(</span><span class="va">ifnb_sub</span>, group_by <span class="op">=</span> <span class="st">"seurat_annotations"</span><span class="op">)</span></span></span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Data in the 'data' slot is raw counts. Perform NormalizeData(LogNormalize) on the data.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-02-16 00:13:59] Start DEtest</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Threads used: 1</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-03-02 15:58:09] Start DEtest</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Workers: 1</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Find all markers(wilcox) among groups...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |==============================================================================================================| 100%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-02-16 00:14:25] DEtest done</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:26.38 secs</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-03-02 15:58:34] DEtest done</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:24.38 secs</span>
 <span class="r-in"><span><span class="va">AllMarkers</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">ifnb_sub</span><span class="op">@</span><span class="va">tools</span><span class="op">$</span><span class="va">DEtest_seurat_annotations</span><span class="op">$</span><span class="va">AllMarkers_wilcox</span>, <span class="va">p_val_adj</span> <span class="op">&lt;</span> <span class="fl">0.05</span> <span class="op">&amp;</span> <span class="va">avg_log2FC</span> <span class="op">&gt;</span> <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">AllMarkers</span><span class="op">$</span><span class="va">group1</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -152,13 +150,13 @@
 <span class="r-plt img"><img src="RunDEtest-2.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">ifnb_sub</span> <span class="op">&lt;-</span> <span class="fu">RunDEtest</span><span class="op">(</span><span class="va">ifnb_sub</span>, group_by <span class="op">=</span> <span class="st">"seurat_annotations"</span>, markers_type <span class="op">=</span> <span class="st">"paired"</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-02-16 00:14:36] Start DEtest</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Threads used: 1</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-03-02 15:58:41] Start DEtest</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Workers: 1</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Find paired markers(wilcox) among groups...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |==============================================================================================================| 100%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-02-16 00:17:10] DEtest done</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:2.57 mins</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-03-02 16:00:58] DEtest done</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:2.28 mins</span>
 <span class="r-in"><span><span class="va">PairedMarkers</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">ifnb_sub</span><span class="op">@</span><span class="va">tools</span><span class="op">$</span><span class="va">DEtest_seurat_annotations</span><span class="op">$</span><span class="va">PairedMarkers_wilcox</span>, <span class="va">p_val_adj</span> <span class="op">&lt;</span> <span class="fl">0.05</span> <span class="op">&amp;</span> <span class="va">avg_log2FC</span> <span class="op">&gt;</span> <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">PairedMarkers</span><span class="op">$</span><span class="va">group1</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -178,16 +176,16 @@
 <span class="r-plt img"><img src="RunDEtest-3.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">ifnb_sub</span> <span class="op">&lt;-</span> <span class="fu">RunDEtest</span><span class="op">(</span><span class="va">ifnb_sub</span>, group_by <span class="op">=</span> <span class="st">"seurat_annotations"</span>, grouping.var <span class="op">=</span> <span class="st">"stim"</span>, markers_type <span class="op">=</span> <span class="st">"conserved"</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-02-16 00:18:16] Start DEtest</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Threads used: 1</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-03-02 16:02:00] Start DEtest</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Workers: 1</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Find conserved markers(wilcox) among groups...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>CTRL has fewer than 3 cells. Skipping CTRL</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Only a single group was tested</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |==============================================================================================================| 100%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-02-16 00:18:56] DEtest done</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:39.58 secs</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-03-02 16:02:37] DEtest done</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:37.11 secs</span>
 <span class="r-in"><span><span class="va">ConservedMarkers</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">ifnb_sub</span><span class="op">@</span><span class="va">tools</span><span class="op">$</span><span class="va">DEtest_seurat_annotations</span><span class="op">$</span><span class="va">ConservedMarkers_wilcox</span>, <span class="va">p_val_adj</span> <span class="op">&lt;</span> <span class="fl">0.05</span> <span class="op">&amp;</span> <span class="va">avg_log2FC</span> <span class="op">&gt;</span> <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">ConservedMarkers</span><span class="op">$</span><span class="va">group1</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -206,13 +204,37 @@
 <span class="r-plt img"><img src="RunDEtest-4.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">ifnb_sub</span> <span class="op">&lt;-</span> <span class="fu">RunDEtest</span><span class="op">(</span><span class="va">ifnb_sub</span>, group_by <span class="op">=</span> <span class="st">"seurat_annotations"</span>, grouping.var <span class="op">=</span> <span class="st">"stim"</span>, markers_type <span class="op">=</span> <span class="st">"disturbed"</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-02-16 00:19:21] Start DEtest</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Threads used: 1</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-03-02 16:02:56] Start DEtest</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Workers: 1</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Find disturbed markers(wilcox) among groups...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |==============================================================================================================| 100%</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |==============================================================================================================| 100%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-02-16 00:19:37] DEtest done</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:16.28 secs</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |==============================================================================================================| 100%</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |==============================================================================================================| 100%</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |==============================================================================================================| 100%</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |==============================================================================================================| 100%</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |==============================================================================================================| 100%</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |==============================================================================================================| 100%</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |==============================================================================================================| 100%</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |==============================================================================================================| 100%</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |==============================================================================================================| 100%</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |==============================================================================================================| 100%</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |==============================================================================================================| 100%</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-03-02 16:03:10] DEtest done</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:13.77 secs</span>
 <span class="r-in"><span><span class="va">DisturbedMarkers_STIM</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">ifnb_sub</span><span class="op">@</span><span class="va">tools</span><span class="op">$</span><span class="va">DEtest_seurat_annotations</span><span class="op">$</span><span class="va">DisturbedMarkers_wilcox</span>, <span class="va">p_val_adj</span> <span class="op">&lt;</span> <span class="fl">0.05</span> <span class="op">&amp;</span> <span class="va">avg_log2FC</span> <span class="op">&gt;</span> <span class="fl">1</span> <span class="op">&amp;</span> <span class="va">var1</span> <span class="op">==</span> <span class="st">"STIM"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">DisturbedMarkers_STIM</span><span class="op">$</span><span class="va">group1</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -230,16 +252,16 @@
 <span class="r-in"><span><span class="va">ht5</span><span class="op">$</span><span class="va">plot</span></span></span>
 <span class="r-plt img"><img src="RunDEtest-5.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">gene_unique</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/which.html" class="external-link">which</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">DisturbedMarkers_STIM</span><span class="op">$</span><span class="va">gene</span><span class="op">)</span> <span class="op">==</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">DisturbedMarkers_STIM_unique</span> <span class="op">&lt;-</span> <span class="va">DisturbedMarkers_STIM</span><span class="op">[</span><span class="va">DisturbedMarkers_STIM</span><span class="op">$</span><span class="va">gene</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">gene_unique</span>, <span class="op">]</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">DisturbedMarkers_STIM_unique</span><span class="op">$</span><span class="va">group1</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">gene_specific</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/which.html" class="external-link">which</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">DisturbedMarkers_STIM</span><span class="op">$</span><span class="va">gene</span><span class="op">)</span> <span class="op">&lt;=</span> <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">DisturbedMarkers_STIM_specific</span> <span class="op">&lt;-</span> <span class="va">DisturbedMarkers_STIM</span><span class="op">[</span><span class="va">DisturbedMarkers_STIM</span><span class="op">$</span><span class="va">gene</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">gene_specific</span>, <span class="op">]</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">DisturbedMarkers_STIM_specific</span><span class="op">$</span><span class="va">group1</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    CD14 Mono  CD4 Naive T CD4 Memory T    CD16 Mono            B        CD8 T  T activated           NK           DC </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           39           10            6           13            1            1            0            0            4 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           65           17           15           33            3            2            0            1            8 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  B Activated           Mk          pDC        Eryth </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>            0            0            0            0 </span>
 <span class="r-in"><span><span class="va">ht6</span> <span class="op">&lt;-</span> <span class="fu"><a href="GroupHeatmap.html">GroupHeatmap</a></span><span class="op">(</span><span class="va">ifnb_sub</span>,</span></span>
-<span class="r-in"><span>  features <span class="op">=</span> <span class="va">DisturbedMarkers_STIM_unique</span><span class="op">$</span><span class="va">gene</span>, feature_split <span class="op">=</span> <span class="va">DisturbedMarkers_STIM_unique</span><span class="op">$</span><span class="va">group1</span>,</span></span>
+<span class="r-in"><span>  features <span class="op">=</span> <span class="va">DisturbedMarkers_STIM_specific</span><span class="op">$</span><span class="va">gene</span>, feature_split <span class="op">=</span> <span class="va">DisturbedMarkers_STIM_specific</span><span class="op">$</span><span class="va">group1</span>,</span></span>
 <span class="r-in"><span>  group.by <span class="op">=</span> <span class="st">"seurat_annotations"</span>, split.by <span class="op">=</span> <span class="st">"stim"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> 'magick' package is suggested to install to give better rasterization.</span>
@@ -249,7 +271,7 @@
 <span class="r-plt img"><img src="RunDEtest-6.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">ht7</span> <span class="op">&lt;-</span> <span class="fu"><a href="GroupHeatmap.html">GroupHeatmap</a></span><span class="op">(</span><span class="va">ifnb_sub</span>,</span></span>
-<span class="r-in"><span>  features <span class="op">=</span> <span class="va">DisturbedMarkers_STIM_unique</span><span class="op">$</span><span class="va">gene</span>, feature_split <span class="op">=</span> <span class="va">DisturbedMarkers_STIM_unique</span><span class="op">$</span><span class="va">group1</span>,</span></span>
+<span class="r-in"><span>  features <span class="op">=</span> <span class="va">DisturbedMarkers_STIM_specific</span><span class="op">$</span><span class="va">gene</span>, feature_split <span class="op">=</span> <span class="va">DisturbedMarkers_STIM_specific</span><span class="op">$</span><span class="va">group1</span>,</span></span>
 <span class="r-in"><span>  group.by <span class="op">=</span> <span class="st">"seurat_annotations"</span>, grouping.var <span class="op">=</span> <span class="st">"stim"</span>, numerator <span class="op">=</span> <span class="st">"STIM"</span>, limits <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">2</span>, <span class="fl">2</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>When 'grouping.var' is specified, 'exp_method' can only be 'log2fc'</span>
@@ -260,7 +282,7 @@
 <span class="r-plt img"><img src="RunDEtest-7.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">ht8</span> <span class="op">&lt;-</span> <span class="fu"><a href="GroupHeatmap.html">GroupHeatmap</a></span><span class="op">(</span><span class="va">ifnb_sub</span>,</span></span>
-<span class="r-in"><span>  features <span class="op">=</span> <span class="va">DisturbedMarkers_STIM_unique</span><span class="op">$</span><span class="va">gene</span>, feature_split <span class="op">=</span> <span class="va">DisturbedMarkers_STIM_unique</span><span class="op">$</span><span class="va">group1</span>,</span></span>
+<span class="r-in"><span>  features <span class="op">=</span> <span class="va">DisturbedMarkers_STIM_specific</span><span class="op">$</span><span class="va">gene</span>, feature_split <span class="op">=</span> <span class="va">DisturbedMarkers_STIM_specific</span><span class="op">$</span><span class="va">group1</span>,</span></span>
 <span class="r-in"><span>  group.by <span class="op">=</span> <span class="st">"seurat_annotations"</span>, grouping.var <span class="op">=</span> <span class="st">"stim"</span>, numerator <span class="op">=</span> <span class="st">"STIM"</span>,</span></span>
 <span class="r-in"><span>  slot <span class="op">=</span> <span class="st">"data"</span>, aggregate_fun <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">expm1</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> <span class="fl">1</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
