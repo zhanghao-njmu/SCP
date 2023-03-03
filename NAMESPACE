@@ -157,9 +157,12 @@ importFrom(BiocParallel,SerialParam)
 importFrom(BiocParallel,bpaggregate)
 importFrom(BiocParallel,bplapply)
 importFrom(BiocParallel,bpworkers)
+<<<<<<< HEAD
 importFrom(BiocParallel,ipcid)
 importFrom(BiocParallel,ipclock)
 importFrom(BiocParallel,ipcunlock)
+=======
+>>>>>>> 932ebf42d3427553e95da67e2daf1aeb2eddb000
 importFrom(ComplexHeatmap,"%v%")
 importFrom(ComplexHeatmap,Heatmap)
 importFrom(ComplexHeatmap,HeatmapAnnotation)
