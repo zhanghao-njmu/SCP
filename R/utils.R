@@ -154,9 +154,11 @@ check_R <- function(packages, package_names = NULL, install_methods = c("BiocMan
     version <- grep("@", sub(pattern = "(.*/)(.*)(@.*)", replacement = "\\3", x = pkg_info), value = TRUE)
     version <- gsub("@", "", version)
     if (version != "") {
-      force <- isTRUE(packageVersion(pkg_name) < package_version(version))
+      force_update <- isTRUE(packageVersion(pkg_name) < package_version(version)) || isTRUE(force)
+    } else {
+      force_update <- isTRUE(force)
     }
-    if (!suppressPackageStartupMessages(requireNamespace(pkg_name, quietly = TRUE)) || isTRUE(force)) {
+    if (!suppressPackageStartupMessages(requireNamespace(pkg_name, quietly = TRUE)) || isTRUE(force_update)) {
       message("Install package: \"", pkg_name, "\" ...")
       status_list[[pkg]] <- FALSE
       i <- 1
@@ -181,8 +183,14 @@ check_R <- function(packages, package_names = NULL, install_methods = c("BiocMan
         }, error = function(e) {
           status_list[[pkg]] <- FALSE
         })
-        if (requireNamespace(pkg_name, quietly = TRUE)) {
-          status_list[[pkg]] <- TRUE
+        if (version == "") {
+          status_list[[pkg]] <- requireNamespace(pkg_name, quietly = TRUE)
+        } else {
+          if (requireNamespace(pkg_name, quietly = TRUE)) {
+            status_list[[pkg]] <- packageVersion(pkg_name) >= package_version(version)
+          } else {
+            status_list[[pkg]] <- FALSE
+          }
         }
         i <- i + 1
         if (i > length(install_methods)) {
@@ -648,4 +656,65 @@ str_wrap <- function(x, width = 80) {
   }
   x_wrap <- unlist(lapply(x, function(i) paste0(strwrap(i, width = width), collapse = "\n")))
   return(x_wrap)
+}
+
+#' Split a vector into the chunks
+#'
+#' @param x A vector.
+#' @param nchunks Number of chunks.
+#' @examples
+#' x <- 1:10
+#' names(x) <- letters[1:10]
+#' tochunks(x, nchunks = 3)
+#' @export
+tochunks <- function(x, nchunks) {
+  split(x, cut(seq_along(x), nchunks, labels = FALSE))
+}
+
+#' Generate a iterator along chunks of a vector
+#' @param x A vector.
+#' @param nchunks Number of chunks.
+#' @examples
+#' \dontrun{
+#' library(BiocParallel)
+#' x <- 1:100
+#' BPPARAM <- bpparam()
+#' bpprogressbar(BPPARAM) <- TRUE
+#' bpworkers(BPPARAM) <- 10
+#' slow_fun <- function(x) {
+#'   out <- NULL
+#'   for (i in seq_along(x)) {
+#'     Sys.sleep(1)
+#'     out[[i]] <- x[[i]] + 3
+#'   }
+#'   return(out)
+#' }
+#' system.time({
+#'   res0 <- lapply(x, FUN = slow_fun)
+#' })
+#' unlist(res0, recursive = FALSE, use.names = FALSE)[71:73]
+#' system.time({
+#'   res1 <- bplapply(x, FUN = slow_fun, BPPARAM = BPPARAM)
+#' })
+#' unlist(res1, recursive = FALSE, use.names = FALSE)[71:73]
+#' system.time({
+#'   res2 <- bplapply(tochunks(x, nchunks = bpworkers(BPPARAM)), FUN = slow_fun, BPPARAM = BPPARAM)
+#' })
+#' unlist(res2, recursive = FALSE, use.names = FALSE)[71:73]
+#' system.time({
+#'   res3 <- bpiterate(ITER = iterchunks(x, nchunks = bpworkers(BPPARAM)), FUN = slow_fun, BPPARAM = BPPARAM)
+#' })
+#' unlist(res3, recursive = FALSE, use.names = FALSE)[71:73]
+#' }
+#' @export
+iterchunks <- function(x, nchunks) {
+  chunks <- tochunks(x, nchunks)
+  i <- 0L
+  function() {
+    if (i >= length(chunks)) {
+      return(NULL)
+    }
+    i <<- i + 1L
+    x[chunks[[i]]]
+  }
 }

@@ -392,7 +392,7 @@ RecoverCounts <- function(srt, assay = NULL, trans = c("expm1", "exp", "none"), 
   assay <- assay %||% DefaultAssay(srt)
   counts <- GetAssayData(srt, assay = assay, slot = "counts")
   if (!inherits(counts, "dgCMatrix")) {
-    counts <- as.sparse(counts[1:nrow(counts), ])
+    counts <- as.sparse(counts[1:nrow(counts), , drop = FALSE])
   }
   status <- check_DataType(data = counts)
   if (status == "raw_counts") {
@@ -618,13 +618,13 @@ SrtReorder <- function(srt, features = NULL, reorder_by = NULL, slot = "data", a
     stop(distance_metric, " method is invalid.")
   }
 
-  data.avg <- AverageExpression(object = srt, features = features, slot = slot, assays = assay, group.by = "ident", verbose = FALSE)[[1]][features, ]
+  data.avg <- AverageExpression(object = srt, features = features, slot = slot, assays = assay, group.by = "ident", verbose = FALSE)[[1]][features, , drop = FALSE]
   if (isTRUE(log)) {
     data.avg <- log1p(data.avg)
   }
-  mat <- t(x = data.avg[features, ])
+  mat <- t(x = data.avg[features, , drop = FALSE])
   if (!inherits(mat, "dgCMatrix")) {
-    mat <- as.sparse(mat[1:nrow(mat), ])
+    mat <- as.sparse(mat[1:nrow(mat), , drop = FALSE])
   }
 
   if (distance_metric %in% c(simil_method, "pearson", "spearman")) {
@@ -634,9 +634,9 @@ SrtReorder <- function(srt, features = NULL, reorder_by = NULL, slot = "data", a
       }
       distance_metric <- "correlation"
     }
-    d <- 1 - proxyC::simil(as.sparse(mat[1:nrow(mat), ]), method = distance_metric)
+    d <- 1 - proxyC::simil(as.sparse(mat[1:nrow(mat), , drop = FALSE]), method = distance_metric)
   } else if (distance_metric %in% dist_method) {
-    d <- proxyC::dist(as.sparse(mat[1:nrow(mat), ]), method = distance_metric)
+    d <- proxyC::dist(as.sparse(mat[1:nrow(mat), , drop = FALSE]), method = distance_metric)
   }
   data.dist <- as.dist(d)
   hc <- hclust(d = data.dist)
@@ -2463,13 +2463,13 @@ BBKNN_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtLis
   n.neighbors <- bem[[3]]$n_neighbors
   srtIntegrated <- srtMerge
 
-  bbknn_graph <- as.sparse(bem[[2]][1:nrow(bem[[2]]), ])
+  bbknn_graph <- as.sparse(bem[[2]][1:nrow(bem[[2]]), , drop = FALSE])
   rownames(bbknn_graph) <- colnames(bbknn_graph) <- rownames(emb)
   bbknn_graph <- as.Graph(bbknn_graph)
   bbknn_graph@assay.used <- DefaultAssay(srtIntegrated)
   srtIntegrated@graphs[["BBKNN"]] <- bbknn_graph
 
-  bbknn_dist <- t(as.sparse(bem[[1]][1:nrow(bem[[1]]), ]))
+  bbknn_dist <- t(as.sparse(bem[[1]][1:nrow(bem[[1]]), , drop = FALSE]))
   rownames(bbknn_dist) <- colnames(bbknn_dist) <- rownames(emb)
   val <- split(bbknn_dist@x, rep(1:ncol(bbknn_dist), diff(bbknn_dist@p)))
   pos <- split(bbknn_dist@i + 1, rep(1:ncol(bbknn_dist), diff(bbknn_dist@p)))

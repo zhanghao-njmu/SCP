@@ -2,7 +2,7 @@
 % Please edit documentation in R/SCP-plot.R
 \name{FeatureStatPlot}
 \alias{FeatureStatPlot}
-\title{Violin plot for cell expression.}
+\title{Statistical plot of features}
 \usage{
 FeatureStatPlot(
   srt,
@@ -76,7 +76,7 @@ FeatureStatPlot(
 \item{y.min}{}
 }
 \description{
-Violin plot for cell expression.
+Statistical plot of features
 }
 \examples{
 library(dplyr)

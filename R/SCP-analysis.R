@@ -259,7 +259,7 @@ GeneConvert <- function(geneID, geneID_from_IDtype = "symbol", geneID_to_IDtype 
           values = list(geneID)
         )
         geneID_res1 <- geneID_res1[, c(from_attr, "ensembl_gene_id"), drop = FALSE]
-        geneID_res1 <- geneID_res1[geneID_res1[, from_attr] %in% geneID, ]
+        geneID_res1 <- geneID_res1[geneID_res1[, from_attr] %in% geneID, , drop = FALSE]
         if (nrow(geneID_res1) == 0) {
           next
         }
@@ -275,7 +275,7 @@ GeneConvert <- function(geneID, geneID_from_IDtype = "symbol", geneID_to_IDtype 
             values = list(geneID_res1[, "ensembl_gene_id_tmp"])
           )
           geneID_res2 <- geneID_res2[, unique(c("ensembl_gene_id", to_attr))]
-          geneID_res2 <- geneID_res2[geneID_res2[, "ensembl_gene_id"] %in% geneID_res1[, "ensembl_gene_id_tmp"], ]
+          geneID_res2 <- geneID_res2[geneID_res2[, "ensembl_gene_id"] %in% geneID_res1[, "ensembl_gene_id_tmp"], , drop = FALSE]
           if (nrow(geneID_res2) == 0) {
             next
           }
@@ -293,7 +293,7 @@ GeneConvert <- function(geneID, geneID_from_IDtype = "symbol", geneID_to_IDtype 
             values = list(geneID_res1[, "ensembl_gene_id_tmp"])
           )
           geneID_res2 <- geneID_res2[, c("ensembl_gene_id", homolog_ensembl_gene), drop = FALSE]
-          geneID_res2 <- geneID_res2[geneID_res2[, "ensembl_gene_id"] %in% geneID_res1[, "ensembl_gene_id_tmp"], ]
+          geneID_res2 <- geneID_res2[geneID_res2[, "ensembl_gene_id"] %in% geneID_res1[, "ensembl_gene_id_tmp"], , drop = FALSE]
           if (nrow(geneID_res2) == 0) {
             next
           }
@@ -306,7 +306,7 @@ GeneConvert <- function(geneID, geneID_from_IDtype = "symbol", geneID_to_IDtype 
             values = list(geneID_res2[, homolog_ensembl_gene])
           )
           geneID_res3 <- geneID_res3[, unique(c("ensembl_gene_id", to_attr)), drop = FALSE]
-          geneID_res3 <- geneID_res3[geneID_res3[, "ensembl_gene_id"] %in% geneID_res2[, homolog_ensembl_gene], ]
+          geneID_res3 <- geneID_res3[geneID_res3[, "ensembl_gene_id"] %in% geneID_res2[, homolog_ensembl_gene], , drop = FALSE]
           if (nrow(geneID_res3) == 0) {
             next
           }
@@ -334,7 +334,7 @@ GeneConvert <- function(geneID, geneID_from_IDtype = "symbol", geneID_to_IDtype 
           values = list(geneID)
         )
         geneID_res1 <- geneID_res1[, unique(c("ensembl_gene_id", from_attr, to_attr)), drop = FALSE]
-        geneID_res1 <- geneID_res1[geneID_res1[, from_attr] %in% geneID, ]
+        geneID_res1 <- geneID_res1[geneID_res1[, from_attr] %in% geneID, , drop = FALSE]
         if (nrow(geneID_res1) == 0) {
           next
         }
@@ -381,7 +381,7 @@ GeneConvert <- function(geneID, geneID_from_IDtype = "symbol", geneID_to_IDtype 
   })
   geneID_collapse <- do.call(rbind, geneID_res_stat)
   geneID_collapse <- unique(as.data.frame(geneID_collapse[, c("from_geneID", "to_IDtype", "to_geneID")]))
-  geneID_collapse <- geneID_collapse[sapply(geneID_collapse$to_geneID, length) > 0, ]
+  geneID_collapse <- geneID_collapse[sapply(geneID_collapse$to_geneID, length) > 0, , drop = FALSE]
   geneID_collapse <- reshape2::dcast(geneID_collapse, formula = from_geneID ~ to_IDtype, value.var = "to_geneID")
   rownames(geneID_collapse) <- geneID_collapse[, "from_geneID"]
   geneID_expand <- unnest(data = geneID_collapse, cols = colnames(geneID_collapse)[sapply(geneID_collapse, class) == "list"], keep_empty = FALSE)
@@ -717,8 +717,8 @@ CellScoring <- function(srt, features = NULL, slot = "data", assay = NULL, split
       TERM2NAME_tmp <- db_list[[species]][[single_db]][["TERM2NAME"]]
       dup <- duplicated(TERM2GENE_tmp)
       na <- rowSums(is.na(TERM2GENE_tmp)) > 0
-      TERM2GENE_tmp <- TERM2GENE_tmp[!(dup | na), ]
-      TERM2NAME_tmp <- TERM2NAME_tmp[TERM2NAME_tmp[, "Term"] %in% TERM2GENE_tmp[, "Term"], ]
+      TERM2GENE_tmp <- TERM2GENE_tmp[!(dup | na), , drop = FALSE]
+      TERM2NAME_tmp <- TERM2NAME_tmp[TERM2NAME_tmp[, "Term"] %in% TERM2GENE_tmp[, "Term"], , drop = FALSE]
 
       TERM2GENE_tmp <- unique(TERM2GENE_tmp)
       TERM2NAME_tmp <- unique(TERM2NAME_tmp)
@@ -1125,17 +1125,17 @@ FindConservedMarkers2 <- function(object, grouping.var, ident.1, ident.2 = NULL,
   }))
   markers.conserved <- list()
   for (i in 1:length(x = marker.test)) {
-    markers.conserved[[i]] <- marker.test[[i]][genes.conserved, ]
+    markers.conserved[[i]] <- marker.test[[i]][genes.conserved, , drop = FALSE]
     colnames(x = markers.conserved[[i]]) <- paste(names(x = marker.test)[i], colnames(x = markers.conserved[[i]]), sep = "_")
   }
   markers.combined <- Reduce(cbind, markers.conserved)
   fc <- FoldChange(Assays(object, assay), slot = slot, cells.1 = cells.1, cells.2 = cells.2, features = genes.conserved, norm.method = norm.method, base = base, pseudocount.use = pseudocount.use, mean.fxn = mean.fxn)
-  markers.combined <- cbind(markers.combined, fc[genes.conserved, ])
+  markers.combined <- cbind(markers.combined, fc[genes.conserved, , drop = FALSE])
   logFC.codes <- colnames(x = markers.combined)[grepl(pattern = "*avg_log.*FC$", x = colnames(x = markers.combined))]
   if (isTRUE(only.pos)) {
-    markers.combined <- markers.combined[apply(markers.combined[, logFC.codes] > 0, 1, all), ]
+    markers.combined <- markers.combined[apply(markers.combined[, logFC.codes] > 0, 1, all), , drop = FALSE]
   } else {
-    markers.combined <- markers.combined[apply(markers.combined[, logFC.codes] < 0, 1, all) | apply(markers.combined[, logFC.codes] > 0, 1, all), ]
+    markers.combined <- markers.combined[apply(markers.combined[, logFC.codes] < 0, 1, all) | apply(markers.combined[, logFC.codes] > 0, 1, all), , drop = FALSE]
   }
   pval.codes <- colnames(x = markers.combined)[grepl(pattern = "*_p_val$", x = colnames(x = markers.combined))]
   if (length(x = pval.codes) > 1) {
@@ -1147,7 +1147,7 @@ FindConservedMarkers2 <- function(object, grouping.var, ident.1, ident.2 = NULL,
     colnames(x = combined.pval) <- paste0(meta.method.name, "_p_val")
     markers.combined <- cbind(markers.combined, combined.pval)
     markers.combined[, "p_val"] <- markers.combined[, paste0(meta.method.name, "_p_val")]
-    markers.combined <- markers.combined[order(markers.combined[, paste0(meta.method.name, "_p_val")]), ]
+    markers.combined <- markers.combined[order(markers.combined[, paste0(meta.method.name, "_p_val")]), , drop = FALSE]
   } else {
     markers.combined[, "max_pval"] <- markers.combined[, "p_val"] <- markers.combined[, pval.codes]
     warning("Only a single group was tested", call. = FALSE, immediate. = TRUE)
@@ -1542,7 +1542,7 @@ RunDEtest <- function(srt, group_by = NULL, group1 = NULL, group2 = NULL, cells1
 
     if (markers_type == "paired") {
       pair <- expand.grid(x = levels(cell_group), y = levels(cell_group))
-      pair <- pair[pair[, 1] != pair[, 2], ]
+      pair <- pair[pair[, 1] != pair[, 2], , drop = FALSE]
       PairedMarkers <- bplapply(seq_len(nrow(pair)), function(i) {
         cells.1 <- names(cell_group)[which(cell_group == pair[i, 1])]
         cells.2 <- names(cell_group)[which(cell_group == pair[i, 2])]
@@ -1729,7 +1729,7 @@ ListDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
   dbinfo[["file"]] <- pathnames
 
   patterns <- paste0(species, "-", db)
-  dbinfo <- dbinfo[unlist(lapply(patterns, function(pat) grep(pat, dbinfo[["db_name"]], fixed = TRUE))), ]
+  dbinfo <- dbinfo[unlist(lapply(patterns, function(pat) grep(pat, dbinfo[["db_name"]], fixed = TRUE))), , drop = FALSE]
   return(dbinfo)
 }
 
@@ -1884,7 +1884,7 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
           terms <- db[db %in% c("GO", "GO_BP", "GO_CC", "GO_MF")]
           bg <- suppressMessages(AnnotationDbi::select(orgdb, keys = AnnotationDbi::keys(orgdb), columns = "GOALL"))
           bg[["EVIDENCEALL"]] <- NULL
-          bg <- unique(bg[!is.na(bg[["GOALL"]]), ])
+          bg <- unique(bg[!is.na(bg[["GOALL"]]), , drop = FALSE])
           bg2 <- suppressMessages(AnnotationDbi::select(GO.db::GO.db, keys = AnnotationDbi::keys(GO.db::GO.db), columns = c("GOID", "TERM", "DEFINITION")))
           bg <- merge(x = bg, by.x = "GOALL", y = bg2, by.y = "GOID", all.x = TRUE)
           for (subterm in terms) {
@@ -1949,7 +1949,7 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
           TERM2NAME <- kegg_get(kegg_pathwayname_url)
           TERM2NAME[, 1] <- gsub(pattern = "[^:]+:", replacement = "", x = TERM2NAME[, 1])
           TERM2NAME[, 2] <- gsub(pattern = paste0(" - ", paste0(unlist(strsplit(sps, split = "_")), collapse = " "), ".*$"), replacement = "", x = TERM2NAME[, 2])
-          TERM2NAME <- TERM2NAME[TERM2NAME[, 1] %in% TERM2GENE[, 1], ]
+          TERM2NAME <- TERM2NAME[TERM2NAME[, 1] %in% TERM2GENE[, 1], , drop = FALSE]
 
           colnames(TERM2GENE) <- c("Term", default_IDtypes["KEGG"])
           colnames(TERM2NAME) <- c("Term", "Name")
@@ -2031,13 +2031,13 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
           message("Preparing database: Reactome")
           reactome_sp <- gsub(pattern = "_", replacement = " ", x = sps)
           df_all <- suppressMessages(AnnotationDbi::select(reactome.db::reactome.db, keys = AnnotationDbi::keys(reactome.db::reactome.db), columns = c("PATHID", "PATHNAME")))
-          df <- df_all[grepl(pattern = paste0("^", reactome_sp, ": "), x = df_all$PATHNAME), ]
+          df <- df_all[grepl(pattern = paste0("^", reactome_sp, ": "), x = df_all$PATHNAME), , drop = FALSE]
           if (nrow(df) == 0) {
             if (isTRUE(convert_species) && db_species["Reactome"] != "Homo_sapiens") {
               warning("Use the human annotation to create the Reactome database for ", sps, immediate. = TRUE)
               db_species["Reactome"] <- "Homo_sapiens"
               reactome_sp <- gsub(pattern = "_", replacement = " ", x = "Homo_sapiens")
-              df <- df_all[grepl(pattern = paste0("^", reactome_sp, ": "), x = df_all$PATHNAME), ]
+              df <- df_all[grepl(pattern = paste0("^", reactome_sp, ": "), x = df_all$PATHNAME), , drop = FALSE]
             } else {
               stop("Stop the preparation.")
             }
@@ -2074,7 +2074,7 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
           common_name <- unlist(strsplit(unlist(suppressMessages(taxize::sci2comm(uid, db = "ncbi"))), " "))
           common_name <- common_name[length(common_name)]
           common_name <- paste(toupper(substr(common_name, 1, 1)), substr(common_name, 2, nchar(common_name)), sep = "")
-          df <- df_all[which(df_all[["Organism"]] == common_name), ]
+          df <- df_all[which(df_all[["Organism"]] == common_name), , drop = FALSE]
           if (nrow(df) == 0) {
             if (isTRUE(convert_species) && db_species["ProteinComplex"] != "Homo_sapiens") {
               warning("Use the human annotation to create the ProteinComplex database for ", sps, immediate. = TRUE)
@@ -2084,7 +2084,7 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
               common_name <- unlist(strsplit(unlist(suppressMessages(taxize::sci2comm(uid, db = "ncbi"))), " "))
               common_name <- common_name[length(common_name)]
               common_name <- paste(toupper(substr(common_name, 1, 1)), substr(common_name, 2, nchar(common_name)), sep = "")
-              df <- df_all[which(df_all[["Organism"]] == common_name), ]
+              df <- df_all[which(df_all[["Organism"]] == common_name), , drop = FALSE]
             } else {
               stop("Stop the preparation.")
             }
@@ -2092,8 +2092,8 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
           s <- strsplit(df[["subunits.Entrez.IDs."]], split = ";") # subunits.Gene.name.
           complex <- data.frame(V1 = rep(df$ComplexName, sapply(s, length)), V2 = unlist(s), V3 = rep(paste0("ComplexID:", df$ComplexID), sapply(s, length)))
           complex$V1 <- gsub(pattern = "\\([^\\)]*\\)$", replacement = "", x = trimws(complex$V1), perl = FALSE)
-          complex <- complex[!duplicated(complex), ]
-          complex <- complex[which(complex$V2 != "NULL"), ]
+          complex <- complex[!duplicated(complex), , drop = FALSE]
+          complex <- complex[which(complex$V2 != "NULL"), , drop = FALSE]
           TERM2GENE <- complex[, c(3, 2)]
           TERM2NAME <- complex[, c(3, 1)]
           colnames(TERM2GENE) <- c("Term", default_IDtypes["ProteinComplex"])
@@ -2137,7 +2137,7 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
           download(url = paste0("https://www.dgidb.org/", lines[1]), destfile = temp)
           dgi <- read.table(temp, header = TRUE, sep = "\t", fill = TRUE, quote = "")
           unlink(temp)
-          dgi <- dgi[!is.na(dgi[["entrez_id"]]), ]
+          dgi <- dgi[!is.na(dgi[["entrez_id"]]), , drop = FALSE]
           dgi <- dgi[, c("entrez_id", "drug_claim_name")]
           dgi[, "drug_claim_name"] <- toupper(dgi[, "drug_claim_name"])
           TERM2GENE <- dgi[, c("drug_claim_name", "entrez_id")]
@@ -2181,7 +2181,7 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
           gene_id <- read.table(temp, header = FALSE, row.names = NULL, sep = "\t", fill = TRUE, quote = "")
           gene_id <- gene_id[, 1:15]
           colnames(gene_id) <- gene_id[1, ]
-          gene_id <- gene_id[gene_id[, 2] %in% c("Gene", "Pseudogene"), ]
+          gene_id <- gene_id[gene_id[, 2] %in% c("Gene", "Pseudogene"), , drop = FALSE]
           rownames(gene_id) <- gene_id[, 1]
 
           # download(url = "http://www.informatics.jax.org/downloads/reports/MGI_PhenoGenoMP.rpt", destfile = temp) # 43.0 MB
@@ -2223,13 +2223,13 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
           version <- gsub(pattern = ".*Alliance Database Version: ", replacement = "", x = grep("Alliance Database Version", readLines(gsub(".gz", "", temp), warn = FALSE), perl = TRUE, value = TRUE))
           unlink(temp)
           do_sp <- gsub(pattern = "_", replacement = " ", x = sps)
-          do_df <- do_all[do_all[["DBobjectType"]] == "gene" & do_all[["SpeciesName"]] == do_sp, ]
+          do_df <- do_all[do_all[["DBobjectType"]] == "gene" & do_all[["SpeciesName"]] == do_sp, , drop = FALSE]
           if (nrow(do_df) == 0) {
             if (isTRUE(convert_species) && db_species["DO"] != "Homo_sapiens") {
               warning("Use the human annotation to create the DO database for ", sps, immediate. = TRUE)
               db_species["DO"] <- "Homo_sapiens"
               do_sp <- gsub(pattern = "_", replacement = " ", x = "Homo_sapiens")
-              do_df <- do_all[do_all[["DBobjectType"]] == "gene" & do_all[["SpeciesName"]] == do_sp, ]
+              do_df <- do_all[do_all[["DBobjectType"]] == "gene" & do_all[["SpeciesName"]] == do_sp, , drop = FALSE]
             } else {
               stop("Stop the preparation.")
             }
@@ -2255,7 +2255,7 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
         if (any(db == "PFAM") && (!"PFAM" %in% names(db_list[[sps]]))) {
           message("Preparing database: PFAM")
           bg <- suppressMessages(AnnotationDbi::select(orgdb, keys = AnnotationDbi::keys(orgdb), columns = "PFAM"))
-          bg <- unique(bg[!is.na(bg$PFAM), ])
+          bg <- unique(bg[!is.na(bg$PFAM), , drop = FALSE])
           bg2 <- as.data.frame(PFAM.db::PFAMDE2AC[AnnotationDbi::mappedkeys(PFAM.db::PFAMDE2AC)])
           rownames(bg2) <- bg2[["ac"]]
           bg[["PFAM_name"]] <- bg2[bg$PFAM, "de"]
@@ -2465,7 +2465,7 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
           surfacepro <- surfacepro[surfacepro[["organism"]] == switch(sps,
             "Homo_sapiens" = "Human",
             "Mus_musculus" = "Mouse"
-          ), ]
+          ), , drop = FALSE]
           TERM2GENE <- data.frame("Term" = "SurfaceProtein", "symbol" = surfacepro[["ENTREZ.gene.symbol"]])
           TERM2NAME <- data.frame("Term" = "SurfaceProtein", "Name" = "SurfaceProtein")
           colnames(TERM2GENE) <- c("Term", default_IDtypes["SP"])
@@ -2720,7 +2720,7 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
         TERM2GENE <- unnest(TERM2GENE, cols = "ensembl_id-converted", keep_empty = FALSE)
         TERM2GENE <- TERM2GENE[, c("Term", "ensembl_id-converted")]
         colnames(TERM2GENE) <- c("Term", "ensembl_id")
-        TERM2NAME <- TERM2NAME[TERM2NAME[["Term"]] %in% TERM2GENE[["Term"]], ]
+        TERM2NAME <- TERM2NAME[TERM2NAME[["Term"]] %in% TERM2GENE[["Term"]], , drop = FALSE]
         db_info[["TERM2GENE"]] <- unique(TERM2GENE)
         db_info[["TERM2NAME"]] <- unique(TERM2NAME)
         version <- paste0(db_info[["version"]], "(converted from ", sp_from, ")")
@@ -2879,7 +2879,7 @@ RunEnrichment <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_t
   }
   names(geneID_groups) <- geneID
   input <- data.frame(geneID = geneID, geneID_groups = geneID_groups)
-  input <- input[!geneID %in% geneID_exclude, ]
+  input <- input[!geneID %in% geneID_exclude, , drop = FALSE]
 
   if (is.null(TERM2GENE)) {
     db_list <- PrepareDB(
@@ -2932,7 +2932,7 @@ RunEnrichment <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_t
   input[[IDtype]] <- geneMap[as.character(input$geneID), IDtype]
   input[[result_IDtype]] <- geneMap[as.character(input$geneID), result_IDtype]
   input <- unnest(input, cols = c(IDtype, result_IDtype))
-  input <- input[!is.na(input[[IDtype]]), ]
+  input <- input[!is.na(input[[IDtype]]), , drop = FALSE]
 
   message("Permform enrichment...")
   suppressPackageStartupMessages(requireNamespace("DOSE", quietly = TRUE))
@@ -2947,8 +2947,8 @@ RunEnrichment <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_t
     TERM2NAME_tmp <- db_list[[species]][[term]][["TERM2NAME"]]
     dup <- duplicated(TERM2GENE_tmp)
     na <- rowSums(is.na(TERM2GENE_tmp)) > 0
-    TERM2GENE_tmp <- TERM2GENE_tmp[!(dup | na), ]
-    TERM2NAME_tmp <- TERM2NAME_tmp[TERM2NAME_tmp[["Term"]] %in% TERM2GENE_tmp[["Term"]], ]
+    TERM2GENE_tmp <- TERM2GENE_tmp[!(dup | na), , drop = FALSE]
+    TERM2NAME_tmp <- TERM2NAME_tmp[TERM2NAME_tmp[["Term"]] %in% TERM2GENE_tmp[["Term"]], , drop = FALSE]
     enrich_res <- enricher(
       gene = gene,
       minGSSize = ifelse(term %in% c("Chromosome"), 1, minGSSize),
@@ -2993,7 +2993,7 @@ RunEnrichment <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_t
         if (nterm_simplify <= 1) {
           warning(group, "|", term, " has no term to simplify.", immediate. = TRUE)
         } else {
-          sim_res@result <- sim_res@result[with(sim_res@result, eval(rlang::parse_expr(GO_simplify_cutoff))), ]
+          sim_res@result <- sim_res@result[with(sim_res@result, eval(rlang::parse_expr(GO_simplify_cutoff))), , drop = FALSE]
           semData <- db_list[[species]][[term]][["semData"]]
           ipclock(id)
           sim_res <- simplify(sim_res,
@@ -3160,12 +3160,12 @@ RunGSEA <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_thresho
   }
 
   input <- data.frame(geneID = geneID, geneScore = geneScore, geneID_groups = geneID_groups)
-  input <- input[!geneID %in% geneID_exclude, ]
+  input <- input[!geneID %in% geneID_exclude, , drop = FALSE]
 
   na_index <- which(is.na(geneScore))
   if (length(na_index) > 0) {
     message("Ignore ", length(na_index), " NA geneScore")
-    input <- input[-na_index, ]
+    input <- input[-na_index, , drop = FALSE]
   }
   input[is.infinite(input$geneScore) & input$geneScore < 0, "geneScore"] <- min(input[!is.infinite(input$geneScore), "geneScore"])
   input[is.infinite(input$geneScore) & input$geneScore > 0, "geneScore"] <- max(input[!is.infinite(input$geneScore), "geneScore"])
@@ -3227,7 +3227,7 @@ RunGSEA <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_thresho
   input[[IDtype]] <- geneMap[as.character(input$geneID), IDtype]
   input[[result_IDtype]] <- geneMap[as.character(input$geneID), result_IDtype]
   input <- unnest(input, cols = c(IDtype, result_IDtype))
-  input <- input[!is.na(input[[IDtype]]), ]
+  input <- input[!is.na(input[[IDtype]]), , drop = FALSE]
 
   message("Permform GSEA...")
   suppressPackageStartupMessages(requireNamespace("DOSE", quietly = TRUE))
@@ -3245,8 +3245,8 @@ RunGSEA <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_thresho
     TERM2NAME_tmp <- db_list[[species]][[term]][["TERM2NAME"]]
     dup <- duplicated(TERM2GENE_tmp)
     na <- rowSums(is.na(TERM2GENE_tmp)) > 0
-    TERM2GENE_tmp <- TERM2GENE_tmp[!(dup | na), ]
-    TERM2NAME_tmp <- TERM2NAME_tmp[TERM2NAME_tmp[["Term"]] %in% TERM2GENE_tmp[["Term"]], ]
+    TERM2GENE_tmp <- TERM2GENE_tmp[!(dup | na), , drop = FALSE]
+    TERM2NAME_tmp <- TERM2NAME_tmp[TERM2NAME_tmp[["Term"]] %in% TERM2GENE_tmp[["Term"]], , drop = FALSE]
     enrich_res <- GSEA(
       geneList = geneList,
       minGSSize = ifelse(term %in% c("Chromosome"), 1, minGSSize),
@@ -3294,7 +3294,7 @@ RunGSEA <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_thresho
         if (nterm_simplify <= 1) {
           warning(group, "|", term, " has no term to simplify.", immediate. = TRUE)
         } else {
-          sim_res@result <- sim_res@result[with(sim_res@result, eval(rlang::parse_expr(GO_simplify_cutoff))), ]
+          sim_res@result <- sim_res@result[with(sim_res@result, eval(rlang::parse_expr(GO_simplify_cutoff))), , drop = FALSE]
           semData <- db_list[[species]][[term]][["semData"]]
           ipclock(id)
           sim_res <- simplify(sim_res,
@@ -3948,11 +3948,11 @@ RunMonocle3 <- function(srt, annotation = NULL, assay = NULL, slot = "counts",
   )
   milestones <- list(
     geom_point(
-      data = point_df[point_df[["is_branch"]] == FALSE, ], aes(x = x, y = y),
+      data = point_df[point_df[["is_branch"]] == FALSE, , drop = FALSE], aes(x = x, y = y),
       shape = 21, color = "white", fill = "black", size = 3, stroke = 1
     ),
     geom_point(
-      data = point_df[point_df[["is_branch"]] == TRUE, ], aes(x = x, y = y),
+      data = point_df[point_df[["is_branch"]] == TRUE, , drop = FALSE], aes(x = x, y = y),
       shape = 21, color = "white", fill = "red", size = 3, stroke = 1
     ),
     new_scale_color(),
@@ -4349,7 +4349,7 @@ RunDynamicEnrichment <- function(srt, lineages,
       stop(l, " info not found in the srt object. Should perform RunDynamicFeatures first!")
     }
     DynamicFeatures <- srt@tools[[paste0("DynamicFeatures_", l)]][["DynamicFeatures"]]
-    DynamicFeatures <- DynamicFeatures[DynamicFeatures$exp_ncells > min_expcells & DynamicFeatures$r.sq > r.sq & DynamicFeatures$dev.expl > dev.expl & DynamicFeatures$padjust < padjust, ]
+    DynamicFeatures <- DynamicFeatures[DynamicFeatures$exp_ncells > min_expcells & DynamicFeatures$r.sq > r.sq & DynamicFeatures$dev.expl > dev.expl & DynamicFeatures$padjust < padjust, , drop = FALSE]
     dynamic[[l]] <- DynamicFeatures
     feature_union <- c(feature_union, DynamicFeatures[, "features"])
     cell_union <- c(cell_union, rownames(srt@tools[[paste0("DynamicFeatures_", l)]][["raw_matrix"]]))
@@ -4379,14 +4379,14 @@ RunDynamicEnrichment <- function(srt, lineages,
     TERM2NAME_tmp <- db_list[[species]][[term]][["TERM2NAME"]]
     dup <- duplicated(TERM2GENE_tmp)
     na <- rowSums(is.na(TERM2GENE_tmp)) > 0
-    TERM2GENE_tmp <- TERM2GENE_tmp[!(dup | na), ]
-    TERM2NAME_tmp <- TERM2NAME_tmp[TERM2NAME_tmp[, "Term"] %in% TERM2GENE_tmp[, "Term"], ]
+    TERM2GENE_tmp <- TERM2GENE_tmp[!(dup | na), , drop = FALSE]
+    TERM2NAME_tmp <- TERM2NAME_tmp[TERM2NAME_tmp[, "Term"] %in% TERM2GENE_tmp[, "Term"], , drop = FALSE]
 
     term_use <- unique(TERM2GENE_tmp[TERM2GENE_tmp[, IDtype] %in% feature_union, "Term"])
-    TERM2GENE_tmp <- TERM2GENE_tmp[TERM2GENE_tmp[, "Term"] %in% term_use, ]
-    TERM2NAME_tmp <- TERM2NAME_tmp[TERM2NAME_tmp[, "Term"] %in% term_use, ]
+    TERM2GENE_tmp <- TERM2GENE_tmp[TERM2GENE_tmp[, "Term"] %in% term_use, , drop = FALSE]
+    TERM2NAME_tmp <- TERM2NAME_tmp[TERM2NAME_tmp[, "Term"] %in% term_use, , drop = FALSE]
     rownames(TERM2NAME_tmp) <- TERM2NAME_tmp[, "Term"]
-    TERM2GENE_tmp <- TERM2GENE_tmp[TERM2GENE_tmp[, IDtype] %in% rownames(srt[[assay]]), ]
+    TERM2GENE_tmp <- TERM2GENE_tmp[TERM2GENE_tmp[, IDtype] %in% rownames(srt[[assay]]), , drop = FALSE]
     feature_list <- split(TERM2GENE_tmp[, IDtype], TERM2NAME_tmp[TERM2GENE_tmp[, "Term"], "Name"])
     GSSize <- sapply(feature_list, length)
     feature_list <- feature_list[GSSize >= minGSSize & GSSize <= maxGSSize]
@@ -4621,7 +4621,7 @@ adata_to_srt <- function(adata) {
   }
   x <- t(adata$X)
   if (!inherits(x, "dgCMatrix")) {
-    x <- as.sparse(x[1:nrow(x), ])
+    x <- as.sparse(x[1:nrow(x), , drop = FALSE])
   }
   rownames(x) <- adata$var_names$values
   colnames(x) <- adata$obs_names$values
@@ -4638,7 +4638,7 @@ adata_to_srt <- function(adata) {
     for (k in iterate(adata$layers$keys())) {
       layer <- t(adata$layers[[k]])
       if (!inherits(layer, "dgCMatrix")) {
-        layer <- as.sparse(layer[1:nrow(layer), ])
+        layer <- as.sparse(layer[1:nrow(layer), , drop = FALSE])
       }
       rownames(layer) <- adata$var_names$values
       colnames(layer) <- adata$obs_names$values
@@ -4669,11 +4669,11 @@ adata_to_srt <- function(adata) {
         next
       }
       if (!inherits(obsp, "dgCMatrix")) {
-        obsp <- as.sparse(obsp[1:nrow(obsp), ])
+        obsp <- as.sparse(obsp[1:nrow(obsp), , drop = FALSE])
       }
       colnames(obsp) <- adata$obs_names$values
       rownames(obsp) <- adata$obs_names$values
-      obsp <- as.Graph(obsp[seq_len(nrow(obsp)), ])
+      obsp <- as.Graph(obsp[seq_len(nrow(obsp)), , drop = FALSE])
       DefaultAssay(object = obsp) <- "RNA"
       srt[[k]] <- obsp
     }

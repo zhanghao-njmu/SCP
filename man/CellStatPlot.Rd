@@ -2,7 +2,7 @@
 % Please edit documentation in R/SCP-plot.R
 \name{CellStatPlot}
 \alias{CellStatPlot}
-\title{Statistical plot of cell classification}
+\title{Statistical plot of cells}
 \usage{
 CellStatPlot(
   srt,
@@ -48,7 +48,7 @@ CellStatPlot(
 \item{stat_level}{}
 }
 \description{
-Statistical plot of cell classification
+Statistical plot of cells
 }
 \examples{
 data("pancreas_sub")
