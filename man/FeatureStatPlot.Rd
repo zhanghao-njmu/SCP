@@ -90,11 +90,12 @@ FeatureStatPlot(pancreas_sub, stat.by = c("G2M_score", "Fev"), group.by = "SubCe
 FeatureStatPlot(pancreas_sub, stat.by = c("G2M_score", "Fev"), group.by = "SubCellType", add_point = TRUE)
 FeatureStatPlot(pancreas_sub, stat.by = c("G2M_score", "Fev"), group.by = "SubCellType", add_trend = TRUE)
 FeatureStatPlot(pancreas_sub, stat.by = c("G2M_score", "Fev"), group.by = "SubCellType", split.by = "Phase")
+FeatureStatPlot(pancreas_sub, stat.by = c("G2M_score", "Fev"), group.by = "SubCellType", split.by = "Phase", add_box = TRUE, add_trend = TRUE)
+FeatureStatPlot(pancreas_sub, stat.by = c("G2M_score", "Fev"), group.by = "SubCellType", split.by = "Phase", comparisons = TRUE)
 FeatureStatPlot(pancreas_sub, stat.by = c("Rbp4", "Pyy"), group.by = "SubCellType", fill.by = "expression", palette = "Blues", same.y.lims = TRUE)
 FeatureStatPlot(pancreas_sub, stat.by = c("Rbp4", "Pyy"), group.by = "SubCellType", multiplegroup_comparisons = TRUE)
 FeatureStatPlot(pancreas_sub, stat.by = c("Rbp4", "Pyy"), group.by = "SubCellType", comparisons = list(c("Alpha", "Beta"), c("Alpha", "Delta")))
 FeatureStatPlot(pancreas_sub, stat.by = c("Rbp4", "Pyy"), group.by = "SubCellType", comparisons = list(c("Alpha", "Beta"), c("Alpha", "Delta")), sig_label = "p.format")
-FeatureStatPlot(pancreas_sub, stat.by = c("G2M_score", "Fev"), group.by = "SubCellType", split.by = "Phase", comparisons = TRUE)
 FeatureStatPlot(pancreas_sub, stat.by = c("Rbp4", "Pyy"), group.by = "SubCellType", bg.by = "CellType", add_box = TRUE, stack = TRUE)
 FeatureStatPlot(pancreas_sub,
   stat.by = c(

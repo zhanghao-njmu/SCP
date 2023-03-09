@@ -54,7 +54,6 @@ Imports:
     Seurat (>= 4.2.0),
     SeuratObject,
     scales,
-    sf,
     simplifyEnrichment (>= 1.5.2),
     slingshot,
     uwot

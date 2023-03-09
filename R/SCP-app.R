@@ -386,9 +386,13 @@ FetchH5 <- function(DataFile, MetaFile, name = NULL,
   }
 
   if (length(gene_features) > 0) {
-    srt_tmp <- CreateSeuratObject(assay = assay %||% "RNA", counts = as(t(data[, gene_features, drop = FALSE]), "matrix")) # sparseMatrix
+    counts <- t(as(data[, gene_features, drop = FALSE], "sparseMatrix")) # matrix,sparseMatrix,dgCMatrix
+    AssayObject <- CreateAssayObject(counts = counts)
+    srt_tmp <- CreateSeuratObject2(assay = assay %||% "RNA", counts = AssayObject)
   } else {
-    srt_tmp <- CreateSeuratObject(assay = assay %||% "RNA", counts = matrix(data = 0, ncol = length(all_cells), dimnames = list("empty", all_cells)))
+    counts <- matrix(data = 0, ncol = length(all_cells), dimnames = list("empty", all_cells))
+    AssayObject <- CreateAssayObject(counts = counts)
+    srt_tmp <- CreateSeuratObject2(assay = assay %||% "RNA", counts = AssayObject)
   }
 
   if (length(c(metanames, meta_features)) > 0) {
@@ -431,6 +435,61 @@ FetchH5 <- function(DataFile, MetaFile, name = NULL,
   return(srt_tmp)
 }
 
+#' @importFrom Seurat Key AddMetaData
+#' @importFrom utils packageVersion
+#' @importFrom methods new
+CreateSeuratObject2 <- function(counts, project = "SeuratProject", assay = "RNA", names.field = 1, names.delim = "_", meta.data = NULL, idents = "SeuratObject", ...) {
+  if (!is.null(x = meta.data)) {
+    if (is.null(x = rownames(x = meta.data))) {
+      stop("Row names not set in metadata. Please ensure that rownames of metadata match column names of data matrix")
+    }
+    if (length(x = setdiff(
+      x = rownames(x = meta.data),
+      y = colnames(x = counts)
+    ))) {
+      warning("Some cells in meta.data not present in provided counts matrix.")
+      meta.data <- meta.data[intersect(x = rownames(x = meta.data), y = colnames(x = counts)), , drop = FALSE]
+    }
+    if (is.data.frame(x = meta.data)) {
+      new.meta.data <- data.frame(row.names = colnames(x = counts))
+      for (ii in 1:ncol(x = meta.data)) {
+        new.meta.data[rownames(x = meta.data), colnames(x = meta.data)[ii]] <- meta.data[, ii, drop = FALSE]
+      }
+      meta.data <- new.meta.data
+    }
+  }
+  if (!length(x = Key(object = counts)) || !nchar(x = Key(object = counts))) {
+    Key(object = counts) <- tolower(x = assay)
+  }
+  assay.list <- list(counts)
+  names(x = assay.list) <- assay
+  if (any(is.na(x = idents))) {
+    warning("Input parameters result in NA values for initial cell identities. Setting all initial idents to the project name",
+      call. = FALSE, immediate. = TRUE
+    )
+  }
+  ident.levels <- length(x = unique(x = idents))
+  if (ident.levels > 100 || ident.levels == 0 || ident.levels == length(x = idents)) {
+    idents <- rep.int(x = factor(x = project), times = ncol(x = counts))
+  }
+  names(x = idents) <- colnames(x = counts)
+  object <- new(
+    Class = "Seurat", assays = assay.list, meta.data = data.frame(row.names = colnames(x = counts)),
+    active.assay = assay, active.ident = idents, project.name = project,
+    version = packageVersion(pkg = "SeuratObject")
+  )
+  object[["orig.ident"]] <- idents
+  n.calc <- Seurat:::CalcN(object = counts)
+  if (!is.null(x = n.calc)) {
+    names(x = n.calc) <- paste(names(x = n.calc), assay, sep = "_")
+    object[[names(x = n.calc)]] <- n.calc
+  }
+  if (!is.null(x = meta.data)) {
+    object <- AddMetaData(object = object, metadata = meta.data)
+  }
+  return(object)
+}
+
 #' RunSCExplorer
 #'
 #' @param base_dir
@@ -448,16 +507,15 @@ FetchH5 <- function(DataFile, MetaFile, name = NULL,
 #' @param initial_feature_palette
 #' @param initial_theme
 #' @param initial_theme
-#' @param initial_coExp
 #' @param initial_size
 #' @param initial_ncol
 #' @param initial_arrange
-#' @param initial_panel_dpi
 #' @param initial_dpi
 #' @param create_script
 #' @param style_script
 #' @param overwrite
 #' @param return_app
+#' @param workers
 #'
 #' @examples
 #' \dontrun{
@@ -511,12 +569,11 @@ RunSCExplorer <- function(base_dir = "SCExplorer",
                           initial_cell_palette = "Paired",
                           initial_feature_palette = "Spectral",
                           initial_theme = "theme_scp",
-                          initial_coExp = "No",
                           initial_size = 4,
                           initial_ncol = 3,
                           initial_arrange = "Row",
                           initial_dpi = 100,
-                          initial_raster = FALSE,
+                          workers = 2,
                           create_script = TRUE,
                           style_script = require("styler", quietly = TRUE),
                           overwrite = FALSE,
@@ -580,8 +637,11 @@ if (is.null(initial_group)) {
 if (is.null(initial_feature)) {
   initial_feature <- meta_features_name[1]
 }
+initial_raster = nrow(data) > 1e5
 
 palette_list <- SCP:::palette_list
+
+panel_raster <- FALSE
 
 ui <- fluidPage(
   theme = page_theme,
@@ -589,7 +649,7 @@ ui <- fluidPage(
     title = title,
     # 1. Cell dimensional reduction plot ----------------------------------------------------------------------
     tabPanel(
-      "Cell dimensional reduction plot",
+      title = "Cell dimensional reduction plot",
       sidebarLayout(
         sidebarPanel(
           width = 3,
@@ -653,7 +713,7 @@ ui <- fluidPage(
           ),
           numericInput(
             inputId = "plot_dpi1",
-            label = "Resolution of the plot",
+            label = "Resolution",
             value = initial_dpi,
             min = 50,
             max = 1000,
@@ -710,7 +770,7 @@ ui <- fluidPage(
     ),
     # 2. Feature dimensional reduction plot ----------------------------------------------------------------------
     tabPanel(
-      "Feature dimensional reduction plot",
+      title = "Feature dimensional reduction plot",
       sidebarLayout(
         sidebarPanel(
           width = 3,
@@ -762,7 +822,7 @@ ui <- fluidPage(
             inputId = "coExp2",
             label = "Calculate co-expression?",
             choices = c("Yes", "No"),
-            selected = initial_coExp,
+            selected = "No",
             inline = TRUE
           ),
           selectInput(
@@ -794,7 +854,7 @@ ui <- fluidPage(
           ),
           numericInput(
             inputId = "plot_dpi2",
-            label = "Resolution of the plot",
+            label = "Resolution",
             value = initial_dpi,
             min = 50,
             max = 1000,
@@ -847,9 +907,9 @@ ui <- fluidPage(
         )
       )
     ),
-    # 3. Statistical plot of cells ----------------------------------------------------------------------
+    # 3. Cell statistical plot ----------------------------------------------------------------------
     tabPanel(
-      "Statistical plot of cells",
+      title = "Cell statistical plot",
       sidebarLayout(
         sidebarPanel(
           width = 3,
@@ -862,7 +922,7 @@ ui <- fluidPage(
           selectInput(
             inputId = "plottype3",
             label = "Select a plot type",
-            choices = c("bar", "rose", "ring", "pie", "trend", "area", "dot", "sankey", "chord", "venn", "upset"),
+            choices = c("bar", "rose", "ring", "pie", "trend", "area", "dot"),
             selected = "bar"
           ),
           selectInput(
@@ -877,13 +937,11 @@ ui <- fluidPage(
             choices = c("stack", "dodge"),
             selected = "stack"
           ),
-          selectizeInput(
+          selectInput(
             inputId = "stat3",
             label = "Select a variable to be counted",
             choices = meta_groups_name,
-            selected = initial_group,
-            multiple = TRUE,
-            options = list(maxOptions = 20, maxItems = 7)
+            selected = initial_group
           ),
           selectInput(
             inputId = "group3",
@@ -921,7 +979,7 @@ ui <- fluidPage(
           ),
           numericInput(
             inputId = "plot_dpi3",
-            label = "Resolution of the plot",
+            label = "Resolution",
             value = initial_dpi,
             min = 50,
             max = 1000,
@@ -966,9 +1024,9 @@ ui <- fluidPage(
         )
       )
     ),
-    # 4. Statistical plot of features ----------------------------------------------------------------------
+    # 4. Feature statistical plot ----------------------------------------------------------------------
     tabPanel(
-      "Statistical plot of features",
+      title = "Feature statistical plot",
       sidebarLayout(
         sidebarPanel(
           width = 3,
@@ -1026,7 +1084,7 @@ ui <- fluidPage(
             inputId = "coExp4",
             label = "Calculate co-expression?",
             choices = c("Yes", "No"),
-            selected = initial_coExp,
+            selected = "No",
             inline = TRUE
           ),
           selectInput(
@@ -1046,7 +1104,7 @@ ui <- fluidPage(
           ),
           numericInput(
             inputId = "plot_dpi4",
-            label = "Resolution of the plot",
+            label = "Resolution",
             value = initial_dpi,
             min = 50,
             max = 1000,
@@ -1101,18 +1159,22 @@ server <- function(input, output, session) {
   get_attr <- function(x, attr, verbose = FALSE) {
     width <- attr(x, "size")$width
     height <- attr(x, "size")$height
+    units <- attr(x, "size")$units
     dpi <- attr(x, "dpi")
     if (verbose) {
-      message(paste("width:", width, "height:", height, "dpi:", dpi))
+      message(paste("width:", width, "height:", height, "units:", units, "dpi:", dpi))
+    }
+    if (attr == "width") {
+      return(width)
+    }
+    if (attr == "height") {
+      return(height)
+    }
+    if (attr == "units") {
+      return(units)
     }
     if (attr == "dpi") {
       return(dpi)
-    }
-    if (attr == "width") {
-      return(width * dpi)
-    }
-    if (attr == "height") {
-      return(height * dpi)
     }
   }
 
@@ -1124,9 +1186,11 @@ server <- function(input, output, session) {
     meta_groups_name <- rhdf5::h5read(MetaFile, name = paste0("/", input$dataset1, "/metadata.stat/asgroups"))
     reduction_name <- meta_struc[meta_struc$group == paste0("/", input$dataset1, "/reductions"), "name"]
     default_reduction <- as.character(rhdf5::h5read(MetaFile, name = paste0("/", input$dataset1, "/reductions.stat/Default_reduction")))
+    all_cells <- rhdf5::h5read(DataFile, name = paste0("/", input$dataset1, "/cells"))
     updateSelectInput(session, "reduction1", choices = reduction_name, selected = default_reduction)
     updateSelectInput(session, "group1", choices = meta_groups_name, selected = "orig.ident")
     updateSelectInput(session, "split1", choices = c("None", meta_groups_name), selected = "None")
+    updateSelectInput(session, "raster1", choices = c("TRUE", "FALSE"), selected = length(all_cells) > 1e5)
   }) %>% bindEvent(input$dataset1, ignoreNULL = TRUE, ignoreInit = TRUE)
 
   observe({
@@ -1138,6 +1202,7 @@ server <- function(input, output, session) {
     updateSelectInput(session, "slots2", choices = slots, selected = default_slot)
     data <- HDF5Array::TENxMatrix(filepath = DataFile, group = paste0("/", input$dataset2, "/", default_assay, "/", default_slot))
     all_features <- colnames(data)
+    all_cells <- rhdf5::h5read(DataFile, name = paste0("/", input$dataset2, "/cells"))
     meta_features_name <- rhdf5::h5read(MetaFile, name = paste0("/", input$dataset2, "/metadata.stat/asfeatures"))
     meta_groups_name <- rhdf5::h5read(MetaFile, name = paste0("/", input$dataset2, "/metadata.stat/asgroups"))
     reduction_name <- meta_struc[meta_struc$group == paste0("/", input$dataset2, "/reductions"), "name"]
@@ -1149,11 +1214,12 @@ server <- function(input, output, session) {
     )
     updateSelectInput(session, "split2", choices = c("None", meta_groups_name), selected = "None")
     updateSelectInput(session, "group2", choices = meta_groups_name, selected = "orig.ident")
+    updateSelectInput(session, "raster2", choices = c("TRUE", "FALSE"), selected = length(all_cells) > 1e5)
   }) %>% bindEvent(input$dataset2, ignoreNULL = TRUE, ignoreInit = TRUE)
 
   observe({
     meta_groups_name <- rhdf5::h5read(MetaFile, name = paste0("/", input$dataset3, "/metadata.stat/asgroups"))
-    updateSelectizeInput(session, "stat3", choices = meta_groups_name, selected = "orig.ident", options = list(maxOptions = 20, maxItems = 7))
+    updateSelectInput(session, "stat3", choices = meta_groups_name, selected = "orig.ident")
     updateSelectInput(session, "group3", choices = meta_groups_name, selected = "orig.ident")
     updateSelectInput(session, "split3", choices = c("None", meta_groups_name), selected = "None")
   }) %>% bindEvent(input$dataset3, ignoreNULL = TRUE, ignoreInit = TRUE)
@@ -1213,22 +1279,32 @@ server <- function(input, output, session) {
     # message("ncol1:", ncol1)
     # message("arrange1:", arrange1)
 
-    # message(paste0("run r1: ", group1))
-
     promisedData[["p1_dim"]] <- NULL
     promisedData[["p1_3d"]] <- NULL
     promises::future_promise(
       {
+        # print("******************************** New task ********************************")
+        # print(">>> fetch data:")
+        # print(system.time(
         srt_tmp <- SCP::FetchH5(
           DataFile = DataFile, MetaFile = MetaFile, name = dataset1,
           metanames = unique(c(group1, split1)), reduction = reduction1
         )
+        # ))
+
+        # print(">>> plot:")
+        # print(system.time(
         p1_dim <- SCP::CellDimPlot(srt_tmp,
           group.by = group1, split.by = split1, reduction = reduction1, raster = raster1,
           label = ifelse(label1 == "Yes", TRUE, FALSE), palette = palette1, theme_use = theme1,
           ncol = ncol1, byrow = ifelse(arrange1 == "Row", TRUE, FALSE), force = TRUE
         )
-        p1_dim <- SCP::panel_fix(p1_dim, height = size1, raster = FALSE, verbose = FALSE)
+        # ))
+
+        # print(">>> panel_fix:")
+        # print(system.time(
+        p1_dim <- SCP::panel_fix(p1_dim, height = size1, raster = panel_raster, verbose = FALSE)
+        # ))
         attr(p1_dim, "dpi") <- plot_dpi1
         plot3d <- max(sapply(names(srt_tmp@reductions), function(r) dim(srt_tmp[[r]])[2])) >= 3
         if (isTRUE(plot3d)) {
@@ -1245,27 +1321,42 @@ server <- function(input, output, session) {
     bindEvent(input$submit1, ignoreNULL = FALSE, ignoreInit = FALSE)
 
   observe({
+    prog <- Progress$new(min = 1, max = 10)
+    prog$set(value = 3, message = "Fetch data...", detail = "[Cell dimensional reduction plot]")
     r1()$then(function(x) {
       promisedData[["p1_dim"]] <- x[[1]]
       promisedData[["p1_3d"]] <- x[[2]]
-    })
+      width <- get_attr(x[[1]], "width")
+      height <- get_attr(x[[1]], "height")
+      dpi <- get_attr(x[[1]], "dpi")
+
+      prog$set(value = 8, message = "Render plot...", detail = "[Cell dimensional reduction plot]")
+      # print("renderPlot:")
+      # print(system.time(
+      output$plot1 <- renderUI({
+        renderPlot(
+          {
+            x[[1]]
+          },
+          width = width * dpi,
+          height = height * dpi,
+          res = dpi
+        )
+      })
+      # ))
+
+      # print("renderPlotly:")
+      # print(system.time(
+      output$plot1_3d <- plotly::renderPlotly({
+        x[[2]]
+      })
+      # ))
+    }) %>%
+      finally(~ {
+        prog$set(value = 10, message = "Done.", detail = "[Cell dimensional reduction plot]")
+        prog$close()
+      })
   }) %>% bindEvent(input$submit1, ignoreNULL = FALSE, ignoreInit = FALSE)
-
-  output$plot1 <- renderUI({
-    renderPlot(
-      {
-        req(promisedData[["p1_dim"]])
-      },
-      width = get_attr(req(promisedData[["p1_dim"]]), "width"),
-      height = get_attr(req(promisedData[["p1_dim"]]), "height"),
-      res = get_attr(req(promisedData[["p1_dim"]]), "dpi")
-    )
-  })
-
-  output$plot1_3d <- plotly::renderPlotly({
-    req(promisedData[["p1_3d"]])
-  })
-
 
   # submit2  ----------------------------------------------------------------
   r2 <- reactive({
@@ -1312,31 +1403,43 @@ server <- function(input, output, session) {
       message("input feature2 is null")
       features2 <- meta_features_name[1]
     }
-    feature_area <- gsub(x = unlist(strsplit(feature_area2, "(\\r)|(\\n)", perl = TRUE)), pattern = " ", replacement = "")
-    features2 <- c(as.character(features2), as.character(feature_area))
+    feature_area2 <- gsub(x = unlist(strsplit(feature_area2, "(\\r)|(\\n)", perl = TRUE)), pattern = " ", replacement = "")
+    features2 <- c(as.character(features2), as.character(feature_area2))
     features2 <- unique(features2[features2 %in% c(all_features, meta_features_name)])
 
     promisedData[["p2_dim"]] <- NULL
     promisedData[["p2_3d"]] <- NULL
     promises::future_promise(
       {
+        # print("******************************** New task ********************************")
+        # print(">>> fetch data:")
+        # print(system.time(
         srt_tmp <- SCP::FetchH5(
           DataFile = DataFile, MetaFile = MetaFile, name = dataset2,
           features = features2, slot = slots2, assay = assays2,
           metanames = split2, reduction = reduction2
         )
+        # ))
+
+        # print(">>> plot:")
+        # print(system.time(
         p2_dim <- SCP::FeatureDimPlot(
           srt = srt_tmp, features = features2, split.by = split2, reduction = reduction2, slot = "data", raster = raster2,
           calculate_coexp = ifelse(coExp2 == "Yes", TRUE, FALSE), palette = palette2, theme_use = theme2,
-          ncol = ncol2, byrow = ifelse(arrange2 == "Row", TRUE, FALSE)
+          ncol = ncol2, byrow = ifelse(arrange2 == "Row", TRUE, FALSE), force = TRUE
         )
-        p2_dim <- SCP::panel_fix(p2_dim, height = size2, raster = FALSE, verbose = FALSE)
+        # ))
+
+        # print(">>> panel_fix:")
+        # print(system.time(
+        p2_dim <- SCP::panel_fix(p2_dim, height = size2, raster = panel_raster, verbose = FALSE)
+        # ))
         attr(p2_dim, "dpi") <- plot_dpi2
         plot3d <- max(sapply(names(srt_tmp@reductions), function(r) dim(srt_tmp[[r]])[2])) >= 3
         if (isTRUE(plot3d)) {
           p2_3d <- SCP::FeatureDimPlot3D(
             srt = srt_tmp, features = features2, reduction = reduction2,
-            calculate_coexp = ifelse(coExp2 == "Yes", TRUE, FALSE)
+            calculate_coexp = ifelse(coExp2 == "Yes", TRUE, FALSE), force = TRUE
           )
         } else {
           p2_3d <- NULL
@@ -1350,27 +1453,42 @@ server <- function(input, output, session) {
     bindEvent(input$submit2, ignoreNULL = FALSE, ignoreInit = FALSE)
 
   observe({
+    prog <- Progress$new(min = 1, max = 10)
+    prog$set(value = 3, message = "Fetch data...", detail = "[Feature dimensional reduction plot]")
     r2()$then(function(x) {
       promisedData[["p2_dim"]] <- x[[1]]
       promisedData[["p2_3d"]] <- x[[2]]
-    })
+      width <- get_attr(x[[1]], "width")
+      height <- get_attr(x[[1]], "height")
+      dpi <- get_attr(x[[1]], "dpi")
+
+      prog$set(value = 8, message = "Render plot...", detail = "[Feature dimensional reduction plot]")
+      # print("renderPlot:")
+      # print(system.time(
+      output$plot2 <- renderUI({
+        renderPlot(
+          {
+            x[[1]]
+          },
+          width = width * dpi,
+          height = height * dpi,
+          res = dpi
+        )
+      })
+      # ))
+
+      # print("renderPlotly:")
+      # print(system.time(
+      output$plot2_3d <- plotly::renderPlotly({
+        x[[2]]
+      })
+      # ))
+    }) %>%
+      finally(~ {
+        prog$set(value = 10, message = "Done.", detail = "[Feature dimensional reduction plot]")
+        prog$close()
+      })
   }) %>% bindEvent(input$submit2, ignoreNULL = FALSE, ignoreInit = FALSE)
-
-  output$plot2 <- renderUI({
-    renderPlot(
-      {
-        req(promisedData[["p2_dim"]])
-      },
-      width = get_attr(req(promisedData[["p2_dim"]]), "width"),
-      height = get_attr(req(promisedData[["p2_dim"]]), "height"),
-      res = get_attr(req(promisedData[["p2_dim"]]), "dpi")
-    )
-  })
-
-  output$plot2_3d <- plotly::renderPlotly({
-    req(promisedData[["p2_3d"]])
-  })
-
 
   # submit3  ----------------------------------------------------------------
   r3 <- reactive({
@@ -1414,18 +1532,30 @@ server <- function(input, output, session) {
     promisedData[["p3"]] <- NULL
     promises::future_promise(
       {
+        # print("******************************** New task ********************************")
+        # print(">>> fetch data:")
+        # print(system.time(
         srt_tmp <- SCP::FetchH5(
           DataFile = DataFile, MetaFile = MetaFile, name = dataset3,
           metanames = unique(c(stat3, group3, split3))
         )
+        # ))
+
+        # print(">>> plot:")
+        # print(system.time(
         p3 <- SCP::CellStatPlot(
           srt = srt_tmp, stat.by = stat3, group.by = group3, split.by = split3,
           plot_type = plottype3, stat_type = stattype3, position = position3,
           label = ifelse(label3 == "Yes", TRUE, FALSE), palette = palette3,
-          aspect.ratio = 8 / max(length(unique(srt_tmp[[group3, drop = TRUE]])), 1),
+          aspect.ratio = 6 / max(length(unique(srt_tmp[[group3, drop = TRUE]])), 1),
           ncol = ncol3, byrow = ifelse(arrange3 == "Row", TRUE, FALSE), force = TRUE
         )
-        p3 <- SCP::panel_fix(p3, height = size3, raster = FALSE, verbose = FALSE)
+        # ))
+
+        # print(">>> panel_fix:")
+        # print(system.time(
+        p3 <- SCP::panel_fix(p3, height = size3, raster = panel_raster, verbose = FALSE)
+        # ))
         attr(p3, "dpi") <- plot_dpi3
         return(p3)
       },
@@ -1436,21 +1566,34 @@ server <- function(input, output, session) {
     bindEvent(input$submit3, ignoreNULL = FALSE, ignoreInit = FALSE)
 
   observe({
+    prog <- Progress$new(min = 1, max = 10)
+    prog$set(value = 3, message = "Fetch data...", detail = "[Cell statistical plot]")
     r3()$then(function(x) {
       promisedData[["p3"]] <- x
-    })
-  }) %>% bindEvent(input$submit3, ignoreNULL = FALSE, ignoreInit = FALSE)
+      width <- get_attr(x, "width")
+      height <- get_attr(x, "height")
+      dpi <- get_attr(x, "dpi")
 
-  output$plot3 <- renderUI({
-    renderPlot(
-      {
-        req(promisedData[["p3"]])
-      },
-      width = get_attr(req(promisedData[["p3"]]), "width"),
-      height = get_attr(req(promisedData[["p3"]]), "height"),
-      res = get_attr(req(promisedData[["p3"]]), "dpi")
-    )
-  })
+      prog$set(value = 8, message = "Render plot...", detail = "[Cell statistical plot]")
+      # print("renderPlot:")
+      # print(system.time(
+      output$plot3 <- renderUI({
+        renderPlot(
+          {
+            x
+          },
+          width = width * dpi,
+          height = height * dpi,
+          res = dpi
+        )
+      })
+      # ))
+    }) %>%
+      finally(~ {
+        prog$set(value = 10, message = "Done.", detail = "[Cell statistical plot]")
+        prog$close()
+      })
+  }) %>% bindEvent(input$submit3, ignoreNULL = FALSE, ignoreInit = FALSE)
 
   # submit4  ----------------------------------------------------------------
   r4 <- reactive({
@@ -1481,25 +1624,37 @@ server <- function(input, output, session) {
       message("input feature4 is null")
       features4 <- meta_features_name[1]
     }
-    feature_area <- gsub(x = unlist(strsplit(feature_area4, "(\\r)|(\\n)", perl = TRUE)), pattern = " ", replacement = "")
-    features4 <- c(as.character(features4), as.character(feature_area))
+    feature_area4 <- gsub(x = unlist(strsplit(feature_area4, "(\\r)|(\\n)", perl = TRUE)), pattern = " ", replacement = "")
+    features4 <- c(as.character(features4), as.character(feature_area4))
     features4 <- unique(features4[features4 %in% c(all_features, meta_features_name)])
 
     promisedData[["p4"]] <- NULL
     promises::future_promise(
       {
+        # print("******************************** New task ********************************")
+        # print(">>> fetch data:")
+        # print(system.time(
         srt_tmp <- SCP::FetchH5(
           DataFile = DataFile, MetaFile = MetaFile, name = dataset4,
           features = features4, slot = slots4, assay = assays4,
           metanames = unique(c(group4, split4))
         )
+        # ))
+
+        # print(">>> plot:")
+        # print(system.time(
         p4 <- SCP::FeatureStatPlot(
           srt = srt_tmp, stat.by = features4, group.by = group4, split.by = split4, plot_type = plottype4,
           calculate_coexp = ifelse(coExp4 == "Yes", TRUE, FALSE), palette = palette4,
-          aspect.ratio = 8 / max(length(unique(srt_tmp[[group4, drop = TRUE]])), 1),
+          aspect.ratio = 6 / max(length(unique(srt_tmp[[group4, drop = TRUE]])), 1),
           ncol = ncol4, byrow = ifelse(arrange4 == "Row", TRUE, FALSE), force = TRUE
         )
-        p4 <- SCP::panel_fix(p4, height = size4, raster = FALSE, verbose = FALSE)
+        # ))
+
+        # print(">>> panel_fix:")
+        # print(system.time(
+        p4 <- SCP::panel_fix(p4, height = size4, raster = panel_raster, verbose = FALSE)
+        # ))
         attr(p4, "dpi") <- plot_dpi4
         return(p4)
       },
@@ -1510,21 +1665,34 @@ server <- function(input, output, session) {
     bindEvent(input$submit4, ignoreNULL = FALSE, ignoreInit = FALSE)
 
   observe({
+    prog <- Progress$new(min = 1, max = 10)
+    prog$set(value = 3, message = "Fetch data...", detail = "[Feature statistical plot]")
     r4()$then(function(x) {
       promisedData[["p4"]] <- x
-    })
-  }) %>% bindEvent(input$submit4, ignoreNULL = FALSE, ignoreInit = FALSE)
+      width <- get_attr(x, "width")
+      height <- get_attr(x, "height")
+      dpi <- get_attr(x, "dpi")
 
-  output$plot4 <- renderUI({
-    renderPlot(
-      {
-        req(promisedData[["p4"]])
-      },
-      width = get_attr(req(promisedData[["p4"]]), "width"),
-      height = get_attr(req(promisedData[["p4"]]), "height"),
-      res = get_attr(req(promisedData[["p4"]]), "dpi")
-    )
-  })
+      prog$set(value = 8, message = "Render plot...", detail = "[Feature statistical plot]")
+      # print("renderPlot:")
+      # print(system.time(
+      output$plot4 <- renderUI({
+        renderPlot(
+          {
+            x
+          },
+          width = width * dpi,
+          height = height * dpi,
+          res = dpi
+        )
+      })
+      # ))
+    }) %>%
+      finally(~ {
+        prog$set(value = 10, message = "Done.", detail = "[Feature statistical plot]")
+        prog$close()
+      })
+  }) %>% bindEvent(input$submit4, ignoreNULL = FALSE, ignoreInit = FALSE)
 }
   '
 
@@ -1533,8 +1701,9 @@ server <- function(input, output, session) {
   main_code <- gsub("\\\\n", "\\\\\\\n", main_code)
   args <- mget(names(formals()))
   args <- args[!names(args) %in% c("base_dir", "create_script", "style_script", "overwrite", "return_app")]
+  args_code <- NULL
   for (varnm in names(args)) {
-    main_code <- c(paste0(varnm, "=", deparse(args[[varnm]])), main_code)
+    args_code <- c(args_code, paste0(varnm, "=", deparse(args[[varnm]])))
   }
   app_code <- c(
     "# !/usr/bin/env Rscript",
@@ -1552,7 +1721,8 @@ server <- function(input, output, session) {
     "library(bslib)",
     "library(future)",
     "library(promises)",
-    "plan(multisession, workers = min(availableCores() - 1, 64))",
+    args_code,
+    "plan(multisession, workers = workers)",
     "page_theme <- bs_theme(bootswatch = 'zephyr')",
     main_code,
     "shinyApp(ui = ui, server = server)"
@@ -1560,6 +1730,7 @@ server <- function(input, output, session) {
   temp <- tempfile("SCExplorer")
   writeLines(app_code, temp)
   wd <- getwd()
+  on.exit(setwd(wd))
   setwd(base_dir)
   source(temp)
   setwd(wd)

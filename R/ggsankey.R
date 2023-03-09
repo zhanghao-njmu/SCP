@@ -1,3 +1,5 @@
+# A modied version of ggsankey(https://github.com/davidsjoberg/ggsankey)
+
 utils::globalVariables(c(".", ".data", "x", "node", "next_node", "next_x", "..r"))
 # importFrom(ggplot2, "%+replace%")
 #' @importFrom ggplot2 %+replace%

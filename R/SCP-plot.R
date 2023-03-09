@@ -369,7 +369,11 @@ palette_scp <- function(x, n = 100, palette = "Paired", palcolor = NULL, type = 
     } else if (length(unique(na.omit(as.numeric(x)))) == 1) {
       values <- as.factor(rep(unique(na.omit(as.numeric(x))), n))
     } else {
-      values <- cut(x, breaks = seq(min(x, na.rm = TRUE), max(x, na.rm = TRUE), length.out = n + 1), include.lowest = TRUE)
+      if (isTRUE(matched)) {
+        values <- cut(x, breaks = seq(min(x, na.rm = TRUE), max(x, na.rm = TRUE), length.out = n + 1), include.lowest = TRUE)
+      } else {
+        values <- cut(1:100, breaks = seq(min(x, na.rm = TRUE), max(x, na.rm = TRUE), length.out = n + 1), include.lowest = TRUE)
+      }
     }
 
     n_x <- nlevels(values)
@@ -1486,10 +1490,11 @@ CellDimPlot <- function(srt, group.by, reduction = NULL, dims = c(1, 2), split.b
         }
       }
     }
-    dat[, "cell"] <- rownames(dat)
-    dat[, "x"] <- dat[, paste0(reduction_key, dims[1])]
-    dat[, "y"] <- dat[, paste0(reduction_key, dims[2])]
-    dat[, "group.by"] <- dat[, g]
+    var_nm <- setNames(
+      object = c("x", "y", "group.by"),
+      nm = c(paste0(reduction_key, dims[1]), paste0(reduction_key, dims[2]), g)
+    )
+    colnames(dat)[colnames(dat) %in% names(var_nm)] <- var_nm[colnames(dat)[colnames(dat) %in% names(var_nm)]]
     dat[, "split.by"] <- s
     dat <- dat[order(dat[, "group.by"], decreasing = FALSE, na.last = FALSE), , drop = FALSE]
     naindex <- which(is.na(dat[, "group.by"]))
@@ -1585,8 +1590,7 @@ CellDimPlot <- function(srt, group.by, reduction = NULL, dims = c(1, 2), split.b
       )
     }
     if (!is.null(cells.highlight_use) && !isTRUE(hex)) {
-      p$data[, "cells.highlight_use"] <- rownames(p$data) %in% cells.highlight_use
-      cell_df <- subset(p$data, cells.highlight_use == TRUE)
+      cell_df <- subset(p$data, isTRUE(rownames(p$data) %in% cells.highlight_use))
       if (nrow(cell_df) > 0) {
         if (isTRUE(raster)) {
           p <- p + scattermore::geom_scattermore(
@@ -2051,14 +2055,14 @@ FeatureDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), spli
     dat_gene <- matrix(nrow = ncol(srt), ncol = 0)
   }
   if (length(features_meta > 0)) {
-    dat_meta <- srt@meta.data[, features_meta, drop = FALSE]
+    dat_meta <- as.matrix(srt@meta.data[, features_meta, drop = FALSE])
   } else {
     dat_meta <- matrix(nrow = ncol(srt), ncol = 0)
   }
-  dat_exp <- as.matrix(cbind(dat_gene, dat_meta))
+  dat_exp <- cbind(dat_gene, dat_meta)
   features <- unique(features[features %in% c(features_gene, features_meta)])
 
-  if (!all(sapply(dat_exp, is.numeric))) {
+  if (!is.numeric(dat_exp) && !inherits(dat_exp, "Matrix")) {
     stop("'features' must be type of numeric variable.")
   }
   if (length(features) > 50 && !isTRUE(force)) {
@@ -2112,8 +2116,14 @@ FeatureDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), spli
   ylab <- ylab %||% paste0(reduction_key, dims[2])
 
   if (isTRUE(compare_features) && length(features) > 1) {
+    dat_all <- cbind(dat_use, dat_exp[row.names(dat_use), features, drop = FALSE])
+    dat_split <- split.data.frame(dat_all, dat_all[[split.by]])
     plist <- lapply(levels(dat_sp[[split.by]]), function(s) {
-      dat <- cbind(dat_use, dat_exp[row.names(dat_use), features, drop = FALSE])
+      if (s == "") {
+        dat <- dat_split[[1]][, , drop = FALSE]
+      } else {
+        dat <- dat_split[[s]][, , drop = FALSE]
+      }
       for (f in features) {
         dat[, f][dat[, f] <= bg_cutoff] <- NA
         if (any(is.infinite(dat[, f]))) {
@@ -2121,15 +2131,14 @@ FeatureDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), spli
           dat[, f][which(dat[, f] == min(dat[, f], na.rm = TRUE))] <- min(dat[, f][is.finite(dat[, f])], na.rm = TRUE)
         }
       }
-      dat[, "cell"] <- rownames(dat)
-      dat[, "x"] <- dat[, paste0(reduction_key, dims[1])]
-      dat[, "y"] <- dat[, paste0(reduction_key, dims[2])]
+      var_nm <- setNames(
+        object = c("x", "y"),
+        nm = c(paste0(reduction_key, dims[1]), paste0(reduction_key, dims[2]))
+      )
+      colnames(dat)[colnames(dat) %in% names(var_nm)] <- var_nm[colnames(dat)[colnames(dat) %in% names(var_nm)]]
       dat[, "split.by"] <- s
       dat[, "features"] <- paste(features, collapse = "|")
-      cells_keep <- dat[[split.by]] == s
-      dat <- dat[cells_keep, , drop = FALSE]
       subtitle_use <- subtitle %||% s
-
       colors <- palette_scp(features, type = "discrete", palette = palette, palcolor = palcolor)
       colors_list <- list()
       value_list <- list()
@@ -2245,8 +2254,7 @@ FeatureDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), spli
       }
 
       if (!is.null(cells.highlight_use)) {
-        p$data[, "cells.highlight_use"] <- rownames(p$data) %in% cells.highlight_use
-        cell_df <- subset(p$data, cells.highlight_use == TRUE)
+        cell_df <- subset(p$data, isTRUE(rownames(p$data) %in% cells.highlight_use))
         if (nrow(cell_df) > 0) {
           if (isTRUE(raster)) {
             p <- p + scattermore::geom_scattermore(
@@ -2406,27 +2414,33 @@ FeatureDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), spli
   } else {
     comb <- expand.grid(split = levels(dat_sp[[split.by]]), feature = features, stringsAsFactors = FALSE)
     rownames(comb) <- paste0(comb[["split"]], ":", comb[["feature"]])
+    dat_all <- cbind(dat_use, dat_exp[row.names(dat_use), features, drop = FALSE])
+    dat_split <- split.data.frame(dat_all, dat_all[[split.by]])
     plist <- lapply(setNames(rownames(comb), rownames(comb)), function(i) {
       f <- comb[i, "feature"]
       s <- comb[i, "split"]
-      dat <- cbind(dat_use, dat_exp[row.names(dat_use), f, drop = FALSE])
+      if (s == "") {
+        dat <- dat_split[[1]][, c(colnames(dat_use), f), drop = FALSE]
+      } else {
+        dat <- dat_split[[s]][, c(colnames(dat_use), f), drop = FALSE]
+      }
+
       dat[, f][dat[, f] <= bg_cutoff] <- NA
       if (any(is.infinite(dat[, f]))) {
         dat[, f][dat[, f] == max(dat[, f], na.rm = TRUE)] <- max(dat[, f][is.finite(dat[, f])], na.rm = TRUE)
         dat[, f][dat[, f] == min(dat[, f], na.rm = TRUE)] <- min(dat[, f][is.finite(dat[, f])], na.rm = TRUE)
       }
-      dat[, "cell"] <- rownames(dat)
-      dat[, "x"] <- dat[, paste0(reduction_key, dims[1])]
-      dat[, "y"] <- dat[, paste0(reduction_key, dims[2])]
-      dat[, "value"] <- dat[, f]
+      var_nm <- setNames(
+        object = c("x", "y", "value"),
+        nm = c(paste0(reduction_key, dims[1]), paste0(reduction_key, dims[2]), f)
+      )
+      colnames(dat)[colnames(dat) %in% names(var_nm)] <- var_nm[colnames(dat)[colnames(dat) %in% names(var_nm)]]
+      dat <- dat[order(dat[, "value"], method = "radix", decreasing = FALSE, na.last = FALSE), , drop = FALSE]
       dat[, "features"] <- f
-      cells_keep <- dat[[split.by]] == s
-      dat <- dat[cells_keep, , drop = FALSE]
-      dat <- dat[order(dat[, "value"], decreasing = FALSE, na.last = FALSE), , drop = FALSE]
-      colors <- palette_scp(dat[, f], type = "continuous", palette = palette, palcolor = palcolor)
+      colors <- palette_scp(type = "continuous", palette = palette, palcolor = palcolor)
       cells.highlight_use <- cells.highlight
       if (isTRUE(cells.highlight_use)) {
-        cells.highlight_use <- rownames(dat)[!is.na(dat[[f]])]
+        cells.highlight_use <- rownames(dat)[!is.na(dat[["value"]])]
       }
       legend_list <- list()
       if (isTRUE(show_stat)) {
@@ -2434,17 +2448,18 @@ FeatureDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), spli
       } else {
         subtitle_use <- subtitle
       }
-      if (all(is.na(dat[, f]))) {
+      if (all(is.na(dat[["value"]]))) {
         colors_value <- rep(0, 100)
       } else {
         if (is.null(keep_scale)) {
-          colors_value <- seq(lower_cutoff %||% quantile(dat[, f], lower_quantile, na.rm = TRUE), upper_cutoff %||% quantile(dat[, f], upper_quantile, na.rm = TRUE) + 0.001, length.out = 100)
+          colors_value <- seq(lower_cutoff %||% quantile(dat[["value"]], lower_quantile, na.rm = TRUE), upper_cutoff %||% quantile(dat[["value"]], upper_quantile, na.rm = TRUE) + 0.001, length.out = 100)
         } else {
           if (keep_scale == "feature") {
             colors_value <- seq(lower_cutoff %||% quantile(dat_exp[, f], lower_quantile, na.rm = TRUE), upper_cutoff %||% quantile(dat_exp[, f], upper_quantile, na.rm = TRUE) + 0.001, length.out = 100)
           }
           if (keep_scale == "all") {
-            colors_value <- seq(lower_cutoff %||% quantile(dat_exp[, features], lower_quantile, na.rm = TRUE), upper_cutoff %||% quantile(dat_exp[, features], upper_quantile, na.rm = TRUE) + 0.001, length.out = 100)
+            all_values <- as.matrix(dat_exp[, features])
+            colors_value <- seq(lower_cutoff %||% quantile(all_values, lower_quantile, na.rm = TRUE), upper_cutoff %||% quantile(all_values, upper_quantile, na.rm = TRUE) + 0.001, length.out = 100)
           }
         }
       }
@@ -2547,8 +2562,7 @@ FeatureDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), spli
         )
       }
       if (!is.null(cells.highlight_use) && !isTRUE(hex)) {
-        p$data[, "cells.highlight_use"] <- rownames(p$data) %in% cells.highlight_use
-        cell_df <- subset(p$data, cells.highlight_use == TRUE)
+        cell_df <- subset(p$data, isTRUE(rownames(p$data) %in% cells.highlight_use))
         if (nrow(cell_df) > 0) {
           if (isTRUE(raster)) {
             p <- p + scattermore::geom_scattermore(
@@ -2575,7 +2589,7 @@ FeatureDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), spli
       if (nrow(dat) > 0) {
         p <- p + facet_grid(formula(paste0(split.by, "~features")))
       }
-      if (all(is.na(dat[, f]))) {
+      if (all(is.na(dat[["value"]]))) {
         p <- p + scale_colour_gradient(
           name = "", na.value = bg_color
         ) + scale_fill_gradient(
@@ -3016,14 +3030,14 @@ FeatureDimPlot3D <- function(srt, features = NULL, reduction = NULL, dims = c(1,
     dat_gene <- matrix(nrow = ncol(srt), ncol = 0)
   }
   if (length(features_meta > 0)) {
-    dat_meta <- srt@meta.data[, features_meta, drop = FALSE]
+    dat_meta <- as.matrix(srt@meta.data[, features_meta, drop = FALSE])
   } else {
     dat_meta <- matrix(nrow = ncol(srt), ncol = 0)
   }
   dat_exp <- cbind(dat_gene, dat_meta)
   features <- unique(features[features %in% c(features_gene, features_meta)])
 
-  if (!all(sapply(dat_exp, is.numeric))) {
+  if (!is.numeric(dat_exp) && !inherits(dat_exp, "Matrix")) {
     stop("'features' must be type of numeric variable.")
   }
   if (length(features) > 50 && !isTRUE(force)) {
@@ -3282,11 +3296,12 @@ FeatureDimPlot3D <- function(srt, features = NULL, reduction = NULL, dims = c(1,
 #' FeatureStatPlot(pancreas_sub, stat.by = c("G2M_score", "Fev"), group.by = "SubCellType", add_point = TRUE)
 #' FeatureStatPlot(pancreas_sub, stat.by = c("G2M_score", "Fev"), group.by = "SubCellType", add_trend = TRUE)
 #' FeatureStatPlot(pancreas_sub, stat.by = c("G2M_score", "Fev"), group.by = "SubCellType", split.by = "Phase")
+#' FeatureStatPlot(pancreas_sub, stat.by = c("G2M_score", "Fev"), group.by = "SubCellType", split.by = "Phase", add_box = TRUE, add_trend = TRUE)
+#' FeatureStatPlot(pancreas_sub, stat.by = c("G2M_score", "Fev"), group.by = "SubCellType", split.by = "Phase", comparisons = TRUE)
 #' FeatureStatPlot(pancreas_sub, stat.by = c("Rbp4", "Pyy"), group.by = "SubCellType", fill.by = "expression", palette = "Blues", same.y.lims = TRUE)
 #' FeatureStatPlot(pancreas_sub, stat.by = c("Rbp4", "Pyy"), group.by = "SubCellType", multiplegroup_comparisons = TRUE)
 #' FeatureStatPlot(pancreas_sub, stat.by = c("Rbp4", "Pyy"), group.by = "SubCellType", comparisons = list(c("Alpha", "Beta"), c("Alpha", "Delta")))
 #' FeatureStatPlot(pancreas_sub, stat.by = c("Rbp4", "Pyy"), group.by = "SubCellType", comparisons = list(c("Alpha", "Beta"), c("Alpha", "Delta")), sig_label = "p.format")
-#' FeatureStatPlot(pancreas_sub, stat.by = c("G2M_score", "Fev"), group.by = "SubCellType", split.by = "Phase", comparisons = TRUE)
 #' FeatureStatPlot(pancreas_sub, stat.by = c("Rbp4", "Pyy"), group.by = "SubCellType", bg.by = "CellType", add_box = TRUE, stack = TRUE)
 #' FeatureStatPlot(pancreas_sub,
 #'   stat.by = c(
@@ -3311,7 +3326,7 @@ FeatureDimPlot3D <- function(srt, features = NULL, reduction = NULL, dims = c(1,
 #' ) %>% panel_fix_single(width = 10, height = 5)
 #' @importFrom Seurat DefaultAssay GetAssayData
 #' @importFrom gtable gtable_add_cols gtable_add_rows gtable_add_grob gtable_add_padding
-#' @importFrom ggplot2 geom_blank geom_violin geom_rect geom_boxplot geom_count geom_col geom_vline geom_hline layer_scales position_jitterdodge position_dodge stat_summary scale_x_discrete element_line element_text element_blank annotate mean_sdl after_stat
+#' @importFrom ggplot2 geom_blank geom_violin geom_rect geom_boxplot geom_count geom_col geom_vline geom_hline layer_data layer_scales position_jitterdodge position_dodge stat_summary scale_x_discrete element_line element_text element_blank annotate mean_sdl after_stat
 #' @importFrom grid grobHeight grobWidth
 #' @importFrom rlang %||%
 #' @importFrom patchwork wrap_plots
@@ -3448,14 +3463,14 @@ FeatureStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.b
     dat_gene <- matrix(nrow = length(cells), ncol = 0)
   }
   if (length(features_meta > 0)) {
-    dat_meta <- meta.data[, features_meta, drop = FALSE]
+    dat_meta <- as.matrix(meta.data[, features_meta, drop = FALSE])
   } else {
     dat_meta <- matrix(nrow = length(cells), ncol = 0)
   }
   dat_exp <- cbind(dat_gene, dat_meta)
   stat.by <- unique(stat.by[stat.by %in% c(features_gene, features_meta)])
 
-  if (!all(sapply(dat_exp, is.numeric))) {
+  if (!is.numeric(dat_exp) && !inherits(dat_exp, "Matrix")) {
     stop("'stat.by' must be type of numeric variable.")
   }
   dat_group <- meta.data[, unique(c(group.by, bg.by, split.by)), drop = FALSE]
@@ -3478,9 +3493,6 @@ FeatureStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.b
   }
   if (isTRUE(same.y.lims) && is.null(y.min)) {
     y.min <- min(as.matrix(dat_exp[, stat.by, drop = FALSE])[is.finite(as.matrix(dat_exp[, stat.by, drop = FALSE]))], na.rm = TRUE)
-  }
-  if (!is.null(bg.by)) {
-    bg_color <- palette_scp(levels(dat_group[[bg.by]]), palette = bg_palette, palcolor = bg_palcolor)
   }
 
   plist <- list()
@@ -3538,13 +3550,22 @@ FeatureStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.b
       colors <- palette_scp(unlist(median_values[, stat.by]), type = "continuous", palette = palette, palcolor = palcolor)
       colors_limits <- range(median_values[, stat.by])
     }
+    if (!is.null(bg.by)) {
+      bg <- bg.by
+      bg_color <- palette_scp(levels(dat_group[[bg.by]]), palette = bg_palette, palcolor = bg_palcolor)
+    } else {
+      bg <- g
+      bg_color <- palette_scp(levels(dat_group[[g]]), palcolor = bg_palcolor %||% rep(c("transparent", "grey80"), nlevels(dat_group[[g]])))
+    }
+
     dat <- dat_use[dat_use[[g]] %in% single_group & dat_use[[split.by]] %in% sp, c(colnames(dat_group), f)]
     dat[[g]] <- factor(dat[[g]], levels = levels(dat[[g]])[levels(dat[[g]]) %in% dat[[g]]])
-    dat[, "cell"] <- rownames(dat)
-    dat[, "value"] <- dat[, f]
-    dat[, "group.by"] <- dat[, g]
-    dat[, "split.by"] <- dat[, split.by]
-    dat[, "bg.by"] <- dat[, bg.by]
+    dat[, "bg.by"] <- dat[, bg]
+    var_nm <- setNames(
+      object = c("value", "group.by", "split.by"),
+      nm = c(f, g, split.by)
+    )
+    colnames(dat)[colnames(dat) %in% names(var_nm)] <- var_nm[colnames(dat)[colnames(dat) %in% names(var_nm)]]
     stat <- table(dat[, "group.by"], dat[, "split.by"])
     stat_drop <- which(stat == 1, arr.ind = TRUE)
     if (nrow(stat_drop) > 0) {
@@ -3586,12 +3607,11 @@ FeatureStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.b
     }
 
     group_comb <- expand.grid(x = levels(dat[["split.by"]]), y = levels(dat[["group.by"]]))
-    dat[["group"]] <- head(factor(paste("sp", dat[["split.by"]], "gp", dat[["group.by"]], sep = "-"), levels = paste("sp", group_comb[[1]], "gp", group_comb[[2]], sep = "-")), nrow(dat))
+    dat[["group.unique"]] <- head(factor(paste("sp", dat[["split.by"]], "gp", dat[["group.by"]], sep = "-"), levels = paste("sp", group_comb[[1]], "gp", group_comb[[2]], sep = "-")), nrow(dat))
     y_max_use <- y.max %||% suppressWarnings(max(dat[, "value"][is.finite(x = dat[, "value"])], na.rm = TRUE))
     y_min_use <- y.min %||% suppressWarnings(min(dat[, "value"][is.finite(x = dat[, "value"])], na.rm = TRUE))
     dat <- dat[dat[["value"]] >= y_min_use & dat[["value"]] <= y_max_use, , drop = FALSE]
-    dat <- dat[order(dat[["group"]]), , drop = FALSE]
-    dat[["cell"]] <- factor(dat[["cell"]], levels = dat[["cell"]])
+    dat <- dat[order(dat[["group.unique"]]), , drop = FALSE]
 
     if (isTRUE(flip)) {
       dat[["group.by"]] <- factor(dat[["group.by"]], levels = rev(levels(dat[["group.by"]])))
@@ -3602,6 +3622,7 @@ FeatureStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.b
     }
 
     if (plot_type == "col") {
+      dat[["cell"]] <- factor(rownames(dat), levels = rownames(dat))
       p <- ggplot(dat, aes(
         x = .data[["cell"]], y = .data[["value"]], fill = .data[["fill.by"]]
       )) +
@@ -3630,7 +3651,8 @@ FeatureStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.b
         legend.direction = legend.direction
       ))
     }
-    if (!is.null(bg.by)) {
+
+    if (isFALSE(stat_single)) {
       bg_df <- unique(dat[, c("group.by", "bg.by")])
       bg_list <- list()
       if (plot_type == "col") {
@@ -3660,6 +3682,7 @@ FeatureStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.b
       }
       p <- p + bg_list
     }
+
     if (plot_type %in% c("bar", "col")) {
       p <- p + geom_hline(yintercept = 0, linetype = 2)
     }
@@ -3669,7 +3692,7 @@ FeatureStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.b
     if (plot_type == "box") {
       add_box <- FALSE
       p <- p + geom_boxplot(
-        mapping = aes(group = .data[["group"]]),
+        mapping = aes(group = .data[["group.unique"]]),
         position = position_dodge(width = 0.9), color = "black", width = 0.8, outlier.shape = NA
       ) +
         stat_summary(
@@ -3733,7 +3756,7 @@ FeatureStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.b
         } else {
           p <- p + stat_compare_means(
             data = dat[dat[["group.by"]] %in% group_use, , drop = FALSE],
-            mapping = aes(x = .data[["group.by"]], y = .data[["value"]], group = .data[["group"]], label = after_stat(p.signif)),
+            mapping = aes(x = .data[["group.by"]], y = .data[["value"]], group = .data[["group.unique"]], label = after_stat(p.signif)),
             size = 3.5,
             step.increase = 0.1,
             tip.length = 0.03,
@@ -3744,7 +3767,7 @@ FeatureStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.b
         y_max_use <- layer_scales(p)$y$range$range[2]
       } else {
         p <- p + stat_compare_means(
-          aes(x = .data[["group.by"]], y = .data[["value"]], group = .data[["group"]]),
+          aes(x = .data[["group.by"]], y = .data[["value"]], group = .data[["group.unique"]]),
           label = sig_label,
           size = 3.5,
           step.increase = 0.1,
@@ -3757,7 +3780,7 @@ FeatureStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.b
     }
     if (isTRUE(multiplegroup_comparisons)) {
       p <- p + stat_compare_means(
-        aes(x = .data[["group.by"]], y = .data[["value"]], group = .data[["group"]]),
+        aes(x = .data[["group.by"]], y = .data[["value"]], group = .data[["group.unique"]]),
         method = multiple_method,
         label = sig_label,
         label.y = Inf,
@@ -3770,17 +3793,16 @@ FeatureStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.b
 
     if (isTRUE(add_point)) {
       suppressWarnings(p <- p + geom_point(
-        aes(x = .data[["group.by"]], y = .data[["value"]], linetype = rep(f, nrow(dat))),
+        aes(x = .data[["group.by"]], y = .data[["value"]], linetype = rep(f, nrow(dat)), group = .data[["group.unique"]]),
         inherit.aes = FALSE,
         color = pt.color, size = pt.size, alpha = pt.alpha,
         position = position_jitterdodge(jitter.width = jitter.width, dodge.width = 0.9, seed = 11), show.legend = FALSE
       ))
       if (!is.null(cells.highlight)) {
-        p$data[, "cells.highlight"] <- rownames(p$data) %in% cells.highlight
-        cell_df <- subset(p$data, cells.highlight == TRUE)
+        cell_df <- subset(p$data, isTRUE(rownames(p$data) %in% cells.highlight_use))
         if (nrow(cell_df) > 0) {
           p <- p + geom_point(
-            data = cell_df, aes(x = .data[["group.by"]], y = .data[["value"]], linetype = rep(f, nrow(cell_df))), inherit.aes = FALSE,
+            data = cell_df, aes(x = .data[["group.by"]], y = .data[["value"]], linetype = rep(f, nrow(cell_df)), group = .data[["group.unique"]]), inherit.aes = FALSE,
             color = cols.highlight, size = sizes.highlight, alpha = alpha.highlight,
             position = position_jitterdodge(jitter.width = jitter.width, dodge.width = 0.9, seed = 11), show.legend = FALSE
           )
@@ -3788,7 +3810,7 @@ FeatureStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.b
       }
     }
     if (isTRUE(add_box)) {
-      p <- p + geom_boxplot(aes(group = .data[["group"]]),
+      p <- p + geom_boxplot(aes(group = .data[["group.unique"]]),
         position = position_dodge(width = 0.9), color = box_color, fill = box_color, width = box_width, show.legend = FALSE, outlier.shape = NA
       ) +
         stat_summary(
@@ -3798,24 +3820,58 @@ FeatureStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.b
     }
     if (isTRUE(add_trend)) {
       if (plot_type %in% c("violin", "box")) {
-        p <- p + stat_summary(
-          fun = median, geom = "line", mapping = aes(group = .data[["split.by"]]),
-          position = position_dodge(width = 0.9), color = trend_color, linewidth = trend_linewidth
-        ) +
-          stat_summary(
-            fun = median, geom = "point", mapping = aes(group = .data[["split.by"]]),
-            position = position_dodge(width = 0.9), color = "black", fill = "white", size = trend_ptsize, shape = 21
+        if (nlevels(dat[["split.by"]]) > 1) {
+          point_layer <- stat_summary(
+            fun = median, geom = "point", mapping = aes(group = .data[["split.by"]], color = .data[["group.by"]]),
+            position = position_dodge(width = 0.9), fill = "white", size = trend_ptsize, shape = 21
           )
+          p_data <- p + point_layer
+          p <- p + geom_line(
+            data = layer_data(p_data, length(p_data$layers)),
+            aes(x = x, y = y, group = colour),
+            color = trend_color, linewidth = trend_linewidth, inherit.aes = FALSE
+          ) +
+            stat_summary(
+              fun = median, geom = "point", mapping = aes(group = .data[["split.by"]]),
+              position = position_dodge(width = 0.9), color = "black", fill = "white", size = trend_ptsize, shape = 21
+            )
+        } else {
+          p <- p + stat_summary(
+            fun = median, geom = "line", mapping = aes(group = .data[["split.by"]]),
+            position = position_dodge(width = 0.9), color = trend_color, linewidth = trend_linewidth
+          ) +
+            stat_summary(
+              fun = median, geom = "point", mapping = aes(group = .data[["split.by"]]),
+              position = position_dodge(width = 0.9), color = "black", fill = "white", size = trend_ptsize, shape = 21
+            )
+        }
       }
       if (plot_type %in% c("bar")) {
-        p <- p + stat_summary(
-          fun = mean, geom = "line", mapping = aes(group = .data[["split.by"]]),
-          position = position_dodge(width = 0.9), color = trend_color, linewidth = trend_linewidth,
-        ) +
-          stat_summary(
-            fun = mean, geom = "point", mapping = aes(group = .data[["split.by"]]),
-            position = position_dodge(width = 0.9), color = "black", fill = "white", size = trend_ptsize, shape = 21
+        if (nlevels(dat[["split.by"]]) > 1) {
+          point_layer <- stat_summary(
+            fun = mean, geom = "point", mapping = aes(group = .data[["split.by"]], color = .data[["group.by"]]),
+            position = position_dodge(width = 0.9), fill = "white", size = trend_ptsize, shape = 21
           )
+          p_data <- p + point_layer
+          p <- p + geom_line(
+            data = layer_data(p_data, length(p_data$layers)),
+            aes(x = x, y = y, group = colour),
+            color = trend_color, linewidth = trend_linewidth, inherit.aes = FALSE
+          ) +
+            stat_summary(
+              fun = mean, geom = "point", mapping = aes(group = .data[["split.by"]]),
+              position = position_dodge(width = 0.9), color = "black", fill = "white", size = trend_ptsize, shape = 21
+            )
+        } else {
+          p <- p + stat_summary(
+            fun = mean, geom = "line", mapping = aes(group = .data[["split.by"]]),
+            position = position_dodge(width = 0.9), color = trend_color, linewidth = trend_linewidth,
+          ) +
+            stat_summary(
+              fun = mean, geom = "point", mapping = aes(group = .data[["split.by"]]),
+              position = position_dodge(width = 0.9), color = "black", fill = "white", size = trend_ptsize, shape = 21
+            )
+        }
       }
     }
 
@@ -4231,6 +4287,10 @@ StatPlot <- function(meta.data, stat.by, group.by = NULL, split.by = NULL, flip 
     for (i in stat.by) {
       meta.data[[i]] <- meta.data[[i]] %in% stat_level[[i]]
     }
+  }
+
+  if (plot_type %in% c("rose", "ring", "pie")) {
+    aspect.ratio <- 1
   }
 
   if (any(group.by != "No.group.by") && plot_type %in% c("sankey", "chord", "venn", "upset")) {
@@ -4878,7 +4938,7 @@ FeatureCorPlot <- function(srt, features, group.by = NULL, split.by = NULL, cell
     dat_gene <- matrix(nrow = ncol(srt), ncol = 0)
   }
   if (length(features_meta > 0)) {
-    dat_meta <- srt@meta.data[, features_meta, drop = FALSE]
+    dat_meta <- as.matrix(srt@meta.data[, features_meta, drop = FALSE])
   } else {
     dat_meta <- matrix(nrow = ncol(srt), ncol = 0)
   }
@@ -4888,11 +4948,11 @@ FeatureCorPlot <- function(srt, features, group.by = NULL, split.by = NULL, cell
     stop("features must be a vector of length at least 2.")
   }
 
+  if (!is.numeric(dat_exp) && !inherits(dat_exp, "Matrix")) {
+    stop("'features' must be type of numeric variable.")
+  }
   if (!inherits(dat_exp, "dgCMatrix")) {
     dat_exp <- as.sparse(as.matrix(dat_exp))
-  }
-  if (!all(sapply(dat_exp, is.numeric))) {
-    stop("'features' must be type of numeric variable.")
   }
   if (length(features) > 10 && !isTRUE(force)) {
     warning("More than 10 features to be paired compared which will generate more than 50 plots.", immediate. = TRUE)
@@ -5047,8 +5107,7 @@ FeatureCorPlot <- function(srt, features, group.by = NULL, split.by = NULL, cell
           )
         }
         if (!is.null(cells.highlight)) {
-          p$data[, "cells.highlight"] <- rownames(p$data) %in% cells.highlight
-          cell_df <- subset(p$data, cells.highlight == TRUE)
+          cell_df <- subset(p$data, isTRUE(rownames(p$data) %in% cells.highlight_use))
           if (nrow(cell_df) > 0) {
             # point_size <- p$layers[[1]]$aes_params$size
             if (isTRUE(raster)) {
@@ -5291,14 +5350,14 @@ CellDensityPlot <- function(srt, features, group.by, split.by = NULL, assay = NU
     dat_gene <- matrix(nrow = ncol(srt), ncol = 0)
   }
   if (length(features_meta > 0)) {
-    dat_meta <- srt@meta.data[, features_meta, drop = FALSE]
+    dat_meta <- as.matrix(srt@meta.data[, features_meta, drop = FALSE])
   } else {
     dat_meta <- matrix(nrow = ncol(srt), ncol = 0)
   }
   dat_exp <- cbind(dat_gene, dat_meta)
   features <- unique(features[features %in% c(features_gene, features_meta)])
 
-  if (!all(sapply(dat_exp, is.numeric))) {
+  if (!is.numeric(dat_exp) && !inherits(dat_exp, "Matrix")) {
     stop("'features' must be type of numeric variable.")
   }
   if (length(features) > 50 && !isTRUE(force)) {

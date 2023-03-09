@@ -19,12 +19,11 @@ RunSCExplorer(
   initial_cell_palette = "Paired",
   initial_feature_palette = "Spectral",
   initial_theme = "theme_scp",
-  initial_coExp = "No",
   initial_size = 4,
   initial_ncol = 3,
   initial_arrange = "Row",
   initial_dpi = 100,
-  initial_raster = FALSE,
+  workers = 2,
   create_script = TRUE,
   style_script = require("styler", quietly = TRUE),
   overwrite = FALSE,
@@ -32,7 +31,7 @@ RunSCExplorer(
 )
 }
 \arguments{
-\item{return_app}{}
+\item{workers}{}
 }
 \description{
 RunSCExplorer

@@ -1730,6 +1730,8 @@ ListDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
 
   patterns <- paste0(species, "-", db)
   dbinfo <- dbinfo[unlist(lapply(patterns, function(pat) grep(pat, dbinfo[["db_name"]], fixed = TRUE))), , drop = FALSE]
+  dbinfo <- dbinfo[order(dbinfo[["timestamp"]], decreasing = TRUE), , drop = FALSE]
+  rownames(dbinfo) <- NULL
   return(dbinfo)
 }
 
@@ -4135,7 +4137,7 @@ RunDynamicFeatures <- function(srt, lineages, features = NULL, suffix = lineages
       names(family) <- features
     }
     if (length(family) != length(features)) {
-      stop("'family' must be one character or a vector of the same length as the feature.")
+      stop("'family' must be one character or a vector of the same length as features.")
     }
   }
 
