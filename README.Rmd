@@ -162,7 +162,39 @@ renv::snapshot(project = "~/SCP_env")
 renv::restore(project = "~/SCP_env")
 ```
 
-## Example
+## Examples
+
+-   [Load the Data]
+
+-   [CellQC]
+
+-   [Standard pipeline]
+
+-   [Integration pipeline]
+
+-   [Cell projection between single-cell datasets]
+
+-   [Cell annotation using bulk RNA-seq datasets]
+
+-   [Cell annotation using single-cell datasets]
+
+-   [PAGA analysis]
+
+-   [Velocity analysis]
+
+-   [Differential expression analysis]
+
+-   [Enrichment analysis(over-representation)]
+
+-   [Enrichment analysis(GSEA)]
+
+-   [Trajectory inference]
+
+-   [Dynamic features]
+
+-   [Interactive data visualization with SCExplorer]
+
+-   [Other visualization examples]
 
 ### Load the Data
 
@@ -229,7 +261,7 @@ CellStatPlot(
 )
 ```
 
-### Standard pipeline in SCP
+### Standard pipeline
 
 ```{r Standard_SCP}
 pancreas_sub <- Standard_SCP(srt = pancreas_sub)
@@ -251,7 +283,7 @@ FeatureDimPlot3D(srt = pancreas_sub, features = c("Sox9", "Neurog3", "Fev", "Rbp
 
 ![FeatureDimPlot3D](README/README-FeatureDimPlot3D-1.png)
 
-### Integration pipeline in SCP
+### Integration pipeline
 
 Example data for integration is a subsetted version of [panc8(eight human pancreas datasets)](https://github.com/satijalab/seurat-data)
 
@@ -379,7 +411,7 @@ ht <- FeatureHeatmap(
 print(ht$plot)
 ```
 
-### Enrichment analysis(over-representation)
+### Enrichment analysis(over-representation) {#enrichment-analysisover-representation}
 
 ```{r RunEnrichment}
 pancreas_sub <- RunEnrichment(
@@ -404,7 +436,7 @@ EnrichmentPlot(
 EnrichmentPlot(srt = pancreas_sub, group_by = "CellType", plot_type = "comparison")
 ```
 
-### Enrichment analysis(GSEA)
+### Enrichment analysis(GSEA) {#enrichment-analysisgsea}
 
 ```{r RunGSEA}
 pancreas_sub <- RunGSEA(
@@ -479,9 +511,6 @@ if (interactive()) {
 
 ### Other visualization examples
 
-[**CellDimPlot**](https://zhanghao-njmu.github.io/SCP/reference/CellDimPlot.html)![Example1](README/README-Example-1.jpg) [**CellStatPlot**](https://zhanghao-njmu.github.io/SCP/reference/CellStatPlot.html)![Example2](README/README-Example-2.jpg)
-[**FeatureStatPlot**](https://zhanghao-njmu.github.io/SCP/reference/FeatureStatPlot.html)![Example3](README/README-Example-3.jpg)
-[**GroupHeatmap**](https://zhanghao-njmu.github.io/SCP/reference/GroupHeatmap.html)![Example3](README/README-Example-4.jpg)
+[**CellDimPlot**](https://zhanghao-njmu.github.io/SCP/reference/CellDimPlot.html)![Example1](README/README-Example-1.jpg) [**CellStatPlot**](https://zhanghao-njmu.github.io/SCP/reference/CellStatPlot.html)![Example2](README/README-Example-2.jpg) [**FeatureStatPlot**](https://zhanghao-njmu.github.io/SCP/reference/FeatureStatPlot.html)![Example3](README/README-Example-3.jpg) [**GroupHeatmap**](https://zhanghao-njmu.github.io/SCP/reference/GroupHeatmap.html)![Example3](README/README-Example-4.jpg)
 
-You can also find more examples in the documentation of the function:
-[Integration_SCP](https://zhanghao-njmu.github.io/SCP/reference/Integration_SCP.html), [RunKNNMap](https://zhanghao-njmu.github.io/SCP/reference/RunKNNMap.html), [RunMonocle3](https://zhanghao-njmu.github.io/SCP/reference/RunMonocle3.html), [RunPalantir](https://zhanghao-njmu.github.io/SCP/reference/RunPalantir.html), etc.
+You can also find more examples in the documentation of the function: [Integration_SCP](https://zhanghao-njmu.github.io/SCP/reference/Integration_SCP.html), [RunKNNMap](https://zhanghao-njmu.github.io/SCP/reference/RunKNNMap.html), [RunMonocle3](https://zhanghao-njmu.github.io/SCP/reference/RunMonocle3.html), [RunPalantir](https://zhanghao-njmu.github.io/SCP/reference/RunPalantir.html), etc.

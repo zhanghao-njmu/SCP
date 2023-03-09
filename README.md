@@ -184,7 +184,44 @@ renv::snapshot(project = "~/SCP_env")
 renv::restore(project = "~/SCP_env")
 ```
 
-## Example
+## Examples
+
+- [Load the Data](#load-the-data)
+
+- [CellQC](#cellqc)
+
+- [Standard pipeline](#standard-pipeline)
+
+- [Integration pipeline](#integration-pipeline)
+
+- [Cell projection between single-cell
+  datasets](#cell-projection-between-single-cell-datasets)
+
+- [Cell annotation using bulk RNA-seq
+  datasets](#cell-annotation-using-bulk-rna-seq-datasets)
+
+- [Cell annotation using single-cell
+  datasets](#cell-annotation-using-single-cell-datasets)
+
+- [PAGA analysis](#paga-analysis)
+
+- [Velocity analysis](#velocity-analysis)
+
+- [Differential expression analysis](#differential-expression-analysis)
+
+- [Enrichment
+  analysis(over-representation)](#enrichment-analysisover-representation)
+
+- [Enrichment analysis(GSEA)](#enrichment-analysisgsea)
+
+- [Trajectory inference](#trajectory-inference)
+
+- [Dynamic features](#dynamic-features)
+
+- [Interactive data visualization with
+  SCExplorer](#interactive-data-visualization-with-scexplorer)
+
+- [Other visualization examples](#other-visualization-examples)
 
 ### Load the Data
 
@@ -291,7 +328,7 @@ CellStatPlot(
 
 <img src="README/README-RunCellQC-3.png" width="100%" style="display: block; margin: auto;" />
 
-### Standard pipeline in SCP
+### Standard pipeline
 
 ``` r
 pancreas_sub <- Standard_SCP(srt = pancreas_sub)
@@ -315,7 +352,7 @@ FeatureDimPlot3D(srt = pancreas_sub, features = c("Sox9", "Neurog3", "Fev", "Rbp
 
 ![FeatureDimPlot3D](README/README-FeatureDimPlot3D-1.png)
 
-### Integration pipeline in SCP
+### Integration pipeline
 
 Example data for integration is a subsetted version of [panc8(eight
 human pancreas datasets)](https://github.com/satijalab/seurat-data)
