@@ -155,7 +155,7 @@ RunNMF.Assay <- function(object, assay = NULL, slot = "data", features = NULL, n
 #' @rdname RunNMF
 #' @concept dimensional_reduction
 #' @export
-#'
+#' @method RunNMF default
 RunNMF.default <- function(object, assay = NULL, slot = "data", nbes = 50,
                            nmf.method = "RcppML", tol = 1e-5, maxit = 100, rev.nmf = FALSE,
                            ndims.print = 1:5, nfeatures.print = 30, reduction.key = "BE_",
@@ -365,7 +365,7 @@ RunMDS.Assay <- function(object, assay = NULL, slot = "data",
 #' @rdname RunMDS
 #' @concept dimensional_reduction
 #' @export
-#'
+#' @method RunMDS default
 RunMDS.default <- function(object, assay = NULL, slot = "data",
                            nmds = 50, dist.method = "euclidean", mds.method = "cmdscale",
                            rev.mds = FALSE, ndims.print = 1:5, nfeatures.print = 30,
@@ -1509,12 +1509,11 @@ RunPaCMAP.Seurat <- function(object, reduction = "pca", dims = NULL, features = 
 #' @param assay
 #'
 #' @rdname RunPaCMAP
-#' @method RunPaCMAP default
 #' @concept dimensional_reduction
 #' @importFrom Seurat CreateDimReducObject
 #' @importFrom reticulate import
 #' @export
-#'
+#' @method RunPaCMAP default
 RunPaCMAP.default <- function(object, assay = NULL,
                               n_components = 2, n.neighbors = NULL, MN_ratio = 0.5, FP_ratio = 2,
                               pair_neighbors = NULL, pair_MN = NULL, pair_FP = NULL, distance_method = "euclidean",
@@ -1674,10 +1673,9 @@ RunPHATE.Seurat <- function(object, reduction = "pca", dims = NULL, features = N
 #'
 #' @rdname RunPHATE
 #' @concept dimensional_reduction
-#' @method RunPHATE default
 #' @importFrom reticulate import
 #' @export
-#'
+#' @method RunPHATE default
 RunPHATE.default <- function(object, assay = NULL,
                              n_components = 2, knn = 5, decay = 40, n_landmark = 2000, t = "auto", gamma = 1,
                              n_pca = 100, knn_dist = "euclidean", knn_max = NULL, n_jobs = 1,
@@ -1860,10 +1858,9 @@ RunTriMap.Seurat <- function(object, reduction = "pca", dims = NULL, features = 
 #'
 #' @rdname RunTriMap
 #' @concept dimensional_reduction
-#' @method RunTriMap default
 #' @importFrom reticulate import
 #' @export
-#'
+#' @method RunTriMap default
 RunTriMap.default <- function(object, assay = NULL,
                               n_components = 2, n_inliers = 12, n_outliers = 4, n_random = 3, distance_method = "euclidean",
                               lr = 0.1, n_iters = 400, triplets = NULL, weights = NULL, use_dist_matrix = FALSE, knn_tuple = NULL,
@@ -2049,11 +2046,9 @@ RunLargeVis.Seurat <- function(object, reduction = "pca", dims = NULL, features 
 #'
 #' @rdname RunLargeVis
 #' @concept dimensional_reduction
-#' @method RunLargeVis default
-#'
 #' @importFrom Seurat CreateDimReducObject
 #' @export
-#'
+#' @method RunLargeVis default
 RunLargeVis.default <- function(object, assay = NULL,
                                 perplexity = 50, n_neighbors = perplexity * 3, n_components = 2, metric = "euclidean",
                                 n_epochs = -1, learning_rate = 1, scale = "maxabs", init = "lvrandom", init_sdev = NULL,

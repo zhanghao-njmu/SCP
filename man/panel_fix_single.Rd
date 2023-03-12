@@ -14,6 +14,7 @@ panel_fix_single(
   units = "in",
   raster = FALSE,
   dpi = 300,
+  BPPARAM = BiocParallel::bpparam(),
   return_grob = FALSE,
   bg_color = "white",
   save = NULL,

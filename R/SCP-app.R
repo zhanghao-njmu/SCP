@@ -527,7 +527,7 @@ CreateSeuratObject2 <- function(counts, project = "SeuratProject", assay = "RNA"
 #' PrepareSCExplorer(list(mouse_pancreas = pancreas_sub, human_pancreas = panc8_sub), base_dir = "./SCExplorer", overwrite = TRUE)
 #'
 #' # Create the app.R script
-#' app <- RunSCExplorer(base_dir = "./SCExplorer", overwrite = TRUE)
+#' app <- RunSCExplorer(base_dir = "./SCExplorer", workers = 2, overwrite = TRUE)
 #' list.files("./SCExplorer") # This directory can be used as site directory for Shiny Server.
 #'
 #' # Run shiny app
@@ -1303,7 +1303,7 @@ server <- function(input, output, session) {
 
         # print(">>> panel_fix:")
         # print(system.time(
-        p1_dim <- SCP::panel_fix(p1_dim, height = size1, raster = panel_raster, verbose = FALSE)
+        p1_dim <- SCP::panel_fix(SCP::slim_data(p1_dim), height = size1, raster = panel_raster, verbose = FALSE)
         # ))
         attr(p1_dim, "dpi") <- plot_dpi1
         plot3d <- max(sapply(names(srt_tmp@reductions), function(r) dim(srt_tmp[[r]])[2])) >= 3
@@ -1432,7 +1432,7 @@ server <- function(input, output, session) {
 
         # print(">>> panel_fix:")
         # print(system.time(
-        p2_dim <- SCP::panel_fix(p2_dim, height = size2, raster = panel_raster, verbose = FALSE)
+        p2_dim <- SCP::panel_fix(SCP::slim_data(p2_dim), height = size2, raster = panel_raster, verbose = FALSE)
         # ))
         attr(p2_dim, "dpi") <- plot_dpi2
         plot3d <- max(sapply(names(srt_tmp@reductions), function(r) dim(srt_tmp[[r]])[2])) >= 3
@@ -1554,7 +1554,7 @@ server <- function(input, output, session) {
 
         # print(">>> panel_fix:")
         # print(system.time(
-        p3 <- SCP::panel_fix(p3, height = size3, raster = panel_raster, verbose = FALSE)
+        p3 <- SCP::panel_fix(SCP::slim_data(p3), height = size3, raster = panel_raster, verbose = FALSE)
         # ))
         attr(p3, "dpi") <- plot_dpi3
         return(p3)
@@ -1653,7 +1653,7 @@ server <- function(input, output, session) {
 
         # print(">>> panel_fix:")
         # print(system.time(
-        p4 <- SCP::panel_fix(p4, height = size4, raster = panel_raster, verbose = FALSE)
+        p4 <- SCP::panel_fix(SCP::slim_data(p4), height = size4, raster = panel_raster, verbose = FALSE)
         # ))
         attr(p4, "dpi") <- plot_dpi4
         return(p4)
@@ -1723,6 +1723,11 @@ server <- function(input, output, session) {
     "library(promises)",
     args_code,
     "plan(multisession, workers = workers)",
+    # "if (.Platform$OS.type == 'windows') {
+    #   BPPARAM = SerialParam()
+    # } else {
+    #   BPPARAM = MulticoreParam(workers)
+    # }",
     "page_theme <- bs_theme(bootswatch = 'zephyr')",
     main_code,
     "shinyApp(ui = ui, server = server)"

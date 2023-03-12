@@ -46,7 +46,7 @@ panc8_sub <- Integration_SCP(srtMerge = panc8_sub, batch = "tech", integration_m
 PrepareSCExplorer(list(mouse_pancreas = pancreas_sub, human_pancreas = panc8_sub), base_dir = "./SCExplorer", overwrite = TRUE)
 
 # Create the app.R script
-app <- RunSCExplorer(base_dir = "./SCExplorer", overwrite = TRUE)
+app <- RunSCExplorer(base_dir = "./SCExplorer", workers = 2, overwrite = TRUE)
 list.files("./SCExplorer") # This directory can be used as site directory for Shiny Server.
 
 # Run shiny app
