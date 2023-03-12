@@ -82,6 +82,7 @@ Statistical plot of features
 library(dplyr)
 data("pancreas_sub")
 FeatureStatPlot(pancreas_sub, stat.by = c("G2M_score", "Fev"), group.by = "SubCellType")
+FeatureStatPlot(pancreas_sub, stat.by = c("G2M_score", "Fev"), group.by = "SubCellType") \%>\% panel_fix(height = 2, width = 3)
 FeatureStatPlot(pancreas_sub, stat.by = c("G2M_score", "Fev"), group.by = "SubCellType", plot_type = "box")
 FeatureStatPlot(pancreas_sub, stat.by = c("G2M_score", "Fev"), group.by = "SubCellType", plot_type = "bar")
 FeatureStatPlot(pancreas_sub, stat.by = c("G2M_score", "Fev"), group.by = "SubCellType", plot_type = "dot")
@@ -117,5 +118,5 @@ FeatureStatPlot(pancreas_sub,
   ),
   fill.by = "feature", plot_type = "box",
   group.by = "SubCellType", bg.by = "CellType", stack = TRUE, flip = TRUE
-) \%>\% panel_fix_single(width = 10, height = 5)
+) \%>\% panel_fix_single(width = 10, height = 5) # Because the plot is made by combining, we want to adjust the overall height and width
 }

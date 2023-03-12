@@ -142,9 +142,12 @@ A single ggplot object if combine = TRUE; otherwise, a list of ggplot objects
 Plotting cell points on a reduced 2D plane and coloring according to the expression of the features.
 }
 \examples{
+#' library(dplyr)
 data("pancreas_sub")
 pancreas_sub <- Standard_SCP(pancreas_sub)
 FeatureDimPlot(pancreas_sub, features = "G2M_score", reduction = "UMAP")
+FeatureDimPlot(pancreas_sub, features = "G2M_score", reduction = "UMAP") \%>\% panel_fix(height = 2)
+FeatureDimPlot(pancreas_sub, features = "G2M_score", reduction = "UMAP", label = TRUE)
 FeatureDimPlot(pancreas_sub, features = "G2M_score", reduction = "UMAP", hex = TRUE)
 
 pancreas_sub <- RunSlingshot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP")

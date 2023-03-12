@@ -51,8 +51,10 @@ CellStatPlot(
 Statistical plot of cells
 }
 \examples{
+library(dplyr)
 data("pancreas_sub")
 CellStatPlot(pancreas_sub, stat.by = "Phase", group.by = "CellType", label = TRUE)
+CellStatPlot(pancreas_sub, stat.by = "Phase", group.by = "CellType", label = TRUE) \%>\% panel_fix(height = 2, width = 3)
 CellStatPlot(pancreas_sub, stat.by = "Phase", group.by = "CellType", stat_type = "count", position = "dodge", label = TRUE)
 
 CellStatPlot(pancreas_sub, stat.by = "Phase", plot_type = "bar")

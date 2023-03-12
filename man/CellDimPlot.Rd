@@ -176,14 +176,17 @@ A single ggplot object if combine = TRUE; otherwise, a list of ggplot objects
 Plotting cell points on a reduced 2D plane and coloring according to the groups of the cells.
 }
 \examples{
+library(dplyr)
 data("pancreas_sub")
+CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP")
+CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP") \%>\% panel_fix(height = 2)
 CellDimPlot(pancreas_sub,
   group.by = "CellType", reduction = "UMAP", label = TRUE, add_density = TRUE,
   cells.highlight = colnames(pancreas_sub)[pancreas_sub$SubCellType == "Delta"]
 )
 CellDimPlot(pancreas_sub,
-  group.by = "SubCellType", split.by = "Phase", cells.highlight = TRUE,
-  theme_use = "theme_blank", legend.position = "none"
+  group.by = "SubCellType", split.by = "Phase", reduction = "UMAP",
+  cells.highlight = TRUE, theme_use = "theme_blank", legend.position = "none"
 )
 
 # Add statistical chart
