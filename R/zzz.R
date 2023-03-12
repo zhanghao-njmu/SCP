@@ -4,10 +4,13 @@
   conda <- find_conda()
   if (!is.null(conda)) {
     envs_dir <- reticulate:::conda_info(conda = conda)$envs_dirs[1]
-    env <- env_exist(conda = conda, envs_dir = envs_dir)
+    env <- env_exist(conda = conda, envname = get_envname(), envs_dir = envs_dir)
+    if (isFALSE(env)) {
+      packageStartupMessage("SCP environment not found.")
+    }
   } else {
     env <- FALSE
-    packageStartupMessage("Conda and SCP environment not found.\nIf you have already created an SCP python environment using conda, you can specify the conda path by setting options(reticulate.conda_binary = \"/path/to/conda\") before loading the package.")
+    packageStartupMessage("Conda not found.")
   }
   if (isTRUE(env) && isTRUE(getOption("SCP_env_init", default = TRUE))) {
     status <- tryCatch(
@@ -40,5 +43,7 @@
     if (inherits(status, "error")) {
       packageStartupMessage(status)
     }
+  } else {
+    packageStartupMessage("If you have already created an SCP python environment using conda, you can specify the conda path by setting options(reticulate.conda_binary = \"/path/to/conda\", SCP_env_name = \"SCP_env\") before loading the package.")
   }
 }

@@ -23,7 +23,7 @@ RunSCExplorer(
   initial_ncol = 3,
   initial_arrange = "Row",
   initial_dpi = 100,
-  workers = 2,
+  workers = 10,
   create_script = TRUE,
   style_script = require("styler", quietly = TRUE),
   overwrite = FALSE,

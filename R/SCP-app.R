@@ -573,12 +573,12 @@ RunSCExplorer <- function(base_dir = "SCExplorer",
                           initial_ncol = 3,
                           initial_arrange = "Row",
                           initial_dpi = 100,
-                          workers = 2,
+                          workers = 10,
                           create_script = TRUE,
                           style_script = require("styler", quietly = TRUE),
                           overwrite = FALSE,
                           return_app = TRUE) {
-  check_R(c("HDF5Array", "rhdf5", "shiny@1.6.0", "ragg", "bslib", "future", "promises"))
+  check_R(c("HDF5Array", "rhdf5", "shiny@1.6.0", "ragg", "bslib", "future", "promises", "BiocParallel"))
   DataFile_full <- paste0(base_dir, "/", DataFile)
   MetaFile_full <- paste0(base_dir, "/", MetaFile)
   if (!file.exists(DataFile_full) || !file.exists(MetaFile_full)) {
@@ -1303,7 +1303,7 @@ server <- function(input, output, session) {
 
         # print(">>> panel_fix:")
         # print(system.time(
-        p1_dim <- SCP::panel_fix(SCP::slim_data(p1_dim), height = size1, raster = panel_raster, verbose = FALSE)
+        p1_dim <- SCP::panel_fix(SCP::slim_data(p1_dim), height = size1, raster = panel_raster, BPPARAM = BPPARAM, verbose = FALSE)
         # ))
         attr(p1_dim, "dpi") <- plot_dpi1
         plot3d <- max(sapply(names(srt_tmp@reductions), function(r) dim(srt_tmp[[r]])[2])) >= 3
@@ -1432,7 +1432,7 @@ server <- function(input, output, session) {
 
         # print(">>> panel_fix:")
         # print(system.time(
-        p2_dim <- SCP::panel_fix(SCP::slim_data(p2_dim), height = size2, raster = panel_raster, verbose = FALSE)
+        p2_dim <- SCP::panel_fix(SCP::slim_data(p2_dim), height = size2, raster = panel_raster, BPPARAM = BPPARAM, verbose = FALSE)
         # ))
         attr(p2_dim, "dpi") <- plot_dpi2
         plot3d <- max(sapply(names(srt_tmp@reductions), function(r) dim(srt_tmp[[r]])[2])) >= 3
@@ -1554,7 +1554,7 @@ server <- function(input, output, session) {
 
         # print(">>> panel_fix:")
         # print(system.time(
-        p3 <- SCP::panel_fix(SCP::slim_data(p3), height = size3, raster = panel_raster, verbose = FALSE)
+        p3 <- SCP::panel_fix(SCP::slim_data(p3), height = size3, raster = panel_raster, BPPARAM = BPPARAM, verbose = FALSE)
         # ))
         attr(p3, "dpi") <- plot_dpi3
         return(p3)
@@ -1653,7 +1653,7 @@ server <- function(input, output, session) {
 
         # print(">>> panel_fix:")
         # print(system.time(
-        p4 <- SCP::panel_fix(SCP::slim_data(p4), height = size4, raster = panel_raster, verbose = FALSE)
+        p4 <- SCP::panel_fix(SCP::slim_data(p4), height = size4, raster = panel_raster, BPPARAM = BPPARAM, verbose = FALSE)
         # ))
         attr(p4, "dpi") <- plot_dpi4
         return(p4)
@@ -1716,18 +1716,19 @@ server <- function(input, output, session) {
     paste0("if (utils::packageVersion('SCP') < app_SCP_version) {
       stop(paste0('SCExplorer requires SCP >= ", as.character(utils::packageVersion("SCP")), "'))
     }"),
-    "SCP::check_R(c('HDF5Array', 'rhdf5', 'shiny@1.6.0', 'ragg', 'bslib', 'future', 'promises'))",
+    "SCP::check_R(c('HDF5Array', 'rhdf5', 'shiny@1.6.0', 'ragg', 'bslib', 'future', 'promises', 'BiocParallel'))",
     "library(shiny)",
     "library(bslib)",
     "library(future)",
     "library(promises)",
+    "library(BiocParallel)",
     args_code,
     "plan(multisession, workers = workers)",
-    # "if (.Platform$OS.type == 'windows') {
-    #   BPPARAM = SerialParam()
-    # } else {
-    #   BPPARAM = MulticoreParam(workers)
-    # }",
+    "if (.Platform$OS.type == 'windows') {
+      BPPARAM = SerialParam()
+    } else {
+      BPPARAM = MulticoreParam(workers)
+    }",
     "page_theme <- bs_theme(bootswatch = 'zephyr')",
     main_code,
     "shinyApp(ui = ui, server = server)"

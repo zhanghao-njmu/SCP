@@ -549,7 +549,7 @@ show_palettes <- function(palettes = NULL, type = c("discrete", "continuous"), i
 #' ht1$plot
 #' panel_fix(ht1$plot)
 #' panel_fix(ht1$plot, raster = TRUE, dpi = 50)
-#' panel_fix(ht1$plot, height = 5, width = 7)
+#' panel_fix(ht1$plot, height = 5, width = 7) # Total Heatmap size including annotation and legend.
 #'
 #' ht2 <- GroupHeatmap(pancreas_sub,
 #'   features = pancreas_sub[["RNA"]]@var.features,
@@ -560,7 +560,7 @@ show_palettes <- function(palettes = NULL, type = c("discrete", "continuous"), i
 #' ht2$plot
 #' panel_fix(ht2$plot)
 #' panel_fix(ht2$plot, raster = TRUE, dpi = 50)
-#' panel_fix(ht2$plot, height = 5, width = 10) # Total Heatmap size including annotation and legend
+#' panel_fix(ht2$plot, height = 5, width = 10) # However, gene labels on the left cannot be adjusted.
 #'
 #' @importFrom ggplot2 ggsave
 #' @importFrom grid grob unit convertWidth convertHeight convertUnit is.unit unitType
@@ -719,6 +719,9 @@ panel_fix_single <- function(x, panel_index = NULL, respect = NULL,
     non_zero <- grep(pattern = "zeroGrob", vapply(grob$grobs, as.character, character(1)), invert = TRUE)
     panel_index <- grep("panel|full", grob[["layout"]][["name"]])
     panel_index <- intersect(panel_index, non_zero)
+  }
+  if (length(panel_index) == 0 && length(grob$grobs) == 1) {
+    panel_index <- 1
   }
   if (!length(width) %in% c(0, 1, length(panel_index)) || !length(height) %in% c(0, 1, length(panel_index))) {
     stop("The length of 'width' and 'height' must be 1 or the length of panels.")
@@ -929,6 +932,21 @@ panel_fix_single <- function(x, panel_index = NULL, respect = NULL,
   }
 }
 
+#' Drop all data in the plot (only one observation is kept)
+#'
+#' @examples
+#' library(ggplot2)
+#' p <- ggplot(data = mtcars, aes(x = mpg, y = wt, colour = cyl)) +
+#'   geom_point() +
+#'   scale_x_continuous(limits = c(10, 30)) +
+#'   scale_y_continuous(limits = c(1, 6))
+#' object.size(p)
+#'
+#' p_drop <- drop_data(p)
+#' object.size(p_drop)
+#'
+#' p / p_drop
+#'
 #' @export
 drop_data <- function(p) {
   UseMethod(generic = "drop_data", object = p)
@@ -937,6 +955,8 @@ drop_data <- function(p) {
 #' @export
 #' @method drop_data ggplot
 drop_data.ggplot <- function(p) {
+  p <- ggplot2:::plot_clone(p)
+
   # fix the scales for x/y axis and 'fill', 'color', 'shape',...
   for (i in seq_along(p$scales$scales)) {
     if (inherits(p$scales$scales[[i]], "ScaleDiscrete")) {
@@ -955,8 +975,8 @@ drop_data.ggplot <- function(p) {
 
   vars <- get_vars(p)
   # drop main data
-  vars_modified <- names(which(sapply(p$data[, intersect(colnames(p$data), vars), drop = FALSE], class) == "character"))
   if (length(p$data) > 0) {
+    vars_modified <- names(which(sapply(p$data[, intersect(colnames(p$data), vars), drop = FALSE], class) == "character"))
     for (v in vars_modified) {
       p$data[[v]] <- as.factor(p$data[[v]])
     }
@@ -965,8 +985,8 @@ drop_data.ggplot <- function(p) {
 
   # drop layer data
   for (i in seq_along(p$layers)) {
-    vars_modified <- names(which(sapply(p$layers[[i]]$data[, intersect(colnames(p$layers[[i]]$data), vars), drop = FALSE], class) == "character"))
     if (length(p$layers[[i]]$data) > 0) {
+      vars_modified <- names(which(sapply(p$layers[[i]]$data[, intersect(colnames(p$layers[[i]]$data), vars), drop = FALSE], class) == "character"))
       for (v in vars_modified) {
         p$layers[[i]]$data[[v]] <- as.factor(p$layers[[i]]$data[[v]])
       }
@@ -993,6 +1013,19 @@ drop_data.default <- function(p) {
   return(p)
 }
 
+#' Drop unused data from the plot to reduce the object size
+#'
+#' @examples
+#' library(ggplot2)
+#' p <- ggplot(data = mtcars, aes(x = mpg, y = wt, colour = cyl)) +
+#'   geom_point()
+#' object.size(p)
+#' colnames(p$data)
+#'
+#' p_slim <- slim_data(p)
+#' object.size(p_slim)
+#' colnames(p_slim$data)
+#'
 #' @export
 slim_data <- function(p) {
   UseMethod(generic = "slim_data", object = p)
@@ -3438,7 +3471,7 @@ FeatureDimPlot3D <- function(srt, features = NULL, reduction = NULL, dims = c(1,
 #'   ),
 #'   fill.by = "feature", plot_type = "box",
 #'   group.by = "SubCellType", bg.by = "CellType", stack = TRUE, flip = TRUE
-#' ) %>% panel_fix_single(width = 10, height = 5)
+#' ) %>% panel_fix_single(width = 10, height = 5) # Because the plot is made by combining, we want to adjust the overall height and width
 #' @importFrom Seurat DefaultAssay GetAssayData
 #' @importFrom gtable gtable_add_cols gtable_add_rows gtable_add_grob gtable_add_padding
 #' @importFrom ggplot2 geom_blank geom_violin geom_rect geom_boxplot geom_count geom_col geom_vline geom_hline layer_data layer_scales position_jitterdodge position_dodge stat_summary scale_x_discrete element_line element_text element_blank annotate mean_sdl after_stat
@@ -12809,7 +12842,7 @@ EnrichmentPlot <- function(srt, db = "GO_BP", group_by = NULL, group_use = NULL,
 #' GSEAPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = "Ductal")
 #' GSEAPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = "Ductal", geneSetID = "GO:0006412")
 #' GSEAPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = "Endocrine", geneSetID = c("GO:0046903", "GO:0015031", "GO:0007600")) %>%
-#'   panel_fix_single(width = 5)
+#'   panel_fix_single(width = 5) # Because the plot is made by combining, we want to adjust the overall height and width
 #' GSEAPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", plot_type = "comparison")
 #' GSEAPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", plot_type = "comparison", only_sig = TRUE)
 #' GSEAPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", plot_type = "comparison", pvalueCutoff = 0.05, padjustCutoff = NULL, only_pos = TRUE, only_sig = TRUE)
