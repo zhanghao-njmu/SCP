@@ -322,6 +322,9 @@
     <loc>https://zhanghao-njmu.github.io/SCP/reference/download.html</loc>
   </url>
   <url>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/drop_data.html</loc>
+  </url>
+  <url>
     <loc>https://zhanghao-njmu.github.io/SCP/reference/env_exist.html</loc>
   </url>
   <url>
@@ -389,6 +392,9 @@
   </url>
   <url>
     <loc>https://zhanghao-njmu.github.io/SCP/reference/show_palettes.html</loc>
+  </url>
+  <url>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/slim_data.html</loc>
   </url>
   <url>
     <loc>https://zhanghao-njmu.github.io/SCP/reference/srt_to_adata.html</loc>
