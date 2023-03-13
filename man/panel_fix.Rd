@@ -49,40 +49,38 @@ library(ggplot2)
 p <- ggplot(data = mtcars, aes(x = mpg, y = wt, colour = cyl)) +
   geom_point() +
   facet_wrap(~gear, nrow = 2)
-p_fix1 <- panel_fix(p, width = 5, height = 3, units = "cm")
-p_fix1
-p_fix2 <- panel_fix(p, width = 5, height = 3, units = "cm", raster = TRUE, dpi = 30)
-p_fix2
+panel_fix(p, width = 5, height = 3, units = "cm") # fix the size of panel
+panel_fix(p, width = 5, height = 3, units = "cm", raster = TRUE, dpi = 30) # rasterize the panel
 
 # panel_fix will build and render the plot when the input is a ggplot object.
 # So after panel_fix, the size of the object will be changed.
 object.size(p)
-object.size(p_fix1)
+object.size(panel_fix(p, width = 5, height = 3, units = "cm"))
 
 ## save the plot with appropriate size
-# plot_size <- attr(p_fix1, "size")
+# p_fix <- panel_fix(p, width = 5, height = 3, units = "cm")
+# plot_size <- attr(p_fix, "size")
 # ggsave(
-#   filename = "p_fix.png", plot = p_fix1,
+#   filename = "p_fix.png", plot = p_fix,
 #   units = plot_size$units, width = plot_size$width, height = plot_size$height
 # )
-
 ## or save the plot directly
-# p_fix1 <- panel_fix(p, width = 5, height = 3, units = "cm", save = "p_fix.png")
+# p_fix <- panel_fix(p, width = 5, height = 3, units = "cm", save = "p_fix.png")
 
 # fix the panel of the plot combined by patchwork
 data("pancreas_sub")
-p1 <- CellDimPlot(pancreas_sub, "Phase") # ggplot object
-p2 <- FeatureDimPlot(pancreas_sub, "Ins1") # ggplot object
+p1 <- CellDimPlot(pancreas_sub, "Phase", aspect.ratio = 1) # ggplot object
+p2 <- FeatureDimPlot(pancreas_sub, "Ins1", aspect.ratio = 0.5) # ggplot object
 p <- p1 / p2 # plot is combined by patchwork
-panel_fix(p, height = 2)
+panel_fix(p, height = 2) # fix the panel size for each plot, the width will be calculated automatically based on aspect.ratio
 
 # fix the panel of the plot combined by plot_grid
 library(cowplot)
 p1 <- CellDimPlot(pancreas_sub, c("Phase", "SubCellType"), label = TRUE) # plot is combined by patchwork
 p2 <- FeatureDimPlot(pancreas_sub, c("Ins1", "Gcg"), label = TRUE) # plot is combined by patchwork
 p <- plot_grid(p1, p2, nrow = 2) # plot is combined by plot_grid
-panel_fix(p, height = 2)
-panel_fix(p, height = 2, raster = TRUE, dpi = 30)
+panel_fix(p, height = 2) # fix the size of panel for each plot
+panel_fix(p, height = 2, raster = TRUE, dpi = 30) # rasterize the panel while keeping all labels and text in vector format
 
 # fix the panel of the heatmap
 ht1 <- GroupHeatmap(pancreas_sub,
@@ -97,9 +95,9 @@ ht1 <- GroupHeatmap(pancreas_sub,
   show_row_names = TRUE
 )
 ht1$plot
-panel_fix(ht1$plot)
-panel_fix(ht1$plot, raster = TRUE, dpi = 30)
-panel_fix(ht1$plot, height = 5, width = 7) # Total Heatmap size including annotation and legend.
+panel_fix(ht1$plot) # fix the size of the heatmap according the current viewport
+panel_fix(ht1$plot, raster = TRUE, dpi = 30) # rasterize the heatmap body
+panel_fix(ht1$plot, height = 5, width = 7) # fix the size of overall heatmap including annotation and legend
 
 ht2 <- GroupHeatmap(pancreas_sub,
   features = pancreas_sub[["RNA"]]@var.features,
@@ -108,8 +106,8 @@ ht2 <- GroupHeatmap(pancreas_sub,
   height = 3, width = c(2, 4) # Heatmap body size
 )
 ht2$plot
-panel_fix(ht2$plot)
-panel_fix(ht2$plot, raster = TRUE, dpi = 30)
-panel_fix(ht2$plot, height = 5, width = 10) # However, gene labels on the left cannot be adjusted.
+panel_fix(ht2$plot) # fix the size of the heatmap according the current viewport
+panel_fix(ht2$plot, raster = TRUE, dpi = 30) # rasterize the heatmap body
+panel_fix(ht2$plot, height = 5, width = 10) # however, gene labels on the left cannot be adjusted
 
 }

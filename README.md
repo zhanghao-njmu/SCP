@@ -184,9 +184,9 @@ renv::snapshot(project = "~/SCP_env")
 renv::restore(project = "~/SCP_env")
 ```
 
-## Examples
+## Quick Start
 
-- [Load the Data](#load-the-data)
+- [Data exploration](#data-exploration)
 
 - [CellQC](#cellqc)
 
@@ -223,7 +223,7 @@ renv::restore(project = "~/SCP_env")
 
 - [Other visualization examples](#other-visualization-examples)
 
-### Load the Data
+### Data exploration
 
 The analysis is based on a subsetted version of [mouse pancreas
 data](https://doi.org/10.1242/dev.173849).
@@ -238,8 +238,6 @@ print(pancreas_sub)
 #>  2 other assays present: spliced, unspliced
 #>  2 dimensional reductions calculated: PCA, UMAP
 ```
-
-Data exploration:
 
 ``` r
 CellDimPlot(

@@ -26,6 +26,7 @@ RunEnrichment(
   TERM2NAME = NULL,
   minGSSize = 10,
   maxGSSize = 500,
+  unlimited_db = c("Chromosome", "GeneType", "TF", "Enzyme", "SP"),
   GO_simplify = FALSE,
   GO_simplify_cutoff = "p.adjust < 0.05",
   simplify_method = "Wang",
@@ -75,7 +76,10 @@ Perform the enrichment analysis(over-representation) on the genes
 \examples{
 data("pancreas_sub")
 pancreas_sub <- RunDEtest(pancreas_sub, group_by = "CellType")
-pancreas_sub <- RunEnrichment(srt = pancreas_sub, group_by = "CellType", db = "GO_BP", species = "Mus_musculus")
+pancreas_sub <- RunEnrichment(
+  srt = pancreas_sub, group_by = "CellType", DE_threshold = "avg_log2FC > 0 & p_val_adj < 0.05",
+  db = "GO_BP", species = "Mus_musculus"
+)
 EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", plot_type = "comparison")
 
 # Remove redundant GO terms

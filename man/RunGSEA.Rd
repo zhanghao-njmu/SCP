@@ -9,6 +9,7 @@ RunGSEA(
   group_by = NULL,
   test.use = "wilcox",
   DE_threshold = "p_val_adj < 0.05",
+  scoreType = "std",
   geneID = NULL,
   geneScore = NULL,
   geneID_groups = NULL,
@@ -27,6 +28,7 @@ RunGSEA(
   TERM2NAME = NULL,
   minGSSize = 10,
   maxGSSize = 500,
+  unlimited_db = c("Chromosome", "GeneType", "TF", "Enzyme", "SP"),
   GO_simplify = FALSE,
   GO_simplify_cutoff = "p.adjust < 0.05",
   simplify_method = "Wang",
@@ -74,7 +76,10 @@ Perform the enrichment analysis(GSEA) on the genes
 \examples{
 data("pancreas_sub")
 pancreas_sub <- RunDEtest(pancreas_sub, group_by = "CellType", only.pos = FALSE, fc.threshold = 1)
-pancreas_sub <- RunGSEA(pancreas_sub, group_by = "CellType", db = "GO_BP", species = "Mus_musculus")
+pancreas_sub <- RunGSEA(pancreas_sub,
+  group_by = "CellType", DE_threshold = "p_val_adj < 0.05",
+  scoreType = "std", db = "GO_BP", species = "Mus_musculus"
+)
 GSEAPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", plot_type = "comparison")
 GSEAPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = "Ductal", geneSetID = "GO:0006412")
 GSEAPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = "Endocrine", geneSetID = c("GO:0046903", "GO:0015031", "GO:0007600"))

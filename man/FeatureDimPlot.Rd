@@ -142,7 +142,7 @@ A single ggplot object if combine = TRUE; otherwise, a list of ggplot objects
 Plotting cell points on a reduced 2D plane and coloring according to the expression of the features.
 }
 \examples{
-#' library(dplyr)
+library(dplyr)
 data("pancreas_sub")
 pancreas_sub <- Standard_SCP(pancreas_sub)
 FeatureDimPlot(pancreas_sub, features = "G2M_score", reduction = "UMAP")

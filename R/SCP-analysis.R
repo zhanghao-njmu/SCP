@@ -1834,7 +1834,7 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
           }
           if (!is.na(pathname)) {
             header <- readCacheHeader(pathname)
-            message("Loaded cached db: ", term, " version:", strsplit(header[["comment"]], "\\|")[[1]][1], " created:", header[["timestamp"]])
+            message("Loading cached db:", term, " version:", strsplit(header[["comment"]], "\\|")[[1]][1], " created:", header[["timestamp"]])
             db_list[[sps]][[term]] <- loadCache(pathname = pathname)
           }
         }
@@ -2809,7 +2809,10 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
 #' @examples
 #' data("pancreas_sub")
 #' pancreas_sub <- RunDEtest(pancreas_sub, group_by = "CellType")
-#' pancreas_sub <- RunEnrichment(srt = pancreas_sub, group_by = "CellType", db = "GO_BP", species = "Mus_musculus")
+#' pancreas_sub <- RunEnrichment(
+#'   srt = pancreas_sub, group_by = "CellType", DE_threshold = "avg_log2FC > 0 & p_val_adj < 0.05",
+#'   db = "GO_BP", species = "Mus_musculus"
+#' )
 #' EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", plot_type = "comparison")
 #'
 #' # Remove redundant GO terms
@@ -2837,7 +2840,7 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
 RunEnrichment <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_threshold = "avg_log2FC > 0 & p_val_adj < 0.05",
                           geneID = NULL, geneID_groups = NULL, geneID_exclude = NULL, IDtype = "symbol", result_IDtype = "symbol", species = "Homo_sapiens",
                           db = "GO_BP", db_update = FALSE, db_version = "latest", db_combine = FALSE, convert_species = TRUE, Ensembl_version = 103, mirror = NULL,
-                          TERM2GENE = NULL, TERM2NAME = NULL, minGSSize = 10, maxGSSize = 500,
+                          TERM2GENE = NULL, TERM2NAME = NULL, minGSSize = 10, maxGSSize = 500, unlimited_db = c("Chromosome", "GeneType", "TF", "Enzyme", "SP"),
                           GO_simplify = FALSE, GO_simplify_cutoff = "p.adjust < 0.05", simplify_method = "Wang", simplify_similarityCutoff = 0.7,
                           BPPARAM = BiocParallel::bpparam(), seed = 11) {
   bpprogressbar(BPPARAM) <- TRUE
@@ -2953,8 +2956,8 @@ RunEnrichment <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_t
     TERM2NAME_tmp <- TERM2NAME_tmp[TERM2NAME_tmp[["Term"]] %in% TERM2GENE_tmp[["Term"]], , drop = FALSE]
     enrich_res <- enricher(
       gene = gene,
-      minGSSize = ifelse(term %in% c("Chromosome"), 1, minGSSize),
-      maxGSSize = ifelse(term %in% c("Chromosome"), Inf, maxGSSize),
+      minGSSize = ifelse(term %in% unlimited_db, 1, minGSSize),
+      maxGSSize = ifelse(term %in% unlimited_db, Inf, maxGSSize),
       pAdjustMethod = "BH",
       pvalueCutoff = Inf,
       qvalueCutoff = Inf,
@@ -3078,7 +3081,10 @@ RunEnrichment <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_t
 #' @examples
 #' data("pancreas_sub")
 #' pancreas_sub <- RunDEtest(pancreas_sub, group_by = "CellType", only.pos = FALSE, fc.threshold = 1)
-#' pancreas_sub <- RunGSEA(pancreas_sub, group_by = "CellType", db = "GO_BP", species = "Mus_musculus")
+#' pancreas_sub <- RunGSEA(pancreas_sub,
+#'   group_by = "CellType", DE_threshold = "p_val_adj < 0.05",
+#'   scoreType = "std", db = "GO_BP", species = "Mus_musculus"
+#' )
 #' GSEAPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", plot_type = "comparison")
 #' GSEAPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = "Ductal", geneSetID = "GO:0006412")
 #' GSEAPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = "Endocrine", geneSetID = c("GO:0046903", "GO:0015031", "GO:0007600"))
@@ -3105,10 +3111,10 @@ RunEnrichment <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_t
 #' @importFrom clusterProfiler GSEA simplify
 #' @export
 #'
-RunGSEA <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_threshold = "p_val_adj < 0.05",
+RunGSEA <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_threshold = "p_val_adj < 0.05", scoreType = "std",
                     geneID = NULL, geneScore = NULL, geneID_groups = NULL, geneID_exclude = NULL, IDtype = "symbol", result_IDtype = "symbol", species = "Homo_sapiens",
                     db = "GO_BP", db_update = FALSE, db_version = "latest", db_combine = FALSE, convert_species = TRUE, Ensembl_version = 103, mirror = NULL,
-                    TERM2GENE = NULL, TERM2NAME = NULL, minGSSize = 10, maxGSSize = 500,
+                    TERM2GENE = NULL, TERM2NAME = NULL, minGSSize = 10, maxGSSize = 500, unlimited_db = c("Chromosome", "GeneType", "TF", "Enzyme", "SP"),
                     GO_simplify = FALSE, GO_simplify_cutoff = "p.adjust < 0.05", simplify_method = "Wang", simplify_similarityCutoff = 0.7,
                     BPPARAM = BiocParallel::bpparam(), seed = 11) {
   bpprogressbar(BPPARAM) <- TRUE
@@ -3154,11 +3160,13 @@ RunGSEA <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_thresho
   if (length(geneScore) != length(geneID)) {
     stop("geneScore must be the same length with geneID")
   }
-  if (all(geneScore >= 0)) {
-    stop("All values of geneScore are greater than zero")
+  if (all(geneScore > 0) && scoreType != "pos") {
+    scoreType <- "pos"
+    warning("All values in the geneScore are greater than zero. Set scoreType = 'pos'.", immediate. = TRUE)
   }
-  if (all(geneScore <= 0)) {
-    stop("All values of geneScore are less than zero")
+  if (all(geneScore < 0) && scoreType != "neg") {
+    scoreType <- "neg"
+    warning("All values in the geneScore are less than zero. Set scoreType = 'neg'.", immediate. = TRUE)
   }
 
   input <- data.frame(geneID = geneID, geneScore = geneScore, geneID_groups = geneID_groups)
@@ -3251,11 +3259,11 @@ RunGSEA <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_thresho
     TERM2NAME_tmp <- TERM2NAME_tmp[TERM2NAME_tmp[["Term"]] %in% TERM2GENE_tmp[["Term"]], , drop = FALSE]
     enrich_res <- GSEA(
       geneList = geneList,
-      minGSSize = ifelse(term %in% c("Chromosome"), 1, minGSSize),
-      maxGSSize = ifelse(term %in% c("Chromosome"), Inf, maxGSSize),
-      nPermSimple = 100000,
+      minGSSize = ifelse(term %in% unlimited_db, 1, minGSSize),
+      maxGSSize = ifelse(term %in% unlimited_db, Inf, maxGSSize),
+      nPermSimple = 1e5, # nPermSimple:fgseaMultilevel; nperm:fgseaSimple
       eps = 0,
-      scoreType = "std",
+      scoreType = scoreType,
       pAdjustMethod = "BH",
       pvalueCutoff = Inf,
       TERM2GENE = TERM2GENE_tmp,

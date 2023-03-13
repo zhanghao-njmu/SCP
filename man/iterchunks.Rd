@@ -24,7 +24,7 @@ bpworkers(BPPARAM) <- 10
 slow_fun <- function(x) {
   out <- NULL
   for (i in seq_along(x)) {
-    Sys.sleep(1)
+    Sys.sleep(0.5)
     out[[i]] <- x[[i]] + 3
   }
   return(out)

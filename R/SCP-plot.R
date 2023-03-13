@@ -500,40 +500,38 @@ show_palettes <- function(palettes = NULL, type = c("discrete", "continuous"), i
 #' p <- ggplot(data = mtcars, aes(x = mpg, y = wt, colour = cyl)) +
 #'   geom_point() +
 #'   facet_wrap(~gear, nrow = 2)
-#' p_fix1 <- panel_fix(p, width = 5, height = 3, units = "cm")
-#' p_fix1
-#' p_fix2 <- panel_fix(p, width = 5, height = 3, units = "cm", raster = TRUE, dpi = 30)
-#' p_fix2
+#' panel_fix(p, width = 5, height = 3, units = "cm") # fix the size of panel
+#' panel_fix(p, width = 5, height = 3, units = "cm", raster = TRUE, dpi = 30) # rasterize the panel
 #'
 #' # panel_fix will build and render the plot when the input is a ggplot object.
 #' # So after panel_fix, the size of the object will be changed.
 #' object.size(p)
-#' object.size(p_fix1)
+#' object.size(panel_fix(p, width = 5, height = 3, units = "cm"))
 #'
 #' ## save the plot with appropriate size
-#' # plot_size <- attr(p_fix1, "size")
+#' # p_fix <- panel_fix(p, width = 5, height = 3, units = "cm")
+#' # plot_size <- attr(p_fix, "size")
 #' # ggsave(
-#' #   filename = "p_fix.png", plot = p_fix1,
+#' #   filename = "p_fix.png", plot = p_fix,
 #' #   units = plot_size$units, width = plot_size$width, height = plot_size$height
 #' # )
-#'
 #' ## or save the plot directly
-#' # p_fix1 <- panel_fix(p, width = 5, height = 3, units = "cm", save = "p_fix.png")
+#' # p_fix <- panel_fix(p, width = 5, height = 3, units = "cm", save = "p_fix.png")
 #'
 #' # fix the panel of the plot combined by patchwork
 #' data("pancreas_sub")
-#' p1 <- CellDimPlot(pancreas_sub, "Phase") # ggplot object
-#' p2 <- FeatureDimPlot(pancreas_sub, "Ins1") # ggplot object
+#' p1 <- CellDimPlot(pancreas_sub, "Phase", aspect.ratio = 1) # ggplot object
+#' p2 <- FeatureDimPlot(pancreas_sub, "Ins1", aspect.ratio = 0.5) # ggplot object
 #' p <- p1 / p2 # plot is combined by patchwork
-#' panel_fix(p, height = 2)
+#' panel_fix(p, height = 2) # fix the panel size for each plot, the width will be calculated automatically based on aspect.ratio
 #'
 #' # fix the panel of the plot combined by plot_grid
 #' library(cowplot)
 #' p1 <- CellDimPlot(pancreas_sub, c("Phase", "SubCellType"), label = TRUE) # plot is combined by patchwork
 #' p2 <- FeatureDimPlot(pancreas_sub, c("Ins1", "Gcg"), label = TRUE) # plot is combined by patchwork
 #' p <- plot_grid(p1, p2, nrow = 2) # plot is combined by plot_grid
-#' panel_fix(p, height = 2)
-#' panel_fix(p, height = 2, raster = TRUE, dpi = 30)
+#' panel_fix(p, height = 2) # fix the size of panel for each plot
+#' panel_fix(p, height = 2, raster = TRUE, dpi = 30) # rasterize the panel while keeping all labels and text in vector format
 #'
 #' # fix the panel of the heatmap
 #' ht1 <- GroupHeatmap(pancreas_sub,
@@ -548,9 +546,9 @@ show_palettes <- function(palettes = NULL, type = c("discrete", "continuous"), i
 #'   show_row_names = TRUE
 #' )
 #' ht1$plot
-#' panel_fix(ht1$plot)
-#' panel_fix(ht1$plot, raster = TRUE, dpi = 30)
-#' panel_fix(ht1$plot, height = 5, width = 7) # Total Heatmap size including annotation and legend.
+#' panel_fix(ht1$plot) # fix the size of the heatmap according the current viewport
+#' panel_fix(ht1$plot, raster = TRUE, dpi = 30) # rasterize the heatmap body
+#' panel_fix(ht1$plot, height = 5, width = 7) # fix the size of overall heatmap including annotation and legend
 #'
 #' ht2 <- GroupHeatmap(pancreas_sub,
 #'   features = pancreas_sub[["RNA"]]@var.features,
@@ -559,9 +557,9 @@ show_palettes <- function(palettes = NULL, type = c("discrete", "continuous"), i
 #'   height = 3, width = c(2, 4) # Heatmap body size
 #' )
 #' ht2$plot
-#' panel_fix(ht2$plot)
-#' panel_fix(ht2$plot, raster = TRUE, dpi = 30)
-#' panel_fix(ht2$plot, height = 5, width = 10) # However, gene labels on the left cannot be adjusted.
+#' panel_fix(ht2$plot) # fix the size of the heatmap according the current viewport
+#' panel_fix(ht2$plot, raster = TRUE, dpi = 30) # rasterize the heatmap body
+#' panel_fix(ht2$plot, height = 5, width = 10) # however, gene labels on the left cannot be adjusted
 #'
 #' @importFrom ggplot2 ggsave
 #' @importFrom grid grob unit convertWidth convertHeight convertUnit is.unit unitType
@@ -2040,7 +2038,7 @@ CellDimPlot <- function(srt, group.by, reduction = NULL, dims = c(1, 2), split.b
 #' @return A single ggplot object if combine = TRUE; otherwise, a list of ggplot objects
 #'
 #' @examples
-#' #' library(dplyr)
+#' library(dplyr)
 #' data("pancreas_sub")
 #' pancreas_sub <- Standard_SCP(pancreas_sub)
 #' FeatureDimPlot(pancreas_sub, features = "G2M_score", reduction = "UMAP")
@@ -13136,17 +13134,23 @@ GSEAPlot <- function(srt, db = "GO_BP", group_by = NULL, group_use = NULL, test.
         y[y < quantile(y_raw, 0.02)] <- quantile(y_raw, 0.02)
         col <- rep("white", length(y))
         y_pos <- which(y > 0)
-        y_pos_i <- cut(y[y_pos],
-          breaks = seq(min(y[y_pos], na.rm = TRUE), max(y[y_pos], na.rm = TRUE), len = 100),
-          include.lowest = TRUE
-        )
+        if (length(y_pos) > 0) {
+          y_pos_i <- cut(y[y_pos],
+            breaks = seq(min(y[y_pos], na.rm = TRUE), max(y[y_pos], na.rm = TRUE), len = 100),
+            include.lowest = TRUE
+          )
+          col[y_pos] <- colorRampPalette(c("#F5DCDC", "#C40003"))(100)[y_pos_i]
+        }
+
         y_neg <- which(y < 0)
-        y_neg_i <- cut(y[y_neg],
-          breaks = seq(min(y[y_neg], na.rm = TRUE), max(y[y_neg], na.rm = TRUE), len = 100),
-          include.lowest = TRUE
-        )
-        col[y_pos] <- colorRampPalette(c("#F5DCDC", "#C40003"))(100)[y_pos_i]
-        col[y_neg] <- colorRampPalette(c("#1D008F", "#DDDCF5"))(100)[y_neg_i]
+        if (length(y_neg) > 0) {
+          y_neg_i <- cut(y[y_neg],
+            breaks = seq(min(y[y_neg], na.rm = TRUE), max(y[y_neg], na.rm = TRUE), len = 100),
+            include.lowest = TRUE
+          )
+          col[y_neg] <- colorRampPalette(c("#1D008F", "#DDDCF5"))(100)[y_neg_i]
+        }
+
         ymin <- min(p2$data$ymin, na.rm = TRUE)
         ymax <- max(p2$data$ymax - p2$data$ymin, na.rm = TRUE) * 0.3
         xmin <- which(!duplicated(col))
@@ -13171,11 +13175,18 @@ GSEAPlot <- function(srt, db = "GO_BP", group_by = NULL, group_use = NULL, test.
       p3 <- p + geom_segment(data = df2, aes(
         x = x, xend = x,
         y = y, yend = 0
-      ), color = "grey30") +
-        geom_vline(xintercept = corss_x, linetype = 2, color = "black") +
-        annotate(geom = "text", y = 0, x = corss_x, vjust = ifelse(diff(abs(range(df2$y))) > 0, -0.3, 1.3), size = 4, label = paste0("Zero cross at ", corss_x)) +
-        annotate(geom = "text", x = 0, y = Inf, vjust = 1.3, hjust = 0, color = "#C81A1F", size = 4, label = " Positively correlated") +
-        annotate(geom = "text", x = Inf, y = -Inf, vjust = -0.3, hjust = 1, color = "#3C298C", size = 4, label = "Negtively correlated ")
+      ), color = "grey30")
+
+      if (max(df2$y) > 0) {
+        p3 <- p3 + annotate(geom = "text", x = 0, y = Inf, vjust = 1.3, hjust = 0, color = "#C81A1F", size = 4, label = " Positively correlated")
+      }
+      if (min(df2$y) < 0) {
+        p3 <- p3 + annotate(geom = "text", x = Inf, y = -Inf, vjust = -0.3, hjust = 1, color = "#3C298C", size = 4, label = "Negtively correlated ")
+      }
+      if (max(df2$y) > 0 && min(df2$y) < 0) {
+        p3 <- p3 + geom_vline(xintercept = corss_x, linetype = 2, color = "black") +
+          annotate(geom = "text", y = 0, x = corss_x, vjust = ifelse(diff(abs(range(df2$y))) > 0, -0.3, 1.3), size = 4, label = paste0("Zero cross at ", corss_x))
+      }
       p3 <- p3 + ylab("Ranked List Metric") + xlab("Rank in Ordered Dataset") +
         theme(
           plot.margin = margin(t = -0.1, r = 0.2, b = 0.2, l = 0.2, unit = "cm"),

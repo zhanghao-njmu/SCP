@@ -162,9 +162,9 @@ renv::snapshot(project = "~/SCP_env")
 renv::restore(project = "~/SCP_env")
 ```
 
-## Examples
+## Quick Start
 
--   [Load the Data]
+-   [Data exploration]
 
 -   [CellQC]
 
@@ -196,7 +196,7 @@ renv::restore(project = "~/SCP_env")
 
 -   [Other visualization examples]
 
-### Load the Data
+### Data exploration
 
 The analysis is based on a subsetted version of [mouse pancreas data](https://doi.org/10.1242/dev.173849).
 
@@ -205,8 +205,6 @@ library(SCP)
 data("pancreas_sub")
 print(pancreas_sub)
 ```
-
-Data exploration:
 
 ```{r EDA}
 CellDimPlot(
