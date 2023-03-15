@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">SCP</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.3</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -167,22 +167,22 @@
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"pancreas_sub"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu">Standard_SCP</span><span class="op">(</span>srt <span class="op">=</span> <span class="va">pancreas_sub</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-13 05:15:43] Start Standard_SCP</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-13 05:15:43] Checking srtList... ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-15 17:16:25] Start Standard_SCP</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-15 17:16:25] Checking srtList... ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Data 1/1 of the srtList is raw_counts. Perform NormalizeData(LogNormalize) on the data ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform FindVariableFeatures on the data 1/1 of the srtList...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Use the separate HVF from srtList...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Number of available HVF: 2000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-13 05:15:44] Finished checking.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-13 05:15:44] Perform ScaleData on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-13 05:15:44] Perform linear dimension reduction (pca) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-13 05:15:45] Perform FindClusters (louvain) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-13 05:15:45] Reorder clusters...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-13 05:15:45] Perform nonlinear dimension reduction (umap) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-15 17:16:27] Finished checking.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-15 17:16:27] Perform ScaleData on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-15 17:16:27] Perform linear dimension reduction (pca) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-15 17:16:28] Perform FindClusters (louvain) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-15 17:16:28] Reorder clusters...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-15 17:16:29] Perform nonlinear dimension reduction (umap) on the data...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Non-linear dimensionality reduction(umap) using Reduction(Standardpca, dims_range:1-50) as input</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Non-linear dimensionality reduction(umap) using Reduction(Standardpca, dims_range:1-50) as input</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-13 05:15:58] Standard_SCP done</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 15.19 secs </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-15 17:16:38] Standard_SCP done</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 12.96 secs </span>
 <span class="r-in"><span><span class="fu"><a href="CellDimPlot.html">CellDimPlot</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, group.by <span class="op">=</span> <span class="st">"SubCellType"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="Standard_SCP-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
@@ -193,52 +193,59 @@
 <span class="r-in"><span>  linear_reduction <span class="op">=</span> <span class="va">linear_reductions</span>,</span></span>
 <span class="r-in"><span>  nonlinear_reduction <span class="op">=</span> <span class="st">"umap"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-13 05:15:58] Start Standard_SCP</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-13 05:15:58] Checking srtList... ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-15 17:16:39] Start Standard_SCP</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-15 17:16:39] Checking srtList... ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Data 1/1 of the srtList has been log-normalized.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform FindVariableFeatures on the data 1/1 of the srtList...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Use the separate HVF from srtList...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Number of available HVF: 2000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-13 05:15:59] Finished checking.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-13 05:15:59] Perform ScaleData on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-13 05:16:00] Perform linear dimension reduction (pca) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-13 05:16:01] Perform FindClusters (louvain) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-13 05:16:01] Reorder clusters...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-13 05:16:01] Perform nonlinear dimension reduction (umap) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-15 17:16:40] Finished checking.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-15 17:16:40] Perform ScaleData on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-15 17:16:40] Perform linear dimension reduction (pca) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-15 17:16:41] Perform FindClusters (louvain) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-15 17:16:41] Reorder clusters...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-15 17:16:42] Perform nonlinear dimension reduction (umap) on the data...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Non-linear dimensionality reduction(umap) using Reduction(Standardpca, dims_range:1-50) as input</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Non-linear dimensionality reduction(umap) using Reduction(Standardpca, dims_range:1-50) as input</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-13 05:16:13] Perform linear dimension reduction (ica) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-13 05:16:15] Perform FindClusters (louvain) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-13 05:16:15] Reorder clusters...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-13 05:16:16] Perform nonlinear dimension reduction (umap) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-15 17:16:51] Perform linear dimension reduction (ica) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-15 17:17:07] Perform FindClusters (louvain) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-15 17:17:07] Reorder clusters...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-15 17:17:07] Perform nonlinear dimension reduction (umap) on the data...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Non-linear dimensionality reduction(umap) using Reduction(Standardica, dims_range:1-50) as input</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Non-linear dimensionality reduction(umap) using Reduction(Standardica, dims_range:1-50) as input</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-13 05:16:27] Perform linear dimension reduction (nmf) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-15 17:17:17] Perform linear dimension reduction (nmf) on the data...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Attaching package: ‘Matrix’</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> The following object is masked from ‘package:S4Vectors’:</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>     expand</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-13 05:16:47] Perform FindClusters (louvain) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-13 05:16:47] Reorder clusters...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-13 05:16:48] Perform nonlinear dimension reduction (umap) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-15 17:17:31] Perform FindClusters (louvain) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-15 17:17:31] Reorder clusters...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-15 17:17:32] Perform nonlinear dimension reduction (umap) on the data...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Non-linear dimensionality reduction(umap) using Reduction(Standardnmf, dims_range:1-50) as input</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Non-linear dimensionality reduction(umap) using Reduction(Standardnmf, dims_range:1-50) as input</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-13 05:16:59] Perform linear dimension reduction (mds) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-13 05:17:14] Perform FindClusters (louvain) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-13 05:17:14] Reorder clusters...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-13 05:17:15] Perform nonlinear dimension reduction (umap) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-15 17:17:41] Perform linear dimension reduction (mds) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-15 17:17:49] Perform FindClusters (louvain) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-15 17:17:50] Reorder clusters...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-15 17:17:50] Perform nonlinear dimension reduction (umap) on the data...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Non-linear dimensionality reduction(umap) using Reduction(Standardmds, dims_range:1-50) as input</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Non-linear dimensionality reduction(umap) using Reduction(Standardmds, dims_range:1-50) as input</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-13 05:17:26] Perform linear dimension reduction (glmpca) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-13 05:18:53] Perform FindClusters (louvain) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-13 05:18:53] Reorder clusters...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-13 05:18:54] Perform nonlinear dimension reduction (umap) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-15 17:17:59] Perform linear dimension reduction (glmpca) on the data...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Install package: "glmpca" ...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 'getOption("repos")' replaces Bioconductor standard repositories, see 'help("repositories", package = "BiocManager")'</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> for details.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Replacement repositories:</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>     CRAN: https://cloud.r-project.org</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Bioconductor version 3.16 (BiocManager 1.30.20), R 4.2.3 (2023-03-15)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Installing package(s) 'glmpca'</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-15 17:19:41] Perform FindClusters (louvain) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-15 17:19:41] Reorder clusters...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-15 17:19:42] Perform nonlinear dimension reduction (umap) on the data...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Non-linear dimensionality reduction(umap) using Reduction(Standardglmpca, dims_range:1-50) as input</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Non-linear dimensionality reduction(umap) using Reduction(Standardglmpca, dims_range:1-50) as input</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-13 05:19:06] Standard_SCP done</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 3.13 mins </span>
-<span class="r-in"><span><span class="va">plist1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">linear_reductions</span>, <span class="kw">function</span><span class="op">(</span><span class="va">lr</span><span class="op">)</span> <span class="fu"><a href="CellDimPlot.html">CellDimPlot</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, group.by <span class="op">=</span> <span class="st">"SubCellType"</span>, reduction <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"Standard"</span>, <span class="va">lr</span>, <span class="st">"UMAP2D"</span><span class="op">)</span>, theme <span class="op">=</span> <span class="st">"theme_blank"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-15 17:19:51] Standard_SCP done</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 3.21 mins </span>
+<span class="r-in"><span><span class="va">plist1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">linear_reductions</span>, <span class="kw">function</span><span class="op">(</span><span class="va">lr</span><span class="op">)</span> <span class="fu"><a href="CellDimPlot.html">CellDimPlot</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, group.by <span class="op">=</span> <span class="st">"SubCellType"</span>, reduction <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"Standard"</span>, <span class="va">lr</span>, <span class="st">"UMAP2D"</span><span class="op">)</span>, theme_use <span class="op">=</span> <span class="st">"theme_blank"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">patchwork</span><span class="fu">::</span><span class="fu"><a href="https://patchwork.data-imaginist.com/reference/wrap_plots.html" class="external-link">wrap_plots</a></span><span class="op">(</span>plotlist <span class="op">=</span> <span class="va">plist1</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="Standard_SCP-2.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
@@ -248,45 +255,45 @@
 <span class="r-in"><span>  linear_reduction <span class="op">=</span> <span class="st">"pca"</span>,</span></span>
 <span class="r-in"><span>  nonlinear_reduction <span class="op">=</span> <span class="va">nonlinear_reductions</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-13 05:19:09] Start Standard_SCP</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-13 05:19:09] Checking srtList... ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-15 17:19:53] Start Standard_SCP</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-15 17:19:53] Checking srtList... ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Data 1/1 of the srtList has been log-normalized.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform FindVariableFeatures on the data 1/1 of the srtList...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Use the separate HVF from srtList...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Number of available HVF: 2000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-13 05:19:11] Finished checking.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-13 05:19:11] Perform ScaleData on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-13 05:19:11] Perform linear dimension reduction (pca) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-13 05:19:13] Perform FindClusters (louvain) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-13 05:19:13] Reorder clusters...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-13 05:19:14] Perform nonlinear dimension reduction (umap) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-15 17:19:54] Finished checking.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-15 17:19:54] Perform ScaleData on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-15 17:19:55] Perform linear dimension reduction (pca) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-15 17:19:57] Perform FindClusters (louvain) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-15 17:19:57] Reorder clusters...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-15 17:19:58] Perform nonlinear dimension reduction (umap) on the data...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Non-linear dimensionality reduction(umap) using Reduction(Standardpca, dims_range:1-50) as input</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Non-linear dimensionality reduction(umap) using Reduction(Standardpca, dims_range:1-50) as input</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-13 05:19:26] Perform nonlinear dimension reduction (tsne) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-15 17:20:07] Perform nonlinear dimension reduction (tsne) on the data...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Non-linear dimensionality reduction(tsne) using Reduction(Standardpca, dims_range:1-50) as input</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Non-linear dimensionality reduction(tsne) using Reduction(Standardpca, dims_range:1-50) as input</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-13 05:19:45] Perform nonlinear dimension reduction (dm) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-15 17:20:19] Perform nonlinear dimension reduction (dm) on the data...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Non-linear dimensionality reduction(dm) using Reduction(Standardpca, dims_range:1-50) as input</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>as(&lt;dsCMatrix&gt;, "dsTMatrix") is deprecated since Matrix 1.5-0; do as(., "TsparseMatrix") instead</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Non-linear dimensionality reduction(dm) using Reduction(Standardpca, dims_range:1-50) as input</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-13 05:19:49] Perform nonlinear dimension reduction (phate) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-15 17:20:22] Perform nonlinear dimension reduction (phate) on the data...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Non-linear dimensionality reduction(phate) using Reduction(Standardpca, dims_range:1-50) as input</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Try to install phate ...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Non-linear dimensionality reduction(phate) using Reduction(Standardpca, dims_range:1-50) as input</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-13 05:20:26] Perform nonlinear dimension reduction (pacmap) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-15 17:20:47] Perform nonlinear dimension reduction (pacmap) on the data...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Non-linear dimensionality reduction(pacmap) using Reduction(Standardpca, dims_range:1-50) as input</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Try to install pacmap ...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Non-linear dimensionality reduction(pacmap) using Reduction(Standardpca, dims_range:1-50) as input</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-13 05:21:10] Perform nonlinear dimension reduction (trimap) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-15 17:21:24] Perform nonlinear dimension reduction (trimap) on the data...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Non-linear dimensionality reduction(trimap) using Reduction(Standardpca, dims_range:1-50) as input</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Try to install trimap ...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Non-linear dimensionality reduction(trimap) using Reduction(Standardpca, dims_range:1-50) as input</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-13 05:21:43] Perform nonlinear dimension reduction (largevis) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-15 17:21:50] Perform nonlinear dimension reduction (largevis) on the data...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Non-linear dimensionality reduction(largevis) using Reduction(Standardpca, dims_range:1-50) as input</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Non-linear dimensionality reduction(largevis) using Reduction(Standardpca, dims_range:1-50) as input</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-13 05:31:42] Standard_SCP done</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 12.55 mins </span>
-<span class="r-in"><span><span class="va">plist2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">nonlinear_reductions</span>, <span class="kw">function</span><span class="op">(</span><span class="va">nr</span><span class="op">)</span> <span class="fu"><a href="CellDimPlot.html">CellDimPlot</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, group.by <span class="op">=</span> <span class="st">"SubCellType"</span>, reduction <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"Standardpca"</span>, <span class="fu"><a href="https://rdrr.io/r/base/chartr.html" class="external-link">toupper</a></span><span class="op">(</span><span class="va">nr</span><span class="op">)</span>, <span class="st">"2D"</span><span class="op">)</span>, theme <span class="op">=</span> <span class="st">"theme_blank"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-15 17:29:47] Standard_SCP done</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 9.91 mins </span>
+<span class="r-in"><span><span class="va">plist2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">nonlinear_reductions</span>, <span class="kw">function</span><span class="op">(</span><span class="va">nr</span><span class="op">)</span> <span class="fu"><a href="CellDimPlot.html">CellDimPlot</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, group.by <span class="op">=</span> <span class="st">"SubCellType"</span>, reduction <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"Standardpca"</span>, <span class="fu"><a href="https://rdrr.io/r/base/chartr.html" class="external-link">toupper</a></span><span class="op">(</span><span class="va">nr</span><span class="op">)</span>, <span class="st">"2D"</span><span class="op">)</span>, theme_use <span class="op">=</span> <span class="st">"theme_blank"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">patchwork</span><span class="fu">::</span><span class="fu"><a href="https://patchwork.data-imaginist.com/reference/wrap_plots.html" class="external-link">wrap_plots</a></span><span class="op">(</span>plotlist <span class="op">=</span> <span class="va">plist2</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="Standard_SCP-3.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>

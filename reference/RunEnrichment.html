@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">SCP</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.3</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -156,41 +156,45 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"pancreas_sub"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="RunDEtest.html">RunDEtest</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, group_by <span class="op">=</span> <span class="st">"CellType"</span><span class="op">)</span></span></span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Data in the 'data' slot is raw counts. Perform NormalizeData(LogNormalize) on the data.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-03-13 04:28:22] Start DEtest</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-03-15 16:34:45] Start DEtest</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Workers: 1</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Find all markers(wilcox) among groups...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |==============================================================================================================| 100%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-03-13 04:28:27] DEtest done</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:4.72 secs</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-03-15 16:34:49] DEtest done</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:3.68 secs</span>
 <span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu">RunEnrichment</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  srt <span class="op">=</span> <span class="va">pancreas_sub</span>, group_by <span class="op">=</span> <span class="st">"CellType"</span>, DE_threshold <span class="op">=</span> <span class="st">"avg_log2FC &gt; 0 &amp; p_val_adj &lt; 0.05"</span>,</span></span>
 <span class="r-in"><span>  db <span class="op">=</span> <span class="st">"GO_BP"</span>, species <span class="op">=</span> <span class="st">"Mus_musculus"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-03-13 04:28:27] Start Enrichment</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-03-15 16:34:49] Start Enrichment</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Workers: 1</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Species: Mus_musculus</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db:GO_BP version:3.16.0 nterm:15992 created:2023-03-13 03:26:52</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db:GO_BP version:3.16.0 nterm:15992 created:2023-03-15 15:42:19</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Permform enrichment...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |==============================================================================================================| 100%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-03-13 04:29:32] Enrichment done</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:1.09 mins</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-03-15 16:35:38] Enrichment done</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:48.78 secs</span>
 <span class="r-in"><span><span class="fu"><a href="EnrichmentPlot.html">EnrichmentPlot</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, db <span class="op">=</span> <span class="st">"GO_BP"</span>, group_by <span class="op">=</span> <span class="st">"CellType"</span>, plot_type <span class="op">=</span> <span class="st">"comparison"</span><span class="op">)</span></span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Vectorized input to `element_text()` is not officially supported.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Results may be unexpected or may change in future versions of ggplot2.</span>
 <span class="r-plt img"><img src="RunEnrichment-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Remove redundant GO terms</span></span></span>
 <span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu">RunEnrichment</span><span class="op">(</span>srt <span class="op">=</span> <span class="va">pancreas_sub</span>, group_by <span class="op">=</span> <span class="st">"CellType"</span>, db <span class="op">=</span> <span class="st">"GO_BP"</span>, GO_simplify <span class="op">=</span> <span class="cn">TRUE</span>, species <span class="op">=</span> <span class="st">"Mus_musculus"</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-03-13 04:29:33] Start Enrichment</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-03-15 16:35:38] Start Enrichment</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Workers: 1</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Species: Mus_musculus</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db:GO_BP version:3.16.0 nterm:15992 created:2023-03-13 03:26:52</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db:GO_BP version:3.16.0 nterm:15992 created:2023-03-15 15:42:19</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Permform enrichment...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |==============================================================================================================| 100%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-03-13 04:31:46] Enrichment done</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:2.22 mins</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-03-15 16:37:18] Enrichment done</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:1.67 mins</span>
 <span class="r-in"><span><span class="fu"><a href="EnrichmentPlot.html">EnrichmentPlot</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, db <span class="op">=</span> <span class="st">"GO_BP_sim"</span>, group_by <span class="op">=</span> <span class="st">"CellType"</span>, plot_type <span class="op">=</span> <span class="st">"comparison"</span><span class="op">)</span></span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Vectorized input to `element_text()` is not officially supported.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Results may be unexpected or may change in future versions of ggplot2.</span>
 <span class="r-plt img"><img src="RunEnrichment-2.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Use a combined database</span></span></span>
@@ -200,10 +204,25 @@
 <span class="r-in"><span>  db_combine <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
 <span class="r-in"><span>  species <span class="op">=</span> <span class="st">"Mus_musculus"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-03-13 04:31:46] Start Enrichment</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-03-15 16:37:19] Start Enrichment</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Workers: 1</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Species: Mus_musculus</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db:MP version:2023-03-06 08:00 nterm:10221 created:2023-03-13 03:32:07</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db:MP version:2023-03-13 08:01 nterm:10221 created:2023-03-15 15:46:09</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Install package: "PFAM.db" ...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 'getOption("repos")' replaces Bioconductor standard repositories, see 'help("repositories", package = "BiocManager")'</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> for details.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Replacement repositories:</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>     CRAN: https://cloud.r-project.org</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Bioconductor version 3.16 (BiocManager 1.30.20), R 4.2.3 (2023-03-15)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Installing package(s) 'PFAM.db'</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Install package: "reactome.db" ...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 'getOption("repos")' replaces Bioconductor standard repositories, see 'help("repositories", package = "BiocManager")'</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> for details.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Replacement repositories:</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>     CRAN: https://cloud.r-project.org</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Bioconductor version 3.16 (BiocManager 1.30.20), R 4.2.3 (2023-03-15)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Installing package(s) 'reactome.db'</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Preparing database: KEGG</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Preparing database: WikiPathway</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Preparing database: Reactome</span>
@@ -255,24 +274,28 @@
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Permform enrichment...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |==============================================================================================================| 100%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-03-13 04:35:35] Enrichment done</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:3.81 mins</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-03-15 16:43:23] Enrichment done</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:6.06 mins</span>
 <span class="r-in"><span><span class="fu"><a href="EnrichmentPlot.html">EnrichmentPlot</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, db <span class="op">=</span> <span class="st">"Combined"</span>, group_by <span class="op">=</span> <span class="st">"CellType"</span>, plot_type <span class="op">=</span> <span class="st">"comparison"</span><span class="op">)</span></span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Vectorized input to `element_text()` is not officially supported.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Results may be unexpected or may change in future versions of ggplot2.</span>
 <span class="r-plt img"><img src="RunEnrichment-3.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Or use "geneID" and "geneID_groups" as input to run enrichment</span></span></span>
 <span class="r-in"><span><span class="va">de_df</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">pancreas_sub</span><span class="op">@</span><span class="va">tools</span><span class="op">$</span><span class="va">DEtest_CellType</span><span class="op">$</span><span class="va">AllMarkers_wilcox</span>, <span class="va">avg_log2FC</span> <span class="op">&gt;</span> <span class="fl">0</span> <span class="op">&amp;</span> <span class="va">p_val_adj</span> <span class="op">&lt;</span> <span class="fl">0.05</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">enrich_out</span> <span class="op">&lt;-</span> <span class="fu">RunEnrichment</span><span class="op">(</span>geneID <span class="op">=</span> <span class="va">de_df</span><span class="op">[[</span><span class="st">"gene"</span><span class="op">]</span><span class="op">]</span>, geneID_groups <span class="op">=</span> <span class="va">de_df</span><span class="op">[[</span><span class="st">"group1"</span><span class="op">]</span><span class="op">]</span>, db <span class="op">=</span> <span class="st">"GO_BP"</span>, species <span class="op">=</span> <span class="st">"Mus_musculus"</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-03-13 04:35:35] Start Enrichment</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-03-15 16:43:23] Start Enrichment</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Workers: 1</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Species: Mus_musculus</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db:GO_BP version:3.16.0 nterm:15992 created:2023-03-13 03:26:52</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db:GO_BP version:3.16.0 nterm:15992 created:2023-03-15 15:42:19</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Permform enrichment...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |==============================================================================================================| 100%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-03-13 04:36:39] Enrichment done</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:1.07 mins</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-03-15 16:44:14] Enrichment done</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:50.92 secs</span>
 <span class="r-in"><span><span class="fu"><a href="EnrichmentPlot.html">EnrichmentPlot</a></span><span class="op">(</span>res <span class="op">=</span> <span class="va">enrich_out</span>, db <span class="op">=</span> <span class="st">"GO_BP"</span>, plot_type <span class="op">=</span> <span class="st">"comparison"</span><span class="op">)</span></span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Vectorized input to `element_text()` is not officially supported.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Results may be unexpected or may change in future versions of ggplot2.</span>
 <span class="r-plt img"><img src="RunEnrichment-4.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>

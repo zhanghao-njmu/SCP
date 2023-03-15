@@ -26,7 +26,7 @@
     
     <a class="navbar-brand me-2" href="index.html">SCP</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.3</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -58,23 +58,23 @@
 </nav><div class="container template-home">
 <div class="row">
   <main id="main" class="col-md-9"><div class="section level1">
-<div class="page-header"><h1 id="scp-single-cell-pipeline">SCP: Single Cell Pipeline<a class="anchor" aria-label="anchor" href="#scp-single-cell-pipeline"></a>
+<div class="page-header"><h1 id="scp-single-cell-pipeline">SCP: Single-Cell Pipeline<a class="anchor" aria-label="anchor" href="#scp-single-cell-pipeline"></a>
 </h1></div>
 <!-- badges: start -->
 
 <!-- badges: end -->
-<p>SCP provides a comprehensive set of tools for single cell data processing and downstream analysis.</p>
+<p>SCP provides a comprehensive set of tools for single-cell data processing and downstream analysis.</p>
 <p>The package includes the following facilities:</p>
 <ul>
-<li>Integrated single cell quality control methods.</li>
+<li>Integrated single-cell quality control methods.</li>
 <li>Pipelines embedded with multiple methods for normalization, feature reduction, and cell population identification (standard Seurat workflow).</li>
 <li>Pipelines embedded with multiple integration methods for scRNA-seq or scATAC-seq data, including Uncorrected, <a href="https://github.com/satijalab/seurat" class="external-link">Seurat</a>, <a href="https://github.com/scverse/scvi-tools" class="external-link">scVI</a>, <a href="http://www.bioconductor.org/packages/release/bioc/html/batchelor.html" class="external-link">MNN</a>, <a href="http://www.bioconductor.org/packages/release/bioc/html/batchelor.html" class="external-link">fastMNN</a>, <a href="https://github.com/immunogenomics/harmony" class="external-link">Harmony</a>, <a href="https://github.com/brianhie/scanorama" class="external-link">Scanorama</a>, <a href="https://github.com/Teichlab/bbknn" class="external-link">BBKNN</a>, <a href="https://github.com/quadbiolab/simspec" class="external-link">CSS</a>, <a href="https://github.com/welch-lab/liger" class="external-link">LIGER</a>, <a href="https://github.com/kharchenkolab/conos" class="external-link">Conos</a>, <a href="https://bioconductor.org/packages/release/bioc/html/sva.html" class="external-link">ComBat</a>.</li>
-<li>Multiple single cell downstream analyses such as identification of differential features, enrichment analysis, GSEA analysis, identification of dynamic features, <a href="https://github.com/theislab/paga" class="external-link">PAGA</a>, <a href="https://github.com/theislab/scvelo" class="external-link">RNA velocity</a>, <a href="https://github.com/dpeerlab/Palantir" class="external-link">Palantir</a>, <a href="http://cole-trapnell-lab.github.io/monocle-release" class="external-link">Monocle2</a>, <a href="https://cole-trapnell-lab.github.io/monocle3" class="external-link">Monocle3</a>, etc.</li>
+<li>Multiple single-cell downstream analyses such as identification of differential features, enrichment analysis, GSEA analysis, identification of dynamic features, <a href="https://github.com/theislab/paga" class="external-link">PAGA</a>, <a href="https://github.com/theislab/scvelo" class="external-link">RNA velocity</a>, <a href="https://github.com/dpeerlab/Palantir" class="external-link">Palantir</a>, <a href="http://cole-trapnell-lab.github.io/monocle-release" class="external-link">Monocle2</a>, <a href="https://cole-trapnell-lab.github.io/monocle3" class="external-link">Monocle3</a>, etc.</li>
 <li>Multiple methods for automatic annotation of single-cell data and methods for projection between single-cell datasets.</li>
-<li>High quality data visualization methods.</li>
+<li>High-quality data visualization methods.</li>
 <li>Fast deployment of single-cell data into SCExplorer, a <a href="https://shiny.rstudio.com/" class="external-link">shiny app</a> that provides an interactive visualization interface.</li>
 </ul>
-<p>The functions in the SCP package are all developed around the <a href="https://github.com/mojaveazure/seurat-object" class="external-link">Seurat object</a> and compatible with other Seurat functions.</p>
+<p>The functions in the SCP package are all developed around the <a href="https://github.com/mojaveazure/seurat-object" class="external-link">Seurat object</a> and are compatible with other Seurat functions.</p>
 <div class="section level2">
 <h2 id="r-version-requirement">R version requirement<a class="anchor" aria-label="anchor" href="#r-version-requirement"></a>
 </h2>
@@ -133,11 +133,11 @@
 </div>
 </div>
 <div class="section level2">
-<h2 id="installation-in-a-isolated-r-environment-using-renv">Installation in a isolated R environment using renv<a class="anchor" aria-label="anchor" href="#installation-in-a-isolated-r-environment-using-renv"></a>
+<h2 id="installation-in-an-isolated-r-environment-using-renv">Installation in an isolated R environment using renv<a class="anchor" aria-label="anchor" href="#installation-in-an-isolated-r-environment-using-renv"></a>
 </h2>
-<p>If there are some R package version conflicts, or you do not want to change your current R environment, you can use the <a href="https://rstudio.github.io/renv/" class="external-link">renv</a> package to install SCP into an isolated R environment.</p>
+<p>If you do not want to change your current R environment or require reproducibility, you can use the <a href="https://rstudio.github.io/renv/" class="external-link">renv</a> package to install SCP into an isolated R environment.</p>
 <div class="section level4">
-<h4 id="create-a-isolated-r-environment">Create a isolated R environment<a class="anchor" aria-label="anchor" href="#create-a-isolated-r-environment"></a>
+<h4 id="create-an-isolated-r-environment">Create an isolated R environment<a class="anchor" aria-label="anchor" href="#create-an-isolated-r-environment"></a>
 </h4>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">require</a></span><span class="op">(</span><span class="st"><a href="https://rstudio.github.io/renv/" class="external-link">"renv"</a></span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
@@ -145,21 +145,22 @@
 <span><span class="op">}</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.create</a></span><span class="op">(</span><span class="st">"~/SCP_env"</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="co"># It cannot be the home directory "~" !</span></span>
 <span><span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="https://rstudio.github.io/renv/reference/init.html" class="external-link">init</a></span><span class="op">(</span>project <span class="op">=</span> <span class="st">"~/SCP_env"</span>, bare <span class="op">=</span> <span class="cn">TRUE</span>, restart <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level4">
-<h4 id="install-scp-package-and-create-scp-python-environment">Install SCP package and create SCP python environment<a class="anchor" aria-label="anchor" href="#install-scp-package-and-create-scp-python-environment"></a>
-</h4>
+<p>Option 1: Install SCP from GitHub and create SCP python environment</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="https://rstudio.github.io/renv/reference/activate.html" class="external-link">activate</a></span><span class="op">(</span>project <span class="op">=</span> <span class="st">"~/SCP_env"</span><span class="op">)</span></span>
 <span><span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="https://rstudio.github.io/renv/reference/install.html" class="external-link">install</a></span><span class="op">(</span><span class="st">"BiocManager"</span><span class="op">)</span></span>
 <span><span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="https://rstudio.github.io/renv/reference/install.html" class="external-link">install</a></span><span class="op">(</span><span class="st">"zhanghao-njmu/SCP"</span>, repos <span class="op">=</span> <span class="fu">BiocManager</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/BiocManager/man/repositories.html" class="external-link">repositories</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu">SCP</span><span class="fu">::</span><span class="fu"><a href="reference/PrepareEnv.html">PrepareEnv</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p>When installing packages, network issues may cause the download to fail. Sometimes you need to provide a GitHub personal access token and restart the r session before downloading.</p>
+<p>Option 2: If SCP is already installed in the global environment, copy SCP from the local library</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="https://rstudio.github.io/renv/reference/activate.html" class="external-link">activate</a></span><span class="op">(</span>project <span class="op">=</span> <span class="st">"~/SCP_env"</span><span class="op">)</span></span>
+<span><span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="https://rstudio.github.io/renv/reference/hydrate.html" class="external-link">hydrate</a></span><span class="op">(</span><span class="st">"SCP"</span><span class="op">)</span></span>
+<span><span class="fu">SCP</span><span class="fu">::</span><span class="fu"><a href="reference/PrepareEnv.html">PrepareEnv</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level4">
 <h4 id="activate-scp-environment-first-before-use">Activate SCP environment first before use<a class="anchor" aria-label="anchor" href="#activate-scp-environment-first-before-use"></a>
 </h4>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="https://rstudio.github.io/renv/reference/activate.html" class="external-link">activate</a></span><span class="op">(</span>project <span class="op">=</span> <span class="st">"~/SCP_env"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/zhanghao-njmu/SCP" class="external-link">SCP</a></span><span class="op">)</span></span>
@@ -170,7 +171,7 @@
 <div class="section level4">
 <h4 id="save-and-restore-the-state-of-scp-environment">Save and restore the state of SCP environment<a class="anchor" aria-label="anchor" href="#save-and-restore-the-state-of-scp-environment"></a>
 </h4>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="https://rstudio.github.io/renv/reference/snapshot.html" class="external-link">snapshot</a></span><span class="op">(</span>project <span class="op">=</span> <span class="st">"~/SCP_env"</span><span class="op">)</span></span>
 <span><span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="https://rstudio.github.io/renv/reference/restore.html" class="external-link">restore</a></span><span class="op">(</span>project <span class="op">=</span> <span class="st">"~/SCP_env"</span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -200,7 +201,7 @@
 <h3 id="data-exploration">Data exploration<a class="anchor" aria-label="anchor" href="#data-exploration"></a>
 </h3>
 <p>The analysis is based on a subsetted version of <a href="https://doi.org/10.1242/dev.173849" class="external-link">mouse pancreas data</a>.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/zhanghao-njmu/SCP" class="external-link">SCP</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"pancreas_sub"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">pancreas_sub</span><span class="op">)</span></span>
@@ -209,32 +210,32 @@
 <span><span class="co">#&gt; Active assay: RNA (15958 features, 3467 variable features)</span></span>
 <span><span class="co">#&gt;  2 other assays present: spliced, unspliced</span></span>
 <span><span class="co">#&gt;  2 dimensional reductions calculated: PCA, UMAP</span></span></code></pre></div>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/CellDimPlot.html">CellDimPlot</a></span><span class="op">(</span></span>
 <span>  srt <span class="op">=</span> <span class="va">pancreas_sub</span>, group.by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CellType"</span>, <span class="st">"SubCellType"</span><span class="op">)</span>,</span>
 <span>  reduction <span class="op">=</span> <span class="st">"UMAP"</span>, theme_use <span class="op">=</span> <span class="st">"theme_blank"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p><img src="README/README-EDA-1.png" width="100%" style="display: block; margin: auto;"></p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/CellDimPlot.html">CellDimPlot</a></span><span class="op">(</span></span>
 <span>  srt <span class="op">=</span> <span class="va">pancreas_sub</span>, group.by <span class="op">=</span> <span class="st">"SubCellType"</span>, stat.by <span class="op">=</span> <span class="st">"Phase"</span>,</span>
 <span>  reduction <span class="op">=</span> <span class="st">"UMAP"</span>, theme_use <span class="op">=</span> <span class="st">"theme_blank"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p><img src="README/README-EDA-2.png" width="100%" style="display: block; margin: auto;"></p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/FeatureDimPlot.html">FeatureDimPlot</a></span><span class="op">(</span></span>
 <span>  srt <span class="op">=</span> <span class="va">pancreas_sub</span>, features <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Sox9"</span>, <span class="st">"Neurog3"</span>, <span class="st">"Fev"</span>, <span class="st">"Rbp4"</span><span class="op">)</span>,</span>
 <span>  reduction <span class="op">=</span> <span class="st">"UMAP"</span>, theme_use <span class="op">=</span> <span class="st">"theme_blank"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p><img src="README/README-EDA-3.png" width="100%" style="display: block; margin: auto;"></p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/FeatureDimPlot.html">FeatureDimPlot</a></span><span class="op">(</span></span>
 <span>  srt <span class="op">=</span> <span class="va">pancreas_sub</span>, features <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Ins1"</span>, <span class="st">"Gcg"</span>, <span class="st">"Sst"</span>, <span class="st">"Ghrl"</span><span class="op">)</span>,</span>
 <span>  compare_features <span class="op">=</span> <span class="cn">TRUE</span>, label <span class="op">=</span> <span class="cn">TRUE</span>, label_insitu <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  reduction <span class="op">=</span> <span class="st">"UMAP"</span>, theme_use <span class="op">=</span> <span class="st">"theme_blank"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p><img src="README/README-EDA-4.png" width="100%" style="display: block; margin: auto;"></p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ht</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/GroupHeatmap.html">GroupHeatmap</a></span><span class="op">(</span></span>
 <span>  srt <span class="op">=</span> <span class="va">pancreas_sub</span>,</span>
 <span>  features <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
@@ -257,14 +258,14 @@
 <div class="section level3">
 <h3 id="cellqc">CellQC<a class="anchor" aria-label="anchor" href="#cellqc"></a>
 </h3>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/RunCellQC.html">RunCellQC</a></span><span class="op">(</span>srt <span class="op">=</span> <span class="va">pancreas_sub</span><span class="op">)</span></span>
 <span><span class="fu"><a href="reference/CellDimPlot.html">CellDimPlot</a></span><span class="op">(</span>srt <span class="op">=</span> <span class="va">pancreas_sub</span>, group.by <span class="op">=</span> <span class="st">"CellQC"</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="README/README-RunCellQC-1.png" width="100%" style="display: block; margin: auto;"></p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/CellStatPlot.html">CellStatPlot</a></span><span class="op">(</span>srt <span class="op">=</span> <span class="va">pancreas_sub</span>, stat.by <span class="op">=</span> <span class="st">"CellQC"</span>, group.by <span class="op">=</span> <span class="st">"CellType"</span>, label <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p><img src="README/README-RunCellQC-2.png" width="100%" style="display: block; margin: auto;"></p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/CellStatPlot.html">CellStatPlot</a></span><span class="op">(</span></span>
 <span>  srt <span class="op">=</span> <span class="va">pancreas_sub</span>,</span>
 <span>  stat.by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
@@ -278,19 +279,19 @@
 <div class="section level3">
 <h3 id="standard-pipeline">Standard pipeline<a class="anchor" aria-label="anchor" href="#standard-pipeline"></a>
 </h3>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/Standard_SCP.html">Standard_SCP</a></span><span class="op">(</span>srt <span class="op">=</span> <span class="va">pancreas_sub</span><span class="op">)</span></span>
 <span><span class="fu"><a href="reference/CellDimPlot.html">CellDimPlot</a></span><span class="op">(</span></span>
 <span>  srt <span class="op">=</span> <span class="va">pancreas_sub</span>, group.by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CellType"</span>, <span class="st">"SubCellType"</span><span class="op">)</span>,</span>
 <span>  reduction <span class="op">=</span> <span class="st">"StandardUMAP2D"</span>, theme_use <span class="op">=</span> <span class="st">"theme_blank"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p><img src="README/README-Standard_SCP-1.png" width="100%" style="display: block; margin: auto;"></p>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/CellDimPlot3D.html">CellDimPlot3D</a></span><span class="op">(</span>srt <span class="op">=</span> <span class="va">pancreas_sub</span>, group.by <span class="op">=</span> <span class="st">"SubCellType"</span><span class="op">)</span></span></code></pre></div>
 <div class="figure">
 <img src="README/README-CellDimPlot3D-1.png" alt=""><p class="caption">CellDimPlot3D</p>
 </div>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/FeatureDimPlot3D.html">FeatureDimPlot3D</a></span><span class="op">(</span>srt <span class="op">=</span> <span class="va">pancreas_sub</span>, features <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Sox9"</span>, <span class="st">"Neurog3"</span>, <span class="st">"Fev"</span>, <span class="st">"Rbp4"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <div class="figure">
 <img src="README/README-FeatureDimPlot3D-1.png" alt=""><p class="caption">FeatureDimPlot3D</p>
@@ -300,7 +301,7 @@
 <h3 id="integration-pipeline">Integration pipeline<a class="anchor" aria-label="anchor" href="#integration-pipeline"></a>
 </h3>
 <p>Example data for integration is a subsetted version of <a href="https://github.com/satijalab/seurat-data" class="external-link">panc8(eight human pancreas datasets)</a></p>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"panc8_sub"</span><span class="op">)</span></span>
 <span><span class="va">panc8_sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/Integration_SCP.html">Integration_SCP</a></span><span class="op">(</span>srtMerge <span class="op">=</span> <span class="va">panc8_sub</span>, batch <span class="op">=</span> <span class="st">"tech"</span>, integration_method <span class="op">=</span> <span class="st">"Seurat"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="reference/CellDimPlot.html">CellDimPlot</a></span><span class="op">(</span></span>
@@ -316,7 +317,7 @@
 <div class="section level3">
 <h3 id="cell-projection-between-single-cell-datasets">Cell projection between single-cell datasets<a class="anchor" aria-label="anchor" href="#cell-projection-between-single-cell-datasets"></a>
 </h3>
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">panc8_rename</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/RenameFeatures.html">RenameFeatures</a></span><span class="op">(</span>srt <span class="op">=</span> <span class="va">panc8_sub</span>, newnames <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/make.unique.html" class="external-link">make.unique</a></span><span class="op">(</span><span class="fu"><a href="reference/capitalize.html">capitalize</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">panc8_sub</span><span class="op">)</span>, force_tolower <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span>, assays <span class="op">=</span> <span class="st">"RNA"</span><span class="op">)</span></span>
 <span><span class="va">srt_query</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/RunKNNMap.html">RunKNNMap</a></span><span class="op">(</span>srt_query <span class="op">=</span> <span class="va">pancreas_sub</span>, srt_ref <span class="op">=</span> <span class="va">panc8_rename</span>, ref_umap <span class="op">=</span> <span class="st">"SeuratUMAP2D"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="reference/ProjectionPlot.html">ProjectionPlot</a></span><span class="op">(</span></span>
@@ -328,7 +329,7 @@
 <div class="section level3">
 <h3 id="cell-annotation-using-bulk-rna-seq-datasets">Cell annotation using bulk RNA-seq datasets<a class="anchor" aria-label="anchor" href="#cell-annotation-using-bulk-rna-seq-datasets"></a>
 </h3>
-<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"ref_scMCA"</span><span class="op">)</span></span>
 <span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/RunKNNPredict.html">RunKNNPredict</a></span><span class="op">(</span>srt_query <span class="op">=</span> <span class="va">pancreas_sub</span>, bulk_ref <span class="op">=</span> <span class="va">ref_scMCA</span>, filter_lowfreq <span class="op">=</span> <span class="fl">20</span><span class="op">)</span></span>
 <span><span class="fu"><a href="reference/CellDimPlot.html">CellDimPlot</a></span><span class="op">(</span>srt <span class="op">=</span> <span class="va">pancreas_sub</span>, group.by <span class="op">=</span> <span class="st">"KNNPredict_classification"</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span>, label <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
@@ -337,14 +338,14 @@
 <div class="section level3">
 <h3 id="cell-annotation-using-single-cell-datasets">Cell annotation using single-cell datasets<a class="anchor" aria-label="anchor" href="#cell-annotation-using-single-cell-datasets"></a>
 </h3>
-<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/RunKNNPredict.html">RunKNNPredict</a></span><span class="op">(</span></span>
 <span>  srt_query <span class="op">=</span> <span class="va">pancreas_sub</span>, srt_ref <span class="op">=</span> <span class="va">panc8_rename</span>,</span>
 <span>  ref_group <span class="op">=</span> <span class="st">"celltype"</span>, filter_lowfreq <span class="op">=</span> <span class="fl">20</span></span>
 <span><span class="op">)</span></span>
 <span><span class="fu"><a href="reference/CellDimPlot.html">CellDimPlot</a></span><span class="op">(</span>srt <span class="op">=</span> <span class="va">pancreas_sub</span>, group.by <span class="op">=</span> <span class="st">"KNNPredict_classification"</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span>, label <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p><img src="README/README-RunKNNPredict-scrna-1.png" width="100%" style="display: block; margin: auto;"></p>
-<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/RunKNNPredict.html">RunKNNPredict</a></span><span class="op">(</span></span>
 <span>  srt_query <span class="op">=</span> <span class="va">pancreas_sub</span>, srt_ref <span class="op">=</span> <span class="va">panc8_rename</span>,</span>
@@ -353,7 +354,7 @@
 <span><span class="op">)</span></span>
 <span><span class="fu"><a href="reference/CellDimPlot.html">CellDimPlot</a></span><span class="op">(</span>srt <span class="op">=</span> <span class="va">pancreas_sub</span>, group.by <span class="op">=</span> <span class="st">"KNNPredict_classification"</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span>, label <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p><img src="README/README-RunKNNPredict-scrna-2.png" width="100%" style="display: block; margin: auto;"></p>
-<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="va">ht</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/CellCorHeatmap.html">CellCorHeatmap</a></span><span class="op">(</span></span>
 <span>  srt_query <span class="op">=</span> <span class="va">pancreas_sub</span>, srt_ref <span class="op">=</span> <span class="va">panc8_rename</span>,</span>
@@ -367,7 +368,7 @@
 <div class="section level3">
 <h3 id="paga-analysis">PAGA analysis<a class="anchor" aria-label="anchor" href="#paga-analysis"></a>
 </h3>
-<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/RunPAGA.html">RunPAGA</a></span><span class="op">(</span></span>
 <span>  srt <span class="op">=</span> <span class="va">pancreas_sub</span>, group_by <span class="op">=</span> <span class="st">"SubCellType"</span>,</span>
 <span>  linear_reduction <span class="op">=</span> <span class="st">"PCA"</span>, nonlinear_reduction <span class="op">=</span> <span class="st">"UMAP"</span></span>
@@ -378,25 +379,25 @@
 <div class="section level3">
 <h3 id="velocity-analysis">Velocity analysis<a class="anchor" aria-label="anchor" href="#velocity-analysis"></a>
 </h3>
-<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/RunSCVELO.html">RunSCVELO</a></span><span class="op">(</span></span>
 <span>  srt <span class="op">=</span> <span class="va">pancreas_sub</span>, group_by <span class="op">=</span> <span class="st">"SubCellType"</span>,</span>
 <span>  linear_reduction <span class="op">=</span> <span class="st">"PCA"</span>, nonlinear_reduction <span class="op">=</span> <span class="st">"UMAP"</span></span>
 <span><span class="op">)</span></span>
 <span><span class="fu"><a href="reference/VelocityPlot.html">VelocityPlot</a></span><span class="op">(</span>srt <span class="op">=</span> <span class="va">pancreas_sub</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span>, group_by <span class="op">=</span> <span class="st">"SubCellType"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="README/README-RunSCVELO-1.png" width="100%" style="display: block; margin: auto;"></p>
-<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/VelocityPlot.html">VelocityPlot</a></span><span class="op">(</span>srt <span class="op">=</span> <span class="va">pancreas_sub</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span>, plot_type <span class="op">=</span> <span class="st">"stream"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="README/README-RunSCVELO-2.png" width="100%" style="display: block; margin: auto;"></p>
 </div>
 <div class="section level3">
 <h3 id="differential-expression-analysis">Differential expression analysis<a class="anchor" aria-label="anchor" href="#differential-expression-analysis"></a>
 </h3>
-<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/RunDEtest.html">RunDEtest</a></span><span class="op">(</span>srt <span class="op">=</span> <span class="va">pancreas_sub</span>, group_by <span class="op">=</span> <span class="st">"CellType"</span>, fc.threshold <span class="op">=</span> <span class="fl">1</span>, only.pos <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="fu"><a href="reference/VolcanoPlot.html">VolcanoPlot</a></span><span class="op">(</span>srt <span class="op">=</span> <span class="va">pancreas_sub</span>, group_by <span class="op">=</span> <span class="st">"CellType"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="README/README-RunDEtest-1.png" width="100%" style="display: block; margin: auto;"></p>
-<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">DEGs</span> <span class="op">&lt;-</span> <span class="va">pancreas_sub</span><span class="op">@</span><span class="va">tools</span><span class="op">$</span><span class="va">DEtest_CellType</span><span class="op">$</span><span class="va">AllMarkers_wilcox</span></span>
 <span><span class="va">DEGs</span> <span class="op">&lt;-</span> <span class="va">DEGs</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/with.html" class="external-link">with</a></span><span class="op">(</span><span class="va">DEGs</span>, <span class="va">avg_log2FC</span> <span class="op">&gt;</span> <span class="fl">1</span> <span class="op">&amp;</span> <span class="va">p_val_adj</span> <span class="op">&lt;</span> <span class="fl">0.05</span><span class="op">)</span>, <span class="op">]</span></span>
 <span><span class="co"># Annotate features with transcription factors and surface proteins</span></span>
@@ -413,7 +414,7 @@
 <div class="section level3">
 <h3 id="enrichment-analysisover-representation">Enrichment analysis(over-representation)<a class="anchor" aria-label="anchor" href="#enrichment-analysisover-representation"></a>
 </h3>
-<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/RunEnrichment.html">RunEnrichment</a></span><span class="op">(</span></span>
 <span>  srt <span class="op">=</span> <span class="va">pancreas_sub</span>, group_by <span class="op">=</span> <span class="st">"CellType"</span>, db <span class="op">=</span> <span class="st">"GO_BP"</span>, species <span class="op">=</span> <span class="st">"Mus_musculus"</span>,</span>
 <span>  DE_threshold <span class="op">=</span> <span class="st">"avg_log2FC &gt; 1 &amp; p_val_adj &lt; 0.05"</span></span>
@@ -423,53 +424,53 @@
 <span>  plot_type <span class="op">=</span> <span class="st">"bar"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p><img src="README/README-RunEnrichment-1.png" width="100%" style="display: block; margin: auto;"></p>
-<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/EnrichmentPlot.html">EnrichmentPlot</a></span><span class="op">(</span></span>
 <span>  srt <span class="op">=</span> <span class="va">pancreas_sub</span>, group_by <span class="op">=</span> <span class="st">"CellType"</span>, group_use <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Ductal"</span>, <span class="st">"Endocrine"</span><span class="op">)</span>,</span>
 <span>  plot_type <span class="op">=</span> <span class="st">"wordcloud"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p><img src="README/README-RunEnrichment-2.png" width="100%" style="display: block; margin: auto;"></p>
-<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/EnrichmentPlot.html">EnrichmentPlot</a></span><span class="op">(</span></span>
 <span>  srt <span class="op">=</span> <span class="va">pancreas_sub</span>, group_by <span class="op">=</span> <span class="st">"CellType"</span>, group_use <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Ductal"</span>, <span class="st">"Endocrine"</span><span class="op">)</span>,</span>
 <span>  plot_type <span class="op">=</span> <span class="st">"wordcloud"</span>, word_type <span class="op">=</span> <span class="st">"feature"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p><img src="README/README-RunEnrichment-3.png" width="100%" style="display: block; margin: auto;"></p>
-<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/EnrichmentPlot.html">EnrichmentPlot</a></span><span class="op">(</span>srt <span class="op">=</span> <span class="va">pancreas_sub</span>, group_by <span class="op">=</span> <span class="st">"CellType"</span>, plot_type <span class="op">=</span> <span class="st">"comparison"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="README/README-Enrichment_comparison-1.png" width="100%" style="display: block; margin: auto;"></p>
 </div>
 <div class="section level3">
 <h3 id="enrichment-analysisgsea">Enrichment analysis(GSEA)<a class="anchor" aria-label="anchor" href="#enrichment-analysisgsea"></a>
 </h3>
-<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/RunGSEA.html">RunGSEA</a></span><span class="op">(</span></span>
 <span>  srt <span class="op">=</span> <span class="va">pancreas_sub</span>, group_by <span class="op">=</span> <span class="st">"CellType"</span>, db <span class="op">=</span> <span class="st">"GO_BP"</span>, species <span class="op">=</span> <span class="st">"Mus_musculus"</span>,</span>
 <span>  DE_threshold <span class="op">=</span> <span class="st">"p_val_adj &lt; 0.05"</span></span>
 <span><span class="op">)</span></span>
 <span><span class="fu"><a href="reference/GSEAPlot.html">GSEAPlot</a></span><span class="op">(</span>srt <span class="op">=</span> <span class="va">pancreas_sub</span>, group_by <span class="op">=</span> <span class="st">"CellType"</span>, group_use <span class="op">=</span> <span class="st">"Endocrine"</span>, geneSetID <span class="op">=</span> <span class="st">"GO:0007186"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="README/README-RunGSEA-1.png" width="100%" style="display: block; margin: auto;"></p>
-<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/GSEAPlot.html">GSEAPlot</a></span><span class="op">(</span>srt <span class="op">=</span> <span class="va">pancreas_sub</span>, group_by <span class="op">=</span> <span class="st">"CellType"</span>, plot_type <span class="op">=</span> <span class="st">"comparison"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="README/README-GSEA_comparison-1.png" width="100%" style="display: block; margin: auto;"></p>
 </div>
 <div class="section level3">
 <h3 id="trajectory-inference">Trajectory inference<a class="anchor" aria-label="anchor" href="#trajectory-inference"></a>
 </h3>
-<div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/RunSlingshot.html">RunSlingshot</a></span><span class="op">(</span>srt <span class="op">=</span> <span class="va">pancreas_sub</span>, group.by <span class="op">=</span> <span class="st">"SubCellType"</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="README/README-RunSlingshot-1.png" width="100%" style="display: block; margin: auto;"></p>
-<div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/FeatureDimPlot.html">FeatureDimPlot</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, features <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"Lineage"</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">)</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span>, theme_use <span class="op">=</span> <span class="st">"theme_blank"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="README/README-RunSlingshot-2.png" width="100%" style="display: block; margin: auto;"></p>
-<div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/CellDimPlot.html">CellDimPlot</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, group.by <span class="op">=</span> <span class="st">"SubCellType"</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span>, lineages <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"Lineage"</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">)</span>, lineages_span <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span></span></code></pre></div>
 <p><img src="README/README-RunSlingshot-3.png" width="100%" style="display: block; margin: auto;"></p>
 </div>
 <div class="section level3">
 <h3 id="dynamic-features">Dynamic features<a class="anchor" aria-label="anchor" href="#dynamic-features"></a>
 </h3>
-<div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb42"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/RunDynamicFeatures.html">RunDynamicFeatures</a></span><span class="op">(</span>srt <span class="op">=</span> <span class="va">pancreas_sub</span>, lineages <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Lineage1"</span>, <span class="st">"Lineage2"</span><span class="op">)</span>, n_candidates <span class="op">=</span> <span class="fl">200</span><span class="op">)</span></span>
 <span><span class="va">ht</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/DynamicHeatmap.html">DynamicHeatmap</a></span><span class="op">(</span></span>
 <span>  srt <span class="op">=</span> <span class="va">pancreas_sub</span>, lineages <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Lineage1"</span>, <span class="st">"Lineage2"</span><span class="op">)</span>,</span>
@@ -483,14 +484,14 @@
 <span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">ht</span><span class="op">$</span><span class="va">plot</span><span class="op">)</span></span></code></pre></div>
 <p><img src="README/README-DynamicHeatmap-1.png" width="100%" style="display: block; margin: auto;"></p>
-<div class="sourceCode" id="cb42"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/DynamicPlot.html">DynamicPlot</a></span><span class="op">(</span></span>
 <span>  srt <span class="op">=</span> <span class="va">pancreas_sub</span>, lineages <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Lineage1"</span>, <span class="st">"Lineage2"</span><span class="op">)</span>, group.by <span class="op">=</span> <span class="st">"SubCellType"</span>,</span>
 <span>  features <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Plk1"</span>, <span class="st">"Hes1"</span>, <span class="st">"Neurod2"</span>, <span class="st">"Ghrl"</span>, <span class="st">"Gcg"</span>, <span class="st">"Ins2"</span><span class="op">)</span>,</span>
 <span>  compare_lineages <span class="op">=</span> <span class="cn">TRUE</span>, compare_features <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p><img src="README/README-DynamicPlot-1.png" width="100%" style="display: block; margin: auto;"></p>
-<div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/FeatureStatPlot.html">FeatureStatPlot</a></span><span class="op">(</span></span>
 <span>  srt <span class="op">=</span> <span class="va">pancreas_sub</span>, group.by <span class="op">=</span> <span class="st">"SubCellType"</span>, bg.by <span class="op">=</span> <span class="st">"CellType"</span>,</span>
 <span>  stat.by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Sox9"</span>, <span class="st">"Neurod2"</span>, <span class="st">"Isl1"</span>, <span class="st">"Rbp4"</span><span class="op">)</span>, add_box <span class="op">=</span> <span class="cn">TRUE</span>,</span>
@@ -505,7 +506,7 @@
 <div class="section level3">
 <h3 id="interactive-data-visualization-with-scexplorer">Interactive data visualization with SCExplorer<a class="anchor" aria-label="anchor" href="#interactive-data-visualization-with-scexplorer"></a>
 </h3>
-<div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/PrepareSCExplorer.html">PrepareSCExplorer</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>mouse_pancreas <span class="op">=</span> <span class="va">pancreas_sub</span>, human_pancreas <span class="op">=</span> <span class="va">panc8_sub</span><span class="op">)</span>, base_dir <span class="op">=</span> <span class="st">"./SCExplorer"</span><span class="op">)</span></span>
 <span><span class="va">app</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/RunSCExplorer.html">RunSCExplorer</a></span><span class="op">(</span>base_dir <span class="op">=</span> <span class="st">"./SCExplorer"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="st">"./SCExplorer"</span><span class="op">)</span> <span class="co"># This directory can be used as site directory for Shiny Server.</span></span>

@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">SCP</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.3</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -116,17 +116,15 @@
 <span>  hex.binwidth <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  raster <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  raster.dpi <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">512</span>, <span class="fl">512</span><span class="op">)</span>,</span>
-<span>  theme_use <span class="op">=</span> <span class="st">"theme_scp"</span>,</span>
 <span>  aspect.ratio <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  title <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  subtitle <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  xlab <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  ylab <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  lab_cex <span class="op">=</span> <span class="fl">1</span>,</span>
-<span>  xlen_npc <span class="op">=</span> <span class="fl">0.15</span>,</span>
-<span>  ylen_npc <span class="op">=</span> <span class="fl">0.15</span>,</span>
 <span>  legend.position <span class="op">=</span> <span class="st">"right"</span>,</span>
 <span>  legend.direction <span class="op">=</span> <span class="st">"vertical"</span>,</span>
+<span>  theme_use <span class="op">=</span> <span class="st">"theme_scp"</span>,</span>
+<span>  theme_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  combine <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  nrow <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  ncol <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -229,85 +227,96 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"pancreas_sub"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="Standard_SCP.html">Standard_SCP</a></span><span class="op">(</span><span class="va">pancreas_sub</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-13 03:32:51] Start Standard_SCP</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-13 03:32:51] Checking srtList... ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-15 15:46:45] Start Standard_SCP</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-15 15:46:45] Checking srtList... ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Data 1/1 of the srtList is raw_counts. Perform NormalizeData(LogNormalize) on the data ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform FindVariableFeatures on the data 1/1 of the srtList...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Use the separate HVF from srtList...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Number of available HVF: 2000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-13 03:32:52] Finished checking.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-13 03:32:52] Perform ScaleData on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-13 03:32:52] Perform linear dimension reduction (pca) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-13 03:32:53] Perform FindClusters (louvain) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-13 03:32:53] Reorder clusters...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-13 03:32:54] Perform nonlinear dimension reduction (umap) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-15 15:46:46] Finished checking.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-15 15:46:46] Perform ScaleData on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-15 15:46:46] Perform linear dimension reduction (pca) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-15 15:46:47] Perform FindClusters (louvain) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-15 15:46:47] Reorder clusters...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-15 15:46:47] Perform nonlinear dimension reduction (umap) on the data...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Non-linear dimensionality reduction(umap) using Reduction(Standardpca, dims_range:1-50) as input</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Non-linear dimensionality reduction(umap) using Reduction(Standardpca, dims_range:1-50) as input</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-13 03:33:04] Standard_SCP done</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 13.27 secs </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-15 15:46:55] Standard_SCP done</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 10.18 secs </span>
 <span class="r-in"><span><span class="fu">FeatureDimPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, features <span class="op">=</span> <span class="st">"G2M_score"</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="FeatureDimPlot-1.png" alt="" width="700" height="433"></span>
-<span class="r-in"><span><span class="fu">FeatureDimPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, features <span class="op">=</span> <span class="st">"G2M_score"</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="panel_fix.html">panel_fix</a></span><span class="op">(</span>height <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">FeatureDimPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, features <span class="op">=</span> <span class="st">"G2M_score"</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span>, bg_cutoff <span class="op">=</span> <span class="op">-</span><span class="cn">Inf</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="FeatureDimPlot-2.png" alt="" width="700" height="433"></span>
-<span class="r-in"><span><span class="fu">FeatureDimPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, features <span class="op">=</span> <span class="st">"G2M_score"</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span>, label <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">FeatureDimPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, features <span class="op">=</span> <span class="st">"G2M_score"</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span>, theme_use <span class="op">=</span> <span class="st">"theme_blank"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="FeatureDimPlot-3.png" alt="" width="700" height="433"></span>
-<span class="r-in"><span><span class="fu">FeatureDimPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, features <span class="op">=</span> <span class="st">"G2M_score"</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span>, hex <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Removed 4 rows containing missing values (`geom_hex()`).</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Removed 1 rows containing missing values (`geom_hex()`).</span>
+<span class="r-in"><span><span class="fu">FeatureDimPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, features <span class="op">=</span> <span class="st">"G2M_score"</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span>, theme_use <span class="op">=</span> <span class="fu">ggplot2</span><span class="fu">::</span><span class="va"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_classic</a></span>, theme_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">16</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="FeatureDimPlot-4.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span><span class="fu">FeatureDimPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, features <span class="op">=</span> <span class="st">"G2M_score"</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="panel_fix.html">panel_fix</a></span><span class="op">(</span>height <span class="op">=</span> <span class="fl">2</span>, raster <span class="op">=</span> <span class="cn">TRUE</span>, dpi <span class="op">=</span> <span class="fl">30</span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="FeatureDimPlot-5.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu">FeatureDimPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>,</span></span>
+<span class="r-in"><span>  features <span class="op">=</span> <span class="st">"Rbp4"</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span>, label <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
+<span class="r-in"><span>  cells.highlight <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">pancreas_sub</span><span class="op">)</span><span class="op">[</span><span class="va">pancreas_sub</span><span class="op">$</span><span class="va">SubCellType</span> <span class="op">==</span> <span class="st">"Delta"</span><span class="op">]</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="FeatureDimPlot-6.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span><span class="fu">FeatureDimPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>,</span></span>
+<span class="r-in"><span>  features <span class="op">=</span> <span class="st">"Rbp4"</span>, split.by <span class="op">=</span> <span class="st">"Phase"</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span>,</span></span>
+<span class="r-in"><span>  cells.highlight <span class="op">=</span> <span class="cn">TRUE</span>, theme_use <span class="op">=</span> <span class="st">"theme_blank"</span>, legend.position <span class="op">=</span> <span class="st">"none"</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="FeatureDimPlot-7.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="RunSlingshot.html">RunSlingshot</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, group.by <span class="op">=</span> <span class="st">"SubCellType"</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span><span class="op">)</span></span></span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Removed 8 rows containing missing values (`geom_path()`).</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Removed 8 rows containing missing values (`geom_path()`).</span>
-<span class="r-plt img"><img src="FeatureDimPlot-5.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="FeatureDimPlot-8.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="fu">FeatureDimPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, features <span class="op">=</span> <span class="st">"Lineage3"</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span>, lineages <span class="op">=</span> <span class="st">"Lineage3"</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="FeatureDimPlot-6.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="FeatureDimPlot-9.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="fu">FeatureDimPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, features <span class="op">=</span> <span class="st">"Lineage3"</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span>, lineages <span class="op">=</span> <span class="st">"Lineage3"</span>, lineages_span <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="FeatureDimPlot-7.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="FeatureDimPlot-10.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu">FeatureDimPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Ins1"</span>, <span class="st">"Gcg"</span>, <span class="st">"Sst"</span>, <span class="st">"Ghrl"</span><span class="op">)</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="FeatureDimPlot-8.png" alt="" width="700" height="433"></span>
-<span class="r-in"><span><span class="fu">FeatureDimPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Ins1"</span>, <span class="st">"Gcg"</span>, <span class="st">"Sst"</span>, <span class="st">"Ghrl"</span><span class="op">)</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span>, lower_quantile <span class="op">=</span> <span class="fl">0</span>, upper_quantile <span class="op">=</span> <span class="fl">0.8</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="FeatureDimPlot-9.png" alt="" width="700" height="433"></span>
-<span class="r-in"><span><span class="fu">FeatureDimPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Ins1"</span>, <span class="st">"Gcg"</span>, <span class="st">"Sst"</span>, <span class="st">"Ghrl"</span><span class="op">)</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span>, lower_cutoff <span class="op">=</span> <span class="fl">1</span>, upper_cutoff <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="FeatureDimPlot-10.png" alt="" width="700" height="433"></span>
-<span class="r-in"><span><span class="fu">FeatureDimPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Ins1"</span>, <span class="st">"Gcg"</span>, <span class="st">"Sst"</span>, <span class="st">"Ghrl"</span><span class="op">)</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span>, bg_cutoff <span class="op">=</span> <span class="fl">1</span>, lower_cutoff <span class="op">=</span> <span class="fl">1</span>, upper_cutoff <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="FeatureDimPlot-11.png" alt="" width="700" height="433"></span>
-<span class="r-in"><span><span class="fu">FeatureDimPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Ins1"</span>, <span class="st">"Gcg"</span>, <span class="st">"Sst"</span>, <span class="st">"Ghrl"</span><span class="op">)</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span>, keep_scale <span class="op">=</span> <span class="st">"all"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">FeatureDimPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Ins1"</span>, <span class="st">"Gcg"</span>, <span class="st">"Sst"</span>, <span class="st">"Ghrl"</span><span class="op">)</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span>, lower_quantile <span class="op">=</span> <span class="fl">0</span>, upper_quantile <span class="op">=</span> <span class="fl">0.8</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="FeatureDimPlot-12.png" alt="" width="700" height="433"></span>
-<span class="r-in"><span><span class="fu">FeatureDimPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Sst"</span>, <span class="st">"Ghrl"</span><span class="op">)</span>, split.by <span class="op">=</span> <span class="st">"Phase"</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span>, keep_scale <span class="op">=</span> <span class="st">"feature"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">FeatureDimPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Ins1"</span>, <span class="st">"Gcg"</span>, <span class="st">"Sst"</span>, <span class="st">"Ghrl"</span><span class="op">)</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span>, lower_cutoff <span class="op">=</span> <span class="fl">1</span>, upper_cutoff <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="FeatureDimPlot-13.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span><span class="fu">FeatureDimPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Ins1"</span>, <span class="st">"Gcg"</span>, <span class="st">"Sst"</span>, <span class="st">"Ghrl"</span><span class="op">)</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span>, bg_cutoff <span class="op">=</span> <span class="fl">2</span>, lower_cutoff <span class="op">=</span> <span class="fl">2</span>, upper_cutoff <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="FeatureDimPlot-14.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span><span class="fu">FeatureDimPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Ins1"</span>, <span class="st">"Gcg"</span>, <span class="st">"Sst"</span>, <span class="st">"Ghrl"</span><span class="op">)</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span>, keep_scale <span class="op">=</span> <span class="st">"all"</span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="FeatureDimPlot-15.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span><span class="fu">FeatureDimPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Sst"</span>, <span class="st">"Ghrl"</span><span class="op">)</span>, split.by <span class="op">=</span> <span class="st">"Phase"</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span>, keep_scale <span class="op">=</span> <span class="st">"feature"</span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="FeatureDimPlot-16.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu">FeatureDimPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>,</span></span>
 <span class="r-in"><span>  features <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Ins1"</span>, <span class="st">"Gcg"</span>, <span class="st">"Sst"</span>, <span class="st">"Ghrl"</span><span class="op">)</span>, pt.size <span class="op">=</span> <span class="fl">1</span>,</span></span>
 <span class="r-in"><span>  compare_features <span class="op">=</span> <span class="cn">TRUE</span>, color_blend_mode <span class="op">=</span> <span class="st">"blend"</span>,</span></span>
 <span class="r-in"><span>  label <span class="op">=</span> <span class="cn">TRUE</span>, label_insitu <span class="op">=</span> <span class="cn">TRUE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="FeatureDimPlot-14.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="FeatureDimPlot-17.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="fu">FeatureDimPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>,</span></span>
 <span class="r-in"><span>  features <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"S_score"</span>, <span class="st">"G2M_score"</span><span class="op">)</span>, pt.size <span class="op">=</span> <span class="fl">1</span>, palcolor <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"red"</span>, <span class="st">"green"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  compare_features <span class="op">=</span> <span class="cn">TRUE</span>, color_blend_mode <span class="op">=</span> <span class="st">"mix"</span>, title <span class="op">=</span> <span class="st">"mix"</span>,</span></span>
 <span class="r-in"><span>  label <span class="op">=</span> <span class="cn">TRUE</span>, label_insitu <span class="op">=</span> <span class="cn">TRUE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="FeatureDimPlot-15.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="FeatureDimPlot-18.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="fu">FeatureDimPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>,</span></span>
 <span class="r-in"><span>  features <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"S_score"</span>, <span class="st">"G2M_score"</span><span class="op">)</span>, pt.size <span class="op">=</span> <span class="fl">1</span>, palcolor <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"red"</span>, <span class="st">"green"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  compare_features <span class="op">=</span> <span class="cn">TRUE</span>, color_blend_mode <span class="op">=</span> <span class="st">"blend"</span>, title <span class="op">=</span> <span class="st">"blend"</span>,</span></span>
 <span class="r-in"><span>  label <span class="op">=</span> <span class="cn">TRUE</span>, label_insitu <span class="op">=</span> <span class="cn">TRUE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="FeatureDimPlot-16.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="FeatureDimPlot-19.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="fu">FeatureDimPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>,</span></span>
 <span class="r-in"><span>  features <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"S_score"</span>, <span class="st">"G2M_score"</span><span class="op">)</span>, pt.size <span class="op">=</span> <span class="fl">1</span>, palcolor <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"red"</span>, <span class="st">"green"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  compare_features <span class="op">=</span> <span class="cn">TRUE</span>, color_blend_mode <span class="op">=</span> <span class="st">"screen"</span>, title <span class="op">=</span> <span class="st">"screen"</span>,</span></span>
 <span class="r-in"><span>  label <span class="op">=</span> <span class="cn">TRUE</span>, label_insitu <span class="op">=</span> <span class="cn">TRUE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="FeatureDimPlot-17.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="FeatureDimPlot-20.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="fu">FeatureDimPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>,</span></span>
 <span class="r-in"><span>  features <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"S_score"</span>, <span class="st">"G2M_score"</span><span class="op">)</span>, pt.size <span class="op">=</span> <span class="fl">1</span>, palcolor <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"red"</span>, <span class="st">"green"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  compare_features <span class="op">=</span> <span class="cn">TRUE</span>, color_blend_mode <span class="op">=</span> <span class="st">"multiply"</span>, title <span class="op">=</span> <span class="st">"multiply"</span>,</span></span>
 <span class="r-in"><span>  label <span class="op">=</span> <span class="cn">TRUE</span>, label_insitu <span class="op">=</span> <span class="cn">TRUE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="FeatureDimPlot-18.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="FeatureDimPlot-21.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://scales.r-lib.org" class="external-link">scales</a></span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span></span>
@@ -319,7 +328,7 @@
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/text.html" class="external-link">text</a></span><span class="op">(</span><span class="fl">3.5</span>, <span class="op">-</span><span class="fl">0.5</span>, <span class="st">"screen"</span>, cex <span class="op">=</span> <span class="fl">1.2</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://scales.r-lib.org/reference/show_col.html" class="external-link">show_col</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"red"</span>, <span class="st">"green"</span>, <span class="fu"><a href="blendcolors.html">blendcolors</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"red"</span>, <span class="st">"green"</span><span class="op">)</span>, mode <span class="op">=</span> <span class="st">"multiply"</span><span class="op">)</span><span class="op">)</span>, ncol <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/text.html" class="external-link">text</a></span><span class="op">(</span><span class="fl">3.5</span>, <span class="op">-</span><span class="fl">0.5</span>, <span class="st">"multiply"</span>, cex <span class="op">=</span> <span class="fl">1.2</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="FeatureDimPlot-19.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="FeatureDimPlot-22.png" alt="" width="700" height="433"></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>

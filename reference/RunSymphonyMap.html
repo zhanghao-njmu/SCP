@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">SCP</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.3</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -78,13 +78,41 @@
 <span class="r-in"><span><span class="va">srt_ref</span> <span class="op">&lt;-</span> <span class="va">panc8_sub</span><span class="op">[</span>, <span class="va">panc8_sub</span><span class="op">$</span><span class="va">tech</span> <span class="op">!=</span> <span class="st">"fluidigmc1"</span><span class="op">]</span></span></span>
 <span class="r-in"><span><span class="va">srt_query</span> <span class="op">&lt;-</span> <span class="va">panc8_sub</span><span class="op">[</span>, <span class="va">panc8_sub</span><span class="op">$</span><span class="va">tech</span> <span class="op">==</span> <span class="st">"fluidigmc1"</span><span class="op">]</span></span></span>
 <span class="r-in"><span><span class="va">srt_ref</span> <span class="op">&lt;-</span> <span class="fu"><a href="Integration_SCP.html">Integration_SCP</a></span><span class="op">(</span><span class="va">srt_ref</span>, batch <span class="op">=</span> <span class="st">"tech"</span>, integration_method <span class="op">=</span> <span class="st">"Harmony"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-13 05:15:38] Start Harmony_integrate</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-15 17:14:52] Start Harmony_integrate</span>
 <span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in Harmony_integrate(srtMerge = srt_ref, batch = "tech", append = TRUE,     srtList = NULL, assay = NULL, do_normalization = NULL, normalization_method = "LogNormalize",     do_HVF_finding = TRUE, HVF_source = "separate", HVF_method = "vst",     nHVF = 2000, HVF_min_intersection = 1, HVF = NULL, do_scaling = TRUE,     vars_to_regress = NULL, regression_model = "linear", linear_reduction = "pca",     linear_reduction_dims = 50, linear_reduction_dims_use = NULL,     linear_reduction_params = list(), force_linear_reduction = FALSE,     nonlinear_reduction = "umap", nonlinear_reduction_dims = c(2,     3), nonlinear_reduction_params = list(), force_nonlinear_reduction = TRUE,     do_cluster_finding = TRUE, cluster_algorithm = "louvain",     cluster_resolution = 0.6, cluster_reorder = TRUE, seed = 11):</span> object 'srt_ref' not found</span>
 <span class="r-in"><span><span class="fu"><a href="CellDimPlot.html">CellDimPlot</a></span><span class="op">(</span><span class="va">srt_ref</span>, group.by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"celltype"</span>, <span class="st">"tech"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in DefaultReduction(srt):</span> Unable to find any reductions.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Projection</span></span></span>
 <span class="r-in"><span><span class="va">srt_query</span> <span class="op">&lt;-</span> <span class="fu">RunSymphonyMap</span><span class="op">(</span>srt_query <span class="op">=</span> <span class="va">srt_query</span>, srt_ref <span class="op">=</span> <span class="va">srt_ref</span>, ref_pca <span class="op">=</span> <span class="st">"Harmonypca"</span>, ref_harmony <span class="op">=</span> <span class="st">"Harmony"</span>, ref_umap <span class="op">=</span> <span class="st">"HarmonyUMAP2D"</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Install package: "symphony" ...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 'getOption("repos")' replaces Bioconductor standard repositories, see 'help("repositories", package = "BiocManager")'</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> for details.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Replacement repositories:</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>     CRAN: https://cloud.r-project.org</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Bioconductor version 3.16 (BiocManager 1.30.20), R 4.2.3 (2023-03-15)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Installing github package(s) 'immunogenomics/symphony'</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>package ‘immunogenomics/symphony’ is not available for this version of R</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> A version of this package for your version of R might be available elsewhere,</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> see the ideas at</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> https://cran.r-project.org/doc/manuals/r-patched/R-admin.html#Installing-packages</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Using github PAT from envvar GITHUB_PAT</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Downloading GitHub repo immunogenomics/symphony@HEAD</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Installing 1 packages: harmony</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Installing package into ‘/home/runner/work/_temp/Library’</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> (as ‘lib’ is unspecified)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="color: #00BBBB;">R CMD build</span> <span style="color: #00BBBB;">─────────────────────────────────────────────────────────────────────────────────────────────────────────</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> * checking for file ‘/tmp/Rtmp031D2u/remotes9cb077fba63c/immunogenomics-symphony-bf7aaf9/DESCRIPTION’ ... OK</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> * preparing ‘symphony’:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> * checking DESCRIPTION meta-information ... OK</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> * cleaning src</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> * checking for LF line-endings in source and make files and shell scripts</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> * checking for empty or unneeded directories</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> * building ‘symphony_0.1.1.tar.gz’</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Installing package into ‘/home/runner/work/_temp/Library’</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> (as ‘lib’ is unspecified)</span>
 <span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> Cannot find 'Harmonypca' in this Seurat object</span>
 <span class="r-in"><span><span class="fu"><a href="ProjectionPlot.html">ProjectionPlot</a></span><span class="op">(</span>srt_query <span class="op">=</span> <span class="va">srt_query</span>, srt_ref <span class="op">=</span> <span class="va">srt_ref</span>, query_group <span class="op">=</span> <span class="st">"celltype"</span>, ref_group <span class="op">=</span> <span class="st">"celltype"</span><span class="op">)</span></span></span>
 <span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> Cannot find 'ref.umap' in this Seurat object</span>
