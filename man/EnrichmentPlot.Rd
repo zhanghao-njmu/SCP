@@ -26,11 +26,12 @@ EnrichmentPlot(
     "organization", "system", "regulation", "positive", "negative", "response",
     "process"),
   aspect.ratio = 1,
-  base_size = 12,
   character_width = 50,
   lineheight = 0.7,
   legend.position = "right",
   legend.direction = "vertical",
+  theme_use = "theme_scp",
+  theme_args = list(),
   combine = TRUE,
   nrow = NULL,
   ncol = NULL,
@@ -69,7 +70,10 @@ data("pancreas_sub")
 pancreas_sub <- RunDEtest(pancreas_sub, group_by = "CellType")
 pancreas_sub <- RunEnrichment(srt = pancreas_sub, db = "GO_BP", group_by = "CellType", species = "Mus_musculus")
 EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", plot_type = "bar")
-EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", plot_type = "bar", character_width = 30, base_size = 10)
+EnrichmentPlot(pancreas_sub,
+  db = "GO_BP", group_by = "CellType", plot_type = "bar", character_width = 30,
+  theme_use = ggplot2::theme_classic, theme_args = list(base_size = 10)
+)
 EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", plot_type = "comparison")
 EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", plot_type = "comparison", only_sig = TRUE)
 

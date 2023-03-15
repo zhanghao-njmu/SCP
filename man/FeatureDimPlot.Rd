@@ -72,17 +72,15 @@ FeatureDimPlot(
   hex.binwidth = NULL,
   raster = NULL,
   raster.dpi = c(512, 512),
-  theme_use = "theme_scp",
   aspect.ratio = 1,
   title = NULL,
   subtitle = NULL,
   xlab = NULL,
   ylab = NULL,
-  lab_cex = 1,
-  xlen_npc = 0.15,
-  ylen_npc = 0.15,
   legend.position = "right",
   legend.direction = "vertical",
+  theme_use = "theme_scp",
+  theme_args = list(),
   combine = TRUE,
   nrow = NULL,
   ncol = NULL,
@@ -146,9 +144,19 @@ library(dplyr)
 data("pancreas_sub")
 pancreas_sub <- Standard_SCP(pancreas_sub)
 FeatureDimPlot(pancreas_sub, features = "G2M_score", reduction = "UMAP")
-FeatureDimPlot(pancreas_sub, features = "G2M_score", reduction = "UMAP") \%>\% panel_fix(height = 2)
-FeatureDimPlot(pancreas_sub, features = "G2M_score", reduction = "UMAP", label = TRUE)
-FeatureDimPlot(pancreas_sub, features = "G2M_score", reduction = "UMAP", hex = TRUE)
+FeatureDimPlot(pancreas_sub, features = "G2M_score", reduction = "UMAP", bg_cutoff = -Inf)
+FeatureDimPlot(pancreas_sub, features = "G2M_score", reduction = "UMAP", theme_use = "theme_blank")
+FeatureDimPlot(pancreas_sub, features = "G2M_score", reduction = "UMAP", theme_use = ggplot2::theme_classic, theme_args = list(base_size = 16))
+FeatureDimPlot(pancreas_sub, features = "G2M_score", reduction = "UMAP") \%>\% panel_fix(height = 2, raster = TRUE, dpi = 30)
+
+FeatureDimPlot(pancreas_sub,
+  features = "Rbp4", reduction = "UMAP", label = TRUE,
+  cells.highlight = colnames(pancreas_sub)[pancreas_sub$SubCellType == "Delta"]
+)
+FeatureDimPlot(pancreas_sub,
+  features = "Rbp4", split.by = "Phase", reduction = "UMAP",
+  cells.highlight = TRUE, theme_use = "theme_blank", legend.position = "none"
+)
 
 pancreas_sub <- RunSlingshot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP")
 FeatureDimPlot(pancreas_sub, features = "Lineage3", reduction = "UMAP", lineages = "Lineage3")
@@ -157,7 +165,7 @@ FeatureDimPlot(pancreas_sub, features = "Lineage3", reduction = "UMAP", lineages
 FeatureDimPlot(pancreas_sub, c("Ins1", "Gcg", "Sst", "Ghrl"), reduction = "UMAP")
 FeatureDimPlot(pancreas_sub, c("Ins1", "Gcg", "Sst", "Ghrl"), reduction = "UMAP", lower_quantile = 0, upper_quantile = 0.8)
 FeatureDimPlot(pancreas_sub, c("Ins1", "Gcg", "Sst", "Ghrl"), reduction = "UMAP", lower_cutoff = 1, upper_cutoff = 4)
-FeatureDimPlot(pancreas_sub, c("Ins1", "Gcg", "Sst", "Ghrl"), reduction = "UMAP", bg_cutoff = 1, lower_cutoff = 1, upper_cutoff = 4)
+FeatureDimPlot(pancreas_sub, c("Ins1", "Gcg", "Sst", "Ghrl"), reduction = "UMAP", bg_cutoff = 2, lower_cutoff = 2, upper_cutoff = 4)
 FeatureDimPlot(pancreas_sub, c("Ins1", "Gcg", "Sst", "Ghrl"), reduction = "UMAP", keep_scale = "all")
 FeatureDimPlot(pancreas_sub, c("Sst", "Ghrl"), split.by = "Phase", reduction = "UMAP", keep_scale = "feature")
 

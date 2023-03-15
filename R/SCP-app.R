@@ -573,7 +573,8 @@ RunSCExplorer <- function(base_dir = "SCExplorer",
                           initial_ncol = 3,
                           initial_arrange = "Row",
                           initial_dpi = 100,
-                          workers = 10,
+                          workers = 2,
+                          threads_per_workers = 10,
                           create_script = TRUE,
                           style_script = require("styler", quietly = TRUE),
                           overwrite = FALSE,
@@ -1727,7 +1728,7 @@ server <- function(input, output, session) {
     "if (.Platform$OS.type == 'windows') {
       BPPARAM = SerialParam()
     } else {
-      BPPARAM = MulticoreParam(workers)
+      BPPARAM = MulticoreParam(workers = threads_per_workers)
     }",
     "page_theme <- bs_theme(bootswatch = 'zephyr')",
     main_code,

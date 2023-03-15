@@ -27,6 +27,8 @@ VolcanoPlot(
   aspect.ratio = NULL,
   xlab = x_metric,
   ylab = "-log10(p-adjust)",
+  theme_use = "theme_scp",
+  theme_args = list(),
   combine = TRUE,
   nrow = NULL,
   ncol = NULL,

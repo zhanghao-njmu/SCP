@@ -23,12 +23,13 @@ CellDensityPlot(
   y.min = NULL,
   y.max = NULL,
   same.y.lims = FALSE,
-  theme_use = "theme_scp",
   aspect.ratio = NULL,
   title = NULL,
   subtitle = NULL,
   legend.position = "right",
   legend.direction = "vertical",
+  theme_use = "theme_scp",
+  theme_args = list(),
   combine = TRUE,
   nrow = NULL,
   ncol = NULL,
@@ -48,6 +49,7 @@ data("pancreas_sub")
 CellDensityPlot(pancreas_sub, features = "Sox9", group.by = "SubCellType")
 
 pancreas_sub <- RunSlingshot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP")
+CellDensityPlot(pancreas_sub, features = "Lineage1", group.by = "SubCellType", aspect.ratio = 1)
 CellDensityPlot(pancreas_sub, features = "Lineage1", group.by = "SubCellType", flip = TRUE)
 
 }

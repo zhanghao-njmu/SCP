@@ -90,7 +90,7 @@ pancreas_sub <- Standard_SCP(
   linear_reduction = linear_reductions,
   nonlinear_reduction = "umap"
 )
-plist1 <- lapply(linear_reductions, function(lr) CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = paste0("Standard", lr, "UMAP2D"), theme = "theme_blank"))
+plist1 <- lapply(linear_reductions, function(lr) CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = paste0("Standard", lr, "UMAP2D"), theme_use = "theme_blank"))
 patchwork::wrap_plots(plotlist = plist1)
 
 nonlinear_reductions <- c("umap", "tsne", "dm", "phate", "pacmap", "trimap", "largevis")
@@ -99,7 +99,7 @@ pancreas_sub <- Standard_SCP(
   linear_reduction = "pca",
   nonlinear_reduction = nonlinear_reductions
 )
-plist2 <- lapply(nonlinear_reductions, function(nr) CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = paste0("Standardpca", toupper(nr), "2D"), theme = "theme_blank"))
+plist2 <- lapply(nonlinear_reductions, function(nr) CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = paste0("Standardpca", toupper(nr), "2D"), theme_use = "theme_blank"))
 patchwork::wrap_plots(plotlist = plist2)
 
 }

@@ -94,7 +94,7 @@ ht1 <- GroupHeatmap(pancreas_sub,
   group.by = c("CellType", "SubCellType"),
   show_row_names = TRUE
 )
-ht1$plot
+ht1$plot # the size of the heatmap is not fixed and can be resized by zooming the viewport.
 panel_fix(ht1$plot) # fix the size of the heatmap according the current viewport
 panel_fix(ht1$plot, raster = TRUE, dpi = 30) # rasterize the heatmap body
 panel_fix(ht1$plot, height = 5, width = 7) # fix the size of overall heatmap including annotation and legend
@@ -103,11 +103,12 @@ ht2 <- GroupHeatmap(pancreas_sub,
   features = pancreas_sub[["RNA"]]@var.features,
   group.by = c("CellType", "SubCellType"),
   n_split = 5, nlabel = 20,
-  height = 3, width = c(2, 4) # Heatmap body size
+  db = "GO_BP", species = "Mus_musculus", anno_terms = TRUE,
+  height = 3, width = c(1, 2) # Heatmap body size for two groups
 )
-ht2$plot
-panel_fix(ht2$plot) # fix the size of the heatmap according the current viewport
+ht2$plot # the size of the heatmap is already fixed
+panel_fix(ht2$plot) # when no height/width is specified, panel_fix does not change the size of the heatmap.
 panel_fix(ht2$plot, raster = TRUE, dpi = 30) # rasterize the heatmap body
-panel_fix(ht2$plot, height = 5, width = 10) # however, gene labels on the left cannot be adjusted
+panel_fix(ht2$plot, height = 5, width = 10) # however, gene labels on the left and enrichment annotations on the right cannot be adjusted
 
 }

@@ -9,6 +9,7 @@ CellStatPlot(
   stat.by,
   group.by = NULL,
   split.by = NULL,
+  bg.by = NULL,
   cells = NULL,
   flip = FALSE,
   NA_color = "grey",
@@ -23,12 +24,14 @@ CellStatPlot(
   palette = "Paired",
   palcolor = NULL,
   alpha = 1,
+  bg_palette = "Paired",
+  bg_palcolor = NULL,
+  bg_apha = 0.2,
   label = FALSE,
   label.size = 3.5,
   label.fg = "black",
   label.bg = "white",
   label.bg.r = 0.1,
-  theme_use = "theme_scp",
   aspect.ratio = NULL,
   title = NULL,
   subtitle = NULL,
@@ -36,6 +39,8 @@ CellStatPlot(
   ylab = NULL,
   legend.position = "right",
   legend.direction = "vertical",
+  theme_use = "theme_scp",
+  theme_args = list(),
   combine = TRUE,
   nrow = NULL,
   ncol = NULL,
@@ -53,9 +58,10 @@ Statistical plot of cells
 \examples{
 library(dplyr)
 data("pancreas_sub")
-CellStatPlot(pancreas_sub, stat.by = "Phase", group.by = "CellType", label = TRUE)
-CellStatPlot(pancreas_sub, stat.by = "Phase", group.by = "CellType", label = TRUE) \%>\% panel_fix(height = 2, width = 3)
-CellStatPlot(pancreas_sub, stat.by = "Phase", group.by = "CellType", stat_type = "count", position = "dodge", label = TRUE)
+CellStatPlot(pancreas_sub, stat.by = "Phase", group.by = "SubCellType", label = TRUE)
+CellStatPlot(pancreas_sub, stat.by = "Phase", group.by = "SubCellType", label = TRUE) \%>\% panel_fix(height = 2, width = 3)
+CellStatPlot(pancreas_sub, stat.by = "Phase", group.by = "SubCellType", stat_type = "count", position = "dodge", label = TRUE)
+CellStatPlot(pancreas_sub, stat.by = "Phase", group.by = "SubCellType", bg.by = "CellType", palette = "Set1", stat_type = "count", position = "dodge")
 
 CellStatPlot(pancreas_sub, stat.by = "Phase", plot_type = "bar")
 CellStatPlot(pancreas_sub, stat.by = "Phase", plot_type = "rose")
@@ -90,13 +96,14 @@ CellStatPlot(pancreas_sub,
   stat.by = c("CellType", "Phase"), plot_type = "venn",
   stat_level = list(CellType = c("Ductal", "Ngn3 low EP"), Phase = "S")
 )
-
-pancreas_sub$Ductal <- ifelse(pancreas_sub$CellType \%in\% c("Ductal", "Ngn3 low EP", "Ngn3 high EP"), TRUE, FALSE)
-pancreas_sub$Endocrine <- ifelse(pancreas_sub$CellType \%in\% c("Pre-endocrine", "Endocrine"), TRUE, FALSE)
-pancreas_sub$G1S <- ifelse(pancreas_sub$Phase \%in\% c("G1", "S"), TRUE, FALSE)
-pancreas_sub$G2M <- ifelse(pancreas_sub$Phase \%in\% c("G2M"), TRUE, FALSE)
-head(pancreas_sub@meta.data[, c("Ductal", "Endocrine", "G1S", "G2M")])
-CellStatPlot(pancreas_sub, stat.by = c("Ductal", "Endocrine", "G1S", "G2M"), plot_type = "venn", stat_level = TRUE)
-CellStatPlot(pancreas_sub, stat.by = c("Ductal", "Endocrine", "G1S", "G2M"), plot_type = "upset", stat_level = TRUE)
-
+pancreas_sub$Progenitor <- pancreas_sub$CellType \%in\% c("Ngn3 low EP", "Ngn3 high EP")
+pancreas_sub$G2M <- pancreas_sub$Phase == "G2M"
+pancreas_sub$Sox9_Expressed <- pancreas_sub[["RNA"]]@counts["Sox9", ] > 0
+pancreas_sub$Neurog3_Expressed <- pancreas_sub[["RNA"]]@counts["Neurog3", ] > 0
+CellStatPlot(pancreas_sub, stat.by = c("Progenitor", "G2M", "Sox9_Expressed", "Neurog3_Expressed"), plot_type = "venn", stat_level = "TRUE")
+CellStatPlot(pancreas_sub, stat.by = c("Progenitor", "G2M", "Sox9_Expressed", "Neurog3_Expressed"), plot_type = "upset", stat_level = "TRUE")
+sum(pancreas_sub$Progenitor == "FALSE" &
+  pancreas_sub$G2M == "FALSE" &
+  pancreas_sub$Sox9_Expressed == "TRUE" &
+  pancreas_sub$Neurog3_Expressed == "FALSE")
 }

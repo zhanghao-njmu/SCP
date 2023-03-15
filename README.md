@@ -1,5 +1,5 @@
 
-# SCP: Single Cell Pipeline
+# SCP: Single-Cell Pipeline
 
 <!-- badges: start -->
 
@@ -9,12 +9,12 @@
 
 <!-- badges: end -->
 
-SCP provides a comprehensive set of tools for single cell data
+SCP provides a comprehensive set of tools for single-cell data
 processing and downstream analysis.
 
 The package includes the following facilities:
 
-- Integrated single cell quality control methods.
+- Integrated single-cell quality control methods.
 - Pipelines embedded with multiple methods for normalization, feature
   reduction, and cell population identification (standard Seurat
   workflow).
@@ -31,7 +31,7 @@ The package includes the following facilities:
   [LIGER](https://github.com/welch-lab/liger),
   [Conos](https://github.com/kharchenkolab/conos),
   [ComBat](https://bioconductor.org/packages/release/bioc/html/sva.html).
-- Multiple single cell downstream analyses such as identification of
+- Multiple single-cell downstream analyses such as identification of
   differential features, enrichment analysis, GSEA analysis,
   identification of dynamic features,
   [PAGA](https://github.com/theislab/paga), [RNA
@@ -41,13 +41,13 @@ The package includes the following facilities:
   [Monocle3](https://cole-trapnell-lab.github.io/monocle3), etc.
 - Multiple methods for automatic annotation of single-cell data and
   methods for projection between single-cell datasets.
-- High quality data visualization methods.
+- High-quality data visualization methods.
 - Fast deployment of single-cell data into SCExplorer, a [shiny
   app](https://shiny.rstudio.com/) that provides an interactive
   visualization interface.
 
 The functions in the SCP package are all developed around the [Seurat
-object](https://github.com/mojaveazure/seurat-object) and compatible
+object](https://github.com/mojaveazure/seurat-object) and are compatible
 with other Seurat functions.
 
 ## R version requirement
@@ -136,14 +136,13 @@ Available PyPI mirrors:
 
 - <https://mirrors.hit.edu.cn/pypi/web/simple>
 
-## Installation in a isolated R environment using renv
+## Installation in an isolated R environment using renv
 
-If there are some R package version conflicts, or you do not want to
-change your current R environment, you can use the
-[renv](https://rstudio.github.io/renv/) package to install SCP into an
-isolated R environment.
+If you do not want to change your current R environment or require
+reproducibility, you can use the [renv](https://rstudio.github.io/renv/)
+package to install SCP into an isolated R environment.
 
-#### Create a isolated R environment
+#### Create an isolated R environment
 
 ``` r
 if (!require("renv", quietly = TRUE)) {
@@ -153,7 +152,7 @@ dir.create("~/SCP_env", recursive = TRUE) # It cannot be the home directory "~" 
 renv::init(project = "~/SCP_env", bare = TRUE, restart = TRUE)
 ```
 
-#### Install SCP package and create SCP python environment
+Option 1: Install SCP from GitHub and create SCP python environment
 
 ``` r
 renv::activate(project = "~/SCP_env")
@@ -162,9 +161,14 @@ renv::install("zhanghao-njmu/SCP", repos = BiocManager::repositories())
 SCP::PrepareEnv()
 ```
 
-When installing packages, network issues may cause the download to fail.
-Sometimes you need to provide a GitHub personal access token and restart
-the r session before downloading.
+Option 2: If SCP is already installed in the global environment, copy
+SCP from the local library
+
+``` r
+renv::activate(project = "~/SCP_env")
+renv::hydrate("SCP")
+SCP::PrepareEnv()
+```
 
 #### Activate SCP environment first before use
 

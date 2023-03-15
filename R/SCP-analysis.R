@@ -1834,8 +1834,14 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
           }
           if (!is.na(pathname)) {
             header <- readCacheHeader(pathname)
-            message("Loading cached db:", term, " version:", strsplit(header[["comment"]], "\\|")[[1]][1], " created:", header[["timestamp"]])
-            db_list[[sps]][[term]] <- loadCache(pathname = pathname)
+            cached_version <- strsplit(header[["comment"]], "\\|")[[1]][1]
+            message("Loading cached db:", term, " version:", cached_version, " created:", header[["timestamp"]])
+            db_loaded <- loadCache(pathname = pathname)
+            if (is.null(db_loaded)) {
+              Sys.sleep(3)
+              db_loaded <- loadCache(pathname = pathname)
+            } # Second attempt
+            db_list[[sps]][[term]] <- db_loaded
           }
         }
       }

@@ -627,6 +627,9 @@ as_matrix <- function(matrix) {
 #' Capitalizes the characters
 #' Making the first letter uppercase
 #'
+#' @examples
+#' x <- c("dna methylation", "rRNA processing", "post-Transcriptional gene silencing")
+#' capitalize(x)
 #' @param x A vector of character strings to be capitalized.
 #' @param force_tolower Whether to force the remaining letters to be lowercase.
 #' @export
@@ -641,10 +644,13 @@ capitalize <- function(x, force_tolower = FALSE) {
     stop("x must be the type of character.")
   }
   if (isTRUE(force_tolower)) {
-    paste(toupper(substr(x, 1, 1)), tolower(substr(x, 2, nchar(x))), sep = "")
+    x <- paste(toupper(substr(x, 1, 1)), tolower(substr(x, 2, nchar(x))), sep = "")
   } else {
-    paste(toupper(substr(x, 1, 1)), substr(x, 2, nchar(x)), sep = "")
+    first_word <- sapply(strsplit(x, "\\s|-"), function(s) s[1])
+    index <- which(first_word == tolower(first_word))
+    x[index] <- paste(toupper(substr(x[index], 1, 1)), substr(x[index], 2, nchar(x[index])), sep = "")
   }
+  return(x)
 }
 
 str_wrap <- function(x, width = 80) {

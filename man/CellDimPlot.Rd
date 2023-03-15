@@ -79,7 +79,7 @@ CellDimPlot(
   paga_show_transition = FALSE,
   velocity = NULL,
   velocity_plot_type = "raw",
-  velocity_n_neighbors = ceiling(ncol(srt)/50),
+  velocity_n_neighbors = ceiling(ncol(srt@assays[[1]])/50),
   velocity_density = 1,
   velocity_smooth = 0.5,
   velocity_scale = 1,
@@ -107,17 +107,15 @@ CellDimPlot(
   hex.binwidth = NULL,
   raster = NULL,
   raster.dpi = c(512, 512),
-  theme_use = "theme_scp",
   aspect.ratio = 1,
   title = NULL,
   subtitle = NULL,
   xlab = NULL,
   ylab = NULL,
-  lab_cex = 1,
-  xlen_npc = 0.15,
-  ylen_npc = 0.15,
   legend.position = "right",
   legend.direction = "vertical",
+  theme_use = "theme_scp",
+  theme_args = list(),
   combine = TRUE,
   nrow = NULL,
   ncol = NULL,
@@ -179,10 +177,13 @@ Plotting cell points on a reduced 2D plane and coloring according to the groups 
 library(dplyr)
 data("pancreas_sub")
 CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP")
-CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP") \%>\% panel_fix(height = 2)
+CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", theme_use = "theme_blank")
+CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", theme_use = ggplot2::theme_classic, theme_args = list(base_size = 16))
+CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP") \%>\% panel_fix(height = 2, raster = TRUE, dpi = 30)
+
 CellDimPlot(pancreas_sub,
-  group.by = "CellType", reduction = "UMAP", label = TRUE, add_density = TRUE,
-  cells.highlight = colnames(pancreas_sub)[pancreas_sub$SubCellType == "Delta"]
+  group.by = "SubCellType", reduction = "UMAP", label = TRUE, add_density = TRUE,
+  cells.highlight = colnames(pancreas_sub)[pancreas_sub$SubCellType == "Alpha"]
 )
 CellDimPlot(pancreas_sub,
   group.by = "SubCellType", split.by = "Phase", reduction = "UMAP",

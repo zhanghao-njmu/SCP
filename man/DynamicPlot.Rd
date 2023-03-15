@@ -34,6 +34,8 @@ DynamicPlot(
   aspect.ratio = NULL,
   legend.position = "right",
   legend.direction = "vertical",
+  theme_use = "theme_scp",
+  theme_args = list(),
   combine = TRUE,
   nrow = NULL,
   ncol = NULL,

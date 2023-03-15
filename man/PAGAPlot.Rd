@@ -54,17 +54,15 @@ PAGAPlot(
   transition_offset = 0,
   transition_highlight = NULL,
   transition_highlight_color = "red",
-  theme_use = "theme_scp",
   aspect.ratio = 1,
   title = "PAGA",
   subtitle = NULL,
   xlab = NULL,
   ylab = NULL,
-  lab_cex = 1,
-  xlen_npc = 0.15,
-  ylen_npc = 0.15,
   legend.position = "right",
   legend.direction = "vertical",
+  theme_use = "theme_scp",
+  theme_args = list(),
   return_layer = FALSE
 )
 }

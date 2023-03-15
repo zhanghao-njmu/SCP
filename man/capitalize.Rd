@@ -16,3 +16,7 @@ capitalize(x, force_tolower = FALSE)
 Capitalizes the characters
 Making the first letter uppercase
 }
+\examples{
+x <- c("dna methylation", "rRNA processing", "post-Transcriptional gene silencing")
+capitalize(x)
+}
