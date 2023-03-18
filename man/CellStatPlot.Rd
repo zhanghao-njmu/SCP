@@ -50,6 +50,10 @@ CellStatPlot(
 )
 }
 \arguments{
+\item{srt}{A Seurat object.}
+
+\item{stat.by}{The name of a metadata column to be counted.}
+
 \item{stat_level}{}
 }
 \description{

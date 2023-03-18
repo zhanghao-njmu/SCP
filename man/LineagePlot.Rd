@@ -17,7 +17,7 @@ LineagePlot(
   lineages_arrow = arrow(length = unit(0.1, "inches")),
   line_size = 1,
   line_bg = "white",
-  line_bg_r = 0.5,
+  line_bg_stroke = 0.5,
   whiskers = FALSE,
   whiskers_size = 0.5,
   whiskers_alpha = 0.5,

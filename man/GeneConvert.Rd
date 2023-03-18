@@ -11,8 +11,9 @@ GeneConvert(
   species_from = "Homo_sapiens",
   species_to = NULL,
   Ensembl_version = 103,
-  attempts = 5,
-  mirror = NULL
+  biomart = NULL,
+  mirror = NULL,
+  attempts = 5
 )
 }
 \arguments{
@@ -28,9 +29,11 @@ GeneConvert(
 
 \item{Ensembl_version}{Ensembl database version. If NULL, use the current release version.}
 
-\item{attempts}{Number of attempts to connect with the biomart service.}
+\item{biomart}{BioMart database name you want to connect to. ("ensembl", "protists_mart", "fungi_mart", "plants_mart")}
 
 \item{mirror}{Specify an Ensembl mirror to connect to. The valid options here are 'www', 'uswest', 'useast', 'asia'.}
+
+\item{attempts}{Number of attempts to connect with the biomart service.}
 }
 \value{
 A list.

@@ -6,6 +6,9 @@
 \usage{
 slim_data(p)
 }
+\arguments{
+\item{p}{A \code{ggplot} object or a \code{patchwork} object.}
+}
 \description{
 Drop unused data from the plot to reduce the object size
 }

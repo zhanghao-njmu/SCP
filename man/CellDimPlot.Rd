@@ -2,7 +2,7 @@
 % Please edit documentation in R/SCP-plot.R
 \name{CellDimPlot}
 \alias{CellDimPlot}
-\title{2D-Dimensional reduction plot for classification.}
+\title{Visualize cell groups on a 2-dimensional reduction plot}
 \usage{
 CellDimPlot(
   srt,
@@ -38,7 +38,7 @@ CellDimPlot(
   density_color = "grey80",
   density_filled = FALSE,
   density_filled_palette = "Greys",
-  density_filled_color = NULL,
+  density_filled_palcolor = NULL,
   lineages = NULL,
   lineages_trim = c(0.01, 0.99),
   lineages_span = 0.75,
@@ -47,7 +47,7 @@ CellDimPlot(
   lineages_arrow = arrow(length = unit(0.1, "inches")),
   lineages_line_size = 1,
   lineages_line_bg = "white",
-  lineages_line_bg_r = 0.5,
+  lineages_line_bg_stroke = 0.5,
   lineages_whiskers = FALSE,
   lineages_whiskers_size = 0.5,
   lineages_whiskers_alpha = 0.5,
@@ -92,7 +92,6 @@ CellDimPlot(
   streamline_minL = 1,
   streamline_res = 1,
   streamline_n = 15,
-  streamline_jitter = 1,
   streamline_size = c(0, 0.8),
   streamline_alpha = 1,
   streamline_color = NULL,
@@ -129,90 +128,285 @@ CellDimPlot(
 
 \item{group.by}{Name of one or more metadata columns to group (color) cells by (for example, orig.ident).}
 
-\item{reduction}{Which dimensionality reduction to use.}
+\item{reduction}{Which dimensionality reduction to use. If not specified, will use the reduction returned by \code{\link{DefaultReduction}}.}
+
+\item{dims}{Dimensions to plot, must be a two-length numeric vector specifying x- and y-dimensions}
 
 \item{split.by}{Name of a metadata column to split plot by.}
 
-\item{cells}{}
+\item{cells}{Subset cells to plot.}
 
-\item{pt.size}{Point size for plotting.}
+\item{show_na}{Whether to assign a color from the color palette to NA group. If \code{FALSE}, cell points with NA level will colored by \code{bg_color}.}
+
+\item{show_stat}{Whether to show statistical information on the plot.}
+
+\item{pt.size}{Point size.}
 
 \item{pt.alpha}{Point transparency.}
 
-\item{palette}{Name of palette to use. Default is "Paired".}
+\item{palette}{Name of a color palette name collected in SCP. Default is "Paired".}
+
+\item{palcolor}{Custom colors used to create a color palette.}
 
 \item{bg_color}{Color value for NA points.}
 
-\item{label}{Whether to label the groups.}
+\item{label}{Whether to label the cell groups.}
 
-\item{label.size}{Plot resolution. Only valid when \code{units} is not \code{px}}
+\item{label.size}{Size of labels.}
 
-\item{label_insitu}{Whether place the raw label text in the original position. Default is FALSE, which using numbers instead of raw labels.}
+\item{label.fg}{Foreground color of label.}
 
-\item{cells.highlight}{A vector of names of cells to highlight.}
+\item{label.bg}{Background color of label.}
 
-\item{cols.highlight}{A vector of colors to highlight the cells.}
+\item{label.bg.r}{Background ratio of label.}
 
-\item{sizes.highlight}{Size of highlighted cells.}
+\item{label_insitu}{Whether to place the original labels (group names) in the center of the cells with the corresponding group. Default is \code{FALSE}, which using numbers instead of raw labels.}
 
-\item{legend.position}{The position of legends ("none", "left", "right", "bottom", "top", or two-element numeric vector)}
+\item{label_repel}{Logical value indicating whether the label is repel away from the center of the cell groups.}
+
+\item{label_repulsion}{Force of repulsion between overlapping text labels. Defaults to 20.}
+
+\item{label_point_size}{Size of the center points of the cell groups.}
+
+\item{label_point_color}{Color of the center points of the cell groups.}
+
+\item{label_segment_color}{Color of the line segment for labels.}
+
+\item{cells.highlight}{A vector of cell names to highlight.}
+
+\item{cols.highlight}{Colors used to highlight the cells.}
+
+\item{sizes.highlight}{Size of highlighted cell points.}
+
+\item{alpha.highlight}{Transparency of highlighted cell points.}
+
+\item{stroke.highlight}{Border width of highlighted cell points.}
+
+\item{add_density}{Whether to add a density layer on the plot.}
+
+\item{density_color}{Color of the density contours lines.}
+
+\item{density_filled}{Whether to add filled contour bands instead of contour lines.}
+
+\item{density_filled_palette}{Color palette used to fill contour bands.}
+
+\item{density_filled_palcolor}{Custom colors used to fill contour bands.}
+
+\item{lineages}{Lineages/pseudotime to add to the plot. If specified, curves will be fitted using \code{\link[stats]{loess}} method.}
+
+\item{lineages_trim}{Trim the leading and the trailing data in the lineages.}
+
+\item{lineages_span}{The parameter α which controls the degree of smoothing in \code{\link[stats]{loess}} method.}
+
+\item{lineages_palette}{Color palette used for lineages.}
+
+\item{lineages_palcolor}{Custom colors used for lineages.}
+
+\item{lineages_arrow}{Set arrows of the lineages. See \code{\link[grid]{arrow}}.}
+
+\item{lineages_line_size}{Size of fitted curve lines for lineages.}
+
+\item{lineages_line_bg}{Background color of curve lines for lineages.}
+
+\item{lineages_line_bg_stroke}{Border width of curve lines background .}
+
+\item{lineages_whiskers}{Whether to add whiskers for lineages.}
+
+\item{lineages_whiskers_size}{Size of whiskers for lineages.}
+
+\item{lineages_whiskers_alpha}{Transparency of whiskers for lineages.}
+
+\item{stat.by}{The name of a metadata column to stat.}
+
+\item{stat_type}{Set stat types ("percent" or "count").}
+
+\item{stat_plot_type}{Set the statistical plot type.}
+
+\item{stat_plot_position}{Position adjustment in statistical plot.}
+
+\item{stat_plot_size}{Set the statistical plot size. Defaults to 0.1}
+
+\item{stat_plot_palette}{Color palette used in statistical plot}
+
+\item{stat_palcolor}{Custom colors used in statistical plot}
+
+\item{stat_plot_alpha}{Transparency of the statistical plot.}
+
+\item{stat_plot_label}{Whether to add labels in the statistical plot.}
+
+\item{stat_plot_label_size}{Label size in the statistical plot.}
+
+\item{graph}{Specify the graph name to add edges between cell neighbors to the plot.}
+
+\item{edge_size}{Size of edges.}
+
+\item{edge_alpha}{Transparency of edges.}
+
+\item{edge_color}{Color of edges.}
+
+\item{paga}{Specify the calculated paga results to add a PAGA graph layer to the plot.}
+
+\item{paga_type}{PAGA plot type. "connectivities" or "connectivities_tree".}
+
+\item{paga_node_size}{Size of the nodes in PAGA plot.}
+
+\item{paga_edge_threshold}{Threshold of edge connectivities in PAGA plot.}
+
+\item{paga_edge_size}{Size of edges in PAGA plot.}
+
+\item{paga_edge_color}{Color of edges in PAGA plot.}
+
+\item{paga_edge_alpha}{Transparency of edges in PAGA plot.}
+
+\item{paga_transition_threshold}{Threshold of transition edges in PAGA plot.}
+
+\item{paga_transition_size}{Size of transition edges in PAGA plot.}
+
+\item{paga_transition_color}{Color of transition edges in PAGA plot.}
+
+\item{paga_transition_alpha}{Transparency of transition edges in PAGA plot.}
+
+\item{paga_show_transition}{Whether to show transitions between edges.}
+
+\item{velocity}{Specify the calculated RNA velocity mode to add a velocity layer to the plot.}
+
+\item{velocity_plot_type}{Set the velocity plot type.}
+
+\item{velocity_n_neighbors}{Set the number of neighbors used in velocity plot.}
+
+\item{velocity_density}{Set the density value used in velocity plot.}
+
+\item{velocity_smooth}{Set the smooth value used in velocity plot.}
+
+\item{velocity_scale}{Set the scale value used in velocity plot.}
+
+\item{velocity_min_mass}{Set the min_mass value used in velocity plot.}
+
+\item{velocity_cutoff_perc}{Set the cutoff_perc value used in velocity plot.}
+
+\item{velocity_arrow_color}{Color of arrows in velocity plot.}
+
+\item{velocity_arrow_angle}{Angle of arrows in velocity plot.}
+
+\item{velocity_arrow_flank}{Flank of arrows in velocity plot.}
+
+\item{streamline_L}{Typical length of a streamline in x and y units}
+
+\item{streamline_minL}{Minimum length of segments to show.}
+
+\item{streamline_res}{Resolution parameter (higher numbers increases the resolution).}
+
+\item{streamline_n}{Number of points to draw.}
+
+\item{streamline_size}{Size of streamline.}
+
+\item{streamline_alpha}{Transparency of streamline.}
+
+\item{streamline_color}{Color of streamline.}
+
+\item{streamline_palette}{Color palette used for streamline.}
+
+\item{streamline_palcolor}{Custom colors used for streamline.}
+
+\item{streamline_bg_color}{Background color of streamline.}
+
+\item{streamline_bg_stroke}{Border width of streamline background.}
+
+\item{hex}{Whether to chane the plot type from point to the hexagonal bin.}
+
+\item{hex.linewidth}{Border width of hexagonal bins.}
+
+\item{hex.count}{Whether show cell counts in each hexagonal bin.}
+
+\item{hex.bins}{Number of hexagonal bins.}
+
+\item{hex.binwidth}{Hexagonal bin width.}
+
+\item{raster}{Convert points to raster format, default is NULL which automatically rasterizes if plotting more than 100,000 cells}
+
+\item{raster.dpi}{Pixel resolution for rasterized plots, passed to geom_scattermore(). Default is c(512, 512).}
+
+\item{aspect.ratio}{Aspect ratio of the panel}
+
+\item{title}{The text for the title.}
+
+\item{subtitle}{The text for the subtitle for the plot which will be displayed below the title.}
+
+\item{xlab}{x-axis label.}
+
+\item{ylab}{y-axis label.}
+
+\item{legend.position}{The position of legends ("none", "left", "right", "bottom", "top").}
 
 \item{legend.direction}{Layout of items in legends ("horizontal" or "vertical")}
 
-\item{combine}{Whether to arrange multiple plots into a grid.}
+\item{theme_use}{Theme used. Can be a character string or a theme function. For example, \code{"theme_blank"} or \code{ggplot2::theme_classic}.}
 
-\item{nrow}{Number of rows in the plot grid.}
+\item{theme_args}{Other arguments passed to the \code{theme_use}.}
 
-\item{ncol}{Number of columns in the plot grid.}
+\item{combine}{Combine plots into a single \code{patchwork} object. If \code{FALSE}, return a list of ggplot objects.}
+
+\item{nrow}{Number of rows in the combined plot.}
+
+\item{ncol}{Number of columns in the combined plot.}
 
 \item{byrow}{Logical value indicating if the plots should be arrange by row (default) or by column.}
+
+\item{force}{Whether to force drawing regardless of the number of cell groups greater than 100.}
+
+\item{seed}{Random seed set for reproducibility}
 }
 \value{
-A single ggplot object if combine = TRUE; otherwise, a list of ggplot objects
+A single ggplot/patchwork object if combine = TRUE; otherwise, a list of ggplot objects
 }
 \description{
-Plotting cell points on a reduced 2D plane and coloring according to the groups of the cells.
+Plotting cell points on a reduced 2D plane and coloring according to the groups.
 }
 \examples{
 library(dplyr)
 data("pancreas_sub")
 CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP")
-CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", theme_use = "theme_blank")
+CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", theme_use = "theme_blank", show_stat = FALSE)
 CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", theme_use = ggplot2::theme_classic, theme_args = list(base_size = 16))
 CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP") \%>\% panel_fix(height = 2, raster = TRUE, dpi = 30)
 
+# Label and highlight cell points
 CellDimPlot(pancreas_sub,
-  group.by = "SubCellType", reduction = "UMAP", label = TRUE, add_density = TRUE,
-  cells.highlight = colnames(pancreas_sub)[pancreas_sub$SubCellType == "Alpha"]
+  group.by = "SubCellType", reduction = "UMAP", label = TRUE, label_insitu = TRUE,
+  cells.highlight = colnames(pancreas_sub)[pancreas_sub$SubCellType == "Epsilon"]
 )
 CellDimPlot(pancreas_sub,
-  group.by = "SubCellType", split.by = "Phase", reduction = "UMAP",
+  group.by = "SubCellType", split.by = "Phase", reduction = "UMAP", show_stat = FALSE,
   cells.highlight = TRUE, theme_use = "theme_blank", legend.position = "none"
 )
 
-# Add statistical chart
+# Add a density layer
+CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", label = TRUE, add_density = TRUE)
+CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", label = TRUE, add_density = TRUE, density_filled = TRUE)
+
+# Add statistical charts
 CellDimPlot(pancreas_sub, group.by = "CellType", reduction = "UMAP", stat.by = "Phase")
 CellDimPlot(pancreas_sub, group.by = "CellType", reduction = "UMAP", stat.by = "Phase", stat_plot_type = "ring", stat_plot_label = TRUE, stat_plot_size = 0.15)
-CellDimPlot(pancreas_sub, group.by = "CellType", reduction = "UMAP", stat.by = "Phase", stat_type = "count", stat_plot_type = "bar", stat_plot_position = "dodge")
+CellDimPlot(pancreas_sub, group.by = "CellType", reduction = "UMAP", stat.by = "Phase", stat_plot_type = "bar", stat_type = "count", stat_plot_position = "dodge")
 
 # Chane the plot type from point to the hexagonal bin
 CellDimPlot(pancreas_sub, group.by = "CellType", reduction = "UMAP", hex = TRUE)
 CellDimPlot(pancreas_sub, group.by = "CellType", reduction = "UMAP", hex = TRUE, hex.bins = 20)
 CellDimPlot(pancreas_sub, group.by = "CellType", reduction = "UMAP", hex = TRUE, hex.count = FALSE)
 
-# Show cell-cell graph on the plot
+# Show neighbors graphs on the plot
 pancreas_sub <- Standard_SCP(pancreas_sub)
 CellDimPlot(pancreas_sub, group.by = "CellType", reduction = "UMAP", graph = "Standardpca_SNN")
 CellDimPlot(pancreas_sub, group.by = "CellType", reduction = "UMAP", graph = "Standardpca_SNN", edge_color = "grey80")
 
-# Show the lineage on the plot based on the pseudotime
+# Show lineages on the plot based on the pseudotime
 pancreas_sub <- RunSlingshot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", show_plot = FALSE)
 FeatureDimPlot(pancreas_sub, features = paste0("Lineage", 1:3), reduction = "UMAP")
 CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", lineages = paste0("Lineage", 1:3))
 CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", lineages = paste0("Lineage", 1:3), lineages_whiskers = TRUE)
 CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", lineages = paste0("Lineage", 1:3), lineages_span = 0.1)
 
-# Show PAGA result on the plot
+# Show PAGA results on the plot
 pancreas_sub <- RunPAGA(srt = pancreas_sub, group_by = "SubCellType", linear_reduction = "PCA", nonlinear_reduction = "UMAP", return_seurat = TRUE)
 CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", paga = pancreas_sub@misc$paga)
 CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", paga = pancreas_sub@misc$paga, paga_type = "connectivities_tree")
@@ -223,7 +417,7 @@ CellDimPlot(pancreas_sub,
   show_stat = FALSE, legend.position = "none", theme_use = "theme_blank"
 )
 
-# Show RNA velocity result on the plot
+# Show RNA velocity results on the plot
 pancreas_sub <- RunSCVELO(srt = pancreas_sub, group_by = "SubCellType", linear_reduction = "PCA", nonlinear_reduction = "UMAP", mode = "stochastic", return_seurat = TRUE)
 CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", paga = pancreas_sub@misc$paga, paga_show_transition = TRUE)
 CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", pt.size = NA, velocity = "stochastic")

@@ -2,7 +2,7 @@
 % Please edit documentation in R/SCP-plot.R
 \name{show_palettes}
 \alias{show_palettes}
-\title{Show the palettes collected by SCP}
+\title{Show the color palettes}
 \usage{
 show_palettes(
   palettes = NULL,
@@ -14,26 +14,29 @@ show_palettes(
 )
 }
 \arguments{
-\item{type}{}
+\item{palettes}{A list of custom color palettes to be shown.}
 
-\item{index}{The index of the palette in SCP palette list. Show all palettes in SCP by default.}
+\item{type}{Specifies the type of color palettes collected in SCP.}
 
-\item{palette_names}{Name of the palettes to be shown}
+\item{index}{The index of the palette in SCP palette list. If \code{NULL}, show all palettes collected in SCP.}
+
+\item{palette_names}{Specifies name of the color palettes collected in SCP.}
 
 \item{return_names}{Whether to return the palette names.}
 
 \item{return_palettes}{Whether to return the palettes.}
 }
 \description{
-Show the palettes collected by SCP
+Show the color palettes
 }
 \examples{
+show_palettes(palettes = list(c("red", "blue", "green"), c("yellow", "purple", "orange")))
 all_palettes <- show_palettes(return_palettes = TRUE)
 names(all_palettes)
-show_palettes(index = 1:20)
+all_palettes[["simspec"]]
+show_palettes(index = 1:10)
+show_palettes(type = "discrete", index = 1:10)
+show_palettes(type = "continuous", index = 1:10)
 show_palettes(palette_names = c("Paired", "nejm", "simspec", "Spectral", "jet"), return_palettes = TRUE)
-
-show_palettes(type = "discrete", index = 1:20)
-show_palettes(type = "continuous", index = 1:20)
 
 }

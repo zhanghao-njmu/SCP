@@ -32,6 +32,8 @@ FeatureDimPlot3D(
 
 \item{reduction}{Which dimensionality reduction to use.}
 
+\item{dims}{Dimensions to plot, must be a two-length numeric vector specifying x- and y-dimensions}
+
 \item{split.by}{Name of a metadata column to split plot by.}
 
 \item{pt.size}{Point size for plotting.}
@@ -47,6 +49,8 @@ FeatureDimPlot3D(
 \item{width}{Width in pixels, defaults to automatic sizing.}
 
 \item{height}{Height in pixels, defaults to automatic sizing.}
+
+\item{force}{Whether to force drawing regardless of the number of cell groups greater than 100.}
 }
 \description{
 Plotting cell points on a reduced 3D space and coloring according to the gene expression in the cells.

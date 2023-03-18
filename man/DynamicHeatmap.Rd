@@ -146,7 +146,7 @@ ht2 <- DynamicHeatmap(
   cell_annotation = "SubCellType"
 )
 ht2$plot
-panel_fix(ht2$plot, height = 5, width = 10, raster = TRUE, dpi = 50)
+panel_fix(ht2$plot, height = 5, width = 5, raster = TRUE, dpi = 50)
 
 ht3 <- DynamicHeatmap(
   srt = pancreas_sub,
@@ -173,7 +173,8 @@ ht4 <- DynamicHeatmap(
   feature_annotation = c("TF", "SP"),
   feature_annotation_palcolor = list(c("gold", "steelblue"), c("forestgreen")),
   pseudotime_label = 25,
-  pseudotime_label_color = "red"
+  pseudotime_label_color = "red",
+  width = 1, height = 2.5
 )
 ht4$plot
 
@@ -193,7 +194,8 @@ ht5 <- DynamicHeatmap(
   feature_annotation_palcolor = list(c("gold", "steelblue"), c("forestgreen")),
   pseudotime_label = 25,
   pseudotime_label_color = "red",
-  flip = TRUE, column_title_rot = 45
+  flip = TRUE, column_title_rot = 45,
+  width = 2.5, height = 1
 )
 ht5$plot
 

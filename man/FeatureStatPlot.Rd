@@ -83,7 +83,7 @@ Statistical plot of features
 library(dplyr)
 data("pancreas_sub")
 FeatureStatPlot(pancreas_sub, stat.by = c("G2M_score", "Fev"), group.by = "SubCellType")
-FeatureStatPlot(pancreas_sub, stat.by = c("G2M_score", "Fev"), group.by = "SubCellType") \%>\% panel_fix(height = 2, width = 3)
+FeatureStatPlot(pancreas_sub, stat.by = c("G2M_score", "Fev"), group.by = "SubCellType") \%>\% panel_fix(height = 1, width = 2)
 FeatureStatPlot(pancreas_sub, stat.by = c("G2M_score", "Fev"), group.by = "SubCellType", plot_type = "box")
 FeatureStatPlot(pancreas_sub, stat.by = c("G2M_score", "Fev"), group.by = "SubCellType", plot_type = "bar")
 FeatureStatPlot(pancreas_sub, stat.by = c("G2M_score", "Fev"), group.by = "SubCellType", plot_type = "dot")
@@ -107,7 +107,7 @@ FeatureStatPlot(pancreas_sub,
     "Rbp4", "Pyy", # Endocrine
     "Ins1", "Gcg", "Sst", "Ghrl" # Beta, Alpha, Delta, Epsilon
   ),
-  group.by = c("CellType", "SubCellType"), bg.by = "CellType", stack = TRUE
+  group.by = "SubCellType", bg.by = "CellType", stack = TRUE
 )
 FeatureStatPlot(pancreas_sub,
   stat.by = c(

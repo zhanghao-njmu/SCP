@@ -318,7 +318,7 @@ PrepareSCExplorer <- function(object,
 #' CellDimPlot(srt, group.by = c("SubCellType", "Phase"), reduction = "UMAP")
 #' FeatureDimPlot(srt, features = c("Ins1", "Ghrl"), reduction = "UMAP")
 #' }
-#' @importFrom Seurat CreateSeuratObject CreateDimReducObject
+#' @importFrom Seurat CreateAssayObject CreateDimReducObject
 #' @importFrom Matrix sparseMatrix
 #' @importFrom rlang %||%
 #' @export
@@ -326,7 +326,6 @@ FetchH5 <- function(DataFile, MetaFile, name = NULL,
                     features = NULL, slot = NULL, assay = NULL,
                     metanames = NULL,
                     reduction = NULL) {
-  check_R(c("HDF5Array", "rhdf5"))
   if (missing(DataFile) || missing(MetaFile)) {
     stop("'DataFile', 'MetaFile' must be provided.")
   }
@@ -386,7 +385,7 @@ FetchH5 <- function(DataFile, MetaFile, name = NULL,
   }
 
   if (length(gene_features) > 0) {
-    counts <- t(as(data[, gene_features, drop = FALSE], "sparseMatrix")) # matrix,sparseMatrix,dgCMatrix
+    counts <- t(as(data[, gene_features, drop = FALSE], "dgCMatrix")) # matrix,sparseMatrix,dgCMatrix,dgRMatrix
     AssayObject <- CreateAssayObject(counts = counts)
     srt_tmp <- CreateSeuratObject2(assay = assay %||% "RNA", counts = AssayObject)
   } else {
@@ -478,11 +477,14 @@ CreateSeuratObject2 <- function(counts, project = "SeuratProject", assay = "RNA"
     active.assay = assay, active.ident = idents, project.name = project,
     version = packageVersion(pkg = "SeuratObject")
   )
-  object[["orig.ident"]] <- idents
+  object@meta.data[["orig.ident"]] <- idents
   n.calc <- Seurat:::CalcN(object = counts)
+  n.calc <<- n.calc
   if (!is.null(x = n.calc)) {
     names(x = n.calc) <- paste(names(x = n.calc), assay, sep = "_")
-    object[[names(x = n.calc)]] <- n.calc
+    for (n in names(n.calc)) {
+      object@meta.data[[n]] <- n.calc[[n]]
+    }
   }
   if (!is.null(x = meta.data)) {
     object <- AddMetaData(object = object, metadata = meta.data)
@@ -1425,7 +1427,7 @@ server <- function(input, output, session) {
         # print(">>> plot:")
         # print(system.time(
         p2_dim <- SCP::FeatureDimPlot(
-          srt = srt_tmp, features = features2, split.by = split2, reduction = reduction2, slot = "data", raster = raster2,
+          srt = srt_tmp, features = features2, split.by = split2, reduction = reduction2, slot = slots2, raster = raster2,
           calculate_coexp = ifelse(coExp2 == "Yes", TRUE, FALSE), palette = palette2, theme_use = theme2,
           ncol = ncol2, byrow = ifelse(arrange2 == "Row", TRUE, FALSE), force = TRUE
         )

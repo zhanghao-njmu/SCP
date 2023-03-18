@@ -120,7 +120,7 @@ pancreas_sub <- RunDEtest(pancreas_sub, group_by = "CellType")
 de_filter <- filter(pancreas_sub@tools$DEtest_CellType$AllMarkers_wilcox, p_val_adj < 0.05 & avg_log2FC > 1)
 ht1 <- FeatureHeatmap(
   srt = pancreas_sub, features = de_filter$gene, group.by = "CellType",
-  split.by = "Phase", cell_split_palette = "Dark2"
+  split.by = "Phase", cell_split_palette = "Dark2",
 )
 ht1$plot
 panel_fix(ht1$plot, height = 5, width = 7, raster = TRUE, dpi = 50)

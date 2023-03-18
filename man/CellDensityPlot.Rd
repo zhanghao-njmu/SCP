@@ -39,7 +39,7 @@ CellDensityPlot(
 )
 }
 \arguments{
-\item{force}{}
+\item{seed}{}
 }
 \description{
 CellDensityPlot

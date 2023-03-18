@@ -18,42 +18,58 @@ panel_fix(
   return_grob = FALSE,
   bg_color = "white",
   save = NULL,
-  device = NULL,
-  verbose = TRUE,
+  verbose = FALSE,
   ...
 )
 }
 \arguments{
-\item{x}{A ggplot or grob object.}
+\item{x}{A ggplot object, a grob object, or a combined plot made by patchwork or cowplot package.}
 
-\item{respect}{}
+\item{panel_index}{Specify the panel to be fixed. If NULL, will fix all panels.}
+
+\item{respect}{If a logical, this indicates whether row heights and column widths should respect each other.}
 
 \item{width}{The width of the panel.}
 
 \item{height}{The height of the panel.}
 
-\item{margin}{Margins around the plot when \code{file} is specified.}
+\item{margin}{Margins around the plot.}
 
-\item{units}{The units in which \code{height}, \code{width} and \code{margin} are given. Can be \code{mm}, \code{cm}, \code{inches}, etc. See \code{\link[grid]{unit}}.}
+\item{units}{The units in which \code{height}, \code{width} and \code{margin} are given. Can be \code{mm}, \code{cm}, \code{in}, etc. See \code{\link[grid]{unit}}.}
 
-\item{save}{NULL or the file name to save.}
+\item{raster}{Whether to rasterize the panel.}
+
+\item{dpi}{Plot resolution.}
+
+\item{BPPARAM}{An \code{\link[BiocParallel]{BiocParallelParam}} instance determining the parallel back-end to be used during building the object made by patchwork package.}
+
+\item{return_grob}{If \code{TRUE} then return a grob object instead of a wrapped \code{patchwork} object.}
+
+\item{bg_color}{Plot background color.}
+
+\item{save}{NULL or the file name used to save the plot.}
+
+\item{verbose}{Whether to print messages.}
+
+\item{...}{}
 }
 \description{
-The ggplot object, when stored, can only specify the height and width of the plot, not the panel.
+The ggplot object, when stored, can only specify the height and width of the entire plot, not the panel.
 The latter is obviously more important to control the final result of a plot.
 This function can set the panel width/height of plot to a fixed value and rasterize it.
-The plot to be fixed can be a ggplot or a plot combined by cowplot::plot_grid or patchwork package.
 }
 \examples{
 library(ggplot2)
 p <- ggplot(data = mtcars, aes(x = mpg, y = wt, colour = cyl)) +
   geom_point() +
   facet_wrap(~gear, nrow = 2)
-panel_fix(p, width = 5, height = 3, units = "cm") # fix the size of panel
-panel_fix(p, width = 5, height = 3, units = "cm", raster = TRUE, dpi = 30) # rasterize the panel
+# fix the size of panel
+panel_fix(p, width = 5, height = 3, units = "cm")
+# rasterize the panel
+panel_fix(p, width = 5, height = 3, units = "cm", raster = TRUE, dpi = 30)
 
 # panel_fix will build and render the plot when the input is a ggplot object.
-# So after panel_fix, the size of the object will be changed.
+# so after panel_fix, the size of the object will be changed.
 object.size(p)
 object.size(panel_fix(p, width = 5, height = 3, units = "cm"))
 
@@ -72,15 +88,18 @@ data("pancreas_sub")
 p1 <- CellDimPlot(pancreas_sub, "Phase", aspect.ratio = 1) # ggplot object
 p2 <- FeatureDimPlot(pancreas_sub, "Ins1", aspect.ratio = 0.5) # ggplot object
 p <- p1 / p2 # plot is combined by patchwork
-panel_fix(p, height = 2) # fix the panel size for each plot, the width will be calculated automatically based on aspect.ratio
+# fix the panel size for each plot, the width will be calculated automatically based on aspect.ratio
+panel_fix(p, height = 2)
 
 # fix the panel of the plot combined by plot_grid
 library(cowplot)
 p1 <- CellDimPlot(pancreas_sub, c("Phase", "SubCellType"), label = TRUE) # plot is combined by patchwork
 p2 <- FeatureDimPlot(pancreas_sub, c("Ins1", "Gcg"), label = TRUE) # plot is combined by patchwork
 p <- plot_grid(p1, p2, nrow = 2) # plot is combined by plot_grid
-panel_fix(p, height = 2) # fix the size of panel for each plot
-panel_fix(p, height = 2, raster = TRUE, dpi = 30) # rasterize the panel while keeping all labels and text in vector format
+# fix the size of panel for each plot
+panel_fix(p, height = 2)
+# rasterize the panel while keeping all labels and text in vector format
+panel_fix(p, height = 2, raster = TRUE, dpi = 30)
 
 # fix the panel of the heatmap
 ht1 <- GroupHeatmap(pancreas_sub,
@@ -94,10 +113,14 @@ ht1 <- GroupHeatmap(pancreas_sub,
   group.by = c("CellType", "SubCellType"),
   show_row_names = TRUE
 )
-ht1$plot # the size of the heatmap is not fixed and can be resized by zooming the viewport.
-panel_fix(ht1$plot) # fix the size of the heatmap according the current viewport
-panel_fix(ht1$plot, raster = TRUE, dpi = 30) # rasterize the heatmap body
-panel_fix(ht1$plot, height = 5, width = 7) # fix the size of overall heatmap including annotation and legend
+# the size of the heatmap is not fixed and can be resized by zooming the viewport.
+ht1$plot
+# fix the size of the heatmap according the current viewport
+panel_fix(ht1$plot)
+# rasterize the heatmap body
+panel_fix(ht1$plot, raster = TRUE, dpi = 30)
+# fix the size of overall heatmap including annotation and legend
+panel_fix(ht1$plot, height = 5, width = 7)
 
 ht2 <- GroupHeatmap(pancreas_sub,
   features = pancreas_sub[["RNA"]]@var.features,
@@ -106,9 +129,13 @@ ht2 <- GroupHeatmap(pancreas_sub,
   db = "GO_BP", species = "Mus_musculus", anno_terms = TRUE,
   height = 3, width = c(1, 2) # Heatmap body size for two groups
 )
-ht2$plot # the size of the heatmap is already fixed
-panel_fix(ht2$plot) # when no height/width is specified, panel_fix does not change the size of the heatmap.
-panel_fix(ht2$plot, raster = TRUE, dpi = 30) # rasterize the heatmap body
-panel_fix(ht2$plot, height = 5, width = 10) # however, gene labels on the left and enrichment annotations on the right cannot be adjusted
+# the size of the heatmap is already fixed
+ht2$plot
+# when no height/width is specified, panel_fix does not change the size of the heatmap.
+panel_fix(ht2$plot)
+# rasterize the heatmap body
+panel_fix(ht2$plot, raster = TRUE, dpi = 30)
+# however, gene labels on the left and enrichment annotations on the right cannot be adjusted
+panel_fix(ht2$plot, height = 5, width = 10)
 
 }

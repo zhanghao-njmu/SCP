@@ -2,7 +2,7 @@
 % Please edit documentation in R/SCP-plot.R
 \name{FeatureDimPlot}
 \alias{FeatureDimPlot}
-\title{Dimensional reduction plot for expression.}
+\title{Visualize feature values on a 2-dimensional reduction plot}
 \usage{
 FeatureDimPlot(
   srt,
@@ -29,7 +29,7 @@ FeatureDimPlot(
   density_color = "grey80",
   density_filled = FALSE,
   density_filled_palette = "Greys",
-  density_filled_color = NULL,
+  density_filled_palcolor = NULL,
   cells.highlight = NULL,
   cols.highlight = "black",
   sizes.highlight = 1,
@@ -37,7 +37,7 @@ FeatureDimPlot(
   stroke.highlight = 0.5,
   calculate_coexp = FALSE,
   compare_features = FALSE,
-  color_blend_mode = c("blend", "mix", "screen", "multiply"),
+  color_blend_mode = c("blend", "average", "screen", "multiply"),
   label = FALSE,
   label.size = 4,
   label.fg = "white",
@@ -57,7 +57,7 @@ FeatureDimPlot(
   lineages_arrow = arrow(length = unit(0.1, "inches")),
   lineages_line_size = 1,
   lineages_line_bg = "white",
-  lineages_line_bg_r = 0.5,
+  lineages_line_bg_stroke = 0.5,
   lineages_whiskers = FALSE,
   lineages_whiskers_size = 0.5,
   lineages_whiskers_alpha = 0.5,
@@ -113,8 +113,6 @@ FeatureDimPlot(
   \item{NULL (no scaling):}{ Each individual plot is scaled to the maximum expression value of the feature in the condition provided to 'split.by'. Be aware setting NULL will result in color scales that are not comparable between plots.}
 }}
 
-\item{upper_cutoff}{}
-
 \item{cells.highlight}{A vector of names of cells to highlight.}
 
 \item{cols.highlight}{A vector of colors to highlight the cells.}
@@ -132,12 +130,14 @@ FeatureDimPlot(
 \item{ncol}{Number of columns in the plot grid.}
 
 \item{byrow}{Logical value indicating if the plots should be arrange by row (default) or by column.}
+
+\item{seed}{}
 }
 \value{
 A single ggplot object if combine = TRUE; otherwise, a list of ggplot objects
 }
 \description{
-Plotting cell points on a reduced 2D plane and coloring according to the expression of the features.
+Plotting cell points on a reduced 2D plane and coloring according to the values of the features.
 }
 \examples{
 library(dplyr)
@@ -145,21 +145,32 @@ data("pancreas_sub")
 pancreas_sub <- Standard_SCP(pancreas_sub)
 FeatureDimPlot(pancreas_sub, features = "G2M_score", reduction = "UMAP")
 FeatureDimPlot(pancreas_sub, features = "G2M_score", reduction = "UMAP", bg_cutoff = -Inf)
-FeatureDimPlot(pancreas_sub, features = "G2M_score", reduction = "UMAP", theme_use = "theme_blank")
+FeatureDimPlot(pancreas_sub, features = "G2M_score", reduction = "UMAP", theme_use = "theme_blank", show_stat = FALSE)
 FeatureDimPlot(pancreas_sub, features = "G2M_score", reduction = "UMAP", theme_use = ggplot2::theme_classic, theme_args = list(base_size = 16))
 FeatureDimPlot(pancreas_sub, features = "G2M_score", reduction = "UMAP") \%>\% panel_fix(height = 2, raster = TRUE, dpi = 30)
 
+# Label and highlight cell points
 FeatureDimPlot(pancreas_sub,
   features = "Rbp4", reduction = "UMAP", label = TRUE,
   cells.highlight = colnames(pancreas_sub)[pancreas_sub$SubCellType == "Delta"]
 )
 FeatureDimPlot(pancreas_sub,
-  features = "Rbp4", split.by = "Phase", reduction = "UMAP",
+  features = "Rbp4", split.by = "Phase", reduction = "UMAP", show_stat = FALSE,
   cells.highlight = TRUE, theme_use = "theme_blank", legend.position = "none"
 )
 
+# Add a density layer
+FeatureDimPlot(pancreas_sub, features = "Rbp4", reduction = "UMAP", label = TRUE, add_density = TRUE)
+FeatureDimPlot(pancreas_sub, features = "Rbp4", reduction = "UMAP", label = TRUE, add_density = TRUE, density_filled = TRUE)
+
+# Chane the plot type from point to the hexagonal bin
+FeatureDimPlot(pancreas_sub, features = "Rbp4", reduction = "UMAP", hex = TRUE)
+FeatureDimPlot(pancreas_sub, features = "Rbp4", reduction = "UMAP", hex = TRUE, hex.bins = 20)
+
+# Show lineages on the plot based on the pseudotime
 pancreas_sub <- RunSlingshot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP")
 FeatureDimPlot(pancreas_sub, features = "Lineage3", reduction = "UMAP", lineages = "Lineage3")
+FeatureDimPlot(pancreas_sub, features = "Lineage3", reduction = "UMAP", lineages = "Lineage3", lineages_whiskers = TRUE)
 FeatureDimPlot(pancreas_sub, features = "Lineage3", reduction = "UMAP", lineages = "Lineage3", lineages_span = 0.1)
 
 FeatureDimPlot(pancreas_sub, c("Ins1", "Gcg", "Sst", "Ghrl"), reduction = "UMAP")
@@ -176,12 +187,12 @@ FeatureDimPlot(pancreas_sub,
 )
 FeatureDimPlot(pancreas_sub,
   features = c("S_score", "G2M_score"), pt.size = 1, palcolor = c("red", "green"),
-  compare_features = TRUE, color_blend_mode = "mix", title = "mix",
+  compare_features = TRUE, color_blend_mode = "blend", title = "blend",
   label = TRUE, label_insitu = TRUE
 )
 FeatureDimPlot(pancreas_sub,
   features = c("S_score", "G2M_score"), pt.size = 1, palcolor = c("red", "green"),
-  compare_features = TRUE, color_blend_mode = "blend", title = "blend",
+  compare_features = TRUE, color_blend_mode = "average", title = "average",
   label = TRUE, label_insitu = TRUE
 )
 FeatureDimPlot(pancreas_sub,
@@ -195,14 +206,4 @@ FeatureDimPlot(pancreas_sub,
   label = TRUE, label_insitu = TRUE
 )
 
-library(scales)
-par(mfrow = c(2, 2))
-show_col(c("red", "green", blendcolors(c("red", "green"), mode = "mix")), ncol = 4)
-text(3.5, -0.5, "mix", cex = 1.2)
-show_col(c("red", "green", blendcolors(c("red", "green"), mode = "blend")), ncol = 4)
-text(3.5, -0.5, "blend", cex = 1.2)
-show_col(c("red", "green", blendcolors(c("red", "green"), mode = "screen")), ncol = 4)
-text(3.5, -0.5, "screen", cex = 1.2)
-show_col(c("red", "green", blendcolors(c("red", "green"), mode = "multiply")), ncol = 4)
-text(3.5, -0.5, "multiply", cex = 1.2)
 }

@@ -100,12 +100,6 @@
 # save(ref_scHCL, file = "data/ref_scHCL.rda",version = 2,compress = "xz")
 # save(ref_scMCA, file = "data/ref_scMCA.rda",version = 2,compress = "xz")
 # save(ref_scZCL, file = "data/ref_scZCL.rda",version = 2,compress = "xz")
-
-# load("~/Git/pancreas.rda")
-# pancreas_sub <- subset(pancreas, cells = sample(colnames(pancreas),size = 1000));
-# CellDimPlot(pancreas_sub,reduction = "umap",group.by = "CellType")
-# save(pancreas_sub, file = "data/pancreas1k.rda",version = 2,compress = "xz")
-
 # lifemap_cell <- readRDS("data/cell_gene_list.rds") %>% bind_rows()
 # lifemap_compartment <- readRDS("data/compartment_gene_list.rds") %>% bind_rows()
 # lifemap_organ <- readRDS("data/organ_gene_list.rds") %>% bind_rows()

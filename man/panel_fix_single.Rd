@@ -2,7 +2,7 @@
 % Please edit documentation in R/SCP-plot.R
 \name{panel_fix_single}
 \alias{panel_fix_single}
-\title{Set the panel width/height for the single plot.}
+\title{Fix the width/height of panels in a single plot object.}
 \usage{
 panel_fix_single(
   x,
@@ -18,15 +18,38 @@ panel_fix_single(
   return_grob = FALSE,
   bg_color = "white",
   save = NULL,
-  device = NULL,
   verbose = TRUE
 )
 }
 \arguments{
-\item{x}{}
+\item{x}{A ggplot object, a grob object, or a combined plot made by patchwork or cowplot package.}
 
-\item{verbose}{}
+\item{panel_index}{Specify the panel to be fixed. If NULL, will fix all panels.}
+
+\item{respect}{If a logical, this indicates whether row heights and column widths should respect each other.}
+
+\item{width}{The width of the panel.}
+
+\item{height}{The height of the panel.}
+
+\item{margin}{Margins around the plot.}
+
+\item{units}{The units in which \code{height}, \code{width} and \code{margin} are given. Can be \code{mm}, \code{cm}, \code{in}, etc. See \code{\link[grid]{unit}}.}
+
+\item{raster}{Whether to rasterize the panel.}
+
+\item{dpi}{Plot resolution.}
+
+\item{BPPARAM}{An \code{\link[BiocParallel]{BiocParallelParam}} instance determining the parallel back-end to be used during building the object made by patchwork package.}
+
+\item{return_grob}{If \code{TRUE} then return a grob object instead of a wrapped \code{patchwork} object.}
+
+\item{bg_color}{Plot background color.}
+
+\item{save}{NULL or the file name used to save the plot.}
+
+\item{verbose}{Whether to print messages.}
 }
 \description{
-Set the panel width/height for the single plot.
+Fix the width/height of panels in a single plot object.
 }

@@ -96,7 +96,7 @@ ht2 <- CellCorHeatmap(
   query_group = "SubCellType", ref_group = "celltype",
   query_cell_annotation = "Phase", query_cell_annotation_palette = "Set2",
   ref_cell_annotation = "tech", ref_cell_annotation_palette = "Set3",
-  width = 4, height = 3
+  width = 3, height = 2
 )
 ht2$plot
 

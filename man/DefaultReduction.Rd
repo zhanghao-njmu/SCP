@@ -2,22 +2,32 @@
 % Please edit documentation in R/SCP-plot.R
 \name{DefaultReduction}
 \alias{DefaultReduction}
-\title{Find the default reduction name in the srt object.}
+\title{Find the default reduction name in a Seurat object.}
 \usage{
 DefaultReduction(srt, pattern = NULL, min_dim = 2, max_distance = 0.1)
 }
 \arguments{
 \item{srt}{A Seurat object.}
 
-\item{pattern}{Name of the pattern to search for.}
+\item{pattern}{Character string containing a regular expression to search for.}
 
 \item{min_dim}{Minimum dimension threshold.}
-
-\item{max_distance}{}
 }
 \value{
 Default reduction name.
 }
 \description{
-Find the default reduction name in the srt object.
+Find the default reduction name in a Seurat object.
+}
+\examples{
+data("pancreas_sub")
+names(pancreas_sub@reductions)
+DefaultReduction(pancreas_sub)
+
+# Searches for matches to "pca"
+DefaultReduction(pancreas_sub, pattern = "pca")
+
+# Searches for approximate matches to "pc"
+DefaultReduction(pancreas_sub, pattern = "pc")
+
 }

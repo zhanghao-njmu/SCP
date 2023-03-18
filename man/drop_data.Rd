@@ -6,6 +6,9 @@
 \usage{
 drop_data(p)
 }
+\arguments{
+\item{p}{A \code{ggplot} object or a \code{patchwork} object.}
+}
 \description{
 Drop all data in the plot (only one observation is kept)
 }
@@ -14,7 +17,8 @@ library(ggplot2)
 p <- ggplot(data = mtcars, aes(x = mpg, y = wt, colour = cyl)) +
   geom_point() +
   scale_x_continuous(limits = c(10, 30)) +
-  scale_y_continuous(limits = c(1, 6))
+  scale_y_continuous(limits = c(1, 6)) +
+  theme_scp()
 object.size(p)
 
 p_drop <- drop_data(p)

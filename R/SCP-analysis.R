@@ -8,6 +8,7 @@
 #' @param species_from Latin names for animals of the input geneID.
 #' @param species_to Latin names for animals of the output geneID. e.g. "Homo_sapiens","Mus_musculus"
 #' @param Ensembl_version Ensembl database version. If NULL, use the current release version.
+#' @param biomart BioMart database name you want to connect to. ("ensembl", "protists_mart", "fungi_mart", "plants_mart")
 #' @param attempts Number of attempts to connect with the biomart service.
 #' @param mirror Specify an Ensembl mirror to connect to. The valid options here are 'www', 'uswest', 'useast', 'asia'.
 #'
@@ -45,11 +46,12 @@
 #' @importFrom reshape2 dcast melt
 #' @importFrom R.cache loadCache saveCache
 #' @importFrom biomaRt listEnsemblArchives useMart listDatasets useDataset getBM listAttributes useEnsembl
+#' @importFrom rlang %||%
 #' @export
 #'
 GeneConvert <- function(geneID, geneID_from_IDtype = "symbol", geneID_to_IDtype = "entrez_id",
                         species_from = "Homo_sapiens", species_to = NULL,
-                        Ensembl_version = 103, attempts = 5, mirror = NULL) {
+                        Ensembl_version = 103, biomart = NULL, mirror = NULL, attempts = 5) {
   if (requireNamespace("httr", quietly = TRUE)) {
     httr::set_config(httr::config(ssl_verifypeer = FALSE, ssl_verifyhost = FALSE))
   }
@@ -82,7 +84,7 @@ GeneConvert <- function(geneID, geneID_from_IDtype = "symbol", geneID_to_IDtype 
       "entrez_id" = "entrezgene_id",
       "uniprot_symbol" = "uniprot_gn_symbol",
       "wiki_symbol" = "wikigene_name"
-    )
+    ) %||% x
   })
   names(from_IDtype) <- geneID_from_IDtype
 
@@ -93,7 +95,7 @@ GeneConvert <- function(geneID, geneID_from_IDtype = "symbol", geneID_to_IDtype 
       "entrez_symbol" = "external_gene_name",
       "ensembl_id" = "ensembl_gene_id",
       "entrez_id" = "entrezgene_id"
-    )
+    ) %||% x
   })
 
   if (species_from != species_to && all(geneID_to_IDtype %in% c("symbol", "ensembl_id"))) {
@@ -110,127 +112,122 @@ GeneConvert <- function(geneID, geneID_from_IDtype = "symbol", geneID_to_IDtype 
     names(to_attr) <- geneID_to_IDtype
   }
 
-  message("Connect to the Ensembl archives...")
-  archives <- NULL
-  ntry <- 0
-  while (is.null(archives)) {
-    ntry <- ntry + 1
-    archives <- tryCatch(expr = {
-      listEnsemblArchives()
-    }, error = function(error) {
-      message(error)
-      message("Get errors when connecting with EnsemblArchives...\nRetrying...")
-      Sys.sleep(1)
-      return(NULL)
-    })
-    if (is.null(archives) && ntry >= attempts) {
-      stop("Stop connecting...")
+  if (is.null(biomart)) {
+    message("Connect to the Ensembl archives...")
+    archives <- attempt_get(
+      expr = {
+        listEnsemblArchives()
+      },
+      attempts = attempts,
+      error_message = "Get errors when connecting with EnsemblArchives..."
+    )
+    Ensembl_version <- as.character(Ensembl_version)
+    if (Ensembl_version == "current_release") {
+      url <- archives[which(archives$current_release == "*"), "url"]
+      version <- as.character(archives[which(archives$current_release == "*"), "version"])
+      message("Using the ", Ensembl_version, "(", version, ")", " version of biomart...")
+    } else if (Ensembl_version %in% archives$version) {
+      url <- archives[which(archives$version == Ensembl_version), "url"]
+      version <- as.character(archives[which(archives$version == Ensembl_version), "version"])
+      message("Using the ", version, " version of biomart...")
+    } else {
+      stop("Ensembl_version is invalid. Must be one of current_release,", paste0(archives$version, collapse = ","))
     }
-  }
 
-  Ensembl_version <- as.character(Ensembl_version)
-  if (Ensembl_version == "current_release") {
-    url <- archives[which(archives$current_release == "*"), "url"]
-    version <- as.character(archives[which(archives$current_release == "*"), "version"])
-    message("Using the ", Ensembl_version, "(", version, ")", " version of biomart...")
-  } else if (Ensembl_version %in% archives$version) {
-    url <- archives[which(archives$version == Ensembl_version), "url"]
-    version <- as.character(archives[which(archives$version == Ensembl_version), "version"])
-    message("Using the ", version, " version of biomart...")
+    message("Connecting to the biomart...")
+    mart <- attempt_get(
+      expr = {
+        if (!is.null(mirror)) {
+          useEnsembl(biomart = "ensembl", mirror = mirror)
+        } else {
+          useMart(biomart = "ensembl", host = url)
+        }
+      },
+      attempts = attempts,
+      error_message = "Get errors when connecting with ensembl mart..."
+    )
+    mart_from <- mart_to <- mart
   } else {
-    stop("Ensembl_version is invalid. Must be one of current_release,", paste0(archives$version, collapse = ","))
-  }
-
-  message("Connect to the biomart...")
-  mart <- NULL
-  ntry <- 0
-
-  while (is.null(mart)) {
-    ntry <- ntry + 1
-    if (!is.null(mirror)) {
-      mart <- tryCatch(
+    biomart <- match.arg(biomart, choices = c("ensembl", "protists_mart", "fungi_mart", "plants_mart"), several.ok = TRUE)
+    url <- setNames(
+      object = c("https://ensembl.org", "https://protists.ensembl.org", "https://fungi.ensembl.org", "https://plants.ensembl.org"),
+      nm = c("ensembl", "protists_mart", "fungi_mart", "plants_mart")
+    )
+    message("Connecting to the biomart(", biomart, ")...")
+    if (length(biomart) == 1) {
+      mart <- attempt_get(
         expr = {
-          useEnsembl("ensembl", mirror = mirror)
+          useMart(biomart = biomart, host = url[biomart])
         },
-        error = function(error) {
-          message(error)
-          message("Get errors when connecting with mirror...\nRetrying...")
-          Sys.sleep(1)
-          return(NULL)
-        }
+        attempts = attempts,
+        error_message = paste0("Get errors when connecting with ensembl mart(", biomart, ")")
+      )
+      mart_from <- mart_to <- mart
+    } else {
+      stop("Supports conversion within one mart only.")
+      mart_from <- attempt_get(
+        expr = {
+          useMart(biomart = biomart[1], host = url[biomart[1]])
+        },
+        attempts = attempts,
+        error_message = paste0("Get errors when connecting with ensembl mart(", biomart[1], ")")
+      )
+      mart_to <- attempt_get(
+        expr = {
+          useMart(biomart = biomart[2], host = url[biomart[2]])
+        },
+        attempts = attempts,
+        error_message = paste0("Get errors when connecting with ensembl mart(", biomart[2], ")")
       )
     }
-    if (is.null(mart)) {
-      mart <- tryCatch(
-        expr = {
-          useMart("ensembl", host = url)
-        },
-        error = function(error) {
-          message(error)
-          message("Get errors when connecting with ensembl mart...\nRetrying...")
-          Sys.sleep(1)
-          return(NULL)
-        }
-      )
-    }
-    if (is.null(mart) && ntry >= attempts) {
-      stop("Stop connecting...")
-    }
   }
-  Datasets <- listDatasets(mart)
 
-  dataset <- paste0(species_from_simp, "_gene_ensembl")
-  if (!dataset %in% Datasets$dataset) {
-    warning(paste0("Can not find the dataset for the species: ", species_from, " (", dataset, ")"), immediate. = TRUE)
+  message("Searching the dataset ", species_from_simp, " ...")
+  Datasets <- attempt_get(
+    expr = {
+      listDatasets(mart_from)
+    },
+    attempts = attempts,
+    error_message = paste0("Get errors when connecting with ensembl mart(", mart_from@biomart, ")")
+  )
+  dataset <- searchDatasets(Datasets, pattern = species_from_simp)[["dataset"]][1]
+  if (is.null(dataset)) {
+    warning(paste0("Can not find the dataset for the species: ", species_from, " (", species_from_simp, ")"), immediate. = TRUE)
     return(list(geneID_res = NULL, geneID_collapse = NULL, geneID_expand = NULL, Ensembl_version = version, Datasets = Datasets, Attributes = NULL))
   }
-  message("Connect to the dataset ", dataset, " ...")
-  mart1 <- NULL
-  ntry <- 0
-  while (is.null(mart1)) {
-    ntry <- ntry + 1
-    mart1 <- tryCatch(
-      expr = {
-        useDataset(dataset = dataset, mart = mart)
-      },
-      error = function(error) {
-        message(error)
-        message("Get errors when connecting with ensembl mart...\nRetrying...")
-        Sys.sleep(1)
-        return(NULL)
-      }
-    )
-    if (is.null(mart1) && ntry >= attempts) {
-      stop("Stop connecting...")
-    }
-  }
+
+  message("Connecting to the dataset ", dataset, " ...")
+  mart1 <- attempt_get(
+    expr = {
+      useDataset(dataset = dataset, mart = mart_from)
+    },
+    attempts = attempts,
+    error_message = paste0("Get errors when connecting with Dataset(", dataset, ")")
+  )
 
   if (species_from != species_to && any(!geneID_to_IDtype %in% c("symbol", "ensembl_id"))) {
-    dataset2 <- paste0(species_to_simp, "_gene_ensembl")
-    if (!dataset2 %in% Datasets$dataset) {
-      warning(paste0("Can not find the dataset for the species: ", species_from, " (", dataset2, ")"), immediate. = TRUE)
-      return(list(geneID_res = NULL, geneID_collapse = NULL, geneID_expand = NULL, Ensembl_version = version, Datasets = Datasets, Attributes = NULL))
+    message("Searching the dataset ", species_to_simp, " ...")
+    Datasets2 <- attempt_get(
+      expr = {
+        listDatasets(mart_to)
+      },
+      attempts = attempts,
+      error_message = paste0("Get errors when connecting with ensembl mart(", mart_to@biomart, ")")
+    )
+    dataset2 <- searchDatasets(Datasets2, pattern = species_to_simp)[["dataset"]][1]
+    if (is.null(dataset2)) {
+      warning(paste0("Can not find the dataset for the species: ", species_to, " (", species_to_simp, ")"), immediate. = TRUE)
+      return(list(geneID_res = NULL, geneID_collapse = NULL, geneID_expand = NULL, Ensembl_version = version, Datasets = list(Datasets, Datasets2), Attributes = NULL))
     }
-    message("Connect to the dataset ", dataset2, " ...")
-    mart2 <- NULL
-    ntry <- 0
-    while (is.null(mart2)) {
-      ntry <- ntry + 1
-      mart2 <- tryCatch(
-        expr = {
-          useDataset(dataset = dataset2, mart = mart)
-        },
-        error = function(error) {
-          message(error)
-          message("Get errors when connecting with ensembl mart...\nRetrying...")
-          Sys.sleep(1)
-          return(NULL)
-        }
-      )
-      if (is.null(mart2) && ntry >= attempts) {
-        stop("Stop connecting...")
-      }
-    }
+
+    message("Connecting to the dataset ", dataset2, " ...")
+    mart2 <- attempt_get(
+      expr = {
+        useDataset(dataset = dataset2, mart = mart_to)
+      },
+      attempts = attempts,
+      error_message = paste0("Get errors when connecting with Dataset(", dataset2, ")")
+    )
   }
 
   Attributes <- listAttributes(mart1)
@@ -248,16 +245,23 @@ GeneConvert <- function(geneID, geneID_from_IDtype = "symbol", geneID_to_IDtype 
     }
   }
 
-  message("Match and convert the geneID...")
+  message("Converting the geneIDs...")
   if (species_from != species_to) {
     for (from_attr in from_IDtype) {
       if (length(geneID) > 0) {
-        geneID_res1 <- getBM(
-          mart = mart1,
-          attributes = c(from_attr, "ensembl_gene_id"),
-          filters = from_attr,
-          values = list(geneID)
+        geneID_res1 <- attempt_get(
+          expr = {
+            getBM(
+              mart = mart1,
+              attributes = c(from_attr, "ensembl_gene_id"),
+              filters = from_attr,
+              values = list(geneID)
+            )
+          },
+          attempts = attempts,
+          error_message = "Get errors when retrieving information from the BioMart database"
         )
+
         geneID_res1 <- geneID_res1[, c(from_attr, "ensembl_gene_id"), drop = FALSE]
         geneID_res1 <- geneID_res1[geneID_res1[, from_attr] %in% geneID, , drop = FALSE]
         if (nrow(geneID_res1) == 0) {
@@ -268,11 +272,17 @@ GeneConvert <- function(geneID, geneID_from_IDtype = "symbol", geneID_to_IDtype 
         geneID_res1[, "from_IDtype"] <- from_name
 
         if (all(geneID_to_IDtype %in% c("symbol", "ensembl_id"))) {
-          geneID_res2 <- getBM(
-            mart = mart1,
-            attributes = unique(c("ensembl_gene_id", to_attr)),
-            filters = "ensembl_gene_id",
-            values = list(geneID_res1[, "ensembl_gene_id_tmp"])
+          geneID_res2 <- attempt_get(
+            expr = {
+              getBM(
+                mart = mart1,
+                attributes = unique(c("ensembl_gene_id", to_attr)),
+                filters = "ensembl_gene_id",
+                values = list(geneID_res1[, "ensembl_gene_id_tmp"])
+              )
+            },
+            attempts = attempts,
+            error_message = "Get errors when retrieving information from the BioMart database"
           )
           geneID_res2 <- geneID_res2[, unique(c("ensembl_gene_id", to_attr))]
           geneID_res2 <- geneID_res2[geneID_res2[, "ensembl_gene_id"] %in% geneID_res1[, "ensembl_gene_id_tmp"], , drop = FALSE]
@@ -286,11 +296,17 @@ GeneConvert <- function(geneID, geneID_from_IDtype = "symbol", geneID_to_IDtype 
           geneID_res_merge <- merge(x = geneID_res1, y = geneID_res2, by = "ensembl_gene_id_tmp")
         } else {
           homolog_ensembl_gene <- paste(species_to_simp, "ensembl_gene", sep = "_homolog_")
-          geneID_res2 <- getBM(
-            mart = mart1,
-            attributes = c("ensembl_gene_id", homolog_ensembl_gene),
-            filters = "ensembl_gene_id",
-            values = list(geneID_res1[, "ensembl_gene_id_tmp"])
+          geneID_res2 <- attempt_get(
+            expr = {
+              getBM(
+                mart = mart1,
+                attributes = c("ensembl_gene_id", homolog_ensembl_gene),
+                filters = "ensembl_gene_id",
+                values = list(geneID_res1[, "ensembl_gene_id_tmp"])
+              )
+            },
+            attempts = attempts,
+            error_message = "Get errors when retrieving information from the BioMart database"
           )
           geneID_res2 <- geneID_res2[, c("ensembl_gene_id", homolog_ensembl_gene), drop = FALSE]
           geneID_res2 <- geneID_res2[geneID_res2[, "ensembl_gene_id"] %in% geneID_res1[, "ensembl_gene_id_tmp"], , drop = FALSE]
@@ -299,11 +315,17 @@ GeneConvert <- function(geneID, geneID_from_IDtype = "symbol", geneID_to_IDtype 
           }
           colnames(geneID_res2) <- c("ensembl_gene_id_tmp", homolog_ensembl_gene)
 
-          geneID_res3 <- getBM(
-            mart = mart2,
-            attributes = unique(c("ensembl_gene_id", to_attr)),
-            filters = "ensembl_gene_id",
-            values = list(geneID_res2[, homolog_ensembl_gene])
+          geneID_res3 <- attempt_get(
+            expr = {
+              getBM(
+                mart = mart2,
+                attributes = unique(c("ensembl_gene_id", to_attr)),
+                filters = "ensembl_gene_id",
+                values = list(geneID_res2[, homolog_ensembl_gene])
+              )
+            },
+            attempts = attempts,
+            error_message = "Get errors when retrieving information from the BioMart database"
           )
           geneID_res3 <- geneID_res3[, unique(c("ensembl_gene_id", to_attr)), drop = FALSE]
           geneID_res3 <- geneID_res3[geneID_res3[, "ensembl_gene_id"] %in% geneID_res2[, homolog_ensembl_gene], , drop = FALSE]
@@ -327,11 +349,17 @@ GeneConvert <- function(geneID, geneID_from_IDtype = "symbol", geneID_to_IDtype 
   } else {
     for (from_attr in from_IDtype) {
       if (length(geneID) > 0) {
-        geneID_res1 <- getBM(
-          mart = mart1,
-          attributes = unique(c("ensembl_gene_id", from_attr, to_attr)),
-          filters = from_attr,
-          values = list(geneID)
+        geneID_res1 <- attempt_get(
+          expr = {
+            getBM(
+              mart = mart1,
+              attributes = unique(c("ensembl_gene_id", from_attr, to_attr)),
+              filters = from_attr,
+              values = list(geneID)
+            )
+          },
+          attempts = attempts,
+          error_message = "Get errors when retrieving information from the BioMart database"
         )
         geneID_res1 <- geneID_res1[, unique(c("ensembl_gene_id", from_attr, to_attr)), drop = FALSE]
         geneID_res1 <- geneID_res1[geneID_res1[, from_attr] %in% geneID, , drop = FALSE]
@@ -387,6 +415,46 @@ GeneConvert <- function(geneID, geneID_from_IDtype = "symbol", geneID_to_IDtype 
   geneID_expand <- unnest(data = geneID_collapse, cols = colnames(geneID_collapse)[sapply(geneID_collapse, class) == "list"], keep_empty = FALSE)
 
   return(list(geneID_res = geneID_res, geneID_collapse = geneID_collapse, geneID_expand = geneID_expand, Ensembl_version = version, Datasets = Datasets, Attributes = Attributes, geneID_unmapped = geneID))
+}
+
+attempt_get <- function(expr, attempts = 5, error_message = "", retry_message = "Retrying...") {
+  out <- simpleError("start")
+  ntry <- 0
+  while (inherits(out, "error")) {
+    ntry <- ntry + 1
+    # print(paste0("ntry: ", ntry, collapse = ""))
+    out <- tryCatch(
+      expr = eval.parent(substitute(expr)),
+      error = function(error) {
+        message(error)
+        message("")
+        message(error_message)
+        Sys.sleep(1)
+        return(error)
+      }
+    )
+    if (inherits(out, "error") && ntry >= attempts) {
+      stop(out, call. = TRUE)
+    } else {
+      if (!inherits(out, "error")) {
+        break
+      } else {
+        message(retry_message)
+      }
+    }
+  }
+  return(out)
+}
+
+searchDatasets <- function(datasets, pattern) {
+  colIdx <- vapply(datasets, FUN = function(x) grepl(pattern = pattern, x = x, ignore.case = TRUE), FUN.VALUE = logical(length = nrow(datasets)))
+  rowIdx <- apply(colIdx, 1, any)
+  if (any(rowIdx)) {
+    return(datasets[rowIdx, , drop = FALSE])
+  } else {
+    message("No matching datasets found")
+    return(NULL)
+  }
 }
 
 #' Prefetch cycle gene
@@ -1754,33 +1822,39 @@ ListDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
 #' @return A list containing the database.
 #'
 #' @examples
-#' db_list <- PrepareDB(species = "Homo_sapiens", db = "GO_BP", db_update = TRUE)
-#' ListDB(species = "Homo_sapiens", db = "GO_BP")
-#' head(db_list[["Homo_sapiens"]][["GO_BP"]][["TERM2GENE"]])
+#' if (interactive()) {
+#'   db_list <- PrepareDB(species = "Homo_sapiens", db = "GO_BP", db_update = TRUE)
+#'   ListDB(species = "Homo_sapiens", db = "GO_BP")
+#'   head(db_list[["Homo_sapiens"]][["GO_BP"]][["TERM2GENE"]])
 #'
-#' db_list <- PrepareDB(species = "Homo_sapiens", db = "MP", convert_species = TRUE, db_update = TRUE)
-#' ListDB(species = "Homo_sapiens", db = "MP")
-#' head(db_list[["Homo_sapiens"]][["MP"]][["TERM2GENE"]])
+#'   db_list <- PrepareDB(species = "Homo_sapiens", db = "MP", convert_species = TRUE, db_update = TRUE)
+#'   ListDB(species = "Homo_sapiens", db = "MP")
+#'   head(db_list[["Homo_sapiens"]][["MP"]][["TERM2GENE"]])
 #'
-#' db_list <- PrepareDB(species = "Macaca_fascicularis", db = "GO_BP", convert_species = TRUE, db_update = TRUE)
-#' ListDB(species = "Macaca_fascicularis", db = "GO_BP")
-#' head(db_list[["Macaca_fascicularis"]][["GO_BP"]][["TERM2GENE"]])
+#'   db_list <- PrepareDB(species = "Macaca_fascicularis", db = "GO_BP", convert_species = TRUE, db_update = TRUE)
+#'   ListDB(species = "Macaca_fascicularis", db = "GO_BP")
+#'   head(db_list[["Macaca_fascicularis"]][["GO_BP"]][["TERM2GENE"]])
 #'
-#' ccgenes <- CC_GenePrefetch("Homo_sapiens")
-#' custom_TERM2GENE <- rbind(
-#'   data.frame(term = "S_genes", gene = ccgenes[["cc_S_genes"]]),
-#'   data.frame(term = "G2M_genes", gene = ccgenes[["cc_G2M_genes"]])
-#' )
-#' str(custom_TERM2GENE)
-#' db_list <- PrepareDB(
-#'   species = c("Homo_sapiens", "Mus_musculus"), db = "CellCycle", convert_species = TRUE,
-#'   custom_TERM2GENE = custom_TERM2GENE, custom_species = "Homo_sapiens", custom_IDtype = "symbol", custom_version = "Seurat_v4"
-#' )
-#' ListDB(db = "CellCycle")
+#'   db_list <- PrepareDB(
+#'     species = "Arabidopsis_thaliana", db = c("GO_BP", "KEGG", "WikiPathway"),
+#'     db_update = TRUE, biomart = "plants_mart"
+#'   )
 #'
-#' db_list <- PrepareDB(species = "Mus_musculus", db = "CellCycle")
-#' head(db_list[["Mus_musculus"]][["CellCycle"]][["TERM2GENE"]])
+#'   ccgenes <- CC_GenePrefetch("Homo_sapiens")
+#'   custom_TERM2GENE <- rbind(
+#'     data.frame(term = "S_genes", gene = ccgenes[["cc_S_genes"]]),
+#'     data.frame(term = "G2M_genes", gene = ccgenes[["cc_G2M_genes"]])
+#'   )
+#'   str(custom_TERM2GENE)
+#'   db_list <- PrepareDB(
+#'     species = c("Homo_sapiens", "Mus_musculus"), db = "CellCycle", convert_species = TRUE,
+#'     custom_TERM2GENE = custom_TERM2GENE, custom_species = "Homo_sapiens", custom_IDtype = "symbol", custom_version = "Seurat_v4"
+#'   )
+#'   ListDB(db = "CellCycle")
 #'
+#'   db_list <- PrepareDB(species = "Mus_musculus", db = "CellCycle")
+#'   head(db_list[["Mus_musculus"]][["CellCycle"]][["TERM2GENE"]])
+#' }
 #' @importFrom R.cache loadCache saveCache readCacheHeader
 #' @importFrom utils packageVersion read.table
 #' @importFrom stats na.omit
@@ -1795,7 +1869,7 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
                       db_IDtypes = c("symbol", "entrez_id", "ensembl_id"),
                       db_version = "latest", db_update = FALSE,
                       convert_species = TRUE,
-                      Ensembl_version = 103, mirror = NULL,
+                      Ensembl_version = 103, mirror = NULL, biomart = NULL, attempts = 5,
                       custom_TERM2GENE = NULL, custom_TERM2NAME = NULL,
                       custom_species = NULL, custom_IDtype = NULL, custom_version = NULL) {
   db_list <- list()
@@ -1852,7 +1926,18 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
     if (any(!sps %in% names(db_list)) || any(!db %in% names(db_list[[sps]]))) {
       sp <- unlist(strsplit(sps, split = "_"))
       org_sp <- paste0("org.", paste0(substring(sp, 1, 1), collapse = ""), ".eg.db")
-      # mesh_sp <-  paste0("MeSH.", paste0(substring(sp, 1, c(1,2)), collapse = ""), ".eg.db")
+      org_key <- "ENTREZID"
+      if (sps == "Arabidopsis_thaliana") {
+        biomart <- "plants_mart"
+        org_sp <- "org.At.tair.db"
+        org_key <- "TAIR"
+        default_IDtypes[c("GO", "GO_BP", "GO_CC", "GO_MF", "PFAM", "Chromosome", "GeneType", "Enzyme")] <- "tair_locus"
+      }
+      if (sps == "Saccharomyces_cerevisiae") {
+        org_sp <- "org.Sc.sgd.db"
+        # org_key <- "SGD"
+        # default_IDtypes[c("GO", "GO_BP", "GO_CC", "GO_MF", "PFAM", "Chromosome", "GeneType", "Enzyme")] <- "sgd_gene"
+      }
 
       orgdb_dependent <- c("GO", "GO_BP", "GO_CC", "GO_MF", "PFAM", "Chromosome", "GeneType", "Enzyme")
       if (any(orgdb_dependent %in% db)) {
@@ -1890,24 +1975,23 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
         ## GO ---------------------------------------------------------------------------------
         if (any(db %in% c("GO", "GO_BP", "GO_CC", "GO_MF")) && any(!c("GO", "GO_BP", "GO_CC", "GO_MF") %in% names(db_list[[sps]]))) {
           terms <- db[db %in% c("GO", "GO_BP", "GO_CC", "GO_MF")]
-          bg <- suppressMessages(AnnotationDbi::select(orgdb, keys = AnnotationDbi::keys(orgdb), columns = "GOALL"))
-          bg[["EVIDENCEALL"]] <- NULL
-          bg <- unique(bg[!is.na(bg[["GOALL"]]), , drop = FALSE])
-          bg2 <- suppressMessages(AnnotationDbi::select(GO.db::GO.db, keys = AnnotationDbi::keys(GO.db::GO.db), columns = c("GOID", "TERM", "DEFINITION")))
+          bg <- suppressMessages(AnnotationDbi::select(orgdb, keys = AnnotationDbi::keys(orgdb), columns = c("GOALL", org_key)))
+          bg <- unique(bg[!is.na(bg[["GOALL"]]), c("GOALL", "ONTOLOGYALL", org_key), drop = FALSE])
+          bg2 <- suppressMessages(AnnotationDbi::select(GO.db::GO.db, keys = AnnotationDbi::keys(GO.db::GO.db), columns = c("GOID", "TERM")))
           bg <- merge(x = bg, by.x = "GOALL", y = bg2, by.y = "GOID", all.x = TRUE)
           for (subterm in terms) {
             message("Preparing database: ", subterm)
             if (subterm == "GO") {
-              TERM2GENE <- bg[, c(1, 2)]
-              TERM2NAME <- bg[, c(1, 4)]
+              TERM2GENE <- bg[, c("GOALL", org_key)]
+              TERM2NAME <- bg[, c("GOALL", "TERM")]
               colnames(TERM2GENE) <- c("Term", default_IDtypes[subterm])
               colnames(TERM2NAME) <- c("Term", "Name")
               TERM2NAME[["ONTOLOGY"]] <- bg[["ONTOLOGYALL"]]
               semData <- NULL
             } else {
               simpleterm <- unlist(strsplit(subterm, split = "_"))[2]
-              TERM2GENE <- bg[which(bg[["ONTOLOGYALL"]] %in% simpleterm), c(1, 2)]
-              TERM2NAME <- bg[which(bg[["ONTOLOGYALL"]] %in% simpleterm), c(1, 4)]
+              TERM2GENE <- bg[which(bg[["ONTOLOGYALL"]] %in% simpleterm), c("GOALL", org_key)]
+              TERM2NAME <- bg[which(bg[["ONTOLOGYALL"]] %in% simpleterm), c("GOALL", "TERM")]
               colnames(TERM2GENE) <- c("Term", default_IDtypes[subterm])
               colnames(TERM2NAME) <- c("Term", "Name")
               semData <- suppressMessages(GOSemSim::godata(orgdb, ont = simpleterm))
@@ -1946,18 +2030,24 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
             }
           }
           kegg_db <- "pathway"
+
           kegg_pathwaygene_url <- paste0("https://rest.kegg.jp/link/", kegg_sp, "/", kegg_db, collapse = "")
           TERM2GENE <- kegg_get(kegg_pathwaygene_url)
-          if (!all(grepl(":", TERM2GENE[, 2]))) {
-            stop("KEGG IDs is not ENTREZ IDs")
-          }
-          TERM2GENE[, 1] <- gsub(pattern = "[^:]+:", replacement = "", x = TERM2GENE[, 1])
-          TERM2GENE[, 2] <- gsub(pattern = "[^:]+:", replacement = "", x = TERM2GENE[, 2])
+          colnames(TERM2GENE) <- c("Pathway", "KEGG_ID")
+          kegg_geneconversion_url <- paste0("https://rest.kegg.jp/conv/ncbi-geneid/", kegg_sp)
+          GENECONV <- kegg_get(kegg_geneconversion_url)
+          colnames(GENECONV) <- c("KEGG_ID", "ENTREZID")
+          TERM2GENE <- merge(x = TERM2GENE, y = GENECONV, by = "KEGG_ID", all.x = TRUE)
+          TERM2GENE[, "Pathway"] <- gsub(pattern = "[^:]+:", replacement = "", x = TERM2GENE[, "Pathway"])
+          TERM2GENE[, "ENTREZID"] <- gsub(pattern = "[^:]+:", replacement = "", x = TERM2GENE[, "ENTREZID"])
+          TERM2GENE <- TERM2GENE[, c("Pathway", "ENTREZID")]
+
           kegg_pathwayname_url <- paste0("https://rest.kegg.jp/list/", kegg_db, "/", kegg_sp, collapse = "")
           TERM2NAME <- kegg_get(kegg_pathwayname_url)
-          TERM2NAME[, 1] <- gsub(pattern = "[^:]+:", replacement = "", x = TERM2NAME[, 1])
-          TERM2NAME[, 2] <- gsub(pattern = paste0(" - ", paste0(unlist(strsplit(sps, split = "_")), collapse = " "), ".*$"), replacement = "", x = TERM2NAME[, 2])
-          TERM2NAME <- TERM2NAME[TERM2NAME[, 1] %in% TERM2GENE[, 1], , drop = FALSE]
+          colnames(TERM2NAME) <- c("Pathway", "Name")
+          TERM2NAME[, "Pathway"] <- gsub(pattern = "[^:]+:", replacement = "", x = TERM2NAME[, "Pathway"])
+          TERM2NAME[, "Name"] <- gsub(pattern = paste0(" - ", paste0(unlist(strsplit(sps, split = "_")), collapse = " "), ".*$"), replacement = "", x = TERM2NAME[, "Name"])
+          TERM2NAME <- TERM2NAME[TERM2NAME[, "Pathway"] %in% TERM2GENE[, "Pathway"], , drop = FALSE]
 
           colnames(TERM2GENE) <- c("Term", default_IDtypes["KEGG"])
           colnames(TERM2NAME) <- c("Term", "Name")
@@ -2721,8 +2811,14 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
           species_from = sp_from,
           species_to = sps,
           Ensembl_version = Ensembl_version,
-          mirror = mirror
+          mirror = mirror,
+          biomart = biomart,
+          attempts = attempts
         )
+        if (is.null(res$geneID_res)) {
+          warning("Failed to convert species for the database: ", term, immediate. = TRUE)
+          next
+        }
         map <- res$geneID_collapse
         TERM2GENE[["ensembl_id-converted"]] <- map[as.character(TERM2GENE[, IDtype]), "ensembl_id"]
         TERM2GENE <- unnest(TERM2GENE, cols = "ensembl_id-converted", keep_empty = FALSE)
@@ -2762,8 +2858,14 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
           species_from = sps,
           species_to = sps,
           Ensembl_version = Ensembl_version,
-          mirror = mirror
+          mirror = mirror,
+          biomart = biomart,
+          attempts = attempts
         )
+        if (is.null(res$geneID_res)) {
+          warning("Failed to convert species for the database: ", term, immediate. = TRUE)
+          next
+        }
         map <- res$geneID_collapse
         for (type in IDtypes) {
           TERM2GENE[[type]] <- map[as.character(TERM2GENE[, IDtype]), type]

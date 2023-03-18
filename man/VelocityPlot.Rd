@@ -27,7 +27,6 @@ VelocityPlot(
   streamline_minL = 1,
   streamline_res = 1,
   streamline_n = 15,
-  streamline_jitter = 1,
   streamline_size = c(0, 0.8),
   streamline_alpha = 1,
   streamline_color = NULL,

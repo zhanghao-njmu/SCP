@@ -33,25 +33,33 @@ CellDimPlot3D(
 
 \item{group.by}{Name of one or more metadata columns to group (color) cells by (for example, orig.ident).}
 
-\item{reduction}{Which dimensionality reduction to use.}
+\item{reduction}{Which dimensionality reduction to use. If not specified, will use the reduction returned by \code{\link{DefaultReduction}}.}
 
-\item{palette}{Name of palette to use. Default is "Paired".}
+\item{dims}{Dimensions to plot, must be a two-length numeric vector specifying x- and y-dimensions}
+
+\item{palette}{Name of a color palette name collected in SCP. Default is "Paired".}
+
+\item{palcolor}{Custom colors used to create a color palette.}
 
 \item{bg_color}{Color value for NA points.}
 
-\item{pt.size}{Point size for plotting.}
+\item{pt.size}{Point size.}
 
-\item{cells.highlight}{A vector of names of cells to highlight.}
+\item{cells.highlight}{A vector of cell names to highlight.}
 
-\item{cols.highlight}{A vector of colors to highlight the cells.}
+\item{cols.highlight}{Colors used to highlight the cells.}
 
 \item{shape.highlight}{Shape of the cell to highlight. See \href{https://plotly.com/r/reference/scattergl/#scattergl-marker-symbol}{scattergl-marker-symbol}}
 
-\item{sizes.highlight}{Size of highlighted cells.}
+\item{sizes.highlight}{Size of highlighted cell points.}
+
+\item{lineages}{Lineages/pseudotime to add to the plot. If specified, curves will be fitted using \code{\link[stats]{loess}} method.}
 
 \item{width}{Width in pixels, defaults to automatic sizing.}
 
 \item{height}{Height in pixels, defaults to automatic sizing.}
+
+\item{force}{Whether to force drawing regardless of the number of cell groups greater than 100.}
 }
 \description{
 Plotting cell points on a reduced 3D space and coloring according to the groups of the cells.
@@ -61,7 +69,6 @@ data("pancreas_sub")
 pancreas_sub <- Standard_SCP(pancreas_sub)
 CellDimPlot3D(pancreas_sub, group.by = "SubCellType", reduction = "StandardpcaUMAP3D")
 
-pancreas_sub <- Standard_SCP(pancreas_sub)
 pancreas_sub <- RunSlingshot(pancreas_sub, group.by = "SubCellType", reduction = "StandardpcaUMAP3D")
-CellDimPlot3D(pancreas_sub, group.by = "SubCellType", reduction = "StandardpcaUMAP3D", lineages = paste0("Lineage", 1:2))
+CellDimPlot3D(pancreas_sub, group.by = "SubCellType", reduction = "StandardpcaUMAP3D", lineages = paste0("Lineage", 1:3))
 }
