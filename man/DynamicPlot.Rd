@@ -44,7 +44,7 @@ DynamicPlot(
 )
 }
 \arguments{
-\item{x_order}{}
+\item{seed}{}
 }
 \description{
 Plot for dynamic features along lineages.

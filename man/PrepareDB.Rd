@@ -2,7 +2,7 @@
 % Please edit documentation in R/SCP-analysis.R
 \name{PrepareDB}
 \alias{PrepareDB}
-\title{Prepare the database for enrichment analysis}
+\title{Prepare the gene annotation databases}
 \usage{
 PrepareDB(
   species = c("Homo_sapiens", "Mus_musculus"),
@@ -37,33 +37,44 @@ PrepareDB(
 A list containing the database.
 }
 \description{
-Prepare the database for enrichment analysis
+Prepare the gene annotation databases
 }
 \examples{
 if (interactive()) {
-  db_list <- PrepareDB(species = "Homo_sapiens", db = "GO_BP", db_update = TRUE)
+  db_list <- PrepareDB(species = "Homo_sapiens", db = "GO_BP")
   ListDB(species = "Homo_sapiens", db = "GO_BP")
   head(db_list[["Homo_sapiens"]][["GO_BP"]][["TERM2GENE"]])
 
-  db_list <- PrepareDB(species = "Homo_sapiens", db = "MP", convert_species = TRUE, db_update = TRUE)
+  # Based on homologous gene conversion, prepare a gene annotation database that originally does not exist in the species.
+  db_list <- PrepareDB(species = "Homo_sapiens", db = "MP", convert_species = TRUE)
   ListDB(species = "Homo_sapiens", db = "MP")
   head(db_list[["Homo_sapiens"]][["MP"]][["TERM2GENE"]])
 
-  db_list <- PrepareDB(species = "Macaca_fascicularis", db = "GO_BP", convert_species = TRUE, db_update = TRUE)
+  # Prepare databases for other species
+  db_list <- PrepareDB(species = "Macaca_fascicularis", db = "GO_BP", convert_species = TRUE)
   ListDB(species = "Macaca_fascicularis", db = "GO_BP")
   head(db_list[["Macaca_fascicularis"]][["GO_BP"]][["TERM2GENE"]])
 
+  # Prepare databases for plant
   db_list <- PrepareDB(
-    species = "Arabidopsis_thaliana", db = c("GO_BP", "KEGG", "WikiPathway"),
-    db_update = TRUE, biomart = "plants_mart"
+    species = "Arabidopsis_thaliana",
+    db = c(
+      "GO_BP", "GO_CC", "GO_MF", "KEGG", "WikiPathway",
+      "ENZYME", "Chromosome"
+    ),
+    biomart = "plants_mart"
   )
+  head(db_list[["Arabidopsis_thaliana"]][["KEGG"]][["TERM2GENE"]])
 
+  # You can also build a custom database based on the gene sets you have
   ccgenes <- CC_GenePrefetch("Homo_sapiens")
   custom_TERM2GENE <- rbind(
     data.frame(term = "S_genes", gene = ccgenes[["cc_S_genes"]]),
     data.frame(term = "G2M_genes", gene = ccgenes[["cc_G2M_genes"]])
   )
   str(custom_TERM2GENE)
+
+  # Set convert_species = TRUE to build a custom database for both species, with the name "CellCycle"
   db_list <- PrepareDB(
     species = c("Homo_sapiens", "Mus_musculus"), db = "CellCycle", convert_species = TRUE,
     custom_TERM2GENE = custom_TERM2GENE, custom_species = "Homo_sapiens", custom_IDtype = "symbol", custom_version = "Seurat_v4"

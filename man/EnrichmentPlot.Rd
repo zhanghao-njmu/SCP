@@ -52,8 +52,6 @@ EnrichmentPlot(
 
 \item{topWord}{Number of features to plot if \code{plot_type="wordcloud"}.}
 
-\item{legend.direction}{}
-
 \item{combine}{combine}
 
 \item{nrow}{nrow}
@@ -61,6 +59,8 @@ EnrichmentPlot(
 \item{ncol}{ncol}
 
 \item{byrow}{byrow}
+
+\item{seed}{}
 }
 \description{
 EnrichmentPlot

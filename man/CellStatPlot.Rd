@@ -54,7 +54,7 @@ CellStatPlot(
 
 \item{stat.by}{The name of a metadata column to be counted.}
 
-\item{stat_level}{}
+\item{seed}{}
 }
 \description{
 Statistical plot of cells

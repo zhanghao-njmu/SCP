@@ -27,7 +27,7 @@ VelocityPlot(
   streamline_minL = 1,
   streamline_res = 1,
   streamline_n = 15,
-  streamline_size = c(0, 0.8),
+  streamlinewidth = c(0, 0.8),
   streamline_alpha = 1,
   streamline_color = NULL,
   streamline_palette = "RdYlBu",
@@ -48,7 +48,7 @@ VelocityPlot(
 )
 }
 \arguments{
-\item{seed}{}
+\item{theme_args}{}
 }
 \description{
 Velocity Plot

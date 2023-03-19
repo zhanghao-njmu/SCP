@@ -963,6 +963,7 @@ drop_data <- function(p) {
 
 #' @param p A \code{ggplot} object.
 #' @export
+#' @rdname drop_data
 #' @method drop_data ggplot
 drop_data.ggplot <- function(p) {
   p <- ggplot2:::plot_clone(p)
@@ -1009,6 +1010,7 @@ drop_data.ggplot <- function(p) {
 
 #' @param p A \code{patchwork} object.
 #' @export
+#' @rdname drop_data
 #' @method drop_data patchwork
 drop_data.patchwork <- function(p) {
   for (i in seq_along(p$patches$plots)) {
@@ -1019,6 +1021,7 @@ drop_data.patchwork <- function(p) {
 }
 
 #' @export
+#' @rdname drop_data
 #' @method drop_data default
 drop_data.default <- function(p) {
   return(p)
@@ -1045,6 +1048,7 @@ slim_data <- function(p) {
 
 #' @param p A \code{ggplot} object.
 #' @export
+#' @rdname slim_data
 #' @method slim_data ggplot
 slim_data.ggplot <- function(p) {
   vars <- get_vars(p)
@@ -1059,6 +1063,7 @@ slim_data.ggplot <- function(p) {
 
 #' @param p A \code{patchwork} object.
 #' @export
+#' @rdname slim_data
 #' @method slim_data patchwork
 slim_data.patchwork <- function(p) {
   for (i in seq_along(p$patches$plots)) {
@@ -1208,7 +1213,7 @@ BlendRGBList <- function(Clist, mode = "blend", RGB_BackGround = c(1, 1, 1)) {
 #' @param srt A Seurat object.
 #' @param pattern Character string containing a regular expression to search for.
 #' @param min_dim Minimum dimension threshold.
-#' @inheritParams base::agrep
+#' @param max_distance Maximum distance allowed for a match.
 #'
 #' @examples
 #' data("pancreas_sub")
@@ -1281,19 +1286,16 @@ DefaultReduction <- function(srt, pattern = NULL, min_dim = 2, max_distance = 0.
 #' Plotting cell points on a reduced 2D plane and coloring according to the groups.
 #'
 #' @param srt A Seurat object.
-#' @param group.by Name of one or more metadata columns to group (color) cells by (for example, orig.ident).
+#' @param group.by Name of one or more meta.data columns to group (color) cells by (for example, orig.ident).
 #' @param reduction Which dimensionality reduction to use. If not specified, will use the reduction returned by \code{\link{DefaultReduction}}.
-#' @param split.by Name of a metadata column to split plot by.
+#' @param split.by Name of a column in meta.data column to split plot by.
 #' @param palette Name of a color palette name collected in SCP. Default is "Paired".
 #' @param palcolor Custom colors used to create a color palette.
-#' @param bg_color Color value for NA points.
+#' @param bg_color Color value for background(NA) points.
 #' @param pt.size Point size.
 #' @param pt.alpha Point transparency.
-#' @param label Whether to label the cell groups.
-#' @param label_insitu Whether to place the original labels (group names) in the center of the cells with the corresponding group. Default is \code{FALSE}, which using numbers instead of raw labels.
-#' @param label.size 	Size of labels.
 #' @param cells.highlight A vector of cell names to highlight.
-#' @param cols.highlight Colors used to highlight the cells.
+#' @param cols.highlight Color used to highlight the cells.
 #' @param sizes.highlight Size of highlighted cell points.
 #' @param alpha.highlight Transparency of highlighted cell points.
 #' @param stroke.highlight Border width of highlighted cell points.
@@ -1306,13 +1308,16 @@ DefaultReduction <- function(srt, pattern = NULL, min_dim = 2, max_distance = 0.
 #' @param dims Dimensions to plot, must be a two-length numeric vector specifying x- and y-dimensions
 #' @param show_na Whether to assign a color from the color palette to NA group. If \code{FALSE}, cell points with NA level will colored by \code{bg_color}.
 #' @param show_stat Whether to show statistical information on the plot.
+#' @param label Whether to label the cell groups.
+#' @param label_insitu Whether to place the raw labels (group names) in the center of the cells with the corresponding group. Default is \code{FALSE}, which using numbers instead of raw labels.
+#' @param label.size Size of labels.
 #' @param label.fg Foreground color of label.
 #' @param label.bg Background color of label.
 #' @param label.bg.r Background ratio of label.
-#' @param label_repel Logical value indicating whether the label is repel away from the center of the cell groups.
+#' @param label_repel Logical value indicating whether the label is repel away from the center points.
 #' @param label_repulsion Force of repulsion between overlapping text labels. Defaults to 20.
-#' @param label_point_size Size of the center points of the cell groups.
-#' @param label_point_color Color of the center points of the cell groups.
+#' @param label_point_size Size of the center points.
+#' @param label_point_color Color of the center points.
 #' @param label_segment_color Color of the line segment for labels.
 #' @param add_density Whether to add a density layer on the plot.
 #' @param density_color Color of the density contours lines.
@@ -1325,11 +1330,11 @@ DefaultReduction <- function(srt, pattern = NULL, min_dim = 2, max_distance = 0.
 #' @param lineages_palette Color palette used for lineages.
 #' @param lineages_palcolor Custom colors used for lineages.
 #' @param lineages_arrow Set arrows of the lineages. See \code{\link[grid]{arrow}}.
-#' @param lineages_line_size Size of fitted curve lines for lineages.
+#' @param lineages_linewidth Width of fitted curve lines for lineages.
 #' @param lineages_line_bg Background color of curve lines for lineages.
-#' @param lineages_line_bg_stroke Border width of curve lines background .
+#' @param lineages_line_bg_stroke Border width of curve lines background.
 #' @param lineages_whiskers Whether to add whiskers for lineages.
-#' @param lineages_whiskers_size Size of whiskers for lineages.
+#' @param lineages_whiskers_linewidth Width of whiskers for lineages.
 #' @param lineages_whiskers_alpha Transparency of whiskers for lineages.
 #' @param stat.by The name of a metadata column to stat.
 #' @param stat_type Set stat types ("percent" or "count").
@@ -1372,7 +1377,7 @@ DefaultReduction <- function(srt, pattern = NULL, min_dim = 2, max_distance = 0.
 #' @param streamline_minL Minimum length of segments to show.
 #' @param streamline_res Resolution parameter (higher numbers increases the resolution).
 #' @param streamline_n Number of points to draw.
-#' @param streamline_size Size of streamline.
+#' @param streamlinewidth Size of streamline.
 #' @param streamline_alpha Transparency of streamline.
 #' @param streamline_color Color of streamline.
 #' @param streamline_palette Color palette used for streamline.
@@ -1381,18 +1386,18 @@ DefaultReduction <- function(srt, pattern = NULL, min_dim = 2, max_distance = 0.
 #' @param streamline_bg_stroke Border width of streamline background.
 #' @param hex Whether to chane the plot type from point to the hexagonal bin.
 #' @param hex.count Whether show cell counts in each hexagonal bin.
-#' @param hex.bins  Number of hexagonal bins.
-#' @param hex.binwidth  Hexagonal bin width.
+#' @param hex.bins Number of hexagonal bins.
+#' @param hex.binwidth Hexagonal bin width.
 #' @param hex.linewidth Border width of hexagonal bins.
 #' @param raster Convert points to raster format, default is NULL which automatically rasterizes if plotting more than 100,000 cells
 #' @param raster.dpi Pixel resolution for rasterized plots, passed to geom_scattermore(). Default is c(512, 512).
 #' @param theme_use Theme used. Can be a character string or a theme function. For example, \code{"theme_blank"} or \code{ggplot2::theme_classic}.
-#' @param aspect.ratio Aspect ratio of the panel
+#' @param aspect.ratio Aspect ratio of the panel.
 #' @param title The text for the title.
 #' @param subtitle The text for the subtitle for the plot which will be displayed below the title.
 #' @param xlab x-axis label.
 #' @param ylab y-axis label.
-#' @param force Whether to force drawing regardless of the number of cell groups greater than 100.
+#' @param force Whether to force drawing regardless of maximum levels in any cell group is greater than 100.
 #' @param cells Subset cells to plot.
 #' @param theme_args Other arguments passed to the \code{theme_use}.
 #' @param seed Random seed set for reproducibility
@@ -1490,8 +1495,8 @@ CellDimPlot <- function(srt, group.by, reduction = NULL, dims = c(1, 2), split.b
                         add_density = FALSE, density_color = "grey80", density_filled = FALSE, density_filled_palette = "Greys", density_filled_palcolor = NULL,
                         lineages = NULL, lineages_trim = c(0.01, 0.99), lineages_span = 0.75,
                         lineages_palette = "Dark2", lineages_palcolor = NULL, lineages_arrow = arrow(length = unit(0.1, "inches")),
-                        lineages_line_size = 1, lineages_line_bg = "white", lineages_line_bg_stroke = 0.5,
-                        lineages_whiskers = FALSE, lineages_whiskers_size = 0.5, lineages_whiskers_alpha = 0.5,
+                        lineages_linewidth = 1, lineages_line_bg = "white", lineages_line_bg_stroke = 0.5,
+                        lineages_whiskers = FALSE, lineages_whiskers_linewidth = 0.5, lineages_whiskers_alpha = 0.5,
                         stat.by = NULL, stat_type = "percent", stat_plot_type = "pie", stat_plot_position = c("stack", "dodge"), stat_plot_size = 0.1,
                         stat_plot_palette = "Set1", stat_palcolor = NULL, stat_plot_alpha = 1, stat_plot_label = FALSE, stat_plot_label_size = 3,
                         graph = NULL, edge_size = c(0.05, 0.5), edge_alpha = 0.1, edge_color = "grey40",
@@ -1502,7 +1507,7 @@ CellDimPlot <- function(srt, group.by, reduction = NULL, dims = c(1, 2), split.b
                         velocity_density = 1, velocity_smooth = 0.5, velocity_scale = 1, velocity_min_mass = 1, velocity_cutoff_perc = 5,
                         velocity_arrow_color = "black", velocity_arrow_angle = 20, velocity_arrow_flank = 0.8,
                         streamline_L = 5, streamline_minL = 1, streamline_res = 1, streamline_n = 15,
-                        streamline_size = c(0, 0.8), streamline_alpha = 1, streamline_color = NULL, streamline_palette = "RdYlBu", streamline_palcolor = NULL,
+                        streamlinewidth = c(0, 0.8), streamline_alpha = 1, streamline_color = NULL, streamline_palette = "RdYlBu", streamline_palcolor = NULL,
                         streamline_bg_color = "white", streamline_bg_stroke = 0.5,
                         hex = FALSE, hex.linewidth = 0.5, hex.count = TRUE, hex.bins = 50, hex.binwidth = NULL,
                         raster = NULL, raster.dpi = c(512, 512),
@@ -1608,8 +1613,8 @@ CellDimPlot <- function(srt, group.by, reduction = NULL, dims = c(1, 2), split.b
       lineages = lineages, reduction = reduction, dims = dims,
       trim = lineages_trim, span = lineages_span,
       palette = lineages_palette, palcolor = lineages_palcolor, lineages_arrow = lineages_arrow,
-      line_size = lineages_line_size, line_bg = lineages_line_bg, line_bg_stroke = lineages_line_bg_stroke,
-      whiskers = lineages_whiskers, whiskers_size = lineages_whiskers_size, whiskers_alpha = lineages_whiskers_alpha,
+      linewidth = lineages_linewidth, line_bg = lineages_line_bg, line_bg_stroke = lineages_line_bg_stroke,
+      whiskers = lineages_whiskers, whiskers_linewidth = lineages_whiskers_linewidth, whiskers_alpha = lineages_whiskers_alpha,
       aspect.ratio = aspect.ratio, title = title, subtitle = subtitle, xlab = xlab, ylab = ylab,
       legend.position = "bottom", legend.direction = legend.direction,
       theme_use = theme_void, theme_args = theme_args,
@@ -1644,7 +1649,7 @@ CellDimPlot <- function(srt, group.by, reduction = NULL, dims = c(1, 2), split.b
       n_neighbors = velocity_n_neighbors, density = velocity_density, smooth = velocity_smooth, scale = velocity_scale, min_mass = velocity_min_mass, cutoff_perc = velocity_cutoff_perc,
       arrow_color = velocity_arrow_color, arrow_angle = velocity_arrow_angle, arrow_flank = velocity_arrow_flank,
       streamline_L = streamline_L, streamline_minL = streamline_minL, streamline_res = streamline_res, streamline_n = streamline_n,
-      streamline_size = streamline_size, streamline_alpha = streamline_alpha, streamline_color = streamline_color, streamline_palette = streamline_palette, streamline_palcolor = streamline_palcolor,
+      streamlinewidth = streamlinewidth, streamline_alpha = streamline_alpha, streamline_color = streamline_color, streamline_palette = streamline_palette, streamline_palcolor = streamline_palcolor,
       streamline_bg_color = streamline_bg_color, streamline_bg_stroke = streamline_bg_stroke,
       aspect.ratio = aspect.ratio, title = title, subtitle = subtitle, xlab = xlab, ylab = ylab,
       legend.position = "bottom", legend.direction = legend.direction,
@@ -1987,92 +1992,89 @@ CellDimPlot <- function(srt, group.by, reduction = NULL, dims = c(1, 2), split.b
 #' Plotting cell points on a reduced 2D plane and coloring according to the values of the features.
 #'
 #' @param srt A Seurat object.
-#' @param features Name of one or more metadata columns to group (color) cells by (for example, orig.ident).
-#' @param reduction Which dimensionality reduction to use.
-#' @param split.by Name of a metadata column to split plot by.
-#' @param palette Name of palette to use. Default is "Paired".
-#' @param bg_color Color value for NA points.
+#' @param features Vector of features to plot. Features can be gene names in Assay or names of numeric columns in meta.data.
+#' @param reduction Which dimensionality reduction to use. If not specified, will use the reduction returned by \code{\link{DefaultReduction}}.
+#' @param split.by Name of a column in meta.data to split plot by.
+#' @param palette Name of a color palette name collected in SCP.
+#' @param palcolor Custom colors used to create a color palette.
 #' @param pt.size Point size for plotting.
 #' @param pt.alpha Point transparency.
 #' @param keep_scale How to handle the color scale across multiple plots. Options are:
 #' \itemize{
+#'   \item{NULL (no scaling):}{ Each individual plot is scaled to the maximum expression value of the feature in the condition provided to 'split.by'. Be aware setting NULL will result in color scales that are not comparable between plots.}
 #'   \item{"feature" (default; by row/feature scaling):}{ The plots for each individual feature are scaled to the maximum expression of the feature across the conditions provided to 'split.by'.}
 #'   \item{"all" (universal scaling):}{ The plots for all features and conditions are scaled to the maximum expression value for the feature with the highest overall expression.}
-#'   \item{NULL (no scaling):}{ Each individual plot is scaled to the maximum expression value of the feature in the condition provided to 'split.by'. Be aware setting NULL will result in color scales that are not comparable between plots.}
 #' }
-#' @param cells.highlight A vector of names of cells to highlight.
-#' @param cols.highlight A vector of colors to highlight the cells.
+#' @param cells.highlight A vector of cell names to highlight.
+#' @param cols.highlight Color used to highlight the cells.
 #' @param sizes.highlight Size of highlighted cells.
-#' @param legend.position The position of legends ("none", "left", "right", "bottom", "top", or two-element numeric vector)
+#' @param alpha.highlight Transparency of highlighted cell points.
+#' @param stroke.highlight Border width of highlighted cell points.
+#' @param legend.position The position of legends ("none", "left", "right", "bottom", "top").
 #' @param legend.direction Layout of items in legends ("horizontal" or "vertical")
-#' @param combine Whether to arrange multiple plots into a grid.
-#' @param nrow Number of rows in the plot grid.
-#' @param ncol Number of columns in the plot grid.
+#' @param combine Combine plots into a single \code{patchwork} object. If \code{FALSE}, return a list of ggplot objects.
+#' @param nrow Number of rows in the combined plot.
+#' @param ncol Number of columns in the combined plot.
 #' @param byrow Logical value indicating if the plots should be arrange by row (default) or by column.
-#' @param dims
-#' @param slot
-#' @param assay
-#' @param show_stat
-#' @param palcolor
-#' @param bg_cutoff
-#' @param lower_quantile
-#' @param upper_quantile
-#' @param add_density
-#' @param density_color
-#' @param density_filled
-#' @param density_filled_palette
-#' @param density_filled_palcolor
-#' @param alpha.highlight
-#' @param stroke.highlight
-#' @param calculate_coexp
-#' @param compare_features
-#' @param color_blend_mode
-#' @param label
-#' @param label.size
-#' @param label.fg
-#' @param label.bg
-#' @param label.bg.r
-#' @param label_insitu
-#' @param label_repel
-#' @param label_repulsion
-#' @param label_point_size
-#' @param label_point_color
-#' @param label_segment_color
-#' @param lineages
-#' @param lineages_trim
-#' @param lineages_span
-#' @param lineages_palette
-#' @param lineages_palcolor
-#' @param lineages_arrow
-#' @param lineages_line_size
-#' @param lineages_line_bg
-#' @param lineages_line_bg_stroke
-#' @param lineages_whiskers
-#' @param lineages_whiskers_size
-#' @param lineages_whiskers_alpha
-#' @param graph
-#' @param edge_size
-#' @param edge_alpha
-#' @param edge_color
-#' @param hex
-#' @param hex.color
-#' @param hex.bins
-#' @param hex.binwidth
-#' @param raster
-#' @param raster.dpi
-#' @param theme_use
-#' @param aspect.ratio
-#' @param title
-#' @param subtitle
-#' @param xlab
-#' @param ylab
-#' @param force
-#' @param cells
-#' @param lower_cutoff
-#' @param upper_cutoff
-#' @param hex.linewidth
-#' @param theme_args
-#' @param seed
+#' @param dims Dimensions to plot, must be a two-length numeric vector specifying x- and y-dimensions.
+#' @param slot Which slot to pull expression data from? Default is \code{data}.
+#' @param assay Which assay to pull expression data from. If \code{NULL}, will use the assay returned by \code{\link{DefaultAssay}}.
+#' @param show_stat Whether to show statistical information on the plot.
+#' @param calculate_coexp Whether to calculate the co-expression value (geometric mean) of the features.
+#' @param compare_features Whether to show the values of multiple features on a single plot.
+#' @param color_blend_mode Blend mode to use when \code{compare_features = TRUE}
+#' @param bg_cutoff Background cutoff. Points with feature values lower than the cutoff will be considered as background and will be colored with \code{bg_color}.
+#' @param bg_color Color value for background points.
+#' @param lower_quantile,upper_quantile,lower_cutoff,upper_cutoff Vector of minimum and maximum cutoff values or quantile values for each feature.
+#' @param add_density Whether to add a density layer on the plot.
+#' @param density_color Color of the density contours lines.
+#' @param density_filled Whether to add filled contour bands instead of contour lines.
+#' @param density_filled_palette Color palette used to fill contour bands.
+#' @param density_filled_palcolor Custom colors used to fill contour bands.
+#' @param label Whether the feature name is labeled in the center of the location of cells wieh high expression.
+#' @param label.size Size of labels.
+#' @param label.fg Foreground color of label.
+#' @param label.bg Background color of label.
+#' @param label.bg.r Background ratio of label.
+#' @param label_insitu Whether the labels is feature names instead of numbers. Valid only when \code{compare_features = TRUE}.
+#' @param label_repel Logical value indicating whether the label is repel away from the center location.
+#' @param label_repulsion Force of repulsion between overlapping text labels. Defaults to 20.
+#' @param label_point_size Size of the center points.
+#' @param label_point_color Color of the center points
+#' @param label_segment_color Color of the line segment for labels.
+#' @param lineages Lineages/pseudotime to add to the plot. If specified, curves will be fitted using \code{\link[stats]{loess}} method.
+#' @param lineages_trim Trim the leading and the trailing data in the lineages.
+#' @param lineages_span The parameter α which controls the degree of smoothing in \code{\link[stats]{loess}} method.
+#' @param lineages_palette Color palette used for lineages.
+#' @param lineages_palcolor Custom colors used for lineages.
+#' @param lineages_arrow Set arrows of the lineages. See \code{\link[grid]{arrow}}.
+#' @param lineages_linewidth Width of fitted curve lines for lineages.
+#' @param lineages_line_bg Background color of curve lines for lineages.
+#' @param lineages_line_bg_stroke Border width of curve lines background.
+#' @param lineages_whiskers Whether to add whiskers for lineages.
+#' @param lineages_whiskers_linewidth Width of whiskers for lineages.
+#' @param lineages_whiskers_alpha Transparency of whiskers for lineages.
+#' @param graph Specify the graph name to add edges between cell neighbors to the plot.
+#' @param edge_size Size of edges.
+#' @param edge_alpha Transparency of edges.
+#' @param edge_color Color of edges.
+#' @param hex Whether to chane the plot type from point to the hexagonal bin.
+#' @param hex.bins Number of hexagonal bins.
+#' @param hex.binwidth Hexagonal bin width.
+#' @param hex.color Border color of hexagonal bins.
+#' @param hex.linewidth Border width of hexagonal bins.
+#' @param raster Convert points to raster format, default is NULL which automatically rasterizes if plotting more than 100,000 cells
+#' @param raster.dpi Pixel resolution for rasterized plots, passed to geom_scattermore(). Default is c(512, 512).
+#' @param theme_use Theme used. Can be a character string or a theme function. For example, \code{"theme_blank"} or \code{ggplot2::theme_classic}.
+#' @param aspect.ratio Aspect ratio of the panel.
+#' @param title The text for the title.
+#' @param subtitle The text for the subtitle for the plot which will be displayed below the title.
+#' @param xlab x-axis label.
+#' @param ylab y-axis label.
+#' @param force Whether to force drawing regardless of the number of features greater than 100.
+#' @param cells Subset cells to plot.
+#' @param theme_args Other arguments passed to the \code{theme_use}.
+#' @param seed Random seed set for reproducibility
 #'
 #' @return A single ggplot object if combine = TRUE; otherwise, a list of ggplot objects
 #'
@@ -2169,8 +2171,8 @@ FeatureDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), spli
                            label_point_size = 1, label_point_color = "black", label_segment_color = "black",
                            lineages = NULL, lineages_trim = c(0.01, 0.99), lineages_span = 0.75,
                            lineages_palette = "Dark2", lineages_palcolor = NULL, lineages_arrow = arrow(length = unit(0.1, "inches")),
-                           lineages_line_size = 1, lineages_line_bg = "white", lineages_line_bg_stroke = 0.5,
-                           lineages_whiskers = FALSE, lineages_whiskers_size = 0.5, lineages_whiskers_alpha = 0.5,
+                           lineages_linewidth = 1, lineages_line_bg = "white", lineages_line_bg_stroke = 0.5,
+                           lineages_whiskers = FALSE, lineages_whiskers_linewidth = 0.5, lineages_whiskers_alpha = 0.5,
                            graph = NULL, edge_size = c(0.05, 0.5), edge_alpha = 0.1, edge_color = "grey40",
                            hex = FALSE, hex.linewidth = 0.5, hex.color = "grey90", hex.bins = 50, hex.binwidth = NULL,
                            raster = NULL, raster.dpi = c(512, 512),
@@ -2317,8 +2319,8 @@ FeatureDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), spli
       lineages = lineages, reduction = reduction, dims = dims,
       trim = lineages_trim, span = lineages_span,
       palette = lineages_palette, palcolor = lineages_palcolor, lineages_arrow = lineages_arrow,
-      line_size = lineages_line_size, line_bg = lineages_line_bg, line_bg_stroke = lineages_line_bg_stroke,
-      whiskers = lineages_whiskers, whiskers_size = lineages_whiskers_size, whiskers_alpha = lineages_whiskers_alpha,
+      linewidth = lineages_linewidth, line_bg = lineages_line_bg, line_bg_stroke = lineages_line_bg_stroke,
+      whiskers = lineages_whiskers, whiskers_linewidth = lineages_whiskers_linewidth, whiskers_alpha = lineages_whiskers_alpha,
       aspect.ratio = aspect.ratio, title = title, subtitle = subtitle, xlab = xlab, ylab = ylab,
       legend.position = legend.position, legend.direction = legend.direction,
       theme_use = theme_void, theme_args = theme_args,
@@ -2422,10 +2424,10 @@ FeatureDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), spli
           density <- list(
             stat_density_2d(
               geom = "raster", aes(x = .data[["x"]], y = .data[["y"]], fill = after_stat(density)),
-              contour = FALSE,
-              inherit.aes = FALSE
+              contour = FALSE, inherit.aes = FALSE, show.legend = FALSE
             ),
-            scale_fill_gradientn(name = "Density", colours = filled_color)
+            scale_fill_gradientn(name = "Density", colours = filled_color),
+            new_scale_fill()
           )
         } else {
           density <- geom_density_2d(aes(x = .data[["x"]], y = .data[["y"]]),
@@ -2701,10 +2703,10 @@ FeatureDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), spli
           density <- list(
             stat_density_2d(
               geom = "raster", aes(x = .data[["x"]], y = .data[["y"]], fill = after_stat(density)),
-              contour = FALSE,
-              inherit.aes = FALSE
+              contour = FALSE, inherit.aes = FALSE, show.legend = FALSE
             ),
-            scale_fill_gradientn(name = "Density", colours = filled_color)
+            scale_fill_gradientn(name = "Density", colours = filled_color),
+            new_scale_fill()
           )
         } else {
           density <- geom_density_2d(aes(x = .data[["x"]], y = .data[["y"]]),
@@ -2803,11 +2805,11 @@ FeatureDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), spli
       }
       if (all(is.na(dat[["value"]]))) {
         p <- p + scale_colour_gradient(
-          name = "", na.value = bg_color, aesthetics = c("color", "fill")
+          name = "", na.value = bg_color, aesthetics = c("color")
         )
       } else {
         p <- p + scale_color_gradientn(
-          name = "", colours = colors, values = rescale(colors_value), limits = range(colors_value), na.value = bg_color, aesthetics = c("color", "fill")
+          name = "", colours = colors, values = rescale(colors_value), limits = range(colors_value), na.value = bg_color, aesthetics = c("color")
         )
       }
       p <- p + guides(
@@ -2901,7 +2903,7 @@ FeatureDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), spli
 #' CellDimPlot3D(pancreas_sub, group.by = "SubCellType", reduction = "StandardpcaUMAP3D")
 #'
 #' pancreas_sub <- RunSlingshot(pancreas_sub, group.by = "SubCellType", reduction = "StandardpcaUMAP3D")
-#' CellDimPlot3D(pancreas_sub, group.by = "SubCellType", reduction = "StandardpcaUMAP3D", lineages = paste0("Lineage", 1:3))
+#' CellDimPlot3D(pancreas_sub, group.by = "SubCellType", reduction = "StandardpcaUMAP3D", lineages = "Lineage1")
 #' @importFrom Seurat Reductions Embeddings Key
 #' @importFrom utils askYesNo
 #' @export
@@ -3414,7 +3416,6 @@ FeatureDimPlot3D <- function(srt, features = NULL, reduction = NULL, dims = c(1,
 #' Statistical plot of features
 #'
 #' @param srt
-#' @param features
 #' @param group.by
 #' @param split.by
 #' @param bg.by
@@ -3429,7 +3430,6 @@ FeatureDimPlot3D <- function(srt, features = NULL, reduction = NULL, dims = c(1,
 #' @param bg_palcolor
 #' @param bg_apha
 #' @param add_box
-#' @param box_fill
 #' @param box_width
 #' @param add_point
 #' @param pt.color
@@ -3446,8 +3446,6 @@ FeatureDimPlot3D <- function(srt, features = NULL, reduction = NULL, dims = c(1,
 #' @param same.y.lims
 #' @param y.trans
 #' @param sort
-#' @param adjust
-#' @param split.plot
 #' @param stack
 #' @param fill.by
 #' @param flip
@@ -3468,13 +3466,21 @@ FeatureDimPlot3D <- function(srt, features = NULL, reduction = NULL, dims = c(1,
 #' @param nrow
 #' @param ncol
 #' @param byrow
-#' @param align
-#' @param axis
 #' @param force
 #' @param stat_single
 #' @param plot_type
 #' @param y.nbreaks
 #' @param y.min
+#' @param stat.by
+#' @param box_color
+#' @param box_ptsize
+#' @param add_trend
+#' @param trend_color
+#' @param trend_linewidth
+#' @param trend_ptsize
+#' @param sig_label
+#' @param theme_args
+#' @param seed
 #'
 #' @examples
 #' library(dplyr)
@@ -3516,7 +3522,7 @@ FeatureDimPlot3D <- function(srt, features = NULL, reduction = NULL, dims = c(1,
 #'   ),
 #'   fill.by = "feature", plot_type = "box",
 #'   group.by = "SubCellType", bg.by = "CellType", stack = TRUE, flip = TRUE
-#' ) %>% panel_fix_single(width = 10, height = 5) # Because the plot is made by combining, we want to adjust the overall height and width
+#' ) %>% panel_fix_single(width = 8, height = 5) # Because the plot is made by combining, we want to adjust the overall height and width
 #' @importFrom Seurat DefaultAssay GetAssayData
 #' @importFrom gtable gtable_add_cols gtable_add_rows gtable_add_grob gtable_add_padding
 #' @importFrom ggplot2 geom_blank geom_violin geom_rect geom_boxplot geom_count geom_col geom_vline geom_hline layer_data layer_scales position_jitterdodge position_dodge stat_summary scale_x_discrete element_line element_text element_blank annotate mean_sdl after_stat
@@ -4263,13 +4269,17 @@ FeatureStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.b
 #' @param nrow
 #' @param ncol
 #' @param byrow
-#' @param align
-#' @param axis
 #' @param force
 #' @param flip
 #' @param NA_color
 #' @param NA_stat
 #' @param stat_level
+#' @param bg.by
+#' @param bg_palette
+#' @param bg_palcolor
+#' @param bg_apha
+#' @param theme_args
+#' @param seed
 #'
 #' @examples
 #' library(dplyr)
@@ -4389,9 +4399,13 @@ CellStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.by =
 #' @param nrow
 #' @param ncol
 #' @param byrow
-#' @param align
-#' @param axis
 #' @param force
+#' @param bg.by
+#' @param bg_palette
+#' @param bg_palcolor
+#' @param bg_apha
+#' @param theme_args
+#' @param seed
 #'
 #' @examples
 #' data("pancreas_sub")
@@ -5054,10 +5068,11 @@ StatPlot <- function(meta.data, stat.by, group.by = NULL, split.by = NULL, bg.by
 #' @param nrow
 #' @param ncol
 #' @param byrow
-#' @param align
-#' @param axis
 #' @param force
 #' @param cells
+#' @param aspect.ratio
+#' @param theme_args
+#' @param seed
 #'
 #' @examples
 #' data("pancreas_sub")
@@ -5535,7 +5550,7 @@ CellDensityPlot <- function(srt, features, group.by, split.by = NULL, assay = NU
   }
   if (is.null(split.by)) {
     split.by <- "All_cells"
-    srt@meta.data[[split.by]] <- factor(" ")
+    srt@meta.data[[split.by]] <- factor("")
   }
   for (i in c(group.by, split.by)) {
     if (!i %in% colnames(srt@meta.data)) {
@@ -5711,11 +5726,11 @@ CellDensityPlot <- function(srt, features, group.by, split.by = NULL, assay = NU
 #' @param palette
 #' @param palcolor
 #' @param lineages_arrow
-#' @param line_size
+#' @param linewidth
 #' @param line_bg
 #' @param line_bg_stroke
 #' @param whiskers
-#' @param whiskers_size
+#' @param whiskers_linewidth
 #' @param whiskers_alpha
 #' @param theme_use
 #' @param aspect.ratio
@@ -5723,13 +5738,12 @@ CellDensityPlot <- function(srt, features, group.by, split.by = NULL, assay = NU
 #' @param subtitle
 #' @param xlab
 #' @param ylab
-#' @param lab_cex
-#' @param xlen_npc
-#' @param ylen_npc
 #' @param legend.position
 #' @param legend.direction
 #' @param return_layer
 #' @param cells
+#' @param theme_args
+#' @param seed
 #'
 #' @examples
 #' data("pancreas_sub")
@@ -5743,8 +5757,8 @@ CellDensityPlot <- function(srt, features, group.by, split.by = NULL, assay = NU
 LineagePlot <- function(srt, lineages, reduction = NULL, dims = c(1, 2), cells = NULL,
                         trim = c(0.01, 0.99), span = 0.75,
                         palette = "Dark2", palcolor = NULL, lineages_arrow = arrow(length = unit(0.1, "inches")),
-                        line_size = 1, line_bg = "white", line_bg_stroke = 0.5,
-                        whiskers = FALSE, whiskers_size = 0.5, whiskers_alpha = 0.5,
+                        linewidth = 1, line_bg = "white", line_bg_stroke = 0.5,
+                        whiskers = FALSE, whiskers_linewidth = 0.5, whiskers_alpha = 0.5,
                         aspect.ratio = 1, title = NULL, subtitle = NULL, xlab = NULL, ylab = NULL,
                         legend.position = "right", legend.direction = "vertical",
                         theme_use = "theme_scp", theme_args = list(),
@@ -5806,7 +5820,7 @@ LineagePlot <- function(srt, lineages, reduction = NULL, dims = c(1, 2), cells =
       dat_smooth[, "raw_Axis_2"] <- dat[dat_smooth[, "index"], axes[2]]
       curve <- c(curve, geom_segment(
         data = dat_smooth, mapping = aes(x = Axis_1, y = Axis_2, xend = raw_Axis_1, yend = raw_Axis_2, color = Lineages),
-        linewidth = whiskers_size, alpha = whiskers_alpha,
+        linewidth = whiskers_linewidth, alpha = whiskers_alpha,
         show.legend = TRUE, inherit.aes = FALSE
       ))
     }
@@ -5814,12 +5828,12 @@ LineagePlot <- function(srt, lineages, reduction = NULL, dims = c(1, 2), cells =
       curve,
       geom_path(
         data = dat_smooth, mapping = aes(x = Axis_1, y = Axis_2), color = line_bg,
-        linewidth = line_size + line_bg_stroke, arrow = lineages_arrow,
+        linewidth = linewidth + line_bg_stroke, arrow = lineages_arrow,
         show.legend = TRUE, inherit.aes = FALSE
       ),
       geom_path(
         data = dat_smooth, mapping = aes(x = Axis_1, y = Axis_2, color = Lineages),
-        linewidth = line_size, arrow = lineages_arrow,
+        linewidth = linewidth, arrow = lineages_arrow,
         show.legend = TRUE, inherit.aes = FALSE
       )
     )
@@ -5905,15 +5919,13 @@ LineagePlot <- function(srt, lineages, reduction = NULL, dims = c(1, 2), cells =
 #' @param subtitle
 #' @param xlab
 #' @param ylab
-#' @param lab_cex
-#' @param xlen_npc
-#' @param ylen_npc
 #' @param legend.position
 #' @param legend.direction
 #' @param return_layer
 #' @param type
 #' @param cells
 #' @param node_palcolor
+#' @param theme_args
 #'
 #' @examples
 #' data("pancreas_sub")
@@ -6086,13 +6098,11 @@ PAGAPlot <- function(srt, paga = srt@misc$paga, type = "connectivities",
 #' @param subtitle
 #' @param xlab
 #' @param ylab
-#' @param lab_cex
-#' @param xlen_npc
-#' @param ylen_npc
 #' @param legend.position
 #' @param legend.direction
 #' @param return_layer
 #' @param node_palcolor
+#' @param theme_args
 #'
 #' @importFrom ggplot2 scale_size_identity scale_size_continuous scale_size_discrete scale_alpha_identity scale_alpha_continuous scale_alpha_discrete geom_curve geom_segment geom_point scale_color_manual guide_legend guides labs aes scale_linewidth_continuous
 #' @importFrom ggnewscale new_scale
@@ -6515,7 +6525,7 @@ segementsDf <- function(data, shorten_start, shorten_end, offset) {
 #' @param streamline_minL
 #' @param streamline_res
 #' @param streamline_n
-#' @param streamline_size
+#' @param streamlinewidth
 #' @param streamline_alpha
 #' @param streamline_color
 #' @param streamline_palette
@@ -6528,15 +6538,13 @@ segementsDf <- function(data, shorten_start, shorten_end, offset) {
 #' @param subtitle
 #' @param xlab
 #' @param ylab
-#' @param lab_cex
-#' @param xlen_npc
-#' @param ylen_npc
 #' @param legend.position
 #' @param legend.direction
 #' @param return_layer
 #' @param cells
 #' @param group_palcolor
 #' @param seed
+#' @param theme_args
 #'
 #' @examples
 #' data("pancreas_sub")
@@ -6556,7 +6564,7 @@ VelocityPlot <- function(srt, reduction, dims = c(1, 2), cells = NULL, velocity 
                          n_neighbors = ceiling(ncol(srt@assays[[1]]) / 50), density = 1, smooth = 0.5, scale = 1, min_mass = 1, cutoff_perc = 5,
                          arrow_angle = 20, arrow_flank = 0.8, arrow_color = "black",
                          streamline_L = 5, streamline_minL = 1, streamline_res = 1, streamline_n = 15,
-                         streamline_size = c(0, 0.8), streamline_alpha = 1, streamline_color = NULL, streamline_palette = "RdYlBu", streamline_palcolor = NULL,
+                         streamlinewidth = c(0, 0.8), streamline_alpha = 1, streamline_color = NULL, streamline_palette = "RdYlBu", streamline_palcolor = NULL,
                          streamline_bg_color = "white", streamline_bg_stroke = 0.5,
                          aspect.ratio = 1, title = "Cell velocity", subtitle = NULL, xlab = NULL, ylab = NULL,
                          legend.position = "right", legend.direction = "vertical",
@@ -6700,14 +6708,14 @@ VelocityPlot <- function(srt, reduction, dims = c(1, 2), cells = NULL, velocity 
         metR::geom_streamline(
           data = df_field, aes(x = x, y = y, dx = u, dy = v),
           L = streamline_L, min.L = streamline_minL, res = streamline_res,
-          n = streamline_n, size = max(streamline_size, na.rm = TRUE) + streamline_bg_stroke, color = streamline_bg_color, alpha = streamline_alpha,
+          n = streamline_n, size = max(streamlinewidth, na.rm = TRUE) + streamline_bg_stroke, color = streamline_bg_color, alpha = streamline_alpha,
           arrow.type = "closed", arrow.angle = arrow_angle,
           lineend = "round", linejoin = "mitre", inherit.aes = FALSE
         ),
         metR::geom_streamline(
           data = df_field, aes(x = x, y = y, dx = u, dy = v),
           L = streamline_L, min.L = streamline_minL, res = streamline_res,
-          n = streamline_n, size = max(streamline_size, na.rm = TRUE), color = streamline_color, alpha = streamline_alpha,
+          n = streamline_n, size = max(streamlinewidth, na.rm = TRUE), color = streamline_color, alpha = streamline_alpha,
           arrow.type = "closed", arrow.angle = arrow_angle,
           lineend = "round", linejoin = "mitre", inherit.aes = FALSE
         ),
@@ -6724,7 +6732,7 @@ VelocityPlot <- function(srt, reduction, dims = c(1, 2), cells = NULL, velocity 
         metR::geom_streamline(
           data = df_field, aes(x = x, y = y, dx = u, dy = v),
           L = streamline_L, min.L = streamline_minL, res = streamline_res,
-          n = streamline_n, size = max(streamline_size, na.rm = TRUE) + streamline_bg_stroke, color = streamline_bg_color, alpha = streamline_alpha,
+          n = streamline_n, size = max(streamlinewidth, na.rm = TRUE) + streamline_bg_stroke, color = streamline_bg_color, alpha = streamline_alpha,
           arrow.type = "closed", arrow.angle = arrow_angle,
           lineend = "round", linejoin = "mitre", inherit.aes = FALSE
         ),
@@ -6745,7 +6753,7 @@ VelocityPlot <- function(srt, reduction, dims = c(1, 2), cells = NULL, velocity 
           name = "Velocity", colors = palette_scp(palette = streamline_palette, palcolor = streamline_palcolor),
           guide = guide_colorbar(frame.colour = "black", ticks.colour = "black", barheight = 4, barwidth = 1, title.hjust = 0, order = 1)
         ),
-        scale_size(range = range(streamline_size), guide = "none")
+        scale_size(range = range(streamlinewidth), guide = "none")
       )
     }
   }
@@ -6892,9 +6900,9 @@ compute_velocity_on_grid <- function(X_emb, V_emb,
 #' @param combine
 #' @param nrow
 #' @param ncol
+#' @param theme_use
+#' @param theme_args
 #' @param byrow
-#' @param align
-#' @param axis
 #'
 #' @examples
 #' data("pancreas_sub")
@@ -7489,7 +7497,6 @@ heatmap_enrichment <- function(geneID, geneID_groups, feature_split_palette = "j
 #' @param TERM2NAME
 #' @param minGSSize
 #' @param maxGSSize
-#' @param universe
 #' @param GO_simplify
 #' @param GO_simplify_cutoff
 #' @param simplify_method
@@ -7538,6 +7545,9 @@ heatmap_enrichment <- function(geneID, geneID_groups, feature_split_palette = "j
 #' @param numerator
 #' @param limits
 #' @param raster_by_magick
+#' @param fuzzification
+#' @param show_fuzzification
+#' @param db_combine
 #'
 #' @examples
 #' library(dplyr)
@@ -7554,7 +7564,7 @@ heatmap_enrichment <- function(geneID, geneID_groups, feature_split_palette = "j
 #'   show_row_names = TRUE
 #' )
 #' ht1$plot
-#' panel_fix(ht1$plot, height = 4, width = 6, raster = TRUE, dpi = 50)
+#' panel_fix(ht1$plot, height = 3, width = 6, raster = TRUE, dpi = 50)
 #'
 #' pancreas_sub <- RunDEtest(pancreas_sub, group_by = "CellType")
 #' de_filter <- filter(pancreas_sub@tools$DEtest_CellType$AllMarkers_wilcox, p_val_adj < 0.05 & avg_log2FC > 1)
@@ -8633,44 +8643,55 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
     fix <- FALSE
   }
   if (is.null(height)) {
-    height_sum <- convertHeight(max(unit(0.9, "npc"), unit(1, "in")), units, valueOnly = TRUE)
-  } else if (flip) {
-    height_sum <- sum(height)
-  } else {
-    height_sum <- height[1]
+    height <- convertHeight(unit(0.8, "npc"), units, valueOnly = TRUE)
+    height <- setNames(rep(height, length(group.by)), group.by)
   }
   if (is.null(width)) {
-    width_sum <- convertWidth(max(unit(0.1, "npc"), unit(1, "in")), units, valueOnly = TRUE)
-  } else if (flip) {
+    width <- convertWidth(unit(0.8, "npc"), units, valueOnly = TRUE)
+    width <- setNames(rep(width, length(group.by)), group.by)
+  }
+  width_annotation <- height_annotation <- 0
+  if (isTRUE(flip)) {
     width_sum <- width[1]
+    height_sum <- sum(height)
+    if (length(ha_top_list) > 0) {
+      width_annotation <- convertWidth(unit(width_annotation, units) + width.HeatmapAnnotation(ha_top_list[[1]]), units, valueOnly = TRUE)
+    }
+    if (!is.null(ha_left)) {
+      height_annotation <- convertHeight(unit(height_annotation, units) + height.HeatmapAnnotation(ha_left), units, valueOnly = TRUE)
+    }
+    if (!is.null(ha_right)) {
+      height_annotation <- convertHeight(unit(height_annotation, units) + height.HeatmapAnnotation(ha_right), units, valueOnly = TRUE)
+    }
   } else {
     width_sum <- sum(width)
-  }
-  if (isTRUE(flip)) {
+    height_sum <- height[1]
     if (length(ha_top_list) > 0) {
-      width_sum <- convertWidth(unit(width_sum, units) + width.HeatmapAnnotation(ha_top_list[[1]]), units, valueOnly = TRUE)
+      height_annotation <- convertHeight(unit(height_annotation, units) + height.HeatmapAnnotation(ha_top_list[[1]]), units, valueOnly = TRUE)
     }
     if (!is.null(ha_left)) {
-      height_sum <- convertHeight(unit(height_sum, units) + height.HeatmapAnnotation(ha_left), units, valueOnly = TRUE)
+      width_annotation <- convertWidth(unit(width_annotation, units) + width.HeatmapAnnotation(ha_left), units, valueOnly = TRUE)
     }
     if (!is.null(ha_right)) {
-      height_sum <- convertHeight(unit(height_sum, units) + height.HeatmapAnnotation(ha_right), units, valueOnly = TRUE)
-    }
-  } else {
-    if (length(ha_top_list) > 0) {
-      height_sum <- convertHeight(unit(height_sum, units) + height.HeatmapAnnotation(ha_top_list[[1]]), units, valueOnly = TRUE)
-    }
-    if (!is.null(ha_left)) {
-      width_sum <- convertWidth(unit(width_sum, units) + width.HeatmapAnnotation(ha_left), units, valueOnly = TRUE)
-    }
-    if (!is.null(ha_right)) {
-      width_sum <- convertWidth(unit(width_sum, units) + width.HeatmapAnnotation(ha_right), units, valueOnly = TRUE)
+      width_annotation <- convertWidth(unit(width_annotation, units) + width.HeatmapAnnotation(ha_right), units, valueOnly = TRUE)
     }
   }
   lgd_width <- convertWidth(unit(unlist(lapply(lgd, width.Legends)), unitType(width.Legends(lgd[[1]]))), unitTo = units, valueOnly = TRUE)
-  width_sum <- convertWidth(unit(width_sum, units = units) + unit(sum(lgd_width), units = units), units, valueOnly = TRUE)
-  width_default <- convertWidth(unit(width_sum, units = units) + unit(max(lgd_width), units = units), units, valueOnly = TRUE)
+  height_sum <- convertHeight(unit(height_sum, units) + unit(height_annotation, units), units, valueOnly = TRUE)
+  width_sum <- convertWidth(unit(width_sum, units) + unit(width_annotation, units), units, valueOnly = TRUE)
+  height_sum <- max(
+    min(height_sum, convertHeight(unit(0.95, "npc"), units, valueOnly = TRUE)),
+    max(height_annotation, convertHeight(unit(3, "in"), units, valueOnly = TRUE))
+  )
+  width_sum <- max(
+    min(width_sum, convertWidth(unit(0.95, "npc"), units, valueOnly = TRUE)),
+    max(width_annotation + sum(lgd_width), convertHeight(unit(3, "in"), units, valueOnly = TRUE))
+  )
 
+  # cat("width:",width,"\n")
+  # cat("height:",height,"\n")
+  # cat("width_sum:",width_sum,"\n")
+  # cat("height_sum:",height_sum,"\n")
   if (isTRUE(fix)) {
     gTree <- grid.grabExpr(
       {
@@ -8693,13 +8714,15 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
       wrap.grobs = TRUE
     )
     if (unitType(ht_width) == "npc") {
-      ht_width <- unit(width_default, units = units)
+      ht_width <- unit(width_sum, units = units)
     }
     if (unitType(ht_height) == "npc") {
       ht_height <- unit(height_sum, units = units)
     }
     ht_width <- convertUnit(ht_width, unitTo = units)
     ht_height <- convertUnit(ht_height, unitTo = units)
+    # cat("ht_width:",ht_width,"\n")
+    # cat("ht_height:",ht_height,"\n")
     gTree <- grid.grabExpr(
       {
         draw(ht_list, annotation_legend_list = lgd)
@@ -8721,7 +8744,7 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
       wrap.grobs = TRUE
     )
   } else {
-    ht_width <- unit(width_default, units = units)
+    ht_width <- unit(width_sum, units = units)
     ht_height <- unit(height_sum, units = units)
     gTree <- grid.grabExpr(
       {
@@ -8794,7 +8817,6 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
 #' @param TERM2NAME
 #' @param minGSSize
 #' @param maxGSSize
-#' @param universe
 #' @param GO_simplify
 #' @param GO_simplify_cutoff
 #' @param simplify_method
@@ -8861,6 +8883,9 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
 #' @param ht_params
 #' @param limits
 #' @param raster_by_magick
+#' @param fuzzification
+#' @param show_fuzzification
+#' @param db_combine
 #'
 #' @examples
 #' library(dplyr)
@@ -8872,7 +8897,7 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
 #'   split.by = "Phase", cell_split_palette = "Dark2",
 #' )
 #' ht1$plot
-#' panel_fix(ht1$plot, height = 5, width = 7, raster = TRUE, dpi = 50)
+#' panel_fix(ht1$plot, height = 3, width = 6, raster = TRUE, dpi = 50)
 #'
 #' ht2 <- FeatureHeatmap(
 #'   srt = pancreas_sub, features = de_filter$gene, group.by = c("CellType", "SubCellType"), n_split = 4,
@@ -9670,44 +9695,55 @@ FeatureHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, 
     fix <- FALSE
   }
   if (is.null(height)) {
-    height_sum <- convertHeight(max(unit(0.9, "npc"), unit(1, "in")), units, valueOnly = TRUE)
-  } else if (flip) {
-    height_sum <- sum(height)
-  } else {
-    height_sum <- height[1]
+    height <- convertHeight(unit(0.8, "npc"), units, valueOnly = TRUE)
+    height <- setNames(rep(height, length(group.by)), group.by)
   }
   if (is.null(width)) {
-    width_sum <- convertWidth(max(unit(0.1, "npc"), unit(1, "in")), units, valueOnly = TRUE)
-  } else if (flip) {
+    width <- convertWidth(unit(0.8, "npc"), units, valueOnly = TRUE)
+    width <- setNames(rep(width, length(group.by)), group.by)
+  }
+  width_annotation <- height_annotation <- 0
+  if (isTRUE(flip)) {
     width_sum <- width[1]
+    height_sum <- sum(height)
+    if (length(ha_top_list) > 0) {
+      width_annotation <- convertWidth(unit(width_annotation, units) + width.HeatmapAnnotation(ha_top_list[[1]]), units, valueOnly = TRUE)
+    }
+    if (!is.null(ha_left)) {
+      height_annotation <- convertHeight(unit(height_annotation, units) + height.HeatmapAnnotation(ha_left), units, valueOnly = TRUE)
+    }
+    if (!is.null(ha_right)) {
+      height_annotation <- convertHeight(unit(height_annotation, units) + height.HeatmapAnnotation(ha_right), units, valueOnly = TRUE)
+    }
   } else {
     width_sum <- sum(width)
-  }
-  if (isTRUE(flip)) {
+    height_sum <- height[1]
     if (length(ha_top_list) > 0) {
-      width_sum <- convertWidth(unit(width_sum, units) + width.HeatmapAnnotation(ha_top_list[[1]]), units, valueOnly = TRUE)
+      height_annotation <- convertHeight(unit(height_annotation, units) + height.HeatmapAnnotation(ha_top_list[[1]]), units, valueOnly = TRUE)
     }
     if (!is.null(ha_left)) {
-      height_sum <- convertHeight(unit(height_sum, units) + height.HeatmapAnnotation(ha_left), units, valueOnly = TRUE)
+      width_annotation <- convertWidth(unit(width_annotation, units) + width.HeatmapAnnotation(ha_left), units, valueOnly = TRUE)
     }
     if (!is.null(ha_right)) {
-      height_sum <- convertHeight(unit(height_sum, units) + height.HeatmapAnnotation(ha_right), units, valueOnly = TRUE)
-    }
-  } else {
-    if (length(ha_top_list) > 0) {
-      height_sum <- convertHeight(unit(height_sum, units) + height.HeatmapAnnotation(ha_top_list[[1]]), units, valueOnly = TRUE)
-    }
-    if (!is.null(ha_left)) {
-      width_sum <- convertWidth(unit(width_sum, units) + width.HeatmapAnnotation(ha_left), units, valueOnly = TRUE)
-    }
-    if (!is.null(ha_right)) {
-      width_sum <- convertWidth(unit(width_sum, units) + width.HeatmapAnnotation(ha_right), units, valueOnly = TRUE)
+      width_annotation <- convertWidth(unit(width_annotation, units) + width.HeatmapAnnotation(ha_right), units, valueOnly = TRUE)
     }
   }
   lgd_width <- convertWidth(unit(unlist(lapply(lgd, width.Legends)), unitType(width.Legends(lgd[[1]]))), unitTo = units, valueOnly = TRUE)
-  width_sum <- convertWidth(unit(width_sum, units = units) + unit(sum(lgd_width), units = units), units, valueOnly = TRUE)
-  width_default <- convertWidth(unit(width_sum, units = units) + unit(max(lgd_width), units = units), units, valueOnly = TRUE)
+  height_sum <- convertHeight(unit(height_sum, units) + unit(height_annotation, units), units, valueOnly = TRUE)
+  width_sum <- convertWidth(unit(width_sum, units) + unit(width_annotation, units), units, valueOnly = TRUE)
+  height_sum <- max(
+    min(height_sum, convertHeight(unit(0.95, "npc"), units, valueOnly = TRUE)),
+    max(height_annotation, convertHeight(unit(3, "in"), units, valueOnly = TRUE))
+  )
+  width_sum <- max(
+    min(width_sum, convertWidth(unit(0.95, "npc"), units, valueOnly = TRUE)),
+    max(width_annotation + sum(lgd_width), convertHeight(unit(3, "in"), units, valueOnly = TRUE))
+  )
 
+  # cat("width:",width,"\n")
+  # cat("height:",height,"\n")
+  # cat("width_sum:",width_sum,"\n")
+  # cat("height_sum:",height_sum,"\n")
   if (isTRUE(fix)) {
     gTree <- grid.grabExpr(
       {
@@ -9730,13 +9766,15 @@ FeatureHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, 
       wrap.grobs = TRUE
     )
     if (unitType(ht_width) == "npc") {
-      ht_width <- unit(width_default, units = units)
+      ht_width <- unit(width_sum, units = units)
     }
     if (unitType(ht_height) == "npc") {
       ht_height <- unit(height_sum, units = units)
     }
     ht_width <- convertUnit(ht_width, unitTo = units)
     ht_height <- convertUnit(ht_height, unitTo = units)
+    # cat("ht_width:",ht_width,"\n")
+    # cat("ht_height:",ht_height,"\n")
     gTree <- grid.grabExpr(
       {
         draw(ht_list, annotation_legend_list = lgd)
@@ -9758,7 +9796,7 @@ FeatureHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, 
       wrap.grobs = TRUE
     )
   } else {
-    ht_width <- unit(width_default, units = units)
+    ht_width <- unit(width_sum, units = units)
     ht_height <- unit(height_sum, units = units)
     gTree <- grid.grabExpr(
       {
@@ -10621,37 +10659,42 @@ CellCorHeatmap <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
     fix <- FALSE
   }
   if (is.null(height)) {
-    height_sum <- convertHeight(max(unit(0.9, "npc"), unit(1, "in")), units, valueOnly = TRUE)
-  } else if (flip) {
-    height_sum <- sum(height)
-  } else {
-    height_sum <- height[1]
+    height <- convertHeight(unit(0.8, "npc"), units, valueOnly = TRUE)
   }
   if (is.null(width)) {
-    width_sum <- convertWidth(max(unit(0.1, "npc"), unit(1, "in")), units, valueOnly = TRUE)
-  } else if (flip) {
+    width <- convertWidth(unit(0.8, "npc"), units, valueOnly = TRUE)
+  }
+  width_annotation <- height_annotation <- 0
+  if (isTRUE(flip)) {
     width_sum <- width[1]
+    height_sum <- sum(height)
+    if (length(ha_query_list) > 0) {
+      height_annotation <- convertHeight(unit(height_annotation, units) + height.HeatmapAnnotation(ha_query_list[[1]]), units, valueOnly = TRUE)
+    }
+    if (length(ha_ref_list) > 0) {
+      width_annotation <- convertWidth(unit(width_annotation, units) + width.HeatmapAnnotation(ha_ref_list[[1]]), units, valueOnly = TRUE)
+    }
   } else {
     width_sum <- sum(width)
-  }
-  if (isTRUE(flip)) {
-    if (length(ha_query_list) > 0) {
-      height_sum <- convertHeight(unit(height_sum, units) + height.HeatmapAnnotation(ha_query_list[[1]]), units, valueOnly = TRUE)
-    }
+    height_sum <- height[1]
     if (length(ha_ref_list) > 0) {
-      width_sum <- convertWidth(unit(width_sum, units) + width.HeatmapAnnotation(ha_ref_list[[1]]), units, valueOnly = TRUE)
-    }
-  } else {
-    if (length(ha_ref_list) > 0) {
-      height_sum <- convertHeight(unit(height_sum, units) + height.HeatmapAnnotation(ha_ref_list[[1]]), units, valueOnly = TRUE)
+      height_annotation <- convertHeight(unit(height_annotation, units) + height.HeatmapAnnotation(ha_ref_list[[1]]), units, valueOnly = TRUE)
     }
     if (length(ha_query_list) > 0) {
-      width_sum <- convertWidth(unit(width_sum, units) + width.HeatmapAnnotation(ha_query_list[[1]]), units, valueOnly = TRUE)
+      width_annotation <- convertWidth(unit(width_annotation, units) + width.HeatmapAnnotation(ha_query_list[[1]]), units, valueOnly = TRUE)
     }
   }
   lgd_width <- convertWidth(unit(unlist(lapply(lgd, width.Legends)), unitType(width.Legends(lgd[[1]]))), unitTo = units, valueOnly = TRUE)
-  width_sum <- convertWidth(unit(width_sum, units = units) + unit(sum(lgd_width), units = units), units, valueOnly = TRUE)
-  width_default <- convertWidth(unit(width_sum, units = units) + unit(max(lgd_width), units = units), units, valueOnly = TRUE)
+  height_sum <- convertHeight(unit(height_sum, units) + unit(height_annotation, units), units, valueOnly = TRUE)
+  width_sum <- convertWidth(unit(width_sum, units) + unit(width_annotation, units), units, valueOnly = TRUE)
+  height_sum <- max(
+    min(height_sum, convertHeight(unit(0.95, "npc"), units, valueOnly = TRUE)),
+    max(height_annotation, convertHeight(unit(3, "in"), units, valueOnly = TRUE))
+  )
+  width_sum <- max(
+    min(width_sum, convertWidth(unit(0.95, "npc"), units, valueOnly = TRUE)),
+    max(width_annotation + sum(lgd_width), convertHeight(unit(3, "in"), units, valueOnly = TRUE))
+  )
 
   if (isTRUE(fix)) {
     gTree <- grid.grabExpr(
@@ -10676,7 +10719,7 @@ CellCorHeatmap <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
     )
 
     if (unitType(ht_width) == "npc") {
-      ht_width <- unit(width_default, units = units)
+      ht_width <- unit(width_sum, units = units)
     }
     if (unitType(ht_height) == "npc") {
       ht_height <- unit(height_sum, units = units)
@@ -10693,7 +10736,7 @@ CellCorHeatmap <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
       wrap.grobs = TRUE
     )
   } else {
-    ht_width <- unit(width_default, units = units)
+    ht_width <- unit(width_sum, units = units)
     ht_height <- unit(height_sum, units = units)
     gTree <- grid.grabExpr(
       {
@@ -10806,7 +10849,6 @@ CellCorHeatmap <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
 #' @param TERM2NAME
 #' @param minGSSize
 #' @param maxGSSize
-#' @param universe
 #' @param GO_simplify
 #' @param GO_simplify_cutoff
 #' @param simplify_method
@@ -10832,6 +10874,7 @@ CellCorHeatmap <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
 #' @param ht_params
 #' @param limits
 #' @param raster_by_magick
+#' @param db_combine
 #'
 #' @examples
 #' data("pancreas_sub")
@@ -10840,8 +10883,9 @@ CellCorHeatmap <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
 #' ht1 <- DynamicHeatmap(
 #'   srt = pancreas_sub,
 #'   lineages = "Lineage1",
-#'   cell_annotation = "SubCellType",
-#'   n_split = 5, split_method = "kmeans-peaktime"
+#'   n_split = 5,
+#'   split_method = "kmeans-peaktime",
+#'   cell_annotation = "SubCellType"
 #' )
 #' ht1$plot
 #' panel_fix(ht1$plot, raster = TRUE, dpi = 50)
@@ -10849,7 +10893,7 @@ CellCorHeatmap <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
 #' ht2 <- DynamicHeatmap(
 #'   srt = pancreas_sub,
 #'   lineages = "Lineage1",
-#'   features = c("Sox9", "Neurod2", "Isl1", "Rbp4", "S_score", "G2M_score"),
+#'   features = c("Sox9", "Neurod2", "Isl1", "Rbp4", "Pyy", "S_score", "G2M_score"),
 #'   cell_annotation = "SubCellType"
 #' )
 #' ht2$plot
@@ -10858,9 +10902,10 @@ CellCorHeatmap <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
 #' ht3 <- DynamicHeatmap(
 #'   srt = pancreas_sub,
 #'   lineages = c("Lineage1", "Lineage2"),
-#'   cell_annotation = "SubCellType",
-#'   n_split = 5, split_method = "kmeans",
-#'   cluster_rows = TRUE
+#'   n_split = 5,
+#'   split_method = "kmeans",
+#'   cluster_rows = TRUE,
+#'   cell_annotation = "SubCellType"
 #' )
 #' ht3$plot
 #'
@@ -10868,9 +10913,10 @@ CellCorHeatmap <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
 #' ht4 <- DynamicHeatmap(
 #'   srt = pancreas_sub,
 #'   lineages = c("Lineage1", "Lineage2"),
-#'   use_fitted = TRUE,
-#'   n_split = 6, split_method = "mfuzz",
 #'   reverse_ht = "Lineage1",
+#'   use_fitted = TRUE,
+#'   n_split = 6,
+#'   split_method = "mfuzz",
 #'   heatmap_palette = "viridis",
 #'   cell_annotation = c("SubCellType", "Phase", "G2M_score"),
 #'   cell_annotation_palette = c("Paired", "jama", "Purples"),
@@ -10880,17 +10926,17 @@ CellCorHeatmap <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
 #'   feature_annotation = c("TF", "SP"),
 #'   feature_annotation_palcolor = list(c("gold", "steelblue"), c("forestgreen")),
 #'   pseudotime_label = 25,
-#'   pseudotime_label_color = "red",
-#'   width = 1, height = 2.5
+#'   pseudotime_label_color = "red"
 #' )
 #' ht4$plot
 #'
 #' ht5 <- DynamicHeatmap(
 #'   srt = pancreas_sub,
 #'   lineages = c("Lineage1", "Lineage2"),
-#'   use_fitted = TRUE,
-#'   n_split = 6, split_method = "mfuzz",
 #'   reverse_ht = "Lineage1",
+#'   use_fitted = TRUE,
+#'   n_split = 6,
+#'   split_method = "mfuzz",
 #'   heatmap_palette = "viridis",
 #'   cell_annotation = c("SubCellType", "Phase", "G2M_score"),
 #'   cell_annotation_palette = c("Paired", "jama", "Purples"),
@@ -10901,16 +10947,16 @@ CellCorHeatmap <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
 #'   feature_annotation_palcolor = list(c("gold", "steelblue"), c("forestgreen")),
 #'   pseudotime_label = 25,
 #'   pseudotime_label_color = "red",
-#'   flip = TRUE, column_title_rot = 45,
-#'   width = 2.5, height = 1
+#'   flip = TRUE, column_title_rot = 45
 #' )
 #' ht5$plot
 #'
 #' ht6 <- DynamicHeatmap(
 #'   srt = pancreas_sub,
 #'   lineages = c("Lineage1", "Lineage2"),
+#'   reverse_ht = "Lineage1",
 #'   cell_annotation = "SubCellType",
-#'   n_split = 5, reverse_ht = "Lineage1",
+#'   n_split = 5, split_method = "mfuzz",
 #'   species = "Mus_musculus", db = "GO_BP",
 #'   anno_terms = TRUE, anno_keys = TRUE, anno_features = TRUE
 #' )
@@ -11783,44 +11829,56 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineag
     fix <- FALSE
   }
   if (is.null(height)) {
-    height_sum <- convertHeight(max(unit(0.9, "npc"), unit(1, "in")), units, valueOnly = TRUE)
-  } else if (flip) {
-    height_sum <- sum(height)
-  } else {
-    height_sum <- height[1]
+    height <- convertHeight(unit(0.8, "npc"), units, valueOnly = TRUE)
+    height <- setNames(rep(height, length(lineages)), lineages)
   }
   if (is.null(width)) {
-    width_sum <- convertWidth(max(unit(0.1, "npc"), unit(1, "in")), units, valueOnly = TRUE)
-  } else if (flip) {
+    width <- convertWidth(unit(0.8, "npc"), units, valueOnly = TRUE)
+    width <- setNames(rep(width, length(lineages)), lineages)
+  }
+  width_annotation <- height_annotation <- 0
+  if (isTRUE(flip)) {
     width_sum <- width[1]
+    height_sum <- sum(height)
+    height_annotation <-
+      if (length(ha_top_list) > 0) {
+        width_annotation <- convertWidth(unit(width_annotation, units) + width.HeatmapAnnotation(ha_top_list[[1]]), units, valueOnly = TRUE)
+      }
+    if (!is.null(ha_left)) {
+      height_annotation <- convertHeight(unit(height_annotation, units) + height.HeatmapAnnotation(ha_left), units, valueOnly = TRUE)
+    }
+    if (!is.null(ha_right)) {
+      height_annotation <- convertHeight(unit(height_annotation, units) + height.HeatmapAnnotation(ha_right), units, valueOnly = TRUE)
+    }
   } else {
     width_sum <- sum(width)
-  }
-  if (isTRUE(flip)) {
+    height_sum <- height[1]
     if (length(ha_top_list) > 0) {
-      width_sum <- convertWidth(unit(width_sum, units) + width.HeatmapAnnotation(ha_top_list[[1]]), units, valueOnly = TRUE)
+      height_annotation <- convertHeight(unit(height_annotation, units) + height.HeatmapAnnotation(ha_top_list[[1]]), units, valueOnly = TRUE)
     }
     if (!is.null(ha_left)) {
-      height_sum <- convertHeight(unit(height_sum, units) + height.HeatmapAnnotation(ha_left), units, valueOnly = TRUE)
+      width_annotation <- convertWidth(unit(width_annotation, units) + width.HeatmapAnnotation(ha_left), units, valueOnly = TRUE)
     }
     if (!is.null(ha_right)) {
-      height_sum <- convertHeight(unit(height_sum, units) + height.HeatmapAnnotation(ha_right), units, valueOnly = TRUE)
-    }
-  } else {
-    if (length(ha_top_list) > 0) {
-      height_sum <- convertHeight(unit(height_sum, units) + height.HeatmapAnnotation(ha_top_list[[1]]), units, valueOnly = TRUE)
-    }
-    if (!is.null(ha_left)) {
-      width_sum <- convertWidth(unit(width_sum, units) + width.HeatmapAnnotation(ha_left), units, valueOnly = TRUE)
-    }
-    if (!is.null(ha_right)) {
-      width_sum <- convertWidth(unit(width_sum, units) + width.HeatmapAnnotation(ha_right), units, valueOnly = TRUE)
+      width_annotation <- convertWidth(unit(width_annotation, units) + width.HeatmapAnnotation(ha_right), units, valueOnly = TRUE)
     }
   }
   lgd_width <- convertWidth(unit(unlist(lapply(lgd, width.Legends)), unitType(width.Legends(lgd[[1]]))), unitTo = units, valueOnly = TRUE)
-  width_sum <- convertWidth(unit(width_sum, units = units) + unit(sum(lgd_width), units = units), units, valueOnly = TRUE)
-  width_default <- convertWidth(unit(width_sum, units = units) + unit(max(lgd_width), units = units), units, valueOnly = TRUE)
+  height_sum <- convertHeight(unit(height_sum, units) + unit(height_annotation, units), units, valueOnly = TRUE)
+  width_sum <- convertWidth(unit(width_sum, units) + unit(width_annotation, units), units, valueOnly = TRUE)
+  height_sum <- max(
+    min(height_sum, convertHeight(unit(0.95, "npc"), units, valueOnly = TRUE)),
+    max(height_annotation, convertHeight(unit(3, "in"), units, valueOnly = TRUE))
+  )
+  width_sum <- max(
+    min(width_sum, convertWidth(unit(0.95, "npc"), units, valueOnly = TRUE)),
+    max(width_annotation + sum(lgd_width), convertHeight(unit(3, "in"), units, valueOnly = TRUE))
+  )
 
+  # cat("width:",width,"\n")
+  # cat("height:",height,"\n")
+  # cat("width_sum:",width_sum,"\n")
+  # cat("height_sum:",height_sum,"\n")
   if (isTRUE(fix)) {
     gTree <- grid.grabExpr(
       {
@@ -11843,13 +11901,15 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineag
       wrap.grobs = TRUE
     )
     if (unitType(ht_width) == "npc") {
-      ht_width <- unit(width_default, units = units)
+      ht_width <- unit(width_sum, units = units)
     }
     if (unitType(ht_height) == "npc") {
       ht_height <- unit(height_sum, units = units)
     }
     ht_width <- convertUnit(ht_width, unitTo = units)
     ht_height <- convertUnit(ht_height, unitTo = units)
+    # cat("ht_width:",ht_width,"\n")
+    # cat("ht_height:",ht_height,"\n")
     gTree <- grid.grabExpr(
       {
         draw(ht_list, annotation_legend_list = lgd)
@@ -11899,7 +11959,7 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineag
       wrap.grobs = TRUE
     )
   } else {
-    ht_width <- unit(width_default, units = units)
+    ht_width <- unit(width_sum, units = units)
     ht_height <- unit(height_sum, units = units)
     gTree <- grid.grabExpr(
       {
@@ -11999,12 +12059,13 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineag
 #' @param nrow
 #' @param ncol
 #' @param byrow
-#' @param align
-#' @param axis
 #' @param cells
 #' @param flip
 #' @param reverse
 #' @param x_order
+#' @param theme_use
+#' @param theme_args
+#' @param seed
 #'
 #' @examples
 #' data("pancreas_sub")
@@ -12516,11 +12577,8 @@ ProjectionPlot <- function(srt_query, srt_ref,
 #' @param ncol ncol
 #' @param byrow byrow
 #' @param db
-#' @param base_size
 #' @param character_width
 #' @param lineheight
-#' @param align
-#' @param axis
 #' @param srt
 #' @param group_by
 #' @param test.use
@@ -12533,6 +12591,11 @@ ProjectionPlot <- function(srt_query, srt_ref,
 #' @param aspect.ratio
 #' @param legend.position
 #' @param legend.direction
+#' @param palcolor
+#' @param only_sig
+#' @param theme_use
+#' @param theme_args
+#' @param seed
 #'
 #' @examples
 #' data("pancreas_sub")
@@ -12887,13 +12950,9 @@ EnrichmentPlot <- function(srt, db = "GO_BP", group_by = NULL, group_use = NULL,
 #'
 #' @param res
 #' @param geneSetID
-#' @param title
-#' @param subtitle
 #' @param base_size
 #' @param rel_heights
 #' @param subplots
-#' @param ES_geom
-#' @param color
 #' @param n_coregene
 #' @param sample_coregene
 #' @param features_label
@@ -12909,14 +12968,23 @@ EnrichmentPlot <- function(srt, db = "GO_BP", group_by = NULL, group_use = NULL,
 #' @param padjustCutoff
 #' @param topTerm
 #' @param rel_width
-#' @param size
-#' @param alpha
 #' @param palette
 #' @param combine
 #' @param nrow
 #' @param ncol
 #' @param byrow
 #' @param group_use
+#' @param plot_type
+#' @param palcolor
+#' @param only_pos
+#' @param only_sig
+#' @param linewidth
+#' @param line_alpha
+#' @param line_color
+#' @param aspect.ratio
+#' @param character_width
+#' @param lineheight
+#' @param seed
 #'
 #' @examples
 #' library(dplyr)
@@ -12944,7 +13012,7 @@ GSEAPlot <- function(srt, db = "GO_BP", group_by = NULL, group_use = NULL, test.
                      plot_type = c("line", "comparison"), palette = "Spectral", palcolor = NULL,
                      topTerm = 6, geneSetID = NULL, only_pos = FALSE, only_sig = FALSE,
                      subplots = 1:3, rel_heights = c(1.5, 0.5, 1), rel_width = 3,
-                     line_size = 1.5, line_alpha = 1, line_color = "#6BB82D",
+                     linewidth = 1.5, line_alpha = 1, line_color = "#6BB82D",
                      n_coregene = 10, sample_coregene = FALSE, features_label = NULL,
                      label.fg = "black", label.bg = "white", label.bg.r = 0.1, label.size = 4,
                      aspect.ratio = NULL, base_size = 12, character_width = 50, lineheight = 0.7,
@@ -13112,7 +13180,7 @@ GSEAPlot <- function(srt, db = "GO_BP", group_by = NULL, group_use = NULL, test.
         ) +
         scale_x_continuous(expand = c(0.01, 0))
       es_layer <- geom_line(aes(y = runningScore, color = DescriptionP),
-        linewidth = line_size, alpha = line_alpha
+        linewidth = linewidth, alpha = line_alpha
       )
       bg_dat <- data.frame(xmin = -Inf, xmax = Inf, ymin = c(0, -Inf), ymax = c(Inf, 0), fill = c(alpha("#C40003", 0.2), alpha("#1D008F", 0.2)))
       p1 <- p +

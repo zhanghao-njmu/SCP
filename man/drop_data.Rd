@@ -2,12 +2,21 @@
 % Please edit documentation in R/SCP-plot.R
 \name{drop_data}
 \alias{drop_data}
+\alias{drop_data.ggplot}
+\alias{drop_data.patchwork}
+\alias{drop_data.default}
 \title{Drop all data in the plot (only one observation is kept)}
 \usage{
 drop_data(p)
+
+\method{drop_data}{ggplot}(p)
+
+\method{drop_data}{patchwork}(p)
+
+\method{drop_data}{default}(p)
 }
 \arguments{
-\item{p}{A \code{ggplot} object or a \code{patchwork} object.}
+\item{p}{A \code{patchwork} object.}
 }
 \description{
 Drop all data in the plot (only one observation is kept)

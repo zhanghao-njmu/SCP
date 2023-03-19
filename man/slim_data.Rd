@@ -2,12 +2,18 @@
 % Please edit documentation in R/SCP-plot.R
 \name{slim_data}
 \alias{slim_data}
+\alias{slim_data.ggplot}
+\alias{slim_data.patchwork}
 \title{Drop unused data from the plot to reduce the object size}
 \usage{
 slim_data(p)
+
+\method{slim_data}{ggplot}(p)
+
+\method{slim_data}{patchwork}(p)
 }
 \arguments{
-\item{p}{A \code{ggplot} object or a \code{patchwork} object.}
+\item{p}{A \code{patchwork} object.}
 }
 \description{
 Drop unused data from the plot to reduce the object size

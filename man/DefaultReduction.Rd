@@ -12,6 +12,8 @@ DefaultReduction(srt, pattern = NULL, min_dim = 2, max_distance = 0.1)
 \item{pattern}{Character string containing a regular expression to search for.}
 
 \item{min_dim}{Minimum dimension threshold.}
+
+\item{max_distance}{Maximum distance allowed for a match.}
 }
 \value{
 Default reduction name.

@@ -31,7 +31,7 @@ CellDimPlot3D(
 \arguments{
 \item{srt}{A Seurat object.}
 
-\item{group.by}{Name of one or more metadata columns to group (color) cells by (for example, orig.ident).}
+\item{group.by}{Name of one or more meta.data columns to group (color) cells by (for example, orig.ident).}
 
 \item{reduction}{Which dimensionality reduction to use. If not specified, will use the reduction returned by \code{\link{DefaultReduction}}.}
 
@@ -41,13 +41,13 @@ CellDimPlot3D(
 
 \item{palcolor}{Custom colors used to create a color palette.}
 
-\item{bg_color}{Color value for NA points.}
+\item{bg_color}{Color value for background(NA) points.}
 
 \item{pt.size}{Point size.}
 
 \item{cells.highlight}{A vector of cell names to highlight.}
 
-\item{cols.highlight}{Colors used to highlight the cells.}
+\item{cols.highlight}{Color used to highlight the cells.}
 
 \item{shape.highlight}{Shape of the cell to highlight. See \href{https://plotly.com/r/reference/scattergl/#scattergl-marker-symbol}{scattergl-marker-symbol}}
 
@@ -59,7 +59,7 @@ CellDimPlot3D(
 
 \item{height}{Height in pixels, defaults to automatic sizing.}
 
-\item{force}{Whether to force drawing regardless of the number of cell groups greater than 100.}
+\item{force}{Whether to force drawing regardless of maximum levels in any cell group is greater than 100.}
 }
 \description{
 Plotting cell points on a reduced 3D space and coloring according to the groups of the cells.
@@ -70,5 +70,5 @@ pancreas_sub <- Standard_SCP(pancreas_sub)
 CellDimPlot3D(pancreas_sub, group.by = "SubCellType", reduction = "StandardpcaUMAP3D")
 
 pancreas_sub <- RunSlingshot(pancreas_sub, group.by = "SubCellType", reduction = "StandardpcaUMAP3D")
-CellDimPlot3D(pancreas_sub, group.by = "SubCellType", reduction = "StandardpcaUMAP3D", lineages = paste0("Lineage", 1:3))
+CellDimPlot3D(pancreas_sub, group.by = "SubCellType", reduction = "StandardpcaUMAP3D", lineages = "Lineage1")
 }

@@ -23,7 +23,7 @@ GSEAPlot(
   subplots = 1:3,
   rel_heights = c(1.5, 0.5, 1),
   rel_width = 3,
-  line_size = 1.5,
+  linewidth = 1.5,
   line_alpha = 1,
   line_color = "#6BB82D",
   n_coregene = 10,
@@ -45,7 +45,7 @@ GSEAPlot(
 )
 }
 \arguments{
-\item{group_use}{}
+\item{seed}{}
 }
 \description{
 GSEA Plot

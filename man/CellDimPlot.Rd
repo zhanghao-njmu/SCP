@@ -45,11 +45,11 @@ CellDimPlot(
   lineages_palette = "Dark2",
   lineages_palcolor = NULL,
   lineages_arrow = arrow(length = unit(0.1, "inches")),
-  lineages_line_size = 1,
+  lineages_linewidth = 1,
   lineages_line_bg = "white",
   lineages_line_bg_stroke = 0.5,
   lineages_whiskers = FALSE,
-  lineages_whiskers_size = 0.5,
+  lineages_whiskers_linewidth = 0.5,
   lineages_whiskers_alpha = 0.5,
   stat.by = NULL,
   stat_type = "percent",
@@ -92,7 +92,7 @@ CellDimPlot(
   streamline_minL = 1,
   streamline_res = 1,
   streamline_n = 15,
-  streamline_size = c(0, 0.8),
+  streamlinewidth = c(0, 0.8),
   streamline_alpha = 1,
   streamline_color = NULL,
   streamline_palette = "RdYlBu",
@@ -126,13 +126,13 @@ CellDimPlot(
 \arguments{
 \item{srt}{A Seurat object.}
 
-\item{group.by}{Name of one or more metadata columns to group (color) cells by (for example, orig.ident).}
+\item{group.by}{Name of one or more meta.data columns to group (color) cells by (for example, orig.ident).}
 
 \item{reduction}{Which dimensionality reduction to use. If not specified, will use the reduction returned by \code{\link{DefaultReduction}}.}
 
 \item{dims}{Dimensions to plot, must be a two-length numeric vector specifying x- and y-dimensions}
 
-\item{split.by}{Name of a metadata column to split plot by.}
+\item{split.by}{Name of a column in meta.data column to split plot by.}
 
 \item{cells}{Subset cells to plot.}
 
@@ -148,7 +148,7 @@ CellDimPlot(
 
 \item{palcolor}{Custom colors used to create a color palette.}
 
-\item{bg_color}{Color value for NA points.}
+\item{bg_color}{Color value for background(NA) points.}
 
 \item{label}{Whether to label the cell groups.}
 
@@ -160,21 +160,21 @@ CellDimPlot(
 
 \item{label.bg.r}{Background ratio of label.}
 
-\item{label_insitu}{Whether to place the original labels (group names) in the center of the cells with the corresponding group. Default is \code{FALSE}, which using numbers instead of raw labels.}
+\item{label_insitu}{Whether to place the raw labels (group names) in the center of the cells with the corresponding group. Default is \code{FALSE}, which using numbers instead of raw labels.}
 
-\item{label_repel}{Logical value indicating whether the label is repel away from the center of the cell groups.}
+\item{label_repel}{Logical value indicating whether the label is repel away from the center points.}
 
 \item{label_repulsion}{Force of repulsion between overlapping text labels. Defaults to 20.}
 
-\item{label_point_size}{Size of the center points of the cell groups.}
+\item{label_point_size}{Size of the center points.}
 
-\item{label_point_color}{Color of the center points of the cell groups.}
+\item{label_point_color}{Color of the center points.}
 
 \item{label_segment_color}{Color of the line segment for labels.}
 
 \item{cells.highlight}{A vector of cell names to highlight.}
 
-\item{cols.highlight}{Colors used to highlight the cells.}
+\item{cols.highlight}{Color used to highlight the cells.}
 
 \item{sizes.highlight}{Size of highlighted cell points.}
 
@@ -204,15 +204,15 @@ CellDimPlot(
 
 \item{lineages_arrow}{Set arrows of the lineages. See \code{\link[grid]{arrow}}.}
 
-\item{lineages_line_size}{Size of fitted curve lines for lineages.}
+\item{lineages_linewidth}{Width of fitted curve lines for lineages.}
 
 \item{lineages_line_bg}{Background color of curve lines for lineages.}
 
-\item{lineages_line_bg_stroke}{Border width of curve lines background .}
+\item{lineages_line_bg_stroke}{Border width of curve lines background.}
 
 \item{lineages_whiskers}{Whether to add whiskers for lineages.}
 
-\item{lineages_whiskers_size}{Size of whiskers for lineages.}
+\item{lineages_whiskers_linewidth}{Width of whiskers for lineages.}
 
 \item{lineages_whiskers_alpha}{Transparency of whiskers for lineages.}
 
@@ -298,7 +298,7 @@ CellDimPlot(
 
 \item{streamline_n}{Number of points to draw.}
 
-\item{streamline_size}{Size of streamline.}
+\item{streamlinewidth}{Size of streamline.}
 
 \item{streamline_alpha}{Transparency of streamline.}
 
@@ -326,7 +326,7 @@ CellDimPlot(
 
 \item{raster.dpi}{Pixel resolution for rasterized plots, passed to geom_scattermore(). Default is c(512, 512).}
 
-\item{aspect.ratio}{Aspect ratio of the panel}
+\item{aspect.ratio}{Aspect ratio of the panel.}
 
 \item{title}{The text for the title.}
 
@@ -352,7 +352,7 @@ CellDimPlot(
 
 \item{byrow}{Logical value indicating if the plots should be arrange by row (default) or by column.}
 
-\item{force}{Whether to force drawing regardless of the number of cell groups greater than 100.}
+\item{force}{Whether to force drawing regardless of maximum levels in any cell group is greater than 100.}
 
 \item{seed}{Random seed set for reproducibility}
 }

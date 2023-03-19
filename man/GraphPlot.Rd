@@ -68,7 +68,7 @@ GraphPlot(
 \arguments{
 \item{node}{}
 
-\item{node_palcolor}{}
+\item{theme_args}{}
 }
 \description{
 GraphPlot

@@ -51,7 +51,7 @@ StatPlot(
 \arguments{
 \item{meta.data}{}
 
-\item{force}{}
+\item{seed}{}
 }
 \description{
 StatPlot

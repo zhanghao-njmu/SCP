@@ -28,19 +28,25 @@ FeatureDimPlot3D(
 \arguments{
 \item{srt}{A Seurat object.}
 
-\item{features}{Name of one or more metadata columns to group (color) cells by (for example, orig.ident).}
+\item{features}{Vector of features to plot. Features can be gene names in Assay or names of numeric columns in meta.data.}
 
-\item{reduction}{Which dimensionality reduction to use.}
+\item{reduction}{Which dimensionality reduction to use. If not specified, will use the reduction returned by \code{\link{DefaultReduction}}.}
 
-\item{dims}{Dimensions to plot, must be a two-length numeric vector specifying x- and y-dimensions}
+\item{dims}{Dimensions to plot, must be a two-length numeric vector specifying x- and y-dimensions.}
 
-\item{split.by}{Name of a metadata column to split plot by.}
+\item{split.by}{Name of a column in meta.data to split plot by.}
+
+\item{slot}{Which slot to pull expression data from? Default is \code{data}.}
+
+\item{assay}{Which assay to pull expression data from. If \code{NULL}, will use the assay returned by \code{\link{DefaultAssay}}.}
+
+\item{calculate_coexp}{Whether to calculate the co-expression value (geometric mean) of the features.}
 
 \item{pt.size}{Point size for plotting.}
 
-\item{cells.highlight}{A vector of names of cells to highlight.}
+\item{cells.highlight}{A vector of cell names to highlight.}
 
-\item{cols.highlight}{A vector of colors to highlight the cells.}
+\item{cols.highlight}{Color used to highlight the cells.}
 
 \item{shape.highlight}{Shape of the cell to highlight. See \href{https://plotly.com/r/reference/scattergl/#scattergl-marker-symbol}{scattergl-marker-symbol}}
 
@@ -50,7 +56,7 @@ FeatureDimPlot3D(
 
 \item{height}{Height in pixels, defaults to automatic sizing.}
 
-\item{force}{Whether to force drawing regardless of the number of cell groups greater than 100.}
+\item{force}{Whether to force drawing regardless of the number of features greater than 100.}
 }
 \description{
 Plotting cell points on a reduced 3D space and coloring according to the gene expression in the cells.

@@ -67,7 +67,7 @@ PAGAPlot(
 )
 }
 \arguments{
-\item{node_palcolor}{}
+\item{theme_args}{}
 }
 \description{
 PAGA plot

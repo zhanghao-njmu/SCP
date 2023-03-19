@@ -55,11 +55,11 @@ FeatureDimPlot(
   lineages_palette = "Dark2",
   lineages_palcolor = NULL,
   lineages_arrow = arrow(length = unit(0.1, "inches")),
-  lineages_line_size = 1,
+  lineages_linewidth = 1,
   lineages_line_bg = "white",
   lineages_line_bg_stroke = 0.5,
   lineages_whiskers = FALSE,
-  lineages_whiskers_size = 0.5,
+  lineages_whiskers_linewidth = 0.5,
   lineages_whiskers_alpha = 0.5,
   graph = NULL,
   edge_size = c(0.05, 0.5),
@@ -92,46 +92,166 @@ FeatureDimPlot(
 \arguments{
 \item{srt}{A Seurat object.}
 
-\item{features}{Name of one or more metadata columns to group (color) cells by (for example, orig.ident).}
+\item{features}{Vector of features to plot. Features can be gene names in Assay or names of numeric columns in meta.data.}
 
-\item{reduction}{Which dimensionality reduction to use.}
+\item{reduction}{Which dimensionality reduction to use. If not specified, will use the reduction returned by \code{\link{DefaultReduction}}.}
 
-\item{split.by}{Name of a metadata column to split plot by.}
+\item{dims}{Dimensions to plot, must be a two-length numeric vector specifying x- and y-dimensions.}
 
-\item{palette}{Name of palette to use. Default is "Paired".}
+\item{split.by}{Name of a column in meta.data to split plot by.}
+
+\item{cells}{Subset cells to plot.}
+
+\item{slot}{Which slot to pull expression data from? Default is \code{data}.}
+
+\item{assay}{Which assay to pull expression data from. If \code{NULL}, will use the assay returned by \code{\link{DefaultAssay}}.}
+
+\item{show_stat}{Whether to show statistical information on the plot.}
+
+\item{palette}{Name of a color palette name collected in SCP.}
+
+\item{palcolor}{Custom colors used to create a color palette.}
 
 \item{pt.size}{Point size for plotting.}
 
 \item{pt.alpha}{Point transparency.}
 
-\item{bg_color}{Color value for NA points.}
+\item{bg_cutoff}{Background cutoff. Points with feature values lower than the cutoff will be considered as background and will be colored with \code{bg_color}.}
+
+\item{bg_color}{Color value for background points.}
 
 \item{keep_scale}{How to handle the color scale across multiple plots. Options are:
 \itemize{
+  \item{NULL (no scaling):}{ Each individual plot is scaled to the maximum expression value of the feature in the condition provided to 'split.by'. Be aware setting NULL will result in color scales that are not comparable between plots.}
   \item{"feature" (default; by row/feature scaling):}{ The plots for each individual feature are scaled to the maximum expression of the feature across the conditions provided to 'split.by'.}
   \item{"all" (universal scaling):}{ The plots for all features and conditions are scaled to the maximum expression value for the feature with the highest overall expression.}
-  \item{NULL (no scaling):}{ Each individual plot is scaled to the maximum expression value of the feature in the condition provided to 'split.by'. Be aware setting NULL will result in color scales that are not comparable between plots.}
 }}
 
-\item{cells.highlight}{A vector of names of cells to highlight.}
+\item{lower_quantile, upper_quantile, lower_cutoff, upper_cutoff}{Vector of minimum and maximum cutoff values or quantile values for each feature.}
 
-\item{cols.highlight}{A vector of colors to highlight the cells.}
+\item{add_density}{Whether to add a density layer on the plot.}
+
+\item{density_color}{Color of the density contours lines.}
+
+\item{density_filled}{Whether to add filled contour bands instead of contour lines.}
+
+\item{density_filled_palette}{Color palette used to fill contour bands.}
+
+\item{density_filled_palcolor}{Custom colors used to fill contour bands.}
+
+\item{cells.highlight}{A vector of cell names to highlight.}
+
+\item{cols.highlight}{Color used to highlight the cells.}
 
 \item{sizes.highlight}{Size of highlighted cells.}
 
-\item{legend.position}{The position of legends ("none", "left", "right", "bottom", "top", or two-element numeric vector)}
+\item{alpha.highlight}{Transparency of highlighted cell points.}
+
+\item{stroke.highlight}{Border width of highlighted cell points.}
+
+\item{calculate_coexp}{Whether to calculate the co-expression value (geometric mean) of the features.}
+
+\item{compare_features}{Whether to show the values of multiple features on a single plot.}
+
+\item{color_blend_mode}{Blend mode to use when \code{compare_features = TRUE}}
+
+\item{label}{Whether the feature name is labeled in the center of the location of cells wieh high expression.}
+
+\item{label.size}{Size of labels.}
+
+\item{label.fg}{Foreground color of label.}
+
+\item{label.bg}{Background color of label.}
+
+\item{label.bg.r}{Background ratio of label.}
+
+\item{label_insitu}{Whether the labels is feature names instead of numbers. Valid only when \code{compare_features = TRUE}.}
+
+\item{label_repel}{Logical value indicating whether the label is repel away from the center location.}
+
+\item{label_repulsion}{Force of repulsion between overlapping text labels. Defaults to 20.}
+
+\item{label_point_size}{Size of the center points.}
+
+\item{label_point_color}{Color of the center points}
+
+\item{label_segment_color}{Color of the line segment for labels.}
+
+\item{lineages}{Lineages/pseudotime to add to the plot. If specified, curves will be fitted using \code{\link[stats]{loess}} method.}
+
+\item{lineages_trim}{Trim the leading and the trailing data in the lineages.}
+
+\item{lineages_span}{The parameter α which controls the degree of smoothing in \code{\link[stats]{loess}} method.}
+
+\item{lineages_palette}{Color palette used for lineages.}
+
+\item{lineages_palcolor}{Custom colors used for lineages.}
+
+\item{lineages_arrow}{Set arrows of the lineages. See \code{\link[grid]{arrow}}.}
+
+\item{lineages_linewidth}{Width of fitted curve lines for lineages.}
+
+\item{lineages_line_bg}{Background color of curve lines for lineages.}
+
+\item{lineages_line_bg_stroke}{Border width of curve lines background.}
+
+\item{lineages_whiskers}{Whether to add whiskers for lineages.}
+
+\item{lineages_whiskers_linewidth}{Width of whiskers for lineages.}
+
+\item{lineages_whiskers_alpha}{Transparency of whiskers for lineages.}
+
+\item{graph}{Specify the graph name to add edges between cell neighbors to the plot.}
+
+\item{edge_size}{Size of edges.}
+
+\item{edge_alpha}{Transparency of edges.}
+
+\item{edge_color}{Color of edges.}
+
+\item{hex}{Whether to chane the plot type from point to the hexagonal bin.}
+
+\item{hex.linewidth}{Border width of hexagonal bins.}
+
+\item{hex.color}{Border color of hexagonal bins.}
+
+\item{hex.bins}{Number of hexagonal bins.}
+
+\item{hex.binwidth}{Hexagonal bin width.}
+
+\item{raster}{Convert points to raster format, default is NULL which automatically rasterizes if plotting more than 100,000 cells}
+
+\item{raster.dpi}{Pixel resolution for rasterized plots, passed to geom_scattermore(). Default is c(512, 512).}
+
+\item{aspect.ratio}{Aspect ratio of the panel.}
+
+\item{title}{The text for the title.}
+
+\item{subtitle}{The text for the subtitle for the plot which will be displayed below the title.}
+
+\item{xlab}{x-axis label.}
+
+\item{ylab}{y-axis label.}
+
+\item{legend.position}{The position of legends ("none", "left", "right", "bottom", "top").}
 
 \item{legend.direction}{Layout of items in legends ("horizontal" or "vertical")}
 
-\item{combine}{Whether to arrange multiple plots into a grid.}
+\item{theme_use}{Theme used. Can be a character string or a theme function. For example, \code{"theme_blank"} or \code{ggplot2::theme_classic}.}
 
-\item{nrow}{Number of rows in the plot grid.}
+\item{theme_args}{Other arguments passed to the \code{theme_use}.}
 
-\item{ncol}{Number of columns in the plot grid.}
+\item{combine}{Combine plots into a single \code{patchwork} object. If \code{FALSE}, return a list of ggplot objects.}
+
+\item{nrow}{Number of rows in the combined plot.}
+
+\item{ncol}{Number of columns in the combined plot.}
 
 \item{byrow}{Logical value indicating if the plots should be arrange by row (default) or by column.}
 
-\item{seed}{}
+\item{force}{Whether to force drawing regardless of the number of features greater than 100.}
+
+\item{seed}{Random seed set for reproducibility}
 }
 \value{
 A single ggplot object if combine = TRUE; otherwise, a list of ggplot objects

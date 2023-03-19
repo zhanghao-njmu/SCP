@@ -74,7 +74,7 @@ FeatureStatPlot(
 )
 }
 \arguments{
-\item{y.min}{}
+\item{seed}{}
 }
 \description{
 Statistical plot of features
@@ -119,5 +119,5 @@ FeatureStatPlot(pancreas_sub,
   ),
   fill.by = "feature", plot_type = "box",
   group.by = "SubCellType", bg.by = "CellType", stack = TRUE, flip = TRUE
-) \%>\% panel_fix_single(width = 10, height = 5) # Because the plot is made by combining, we want to adjust the overall height and width
+) \%>\% panel_fix_single(width = 8, height = 5) # Because the plot is made by combining, we want to adjust the overall height and width
 }

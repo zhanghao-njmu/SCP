@@ -49,7 +49,7 @@ FeatureCorPlot(
 )
 }
 \arguments{
-\item{cells}{}
+\item{seed}{}
 }
 \description{
 Features correlation plot

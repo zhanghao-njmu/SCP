@@ -36,7 +36,7 @@ VolcanoPlot(
 )
 }
 \arguments{
-\item{axis}{}
+\item{byrow}{}
 }
 \description{
 VolcanoPlot

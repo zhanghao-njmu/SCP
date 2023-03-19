@@ -121,7 +121,7 @@ DynamicHeatmap(
 )
 }
 \arguments{
-\item{raster_by_magick}{}
+\item{db_combine}{}
 }
 \description{
 Heatmap plot for dynamic features along lineages
@@ -133,8 +133,9 @@ pancreas_sub <- RunDynamicFeatures(pancreas_sub, lineages = c("Lineage1", "Linea
 ht1 <- DynamicHeatmap(
   srt = pancreas_sub,
   lineages = "Lineage1",
-  cell_annotation = "SubCellType",
-  n_split = 5, split_method = "kmeans-peaktime"
+  n_split = 5,
+  split_method = "kmeans-peaktime",
+  cell_annotation = "SubCellType"
 )
 ht1$plot
 panel_fix(ht1$plot, raster = TRUE, dpi = 50)
@@ -142,7 +143,7 @@ panel_fix(ht1$plot, raster = TRUE, dpi = 50)
 ht2 <- DynamicHeatmap(
   srt = pancreas_sub,
   lineages = "Lineage1",
-  features = c("Sox9", "Neurod2", "Isl1", "Rbp4", "S_score", "G2M_score"),
+  features = c("Sox9", "Neurod2", "Isl1", "Rbp4", "Pyy", "S_score", "G2M_score"),
   cell_annotation = "SubCellType"
 )
 ht2$plot
@@ -151,9 +152,10 @@ panel_fix(ht2$plot, height = 5, width = 5, raster = TRUE, dpi = 50)
 ht3 <- DynamicHeatmap(
   srt = pancreas_sub,
   lineages = c("Lineage1", "Lineage2"),
-  cell_annotation = "SubCellType",
-  n_split = 5, split_method = "kmeans",
-  cluster_rows = TRUE
+  n_split = 5,
+  split_method = "kmeans",
+  cluster_rows = TRUE,
+  cell_annotation = "SubCellType"
 )
 ht3$plot
 
@@ -161,9 +163,10 @@ pancreas_sub <- AnnotateFeatures(pancreas_sub, species = "Mus_musculus", db = c(
 ht4 <- DynamicHeatmap(
   srt = pancreas_sub,
   lineages = c("Lineage1", "Lineage2"),
-  use_fitted = TRUE,
-  n_split = 6, split_method = "mfuzz",
   reverse_ht = "Lineage1",
+  use_fitted = TRUE,
+  n_split = 6,
+  split_method = "mfuzz",
   heatmap_palette = "viridis",
   cell_annotation = c("SubCellType", "Phase", "G2M_score"),
   cell_annotation_palette = c("Paired", "jama", "Purples"),
@@ -173,17 +176,17 @@ ht4 <- DynamicHeatmap(
   feature_annotation = c("TF", "SP"),
   feature_annotation_palcolor = list(c("gold", "steelblue"), c("forestgreen")),
   pseudotime_label = 25,
-  pseudotime_label_color = "red",
-  width = 1, height = 2.5
+  pseudotime_label_color = "red"
 )
 ht4$plot
 
 ht5 <- DynamicHeatmap(
   srt = pancreas_sub,
   lineages = c("Lineage1", "Lineage2"),
-  use_fitted = TRUE,
-  n_split = 6, split_method = "mfuzz",
   reverse_ht = "Lineage1",
+  use_fitted = TRUE,
+  n_split = 6,
+  split_method = "mfuzz",
   heatmap_palette = "viridis",
   cell_annotation = c("SubCellType", "Phase", "G2M_score"),
   cell_annotation_palette = c("Paired", "jama", "Purples"),
@@ -194,16 +197,16 @@ ht5 <- DynamicHeatmap(
   feature_annotation_palcolor = list(c("gold", "steelblue"), c("forestgreen")),
   pseudotime_label = 25,
   pseudotime_label_color = "red",
-  flip = TRUE, column_title_rot = 45,
-  width = 2.5, height = 1
+  flip = TRUE, column_title_rot = 45
 )
 ht5$plot
 
 ht6 <- DynamicHeatmap(
   srt = pancreas_sub,
   lineages = c("Lineage1", "Lineage2"),
+  reverse_ht = "Lineage1",
   cell_annotation = "SubCellType",
-  n_split = 5, reverse_ht = "Lineage1",
+  n_split = 5, split_method = "mfuzz",
   species = "Mus_musculus", db = "GO_BP",
   anno_terms = TRUE, anno_keys = TRUE, anno_features = TRUE
 )

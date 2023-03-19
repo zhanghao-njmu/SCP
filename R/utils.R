@@ -483,7 +483,7 @@ download <- function(url, destfile, methods = c("auto", "wget", "libcurl", "curl
       }, error = function(error) {
         message(error)
         message("Cannot download from the url: ", url)
-        message("Failed to download using \"", method, "\". Retry...")
+        message("Failed to download using \"", method, "\". Retry...\n")
         Sys.sleep(1)
         return(NULL)
       })
