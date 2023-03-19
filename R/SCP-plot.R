@@ -8647,7 +8647,7 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
     height <- setNames(rep(height, length(group.by)), group.by)
   }
   if (is.null(width)) {
-    width <- convertWidth(unit(0.8, "npc"), units, valueOnly = TRUE)
+    width <- convertWidth(unit(0.5, "npc"), units, valueOnly = TRUE)
     width <- setNames(rep(width, length(group.by)), group.by)
   }
   width_annotation <- height_annotation <- 0
@@ -8678,15 +8678,15 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
   }
   lgd_width <- convertWidth(unit(unlist(lapply(lgd, width.Legends)), unitType(width.Legends(lgd[[1]]))), unitTo = units, valueOnly = TRUE)
   height_sum <- convertHeight(unit(height_sum, units) + unit(height_annotation, units), units, valueOnly = TRUE)
-  width_sum <- convertWidth(unit(width_sum, units) + unit(width_annotation, units), units, valueOnly = TRUE)
-  height_sum <- max(
-    min(height_sum, convertHeight(unit(0.95, "npc"), units, valueOnly = TRUE)),
-    max(height_annotation, convertHeight(unit(3, "in"), units, valueOnly = TRUE))
-  )
-  width_sum <- max(
-    min(width_sum, convertWidth(unit(0.95, "npc"), units, valueOnly = TRUE)),
-    max(width_annotation + sum(lgd_width), convertHeight(unit(3, "in"), units, valueOnly = TRUE))
-  )
+  width_sum <- convertWidth(unit(width_sum, units) + unit(width_annotation, units), units, valueOnly = TRUE) + sum(lgd_width)
+  # height_sum <- max(
+  #   min(height_sum, convertHeight(unit(0.95, "npc"), units, valueOnly = TRUE)),
+  #   max(height_annotation, convertHeight(unit(3, "in"), units, valueOnly = TRUE))
+  # )
+  # width_sum <- max(
+  #   min(width_sum, convertWidth(unit(0.95, "npc"), units, valueOnly = TRUE)),
+  #   max(width_annotation + sum(lgd_width) + convertWidth(unit(1, "in"), units, valueOnly = TRUE), convertWidth(unit(3, "in"), units, valueOnly = TRUE))
+  # )
 
   # cat("width:",width,"\n")
   # cat("height:",height,"\n")
@@ -9699,7 +9699,7 @@ FeatureHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, 
     height <- setNames(rep(height, length(group.by)), group.by)
   }
   if (is.null(width)) {
-    width <- convertWidth(unit(0.8, "npc"), units, valueOnly = TRUE)
+    width <- convertWidth(unit(0.5, "npc"), units, valueOnly = TRUE)
     width <- setNames(rep(width, length(group.by)), group.by)
   }
   width_annotation <- height_annotation <- 0
@@ -9730,15 +9730,15 @@ FeatureHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, 
   }
   lgd_width <- convertWidth(unit(unlist(lapply(lgd, width.Legends)), unitType(width.Legends(lgd[[1]]))), unitTo = units, valueOnly = TRUE)
   height_sum <- convertHeight(unit(height_sum, units) + unit(height_annotation, units), units, valueOnly = TRUE)
-  width_sum <- convertWidth(unit(width_sum, units) + unit(width_annotation, units), units, valueOnly = TRUE)
-  height_sum <- max(
-    min(height_sum, convertHeight(unit(0.95, "npc"), units, valueOnly = TRUE)),
-    max(height_annotation, convertHeight(unit(3, "in"), units, valueOnly = TRUE))
-  )
-  width_sum <- max(
-    min(width_sum, convertWidth(unit(0.95, "npc"), units, valueOnly = TRUE)),
-    max(width_annotation + sum(lgd_width), convertHeight(unit(3, "in"), units, valueOnly = TRUE))
-  )
+  width_sum <- convertWidth(unit(width_sum, units) + unit(width_annotation, units), units, valueOnly = TRUE) + sum(lgd_width)
+  # height_sum <- max(
+  #   min(height_sum, convertHeight(unit(0.95, "npc"), units, valueOnly = TRUE)),
+  #   max(height_annotation, convertHeight(unit(3, "in"), units, valueOnly = TRUE))
+  # )
+  # width_sum <- max(
+  #   min(width_sum, convertWidth(unit(0.95, "npc"), units, valueOnly = TRUE)),
+  #   max(width_annotation + sum(lgd_width) + convertWidth(unit(1, "in"), units, valueOnly = TRUE), convertWidth(unit(3, "in"), units, valueOnly = TRUE))
+  # )
 
   # cat("width:",width,"\n")
   # cat("height:",height,"\n")
@@ -10662,7 +10662,7 @@ CellCorHeatmap <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
     height <- convertHeight(unit(0.8, "npc"), units, valueOnly = TRUE)
   }
   if (is.null(width)) {
-    width <- convertWidth(unit(0.8, "npc"), units, valueOnly = TRUE)
+    width <- convertWidth(unit(0.5, "npc"), units, valueOnly = TRUE)
   }
   width_annotation <- height_annotation <- 0
   if (isTRUE(flip)) {
@@ -10686,15 +10686,15 @@ CellCorHeatmap <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
   }
   lgd_width <- convertWidth(unit(unlist(lapply(lgd, width.Legends)), unitType(width.Legends(lgd[[1]]))), unitTo = units, valueOnly = TRUE)
   height_sum <- convertHeight(unit(height_sum, units) + unit(height_annotation, units), units, valueOnly = TRUE)
-  width_sum <- convertWidth(unit(width_sum, units) + unit(width_annotation, units), units, valueOnly = TRUE)
-  height_sum <- max(
-    min(height_sum, convertHeight(unit(0.95, "npc"), units, valueOnly = TRUE)),
-    max(height_annotation, convertHeight(unit(3, "in"), units, valueOnly = TRUE))
-  )
-  width_sum <- max(
-    min(width_sum, convertWidth(unit(0.95, "npc"), units, valueOnly = TRUE)),
-    max(width_annotation + sum(lgd_width), convertHeight(unit(3, "in"), units, valueOnly = TRUE))
-  )
+  width_sum <- convertWidth(unit(width_sum, units) + unit(width_annotation, units), units, valueOnly = TRUE) + sum(lgd_width)
+  # height_sum <- max(
+  #   min(height_sum, convertHeight(unit(0.95, "npc"), units, valueOnly = TRUE)),
+  #   max(height_annotation, convertHeight(unit(3, "in"), units, valueOnly = TRUE))
+  # )
+  # width_sum <- max(
+  #   min(width_sum, convertWidth(unit(0.95, "npc"), units, valueOnly = TRUE)),
+  #   max(width_annotation + sum(lgd_width) + convertWidth(unit(1, "in"), units, valueOnly = TRUE), convertWidth(unit(3, "in"), units, valueOnly = TRUE))
+  # )
 
   if (isTRUE(fix)) {
     gTree <- grid.grabExpr(
@@ -11833,7 +11833,7 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineag
     height <- setNames(rep(height, length(lineages)), lineages)
   }
   if (is.null(width)) {
-    width <- convertWidth(unit(0.8, "npc"), units, valueOnly = TRUE)
+    width <- convertWidth(unit(0.5, "npc"), units, valueOnly = TRUE)
     width <- setNames(rep(width, length(lineages)), lineages)
   }
   width_annotation <- height_annotation <- 0
@@ -11865,20 +11865,20 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineag
   }
   lgd_width <- convertWidth(unit(unlist(lapply(lgd, width.Legends)), unitType(width.Legends(lgd[[1]]))), unitTo = units, valueOnly = TRUE)
   height_sum <- convertHeight(unit(height_sum, units) + unit(height_annotation, units), units, valueOnly = TRUE)
-  width_sum <- convertWidth(unit(width_sum, units) + unit(width_annotation, units), units, valueOnly = TRUE)
-  height_sum <- max(
-    min(height_sum, convertHeight(unit(0.95, "npc"), units, valueOnly = TRUE)),
-    max(height_annotation, convertHeight(unit(3, "in"), units, valueOnly = TRUE))
-  )
-  width_sum <- max(
-    min(width_sum, convertWidth(unit(0.95, "npc"), units, valueOnly = TRUE)),
-    max(width_annotation + sum(lgd_width), convertHeight(unit(3, "in"), units, valueOnly = TRUE))
-  )
+  width_sum <- convertWidth(unit(width_sum, units) + unit(width_annotation, units), units, valueOnly = TRUE) + sum(lgd_width)
+  # height_sum <- max(
+  #   min(height_sum, convertHeight(unit(0.95, "npc"), units, valueOnly = TRUE)),
+  #   max(height_annotation, convertHeight(unit(3, "in"), units, valueOnly = TRUE))
+  # )
+  # width_sum <- max(
+  #   min(width_sum, convertWidth(unit(0.95, "npc"), units, valueOnly = TRUE)),
+  #   max(width_annotation + sum(lgd_width) + convertWidth(unit(1, "in"), units, valueOnly = TRUE), convertWidth(unit(3, "in"), units, valueOnly = TRUE))
+  # )
 
-  # cat("width:",width,"\n")
-  # cat("height:",height,"\n")
-  # cat("width_sum:",width_sum,"\n")
-  # cat("height_sum:",height_sum,"\n")
+  # cat("width:", width, "\n")
+  # cat("height:", height, "\n")
+  # cat("width_sum:", width_sum, "\n")
+  # cat("height_sum:", height_sum, "\n")
   if (isTRUE(fix)) {
     gTree <- grid.grabExpr(
       {
@@ -11900,6 +11900,11 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineag
       wrap = TRUE,
       wrap.grobs = TRUE
     )
+    # width_sum <- max(width_annotation +
+    #                    convertWidth(ht@annotation_legend_param$size[1],units, valueOnly = TRUE) +
+    #                    convertWidth(unit(1, "in"), units, valueOnly = TRUE),
+    #     convertWidth(unit(0.95, "npc"), units, valueOnly = TRUE))
+
     if (unitType(ht_width) == "npc") {
       ht_width <- unit(width_sum, units = units)
     }
@@ -11908,8 +11913,8 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineag
     }
     ht_width <- convertUnit(ht_width, unitTo = units)
     ht_height <- convertUnit(ht_height, unitTo = units)
-    # cat("ht_width:",ht_width,"\n")
-    # cat("ht_height:",ht_height,"\n")
+    # cat("ht_width:", ht_width, "\n")
+    # cat("ht_height:", ht_height, "\n")
     gTree <- grid.grabExpr(
       {
         draw(ht_list, annotation_legend_list = lgd)

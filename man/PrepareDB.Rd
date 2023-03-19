@@ -55,7 +55,7 @@ if (interactive()) {
   ListDB(species = "Macaca_fascicularis", db = "GO_BP")
   head(db_list[["Macaca_fascicularis"]][["GO_BP"]][["TERM2GENE"]])
 
-  # Prepare databases for plant
+  # Prepare databases for Arabidopsis (plant)
   db_list <- PrepareDB(
     species = "Arabidopsis_thaliana",
     db = c(
