@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">SCP</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.5</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -99,11 +99,11 @@
 <span>  lineages_palette <span class="op">=</span> <span class="st">"Dark2"</span>,</span>
 <span>  lineages_palcolor <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  lineages_arrow <span class="op">=</span> <span class="fu">arrow</span><span class="op">(</span>length <span class="op">=</span> <span class="fu">unit</span><span class="op">(</span><span class="fl">0.1</span>, <span class="st">"inches"</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>  lineages_line_size <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  lineages_linewidth <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  lineages_line_bg <span class="op">=</span> <span class="st">"white"</span>,</span>
 <span>  lineages_line_bg_stroke <span class="op">=</span> <span class="fl">0.5</span>,</span>
 <span>  lineages_whiskers <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  lineages_whiskers_size <span class="op">=</span> <span class="fl">0.5</span>,</span>
+<span>  lineages_whiskers_linewidth <span class="op">=</span> <span class="fl">0.5</span>,</span>
 <span>  lineages_whiskers_alpha <span class="op">=</span> <span class="fl">0.5</span>,</span>
 <span>  graph <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  edge_size <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.05</span>, <span class="fl">0.5</span><span class="op">)</span>,</span>
@@ -141,19 +141,43 @@
 
 
 <dt>features</dt>
-<dd><p>Name of one or more metadata columns to group (color) cells by (for example, orig.ident).</p></dd>
+<dd><p>Vector of features to plot. Features can be gene names in Assay or names of numeric columns in meta.data.</p></dd>
 
 
 <dt>reduction</dt>
-<dd><p>Which dimensionality reduction to use.</p></dd>
+<dd><p>Which dimensionality reduction to use. If not specified, will use the reduction returned by <code><a href="DefaultReduction.html">DefaultReduction</a></code>.</p></dd>
+
+
+<dt>dims</dt>
+<dd><p>Dimensions to plot, must be a two-length numeric vector specifying x- and y-dimensions.</p></dd>
 
 
 <dt>split.by</dt>
-<dd><p>Name of a metadata column to split plot by.</p></dd>
+<dd><p>Name of a column in meta.data to split plot by.</p></dd>
+
+
+<dt>cells</dt>
+<dd><p>Subset cells to plot.</p></dd>
+
+
+<dt>slot</dt>
+<dd><p>Which slot to pull expression data from? Default is <code>data</code>.</p></dd>
+
+
+<dt>assay</dt>
+<dd><p>Which assay to pull expression data from. If <code>NULL</code>, will use the assay returned by <code>DefaultAssay</code>.</p></dd>
+
+
+<dt>show_stat</dt>
+<dd><p>Whether to show statistical information on the plot.</p></dd>
 
 
 <dt>palette</dt>
-<dd><p>Name of palette to use. Default is "Paired".</p></dd>
+<dd><p>Name of a color palette name collected in SCP.</p></dd>
+
+
+<dt>palcolor</dt>
+<dd><p>Custom colors used to create a color palette.</p></dd>
 
 
 <dt>pt.size</dt>
@@ -164,55 +188,271 @@
 <dd><p>Point transparency.</p></dd>
 
 
+<dt>bg_cutoff</dt>
+<dd><p>Background cutoff. Points with feature values lower than the cutoff will be considered as background and will be colored with <code>bg_color</code>.</p></dd>
+
+
 <dt>bg_color</dt>
-<dd><p>Color value for NA points.</p></dd>
+<dd><p>Color value for background points.</p></dd>
 
 
 <dt>keep_scale</dt>
-<dd><p>How to handle the color scale across multiple plots. Options are:</p><ul><li><p>"feature" (default; by row/feature scaling): The plots for each individual feature are scaled to the maximum expression of the feature across the conditions provided to 'split.by'.</p></li>
+<dd><p>How to handle the color scale across multiple plots. Options are:</p><ul><li><p>NULL (no scaling): Each individual plot is scaled to the maximum expression value of the feature in the condition provided to 'split.by'. Be aware setting NULL will result in color scales that are not comparable between plots.</p></li>
+<li><p>"feature" (default; by row/feature scaling): The plots for each individual feature are scaled to the maximum expression of the feature across the conditions provided to 'split.by'.</p></li>
 <li><p>"all" (universal scaling): The plots for all features and conditions are scaled to the maximum expression value for the feature with the highest overall expression.</p></li>
-<li><p>NULL (no scaling): Each individual plot is scaled to the maximum expression value of the feature in the condition provided to 'split.by'. Be aware setting NULL will result in color scales that are not comparable between plots.</p></li>
 </ul></dd>
 
 
+<dt>lower_quantile, upper_quantile, lower_cutoff, upper_cutoff</dt>
+<dd><p>Vector of minimum and maximum cutoff values or quantile values for each feature.</p></dd>
+
+
+<dt>add_density</dt>
+<dd><p>Whether to add a density layer on the plot.</p></dd>
+
+
+<dt>density_color</dt>
+<dd><p>Color of the density contours lines.</p></dd>
+
+
+<dt>density_filled</dt>
+<dd><p>Whether to add filled contour bands instead of contour lines.</p></dd>
+
+
+<dt>density_filled_palette</dt>
+<dd><p>Color palette used to fill contour bands.</p></dd>
+
+
+<dt>density_filled_palcolor</dt>
+<dd><p>Custom colors used to fill contour bands.</p></dd>
+
+
 <dt>cells.highlight</dt>
-<dd><p>A vector of names of cells to highlight.</p></dd>
+<dd><p>A vector of cell names to highlight.</p></dd>
 
 
 <dt>cols.highlight</dt>
-<dd><p>A vector of colors to highlight the cells.</p></dd>
+<dd><p>Color used to highlight the cells.</p></dd>
 
 
 <dt>sizes.highlight</dt>
 <dd><p>Size of highlighted cells.</p></dd>
 
 
+<dt>alpha.highlight</dt>
+<dd><p>Transparency of highlighted cell points.</p></dd>
+
+
+<dt>stroke.highlight</dt>
+<dd><p>Border width of highlighted cell points.</p></dd>
+
+
+<dt>calculate_coexp</dt>
+<dd><p>Whether to calculate the co-expression value (geometric mean) of the features.</p></dd>
+
+
+<dt>compare_features</dt>
+<dd><p>Whether to show the values of multiple features on a single plot.</p></dd>
+
+
+<dt>color_blend_mode</dt>
+<dd><p>Blend mode to use when <code>compare_features = TRUE</code></p></dd>
+
+
+<dt>label</dt>
+<dd><p>Whether the feature name is labeled in the center of the location of cells wieh high expression.</p></dd>
+
+
+<dt>label.size</dt>
+<dd><p>Size of labels.</p></dd>
+
+
+<dt>label.fg</dt>
+<dd><p>Foreground color of label.</p></dd>
+
+
+<dt>label.bg</dt>
+<dd><p>Background color of label.</p></dd>
+
+
+<dt>label.bg.r</dt>
+<dd><p>Background ratio of label.</p></dd>
+
+
+<dt>label_insitu</dt>
+<dd><p>Whether the labels is feature names instead of numbers. Valid only when <code>compare_features = TRUE</code>.</p></dd>
+
+
+<dt>label_repel</dt>
+<dd><p>Logical value indicating whether the label is repel away from the center location.</p></dd>
+
+
+<dt>label_repulsion</dt>
+<dd><p>Force of repulsion between overlapping text labels. Defaults to 20.</p></dd>
+
+
+<dt>label_point_size</dt>
+<dd><p>Size of the center points.</p></dd>
+
+
+<dt>label_point_color</dt>
+<dd><p>Color of the center points</p></dd>
+
+
+<dt>label_segment_color</dt>
+<dd><p>Color of the line segment for labels.</p></dd>
+
+
+<dt>lineages</dt>
+<dd><p>Lineages/pseudotime to add to the plot. If specified, curves will be fitted using <code><a href="https://rdrr.io/r/stats/loess.html" class="external-link">loess</a></code> method.</p></dd>
+
+
+<dt>lineages_trim</dt>
+<dd><p>Trim the leading and the trailing data in the lineages.</p></dd>
+
+
+<dt>lineages_span</dt>
+<dd><p>The parameter α which controls the degree of smoothing in <code><a href="https://rdrr.io/r/stats/loess.html" class="external-link">loess</a></code> method.</p></dd>
+
+
+<dt>lineages_palette</dt>
+<dd><p>Color palette used for lineages.</p></dd>
+
+
+<dt>lineages_palcolor</dt>
+<dd><p>Custom colors used for lineages.</p></dd>
+
+
+<dt>lineages_arrow</dt>
+<dd><p>Set arrows of the lineages. See <code><a href="https://rdrr.io/r/grid/arrow.html" class="external-link">arrow</a></code>.</p></dd>
+
+
+<dt>lineages_linewidth</dt>
+<dd><p>Width of fitted curve lines for lineages.</p></dd>
+
+
+<dt>lineages_line_bg</dt>
+<dd><p>Background color of curve lines for lineages.</p></dd>
+
+
+<dt>lineages_line_bg_stroke</dt>
+<dd><p>Border width of curve lines background.</p></dd>
+
+
+<dt>lineages_whiskers</dt>
+<dd><p>Whether to add whiskers for lineages.</p></dd>
+
+
+<dt>lineages_whiskers_linewidth</dt>
+<dd><p>Width of whiskers for lineages.</p></dd>
+
+
+<dt>lineages_whiskers_alpha</dt>
+<dd><p>Transparency of whiskers for lineages.</p></dd>
+
+
+<dt>graph</dt>
+<dd><p>Specify the graph name to add edges between cell neighbors to the plot.</p></dd>
+
+
+<dt>edge_size</dt>
+<dd><p>Size of edges.</p></dd>
+
+
+<dt>edge_alpha</dt>
+<dd><p>Transparency of edges.</p></dd>
+
+
+<dt>edge_color</dt>
+<dd><p>Color of edges.</p></dd>
+
+
+<dt>hex</dt>
+<dd><p>Whether to chane the plot type from point to the hexagonal bin.</p></dd>
+
+
+<dt>hex.linewidth</dt>
+<dd><p>Border width of hexagonal bins.</p></dd>
+
+
+<dt>hex.color</dt>
+<dd><p>Border color of hexagonal bins.</p></dd>
+
+
+<dt>hex.bins</dt>
+<dd><p>Number of hexagonal bins.</p></dd>
+
+
+<dt>hex.binwidth</dt>
+<dd><p>Hexagonal bin width.</p></dd>
+
+
+<dt>raster</dt>
+<dd><p>Convert points to raster format, default is NULL which automatically rasterizes if plotting more than 100,000 cells</p></dd>
+
+
+<dt>raster.dpi</dt>
+<dd><p>Pixel resolution for rasterized plots, passed to geom_scattermore(). Default is c(512, 512).</p></dd>
+
+
+<dt>aspect.ratio</dt>
+<dd><p>Aspect ratio of the panel.</p></dd>
+
+
+<dt>title</dt>
+<dd><p>The text for the title.</p></dd>
+
+
+<dt>subtitle</dt>
+<dd><p>The text for the subtitle for the plot which will be displayed below the title.</p></dd>
+
+
+<dt>xlab</dt>
+<dd><p>x-axis label.</p></dd>
+
+
+<dt>ylab</dt>
+<dd><p>y-axis label.</p></dd>
+
+
 <dt>legend.position</dt>
-<dd><p>The position of legends ("none", "left", "right", "bottom", "top", or two-element numeric vector)</p></dd>
+<dd><p>The position of legends ("none", "left", "right", "bottom", "top").</p></dd>
 
 
 <dt>legend.direction</dt>
 <dd><p>Layout of items in legends ("horizontal" or "vertical")</p></dd>
 
 
+<dt>theme_use</dt>
+<dd><p>Theme used. Can be a character string or a theme function. For example, <code>"theme_blank"</code> or <code><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">ggplot2::theme_classic</a></code>.</p></dd>
+
+
+<dt>theme_args</dt>
+<dd><p>Other arguments passed to the <code>theme_use</code>.</p></dd>
+
+
 <dt>combine</dt>
-<dd><p>Whether to arrange multiple plots into a grid.</p></dd>
+<dd><p>Combine plots into a single <code>patchwork</code> object. If <code>FALSE</code>, return a list of ggplot objects.</p></dd>
 
 
 <dt>nrow</dt>
-<dd><p>Number of rows in the plot grid.</p></dd>
+<dd><p>Number of rows in the combined plot.</p></dd>
 
 
 <dt>ncol</dt>
-<dd><p>Number of columns in the plot grid.</p></dd>
+<dd><p>Number of columns in the combined plot.</p></dd>
 
 
 <dt>byrow</dt>
 <dd><p>Logical value indicating if the plots should be arrange by row (default) or by column.</p></dd>
 
 
+<dt>force</dt>
+<dd><p>Whether to force drawing regardless of the number of features greater than 100.</p></dd>
+
+
 <dt>seed</dt>
-<dd></dd>
+<dd><p>Random seed set for reproducibility</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -227,22 +467,22 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"pancreas_sub"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="Standard_SCP.html">Standard_SCP</a></span><span class="op">(</span><span class="va">pancreas_sub</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-18 16:05:02] Start Standard_SCP</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-18 16:05:02] Checking srtList... ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-19 16:09:10] Start Standard_SCP</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-19 16:09:10] Checking srtList... ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Data 1/1 of the srtList is raw_counts. Perform NormalizeData(LogNormalize) on the data ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform FindVariableFeatures on the data 1/1 of the srtList...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Use the separate HVF from srtList...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Number of available HVF: 2000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-18 16:05:03] Finished checking.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-18 16:05:03] Perform ScaleData on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-18 16:05:04] Perform linear dimension reduction (pca) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-18 16:05:05] Perform FindClusters (louvain) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-18 16:05:05] Reorder clusters...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-18 16:05:05] Perform nonlinear dimension reduction (umap) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-19 16:09:12] Finished checking.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-19 16:09:12] Perform ScaleData on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-19 16:09:12] Perform linear dimension reduction (pca) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-19 16:09:12] Perform FindClusters (louvain) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-19 16:09:13] Reorder clusters...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-19 16:09:13] Perform nonlinear dimension reduction (umap) on the data...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Non-linear dimensionality reduction(umap) using Reduction(Standardpca, dims_range:1-50) as input</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Non-linear dimensionality reduction(umap) using Reduction(Standardpca, dims_range:1-50) as input</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-18 16:05:13] Standard_SCP done</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 11.86 secs </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-19 16:09:22] Standard_SCP done</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 11.21 secs </span>
 <span class="r-in"><span><span class="fu">FeatureDimPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, features <span class="op">=</span> <span class="st">"G2M_score"</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="FeatureDimPlot-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="fu">FeatureDimPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, features <span class="op">=</span> <span class="st">"G2M_score"</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span>, bg_cutoff <span class="op">=</span> <span class="op">-</span><span class="cn">Inf</span><span class="op">)</span></span></span>
@@ -270,8 +510,6 @@
 <span class="r-in"><span><span class="fu">FeatureDimPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, features <span class="op">=</span> <span class="st">"Rbp4"</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span>, label <span class="op">=</span> <span class="cn">TRUE</span>, add_density <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="FeatureDimPlot-8.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="fu">FeatureDimPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, features <span class="op">=</span> <span class="st">"Rbp4"</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span>, label <span class="op">=</span> <span class="cn">TRUE</span>, add_density <span class="op">=</span> <span class="cn">TRUE</span>, density_filled <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Scale for <span style="color: #00BB00;">fill</span> is already present.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Adding another scale for <span style="color: #00BB00;">fill</span>, which will replace the existing scale.</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Removed 396 rows containing missing values (`geom_raster()`).</span>
 <span class="r-plt img"><img src="FeatureDimPlot-9.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>

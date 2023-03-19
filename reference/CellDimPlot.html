@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">SCP</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.5</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -89,11 +89,11 @@
 <span>  lineages_palette <span class="op">=</span> <span class="st">"Dark2"</span>,</span>
 <span>  lineages_palcolor <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  lineages_arrow <span class="op">=</span> <span class="fu">arrow</span><span class="op">(</span>length <span class="op">=</span> <span class="fu">unit</span><span class="op">(</span><span class="fl">0.1</span>, <span class="st">"inches"</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>  lineages_line_size <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  lineages_linewidth <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  lineages_line_bg <span class="op">=</span> <span class="st">"white"</span>,</span>
 <span>  lineages_line_bg_stroke <span class="op">=</span> <span class="fl">0.5</span>,</span>
 <span>  lineages_whiskers <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  lineages_whiskers_size <span class="op">=</span> <span class="fl">0.5</span>,</span>
+<span>  lineages_whiskers_linewidth <span class="op">=</span> <span class="fl">0.5</span>,</span>
 <span>  lineages_whiskers_alpha <span class="op">=</span> <span class="fl">0.5</span>,</span>
 <span>  stat.by <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  stat_type <span class="op">=</span> <span class="st">"percent"</span>,</span>
@@ -136,7 +136,7 @@
 <span>  streamline_minL <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  streamline_res <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  streamline_n <span class="op">=</span> <span class="fl">15</span>,</span>
-<span>  streamline_size <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0.8</span><span class="op">)</span>,</span>
+<span>  streamlinewidth <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0.8</span><span class="op">)</span>,</span>
 <span>  streamline_alpha <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  streamline_color <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  streamline_palette <span class="op">=</span> <span class="st">"RdYlBu"</span>,</span>
@@ -175,7 +175,7 @@
 
 
 <dt>group.by</dt>
-<dd><p>Name of one or more metadata columns to group (color) cells by (for example, orig.ident).</p></dd>
+<dd><p>Name of one or more meta.data columns to group (color) cells by (for example, orig.ident).</p></dd>
 
 
 <dt>reduction</dt>
@@ -187,7 +187,7 @@
 
 
 <dt>split.by</dt>
-<dd><p>Name of a metadata column to split plot by.</p></dd>
+<dd><p>Name of a column in meta.data column to split plot by.</p></dd>
 
 
 <dt>cells</dt>
@@ -219,7 +219,7 @@
 
 
 <dt>bg_color</dt>
-<dd><p>Color value for NA points.</p></dd>
+<dd><p>Color value for background(NA) points.</p></dd>
 
 
 <dt>label</dt>
@@ -243,11 +243,11 @@
 
 
 <dt>label_insitu</dt>
-<dd><p>Whether to place the original labels (group names) in the center of the cells with the corresponding group. Default is <code>FALSE</code>, which using numbers instead of raw labels.</p></dd>
+<dd><p>Whether to place the raw labels (group names) in the center of the cells with the corresponding group. Default is <code>FALSE</code>, which using numbers instead of raw labels.</p></dd>
 
 
 <dt>label_repel</dt>
-<dd><p>Logical value indicating whether the label is repel away from the center of the cell groups.</p></dd>
+<dd><p>Logical value indicating whether the label is repel away from the center points.</p></dd>
 
 
 <dt>label_repulsion</dt>
@@ -255,11 +255,11 @@
 
 
 <dt>label_point_size</dt>
-<dd><p>Size of the center points of the cell groups.</p></dd>
+<dd><p>Size of the center points.</p></dd>
 
 
 <dt>label_point_color</dt>
-<dd><p>Color of the center points of the cell groups.</p></dd>
+<dd><p>Color of the center points.</p></dd>
 
 
 <dt>label_segment_color</dt>
@@ -271,7 +271,7 @@
 
 
 <dt>cols.highlight</dt>
-<dd><p>Colors used to highlight the cells.</p></dd>
+<dd><p>Color used to highlight the cells.</p></dd>
 
 
 <dt>sizes.highlight</dt>
@@ -330,8 +330,8 @@
 <dd><p>Set arrows of the lineages. See <code><a href="https://rdrr.io/r/grid/arrow.html" class="external-link">arrow</a></code>.</p></dd>
 
 
-<dt>lineages_line_size</dt>
-<dd><p>Size of fitted curve lines for lineages.</p></dd>
+<dt>lineages_linewidth</dt>
+<dd><p>Width of fitted curve lines for lineages.</p></dd>
 
 
 <dt>lineages_line_bg</dt>
@@ -339,15 +339,15 @@
 
 
 <dt>lineages_line_bg_stroke</dt>
-<dd><p>Border width of curve lines background .</p></dd>
+<dd><p>Border width of curve lines background.</p></dd>
 
 
 <dt>lineages_whiskers</dt>
 <dd><p>Whether to add whiskers for lineages.</p></dd>
 
 
-<dt>lineages_whiskers_size</dt>
-<dd><p>Size of whiskers for lineages.</p></dd>
+<dt>lineages_whiskers_linewidth</dt>
+<dd><p>Width of whiskers for lineages.</p></dd>
 
 
 <dt>lineages_whiskers_alpha</dt>
@@ -518,7 +518,7 @@
 <dd><p>Number of points to draw.</p></dd>
 
 
-<dt>streamline_size</dt>
+<dt>streamlinewidth</dt>
 <dd><p>Size of streamline.</p></dd>
 
 
@@ -575,7 +575,7 @@
 
 
 <dt>aspect.ratio</dt>
-<dd><p>Aspect ratio of the panel</p></dd>
+<dd><p>Aspect ratio of the panel.</p></dd>
 
 
 <dt>title</dt>
@@ -627,7 +627,7 @@
 
 
 <dt>force</dt>
-<dd><p>Whether to force drawing regardless of the number of cell groups greater than 100.</p></dd>
+<dd><p>Whether to force drawing regardless of maximum levels in any cell group is greater than 100.</p></dd>
 
 
 <dt>seed</dt>
@@ -729,22 +729,22 @@
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Show neighbors graphs on the plot</span></span></span>
 <span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="Standard_SCP.html">Standard_SCP</a></span><span class="op">(</span><span class="va">pancreas_sub</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-18 15:53:21] Start Standard_SCP</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-18 15:53:21] Checking srtList... ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-19 15:56:48] Start Standard_SCP</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-19 15:56:48] Checking srtList... ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Data 1/1 of the srtList is raw_counts. Perform NormalizeData(LogNormalize) on the data ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform FindVariableFeatures on the data 1/1 of the srtList...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Use the separate HVF from srtList...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Number of available HVF: 2000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-18 15:53:22] Finished checking.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-18 15:53:22] Perform ScaleData on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-18 15:53:22] Perform linear dimension reduction (pca) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-18 15:53:23] Perform FindClusters (louvain) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-18 15:53:23] Reorder clusters...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-18 15:53:23] Perform nonlinear dimension reduction (umap) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-19 15:56:49] Finished checking.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-19 15:56:49] Perform ScaleData on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-19 15:56:49] Perform linear dimension reduction (pca) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-19 15:56:50] Perform FindClusters (louvain) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-19 15:56:50] Reorder clusters...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-19 15:56:50] Perform nonlinear dimension reduction (umap) on the data...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Non-linear dimensionality reduction(umap) using Reduction(Standardpca, dims_range:1-50) as input</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Non-linear dimensionality reduction(umap) using Reduction(Standardpca, dims_range:1-50) as input</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-18 15:53:31] Standard_SCP done</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 9.38 secs </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-03-19 15:56:58] Standard_SCP done</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 9.7 secs </span>
 <span class="r-in"><span><span class="fu">CellDimPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, group.by <span class="op">=</span> <span class="st">"CellType"</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span>, graph <span class="op">=</span> <span class="st">"Standardpca_SNN"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="CellDimPlot-15.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="fu">CellDimPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, group.by <span class="op">=</span> <span class="st">"CellType"</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span>, graph <span class="op">=</span> <span class="st">"Standardpca_SNN"</span>, edge_color <span class="op">=</span> <span class="st">"grey80"</span><span class="op">)</span></span></span>

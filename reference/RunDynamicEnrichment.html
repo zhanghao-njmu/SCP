@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">SCP</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.5</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -91,14 +91,14 @@
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Removed 8 rows containing missing values (`geom_path()`).</span>
 <span class="r-plt img"><img src="RunDynamicEnrichment-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="RunDynamicFeatures.html">RunDynamicFeatures</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, lineages <span class="op">=</span> <span class="st">"Lineage1"</span>, n_candidates <span class="op">=</span> <span class="fl">200</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-03-18 16:34:28] Start RunDynamicFeatures</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-03-19 16:39:19] Start RunDynamicFeatures</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Workers: 1</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Number of candidate features(union): 199</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Calculate dynamic features for Lineage1...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |==============================================================================================================| 100%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-03-18 16:34:41] RunDynamicFeatures done</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:12.7 secs</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-03-19 16:39:32] RunDynamicFeatures done</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:13.24 secs</span>
 <span class="r-in"><span><span class="va">ht1</span> <span class="op">&lt;-</span> <span class="fu"><a href="DynamicHeatmap.html">DynamicHeatmap</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>  srt <span class="op">=</span> <span class="va">pancreas_sub</span>,</span></span>
 <span class="r-in"><span>  lineages <span class="op">=</span> <span class="st">"Lineage1"</span>,</span></span>
@@ -120,28 +120,28 @@
 <span class="r-in"><span>  db <span class="op">=</span> <span class="st">"GO_BP"</span>,</span></span>
 <span class="r-in"><span>  species <span class="op">=</span> <span class="st">"Mus_musculus"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-03-18 16:34:46] Start RunDynamicFeatures</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-03-19 16:39:37] Start RunDynamicFeatures</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Workers: 1</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Species: Mus_musculus</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db:GO_BP version:3.16.0 nterm:15992 created:2023-03-18 16:00:12</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db:GO_BP version:3.16.0 nterm:15992 created:2023-03-19 16:04:14</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Data is raw counts. Perform NormalizeData(LogNormalize) on the data ...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Number of feature lists to be scored: 2753</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-03-18 16:34:52] Start CellScoring</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-03-19 16:39:43] Start CellScoring</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Workers: 1</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Feature names cannot have underscores ('_'), replacing with dashes ('-')</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Keys should be one or more alphanumeric characters followed by an underscore, setting key from go_bp_ to gobp_</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-03-18 16:38:59] CellScoring done</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:4.11 mins</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-03-18 16:38:59] Start RunDynamicFeatures</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-03-19 16:43:53] CellScoring done</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:4.17 mins</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-03-19 16:43:53] Start RunDynamicFeatures</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Workers: 1</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Number of candidate features(union): 2753</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Calculate dynamic features for Lineage1...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |==============================================================================================================| 100%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-03-18 16:39:40] RunDynamicFeatures done</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:41.42 secs</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-03-18 16:39:40] RunDynamicEnrichment done</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:4.89 mins</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-03-19 16:44:38] RunDynamicFeatures done</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:45.01 secs</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-03-19 16:44:38] RunDynamicEnrichment done</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:5.02 mins</span>
 <span class="r-in"><span><span class="va">ht2</span> <span class="op">&lt;-</span> <span class="fu"><a href="DynamicHeatmap.html">DynamicHeatmap</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>  srt <span class="op">=</span> <span class="va">pancreas_sub</span>,</span></span>
 <span class="r-in"><span>  assay <span class="op">=</span> <span class="st">"GO_BP"</span>,</span></span>
