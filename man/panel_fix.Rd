@@ -89,7 +89,7 @@ p1 <- CellDimPlot(pancreas_sub, "Phase", aspect.ratio = 1) # ggplot object
 p2 <- FeatureDimPlot(pancreas_sub, "Ins1", aspect.ratio = 0.5) # ggplot object
 p <- p1 / p2 # plot is combined by patchwork
 # fix the panel size for each plot, the width will be calculated automatically based on aspect.ratio
-panel_fix(p, height = 2)
+panel_fix(p, height = 1)
 
 # fix the panel of the plot combined by plot_grid
 library(cowplot)
@@ -97,9 +97,9 @@ p1 <- CellDimPlot(pancreas_sub, c("Phase", "SubCellType"), label = TRUE) # plot 
 p2 <- FeatureDimPlot(pancreas_sub, c("Ins1", "Gcg"), label = TRUE) # plot is combined by patchwork
 p <- plot_grid(p1, p2, nrow = 2) # plot is combined by plot_grid
 # fix the size of panel for each plot
-panel_fix(p, height = 2)
+panel_fix(p, height = 1)
 # rasterize the panel while keeping all labels and text in vector format
-panel_fix(p, height = 2, raster = TRUE, dpi = 30)
+panel_fix(p, height = 1, raster = TRUE, dpi = 30)
 
 # fix the panel of the heatmap
 ht1 <- GroupHeatmap(pancreas_sub,
@@ -120,14 +120,14 @@ panel_fix(ht1$plot)
 # rasterize the heatmap body
 panel_fix(ht1$plot, raster = TRUE, dpi = 30)
 # fix the size of overall heatmap including annotation and legend
-panel_fix(ht1$plot, height = 5, width = 7)
+panel_fix(ht1$plot, height = 4, width = 6)
 
 ht2 <- GroupHeatmap(pancreas_sub,
   features = pancreas_sub[["RNA"]]@var.features,
-  group.by = c("CellType", "SubCellType"),
+  group.by = "SubCellType",
   n_split = 5, nlabel = 20,
   db = "GO_BP", species = "Mus_musculus", anno_terms = TRUE,
-  height = 3, width = c(1, 2) # Heatmap body size for two groups
+  height = 4, width = 1 # Heatmap body size for two groups
 )
 # the size of the heatmap is already fixed
 ht2$plot

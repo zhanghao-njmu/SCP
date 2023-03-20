@@ -159,7 +159,7 @@ ht1 <- GroupHeatmap(pancreas_sub,
   show_row_names = TRUE
 )
 ht1$plot
-panel_fix(ht1$plot, height = 3, width = 6, raster = TRUE, dpi = 50)
+panel_fix(ht1$plot, height = 4, width = 6, raster = TRUE, dpi = 50)
 
 pancreas_sub <- RunDEtest(pancreas_sub, group_by = "CellType")
 de_filter <- filter(pancreas_sub@tools$DEtest_CellType$AllMarkers_wilcox, p_val_adj < 0.05 & avg_log2FC > 1)

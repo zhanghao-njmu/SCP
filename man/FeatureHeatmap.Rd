@@ -123,7 +123,7 @@ ht1 <- FeatureHeatmap(
   split.by = "Phase", cell_split_palette = "Dark2",
 )
 ht1$plot
-panel_fix(ht1$plot, height = 3, width = 6, raster = TRUE, dpi = 50)
+panel_fix(ht1$plot, height = 4, width = 6, raster = TRUE, dpi = 50)
 
 ht2 <- FeatureHeatmap(
   srt = pancreas_sub, features = de_filter$gene, group.by = c("CellType", "SubCellType"), n_split = 4,
