@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">SCP</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.5.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.6</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -91,14 +91,14 @@
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Removed 8 rows containing missing values (`geom_path()`).</span>
 <span class="r-plt img"><img src="RunDynamicEnrichment-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="RunDynamicFeatures.html">RunDynamicFeatures</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, lineages <span class="op">=</span> <span class="st">"Lineage1"</span>, n_candidates <span class="op">=</span> <span class="fl">200</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-03-19 19:00:37] Start RunDynamicFeatures</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-03-20 04:17:01] Start RunDynamicFeatures</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Workers: 1</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Number of candidate features(union): 199</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Calculate dynamic features for Lineage1...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |==============================================================================================================| 100%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-03-19 19:00:49] RunDynamicFeatures done</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:11.86 secs</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-03-20 04:17:17] RunDynamicFeatures done</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:16.54 secs</span>
 <span class="r-in"><span><span class="va">ht1</span> <span class="op">&lt;-</span> <span class="fu"><a href="DynamicHeatmap.html">DynamicHeatmap</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>  srt <span class="op">=</span> <span class="va">pancreas_sub</span>,</span></span>
 <span class="r-in"><span>  lineages <span class="op">=</span> <span class="st">"Lineage1"</span>,</span></span>
@@ -110,6 +110,7 @@
 <span class="r-msg co"><span class="r-pr">#&gt;</span> 'magick' package is suggested to install to give better rasterization.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Set `ht_opt$message = FALSE` to turn off this message.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Some non-scalable elements are detected and the size of the heatmap will be fixed.</span>
 <span class="r-in"><span><span class="va">ht1</span><span class="op">$</span><span class="va">plot</span></span></span>
 <span class="r-plt img"><img src="RunDynamicEnrichment-2.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
@@ -120,28 +121,28 @@
 <span class="r-in"><span>  db <span class="op">=</span> <span class="st">"GO_BP"</span>,</span></span>
 <span class="r-in"><span>  species <span class="op">=</span> <span class="st">"Mus_musculus"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-03-19 19:00:52] Start RunDynamicFeatures</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-03-20 04:17:24] Start RunDynamicFeatures</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Workers: 1</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Species: Mus_musculus</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db:GO_BP version:3.16.0 nterm:15992 created:2023-03-19 18:29:19</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db:GO_BP version:3.16.0 nterm:15992 created:2023-03-20 03:33:51</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Data is raw counts. Perform NormalizeData(LogNormalize) on the data ...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Number of feature lists to be scored: 2753</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-03-19 19:00:57] Start CellScoring</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-03-20 04:17:31] Start CellScoring</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Workers: 1</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Feature names cannot have underscores ('_'), replacing with dashes ('-')</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Keys should be one or more alphanumeric characters followed by an underscore, setting key from go_bp_ to gobp_</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-03-19 19:04:51] CellScoring done</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:3.9 mins</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-03-19 19:04:52] Start RunDynamicFeatures</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-03-20 04:24:19] CellScoring done</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:6.8 mins</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-03-20 04:24:19] Start RunDynamicFeatures</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Workers: 1</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Number of candidate features(union): 2753</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Calculate dynamic features for Lineage1...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |==============================================================================================================| 100%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-03-19 19:05:32] RunDynamicFeatures done</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:40.33 secs</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-03-19 19:05:32] RunDynamicEnrichment done</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:4.66 mins</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-03-20 04:25:17] RunDynamicFeatures done</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:57.91 secs</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-03-20 04:25:17] RunDynamicEnrichment done</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:7.89 mins</span>
 <span class="r-in"><span><span class="va">ht2</span> <span class="op">&lt;-</span> <span class="fu"><a href="DynamicHeatmap.html">DynamicHeatmap</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>  srt <span class="op">=</span> <span class="va">pancreas_sub</span>,</span></span>
 <span class="r-in"><span>  assay <span class="op">=</span> <span class="st">"GO_BP"</span>,</span></span>
@@ -156,6 +157,7 @@
 <span class="r-msg co"><span class="r-pr">#&gt;</span> 'magick' package is suggested to install to give better rasterization.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Set `ht_opt$message = FALSE` to turn off this message.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Some non-scalable elements are detected and the size of the heatmap will be fixed.</span>
 <span class="r-in"><span><span class="va">ht2</span><span class="op">$</span><span class="va">plot</span></span></span>
 <span class="r-plt img"><img src="RunDynamicEnrichment-3.png" alt="" width="700" height="433"></span>
 </code></pre></div>
