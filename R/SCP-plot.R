@@ -8691,7 +8691,7 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
   # cat("width_sum:",width_sum,"\n")
   # cat("height_sum:",height_sum,"\n")
   if (isTRUE(fix)) {
-    message("Some non-scalable elements are detected and the size of the heatmap will be fixed.")
+    message("The size of the heatmap will be fixed as some elements are not scalable.")
     gTree <- grid.grabExpr(
       {
         ht <- draw(ht_list, annotation_legend_list = lgd)
@@ -8723,6 +8723,7 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
         convertWidth(ht@layout$max_left_component_width, units, valueOnly = TRUE) +
           convertWidth(ht@layout$max_right_component_width, units, valueOnly = TRUE) +
           convertWidth(ht@annotation_legend_param$size[1], units, valueOnly = TRUE) +
+          convertWidth(sum(ht@layout$max_title_component_width), units, valueOnly = TRUE) +
           convertWidth(unit(1, "in"), units, valueOnly = TRUE),
         convertWidth(unit(0.95, "npc"), units, valueOnly = TRUE)
       )
@@ -9753,7 +9754,7 @@ FeatureHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, 
   # cat("width_sum:",width_sum,"\n")
   # cat("height_sum:",height_sum,"\n")
   if (isTRUE(fix)) {
-    message("Some non-scalable elements are detected and the size of the heatmap will be fixed.")
+    message("The size of the heatmap will be fixed as some elements are not scalable.")
     gTree <- grid.grabExpr(
       {
         ht <- draw(ht_list, annotation_legend_list = lgd)
@@ -9785,6 +9786,7 @@ FeatureHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, 
         convertWidth(ht@layout$max_left_component_width, units, valueOnly = TRUE) +
           convertWidth(ht@layout$max_right_component_width, units, valueOnly = TRUE) +
           convertWidth(ht@annotation_legend_param$size[1], units, valueOnly = TRUE) +
+          convertWidth(sum(ht@layout$max_title_component_width), units, valueOnly = TRUE) +
           convertWidth(unit(1, "in"), units, valueOnly = TRUE),
         convertWidth(unit(0.95, "npc"), units, valueOnly = TRUE)
       )
@@ -10721,7 +10723,7 @@ CellCorHeatmap <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
   # cat("width_sum:", width_sum, "\n")
   # cat("height_sum:", height_sum, "\n")
   if (isTRUE(fix)) {
-    message("Some non-scalable elements are detected and the size of the heatmap will be fixed.")
+    message("The size of the heatmap will be fixed as some elements are not scalable.")
     gTree <- grid.grabExpr(
       {
         ht <- draw(ht_list, annotation_legend_list = lgd)
@@ -10754,6 +10756,7 @@ CellCorHeatmap <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
         convertWidth(ht@layout$max_left_component_width, units, valueOnly = TRUE) +
           convertWidth(ht@layout$max_right_component_width, units, valueOnly = TRUE) +
           convertWidth(ht@annotation_legend_param$size[1], units, valueOnly = TRUE) +
+          convertWidth(sum(ht@layout$max_title_component_width), units, valueOnly = TRUE) +
           convertWidth(unit(1, "in"), units, valueOnly = TRUE),
         convertWidth(unit(0.95, "npc"), units, valueOnly = TRUE)
       )
@@ -11916,7 +11919,7 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineag
   # cat("width_sum:", width_sum, "\n")
   # cat("height_sum:", height_sum, "\n")
   if (isTRUE(fix)) {
-    message("Some non-scalable elements are detected and the size of the heatmap will be fixed.")
+    message("The size of the heatmap will be fixed as some elements are not scalable.")
     gTree <- grid.grabExpr(
       {
         ht <- draw(ht_list, annotation_legend_list = lgd)
@@ -11948,6 +11951,7 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineag
         convertWidth(ht@layout$max_left_component_width, units, valueOnly = TRUE) +
           convertWidth(ht@layout$max_right_component_width, units, valueOnly = TRUE) +
           convertWidth(ht@annotation_legend_param$size[1], units, valueOnly = TRUE) +
+          convertWidth(sum(ht@layout$max_title_component_width), units, valueOnly = TRUE) +
           convertWidth(unit(1, "in"), units, valueOnly = TRUE),
         convertWidth(unit(0.95, "npc"), units, valueOnly = TRUE)
       )
