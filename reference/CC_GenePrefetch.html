@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">SCP</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.6.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.7</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -52,7 +52,7 @@
 <span>  species <span class="op">=</span> <span class="st">"Homo_sapiens"</span>,</span>
 <span>  Ensembl_version <span class="op">=</span> <span class="fl">103</span>,</span>
 <span>  mirror <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  attempts <span class="op">=</span> <span class="fl">5</span>,</span>
+<span>  max_tries <span class="op">=</span> <span class="fl">5</span>,</span>
 <span>  use_cached_gene <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -71,8 +71,8 @@
 <dd><p>Specify an Ensembl mirror to connect to. The valid options here are 'www', 'uswest', 'useast', 'asia'.</p></dd>
 
 
-<dt>attempts</dt>
-<dd><p>Number of attempts to connect with the biomart service.</p></dd>
+<dt>max_tries</dt>
+<dd><p>Number of max_tries to connect with the biomart service.</p></dd>
 
 
 <dt>use_cached_gene</dt>
