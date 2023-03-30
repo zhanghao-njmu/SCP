@@ -16,7 +16,7 @@ PrepareDB(
   Ensembl_version = 103,
   mirror = NULL,
   biomart = NULL,
-  attempts = 5,
+  max_tries = 5,
   custom_TERM2GENE = NULL,
   custom_TERM2NAME = NULL,
   custom_species = NULL,

@@ -1207,80 +1207,6 @@ BlendRGBList <- function(Clist, mode = "blend", RGB_BackGround = c(1, 1, 1)) {
   return(Result)
 }
 
-
-#' Find the default reduction name in a Seurat object.
-#'
-#' @param srt A Seurat object.
-#' @param pattern Character string containing a regular expression to search for.
-#' @param min_dim Minimum dimension threshold.
-#' @param max_distance Maximum distance allowed for a match.
-#'
-#' @examples
-#' data("pancreas_sub")
-#' names(pancreas_sub@reductions)
-#' DefaultReduction(pancreas_sub)
-#'
-#' # Searches for matches to "pca"
-#' DefaultReduction(pancreas_sub, pattern = "pca")
-#'
-#' # Searches for approximate matches to "pc"
-#' DefaultReduction(pancreas_sub, pattern = "pc")
-#'
-#' @return Default reduction name.
-#'
-#' @export
-DefaultReduction <- function(srt, pattern = NULL, min_dim = 2, max_distance = 0.1) {
-  if (length(srt@reductions) == 0) {
-    stop("Unable to find any reductions.")
-  }
-  pattern_default <- c("umap", "tsne", "dm", "phate", "pacmap", "trimap", "largevis", "pca", "svd", "ica", "nmf", "mds", "glmpca")
-  pattern_dim <- c("2D", "3D")
-  reduc_all <- names(srt@reductions)
-  reduc_all <- reduc_all[unlist(lapply(reduc_all, function(x) {
-    dim(srt@reductions[[x]]@cell.embeddings)[2] >= min_dim
-  }))]
-  if (length(reduc_all) == 0) {
-    stop("No dimensional reduction found in the srt object.")
-  }
-  if (length(reduc_all) == 1) {
-    return(reduc_all)
-  }
-  if (is.null(pattern)) {
-    if (("Default_reduction" %in% names(srt@misc))) {
-      pattern <- srt@misc[["Default_reduction"]]
-    } else {
-      pattern <- pattern_default
-    }
-  }
-
-  pattern <- c(pattern, paste0(pattern, min_dim, "D"))
-  if (any(pattern %in% reduc_all)) {
-    return(pattern[pattern %in% reduc_all][1])
-  }
-  index <- c(unlist(sapply(pattern, function(pat) {
-    grep(pattern = pat, x = reduc_all, ignore.case = TRUE)
-  })))
-  if (length(index) > 0) {
-    default_reduc <- reduc_all[index]
-  } else {
-    index <- c(unlist(sapply(pattern, function(pat) {
-      agrep(pattern = pat, x = reduc_all, max.distance = max_distance, ignore.case = TRUE)
-    })))
-    if (length(index) > 0) {
-      default_reduc <- reduc_all[index]
-    } else {
-      default_reduc <- reduc_all
-    }
-  }
-  if (length(default_reduc) > 1) {
-    default_reduc <- default_reduc[unlist(sapply(c(pattern_default, pattern_dim), function(pat) {
-      grep(pattern = pat, x = default_reduc, ignore.case = TRUE)
-    }))]
-    default_reduc <- default_reduc[which.min(sapply(default_reduc, function(x) dim(srt@reductions[[x]])[2]))]
-  }
-  return(default_reduc)
-}
-
 #' Visualize cell groups on a 2-dimensional reduction plot
 #'
 #' Plotting cell points on a reduced 2D plane and coloring according to the groups.
@@ -2263,7 +2189,7 @@ FeatureDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), spli
     features <- c(features, "CoExp")
     features_meta <- c(features_meta, "CoExp")
   }
-  if (length(features_gene > 0)) {
+  if (length(features_gene) > 0) {
     if (all(rownames(srt@assays[[assay]]) %in% features_gene)) {
       dat_gene <- t(slot(srt@assays[[assay]], slot))
     } else {
@@ -2272,7 +2198,7 @@ FeatureDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), spli
   } else {
     dat_gene <- matrix(nrow = ncol(srt@assays[[1]]), ncol = 0)
   }
-  if (length(features_meta > 0)) {
+  if (length(features_meta) > 0) {
     dat_meta <- as.matrix(srt@meta.data[, features_meta, drop = FALSE])
   } else {
     dat_meta <- matrix(nrow = ncol(srt@assays[[1]]), ncol = 0)
@@ -3520,6 +3446,7 @@ FeatureDimPlot3D <- function(srt, features = NULL, reduction = NULL, dims = c(1,
 #'     "Rbp4", "Pyy", # Endocrine
 #'     "Ins1", "Gcg", "Sst", "Ghrl" # Beta, Alpha, Delta, Epsilon
 #'   ),
+#'   legend.position = "top", legend.direction = "horizontal",
 #'   group.by = "SubCellType", bg.by = "CellType", stack = TRUE
 #' )
 #' FeatureStatPlot(pancreas_sub,
@@ -3673,7 +3600,7 @@ FeatureStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.b
     stat.by <- c(stat.by, "CoExp")
     features_meta <- c(features_meta, "CoExp")
   }
-  if (length(features_gene > 0)) {
+  if (length(features_gene) > 0) {
     if (all(rownames(srt@assays[[assay]]) %in% features_gene)) {
       dat_gene <- t(exp.data)
     } else {
@@ -3682,7 +3609,7 @@ FeatureStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.b
   } else {
     dat_gene <- matrix(nrow = ncol(srt@assays[[1]]), ncol = 0)
   }
-  if (length(features_meta > 0)) {
+  if (length(features_meta) > 0) {
     dat_meta <- as.matrix(meta.data[, features_meta, drop = FALSE])
   } else {
     dat_meta <- matrix(nrow = ncol(srt@assays[[1]]), ncol = 0)
@@ -4192,7 +4119,7 @@ FeatureStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.b
         })
         gtable <- do.call(cbind, plist_g)
         gtable <- add_grob(gtable, lab, "bottom", clip = "off")
-        gtable <- add_grob(gtable, legend, "right")
+        gtable <- add_grob(gtable, legend, legend.position)
       } else {
         lab <- textGrob(label = ifelse(is.null(ylab), "Expression level", ylab), rot = 90, hjust = 0.5)
         plist_g <- lapply(seq_along(plist_g), FUN = function(i) {
@@ -4224,7 +4151,7 @@ FeatureStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.b
         })
         gtable <- do.call(rbind, plist_g)
         gtable <- add_grob(gtable, lab, "left", clip = "off")
-        gtable <- add_grob(gtable, legend, "right")
+        gtable <- add_grob(gtable, legend, legend.position)
       }
       gtable <- gtable_add_padding(gtable, unit(c(1, 1, 1, 1), units = "cm"))
       plot <- wrap_plots(gtable)
@@ -5191,12 +5118,12 @@ FeatureCorPlot <- function(srt, features, group.by = NULL, split.by = NULL, cell
     features <- c(features, "CoExp")
     features_meta <- c(features_meta, "CoExp")
   }
-  if (length(features_gene > 0)) {
+  if (length(features_gene) > 0) {
     dat_gene <- t(slot(srt@assays[[assay]], slot)[features_gene, , drop = FALSE])
   } else {
     dat_gene <- matrix(nrow = ncol(srt@assays[[1]]), ncol = 0)
   }
-  if (length(features_meta > 0)) {
+  if (length(features_meta) > 0) {
     dat_meta <- as.matrix(srt@meta.data[, features_meta, drop = FALSE])
   } else {
     dat_meta <- matrix(nrow = ncol(srt@assays[[1]]), ncol = 0)
@@ -5582,12 +5509,12 @@ CellDensityPlot <- function(srt, features, group.by, split.by = NULL, assay = NU
   features_gene <- features[features %in% rownames(srt@assays[[assay]])]
   features_meta <- features[features %in% colnames(srt@meta.data)]
 
-  if (length(features_gene > 0)) {
+  if (length(features_gene) > 0) {
     dat_gene <- t(slot(srt@assays[[assay]], slot)[features_gene, , drop = FALSE])
   } else {
     dat_gene <- matrix(nrow = ncol(srt@assays[[1]]), ncol = 0)
   }
-  if (length(features_meta > 0)) {
+  if (length(features_meta) > 0) {
     dat_meta <- as.matrix(srt@meta.data[, features_meta, drop = FALSE])
   } else {
     dat_meta <- matrix(nrow = ncol(srt@assays[[1]]), ncol = 0)
@@ -7316,7 +7243,7 @@ heatmap_enrichment <- function(geneID, geneID_groups, feature_split_palette = "j
             keys_list <- lapply(subdf_list, function(df) {
               if (df$Database[1] %in% c("GO_BP", "GO_CC", "GO_MF")) {
                 df0 <- simplifyEnrichment::keyword_enrichment_from_GO(df[["ID"]])
-                if (nrow(df0 > 0)) {
+                if (nrow(df0) > 0) {
                   df <- df0 %>%
                     reframe(
                       keyword = .data[["keyword"]],
@@ -7444,6 +7371,142 @@ heatmap_enrichment <- function(geneID, geneID_groups, feature_split_palette = "j
     }
   }
   return(list(ha_right = ha_right, res = res))
+}
+
+#' @importFrom grid convertWidth convertHeight unit
+#' @importFrom ComplexHeatmap width.HeatmapAnnotation height.HeatmapAnnotation width.Legends
+heatmap_rendersize <- function(width, height, units, ha_top_list, ha_left, ha_right, ht_list, legend_list, flip) {
+  width_annotation <- height_annotation <- 0
+  if (isTRUE(flip)) {
+    width_sum <- width[1] %||% convertWidth(unit(1, "in"), units, valueOnly = TRUE)
+    height_sum <- sum(height %||% convertHeight(unit(1, "in"), units, valueOnly = TRUE))
+    if (length(ha_top_list) > 0) {
+      width_annotation <- convertWidth(unit(width_annotation, units) + width.HeatmapAnnotation(ha_top_list[[1]]), units, valueOnly = TRUE)
+    }
+    if (!is.null(ha_left)) {
+      height_annotation <- convertHeight(unit(height_annotation, units) + height.HeatmapAnnotation(ha_left), units, valueOnly = TRUE)
+    }
+    if (!is.null(ha_right)) {
+      height_annotation <- convertHeight(unit(height_annotation, units) + height.HeatmapAnnotation(ha_right), units, valueOnly = TRUE)
+    }
+  } else {
+    width_sum <- sum(width %||% convertWidth(unit(1, "in"), units, valueOnly = TRUE))
+    height_sum <- height[1] %||% convertHeight(unit(1, "in"), units, valueOnly = TRUE)
+    if (length(ha_top_list) > 0) {
+      height_annotation <- convertHeight(unit(height_annotation, units) + height.HeatmapAnnotation(ha_top_list[[1]]), units, valueOnly = TRUE)
+    }
+    if (!is.null(ha_left)) {
+      width_annotation <- convertWidth(unit(width_annotation, units) + width.HeatmapAnnotation(ha_left), units, valueOnly = TRUE)
+    }
+    if (!is.null(ha_right)) {
+      width_annotation <- convertWidth(unit(width_annotation, units) + width.HeatmapAnnotation(ha_right), units, valueOnly = TRUE)
+    }
+  }
+  dend_width <- name_width <- NULL
+  dend_height <- name_height <- NULL
+  if (inherits(ht_list, "HeatmapList")) {
+    for (nm in names(ht_list@ht_list)) {
+      ht <- ht_list@ht_list[[nm]]
+      dend_width <- max(ht@row_dend_param$width, dend_width)
+      dend_height <- max(ht@column_dend_param$height, dend_height)
+      name_width <- max(ht@row_names_param$max_width, name_width)
+      name_height <- max(ht@column_names_param$max_height, name_height)
+    }
+  } else if (inherits(ht_list, "Heatmap")) {
+    ht <- ht_list
+    dend_width <- max(ht@row_dend_param$width, dend_width)
+    dend_height <- max(ht@column_dend_param$height, dend_height)
+    name_width <- max(ht@row_names_param$max_width, name_width)
+    name_height <- max(ht@column_names_param$max_height, name_height)
+  } else {
+    stop("ht_list is not a class of HeatmapList or Heatmap.")
+  }
+
+  lgd_width <- convertWidth(unit(unlist(lapply(legend_list, width.Legends)), unitType(width.Legends(legend_list[[1]]))), unitTo = units, valueOnly = TRUE)
+  width_sum <- convertWidth(unit(width_sum, units) +
+    unit(width_annotation, units) +
+    dend_width +
+    name_width, units, valueOnly = TRUE) + sum(lgd_width)
+  height_sum <- max(
+    convertHeight(unit(height_sum, units) +
+      unit(height_annotation, units) +
+      dend_height +
+      name_height, units, valueOnly = TRUE),
+    convertHeight(unit(0.95, "npc"), units, valueOnly = TRUE)
+  )
+  return(list(width_sum = width_sum, height_sum = height_sum))
+}
+
+#' @importFrom grid convertWidth convertHeight convertUnit unit grid.grabExpr
+#' @importFrom ComplexHeatmap draw
+#' @importFrom methods slotNames
+heatmap_fixsize <- function(width, width_sum, height, height_sum, units, ht_list, legend_list, verbose = TRUE) {
+  if (verbose) {
+    message("The size of the heatmap will be fixed as some elements are not scalable.")
+  }
+  gTree <- grid.grabExpr(
+    {
+      ht <- draw(ht_list, annotation_legend_list = legend_list)
+      ht_width <- ComplexHeatmap:::width(ht)
+      ht_height <- ComplexHeatmap:::height(ht)
+      if (inherits(ht_list, "HeatmapList")) {
+        for (nm in names(ht_list@ht_list)) {
+          if (is.null(names(width))) {
+            width_fix <- width[1]
+          } else {
+            width_fix <- width[nm]
+          }
+          if (is.null(names(height))) {
+            height_fix <- height[1]
+          } else {
+            height_fix <- height[nm]
+          }
+          ht_list@ht_list[[nm]]@matrix_param$width <- unit(width_fix %||% dim(ht_list@ht_list[[nm]]@matrix)[1], units = "null")
+          ht_list@ht_list[[nm]]@matrix_param$height <- unit(height_fix %||% dim(ht_list@ht_list[[nm]]@matrix)[2], units = "null")
+        }
+      } else if (inherits(ht_list, "Heatmap")) {
+        ht_list@matrix_param$width <- unit(width[1] %||% dim(ht_list@matrix)[1], units = "null")
+        ht_list@matrix_param$height <- unit(height[1] %||% dim(ht_list@matrix)[2], units = "null")
+      } else {
+        stop("ht_list is not a class of HeatmapList or Heatmap.")
+      }
+    },
+    width = unit(width_sum, units = units),
+    height = unit(height_sum, units = units),
+    wrap = TRUE,
+    wrap.grobs = TRUE
+  )
+  if (unitType(ht_width) == "npc") {
+    ht_width <- unit(width_sum, units = units)
+  }
+  if (unitType(ht_height) == "npc") {
+    ht_height <- unit(height_sum, units = units)
+  }
+  if (is.null(width)) {
+    ht_width <- max(
+      convertWidth(ht@layout$max_left_component_width, units, valueOnly = TRUE) +
+        convertWidth(ht@layout$max_right_component_width, units, valueOnly = TRUE) +
+        convertWidth(sum(ht@layout$max_title_component_width), units, valueOnly = TRUE) +
+        convertWidth(ht@annotation_legend_param$size[1], units, valueOnly = TRUE) +
+        convertWidth(unit(1, "in"), units, valueOnly = TRUE),
+      convertWidth(unit(0.95, "npc"), units, valueOnly = TRUE)
+    )
+    ht_width <- unit(ht_width, units)
+  }
+  if (is.null(height)) {
+    ht_height <- max(
+      convertHeight(ht@layout$max_top_component_height, units, valueOnly = TRUE) +
+        convertHeight(ht@layout$max_bottom_component_height, units, valueOnly = TRUE) +
+        convertHeight(sum(ht@layout$max_title_component_height), units, valueOnly = TRUE) +
+        convertHeight(unit(1, "in"), units, valueOnly = TRUE),
+      convertHeight(ht@annotation_legend_param$size[2], units, valueOnly = TRUE),
+      convertHeight(unit(0.95, "npc"), units, valueOnly = TRUE)
+    )
+    ht_height <- unit(ht_height, units)
+  }
+  ht_width <- convertUnit(ht_width, unitTo = units)
+  ht_height <- convertUnit(ht_height, unitTo = units)
+  return(list(ht_width = ht_width, ht_height = ht_height))
 }
 
 #' GroupHeatmap
@@ -7872,7 +7935,7 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
       isfloat <- any(libsize_use %% 1 != 0, na.rm = TRUE)
       if (isTRUE(isfloat)) {
         libsize_use <- rep(1, length(libsize_use))
-        warning("Values in 'counts' slot is non-integer. Set the libsize to 1.", immediate. = TRUE)
+        warning("The values in the 'counts' slot are non-integer. Set the library size to 1.", immediate. = TRUE)
         if (!is.null(grouping.var)) {
           exp_name <- paste0(numerator, "/", "other\n", exp_method, "(", slot, ")")
         } else {
@@ -8653,97 +8716,28 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
   } else {
     fix <- FALSE
   }
-  width_annotation <- height_annotation <- 0
-  if (isTRUE(flip)) {
-    width_sum <- width[1] %||% convertWidth(unit(1, "in"), units, valueOnly = TRUE)
-    height_sum <- sum(height %||% convertHeight(unit(1, "in"), units, valueOnly = TRUE))
-    if (length(ha_top_list) > 0) {
-      width_annotation <- convertWidth(unit(width_annotation, units) + width.HeatmapAnnotation(ha_top_list[[1]]), units, valueOnly = TRUE)
-    }
-    if (!is.null(ha_left)) {
-      height_annotation <- convertHeight(unit(height_annotation, units) + height.HeatmapAnnotation(ha_left), units, valueOnly = TRUE)
-    }
-    if (!is.null(ha_right)) {
-      height_annotation <- convertHeight(unit(height_annotation, units) + height.HeatmapAnnotation(ha_right), units, valueOnly = TRUE)
-    }
-  } else {
-    width_sum <- sum(width %||% convertWidth(unit(1, "in"), units, valueOnly = TRUE))
-    height_sum <- height[1] %||% convertHeight(unit(1, "in"), units, valueOnly = TRUE)
-    if (length(ha_top_list) > 0) {
-      height_annotation <- convertHeight(unit(height_annotation, units) + height.HeatmapAnnotation(ha_top_list[[1]]), units, valueOnly = TRUE)
-    }
-    if (!is.null(ha_left)) {
-      width_annotation <- convertWidth(unit(width_annotation, units) + width.HeatmapAnnotation(ha_left), units, valueOnly = TRUE)
-    }
-    if (!is.null(ha_right)) {
-      width_annotation <- convertWidth(unit(width_annotation, units) + width.HeatmapAnnotation(ha_right), units, valueOnly = TRUE)
-    }
-  }
-  lgd_width <- convertWidth(unit(unlist(lapply(lgd, width.Legends)), unitType(width.Legends(lgd[[1]]))), unitTo = units, valueOnly = TRUE)
-  width_sum <- convertWidth(unit(width_sum, units) + unit(width_annotation, units), units, valueOnly = TRUE) + sum(lgd_width)
-  height_sum <- max(
-    convertHeight(unit(height_sum, units) + unit(height_annotation, units), units, valueOnly = TRUE),
-    convertHeight(unit(0.95, "npc"), units, valueOnly = TRUE)
+  rendersize <- heatmap_rendersize(
+    width = width, height = height, units = units,
+    ha_top_list = ha_top_list, ha_left = ha_left, ha_right = ha_right,
+    ht_list = ht_list, legend_list = lgd, flip = flip
   )
+  width_sum <- rendersize[["width_sum"]]
+  height_sum <- rendersize[["height_sum"]]
+  # cat("width:", width, "\n")
+  # cat("height:", height, "\n")
+  # cat("width_sum:", width_sum, "\n")
+  # cat("height_sum:", height_sum, "\n")
 
-  # cat("width:",width,"\n")
-  # cat("height:",height,"\n")
-  # cat("width_sum:",width_sum,"\n")
-  # cat("height_sum:",height_sum,"\n")
   if (isTRUE(fix)) {
-    message("The size of the heatmap will be fixed as some elements are not scalable.")
-    gTree <- grid.grabExpr(
-      {
-        ht <- draw(ht_list, annotation_legend_list = lgd)
-        ht_width <- ComplexHeatmap:::width(ht)
-        ht_height <- ComplexHeatmap:::height(ht)
-        if ("ht_list" %in% slotNames(ht_list)) {
-          for (nm in names(ht_list@ht_list)) {
-            ht_list@ht_list[[nm]]@matrix_param$width <- unit(width[nm] %||% dim(ht_list@ht_list[[nm]]@matrix)[1], units = "null")
-            ht_list@ht_list[[nm]]@matrix_param$height <- unit(height[nm] %||% dim(ht_list@ht_list[[nm]]@matrix)[2], units = "null")
-          }
-        } else {
-          ht_list@matrix_param$width <- unit(width %||% dim(ht_list@matrix)[1], units = "null")
-          ht_list@matrix_param$height <- unit(height %||% dim(ht_list@matrix)[2], units = "null")
-        }
-      },
-      width = unit(width_sum, units = units),
-      height = unit(height_sum, units = units),
-      wrap = TRUE,
-      wrap.grobs = TRUE
+    fixsize <- heatmap_fixsize(
+      width = width, width_sum = width_sum, height = height, height_sum = height_sum, units = units,
+      ht_list = ht_list, legend_list = lgd
     )
-    if (unitType(ht_width) == "npc") {
-      ht_width <- unit(width_sum, units = units)
-    }
-    if (unitType(ht_height) == "npc") {
-      ht_height <- unit(height_sum, units = units)
-    }
-    if (is.null(width)) {
-      ht_width <- max(
-        convertWidth(ht@layout$max_left_component_width, units, valueOnly = TRUE) +
-          convertWidth(ht@layout$max_right_component_width, units, valueOnly = TRUE) +
-          convertWidth(ht@annotation_legend_param$size[1], units, valueOnly = TRUE) +
-          convertWidth(sum(ht@layout$max_title_component_width), units, valueOnly = TRUE) +
-          convertWidth(unit(1, "in"), units, valueOnly = TRUE),
-        convertWidth(unit(0.95, "npc"), units, valueOnly = TRUE)
-      )
-      ht_width <- unit(ht_width, units)
-    }
-    if (is.null(height)) {
-      ht_height <- max(
-        convertHeight(ht@layout$max_top_component_height, units, valueOnly = TRUE) +
-          convertHeight(ht@layout$max_bottom_component_height, units, valueOnly = TRUE) +
-          convertHeight(sum(ht@layout$max_title_component_height), units, valueOnly = TRUE) +
-          convertHeight(unit(1, "in"), units, valueOnly = TRUE),
-        convertHeight(ht@annotation_legend_param$size[2], units, valueOnly = TRUE),
-        convertHeight(unit(0.95, "npc"), units, valueOnly = TRUE)
-      )
-      ht_height <- unit(ht_height, units)
-    }
-    ht_width <- convertUnit(ht_width, unitTo = units)
-    ht_height <- convertUnit(ht_height, unitTo = units)
-    # cat("ht_width:",ht_width,"\n")
-    # cat("ht_height:",ht_height,"\n")
+    ht_width <- fixsize[["ht_width"]]
+    ht_height <- fixsize[["ht_height"]]
+    # cat("ht_width:", ht_width, "\n")
+    # cat("ht_height:", ht_height, "\n")
+
     gTree <- grid.grabExpr(
       {
         draw(ht_list, annotation_legend_list = lgd)
@@ -9178,7 +9172,7 @@ FeatureHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, 
       isfloat <- any(libsize_use %% 1 != 0, na.rm = TRUE)
       if (isTRUE(isfloat)) {
         libsize_use <- rep(1, length(libsize_use))
-        warning("Values in 'counts' slot is non-integer. Set the libsize to 1.", immediate. = TRUE)
+        warning("The values in the 'counts' slot are non-integer. Set the library size to 1.", immediate. = TRUE)
       }
     }
     mat_raw[gene_unique, ] <- t(t(mat_raw[gene_unique, , drop = FALSE]) / libsize_use * median(libsize_use))
@@ -9716,97 +9710,28 @@ FeatureHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, 
   } else {
     fix <- FALSE
   }
-  width_annotation <- height_annotation <- 0
-  if (isTRUE(flip)) {
-    width_sum <- width[1] %||% convertWidth(unit(1, "in"), units, valueOnly = TRUE)
-    height_sum <- sum(height %||% convertHeight(unit(1, "in"), units, valueOnly = TRUE))
-    if (length(ha_top_list) > 0) {
-      width_annotation <- convertWidth(unit(width_annotation, units) + width.HeatmapAnnotation(ha_top_list[[1]]), units, valueOnly = TRUE)
-    }
-    if (!is.null(ha_left)) {
-      height_annotation <- convertHeight(unit(height_annotation, units) + height.HeatmapAnnotation(ha_left), units, valueOnly = TRUE)
-    }
-    if (!is.null(ha_right)) {
-      height_annotation <- convertHeight(unit(height_annotation, units) + height.HeatmapAnnotation(ha_right), units, valueOnly = TRUE)
-    }
-  } else {
-    width_sum <- sum(width %||% convertWidth(unit(1, "in"), units, valueOnly = TRUE))
-    height_sum <- height[1] %||% convertHeight(unit(1, "in"), units, valueOnly = TRUE)
-    if (length(ha_top_list) > 0) {
-      height_annotation <- convertHeight(unit(height_annotation, units) + height.HeatmapAnnotation(ha_top_list[[1]]), units, valueOnly = TRUE)
-    }
-    if (!is.null(ha_left)) {
-      width_annotation <- convertWidth(unit(width_annotation, units) + width.HeatmapAnnotation(ha_left), units, valueOnly = TRUE)
-    }
-    if (!is.null(ha_right)) {
-      width_annotation <- convertWidth(unit(width_annotation, units) + width.HeatmapAnnotation(ha_right), units, valueOnly = TRUE)
-    }
-  }
-  lgd_width <- convertWidth(unit(unlist(lapply(lgd, width.Legends)), unitType(width.Legends(lgd[[1]]))), unitTo = units, valueOnly = TRUE)
-  width_sum <- convertWidth(unit(width_sum, units) + unit(width_annotation, units), units, valueOnly = TRUE) + sum(lgd_width)
-  height_sum <- max(
-    convertHeight(unit(height_sum, units) + unit(height_annotation, units), units, valueOnly = TRUE),
-    convertHeight(unit(0.95, "npc"), units, valueOnly = TRUE)
+  rendersize <- heatmap_rendersize(
+    width = width, height = height, units = units,
+    ha_top_list = ha_top_list, ha_left = ha_left, ha_right = ha_right,
+    ht_list = ht_list, legend_list = lgd, flip = flip
   )
+  width_sum <- rendersize[["width_sum"]]
+  height_sum <- rendersize[["height_sum"]]
+  # cat("width:", width, "\n")
+  # cat("height:", height, "\n")
+  # cat("width_sum:", width_sum, "\n")
+  # cat("height_sum:", height_sum, "\n")
 
-  # cat("width:",width,"\n")
-  # cat("height:",height,"\n")
-  # cat("width_sum:",width_sum,"\n")
-  # cat("height_sum:",height_sum,"\n")
   if (isTRUE(fix)) {
-    message("The size of the heatmap will be fixed as some elements are not scalable.")
-    gTree <- grid.grabExpr(
-      {
-        ht <- draw(ht_list, annotation_legend_list = lgd)
-        ht_width <- ComplexHeatmap:::width(ht)
-        ht_height <- ComplexHeatmap:::height(ht)
-        if ("ht_list" %in% slotNames(ht_list)) {
-          for (nm in names(ht_list@ht_list)) {
-            ht_list@ht_list[[nm]]@matrix_param$width <- unit(width[nm] %||% dim(ht_list@ht_list[[nm]]@matrix)[1], units = "null")
-            ht_list@ht_list[[nm]]@matrix_param$height <- unit(height[nm] %||% dim(ht_list@ht_list[[nm]]@matrix)[2], units = "null")
-          }
-        } else {
-          ht_list@matrix_param$width <- unit(width %||% dim(ht_list@matrix)[1], units = "null")
-          ht_list@matrix_param$height <- unit(height %||% dim(ht_list@matrix)[2], units = "null")
-        }
-      },
-      width = unit(width_sum, units = units),
-      height = unit(height_sum, units = units),
-      wrap = TRUE,
-      wrap.grobs = TRUE
+    fixsize <- heatmap_fixsize(
+      width = width, width_sum = width_sum, height = height, height_sum = height_sum, units = units,
+      ht_list = ht_list, legend_list = lgd
     )
-    if (unitType(ht_width) == "npc") {
-      ht_width <- unit(width_sum, units = units)
-    }
-    if (unitType(ht_height) == "npc") {
-      ht_height <- unit(height_sum, units = units)
-    }
-    if (is.null(width)) {
-      ht_width <- max(
-        convertWidth(ht@layout$max_left_component_width, units, valueOnly = TRUE) +
-          convertWidth(ht@layout$max_right_component_width, units, valueOnly = TRUE) +
-          convertWidth(ht@annotation_legend_param$size[1], units, valueOnly = TRUE) +
-          convertWidth(sum(ht@layout$max_title_component_width), units, valueOnly = TRUE) +
-          convertWidth(unit(1, "in"), units, valueOnly = TRUE),
-        convertWidth(unit(0.95, "npc"), units, valueOnly = TRUE)
-      )
-      ht_width <- unit(ht_width, units)
-    }
-    if (is.null(height)) {
-      ht_height <- max(
-        convertHeight(ht@layout$max_top_component_height, units, valueOnly = TRUE) +
-          convertHeight(ht@layout$max_bottom_component_height, units, valueOnly = TRUE) +
-          convertHeight(sum(ht@layout$max_title_component_height), units, valueOnly = TRUE) +
-          convertHeight(unit(1, "in"), units, valueOnly = TRUE),
-        convertHeight(ht@annotation_legend_param$size[2], units, valueOnly = TRUE),
-        convertHeight(unit(0.95, "npc"), units, valueOnly = TRUE)
-      )
-      ht_height <- unit(ht_height, units)
-    }
-    ht_width <- convertUnit(ht_width, unitTo = units)
-    ht_height <- convertUnit(ht_height, unitTo = units)
-    # cat("ht_width:",ht_width,"\n")
-    # cat("ht_height:",ht_height,"\n")
+    ht_width <- fixsize[["ht_width"]]
+    ht_height <- fixsize[["ht_height"]]
+    # cat("ht_width:", ht_width, "\n")
+    # cat("ht_height:", ht_height, "\n")
+
     gTree <- grid.grabExpr(
       {
         draw(ht_list, annotation_legend_list = lgd)
@@ -10691,92 +10616,28 @@ CellCorHeatmap <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
   } else {
     fix <- FALSE
   }
-  width_annotation <- height_annotation <- 0
-  if (isTRUE(flip)) {
-    width_sum <- width[1] %||% convertWidth(unit(1, "in"), units, valueOnly = TRUE)
-    height_sum <- sum(height %||% convertHeight(unit(1, "in"), units, valueOnly = TRUE))
-    if (length(ha_query_list) > 0) {
-      height_annotation <- convertHeight(unit(height_annotation, units) + height.HeatmapAnnotation(ha_query_list[[1]]), units, valueOnly = TRUE)
-    }
-    if (length(ha_ref_list) > 0) {
-      width_annotation <- convertWidth(unit(width_annotation, units) + width.HeatmapAnnotation(ha_ref_list[[1]]), units, valueOnly = TRUE)
-    }
-  } else {
-    width_sum <- sum(width %||% convertWidth(unit(1, "in"), units, valueOnly = TRUE))
-    height_sum <- height[1] %||% convertHeight(unit(1, "in"), units, valueOnly = TRUE)
-    if (length(ha_ref_list) > 0) {
-      height_annotation <- convertHeight(unit(height_annotation, units) + height.HeatmapAnnotation(ha_ref_list[[1]]), units, valueOnly = TRUE)
-    }
-    if (length(ha_query_list) > 0) {
-      width_annotation <- convertWidth(unit(width_annotation, units) + width.HeatmapAnnotation(ha_query_list[[1]]), units, valueOnly = TRUE)
-    }
-  }
-  lgd_width <- convertWidth(unit(unlist(lapply(lgd, width.Legends)), unitType(width.Legends(lgd[[1]]))), unitTo = units, valueOnly = TRUE)
-  width_sum <- convertWidth(unit(width_sum, units) + unit(width_annotation, units), units, valueOnly = TRUE) + sum(lgd_width)
-  height_sum <- max(
-    convertHeight(unit(height_sum, units) + unit(height_annotation, units), units, valueOnly = TRUE),
-    convertHeight(unit(0.95, "npc"), units, valueOnly = TRUE)
+  rendersize <- heatmap_rendersize(
+    width = width, height = height, units = units,
+    ha_top_list = ha_ref_list, ha_left = ha_query_list[[1]], ha_right = NULL,
+    ht_list = ht_list, legend_list = lgd, flip = flip
   )
-
+  width_sum <- rendersize[["width_sum"]]
+  height_sum <- rendersize[["height_sum"]]
   # cat("width:", width, "\n")
   # cat("height:", height, "\n")
   # cat("width_sum:", width_sum, "\n")
   # cat("height_sum:", height_sum, "\n")
-  if (isTRUE(fix)) {
-    message("The size of the heatmap will be fixed as some elements are not scalable.")
-    gTree <- grid.grabExpr(
-      {
-        ht <- draw(ht_list, annotation_legend_list = lgd)
-        ht_width <- ComplexHeatmap:::width(ht)
-        ht_height <- ComplexHeatmap:::height(ht)
-        if ("ht_list" %in% slotNames(ht_list)) {
-          for (nm in names(ht_list@ht_list)) {
-            ht_list@ht_list[[nm]]@matrix_param$width <- unit(width %||% dim(ht_list@ht_list[[nm]]@matrix)[1], units = "null")
-            ht_list@ht_list[[nm]]@matrix_param$height <- unit(height %||% dim(ht_list@ht_list[[nm]]@matrix)[2], units = "null")
-          }
-        } else {
-          ht_list@matrix_param$width <- unit(width %||% dim(ht_list@matrix)[1], units = "null")
-          ht_list@matrix_param$height <- unit(height %||% dim(ht_list@matrix)[2], units = "null")
-        }
-      },
-      width = unit(width_sum, units = units),
-      height = unit(height_sum, units = units),
-      wrap = TRUE,
-      wrap.grobs = TRUE
-    )
 
-    if (unitType(ht_width) == "npc") {
-      ht_width <- unit(width_sum, units = units)
-    }
-    if (unitType(ht_height) == "npc") {
-      ht_height <- unit(height_sum, units = units)
-    }
-    if (is.null(width)) {
-      ht_width <- max(
-        convertWidth(ht@layout$max_left_component_width, units, valueOnly = TRUE) +
-          convertWidth(ht@layout$max_right_component_width, units, valueOnly = TRUE) +
-          convertWidth(ht@annotation_legend_param$size[1], units, valueOnly = TRUE) +
-          convertWidth(sum(ht@layout$max_title_component_width), units, valueOnly = TRUE) +
-          convertWidth(unit(1, "in"), units, valueOnly = TRUE),
-        convertWidth(unit(0.95, "npc"), units, valueOnly = TRUE)
-      )
-      ht_width <- unit(ht_width, units)
-    }
-    if (is.null(height)) {
-      ht_height <- max(
-        convertHeight(ht@layout$max_top_component_height, units, valueOnly = TRUE) +
-          convertHeight(ht@layout$max_bottom_component_height, units, valueOnly = TRUE) +
-          convertHeight(sum(ht@layout$max_title_component_height), units, valueOnly = TRUE) +
-          convertHeight(unit(1, "in"), units, valueOnly = TRUE),
-        convertHeight(ht@annotation_legend_param$size[2], units, valueOnly = TRUE),
-        convertHeight(unit(0.95, "npc"), units, valueOnly = TRUE)
-      )
-      ht_height <- unit(ht_height, units)
-    }
-    ht_width <- convertUnit(ht_width, unitTo = units)
-    ht_height <- convertUnit(ht_height, unitTo = units)
+  if (isTRUE(fix)) {
+    fixsize <- heatmap_fixsize(
+      width = width, width_sum = width_sum, height = height, height_sum = height_sum, units = units,
+      ht_list = ht_list, legend_list = lgd
+    )
+    ht_width <- fixsize[["ht_width"]]
+    ht_height <- fixsize[["ht_height"]]
     # cat("ht_width:", ht_width, "\n")
     # cat("ht_height:", ht_height, "\n")
+
     gTree <- grid.grabExpr(
       {
         draw(ht_list, annotation_legend_list = lgd)
@@ -11292,7 +11153,7 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineag
           isfloat <- any(libsize_use %% 1 != 0, na.rm = TRUE)
           if (isTRUE(isfloat)) {
             libsize_use <- rep(1, length(libsize_use))
-            warning("Values in 'counts' slot is non-integer. Set the libsize to 1.", immediate. = TRUE)
+            warning("The values in the 'counts' slot are non-integer. Set the library size to 1.", immediate. = TRUE)
           }
         }
         mat_tmp[gene, ] <- t(t(mat_tmp[gene, , drop = FALSE]) / libsize_use * median(Y_libsize))
@@ -11880,98 +11741,28 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineag
   } else {
     fix <- FALSE
   }
-  width_annotation <- height_annotation <- 0
-  if (isTRUE(flip)) {
-    width_sum <- width[1] %||% convertWidth(unit(1, "in"), units, valueOnly = TRUE)
-    height_sum <- sum(height %||% convertHeight(unit(1, "in"), units, valueOnly = TRUE))
-    height_annotation <-
-      if (length(ha_top_list) > 0) {
-        width_annotation <- convertWidth(unit(width_annotation, units) + width.HeatmapAnnotation(ha_top_list[[1]]), units, valueOnly = TRUE)
-      }
-    if (!is.null(ha_left)) {
-      height_annotation <- convertHeight(unit(height_annotation, units) + height.HeatmapAnnotation(ha_left), units, valueOnly = TRUE)
-    }
-    if (!is.null(ha_right)) {
-      height_annotation <- convertHeight(unit(height_annotation, units) + height.HeatmapAnnotation(ha_right), units, valueOnly = TRUE)
-    }
-  } else {
-    width_sum <- sum(width %||% convertWidth(unit(1, "in"), units, valueOnly = TRUE))
-    height_sum <- height[1] %||% convertHeight(unit(1, "in"), units, valueOnly = TRUE)
-    if (length(ha_top_list) > 0) {
-      height_annotation <- convertHeight(unit(height_annotation, units) + height.HeatmapAnnotation(ha_top_list[[1]]), units, valueOnly = TRUE)
-    }
-    if (!is.null(ha_left)) {
-      width_annotation <- convertWidth(unit(width_annotation, units) + width.HeatmapAnnotation(ha_left), units, valueOnly = TRUE)
-    }
-    if (!is.null(ha_right)) {
-      width_annotation <- convertWidth(unit(width_annotation, units) + width.HeatmapAnnotation(ha_right), units, valueOnly = TRUE)
-    }
-  }
-  lgd_width <- convertWidth(unit(unlist(lapply(lgd, width.Legends)), unitType(width.Legends(lgd[[1]]))), unitTo = units, valueOnly = TRUE)
-  width_sum <- convertWidth(unit(width_sum, units) + unit(width_annotation, units), units, valueOnly = TRUE) + sum(lgd_width)
-  height_sum <- max(
-    convertHeight(unit(height_sum, units) + unit(height_annotation, units), units, valueOnly = TRUE),
-    convertHeight(unit(0.95, "npc"), units, valueOnly = TRUE)
+  rendersize <- heatmap_rendersize(
+    width = width, height = height, units = units,
+    ha_top_list = ha_top_list, ha_left = ha_left, ha_right = ha_right,
+    ht_list = ht_list, legend_list = lgd, flip = flip
   )
-
+  width_sum <- rendersize[["width_sum"]]
+  height_sum <- rendersize[["height_sum"]]
   # cat("width:", width, "\n")
   # cat("height:", height, "\n")
   # cat("width_sum:", width_sum, "\n")
   # cat("height_sum:", height_sum, "\n")
+
   if (isTRUE(fix)) {
-    message("The size of the heatmap will be fixed as some elements are not scalable.")
-    gTree <- grid.grabExpr(
-      {
-        ht <- draw(ht_list, annotation_legend_list = lgd)
-        ht_width <- ComplexHeatmap:::width(ht)
-        ht_height <- ComplexHeatmap:::height(ht)
-        if ("ht_list" %in% slotNames(ht_list)) {
-          for (nm in names(ht_list@ht_list)) {
-            ht_list@ht_list[[nm]]@matrix_param$width <- unit(width[nm] %||% dim(ht_list@ht_list[[nm]]@matrix)[1], units = "null")
-            ht_list@ht_list[[nm]]@matrix_param$height <- unit(height[nm] %||% dim(ht_list@ht_list[[nm]]@matrix)[2], units = "null")
-          }
-        } else {
-          ht_list@matrix_param$width <- unit(width %||% dim(ht_list@matrix)[1], units = "null")
-          ht_list@matrix_param$height <- unit(height %||% dim(ht_list@matrix)[2], units = "null")
-        }
-      },
-      width = unit(width_sum, units = units),
-      height = unit(height_sum, units = units),
-      wrap = TRUE,
-      wrap.grobs = TRUE
+    fixsize <- heatmap_fixsize(
+      width = width, width_sum = width_sum, height = height, height_sum = height_sum, units = units,
+      ht_list = ht_list, legend_list = lgd
     )
-    if (unitType(ht_width) == "npc") {
-      ht_width <- unit(width_sum, units = units)
-    }
-    if (unitType(ht_height) == "npc") {
-      ht_height <- unit(height_sum, units = units)
-    }
-    if (is.null(width)) {
-      ht_width <- max(
-        convertWidth(ht@layout$max_left_component_width, units, valueOnly = TRUE) +
-          convertWidth(ht@layout$max_right_component_width, units, valueOnly = TRUE) +
-          convertWidth(ht@annotation_legend_param$size[1], units, valueOnly = TRUE) +
-          convertWidth(sum(ht@layout$max_title_component_width), units, valueOnly = TRUE) +
-          convertWidth(unit(1, "in"), units, valueOnly = TRUE),
-        convertWidth(unit(0.95, "npc"), units, valueOnly = TRUE)
-      )
-      ht_width <- unit(ht_width, units)
-    }
-    if (is.null(height)) {
-      ht_height <- max(
-        convertHeight(ht@layout$max_top_component_height, units, valueOnly = TRUE) +
-          convertHeight(ht@layout$max_bottom_component_height, units, valueOnly = TRUE) +
-          convertHeight(sum(ht@layout$max_title_component_height), units, valueOnly = TRUE) +
-          convertHeight(unit(1, "in"), units, valueOnly = TRUE),
-        convertHeight(ht@annotation_legend_param$size[2], units, valueOnly = TRUE),
-        convertHeight(unit(0.95, "npc"), units, valueOnly = TRUE)
-      )
-      ht_height <- unit(ht_height, units)
-    }
-    ht_width <- convertUnit(ht_width, unitTo = units)
-    ht_height <- convertUnit(ht_height, unitTo = units)
+    ht_width <- fixsize[["ht_width"]]
+    ht_height <- fixsize[["ht_height"]]
     # cat("ht_width:", ht_width, "\n")
     # cat("ht_height:", ht_height, "\n")
+
     gTree <- grid.grabExpr(
       {
         draw(ht_list, annotation_legend_list = lgd)
@@ -12258,7 +12049,7 @@ DynamicPlot <- function(srt, features, lineages, group.by = NULL, cells = NULL, 
         isfloat <- any(libsize_use %% 1 != 0, na.rm = TRUE)
         if (isTRUE(isfloat)) {
           libsize_use <- rep(1, length(libsize_use))
-          warning("Values in 'counts' slot is non-integer. Set the libsize to 1.", immediate. = TRUE)
+          warning("The values in the 'counts' slot are non-integer. Set the library size to 1.", immediate. = TRUE)
         }
       }
       raw_matrix[, gene] <- raw_matrix[, gene, drop = FALSE] / libsize_use * median(Y_libsize)
@@ -12501,7 +12292,7 @@ DynamicPlot <- function(srt, features, lineages, group.by = NULL, cells = NULL, 
         do.call(theme_use, theme_args) +
         theme(
           aspect.ratio = aspect.ratio,
-          legend.position = "bottom",
+          legend.position = legend.position,
           legend.direction = legend.direction
         )
 
@@ -12509,7 +12300,7 @@ DynamicPlot <- function(srt, features, lineages, group.by = NULL, cells = NULL, 
         p <- p + coord_flip()
       }
       if (is.null(legend)) {
-        legend <- get_legend(p)
+        legend <- get_legend(p + theme(legend.position = "bottom"))
       }
       plist[[paste(paste0(l, collapse = "_"), paste0(f, collapse = "_"), sep = ".")]] <- p + theme(legend.position = "none")
     }

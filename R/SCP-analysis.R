@@ -9,7 +9,7 @@
 #' @param species_to Latin names for animals of the output geneID. e.g. "Homo_sapiens","Mus_musculus"
 #' @param Ensembl_version Ensembl database version. If NULL, use the current release version.
 #' @param biomart BioMart database name you want to connect to. ("ensembl", "protists_mart", "fungi_mart", "plants_mart")
-#' @param attempts Number of attempts to connect with the biomart service.
+#' @param max_tries Number of max_tries to connect with the biomart service.
 #' @param mirror Specify an Ensembl mirror to connect to. The valid options here are 'www', 'uswest', 'useast', 'asia'.
 #'
 #' @return A list.
@@ -51,7 +51,7 @@
 #'
 GeneConvert <- function(geneID, geneID_from_IDtype = "symbol", geneID_to_IDtype = "entrez_id",
                         species_from = "Homo_sapiens", species_to = NULL,
-                        Ensembl_version = 103, biomart = NULL, mirror = NULL, attempts = 5) {
+                        Ensembl_version = 103, biomart = NULL, mirror = NULL, max_tries = 5) {
   if (requireNamespace("httr", quietly = TRUE)) {
     httr::set_config(httr::config(ssl_verifypeer = FALSE, ssl_verifyhost = FALSE))
   }
@@ -114,11 +114,11 @@ GeneConvert <- function(geneID, geneID_from_IDtype = "symbol", geneID_to_IDtype 
 
   if (is.null(biomart)) {
     message("Connect to the Ensembl archives...")
-    archives <- attempt_get(
+    archives <- try_get(
       expr = {
         listEnsemblArchives()
       },
-      attempts = attempts,
+      max_tries = max_tries,
       error_message = "Get errors when connecting with EnsemblArchives..."
     )
     Ensembl_version <- as.character(Ensembl_version)
@@ -135,7 +135,7 @@ GeneConvert <- function(geneID, geneID_from_IDtype = "symbol", geneID_to_IDtype 
     }
 
     message("Connecting to the biomart...")
-    mart <- attempt_get(
+    mart <- try_get(
       expr = {
         if (!is.null(mirror)) {
           useEnsembl(biomart = "ensembl", mirror = mirror)
@@ -143,7 +143,7 @@ GeneConvert <- function(geneID, geneID_from_IDtype = "symbol", geneID_to_IDtype 
           useMart(biomart = "ensembl", host = url)
         }
       },
-      attempts = attempts,
+      max_tries = max_tries,
       error_message = "Get errors when connecting with ensembl mart..."
     )
     mart_from <- mart_to <- mart
@@ -155,39 +155,39 @@ GeneConvert <- function(geneID, geneID_from_IDtype = "symbol", geneID_to_IDtype 
     )
     message("Connecting to the biomart(", biomart, ")...")
     if (length(biomart) == 1) {
-      mart <- attempt_get(
+      mart <- try_get(
         expr = {
           useMart(biomart = biomart, host = url[biomart])
         },
-        attempts = attempts,
+        max_tries = max_tries,
         error_message = paste0("Get errors when connecting with ensembl mart(", biomart, ")")
       )
       mart_from <- mart_to <- mart
     } else {
       stop("Supports conversion within one mart only.")
-      mart_from <- attempt_get(
+      mart_from <- try_get(
         expr = {
           useMart(biomart = biomart[1], host = url[biomart[1]])
         },
-        attempts = attempts,
+        max_tries = max_tries,
         error_message = paste0("Get errors when connecting with ensembl mart(", biomart[1], ")")
       )
-      mart_to <- attempt_get(
+      mart_to <- try_get(
         expr = {
           useMart(biomart = biomart[2], host = url[biomart[2]])
         },
-        attempts = attempts,
+        max_tries = max_tries,
         error_message = paste0("Get errors when connecting with ensembl mart(", biomart[2], ")")
       )
     }
   }
 
   message("Searching the dataset ", species_from_simp, " ...")
-  Datasets <- attempt_get(
+  Datasets <- try_get(
     expr = {
       listDatasets(mart_from)
     },
-    attempts = attempts,
+    max_tries = max_tries,
     error_message = paste0("Get errors when connecting with ensembl mart(", mart_from@biomart, ")")
   )
   dataset <- searchDatasets(Datasets, pattern = species_from_simp)[["dataset"]][1]
@@ -197,21 +197,21 @@ GeneConvert <- function(geneID, geneID_from_IDtype = "symbol", geneID_to_IDtype 
   }
 
   message("Connecting to the dataset ", dataset, " ...")
-  mart1 <- attempt_get(
+  mart1 <- try_get(
     expr = {
       useDataset(dataset = dataset, mart = mart_from)
     },
-    attempts = attempts,
+    max_tries = max_tries,
     error_message = paste0("Get errors when connecting with Dataset(", dataset, ")")
   )
 
   if (species_from != species_to && any(!geneID_to_IDtype %in% c("symbol", "ensembl_id"))) {
     message("Searching the dataset ", species_to_simp, " ...")
-    Datasets2 <- attempt_get(
+    Datasets2 <- try_get(
       expr = {
         listDatasets(mart_to)
       },
-      attempts = attempts,
+      max_tries = max_tries,
       error_message = paste0("Get errors when connecting with ensembl mart(", mart_to@biomart, ")")
     )
     dataset2 <- searchDatasets(Datasets2, pattern = species_to_simp)[["dataset"]][1]
@@ -221,11 +221,11 @@ GeneConvert <- function(geneID, geneID_from_IDtype = "symbol", geneID_to_IDtype 
     }
 
     message("Connecting to the dataset ", dataset2, " ...")
-    mart2 <- attempt_get(
+    mart2 <- try_get(
       expr = {
         useDataset(dataset = dataset2, mart = mart_to)
       },
-      attempts = attempts,
+      max_tries = max_tries,
       error_message = paste0("Get errors when connecting with Dataset(", dataset2, ")")
     )
   }
@@ -249,7 +249,7 @@ GeneConvert <- function(geneID, geneID_from_IDtype = "symbol", geneID_to_IDtype 
   if (species_from != species_to) {
     for (from_attr in from_IDtype) {
       if (length(geneID) > 0) {
-        geneID_res1 <- attempt_get(
+        geneID_res1 <- try_get(
           expr = {
             getBM(
               mart = mart1,
@@ -258,7 +258,7 @@ GeneConvert <- function(geneID, geneID_from_IDtype = "symbol", geneID_to_IDtype 
               values = list(geneID)
             )
           },
-          attempts = attempts,
+          max_tries = max_tries,
           error_message = "Get errors when retrieving information from the BioMart database"
         )
 
@@ -272,7 +272,7 @@ GeneConvert <- function(geneID, geneID_from_IDtype = "symbol", geneID_to_IDtype 
         geneID_res1[, "from_IDtype"] <- from_name
 
         if (all(geneID_to_IDtype %in% c("symbol", "ensembl_id"))) {
-          geneID_res2 <- attempt_get(
+          geneID_res2 <- try_get(
             expr = {
               getBM(
                 mart = mart1,
@@ -281,7 +281,7 @@ GeneConvert <- function(geneID, geneID_from_IDtype = "symbol", geneID_to_IDtype 
                 values = list(geneID_res1[, "ensembl_gene_id_tmp"])
               )
             },
-            attempts = attempts,
+            max_tries = max_tries,
             error_message = "Get errors when retrieving information from the BioMart database"
           )
           geneID_res2 <- geneID_res2[, unique(c("ensembl_gene_id", to_attr))]
@@ -296,7 +296,7 @@ GeneConvert <- function(geneID, geneID_from_IDtype = "symbol", geneID_to_IDtype 
           geneID_res_merge <- merge(x = geneID_res1, y = geneID_res2, by = "ensembl_gene_id_tmp")
         } else {
           homolog_ensembl_gene <- paste(species_to_simp, "ensembl_gene", sep = "_homolog_")
-          geneID_res2 <- attempt_get(
+          geneID_res2 <- try_get(
             expr = {
               getBM(
                 mart = mart1,
@@ -305,7 +305,7 @@ GeneConvert <- function(geneID, geneID_from_IDtype = "symbol", geneID_to_IDtype 
                 values = list(geneID_res1[, "ensembl_gene_id_tmp"])
               )
             },
-            attempts = attempts,
+            max_tries = max_tries,
             error_message = "Get errors when retrieving information from the BioMart database"
           )
           geneID_res2 <- geneID_res2[, c("ensembl_gene_id", homolog_ensembl_gene), drop = FALSE]
@@ -315,7 +315,7 @@ GeneConvert <- function(geneID, geneID_from_IDtype = "symbol", geneID_to_IDtype 
           }
           colnames(geneID_res2) <- c("ensembl_gene_id_tmp", homolog_ensembl_gene)
 
-          geneID_res3 <- attempt_get(
+          geneID_res3 <- try_get(
             expr = {
               getBM(
                 mart = mart2,
@@ -324,7 +324,7 @@ GeneConvert <- function(geneID, geneID_from_IDtype = "symbol", geneID_to_IDtype 
                 values = list(geneID_res2[, homolog_ensembl_gene])
               )
             },
-            attempts = attempts,
+            max_tries = max_tries,
             error_message = "Get errors when retrieving information from the BioMart database"
           )
           geneID_res3 <- geneID_res3[, unique(c("ensembl_gene_id", to_attr)), drop = FALSE]
@@ -349,7 +349,7 @@ GeneConvert <- function(geneID, geneID_from_IDtype = "symbol", geneID_to_IDtype 
   } else {
     for (from_attr in from_IDtype) {
       if (length(geneID) > 0) {
-        geneID_res1 <- attempt_get(
+        geneID_res1 <- try_get(
           expr = {
             getBM(
               mart = mart1,
@@ -358,7 +358,7 @@ GeneConvert <- function(geneID, geneID_from_IDtype = "symbol", geneID_to_IDtype 
               values = list(geneID)
             )
           },
-          attempts = attempts,
+          max_tries = max_tries,
           error_message = "Get errors when retrieving information from the BioMart database"
         )
         geneID_res1 <- geneID_res1[, unique(c("ensembl_gene_id", from_attr, to_attr)), drop = FALSE]
@@ -417,35 +417,6 @@ GeneConvert <- function(geneID, geneID_from_IDtype = "symbol", geneID_to_IDtype 
   return(list(geneID_res = geneID_res, geneID_collapse = geneID_collapse, geneID_expand = geneID_expand, Ensembl_version = version, Datasets = Datasets, Attributes = Attributes, geneID_unmapped = geneID))
 }
 
-attempt_get <- function(expr, attempts = 5, error_message = "", retry_message = "Retrying...") {
-  out <- simpleError("start")
-  ntry <- 0
-  while (inherits(out, "error")) {
-    ntry <- ntry + 1
-    # print(paste0("ntry: ", ntry, collapse = ""))
-    out <- tryCatch(
-      expr = eval.parent(substitute(expr)),
-      error = function(error) {
-        message(error)
-        message("")
-        message(error_message)
-        Sys.sleep(1)
-        return(error)
-      }
-    )
-    if (inherits(out, "error") && ntry >= attempts) {
-      stop(out, call. = TRUE)
-    } else {
-      if (!inherits(out, "error")) {
-        break
-      } else {
-        message(retry_message)
-      }
-    }
-  }
-  return(out)
-}
-
 searchDatasets <- function(datasets, pattern) {
   colIdx <- vapply(datasets, FUN = function(x) grepl(pattern = pattern, x = x, ignore.case = TRUE), FUN.VALUE = logical(length = nrow(datasets)))
   rowIdx <- apply(colIdx, 1, any)
@@ -474,7 +445,7 @@ searchDatasets <- function(datasets, pattern) {
 #' str(ccgenes)
 #' @importFrom R.cache loadCache saveCache
 #' @export
-CC_GenePrefetch <- function(species = "Homo_sapiens", Ensembl_version = 103, mirror = NULL, attempts = 5, use_cached_gene = TRUE) {
+CC_GenePrefetch <- function(species = "Homo_sapiens", Ensembl_version = 103, mirror = NULL, max_tries = 5, use_cached_gene = TRUE) {
   cc_S_genes <- Seurat::cc.genes.updated.2019$s.genes
   cc_G2M_genes <- Seurat::cc.genes.updated.2019$g2m.genes
   res <- NULL
@@ -490,7 +461,7 @@ CC_GenePrefetch <- function(species = "Homo_sapiens", Ensembl_version = 103, mir
         species_from = "Homo_sapiens",
         species_to = species,
         Ensembl_version = Ensembl_version,
-        attempts = attempts,
+        max_tries = max_tries,
         mirror = mirror
       )
       saveCache(res, key = list(species))
@@ -1880,7 +1851,7 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
                       db_IDtypes = c("symbol", "entrez_id", "ensembl_id"),
                       db_version = "latest", db_update = FALSE,
                       convert_species = TRUE,
-                      Ensembl_version = 103, mirror = NULL, biomart = NULL, attempts = 5,
+                      Ensembl_version = 103, mirror = NULL, biomart = NULL, max_tries = 5,
                       custom_TERM2GENE = NULL, custom_TERM2NAME = NULL,
                       custom_species = NULL, custom_IDtype = NULL, custom_version = NULL) {
   db_list <- list()
@@ -2837,7 +2808,7 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
           Ensembl_version = Ensembl_version,
           mirror = mirror,
           biomart = biomart,
-          attempts = attempts
+          max_tries = max_tries
         )
         if (is.null(res$geneID_res)) {
           warning("Failed to convert species for the database: ", term, immediate. = TRUE)
@@ -2884,7 +2855,7 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
           Ensembl_version = Ensembl_version,
           mirror = mirror,
           biomart = biomart,
-          attempts = attempts
+          max_tries = max_tries
         )
         if (is.null(res$geneID_res)) {
           warning("Failed to convert species for the database: ", term, immediate. = TRUE)
@@ -3100,9 +3071,9 @@ RunEnrichment <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_t
 
     if (!is.null(enrich_res) && nrow(enrich_res@result) > 0) {
       result <- enrich_res@result
-      result[["Database"]] <- term
       result[["Groups"]] <- group
-      result[["BgVersion"]] <- as.character(db_list[[species]][[term]][["version"]])
+      result[["Database"]] <- term
+      result[["Version"]] <- as.character(db_list[[species]][[term]][["version"]])
       IDlist <- strsplit(result$geneID, split = "/")
       result$geneID <- unlist(lapply(IDlist, function(x) {
         x_result <- NULL
@@ -3140,9 +3111,9 @@ RunEnrichment <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_t
           )
           ipcunlock(id)
           result_sim <- sim_res@result
-          result_sim[["Database"]] <- paste0(term, "_sim")
           result_sim[["Groups"]] <- group
-          result_sim[["BgVersion"]] <- as.character(db_list[[species]][[term]][["version"]])
+          result_sim[["Database"]] <- paste0(term, "_sim")
+          result_sim[["Version"]] <- as.character(db_list[[species]][[term]][["version"]])
           sim_res@result <- result_sim
           enrich_res <- list(enrich_res, sim_res)
           names(enrich_res) <- paste(group, c(term, paste0(term, "_sim")), sep = "-")
@@ -3406,9 +3377,9 @@ RunGSEA <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_thresho
 
     if (!is.null(enrich_res) && nrow(enrich_res@result) > 0) {
       result <- enrich_res@result
-      result[["Database"]] <- term
       result[["Groups"]] <- group
-      result[["BgVersion"]] <- as.character(db_list[[species]][[term]][["version"]])
+      result[["Database"]] <- term
+      result[["Version"]] <- as.character(db_list[[species]][[term]][["version"]])
       IDlist <- strsplit(result$core_enrichment, "/")
       result$core_enrichment <- unlist(lapply(IDlist, function(x) {
         x_result <- NULL
@@ -3446,9 +3417,9 @@ RunGSEA <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_thresho
           )
           ipcunlock(id)
           result_sim <- sim_res@result
-          result_sim[["Database"]] <- paste0(term, "_sim")
           result_sim[["Groups"]] <- group
-          result_sim[["BgVersion"]] <- as.character(db_list[[species]][[term]][["version"]])
+          result_sim[["Database"]] <- paste0(term, "_sim")
+          result_sim[["Version"]] <- as.character(db_list[[species]][[term]][["version"]])
           sim_res@result <- result_sim
           enrich_res <- list(enrich_res, sim_res)
           names(enrich_res) <- paste(group, c(term, paste0(term, "_sim")), sep = "-")
@@ -4236,7 +4207,7 @@ RunDynamicFeatures <- function(srt, lineages, features = NULL, suffix = lineages
   features_list <- c()
   srt_sub_list <- list()
   for (l in lineages) {
-    srt_sub <- subset(srt, cell = rownames(na.omit(srt[[l]])))
+    srt_sub <- subset(srt, cell = rownames(srt@meta.data)[is.finite(srt@meta.data[[l]])])
     if (is.null(features)) {
       if (is.null(n_candidates)) {
         stop("'features' or 'n_candidates' must provided at least one.")
@@ -4284,7 +4255,8 @@ RunDynamicFeatures <- function(srt, lineages, features = NULL, suffix = lineages
   for (i in seq_along(lineages)) {
     l <- lineages[i]
     srt_sub <- srt_sub_list[[l]]
-    t <- na.omit(srt_sub[[l, drop = TRUE]])
+    t <- srt_sub[[l, drop = TRUE]]
+    t <- t[is.finite(t)]
     t_ordered <- t[order(t)]
     Y_ordered <- as.matrix(Y[features, names(t_ordered), drop = FALSE])
     l_libsize <- Y_libsize[names(t_ordered)]

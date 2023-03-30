@@ -107,6 +107,7 @@ FeatureStatPlot(pancreas_sub,
     "Rbp4", "Pyy", # Endocrine
     "Ins1", "Gcg", "Sst", "Ghrl" # Beta, Alpha, Delta, Epsilon
   ),
+  legend.position = "top", legend.direction = "horizontal",
   group.by = "SubCellType", bg.by = "CellType", stack = TRUE
 )
 FeatureStatPlot(pancreas_sub,

@@ -460,20 +460,50 @@ run_Python <- function(command, envir = .GlobalEnv) {
   })
 }
 
+#' @export
+try_get <- function(expr, max_tries = 5, error_message = "", retry_message = "Retrying...") {
+  out <- simpleError("start")
+  ntry <- 0
+  while (inherits(out, "error")) {
+    ntry <- ntry + 1
+    # print(paste0("ntry: ", ntry, collapse = ""))
+    out <- tryCatch(
+      expr = eval.parent(substitute(expr)),
+      error = function(error) {
+        message(error)
+        message("")
+        message(error_message)
+        Sys.sleep(1)
+        return(error)
+      }
+    )
+    if (inherits(out, "error") && ntry >= max_tries) {
+      stop(out)
+    } else {
+      if (!inherits(out, "error")) {
+        break
+      } else {
+        message(retry_message)
+      }
+    }
+  }
+  return(out)
+}
+
 #' Download File from the Internet
 #'
 #' @inheritParams utils::download.file
 #' @param methods Methods to be used for downloading files. The default is to try different download methods in turn until the download is successfully completed.
-#' @param attempts Number of attempts for each download method.
+#' @param max_tries Number of tries for each download method.
 #' @param ... Other arguments passed to \code{\link[utils]{download.file}}
 #'
 #' @importFrom utils download.file
 #' @export
-download <- function(url, destfile, methods = c("auto", "wget", "libcurl", "curl", "wininet", "internal"), quiet = FALSE, ..., attempts = 2) {
+download <- function(url, destfile, methods = c("auto", "wget", "libcurl", "curl", "wininet", "internal"), quiet = FALSE, ..., max_tries = 2) {
   if (missing(url) || missing(destfile)) {
     stop("'url' and 'destfile' must be both provided.")
   }
-  attempts <- 0
+  ntry <- 0
   status <- NULL
   while (is.null(status)) {
     for (method in methods) {
@@ -491,8 +521,8 @@ download <- function(url, destfile, methods = c("auto", "wget", "libcurl", "curl
         break
       }
     }
-    attempts <- attempts + 1
-    if (is.null(status) && attempts >= attempts) {
+    ntry <- ntry + 1
+    if (is.null(status) && ntry >= max_tries) {
       stop("Download failed.")
     }
   }

@@ -8,7 +8,7 @@ CC_GenePrefetch(
   species = "Homo_sapiens",
   Ensembl_version = 103,
   mirror = NULL,
-  attempts = 5,
+  max_tries = 5,
   use_cached_gene = TRUE
 )
 }
@@ -19,7 +19,7 @@ CC_GenePrefetch(
 
 \item{mirror}{Specify an Ensembl mirror to connect to. The valid options here are 'www', 'uswest', 'useast', 'asia'.}
 
-\item{attempts}{Number of attempts to connect with the biomart service.}
+\item{max_tries}{Number of max_tries to connect with the biomart service.}
 
 \item{use_cached_gene}{Whether to use previously cached cell cycle gene conversion results for the species.}
 }

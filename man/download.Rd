@@ -10,7 +10,7 @@ download(
   methods = c("auto", "wget", "libcurl", "curl", "wininet", "internal"),
   quiet = FALSE,
   ...,
-  attempts = 2
+  max_tries = 2
 )
 }
 \arguments{
@@ -29,7 +29,7 @@ download(
 
 \item{...}{Other arguments passed to \code{\link[utils]{download.file}}}
 
-\item{attempts}{Number of attempts for each download method.}
+\item{max_tries}{Number of tries for each download method.}
 }
 \description{
 Download File from the Internet

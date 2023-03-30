@@ -13,7 +13,7 @@ GeneConvert(
   Ensembl_version = 103,
   biomart = NULL,
   mirror = NULL,
-  attempts = 5
+  max_tries = 5
 )
 }
 \arguments{
@@ -33,7 +33,7 @@ GeneConvert(
 
 \item{mirror}{Specify an Ensembl mirror to connect to. The valid options here are 'www', 'uswest', 'useast', 'asia'.}
 
-\item{attempts}{Number of attempts to connect with the biomart service.}
+\item{max_tries}{Number of max_tries to connect with the biomart service.}
 }
 \value{
 A list.
