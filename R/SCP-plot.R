@@ -2391,8 +2391,8 @@ FeatureDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), spli
             data = dat[dat[, "color_blend"] != bg_color, , drop = FALSE],
             mapping = aes(x = .data[["x"]], y = .data[["y"]], color = .data[["color_blend"]]),
             pointsize = floor(pt.size), alpha = pt.alpha, pixels = raster.dpi
-          )
-        scale_color_identity() +
+          ) +
+          scale_color_identity() +
           new_scale_color()
       } else {
         p <- p + geom_point(
@@ -2414,7 +2414,8 @@ FeatureDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), spli
               scattermore::geom_scattermore(
                 data = cell_df, aes(x = .data[["x"]], y = .data[["y"]], color = .data[["color_blend"]]),
                 pointsize = floor(sizes.highlight), alpha = alpha.highlight, pixels = raster.dpi
-              ) + scale_color_identity() +
+              ) +
+              scale_color_identity() +
               new_scale_color()
           } else {
             p <- p +
