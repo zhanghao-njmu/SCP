@@ -3477,11 +3477,12 @@ FeatureStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.b
                             add_box = FALSE, box_color = "black", box_width = 0.1, box_ptsize = 2,
                             add_point = FALSE, pt.color = "grey30", pt.size = NULL, pt.alpha = 1, jitter.width = 0.5,
                             add_trend = FALSE, trend_color = "black", trend_linewidth = 1, trend_ptsize = 2,
+                            add_stat = c("none", "mean", "median"), stat_color = "black", stat_size = 1,
                             cells.highlight = NULL, cols.highlight = "red", sizes.highlight = 1, alpha.highlight = 1,
                             calculate_coexp = FALSE, compare_features = FALSE,
                             same.y.lims = FALSE, y.min = NULL, y.max = NULL, y.trans = "identity", y.nbreaks = 5,
                             sort = FALSE, stack = FALSE, flip = FALSE,
-                            comparisons = NULL, ref_group = NULL, pairwise_method = "wilcox.test", sig_label = "p.signif",
+                            comparisons = NULL, ref_group = NULL, pairwise_method = "wilcox.test", sig_label = c("p.signif", "p.format"),
                             multiplegroup_comparisons = FALSE, multiple_method = "kruskal.test",
                             aspect.ratio = NULL, title = NULL, subtitle = NULL, xlab = NULL, ylab = "Expression level",
                             legend.position = "right", legend.direction = "vertical",
@@ -3492,21 +3493,23 @@ FeatureStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.b
   plot_type <- match.arg(plot_type)
   fill.by <- match.arg(fill.by)
   slot <- match.arg(slot)
+  sig_label <- match.arg(sig_label)
+  add_stat <- match.arg(add_stat)
 
   meta.data <- srt@meta.data
   assay <- assay %||% DefaultAssay(srt)
   exp.data <- slot(srt@assays[[assay]], slot)
 
   if (plot_type == "col") {
-    if (isTRUE(add_box) || isTRUE(add_point) || isTRUE(add_trend)) {
+    if (isTRUE(add_box) || isTRUE(add_point) || isTRUE(add_trend) || isTRUE(add_stat != "none")) {
       warning("Cannot add other layers when plot_type is 'col'", immediate. = TRUE)
       add_box <- add_point <- add_trend <- FALSE
     }
-    if (isTRUE(multiplegroup_comparisons) || length(comparisons) > 0) {
-      warning("Cannot add comparison when plot_type is 'col'", immediate. = TRUE)
-      multiplegroup_comparisons <- FALSE
-      comparisons <- NULL
-    }
+  }
+  if ((isTRUE(multiplegroup_comparisons) || length(comparisons) > 0) && plot_type %in% c("col")) {
+    warning("Cannot add comparison when plot_type is 'col'", immediate. = TRUE)
+    multiplegroup_comparisons <- FALSE
+    comparisons <- NULL
   }
   if (isTRUE(comparisons) && is.null(split.by)) {
     stop("'split.by' must provided when comparisons=TRUE")
@@ -3714,7 +3717,7 @@ FeatureStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.b
       bg_color <- palette_scp(levels(dat[[bg]]), palette = bg_palette, palcolor = bg_palcolor)
     } else {
       bg <- g
-      bg_color <- palette_scp(levels(dat[[bg]]), palcolor = bg_palcolor %||% rep(c("transparent", "grey80"), nlevels(dat[[bg]])))
+      bg_color <- palette_scp(levels(dat[[bg]]), palcolor = bg_palcolor %||% rep(c("transparent", "grey85"), nlevels(dat[[bg]])))
     }
     dat[["bg.by"]] <- dat[[bg]]
     var_nm <- setNames(
@@ -3867,7 +3870,6 @@ FeatureStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.b
           fun.data = mean_sdl, fun.args = list(mult = 1), geom = "errorbar", mapping = aes(group = .data[["split.by"]]),
           position = position_dodge(width = 0.9), width = 0.2, color = "black"
         )
-      p <<- p
       y_min_use <- layer_scales(p)$y$range$range[1]
     }
     if (plot_type == "dot") {
@@ -4035,6 +4037,12 @@ FeatureStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.b
             )
         }
       }
+    }
+    if (add_stat != "none") {
+      p <- p + stat_summary(
+        fun = add_stat, geom = "point", mapping = aes(group = .data[["split.by"]], shape = 95),
+        position = position_dodge(width = 0.9), color = stat_color, fill = "white", size = stat_size, stroke = 10,
+      ) + scale_shape_identity()
     }
 
     if (nrow(dat) == 0) {
@@ -4570,7 +4578,7 @@ StatPlot <- function(meta.data, stat.by, group.by = NULL, split.by = NULL, bg.by
         bg_color <- palette_scp(levels(dat_all[[bg]]), palette = bg_palette, palcolor = bg_palcolor)
       } else {
         bg <- g
-        bg_color <- palette_scp(levels(dat_all[[bg]]), palcolor = bg_palcolor %||% rep(c("transparent", "grey80"), nlevels(dat_all[[bg]])))
+        bg_color <- palette_scp(levels(dat_all[[bg]]), palcolor = bg_palcolor %||% rep(c("transparent", "grey85"), nlevels(dat_all[[bg]])))
       }
 
       if (isTRUE(flip)) {
@@ -7750,6 +7758,9 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
   if (isTRUE(raster_by_magick)) {
     check_R("magick")
   }
+  if (is.null(features)) {
+    stop("No feature provided.")
+  }
 
   split_method <- match.arg(split_method)
   data_nm <- c(ifelse(isTRUE(lib_normalize), "normalized", ""), slot)
@@ -8197,8 +8208,7 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
             assay = assay, slot = "data", flip = flip,
             stat.by = cellan, cells = names(cell_groups[[cell_group]]),
             group.by = cell_group, split.by = split.by,
-            palette = if (is.null(split.by)) group_palette[cell_group] else cell_split_palette,
-            palcolor = if (is.null(split.by)) group_palcolor[cell_group] else cell_split_palcolor,
+            palette = palette, palcolor = palcolor,
             fill.by = "group", same.y.lims = TRUE,
             stat_single = TRUE, combine = FALSE
           )

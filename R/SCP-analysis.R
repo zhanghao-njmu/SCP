@@ -1538,7 +1538,7 @@ RunDEtest <- function(srt, group_by = NULL, group1 = NULL, group2 = NULL, cells1
     )
 
     if (verbose) {
-      message("Find ", markers_type, " markers(", test.use, ") among groups...")
+      message("Find ", markers_type, " markers(", test.use, ") among ", nlevels(cell_group), "groups...")
     }
     if (markers_type == "all") {
       AllMarkers <- bplapply(levels(cell_group), FUN = function(group) {
@@ -3007,6 +3007,7 @@ RunEnrichment <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_t
     db_list[[species]][[db]][["version"]] <- "custom"
   }
   if (isTRUE(db_combine)) {
+    message("Create 'Combined' database ...")
     TERM2GENE <- do.call(rbind, lapply(db_list[[species]], function(x) x[["TERM2GENE"]][, c("Term", IDtype)]))
     TERM2NAME <- do.call(rbind, lapply(names(db_list[[species]]), function(x) {
       db_list[[species]][[x]][["TERM2NAME"]][["Name"]] <- paste0(db_list[[species]][[x]][["TERM2NAME"]][["Name"]], " [", x, "]")
@@ -3307,6 +3308,7 @@ RunGSEA <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_thresho
     db_list[[species]][[db]][["version"]] <- "custom"
   }
   if (isTRUE(db_combine)) {
+    message("Create 'Combined' database ...")
     TERM2GENE <- do.call(rbind, lapply(db_list[[species]], function(x) x[["TERM2GENE"]][, c("Term", IDtype)]))
     TERM2NAME <- do.call(rbind, lapply(names(db_list[[species]]), function(x) {
       db_list[[species]][[x]][["TERM2NAME"]][["Name"]] <- paste0(db_list[[species]][[x]][["TERM2NAME"]][["Name"]], " [", x, "]")
@@ -4601,7 +4603,7 @@ srt_to_adata <- function(srt, features = NULL,
     }
   }
 
-  X <- t(GetAssayData(srt, assay = assay_X, slot = slot_X)[features, , drop = FALSE])
+  X <- Matrix::t(GetAssayData(srt, assay = assay_X, slot = slot_X)[features, , drop = FALSE])
   adata <- sc$AnnData(
     X = np_array(X, dtype = np$float32),
     obs = obs,
@@ -4618,7 +4620,7 @@ srt_to_adata <- function(srt, features = NULL,
   layer_list <- list()
   for (assay in names(srt@assays)[names(srt@assays) != assay_X]) {
     if (assay %in% assay_layers) {
-      layer <- t(GetAssayData(srt, assay = assay, slot = slot_layers[assay]))
+      layer <- Matrix::t(GetAssayData(srt, assay = assay, slot = slot_layers[assay]))
       if (!identical(dim(layer), dim(X))) {
         if (all(colnames(X) %in% colnames(layer))) {
           layer <- layer[, colnames(X)]
@@ -4733,7 +4735,7 @@ adata_to_srt <- function(adata) {
   if (!inherits(adata, "python.builtin.object")) {
     stop("'adata' is not a python.builtin.object.")
   }
-  x <- t(adata$X)
+  x <- Matrix::t(adata$X)
   if (!inherits(x, "dgCMatrix")) {
     x <- as.sparse(x[1:nrow(x), , drop = FALSE])
   }
@@ -4750,7 +4752,7 @@ adata_to_srt <- function(adata) {
 
   if (length(adata$layers$keys()) > 0) {
     for (k in iterate(adata$layers$keys())) {
-      layer <- t(adata$layers[[k]])
+      layer <- Matrix::t(adata$layers[[k]])
       if (!inherits(layer, "dgCMatrix")) {
         layer <- as.sparse(layer[1:nrow(layer), , drop = FALSE])
       }
