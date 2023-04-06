@@ -7750,6 +7750,9 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
   if (isTRUE(raster_by_magick)) {
     check_R("magick")
   }
+  if (is.null(features)) {
+    stop("No feature provided.")
+  }
 
   split_method <- match.arg(split_method)
   data_nm <- c(ifelse(isTRUE(lib_normalize), "normalized", ""), slot)
@@ -8197,8 +8200,7 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
             assay = assay, slot = "data", flip = flip,
             stat.by = cellan, cells = names(cell_groups[[cell_group]]),
             group.by = cell_group, split.by = split.by,
-            palette = if (is.null(split.by)) group_palette[cell_group] else cell_split_palette,
-            palcolor = if (is.null(split.by)) group_palcolor[cell_group] else cell_split_palcolor,
+            palette = palette, palcolor = palcolor,
             fill.by = "group", same.y.lims = TRUE,
             stat_single = TRUE, combine = FALSE
           )

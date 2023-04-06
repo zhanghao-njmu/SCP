@@ -1538,7 +1538,7 @@ RunDEtest <- function(srt, group_by = NULL, group1 = NULL, group2 = NULL, cells1
     )
 
     if (verbose) {
-      message("Find ", markers_type, " markers(", test.use, ") among groups...")
+      message("Find ", markers_type, " markers(", test.use, ") among ", nlevels(cell_group), "groups...")
     }
     if (markers_type == "all") {
       AllMarkers <- bplapply(levels(cell_group), FUN = function(group) {
