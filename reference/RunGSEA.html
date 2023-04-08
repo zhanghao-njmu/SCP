@@ -154,21 +154,21 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"pancreas_sub"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="RunDEtest.html">RunDEtest</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, group_by <span class="op">=</span> <span class="st">"CellType"</span>, only.pos <span class="op">=</span> <span class="cn">FALSE</span>, fc.threshold <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Data in the 'data' slot is raw counts. Perform NormalizeData(LogNormalize) on the data.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-04-06 12:49:09] Start DEtest</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-04-08 06:07:40] Start DEtest</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Workers: 1</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Find all markers(wilcox) among 5groups...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |==============================================================================================================| 100%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-04-06 12:54:30] DEtest done</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:5.34 mins</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-04-08 06:14:16] DEtest done</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:6.6 mins</span>
 <span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu">RunGSEA</span><span class="op">(</span><span class="va">pancreas_sub</span>,</span></span>
 <span class="r-in"><span>  group_by <span class="op">=</span> <span class="st">"CellType"</span>, DE_threshold <span class="op">=</span> <span class="st">"p_val_adj &lt; 0.05"</span>,</span></span>
 <span class="r-in"><span>  scoreType <span class="op">=</span> <span class="st">"std"</span>, db <span class="op">=</span> <span class="st">"GO_BP"</span>, species <span class="op">=</span> <span class="st">"Mus_musculus"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-04-06 12:54:30] Start GSEA</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-04-08 06:14:16] Start GSEA</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Workers: 1</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Species: Mus_musculus</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db:GO_BP version:3.16.0 nterm:15992 created:2023-04-06 12:06:55</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db:GO_BP version:3.16.0 nterm:15992 created:2023-04-08 05:18:44</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Permform GSEA...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |==============================================================================================================| 100%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -182,8 +182,8 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |==============================================================================================================| 100%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-04-06 13:00:00] GSEA done</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:5.51 mins</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-04-08 06:20:19] GSEA done</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:6.06 mins</span>
 <span class="r-in"><span><span class="fu"><a href="GSEAPlot.html">GSEAPlot</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, db <span class="op">=</span> <span class="st">"GO_BP"</span>, group_by <span class="op">=</span> <span class="st">"CellType"</span>, plot_type <span class="op">=</span> <span class="st">"comparison"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="RunGSEA-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="fu"><a href="GSEAPlot.html">GSEAPlot</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, db <span class="op">=</span> <span class="st">"GO_BP"</span>, group_by <span class="op">=</span> <span class="st">"CellType"</span>, group_use <span class="op">=</span> <span class="st">"Ductal"</span>, geneSetID <span class="op">=</span> <span class="st">"GO:0006412"</span><span class="op">)</span></span></span>
@@ -193,10 +193,10 @@
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Remove redundant GO terms</span></span></span>
 <span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu">RunGSEA</span><span class="op">(</span>srt <span class="op">=</span> <span class="va">pancreas_sub</span>, group_by <span class="op">=</span> <span class="st">"CellType"</span>, db <span class="op">=</span> <span class="st">"GO_BP"</span>, GO_simplify <span class="op">=</span> <span class="cn">TRUE</span>, species <span class="op">=</span> <span class="st">"Mus_musculus"</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-04-06 13:00:02] Start GSEA</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-04-08 06:20:22] Start GSEA</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Workers: 1</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Species: Mus_musculus</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db:GO_BP version:3.16.0 nterm:15992 created:2023-04-06 12:06:55</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db:GO_BP version:3.16.0 nterm:15992 created:2023-04-08 05:18:44</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Permform GSEA...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |==============================================================================================================| 100%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -210,8 +210,8 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |==============================================================================================================| 100%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-04-06 13:05:54] GSEA done</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:5.87 mins</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-04-08 06:26:46] GSEA done</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:6.4 mins</span>
 <span class="r-in"><span><span class="fu"><a href="GSEAPlot.html">GSEAPlot</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, db <span class="op">=</span> <span class="st">"GO_BP_sim"</span>, group_by <span class="op">=</span> <span class="st">"CellType"</span>, plot_type <span class="op">=</span> <span class="st">"comparison"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="RunGSEA-4.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
@@ -222,14 +222,15 @@
 <span class="r-in"><span>  db_combine <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
 <span class="r-in"><span>  species <span class="op">=</span> <span class="st">"Mus_musculus"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-04-06 13:05:54] Start GSEA</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-04-08 06:26:46] Start GSEA</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Workers: 1</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Species: Mus_musculus</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db:KEGG version:Release 106.0+/04-06, Apr 23 nterm:349 created:2023-04-06 12:47:00</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db:WikiPathway version:20230310 nterm:200 created:2023-04-06 12:47:13</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db:Reactome version:1.82.0 nterm:1712 created:2023-04-06 12:47:27</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db:PFAM version:3.16.0 nterm:6239 created:2023-04-06 12:47:55</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db:MP version:2023-04-03 08:00 nterm:10224 created:2023-04-06 12:10:35</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db:KEGG version:Release 106.0+/04-08, Apr 23 nterm:349 created:2023-04-08 06:04:26</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db:WikiPathway version:20230310 nterm:200 created:2023-04-08 06:04:45</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db:Reactome version:1.82.0 nterm:1712 created:2023-04-08 06:05:14</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db:PFAM version:3.16.0 nterm:6239 created:2023-04-08 06:06:12</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db:MP version:2023-04-03 08:00 nterm:10224 created:2023-04-08 05:23:06</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Create 'Combined' database ...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Permform GSEA...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |==============================================================================================================| 100%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -243,18 +244,18 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |==============================================================================================================| 100%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-04-06 13:07:42] GSEA done</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:1.79 mins</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-04-08 06:28:52] GSEA done</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:2.1 mins</span>
 <span class="r-in"><span><span class="fu"><a href="GSEAPlot.html">GSEAPlot</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, db <span class="op">=</span> <span class="st">"Combined"</span>, group_by <span class="op">=</span> <span class="st">"CellType"</span>, plot_type <span class="op">=</span> <span class="st">"comparison"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="RunGSEA-5.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Or use "geneID", "geneScore" and "geneID_groups" as input to run GSEA</span></span></span>
 <span class="r-in"><span><span class="va">de_df</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">pancreas_sub</span><span class="op">@</span><span class="va">tools</span><span class="op">$</span><span class="va">DEtest_CellType</span><span class="op">$</span><span class="va">AllMarkers_wilcox</span>, <span class="va">p_val_adj</span> <span class="op">&lt;</span> <span class="fl">0.05</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">gsea_out</span> <span class="op">&lt;-</span> <span class="fu">RunGSEA</span><span class="op">(</span>geneID <span class="op">=</span> <span class="va">de_df</span><span class="op">[[</span><span class="st">"gene"</span><span class="op">]</span><span class="op">]</span>, geneScore <span class="op">=</span> <span class="va">de_df</span><span class="op">[[</span><span class="st">"avg_log2FC"</span><span class="op">]</span><span class="op">]</span>, geneID_groups <span class="op">=</span> <span class="va">de_df</span><span class="op">[[</span><span class="st">"group1"</span><span class="op">]</span><span class="op">]</span>, db <span class="op">=</span> <span class="st">"GO_BP"</span>, species <span class="op">=</span> <span class="st">"Mus_musculus"</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-04-06 13:07:42] Start GSEA</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-04-08 06:28:53] Start GSEA</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Workers: 1</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Species: Mus_musculus</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db:GO_BP version:3.16.0 nterm:15992 created:2023-04-06 12:06:55</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db:GO_BP version:3.16.0 nterm:15992 created:2023-04-08 05:18:44</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Permform GSEA...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |==============================================================================================================| 100%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -268,8 +269,8 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |==============================================================================================================| 100%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-04-06 13:13:11] GSEA done</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:5.49 mins</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-04-08 06:34:47] GSEA done</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:5.91 mins</span>
 <span class="r-in"><span><span class="fu"><a href="GSEAPlot.html">GSEAPlot</a></span><span class="op">(</span>res <span class="op">=</span> <span class="va">gsea_out</span>, db <span class="op">=</span> <span class="st">"GO_BP"</span>, plot_type <span class="op">=</span> <span class="st">"comparison"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="RunGSEA-6.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
