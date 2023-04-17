@@ -317,7 +317,7 @@ palette_scp <- function(x, n = 100, palette = "Paired", palcolor = NULL, type = 
     type <- "continuous"
   }
   if (!palette %in% names(palette_list)) {
-    stop("The palette name is invalid! You can check the available palette names with 'show_palettes()'. Or pass palette colors via the 'palcolor' parameter.")
+    stop("The palette name (", palette, ") is invalid! You can check the available palette names with 'show_palettes()'. Or pass palette colors via the 'palcolor' parameter.")
   }
   if (is.list(palcolor)) {
     palcolor <- unlist(palcolor)
@@ -1530,7 +1530,7 @@ CellDimPlot <- function(srt, group.by, reduction = NULL, dims = c(1, 2), split.b
       label = stat_plot_label, label.size = stat_plot_label_size,
       legend.position = "bottom", legend.direction = legend.direction,
       theme_use = theme_void, theme_args = theme_args,
-      stat_single = TRUE, combine = FALSE
+      individual = TRUE, combine = FALSE
     )
   }
   if (!is.null(lineages)) {
@@ -1600,7 +1600,7 @@ CellDimPlot <- function(srt, group.by, reduction = NULL, dims = c(1, 2), split.b
     colors <- palette_scp(levels(dat_use[[g]]), palette = palette, palcolor = palcolor, NA_keep = TRUE)
     dat <- dat_use
     cells_mask <- dat[[split.by]] != s
-    dat[[split.by]] <- NULL
+    # dat[[split.by]] <- NULL
     dat[[g]][cells_mask] <- NA
     legend_list <- list()
     labels_tb <- table(dat[[g]])
@@ -3404,7 +3404,7 @@ FeatureDimPlot3D <- function(srt, features = NULL, reduction = NULL, dims = c(1,
 #' @param ncol
 #' @param byrow
 #' @param force
-#' @param stat_single
+#' @param individual
 #' @param plot_type
 #' @param y.nbreaks
 #' @param y.min
@@ -3463,14 +3463,14 @@ FeatureDimPlot3D <- function(srt, features = NULL, reduction = NULL, dims = c(1,
 #' ) %>% panel_fix_single(width = 8, height = 5) # Because the plot is made by combining, we want to adjust the overall height and width
 #' @importFrom Seurat DefaultAssay GetAssayData
 #' @importFrom gtable gtable_add_cols gtable_add_rows gtable_add_grob gtable_add_padding
-#' @importFrom ggplot2 geom_blank geom_violin geom_rect geom_boxplot geom_count geom_col geom_vline geom_hline layer_data layer_scales position_jitterdodge position_dodge stat_summary scale_x_discrete element_line element_text element_blank annotate mean_sdl after_stat
+#' @importFrom ggplot2 geom_blank geom_violin geom_rect geom_boxplot geom_count geom_col geom_vline geom_hline layer_data layer_scales position_jitterdodge position_dodge stat_summary scale_x_discrete element_line element_text element_blank annotate mean_sdl after_stat scale_shape_identity
 #' @importFrom grid grobHeight grobWidth
 #' @importFrom rlang %||%
 #' @importFrom patchwork wrap_plots
 #' @importFrom Matrix rowSums
 #' @export
 FeatureStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.by = NULL, fill.by = c("group", "feature", "expression"),
-                            cells = NULL, slot = c("data", "counts"), assay = NULL, keep_empty = FALSE, stat_single = FALSE,
+                            cells = NULL, slot = c("data", "counts"), assay = NULL, keep_empty = FALSE, individual = FALSE,
                             plot_type = c("violin", "box", "bar", "dot", "col"),
                             palette = "Paired", palcolor = NULL, alpha = 1,
                             bg_palette = "Paired", bg_palcolor = NULL, bg_apha = 0.2,
@@ -3656,7 +3656,7 @@ FeatureStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.b
 
   comb_list <- list()
   comb <- expand.grid(group_name = group.by, stat_name = stat.by, stringsAsFactors = FALSE)
-  if (isTRUE(stat_single)) {
+  if (isTRUE(individual)) {
     for (g in group.by) {
       comb_list[[g]] <- merge(comb, expand.grid(
         group_name = g, group_element = levels(dat_use[[g]]),
@@ -3820,7 +3820,7 @@ FeatureStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.b
         )
     }
 
-    if (isFALSE(stat_single)) {
+    if (isFALSE(individual)) {
       if (plot_type == "col") {
         x_index <- split(dat[["cell"]], dat[["group.by"]])
         bg_data <- as.data.frame(t(sapply(x_index, range)))
@@ -3888,7 +3888,7 @@ FeatureStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.b
       } else {
         p <- p + theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
       }
-      if (isFALSE(stat_single) && isTRUE(nlevels(dat[["group.by"]]) > 1)) {
+      if (isFALSE(individual) && isTRUE(nlevels(dat[["group.by"]]) > 1)) {
         x_index <- split(dat[["cell"]], dat[["group.by"]])
         border_data <- as.data.frame(sapply(x_index, min) - 0.5)
         colnames(border_data) <- "xintercept"
@@ -4094,7 +4094,7 @@ FeatureStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.b
     plist[[paste0(f, ":", g, ":", paste0(single_group, collapse = ","), ":", paste0(sp, collapse = ","))]] <- p
   })
 
-  if (isTRUE(stack) && length(stat.by) > 1 && isFALSE(stat_single)) {
+  if (isTRUE(stack) && length(stat.by) > 1 && isFALSE(individual)) {
     for (g in group.by) {
       plist_g <- plist[sapply(strsplit(names(plist), ":"), function(x) x[2]) == g]
       legend <- get_legend(plist_g[[1]])
@@ -4191,7 +4191,7 @@ FeatureStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.b
 #' @param split.by
 #' @param cells
 #' @param keep_empty
-#' @param stat_single
+#' @param individual
 #' @param plot_type
 #' @param stat_type
 #' @param position
@@ -4248,7 +4248,7 @@ FeatureStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.b
 #' CellStatPlot(pancreas_sub, stat.by = "Phase", group.by = "CellType", plot_type = "dot")
 #' CellStatPlot(pancreas_sub, stat.by = "Phase", group.by = "CellType", plot_type = "trend")
 #'
-#' CellStatPlot(pancreas_sub, stat.by = "Phase", group.by = "CellType", plot_type = "bar", stat_single = TRUE)
+#' CellStatPlot(pancreas_sub, stat.by = "Phase", group.by = "CellType", plot_type = "bar", individual = TRUE)
 #'
 #' CellStatPlot(pancreas_sub, stat.by = "Phase", group.by = "CellType", stat_type = "count", plot_type = "bar")
 #' CellStatPlot(pancreas_sub, stat.by = "Phase", group.by = "CellType", stat_type = "count", plot_type = "rose")
@@ -4281,7 +4281,7 @@ FeatureStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.b
 #' @importFrom Seurat Cells
 #' @export
 CellStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.by = NULL, cells = NULL, flip = FALSE,
-                         NA_color = "grey", NA_stat = TRUE, keep_empty = FALSE, stat_single = FALSE, stat_level = NULL,
+                         NA_color = "grey", NA_stat = TRUE, keep_empty = FALSE, individual = FALSE, stat_level = NULL,
                          plot_type = c("bar", "rose", "ring", "pie", "trend", "area", "dot", "sankey", "chord", "venn", "upset"),
                          stat_type = c("percent", "count"), position = c("stack", "dodge"),
                          palette = "Paired", palcolor = NULL, alpha = 1,
@@ -4296,7 +4296,7 @@ CellStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.by =
 
   plot <- StatPlot(
     meta.data = meta.data, stat.by = stat.by, group.by = group.by, split.by = split.by, bg.by = bg.by, flip = flip,
-    NA_color = NA_color, NA_stat = NA_stat, keep_empty = keep_empty, stat_single = stat_single, stat_level = stat_level,
+    NA_color = NA_color, NA_stat = NA_stat, keep_empty = keep_empty, individual = individual, stat_level = stat_level,
     plot_type = plot_type, stat_type = stat_type, position = position,
     palette = palette, palcolor = palcolor, alpha = alpha,
     bg_palette = bg_palette, bg_palcolor = bg_palcolor, bg_apha = bg_apha,
@@ -4320,7 +4320,7 @@ CellStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.by =
 #' @param NA_color
 #' @param NA_stat
 #' @param keep_empty
-#' @param stat_single
+#' @param individual
 #' @param stat_level
 #' @param plot_type
 #' @param stat_type
@@ -4379,7 +4379,7 @@ CellStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.by =
 #' @importFrom rlang %||%
 #' @export
 StatPlot <- function(meta.data, stat.by, group.by = NULL, split.by = NULL, bg.by = NULL, flip = FALSE,
-                     NA_color = "grey", NA_stat = TRUE, keep_empty = FALSE, stat_single = FALSE, stat_level = NULL,
+                     NA_color = "grey", NA_stat = TRUE, keep_empty = FALSE, individual = FALSE, stat_level = NULL,
                      plot_type = c("bar", "rose", "ring", "pie", "trend", "area", "dot", "sankey", "chord", "venn", "upset"),
                      stat_type = c("percent", "count"), position = c("stack", "dodge"),
                      palette = "Paired", palcolor = NULL, alpha = 1,
@@ -4520,7 +4520,7 @@ StatPlot <- function(meta.data, stat.by, group.by = NULL, split.by = NULL, bg.by
 
     comb_list <- list()
     comb <- expand.grid(stat_name = stat.by, group_name = group.by, stringsAsFactors = FALSE)
-    if (isTRUE(stat_single)) {
+    if (isTRUE(individual)) {
       for (g in group.by) {
         comb_list[[g]] <- merge(comb, expand.grid(
           group_name = g, group_element = levels(dat_all[[g]]),
@@ -7842,7 +7842,8 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
     if (length(cell_annotation_palcolor) == 1) {
       cell_annotation_palcolor <- rep(cell_annotation_palcolor, length(cell_annotation))
     }
-    if (length(unique(length(cell_annotation_palette), length(cell_annotation_palcolor), length(cell_annotation))) != 1) {
+    npal <- unique(c(length(cell_annotation_palette), length(cell_annotation_palcolor), length(cell_annotation)))
+    if (length(npal[npal != 0]) > 1) {
       stop("cell_annotation_palette and cell_annotation_palcolor must be the same length as cell_annotation")
     }
     if (any(!cell_annotation %in% c(colnames(srt@meta.data), rownames(srt@assays[[assay]])))) {
@@ -7856,7 +7857,8 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
     if (length(feature_annotation_palcolor) == 1) {
       feature_annotation_palcolor <- rep(feature_annotation_palcolor, length(feature_annotation))
     }
-    if (length(unique(length(feature_annotation_palette), length(feature_annotation_palcolor), length(feature_annotation))) != 1) {
+    npal <- unique(c(length(feature_annotation_palette), length(feature_annotation_palcolor), length(feature_annotation)))
+    if (length(npal[npal != 0]) > 1) {
       stop("feature_annotation_palette and feature_annotation_palcolor must be the same length as feature_annotation")
     }
     if (any(!feature_annotation %in% colnames(srt@assays[[assay]]@meta.features))) {
@@ -8154,7 +8156,7 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
             cells = names(cell_groups[[cell_group]]), plot_type = "pie",
             group.by = cell_group, stat.by = cellan, split.by = split.by,
             palette = palette, palcolor = palcolor,
-            stat_single = TRUE, combine = FALSE
+            individual = TRUE, combine = FALSE
           )
           subplots_list[[paste0(cellan, ":", cell_group)]] <- subplots
           graphics <- list()
@@ -8210,7 +8212,7 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
             group.by = cell_group, split.by = split.by,
             palette = palette, palcolor = palcolor,
             fill.by = "group", same.y.lims = TRUE,
-            stat_single = TRUE, combine = FALSE
+            individual = TRUE, combine = FALSE
           )
           subplots_list[[paste0(cellan, ":", cell_group)]] <- subplots
           graphics <- list()
@@ -8550,7 +8552,7 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
         group.by = cell_group, split.by = split.by,
         palette = fill_palette, palcolor = fill_palcolor,
         fill.by = fill.by, same.y.lims = TRUE,
-        stat_single = TRUE, combine = FALSE
+        individual = TRUE, combine = FALSE
       )
       lgd[["ht"]] <- NULL
       # legend <- get_legend(vlnplots[[1]])
@@ -9060,7 +9062,8 @@ FeatureHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, 
     if (length(cell_annotation_palcolor) == 1) {
       cell_annotation_palcolor <- rep(cell_annotation_palcolor, length(cell_annotation))
     }
-    if (length(unique(length(cell_annotation_palette), length(cell_annotation_palcolor), length(cell_annotation))) != 1) {
+    npal <- unique(c(length(cell_annotation_palette), length(cell_annotation_palcolor), length(cell_annotation)))
+    if (length(npal[npal != 0]) > 1) {
       stop("cell_annotation_palette and cell_annotation_palcolor must be the same length as cell_annotation")
     }
     if (any(!cell_annotation %in% c(colnames(srt@meta.data), rownames(srt@assays[[assay]])))) {
@@ -9074,7 +9077,8 @@ FeatureHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, 
     if (length(feature_annotation_palcolor) == 1) {
       feature_annotation_palcolor <- rep(feature_annotation_palcolor, length(feature_annotation))
     }
-    if (length(unique(length(feature_annotation_palette), length(feature_annotation_palcolor), length(feature_annotation))) != 1) {
+    npal <- unique(c(length(feature_annotation_palette), length(feature_annotation_palcolor), length(feature_annotation)))
+    if (length(npal[npal != 0]) > 1) {
       stop("feature_annotation_palette and feature_annotation_palcolor must be the same length as feature_annotation")
     }
     if (any(!feature_annotation %in% colnames(srt@assays[[assay]]@meta.features))) {
@@ -10063,7 +10067,8 @@ CellCorHeatmap <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
     if (length(query_cell_annotation_palcolor) == 1) {
       query_cell_annotation_palcolor <- rep(query_cell_annotation_palcolor, length(query_cell_annotation))
     }
-    if (length(unique(length(query_cell_annotation_palette), length(query_cell_annotation_palcolor), length(query_cell_annotation))) != 1) {
+    npal <- unique(c(length(query_cell_annotation_palette), length(query_cell_annotation_palcolor), length(query_cell_annotation)))
+    if (length(npal[npal != 0]) > 1) {
       stop("query_cell_annotation_palette and query_cell_annotation_palcolor must be the same length as query_cell_annotation")
     }
     if (any(!query_cell_annotation %in% c(colnames(srt_query@meta.data), rownames(srt_query[[query_assay]])))) {
@@ -10077,7 +10082,8 @@ CellCorHeatmap <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
     if (length(ref_cell_annotation_palcolor) == 1) {
       ref_cell_annotation_palcolor <- rep(ref_cell_annotation_palcolor, length(ref_cell_annotation))
     }
-    if (length(unique(length(ref_cell_annotation_palette), length(ref_cell_annotation_palcolor), length(ref_cell_annotation))) != 1) {
+    npal <- unique(c(length(ref_cell_annotation_palette), length(ref_cell_annotation_palcolor), length(ref_cell_annotation)))
+    if (length(npal[npal != 0]) > 1) {
       stop("ref_cell_annotation_palette and ref_cell_annotation_palcolor must be the same length as ref_cell_annotation")
     }
     if (any(!ref_cell_annotation %in% c(colnames(srt_ref@meta.data), rownames(srt_ref[[ref_assay]])))) {
@@ -10212,7 +10218,7 @@ CellCorHeatmap <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
             cells = gsub("query_", "", names(cell_groups[["query_group"]])), plot_type = "pie",
             group.by = query_group, stat.by = cellan,
             palette = palette, palcolor = palcolor,
-            stat_single = TRUE, combine = FALSE
+            individual = TRUE, combine = FALSE
           )
           query_subplots_list[[paste0(cellan, ":", query_group)]] <- subplots
           graphics <- list()
@@ -10290,7 +10296,7 @@ CellCorHeatmap <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
             palette = query_group_palette,
             palcolor = query_group_palcolor,
             fill.by = "group", same.y.lims = TRUE,
-            stat_single = TRUE, combine = FALSE
+            individual = TRUE, combine = FALSE
           )
           query_subplots_list[[paste0(cellan, ":", query_group)]] <- subplots
           graphics <- list()
@@ -10385,7 +10391,7 @@ CellCorHeatmap <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
             cells = gsub("ref_", "", names(cell_groups[["ref_group"]])), plot_type = "pie",
             group.by = ref_group, stat.by = cellan,
             palette = palette, palcolor = palcolor,
-            stat_single = TRUE, combine = FALSE
+            individual = TRUE, combine = FALSE
           )
           ref_subplots_list[[paste0(cellan, ":", ref_group)]] <- subplots
           graphics <- list()
@@ -10463,7 +10469,7 @@ CellCorHeatmap <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
             palette = ref_group_palette,
             palcolor = ref_group_palcolor,
             fill.by = "group", same.y.lims = TRUE,
-            stat_single = TRUE, combine = FALSE
+            individual = TRUE, combine = FALSE
           )
           ref_subplots_list[[paste0(cellan, ":", ref_group)]] <- subplots
           graphics <- list()
@@ -10981,7 +10987,8 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineag
     if (length(pseudotime_label_linewidth) == 1) {
       pseudotime_label_linewidth <- rep(pseudotime_label_linewidth, length(pseudotime_label))
     }
-    if (length(unique(length(pseudotime_label), length(pseudotime_label_color), length(pseudotime_label_linetype), length(pseudotime_label_linewidth))) != 1) {
+    npal <- unique(c(length(pseudotime_label), length(pseudotime_label_color), length(pseudotime_label_linetype), length(pseudotime_label_linewidth)))
+    if (length(npal[npal != 0]) > 1) {
       stop("Parameters for the pseudotime_label must be the same length!")
     }
   }
@@ -10992,7 +10999,8 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineag
     if (length(cell_annotation_palcolor) == 1) {
       cell_annotation_palcolor <- rep(cell_annotation_palcolor, length(cell_annotation))
     }
-    if (length(unique(length(cell_annotation_palette), length(cell_annotation_palcolor), length(cell_annotation))) != 1) {
+    npal <- unique(c(length(cell_annotation_palette), length(cell_annotation_palcolor), length(cell_annotation)))
+    if (length(npal[npal != 0]) > 1) {
       stop("cell_annotation_palette and cell_annotation_palcolor must be the same length as cell_annotation")
     }
     if (any(!cell_annotation %in% c(colnames(srt@meta.data), rownames(srt@assays[[assay]])))) {
@@ -11006,7 +11014,8 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineag
     if (length(feature_annotation_palcolor) == 1) {
       feature_annotation_palcolor <- rep(feature_annotation_palcolor, length(feature_annotation))
     }
-    if (length(unique(length(feature_annotation_palette), length(feature_annotation_palcolor), length(feature_annotation))) != 1) {
+    npal <- unique(c(length(feature_annotation_palette), length(feature_annotation_palcolor), length(feature_annotation)))
+    if (length(npal[npal != 0]) > 1) {
       stop("feature_annotation_palette and feature_annotation_palcolor must be the same length as feature_annotation")
     }
     if (any(!feature_annotation %in% colnames(srt@assays[[assay]]@meta.features))) {
@@ -11020,7 +11029,8 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, feature_from = lineag
     if (length(separate_annotation_palcolor) == 1) {
       separate_annotation_palcolor <- rep(separate_annotation_palcolor, length(separate_annotation))
     }
-    if (length(unique(length(separate_annotation_palette), length(separate_annotation_palcolor), length(separate_annotation))) != 1) {
+    npal <- unique(c(length(separate_annotation_palette), length(separate_annotation_palcolor), length(separate_annotation)))
+    if (length(npal[npal != 0]) > 1) {
       stop("separate_annotation_palette and separate_annotation_palcolor must be the same length as separate_annotation")
     }
     if (any(!unique(unlist(separate_annotation)) %in% c(colnames(srt@meta.data), rownames(srt@assays[[assay]])))) {

@@ -14,7 +14,7 @@ StatPlot(
   NA_color = "grey",
   NA_stat = TRUE,
   keep_empty = FALSE,
-  stat_single = FALSE,
+  individual = FALSE,
   stat_level = NULL,
   plot_type = c("bar", "rose", "ring", "pie", "trend", "area", "dot", "sankey", "chord",
     "venn", "upset"),

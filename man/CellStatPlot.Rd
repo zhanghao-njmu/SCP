@@ -15,7 +15,7 @@ CellStatPlot(
   NA_color = "grey",
   NA_stat = TRUE,
   keep_empty = FALSE,
-  stat_single = FALSE,
+  individual = FALSE,
   stat_level = NULL,
   plot_type = c("bar", "rose", "ring", "pie", "trend", "area", "dot", "sankey", "chord",
     "venn", "upset"),
@@ -80,7 +80,7 @@ CellStatPlot(pancreas_sub, stat.by = "Phase", group.by = "CellType", plot_type =
 CellStatPlot(pancreas_sub, stat.by = "Phase", group.by = "CellType", plot_type = "dot")
 CellStatPlot(pancreas_sub, stat.by = "Phase", group.by = "CellType", plot_type = "trend")
 
-CellStatPlot(pancreas_sub, stat.by = "Phase", group.by = "CellType", plot_type = "bar", stat_single = TRUE)
+CellStatPlot(pancreas_sub, stat.by = "Phase", group.by = "CellType", plot_type = "bar", individual = TRUE)
 
 CellStatPlot(pancreas_sub, stat.by = "Phase", group.by = "CellType", stat_type = "count", plot_type = "bar")
 CellStatPlot(pancreas_sub, stat.by = "Phase", group.by = "CellType", stat_type = "count", plot_type = "rose")

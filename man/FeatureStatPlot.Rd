@@ -15,7 +15,7 @@ FeatureStatPlot(
   slot = c("data", "counts"),
   assay = NULL,
   keep_empty = FALSE,
-  stat_single = FALSE,
+  individual = FALSE,
   plot_type = c("violin", "box", "bar", "dot", "col"),
   palette = "Paired",
   palcolor = NULL,
