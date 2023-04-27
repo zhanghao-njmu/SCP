@@ -1538,7 +1538,7 @@ RunDEtest <- function(srt, group_by = NULL, group1 = NULL, group2 = NULL, cells1
     )
 
     if (verbose) {
-      message("Find ", markers_type, " markers(", test.use, ") among ", nlevels(cell_group), "groups...")
+      message("Find ", markers_type, " markers(", test.use, ") among ", nlevels(cell_group), " groups...")
     }
     if (markers_type == "all") {
       AllMarkers <- bplapply(levels(cell_group), FUN = function(group) {
@@ -4735,7 +4735,7 @@ adata_to_srt <- function(adata) {
   if (!inherits(adata, "python.builtin.object")) {
     stop("'adata' is not a python.builtin.object.")
   }
-  x <- Matrix::t(adata$X)
+  x <- t(adata$X)
   if (!inherits(x, "dgCMatrix")) {
     x <- as.sparse(x[1:nrow(x), , drop = FALSE])
   }
@@ -4750,9 +4750,17 @@ adata_to_srt <- function(adata) {
 
   srt <- CreateSeuratObject(counts = x, meta.data = metadata)
 
-  if (length(adata$layers$keys()) > 0) {
-    for (k in iterate(adata$layers$keys())) {
-      layer <- Matrix::t(adata$layers[[k]])
+  if (inherits(adata$layers, "python.builtin.object")) {
+    keys <- iterate(adata$layers$keys())
+  } else {
+    keys <- names(adata$layers)
+  }
+  if (length(keys) > 0) {
+    for (k in keys) {
+      if (!inherits(adata$layers[[k]], c("Matrix", "matrix"))) {
+        stop(paste0("The object in '", k, "' layers is not a matrix: ", paste0(class(adata$layers[[k]]), collapse = ",")))
+      }
+      layer <- t(adata$layers[[k]])
       if (!inherits(layer, "dgCMatrix")) {
         layer <- as.sparse(layer[1:nrow(layer), , drop = FALSE])
       }
@@ -4761,8 +4769,14 @@ adata_to_srt <- function(adata) {
       srt[[k]] <- CreateAssayObject(counts = layer)
     }
   }
-  if (length(iterate(adata$obsm$keys())) > 0) {
-    for (k in iterate(adata$obsm$keys())) {
+
+  if (inherits(adata$obsm, "python.builtin.object")) {
+    keys <- iterate(adata$obsm$keys())
+  } else {
+    keys <- names(adata$obsm)
+  }
+  if (length(keys) > 0) {
+    for (k in keys) {
       obsm <- tryCatch(adata$obsm[[k]], error = identity)
       if (inherits(obsm, "error")) {
         warning("'obsm: ", k, "' will not be converted. You may need to convert it manually.", immediate. = TRUE)
@@ -4777,8 +4791,14 @@ adata_to_srt <- function(adata) {
       srt[[k]] <- CreateDimReducObject(embeddings = obsm, assay = "RNA", key = paste0(gsub(pattern = "_", replacement = "", x = k), "_"))
     }
   }
-  if (length(iterate(adata$obsp$keys())) > 0) {
-    for (k in iterate(adata$obsp$keys())) {
+
+  if (inherits(adata$obsp, "python.builtin.object")) {
+    keys <- iterate(adata$obsp$keys())
+  } else {
+    keys <- names(adata$obsp)
+  }
+  if (length(keys) > 0) {
+    for (k in keys) {
       obsp <- tryCatch(adata$obsp[[k]], error = identity)
       if (inherits(obsp, "error")) {
         warning("'obsp: ", k, "' will not be converted. You may need to convert it manually.", immediate. = TRUE)
@@ -4798,8 +4818,14 @@ adata_to_srt <- function(adata) {
   if (length(adata$var_keys()) > 0) {
     srt[["RNA"]] <- AddMetaData(srt[["RNA"]], metadata = as.data.frame(adata$var))
   }
-  if (length(iterate(adata$varm$keys())) > 0) {
-    for (k in iterate(adata$varm$keys())) {
+
+  if (inherits(adata$varm, "python.builtin.object")) {
+    keys <- iterate(adata$varm$keys())
+  } else {
+    keys <- names(adata$varm)
+  }
+  if (length(keys) > 0) {
+    for (k in keys) {
       varm <- tryCatch(adata$varm[[k]], error = identity)
       if (inherits(varm, "error")) {
         warning("'varm: ", k, "' will not be converted. You may need to convert it manually.", immediate. = TRUE)
@@ -4813,8 +4839,14 @@ adata_to_srt <- function(adata) {
       srt[["RNA"]]@misc[["feature.loadings"]][[k]] <- varm
     }
   }
-  if (length(iterate(adata$varp$keys())) > 0) {
-    for (k in iterate(adata$varp$keys())) {
+
+  if (inherits(adata$varp, "python.builtin.object")) {
+    keys <- iterate(adata$varp$keys())
+  } else {
+    keys <- names(adata$varp)
+  }
+  if (length(keys) > 0) {
+    for (k in keys) {
       varp <- tryCatch(adata$varp[[k]], error = identity)
       if (inherits(varp, "error")) {
         warning("'varp: ", k, "' will not be converted. You may need to convert it manually.", immediate. = TRUE)
@@ -4829,8 +4861,13 @@ adata_to_srt <- function(adata) {
     }
   }
 
-  if (length(iterate(adata$uns$keys())) > 0) {
-    for (k in iterate(adata$uns$keys())) {
+  if (inherits(adata$uns, "python.builtin.object")) {
+    keys <- iterate(adata$uns$keys())
+  } else {
+    keys <- names(adata$uns)
+  }
+  if (length(keys) > 0) {
+    for (k in keys) {
       uns <- tryCatch(adata$uns[[k]], error = identity)
       if (inherits(uns, "error")) {
         warning("'uns: ", k, "' will not be converted. You may need to convert it manually.", immediate. = TRUE)

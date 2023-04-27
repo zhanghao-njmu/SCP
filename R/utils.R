@@ -208,6 +208,26 @@ check_R <- function(packages, package_names = NULL, install_methods = c("BiocMan
   }
 }
 
+#' Show all the python packages in the environment
+#'
+#' @inheritParams check_Python
+#' @export
+installed_Python_pkgs <- function(envname = NULL, conda = "auto") {
+  envname <- get_envname(envname)
+  if (identical(conda, "auto")) {
+    conda <- find_conda()
+  } else {
+    options(reticulate.conda_binary = conda)
+    conda <- find_conda()
+  }
+  env <- env_exist(conda = conda, envname = envname)
+  if (isFALSE(env)) {
+    stop("Can not find the conda environment: ", envname)
+  }
+  all_installed <- reticulate:::conda_list_packages(conda = conda, envname = envname, no_pip = FALSE)
+  return(all_installed)
+}
+
 #' Check if the python package exists in the environment
 #'
 #' @inheritParams check_Python
@@ -224,7 +244,7 @@ exist_Python_pkgs <- function(packages, envname = NULL, conda = "auto") {
   if (isFALSE(env)) {
     stop("Can not find the conda environment: ", envname)
   }
-  all_installed <- reticulate:::conda_list_packages(conda = conda, envname = envname, no_pip = FALSE)
+  all_installed <- installed_Python_pkgs(envname = envname, conda = conda)
   packages_installed <- NULL
   for (pkg in packages) {
     pkg_info <- strsplit(pkg, split = "==")[[1]]

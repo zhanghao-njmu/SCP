@@ -330,7 +330,7 @@ palette_scp <- function(x, n = 100, palette = "Paired", palcolor = NULL, type = 
   }
   if (!is.null(names(palcolor))) {
     if (all(x %in% names(palcolor))) {
-      palcolor <- palcolor[unique(x)]
+      palcolor <- palcolor[intersect(names(palcolor), x)]
     }
   }
   pal_n <- length(palcolor)
