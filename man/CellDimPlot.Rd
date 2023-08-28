@@ -56,7 +56,7 @@ CellDimPlot(
   stat_type = "percent",
   stat_plot_type = "pie",
   stat_plot_position = c("stack", "dodge"),
-  stat_plot_size = 0.1,
+  stat_plot_size = 0.15,
   stat_plot_palette = "Set1",
   stat_palcolor = NULL,
   stat_plot_alpha = 1,
