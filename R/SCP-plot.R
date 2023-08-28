@@ -12640,7 +12640,7 @@ ProjectionPlot <- function(srt_query, srt_ref,
 #' )
 #' EnrichmentPlot(pancreas_sub,
 #'   db = "GO_BP", group_by = "CellType", group_use = "Ductal", plot_type = "enrichmap",
-#'   topTerm = 200, enrichmap_mark = "hull", enrichmap_label = "gene", enrlichmap_nlabel = 3, character_width = 10,
+#'   topTerm = 200, enrichmap_mark = "hull", enrichmap_label = "feature", enrlichmap_nlabel = 3, character_width = 10,
 #'   theme_use = "theme_blank", theme_args = list(add_coord = FALSE)
 #' ) %>% panel_fix(height = 4)
 #'
@@ -12664,8 +12664,8 @@ EnrichmentPlot <- function(srt, db = "GO_BP", group_by = NULL, group_use = NULL,
                            word_type = c("term", "feature"), word_size = c(2, 8), min_word_length = 3,
                            network_layout = "fr", network_labelsize = 5, network_blendmode = "blend",
                            network_layoutadjust = TRUE, network_adjscale = 60, network_adjiter = 100,
-                           enrichmap_layout = "fr", enrichmap_cluster = "fast_greedy", enrichmap_label = "term", enrichmap_labelsize = 5,
-                           enrlichmap_nlabel = 4, enrichmap_show_keyword = FALSE, enrichmap_mark = "ellipse", enrichmap_expand = c(0.5, 0.5),
+                           enrichmap_layout = "fr", enrichmap_cluster = "fast_greedy", enrichmap_label = c("term", "feature"), enrichmap_labelsize = 5,
+                           enrlichmap_nlabel = 4, enrichmap_show_keyword = FALSE, enrichmap_mark = c("ellipse", "hull"), enrichmap_expand = c(0.5, 0.5),
                            exclude_words = c("cell", "cellular", "dna", "rna", "protein", "development", "involved", "organization", "system", "regulation", "positive", "negative", "response", "process"),
                            character_width = 50, lineheight = 0.7,
                            palette = "Spectral", palcolor = NULL,
@@ -12675,6 +12675,7 @@ EnrichmentPlot <- function(srt, db = "GO_BP", group_by = NULL, group_use = NULL,
   set.seed(seed)
   plot_type <- match.arg(plot_type)
   word_type <- match.arg(word_type)
+  enrichmap_mark <- match.arg(word_type)
 
   if (is.null(res)) {
     if (is.null(group_by)) {
@@ -13083,6 +13084,9 @@ EnrichmentPlot <- function(srt, db = "GO_BP", group_by = NULL, group_use = NULL,
       df_edges[["to_dim1"]] <- df_nodes[df_edges[["to"]], "dim1"]
       df_edges[["to_dim2"]] <- df_nodes[df_edges[["to"]], "dim2"]
 
+      if (enrichmap_mark == "hull") {
+        check_R("concaveman")
+      }
       mark_layer <- do.call(
         switch(enrichmap_mark,
           "ellipse" = "geom_mark_ellipse",

@@ -29,11 +29,11 @@ EnrichmentPlot(
   network_adjiter = 100,
   enrichmap_layout = "fr",
   enrichmap_cluster = "fast_greedy",
-  enrichmap_label = "term",
+  enrichmap_label = c("term", "feature"),
   enrichmap_labelsize = 5,
   enrlichmap_nlabel = 4,
   enrichmap_show_keyword = FALSE,
-  enrichmap_mark = "ellipse",
+  enrichmap_mark = c("ellipse", "hull"),
   enrichmap_expand = c(0.5, 0.5),
   exclude_words = c("cell", "cellular", "dna", "rna", "protein", "development",
     "involved", "organization", "system", "regulation", "positive", "negative",
@@ -117,7 +117,7 @@ EnrichmentPlot(pancreas_sub,
 )
 EnrichmentPlot(pancreas_sub,
   db = "GO_BP", group_by = "CellType", group_use = "Ductal", plot_type = "enrichmap",
-  topTerm = 200, enrichmap_mark = "hull", enrichmap_label = "gene", enrlichmap_nlabel = 3, character_width = 10,
+  topTerm = 200, enrichmap_mark = "hull", enrichmap_label = "feature", enrlichmap_nlabel = 3, character_width = 10,
   theme_use = "theme_blank", theme_args = list(add_coord = FALSE)
 ) \%>\% panel_fix(height = 4)
 
