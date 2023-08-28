@@ -177,7 +177,7 @@ RunKNNPredict <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
       features <- features_query
     }
     features_common <- intersect(features, rownames(bulk_ref))
-    message("Use ", length(features_common), " common features to calculate distance.")
+    message("Use ", length(features_common), " features to calculate distance.")
     ref <- t(bulk_ref[features_common, , drop = FALSE])
   } else if (!is.null(srt_ref)) {
     ref_assay <- ref_assay %||% DefaultAssay(srt_ref)
@@ -262,7 +262,7 @@ RunKNNPredict <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
         features <- intersect(features_ref, features_query)
       }
       features_common <- Reduce(intersect, list(features, rownames(srt_query[[query_assay]]), rownames(srt_ref[[ref_assay]])))
-      message("Use ", length(features_common), " common features to calculate distance.")
+      message("Use ", length(features_common), " features to calculate distance.")
       if (isTRUE(ref_collapsing)) {
         ref <- AverageExpression(object = srt_ref, features = features_common, slot = "data", assays = ref_assay, group.by = "ref_group", verbose = FALSE)[[1]]
         ref <- t(log1p(ref))
@@ -339,10 +339,10 @@ RunKNNPredict <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
   #
 
   if (is.null(nn_method)) {
-    if (as.numeric(nrow(query)) * as.numeric(nrow(ref)) < 1e9) {
-      nn_method <- "raw"
-    } else {
+    if (as.numeric(nrow(query)) * as.numeric(nrow(ref)) >= 1e8) {
       nn_method <- "annoy"
+    } else {
+      nn_method <- "raw"
     }
   }
   message("Use '", nn_method, "' method to find neighbors.")

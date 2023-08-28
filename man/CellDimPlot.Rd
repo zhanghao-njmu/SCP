@@ -40,6 +40,7 @@ CellDimPlot(
   density_filled_palette = "Greys",
   density_filled_palcolor = NULL,
   lineages = NULL,
+  lineages_weights = NULL,
   lineages_trim = c(0.01, 0.99),
   lineages_span = 0.75,
   lineages_palette = "Dark2",
@@ -87,12 +88,11 @@ CellDimPlot(
   velocity_cutoff_perc = 5,
   velocity_arrow_color = "black",
   velocity_arrow_angle = 20,
-  velocity_arrow_flank = 0.8,
   streamline_L = 5,
   streamline_minL = 1,
   streamline_res = 1,
   streamline_n = 15,
-  streamlinewidth = c(0, 0.8),
+  streamline_width = c(0, 0.8),
   streamline_alpha = 1,
   streamline_color = NULL,
   streamline_palette = "RdYlBu",
@@ -288,8 +288,6 @@ CellDimPlot(
 
 \item{velocity_arrow_angle}{Angle of arrows in velocity plot.}
 
-\item{velocity_arrow_flank}{Flank of arrows in velocity plot.}
-
 \item{streamline_L}{Typical length of a streamline in x and y units}
 
 \item{streamline_minL}{Minimum length of segments to show.}
@@ -298,7 +296,7 @@ CellDimPlot(
 
 \item{streamline_n}{Number of points to draw.}
 
-\item{streamlinewidth}{Size of streamline.}
+\item{streamline_width}{Size of streamline.}
 
 \item{streamline_alpha}{Transparency of streamline.}
 

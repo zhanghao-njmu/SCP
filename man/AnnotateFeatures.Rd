@@ -32,7 +32,7 @@ AnnotateFeatures
 data("pancreas_sub")
 pancreas_sub <- AnnotateFeatures(pancreas_sub,
   species = "Mus_musculus", IDtype = "symbol",
-  db = c("Chromosome", "GeneType", "Enzyme", "TF", "SP", "CellTalk")
+  db = c("Chromosome", "GeneType", "Enzyme", "TF", "CSPA", "VerSeDa")
 )
 head(pancreas_sub[["RNA"]]@meta.features)
 

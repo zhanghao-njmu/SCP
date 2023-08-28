@@ -50,6 +50,7 @@ FeatureDimPlot(
   label_point_color = "black",
   label_segment_color = "black",
   lineages = NULL,
+  lineages_weights = NULL,
   lineages_trim = c(0.01, 0.99),
   lineages_span = 0.75,
   lineages_palette = "Dark2",
@@ -268,6 +269,8 @@ FeatureDimPlot(pancreas_sub, features = "G2M_score", reduction = "UMAP", bg_cuto
 FeatureDimPlot(pancreas_sub, features = "G2M_score", reduction = "UMAP", theme_use = "theme_blank", show_stat = FALSE)
 FeatureDimPlot(pancreas_sub, features = "G2M_score", reduction = "UMAP", theme_use = ggplot2::theme_classic, theme_args = list(base_size = 16))
 FeatureDimPlot(pancreas_sub, features = "G2M_score", reduction = "UMAP") \%>\% panel_fix(height = 2, raster = TRUE, dpi = 30)
+
+FeatureDimPlot(pancreas_sub, features = c("StandardPC_1", "StandardPC_2"), reduction = "UMAP", bg_cutoff = -Inf)
 
 # Label and highlight cell points
 FeatureDimPlot(pancreas_sub,

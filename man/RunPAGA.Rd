@@ -11,8 +11,9 @@ RunPAGA(
   assay_layers = c("spliced", "unspliced"),
   slot_layers = "counts",
   adata = NULL,
-  h5ad = NULL,
   group_by = NULL,
+  palette = "Paired",
+  palcolor = NULL,
   linear_reduction = NULL,
   nonlinear_reduction = NULL,
   basis = NULL,
@@ -42,8 +43,6 @@ RunPAGA(
 \item{srt}{A \code{Seurat} object.}
 
 \item{adata}{An \code{anndata} object. Can be created through \code{\link{srt_to_adata}}}
-
-\item{h5ad}{h5ad file path.}
 
 \item{group_by}{group_by.}
 

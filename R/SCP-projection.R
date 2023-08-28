@@ -35,6 +35,7 @@ NULL
 #' @importFrom Seurat Reductions Embeddings FindVariableFeatures VariableFeatures GetAssayData FindNeighbors CreateDimReducObject DefaultAssay
 #' @importFrom SeuratObject as.sparse
 #' @importFrom Matrix t
+#' @importFrom dplyr bind_rows
 #' @export
 RunKNNMap <- function(srt_query, srt_ref, query_assay = NULL, ref_assay = NULL, ref_umap = NULL, ref_group = NULL,
                       features = NULL, nfeatures = 2000,
@@ -125,22 +126,22 @@ RunKNNMap <- function(srt_query, srt_ref, query_assay = NULL, ref_assay = NULL, 
       features <- intersect(VariableFeatures(srt_query, assay = query_assay), VariableFeatures(srt_ref, assay = ref_assay))
     }
     features_common <- Reduce(intersect, list(features, rownames(srt_query[[query_assay]]), rownames(srt_ref[[ref_assay]])))
-    message("Use ", length(features_common), " common features to calculate distance.")
+    message("Use ", length(features_common), " features to calculate distance.")
     query <- t(GetAssayData(srt_query, slot = "data", assay = query_assay)[features_common, ])
     ref <- t(GetAssayData(srt_ref, slot = "data", assay = ref_assay)[features_common, ])
   }
 
   if (projection_method == "model" && "layout" %in% names(model) && is.null(ref_group)) {
-    srt_query[["ref.umap"]] <- RunUMAP2(object = query, reduction.model = srt_ref[[ref_umap]], assay = query_assay)
-    srt_query[["ref.umap"]]@misc[["reduction.model"]] <- ref_umap
+    srt_query[["ref.embeddings"]] <- RunUMAP2(object = query, reduction.model = srt_ref[[ref_umap]], assay = query_assay)
+    srt_query[["ref.embeddings"]]@misc[["reduction.model"]] <- ref_umap
     return(srt_query)
   }
 
   if (is.null(nn_method)) {
-    if (as.numeric(nrow(query)) * as.numeric(nrow(ref)) < 1e9) {
-      nn_method <- "raw"
-    } else {
+    if (as.numeric(nrow(query)) * as.numeric(nrow(ref)) >= 1e8) {
       nn_method <- "annoy"
+    } else {
+      nn_method <- "raw"
     }
   }
   message("Use '", nn_method, "' method to find neighbors.")
@@ -207,20 +208,20 @@ RunKNNMap <- function(srt_query, srt_ref, query_assay = NULL, ref_assay = NULL, 
 
   if (projection_method == "model") {
     if ("layout" %in% names(model)) {
-      srt_query[["ref.umap"]] <- RunUMAP2(object = query, reduction.model = srt_ref[[ref_umap]], assay = query_assay)
-      srt_query[["ref.umap"]]@misc[["reduction.model"]] <- ref_umap
+      srt_query[["ref.embeddings"]] <- RunUMAP2(object = query, reduction.model = srt_ref[[ref_umap]], assay = query_assay)
+      srt_query[["ref.embeddings"]]@misc[["reduction.model"]] <- ref_umap
     } else if ("embedding" %in% names(model)) {
       neighborlist <- list(idx = match_k, dist = match_k_distance)
-      srt_query[["ref.umap"]] <- RunUMAP2(object = neighborlist, reduction.model = srt_ref[[ref_umap]], assay = query_assay)
-      srt_query[["ref.umap"]]@misc[["reduction.model"]] <- ref_umap
+      srt_query[["ref.embeddings"]] <- RunUMAP2(object = neighborlist, reduction.model = srt_ref[[ref_umap]], assay = query_assay)
+      srt_query[["ref.embeddings"]]@misc[["reduction.model"]] <- ref_umap
     }
   } else {
     refumap <- aggregate(refumap_all, by = list(group), FUN = vote_fun)
     rownames(refumap) <- refumap[, 1]
     refumap[, 1] <- NULL
-    colnames(refumap) <- paste0("refUMAP_", seq_len(ncol(refumap)))
+    colnames(refumap) <- paste0("Dim_", seq_len(ncol(refumap)))
     refumap <- as.matrix(refumap)
-    srt_query[["ref.umap"]] <- CreateDimReducObject(embeddings = refumap, key = "refUMAP_", assay = query_assay, misc = list(reduction.model = ref_umap))
+    srt_query[["ref.embeddings"]] <- CreateDimReducObject(embeddings = refumap, key = "Dim_", assay = query_assay, misc = list(reduction.model = ref_umap))
   }
 
   if (!is.null(ref_group)) {
@@ -245,7 +246,7 @@ RunKNNMap <- function(srt_query, srt_ref, query_assay = NULL, ref_assay = NULL, 
         x <- x / sum(x)
         return(x)
       }) %>%
-        bind_rows()
+        dplyr::bind_rows()
       match_prob <- as.matrix(match_prob)
       rownames(match_prob) <- names(match_freq)
       match_best <- apply(match_prob, 1, function(x) names(x)[order(x, decreasing = TRUE)][1])
@@ -347,7 +348,7 @@ RunPCAMap <- function(srt_query, srt_ref, query_assay = NULL, ref_assay = srt_re
   rotation <- pca.out@feature.loadings
 
   features_common <- Reduce(intersect, list(features, rownames(srt_query[[query_assay]]), rownames(srt_ref[[ref_assay]])))
-  message("Use ", length(features_common), " common features to calculate PC.")
+  message("Use ", length(features_common), " features to calculate PC.")
   query_data <- t(GetAssayData(srt_query, slot = "data", assay = query_assay)[features_common, ])
   query_pca <- scale(query_data[, features_common], center[features_common], sds[features_common]) %*% rotation[features_common, ]
   # ggplot(data = as.data.frame(pca.out@cell.embeddings))+geom_point(aes(x=StandardPC_1,y=StandardPC_2 ))+geom_point(data = as.data.frame(query_pca),mapping = aes(x=StandardPC_1,y=StandardPC_2),color="red")

@@ -10,6 +10,7 @@ FeatureHeatmap(
   cells = NULL,
   group.by = NULL,
   split.by = NULL,
+  within_groups = FALSE,
   max_cells = 100,
   cell_order = NULL,
   border = TRUE,
@@ -17,12 +18,14 @@ FeatureHeatmap(
   slot = "counts",
   assay = NULL,
   exp_method = c("zscore", "raw", "fc", "log2fc", "log1p"),
+  legend_title = NULL,
   limits = NULL,
   lib_normalize = identical(slot, "counts"),
   libsize = NULL,
   feature_split = NULL,
   feature_split_by = NULL,
   n_split = NULL,
+  split_order = NULL,
   split_method = c("kmeans", "hclust", "mfuzz"),
   decreasing = FALSE,
   fuzzification = NULL,
@@ -38,6 +41,8 @@ FeatureHeatmap(
   column_names_side = ifelse(flip, "bottom", "top"),
   row_names_rot = 0,
   column_names_rot = 90,
+  row_title = NULL,
+  column_title = NULL,
   row_title_side = "left",
   column_title_side = "top",
   row_title_rot = 0,
@@ -75,8 +80,8 @@ FeatureHeatmap(
   topWord = 20,
   min_word_length = 3,
   exclude_words = c("cell", "cellular", "dna", "rna", "protein", "development",
-    "organization", "system", "regulation", "positive", "negative", "response",
-    "process"),
+    "involved", "organization", "system", "regulation", "positive", "negative",
+    "response", "process"),
   nlabel = 20,
   features_label = NULL,
   label_size = 10,
@@ -85,9 +90,9 @@ FeatureHeatmap(
   heatmap_palcolor = NULL,
   group_palette = "Paired",
   group_palcolor = NULL,
-  cell_split_palette = "jama",
+  cell_split_palette = "simspec",
   cell_split_palcolor = NULL,
-  feature_split_palette = "jama",
+  feature_split_palette = "simspec",
   feature_split_palcolor = NULL,
   cell_annotation = NULL,
   cell_annotation_palette = "Paired",
@@ -138,11 +143,11 @@ ht3 <- FeatureHeatmap(
 )
 ht3$plot
 
-pancreas_sub <- AnnotateFeatures(pancreas_sub, species = "Mus_musculus", db = c("TF", "SP"))
+pancreas_sub <- AnnotateFeatures(pancreas_sub, species = "Mus_musculus", db = c("TF", "CSPA"))
 ht4 <- FeatureHeatmap(
   srt = pancreas_sub, features = de_filter$gene, n_split = 4, group.by = "CellType",
   heatmap_palette = "viridis",
-  feature_annotation = c("TF", "SP"),
+  feature_annotation = c("TF", "CSPA"),
   feature_annotation_palcolor = list(c("gold", "steelblue"), c("forestgreen")),
   cell_annotation = c("Phase", "G2M_score"), cell_annotation_palette = c("Dark2", "Purples")
 )
@@ -151,7 +156,7 @@ ht4$plot
 ht5 <- FeatureHeatmap(
   srt = pancreas_sub, features = de_filter$gene, n_split = 4, group.by = "CellType",
   heatmap_palette = "viridis",
-  feature_annotation = c("TF", "SP"),
+  feature_annotation = c("TF", "CSPA"),
   feature_annotation_palcolor = list(c("gold", "steelblue"), c("forestgreen")),
   cell_annotation = c("Phase", "G2M_score"), cell_annotation_palette = c("Dark2", "Purples"),
   flip = TRUE, column_title_rot = 45

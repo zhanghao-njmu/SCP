@@ -7,6 +7,7 @@
 LineagePlot(
   srt,
   lineages,
+  weights = NULL,
   reduction = NULL,
   dims = c(1, 2),
   cells = NULL,

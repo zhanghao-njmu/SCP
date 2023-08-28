@@ -10,11 +10,13 @@ PrepareEnv <- function(conda = "auto", miniconda_repo = "https://repo.anaconda.c
                        python_version = "3.8", envname = NULL, force = FALSE, ...) {
   envname <- get_envname(envname)
 
-  if (identical(conda, "auto")) {
-    conda <- find_conda()
-  } else {
-    options(reticulate.conda_binary = conda)
-    conda <- find_conda()
+  if (!is.null(conda)) {
+    if (identical(conda, "auto")) {
+      conda <- find_conda()
+    } else {
+      options(reticulate.conda_binary = conda)
+      conda <- find_conda()
+    }
   }
 
   if (is.null(conda)) {

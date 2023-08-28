@@ -11,9 +11,9 @@ RunSCVELO(
   assay_layers = c("spliced", "unspliced"),
   slot_layers = "counts",
   adata = NULL,
-  h5ad = NULL,
   group_by = NULL,
-  n_jobs = 1,
+  palette = "Paired",
+  palcolor = NULL,
   linear_reduction = NULL,
   nonlinear_reduction = NULL,
   basis = NULL,
@@ -36,6 +36,8 @@ RunSCVELO(
   kinetics = FALSE,
   kinetics_topn = 100,
   calculate_velocity_genes = FALSE,
+  top_n = 6,
+  n_jobs = 1,
   show_plot = TRUE,
   dpi = 300,
   save = FALSE,
@@ -49,11 +51,7 @@ RunSCVELO(
 
 \item{adata}{An \code{anndata} object. Can be created through \code{\link{srt_to_adata}}}
 
-\item{h5ad}{h5ad file path.}
-
 \item{group_by}{group_by.}
-
-\item{n_jobs}{n_jobs.}
 
 \item{linear_reduction}{linear_reduction.}
 
@@ -85,6 +83,8 @@ RunSCVELO(
 
 \item{calculate_velocity_genes}{calculate_velocity_genes.}
 
+\item{n_jobs}{n_jobs.}
+
 \item{dpi}{dpi.}
 
 \item{save}{save.}
@@ -94,6 +94,8 @@ RunSCVELO(
 \item{fileprefix}{fileprefix.}
 
 \item{return_seurat}{}
+
+\item{h5ad}{h5ad file path.}
 }
 \value{
 A \code{anndata} object.

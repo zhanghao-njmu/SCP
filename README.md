@@ -234,6 +234,9 @@ data](https://doi.org/10.1242/dev.173849).
 
 ``` r
 library(SCP)
+library(BiocParallel)
+register(MulticoreParam(workers = 8, progressbar = TRUE))
+
 data("pancreas_sub")
 print(pancreas_sub)
 #> An object of class Seurat 
@@ -494,7 +497,7 @@ print(ht$plot)
 ``` r
 pancreas_sub <- RunEnrichment(
   srt = pancreas_sub, group_by = "CellType", db = "GO_BP", species = "Mus_musculus",
-  DE_threshold = "avg_log2FC > 1 & p_val_adj < 0.05"
+  DE_threshold = "avg_log2FC > log2(1.5) & p_val_adj < 0.05"
 )
 EnrichmentPlot(
   srt = pancreas_sub, group_by = "CellType", group_use = c("Ductal", "Endocrine"),
@@ -521,6 +524,24 @@ EnrichmentPlot(
 ```
 
 <img src="README/README-RunEnrichment-3.png" width="100%" style="display: block; margin: auto;" />
+
+``` r
+EnrichmentPlot(
+  srt = pancreas_sub, group_by = "CellType", group_use = "Ductal",
+  plot_type = "network"
+)
+```
+
+<img src="README/README-RunEnrichment-4.png" width="100%" style="display: block; margin: auto;" />
+
+``` r
+EnrichmentPlot(
+  srt = pancreas_sub, group_by = "CellType", group_use = "Ductal",
+  plot_type = "enrichmap"
+)
+```
+
+<img src="README/README-Enrichment_enrichmap-1.png" width="100%" style="display: block; margin: auto;" />
 
 ``` r
 EnrichmentPlot(srt = pancreas_sub, group_by = "CellType", plot_type = "comparison")

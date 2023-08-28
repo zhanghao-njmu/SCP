@@ -26,7 +26,9 @@ Standard_SCP(
   nonlinear_reduction_dims = c(2, 3),
   nonlinear_reduction_params = list(),
   force_nonlinear_reduction = TRUE,
-  do_cluster_finding = TRUE,
+  neighbor_metric = "euclidean",
+  neighbor_k = 20L,
+  neighbor_ntrees = 50L,
   cluster_algorithm = "louvain",
   cluster_resolution = 0.6,
   cluster_reorder = TRUE,
@@ -93,7 +95,7 @@ pancreas_sub <- Standard_SCP(
 plist1 <- lapply(linear_reductions, function(lr) CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = paste0("Standard", lr, "UMAP2D"), theme_use = "theme_blank"))
 patchwork::wrap_plots(plotlist = plist1)
 
-nonlinear_reductions <- c("umap", "tsne", "dm", "phate", "pacmap", "trimap", "largevis")
+nonlinear_reductions <- c("umap", "tsne", "dm", "phate", "pacmap", "trimap", "largevis", "fr")
 pancreas_sub <- Standard_SCP(
   srt = pancreas_sub,
   linear_reduction = "pca",

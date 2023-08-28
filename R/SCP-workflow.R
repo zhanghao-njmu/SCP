@@ -72,10 +72,10 @@ check_srtList <- function(srtList, batch = NULL, assay = NULL,
   if (!HVF_source %in% c("global", "separate")) {
     stop("'HVF_source' must be one of: 'global', 'separate'")
   }
-  if (any(sapply(srtList, ncol) < 3)) {
+  if (any(sapply(srtList, ncol) < 2)) {
     stop(paste0(
-      "Seurat objects in srtList contain less than 3 cells. srtList index: ",
-      paste0(which(sapply(srtList, ncol) < 3), collapse = ",")
+      "Seurat objects in srtList contain less than 2 cells. srtList index: ",
+      paste0(which(sapply(srtList, ncol) < 2), collapse = ",")
     ))
   }
 
@@ -433,7 +433,7 @@ RecoverCounts <- function(srt, assay = NULL, trans = c("expm1", "exp", "none"), 
       if (is.null(nCount)) {
         presumed_nCount <- m / min_norm
         diff_value <- abs(presumed_nCount - round(presumed_nCount))
-        if (max(diff_value) < tolerance) {
+        if (max(diff_value, na.rm = TRUE) < tolerance) {
           nCount <- round(presumed_nCount)
         }
       }
@@ -771,23 +771,32 @@ RunDimReduction <- function(srt, prefix = "", features = NULL, assay = NULL, slo
     }
   }
   if (!is.null(nonlinear_reduction)) {
-    if (any(!nonlinear_reduction %in% c("umap", "umap-naive", "tsne", "dm", "phate", "pacmap", "trimap", "largevis", Reductions(srt))) || length(nonlinear_reduction) > 1) {
-      stop("'nonlinear_reduction' must be one of 'umap', 'tsne', 'dm', 'phate', 'pacmap', 'trimap', 'largevis'.")
+    if (any(!nonlinear_reduction %in% c("umap", "umap-naive", "tsne", "dm", "phate", "pacmap", "trimap", "largevis", "fr", Reductions(srt))) || length(nonlinear_reduction) > 1) {
+      stop("'nonlinear_reduction' must be one of 'umap', 'tsne', 'dm', 'phate', 'pacmap', 'trimap', 'largevis', 'fr'.")
     }
     if (is.null(features) && is.null(reduction_use) && is.null(neighbor_use) && is.null(graph_use)) {
-      stop("'features', 'reduction_use', 'graph_use', or 'neighbor_use' must be provided when running non-linear dimensionality reduction.")
+      stop("'features', 'reduction_use', 'neighbor_use', or 'graph_use' must be provided when running non-linear dimensionality reduction.")
     }
-    if (!is.null(features)) {
-      message("Non-linear dimensionality reduction(", nonlinear_reduction, ") using Features(length:", length(features), ") as input")
-    }
-    if (!is.null(reduction_use)) {
-      message("Non-linear dimensionality reduction(", nonlinear_reduction, ") using Reduction(", reduction_use, ", dims_range:", min(reduction_dims), "-", max(reduction_dims), ") as input")
-    }
-    if (!is.null(neighbor_use)) {
-      message("Non-linear dimensionality reduction(", nonlinear_reduction, ") using Neighbors(", neighbor_use, ") as input")
-    }
-    if (!is.null(graph_use)) {
-      message("Non-linear dimensionality reduction(", nonlinear_reduction, ") using Graphs(", graph_use, ") as input")
+    if (nonlinear_reduction %in% c("fr")) {
+      if (!is.null(graph_use)) {
+        message("Non-linear dimensionality reduction(", nonlinear_reduction, ") using Graphs(", graph_use, ") as input")
+      } else if (!is.null(neighbor_use)) {
+        message("Non-linear dimensionality reduction(", nonlinear_reduction, ") using Neighbors(", neighbor_use, ") as input")
+      } else if (!is.null(features)) {
+        message("Non-linear dimensionality reduction(", nonlinear_reduction, ") using Features(length:", length(features), ") as input")
+      } else if (!is.null(reduction_use)) {
+        message("Non-linear dimensionality reduction(", nonlinear_reduction, ") using Reduction(", reduction_use, ", dims:", min(reduction_dims), "-", max(reduction_dims), ") as input")
+      }
+    } else {
+      if (!is.null(features)) {
+        message("Non-linear dimensionality reduction(", nonlinear_reduction, ") using Features(length:", length(features), ") as input")
+      } else if (!is.null(reduction_use)) {
+        message("Non-linear dimensionality reduction(", nonlinear_reduction, ") using Reduction(", reduction_use, ", dims:", min(reduction_dims), "-", max(reduction_dims), ") as input")
+      } else if (!is.null(neighbor_use)) {
+        message("Non-linear dimensionality reduction(", nonlinear_reduction, ") using Neighbors(", neighbor_use, ") as input")
+      } else if (!is.null(graph_use)) {
+        message("Non-linear dimensionality reduction(", nonlinear_reduction, ") using Graphs(", graph_use, ") as input")
+      }
     }
   }
   if (!is.null(linear_reduction)) {
@@ -900,12 +909,12 @@ RunDimReduction <- function(srt, prefix = "", features = NULL, assay = NULL, slo
         }
       }
     }
-    if (!is.null(neighbor_use) && !nonlinear_reduction %in% c("umap", "umap-naive")) {
-      stop("'neighbor_use' only support 'umap' or 'umap-naive' method")
-    }
-    if (!is.null(graph_use) && !nonlinear_reduction %in% c("umap", "umap-naive")) {
-      stop("'graph_use' only support 'umap' or 'umap-naive' method")
-    }
+    # if (!is.null(neighbor_use) && !nonlinear_reduction %in% c("umap", "umap-naive", "fr")) {
+    #   stop("'neighbor_use' only support 'umap', 'umap-naive' or 'fr' method")
+    # }
+    # if (!is.null(graph_use) && !nonlinear_reduction %in% c("umap", "umap-naive", "fr")) {
+    #   stop("'graph_use' only support 'umap', 'umap-naive' or 'fr' method")
+    # }
     fun_use <- switch(nonlinear_reduction,
       "umap" = "RunUMAP2",
       "umap-naive" = "RunUMAP2",
@@ -914,7 +923,8 @@ RunDimReduction <- function(srt, prefix = "", features = NULL, assay = NULL, slo
       "phate" = "RunPHATE",
       "pacmap" = "RunPaCMAP",
       "trimap" = "RunTriMap",
-      "largevis" = "RunLargeVis"
+      "largevis" = "RunLargeVis",
+      "fr" = "RunFR"
     )
     components_nm <- switch(nonlinear_reduction,
       "umap" = "n.components",
@@ -924,7 +934,8 @@ RunDimReduction <- function(srt, prefix = "", features = NULL, assay = NULL, slo
       "phate" = "n_components",
       "pacmap" = "n_components",
       "trimap" = "n_components",
-      "largevis" = "n_components"
+      "largevis" = "n_components",
+      "fr" = "ndim"
     )
     other_params <- switch(nonlinear_reduction,
       "umap" = list(umap.method = "uwot", return.model = TRUE),
@@ -934,7 +945,8 @@ RunDimReduction <- function(srt, prefix = "", features = NULL, assay = NULL, slo
       "phate" = list(),
       "pacmap" = list(),
       "trimap" = list(),
-      "largevis" = list()
+      "largevis" = list(),
+      "fr" = list()
     )
     nonlinear_reduction_sim <- toupper(gsub(pattern = "-.*", replacement = "", x = nonlinear_reduction))
     params <- list(
@@ -1051,7 +1063,7 @@ Uncorrected_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, 
                                   do_scaling = TRUE, vars_to_regress = NULL, regression_model = "linear",
                                   linear_reduction = "pca", linear_reduction_dims = 50, linear_reduction_dims_use = NULL, linear_reduction_params = list(), force_linear_reduction = FALSE,
                                   nonlinear_reduction = "umap", nonlinear_reduction_dims = c(2, 3), nonlinear_reduction_params = list(), force_nonlinear_reduction = TRUE,
-                                  do_cluster_finding = TRUE, cluster_algorithm = "louvain", cluster_resolution = 0.6, cluster_reorder = TRUE,
+                                  neighbor_metric = "euclidean", neighbor_k = 20L, neighbor_ntrees = 50L, cluster_algorithm = "louvain", cluster_resolution = 0.6, cluster_reorder = TRUE,
                                   seed = 11) {
   if (length(linear_reduction) > 1) {
     warning("Only the first method in the 'linear_reduction' will be used.", immediate. = TRUE)
@@ -1064,8 +1076,8 @@ Uncorrected_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, 
   if (any(!linear_reduction %in% reduc_test)) {
     stop("'linear_reduction' must be one of 'pca', 'ica', 'nmf', 'mds', 'glmpca'.")
   }
-  if (any(!nonlinear_reduction %in% c("umap", "umap-naive", "tsne", "dm", "phate", "pacmap", "trimap", "largevis"))) {
-    stop("'nonlinear_reduction' must be one of 'umap', 'tsne', 'dm', 'phate', 'pacmap', 'trimap', 'largevis'.")
+  if (any(!nonlinear_reduction %in% c("umap", "umap-naive", "tsne", "dm", "phate", "pacmap", "trimap", "largevis", "fr"))) {
+    stop("'nonlinear_reduction' must be one of 'umap', 'tsne', 'dm', 'phate', 'pacmap', 'trimap', 'largevis', 'fr'.")
   }
   if (!cluster_algorithm %in% c("louvain", "slm", "leiden")) {
     stop("'cluster_algorithm' must be one of 'louvain', 'slm', 'leiden'.")
@@ -1138,7 +1150,7 @@ Uncorrected_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, 
     do_scaling = do_scaling, vars_to_regress = vars_to_regress, regression_model = regression_model,
     linear_reduction = linear_reduction, linear_reduction_dims = linear_reduction_dims, linear_reduction_dims_use = linear_reduction_dims_use, linear_reduction_params = linear_reduction_params, force_linear_reduction = force_linear_reduction,
     nonlinear_reduction = nonlinear_reduction, nonlinear_reduction_dims = nonlinear_reduction_dims, nonlinear_reduction_params = nonlinear_reduction_params, force_nonlinear_reduction = force_nonlinear_reduction,
-    do_cluster_finding = do_cluster_finding, cluster_algorithm = cluster_algorithm, cluster_resolution = cluster_resolution, cluster_reorder = cluster_reorder,
+    cluster_algorithm = cluster_algorithm, cluster_resolution = cluster_resolution, cluster_reorder = cluster_reorder,
     seed = seed
   )
   if ("Uncorrectedclusters" %in% colnames(srtIntegrated@meta.data)) {
@@ -1180,7 +1192,7 @@ Seurat_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtLi
                              do_scaling = TRUE, vars_to_regress = NULL, regression_model = "linear",
                              linear_reduction = "pca", linear_reduction_dims = 50, linear_reduction_dims_use = NULL, linear_reduction_params = list(), force_linear_reduction = FALSE,
                              nonlinear_reduction = "umap", nonlinear_reduction_dims = c(2, 3), nonlinear_reduction_params = list(), force_nonlinear_reduction = TRUE,
-                             do_cluster_finding = TRUE, cluster_algorithm = "louvain", cluster_resolution = 0.6, cluster_reorder = TRUE,
+                             neighbor_metric = "euclidean", neighbor_k = 20L, neighbor_ntrees = 50L, cluster_algorithm = "louvain", cluster_resolution = 0.6, cluster_reorder = TRUE,
                              FindIntegrationAnchors_params = list(), IntegrateData_params = list(), IntegrateEmbeddings_params = list(), seed = 11) {
   if (length(linear_reduction) > 1) {
     warning("Only the first method in the 'linear_reduction' will be used.", immediate. = TRUE)
@@ -1196,8 +1208,8 @@ Seurat_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtLi
   if (!is.null(linear_reduction_dims_use) && max(linear_reduction_dims_use) > linear_reduction_dims) {
     linear_reduction_dims <- max(linear_reduction_dims_use)
   }
-  if (any(!nonlinear_reduction %in% c("umap", "umap-naive", "tsne", "dm", "phate", "pacmap", "trimap", "largevis"))) {
-    stop("'nonlinear_reduction' must be one of 'umap', 'tsne', 'dm', 'phate', 'pacmap', 'trimap', 'largevis'.")
+  if (any(!nonlinear_reduction %in% c("umap", "umap-naive", "tsne", "dm", "phate", "pacmap", "trimap", "largevis", "fr"))) {
+    stop("'nonlinear_reduction' must be one of 'umap', 'tsne', 'dm', 'phate', 'pacmap', 'trimap', 'largevis', 'fr'.")
   }
   if (!cluster_algorithm %in% c("louvain", "slm", "leiden")) {
     stop("'cluster_algorithm' must be one of 'louvain', 'slm', 'leiden'.")
@@ -1353,7 +1365,7 @@ Seurat_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtLi
       verbose = FALSE, seed = seed
     )
     if (is.null(linear_reduction_dims_use)) {
-      linear_reduction_dims_use <- 1:linear_reduction_dims
+      linear_reduction_dims_use <- srtIntegrated@reductions[[paste0("Seurat", linear_reduction)]]@misc[["dims_estimate"]] %||% 1:linear_reduction_dims
     }
   } else if (normalization_method == "TFIDF") {
     cat(paste0("[", Sys.time(), "]", " Perform FindIntegrationAnchors on the data...\n"))
@@ -1384,24 +1396,28 @@ Seurat_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtLi
     srtIntegrated <- invoke(.fn = IntegrateEmbeddings, .args = params2)
 
     if (is.null(linear_reduction_dims_use)) {
-      linear_reduction_dims_use <- 2:linear_reduction_dims
+      linear_reduction_dims_use <- 2:max(srtIntegrated@reductions[[paste0("Seurat", linear_reduction)]]@misc[["dims_estimate"]]) %||% 2:linear_reduction_dims
     }
     linear_reduction <- "lsi"
   }
 
   srtIntegrated <- tryCatch(
     {
-      srtIntegrated <- FindNeighbors(object = srtIntegrated, reduction = paste0("Seurat", linear_reduction), dims = linear_reduction_dims_use, force.recalc = TRUE, graph.name = paste0("Seurat", linear_reduction, "_", c("KNN", "SNN")), verbose = FALSE)
-      if (isTRUE(do_cluster_finding)) {
-        cat(paste0("[", Sys.time(), "]", " Perform FindClusters (", cluster_algorithm, ") on the data...\n"))
-        srtIntegrated <- FindClusters(object = srtIntegrated, resolution = cluster_resolution, algorithm = cluster_algorithm_index, method = "igraph", graph.name = paste0("Seurat", linear_reduction, "_SNN"), verbose = FALSE)
-        if (isTRUE(cluster_reorder)) {
-          cat(paste0("[", Sys.time(), "]", " Reorder clusters...\n"))
-          srtIntegrated <- SrtReorder(srtIntegrated, features = HVF, reorder_by = "seurat_clusters", slot = "data")
-        }
-        srtIntegrated[["seurat_clusters"]] <- NULL
-        srtIntegrated[["Seuratclusters"]] <- Idents(srtIntegrated)
+      srtIntegrated <- FindNeighbors(
+        object = srtIntegrated, reduction = paste0("Seurat", linear_reduction), dims = linear_reduction_dims_use,
+        annoy.metric = neighbor_metric, k.param = neighbor_k, n.trees = neighbor_ntrees,
+        force.recalc = TRUE, graph.name = paste0("Seurat_", c("KNN", "SNN")), verbose = FALSE
+      )
+
+      cat(paste0("[", Sys.time(), "]", " Perform FindClusters (", cluster_algorithm, ") on the data...\n"))
+      srtIntegrated <- FindClusters(object = srtIntegrated, resolution = cluster_resolution, algorithm = cluster_algorithm_index, method = "igraph", graph.name = "Seurat_SNN", verbose = FALSE)
+      if (isTRUE(cluster_reorder)) {
+        cat(paste0("[", Sys.time(), "]", " Reorder clusters...\n"))
+        srtIntegrated <- SrtReorder(srtIntegrated, features = HVF, reorder_by = "seurat_clusters", slot = "data")
       }
+      srtIntegrated[["seurat_clusters"]] <- NULL
+      srtIntegrated[["Seuratclusters"]] <- Idents(srtIntegrated)
+
       srtIntegrated
     },
     error = function(error) {
@@ -1419,6 +1435,7 @@ Seurat_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtLi
           srtIntegrated <- RunDimReduction(
             srt = srtIntegrated, prefix = "Seurat",
             reduction_use = paste0("Seurat", linear_reduction), reduction_dims = linear_reduction_dims_use,
+            graph_use = "Seurat_SNN",
             nonlinear_reduction = nr, nonlinear_reduction_dims = n,
             nonlinear_reduction_params = nonlinear_reduction_params,
             force_nonlinear_reduction = force_nonlinear_reduction,
@@ -1458,10 +1475,10 @@ scVI_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtList
                            do_HVF_finding = TRUE, HVF_source = "separate", HVF_method = "vst", nHVF = 2000, HVF_min_intersection = 1, HVF = NULL,
                            scVI_dims_use = NULL,
                            nonlinear_reduction = "umap", nonlinear_reduction_dims = c(2, 3), nonlinear_reduction_params = list(), force_nonlinear_reduction = TRUE,
-                           do_cluster_finding = TRUE, cluster_algorithm = "louvain", cluster_resolution = 0.6, cluster_reorder = TRUE,
+                           neighbor_metric = "euclidean", neighbor_k = 20L, neighbor_ntrees = 50L, cluster_algorithm = "louvain", cluster_resolution = 0.6, cluster_reorder = TRUE,
                            model = "SCVI", SCVI_params = list(), PEAKVI_params = list(), num_threads = 8, seed = 11) {
-  if (any(!nonlinear_reduction %in% c("umap", "umap-naive", "tsne", "dm", "phate", "pacmap", "trimap", "largevis"))) {
-    stop("'nonlinear_reduction' must be one of 'umap', 'tsne', 'dm', 'phate', 'pacmap', 'trimap', 'largevis'.")
+  if (any(!nonlinear_reduction %in% c("umap", "umap-naive", "tsne", "dm", "phate", "pacmap", "trimap", "largevis", "fr"))) {
+    stop("'nonlinear_reduction' must be one of 'umap', 'tsne', 'dm', 'phate', 'pacmap', 'trimap', 'largevis', 'fr'.")
   }
   if (!cluster_algorithm %in% c("louvain", "slm", "leiden")) {
     stop("'cluster_algorithm' must be one of 'louvain', 'slm', 'leiden'.")
@@ -1577,17 +1594,21 @@ scVI_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtList
 
   srtIntegrated <- tryCatch(
     {
-      srtIntegrated <- FindNeighbors(object = srtIntegrated, reduction = "scVI", dims = scVI_dims_use, force.recalc = TRUE, graph.name = paste0("scVI", "_", c("KNN", "SNN")), verbose = FALSE)
-      if (isTRUE(do_cluster_finding)) {
-        cat(paste0("[", Sys.time(), "]", " Perform FindClusters (", cluster_algorithm, ") on the data...\n"))
-        srtIntegrated <- FindClusters(object = srtIntegrated, resolution = cluster_resolution, algorithm = cluster_algorithm_index, method = "igraph", graph.name = paste0("scVI", "_SNN"), verbose = FALSE)
-        if (isTRUE(cluster_reorder)) {
-          cat(paste0("[", Sys.time(), "]", " Reorder clusters...\n"))
-          srtIntegrated <- SrtReorder(srtIntegrated, features = HVF, reorder_by = "seurat_clusters", slot = "data")
-        }
-        srtIntegrated[["seurat_clusters"]] <- NULL
-        srtIntegrated[["scVIclusters"]] <- Idents(srtIntegrated)
+      srtIntegrated <- FindNeighbors(
+        object = srtIntegrated, reduction = "scVI", dims = scVI_dims_use,
+        annoy.metric = neighbor_metric, k.param = neighbor_k, n.trees = neighbor_ntrees,
+        force.recalc = TRUE, graph.name = paste0("scVI_", c("KNN", "SNN")), verbose = FALSE
+      )
+
+      cat(paste0("[", Sys.time(), "]", " Perform FindClusters (", cluster_algorithm, ") on the data...\n"))
+      srtIntegrated <- FindClusters(object = srtIntegrated, resolution = cluster_resolution, algorithm = cluster_algorithm_index, method = "igraph", graph.name = "scVI_SNN", verbose = FALSE)
+      if (isTRUE(cluster_reorder)) {
+        cat(paste0("[", Sys.time(), "]", " Reorder clusters...\n"))
+        srtIntegrated <- SrtReorder(srtIntegrated, features = HVF, reorder_by = "seurat_clusters", slot = "data")
       }
+      srtIntegrated[["seurat_clusters"]] <- NULL
+      srtIntegrated[["scVIclusters"]] <- Idents(srtIntegrated)
+
       srtIntegrated
     },
     error = function(error) {
@@ -1605,6 +1626,7 @@ scVI_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtList
           srtIntegrated <- RunDimReduction(
             srt = srtIntegrated, prefix = "scVI",
             reduction_use = "scVI", reduction_dims = scVI_dims_use,
+            graph_use = "scVI_SNN",
             nonlinear_reduction = nr, nonlinear_reduction_dims = n,
             nonlinear_reduction_params = nonlinear_reduction_params,
             force_nonlinear_reduction = force_nonlinear_reduction,
@@ -1644,7 +1666,7 @@ MNN_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtList 
                           do_scaling = TRUE, vars_to_regress = NULL, regression_model = "linear",
                           linear_reduction = "pca", linear_reduction_dims = 50, linear_reduction_dims_use = NULL, linear_reduction_params = list(), force_linear_reduction = FALSE,
                           nonlinear_reduction = "umap", nonlinear_reduction_dims = c(2, 3), nonlinear_reduction_params = list(), force_nonlinear_reduction = TRUE,
-                          do_cluster_finding = TRUE, cluster_algorithm = "louvain", cluster_resolution = 0.6, cluster_reorder = TRUE,
+                          neighbor_metric = "euclidean", neighbor_k = 20L, neighbor_ntrees = 50L, cluster_algorithm = "louvain", cluster_resolution = 0.6, cluster_reorder = TRUE,
                           mnnCorrect_params = list(), seed = 11) {
   if (length(linear_reduction) > 1) {
     warning("Only the first method in the 'linear_reduction' will be used.", immediate. = TRUE)
@@ -1660,8 +1682,8 @@ MNN_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtList 
   if (!is.null(linear_reduction_dims_use) && max(linear_reduction_dims_use) > linear_reduction_dims) {
     linear_reduction_dims <- max(linear_reduction_dims_use)
   }
-  if (any(!nonlinear_reduction %in% c("umap", "umap-naive", "tsne", "dm", "phate", "pacmap", "trimap", "largevis"))) {
-    stop("'nonlinear_reduction' must be one of 'umap', 'tsne', 'dm', 'phate', 'pacmap', 'trimap', 'largevis'.")
+  if (any(!nonlinear_reduction %in% c("umap", "umap-naive", "tsne", "dm", "phate", "pacmap", "trimap", "largevis", "fr"))) {
+    stop("'nonlinear_reduction' must be one of 'umap', 'tsne', 'dm', 'phate', 'pacmap', 'trimap', 'largevis', 'fr'.")
   }
   if (!cluster_algorithm %in% c("louvain", "slm", "leiden")) {
     stop("'cluster_algorithm' must be one of 'louvain', 'slm', 'leiden'.")
@@ -1769,7 +1791,7 @@ MNN_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtList 
     verbose = FALSE, seed = seed
   )
   if (is.null(linear_reduction_dims_use)) {
-    linear_reduction_dims_use <- 1:linear_reduction_dims
+    linear_reduction_dims_use <- srtIntegrated@reductions[[paste0("MNN", linear_reduction)]]@misc[["dims_estimate"]] %||% 1:linear_reduction_dims
     if (normalization_method == "TFIDF") {
       linear_reduction_dims_use <- 2:max(linear_reduction_dims_use)
     }
@@ -1777,17 +1799,21 @@ MNN_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtList 
 
   srtIntegrated <- tryCatch(
     {
-      srtIntegrated <- FindNeighbors(object = srtIntegrated, reduction = paste0("MNN", linear_reduction), dims = linear_reduction_dims_use, force.recalc = TRUE, graph.name = paste0("MNN", linear_reduction, "_", c("KNN", "SNN")), verbose = FALSE)
-      if (isTRUE(do_cluster_finding)) {
-        cat(paste0("[", Sys.time(), "]", " Perform FindClusters (", cluster_algorithm, ") on the data...\n"))
-        srtIntegrated <- FindClusters(object = srtIntegrated, resolution = cluster_resolution, algorithm = cluster_algorithm_index, method = "igraph", graph.name = paste0("MNN", linear_reduction, "_SNN"), verbose = FALSE)
-        if (isTRUE(cluster_reorder)) {
-          cat(paste0("[", Sys.time(), "]", " Reorder clusters...\n"))
-          srtIntegrated <- SrtReorder(srtIntegrated, features = HVF, reorder_by = "seurat_clusters", slot = "data")
-        }
-        srtIntegrated[["seurat_clusters"]] <- NULL
-        srtIntegrated[["MNNclusters"]] <- Idents(srtIntegrated)
+      srtIntegrated <- FindNeighbors(
+        object = srtIntegrated, reduction = paste0("MNN", linear_reduction), dims = linear_reduction_dims_use,
+        annoy.metric = neighbor_metric, k.param = neighbor_k, n.trees = neighbor_ntrees,
+        force.recalc = TRUE, graph.name = paste0("MNN_", c("KNN", "SNN")), verbose = FALSE
+      )
+
+      cat(paste0("[", Sys.time(), "]", " Perform FindClusters (", cluster_algorithm, ") on the data...\n"))
+      srtIntegrated <- FindClusters(object = srtIntegrated, resolution = cluster_resolution, algorithm = cluster_algorithm_index, method = "igraph", graph.name = "MNN_SNN", verbose = FALSE)
+      if (isTRUE(cluster_reorder)) {
+        cat(paste0("[", Sys.time(), "]", " Reorder clusters...\n"))
+        srtIntegrated <- SrtReorder(srtIntegrated, features = HVF, reorder_by = "seurat_clusters", slot = "data")
       }
+      srtIntegrated[["seurat_clusters"]] <- NULL
+      srtIntegrated[["MNNclusters"]] <- Idents(srtIntegrated)
+
       srtIntegrated
     },
     error = function(error) {
@@ -1805,6 +1831,7 @@ MNN_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtList 
           srtIntegrated <- RunDimReduction(
             srt = srtIntegrated, prefix = "MNN",
             reduction_use = paste0("MNN", linear_reduction), reduction_dims = linear_reduction_dims_use,
+            graph_use = "MNN_SNN",
             nonlinear_reduction = nr, nonlinear_reduction_dims = n,
             nonlinear_reduction_params = nonlinear_reduction_params,
             force_nonlinear_reduction = force_nonlinear_reduction,
@@ -1843,10 +1870,10 @@ fastMNN_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtL
                               do_HVF_finding = TRUE, HVF_source = "separate", HVF_method = "vst", nHVF = 2000, HVF_min_intersection = 1, HVF = NULL,
                               fastMNN_dims_use = NULL,
                               nonlinear_reduction = "umap", nonlinear_reduction_dims = c(2, 3), nonlinear_reduction_params = list(), force_nonlinear_reduction = TRUE,
-                              do_cluster_finding = TRUE, cluster_algorithm = "louvain", cluster_resolution = 0.6, cluster_reorder = TRUE,
+                              neighbor_metric = "euclidean", neighbor_k = 20L, neighbor_ntrees = 50L, cluster_algorithm = "louvain", cluster_resolution = 0.6, cluster_reorder = TRUE,
                               fastMNN_params = list(), seed = 11) {
-  if (any(!nonlinear_reduction %in% c("umap", "umap-naive", "tsne", "dm", "phate", "pacmap", "trimap", "largevis"))) {
-    stop("'nonlinear_reduction' must be one of 'umap', 'tsne', 'dm', 'phate', 'pacmap', 'trimap', 'largevis'.")
+  if (any(!nonlinear_reduction %in% c("umap", "umap-naive", "tsne", "dm", "phate", "pacmap", "trimap", "largevis", "fr"))) {
+    stop("'nonlinear_reduction' must be one of 'umap', 'tsne', 'dm', 'phate', 'pacmap', 'trimap', 'largevis', 'fr'.")
   }
   if (!cluster_algorithm %in% c("louvain", "slm", "leiden")) {
     stop("'cluster_algorithm' must be one of 'louvain', 'slm', 'leiden'.")
@@ -1944,17 +1971,21 @@ fastMNN_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtL
 
   srtIntegrated <- tryCatch(
     {
-      srtIntegrated <- FindNeighbors(object = srtIntegrated, reduction = "fastMNN", dims = fastMNN_dims_use, force.recalc = TRUE, graph.name = paste0("fastMNN", "_", c("KNN", "SNN")), verbose = FALSE)
-      if (isTRUE(do_cluster_finding)) {
-        cat(paste0("[", Sys.time(), "]", " Perform FindClusters (", cluster_algorithm, ") on the data...\n"))
-        srtIntegrated <- FindClusters(object = srtIntegrated, resolution = cluster_resolution, algorithm = cluster_algorithm_index, method = "igraph", graph.name = paste0("fastMNN", "_SNN"), verbose = FALSE)
-        if (isTRUE(cluster_reorder)) {
-          cat(paste0("[", Sys.time(), "]", " Reorder clusters...\n"))
-          srtIntegrated <- SrtReorder(srtIntegrated, features = HVF, reorder_by = "seurat_clusters", slot = "data")
-        }
-        srtIntegrated[["seurat_clusters"]] <- NULL
-        srtIntegrated[["fastMNNclusters"]] <- Idents(srtIntegrated)
+      srtIntegrated <- FindNeighbors(
+        object = srtIntegrated, reduction = "fastMNN", dims = fastMNN_dims_use,
+        annoy.metric = neighbor_metric, k.param = neighbor_k, n.trees = neighbor_ntrees,
+        force.recalc = TRUE, graph.name = paste0("fastMNN", "_", c("KNN", "SNN")), verbose = FALSE
+      )
+
+      cat(paste0("[", Sys.time(), "]", " Perform FindClusters (", cluster_algorithm, ") on the data...\n"))
+      srtIntegrated <- FindClusters(object = srtIntegrated, resolution = cluster_resolution, algorithm = cluster_algorithm_index, method = "igraph", graph.name = "fastMNN_SNN", verbose = FALSE)
+      if (isTRUE(cluster_reorder)) {
+        cat(paste0("[", Sys.time(), "]", " Reorder clusters...\n"))
+        srtIntegrated <- SrtReorder(srtIntegrated, features = HVF, reorder_by = "seurat_clusters", slot = "data")
       }
+      srtIntegrated[["seurat_clusters"]] <- NULL
+      srtIntegrated[["fastMNNclusters"]] <- Idents(srtIntegrated)
+
       srtIntegrated
     },
     error = function(error) {
@@ -1972,6 +2003,7 @@ fastMNN_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtL
           srtIntegrated <- RunDimReduction(
             srt = srtIntegrated, prefix = "fastMNN",
             reduction_use = "fastMNN", reduction_dims = fastMNN_dims_use,
+            graph_use = "fastMNN_SNN",
             nonlinear_reduction = nr, nonlinear_reduction_dims = n,
             nonlinear_reduction_params = nonlinear_reduction_params,
             force_nonlinear_reduction = force_nonlinear_reduction,
@@ -2012,7 +2044,7 @@ Harmony_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtL
                               linear_reduction = "pca", linear_reduction_dims = 50, linear_reduction_dims_use = NULL, linear_reduction_params = list(), force_linear_reduction = FALSE,
                               Harmony_dims_use = NULL,
                               nonlinear_reduction = "umap", nonlinear_reduction_dims = c(2, 3), nonlinear_reduction_params = list(), force_nonlinear_reduction = TRUE,
-                              do_cluster_finding = TRUE, cluster_algorithm = "louvain", cluster_resolution = 0.6, cluster_reorder = TRUE,
+                              neighbor_metric = "euclidean", neighbor_k = 20L, neighbor_ntrees = 50L, cluster_algorithm = "louvain", cluster_resolution = 0.6, cluster_reorder = TRUE,
                               RunHarmony_params = list(), seed = 11) {
   if (length(linear_reduction) > 1) {
     warning("Only the first method in the 'linear_reduction' will be used.", immediate. = TRUE)
@@ -2028,8 +2060,8 @@ Harmony_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtL
   if (!is.null(linear_reduction_dims_use) && max(linear_reduction_dims_use) > linear_reduction_dims) {
     linear_reduction_dims <- max(linear_reduction_dims_use)
   }
-  if (any(!nonlinear_reduction %in% c("umap", "umap-naive", "tsne", "dm", "phate", "pacmap", "trimap", "largevis"))) {
-    stop("'nonlinear_reduction' must be one of 'umap', 'tsne', 'dm', 'phate', 'pacmap', 'trimap', 'largevis'.")
+  if (any(!nonlinear_reduction %in% c("umap", "umap-naive", "tsne", "dm", "phate", "pacmap", "trimap", "largevis", "fr"))) {
+    stop("'nonlinear_reduction' must be one of 'umap', 'tsne', 'dm', 'phate', 'pacmap', 'trimap', 'largevis', 'fr'.")
   }
   if (!cluster_algorithm %in% c("louvain", "slm", "leiden")) {
     stop("'cluster_algorithm' must be one of 'louvain', 'slm', 'leiden'.")
@@ -2111,14 +2143,14 @@ Harmony_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtL
     verbose = FALSE, seed = seed
   )
   if (is.null(linear_reduction_dims_use)) {
-    linear_reduction_dims_use <- 1:linear_reduction_dims
+    linear_reduction_dims_use <- srtMerge@reductions[[paste0("Harmony", linear_reduction)]]@misc[["dims_estimate"]] %||% 1:linear_reduction_dims
     if (normalization_method == "TFIDF") {
       linear_reduction_dims_use <- 2:max(linear_reduction_dims_use)
     }
   }
 
   cat(paste0("[", Sys.time(), "]", " Perform integration(Harmony) on the data...\n"))
-  message("Harmony integration using Reduction(", paste0("Harmony", linear_reduction), ", dims_range:", min(linear_reduction_dims_use), "-", max(linear_reduction_dims_use), ") as input")
+  message("Harmony integration using Reduction(", paste0("Harmony", linear_reduction), ", dims:", min(linear_reduction_dims_use), "-", max(linear_reduction_dims_use), ") as input")
   params <- list(
     object = srtMerge,
     group.by.vars = batch,
@@ -2142,17 +2174,21 @@ Harmony_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtL
 
   srtIntegrated <- tryCatch(
     {
-      srtIntegrated <- FindNeighbors(object = srtIntegrated, reduction = "Harmony", dims = Harmony_dims_use, force.recalc = TRUE, graph.name = paste0("Harmony", "_", c("KNN", "SNN")), verbose = FALSE)
-      if (isTRUE(do_cluster_finding)) {
-        cat(paste0("[", Sys.time(), "]", " Perform FindClusters (", cluster_algorithm, ") on the data...\n"))
-        srtIntegrated <- FindClusters(object = srtIntegrated, resolution = cluster_resolution, algorithm = cluster_algorithm_index, method = "igraph", graph.name = paste0("Harmony", "_SNN"), verbose = FALSE)
-        if (isTRUE(cluster_reorder)) {
-          cat(paste0("[", Sys.time(), "]", " Reorder clusters...\n"))
-          srtIntegrated <- SrtReorder(srtIntegrated, features = HVF, reorder_by = "seurat_clusters", slot = "data")
-        }
-        srtIntegrated[["seurat_clusters"]] <- NULL
-        srtIntegrated[["Harmonyclusters"]] <- Idents(srtIntegrated)
+      srtIntegrated <- FindNeighbors(
+        object = srtIntegrated, reduction = "Harmony", dims = Harmony_dims_use,
+        annoy.metric = neighbor_metric, k.param = neighbor_k, n.trees = neighbor_ntrees,
+        force.recalc = TRUE, graph.name = paste0("Harmony", "_", c("KNN", "SNN")), verbose = FALSE
+      )
+
+      cat(paste0("[", Sys.time(), "]", " Perform FindClusters (", cluster_algorithm, ") on the data...\n"))
+      srtIntegrated <- FindClusters(object = srtIntegrated, resolution = cluster_resolution, algorithm = cluster_algorithm_index, method = "igraph", graph.name = "Harmony_SNN", verbose = FALSE)
+      if (isTRUE(cluster_reorder)) {
+        cat(paste0("[", Sys.time(), "]", " Reorder clusters...\n"))
+        srtIntegrated <- SrtReorder(srtIntegrated, features = HVF, reorder_by = "seurat_clusters", slot = "data")
       }
+      srtIntegrated[["seurat_clusters"]] <- NULL
+      srtIntegrated[["Harmonyclusters"]] <- Idents(srtIntegrated)
+
       srtIntegrated
     },
     error = function(error) {
@@ -2170,6 +2206,7 @@ Harmony_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtL
           srtIntegrated <- RunDimReduction(
             srt = srtIntegrated, prefix = "Harmony",
             reduction_use = "Harmony", reduction_dims = Harmony_dims_use,
+            graph_use = "Harmony_SNN",
             nonlinear_reduction = nr, nonlinear_reduction_dims = n,
             force_nonlinear_reduction = force_nonlinear_reduction,
             nonlinear_reduction_params = nonlinear_reduction_params,
@@ -2211,26 +2248,11 @@ Scanorama_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, sr
                                 do_HVF_finding = TRUE, HVF_source = "separate", HVF_method = "vst", nHVF = 2000, HVF_min_intersection = 1, HVF = NULL,
                                 do_scaling = TRUE, vars_to_regress = NULL, regression_model = "linear",
                                 Scanorama_dims_use = NULL,
-                                linear_reduction = "pca", linear_reduction_dims = 50, linear_reduction_dims_use = NULL, linear_reduction_params = list(), force_linear_reduction = FALSE,
                                 nonlinear_reduction = "umap", nonlinear_reduction_dims = c(2, 3), nonlinear_reduction_params = list(), force_nonlinear_reduction = TRUE,
-                                do_cluster_finding = TRUE, cluster_algorithm = "louvain", cluster_resolution = 0.6, cluster_reorder = TRUE,
+                                neighbor_metric = "euclidean", neighbor_k = 20L, neighbor_ntrees = 50L, cluster_algorithm = "louvain", cluster_resolution = 0.6, cluster_reorder = TRUE,
                                 return_corrected = FALSE, scanorama_params = list(), seed = 11) {
-  if (length(linear_reduction) > 1) {
-    warning("Only the first method in the 'linear_reduction' will be used.", immediate. = TRUE)
-    linear_reduction <- linear_reduction[1]
-  }
-  reduc_test <- c("pca", "svd", "ica", "nmf", "mds", "glmpca")
-  if (!is.null(srtMerge)) {
-    reduc_test <- c(reduc_test, Reductions(srtMerge))
-  }
-  if (any(!linear_reduction %in% reduc_test)) {
-    stop("'linear_reduction' must be one of 'pca', 'svd', 'ica', 'nmf', 'mds', 'glmpca'.")
-  }
-  if (!is.null(linear_reduction_dims_use) && max(linear_reduction_dims_use) > linear_reduction_dims) {
-    linear_reduction_dims <- max(linear_reduction_dims_use)
-  }
-  if (any(!nonlinear_reduction %in% c("umap", "umap-naive", "tsne", "dm", "phate", "pacmap", "trimap", "largevis"))) {
-    stop("'nonlinear_reduction' must be one of 'umap', 'tsne', 'dm', 'phate', 'pacmap', 'trimap', 'largevis'.")
+  if (any(!nonlinear_reduction %in% c("umap", "umap-naive", "tsne", "dm", "phate", "pacmap", "trimap", "largevis", "fr"))) {
+    stop("'nonlinear_reduction' must be one of 'umap', 'tsne', 'dm', 'phate', 'pacmap', 'trimap', 'largevis', 'fr'.")
   }
   if (!cluster_algorithm %in% c("louvain", "slm", "leiden")) {
     stop("'cluster_algorithm' must be one of 'louvain', 'slm', 'leiden'.")
@@ -2347,17 +2369,21 @@ Scanorama_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, sr
 
   srtIntegrated <- tryCatch(
     {
-      srtIntegrated <- FindNeighbors(object = srtIntegrated, reduction = "Scanorama", dims = Scanorama_dims_use, force.recalc = TRUE, graph.name = paste0("Scanorama_", c("KNN", "SNN")), verbose = FALSE)
-      if (isTRUE(do_cluster_finding)) {
-        cat(paste0("[", Sys.time(), "]", " Perform FindClusters (", cluster_algorithm, ") on the data...\n"))
-        srtIntegrated <- FindClusters(object = srtIntegrated, resolution = cluster_resolution, algorithm = cluster_algorithm_index, method = "igraph", graph.name = "Scanorama_SNN", verbose = FALSE)
-        if (isTRUE(cluster_reorder)) {
-          cat(paste0("[", Sys.time(), "]", " Reorder clusters...\n"))
-          srtIntegrated <- SrtReorder(srtIntegrated, features = HVF, reorder_by = "seurat_clusters", slot = "data")
-        }
-        srtIntegrated[["seurat_clusters"]] <- NULL
-        srtIntegrated[["Scanoramaclusters"]] <- Idents(srtIntegrated)
+      srtIntegrated <- FindNeighbors(
+        object = srtIntegrated, reduction = "Scanorama", dims = Scanorama_dims_use,
+        annoy.metric = neighbor_metric, k.param = neighbor_k, n.trees = neighbor_ntrees,
+        force.recalc = TRUE, graph.name = paste0("Scanorama_", c("KNN", "SNN")), verbose = FALSE
+      )
+
+      cat(paste0("[", Sys.time(), "]", " Perform FindClusters (", cluster_algorithm, ") on the data...\n"))
+      srtIntegrated <- FindClusters(object = srtIntegrated, resolution = cluster_resolution, algorithm = cluster_algorithm_index, method = "igraph", graph.name = "Scanorama_SNN", verbose = FALSE)
+      if (isTRUE(cluster_reorder)) {
+        cat(paste0("[", Sys.time(), "]", " Reorder clusters...\n"))
+        srtIntegrated <- SrtReorder(srtIntegrated, features = HVF, reorder_by = "seurat_clusters", slot = "data")
       }
+      srtIntegrated[["seurat_clusters"]] <- NULL
+      srtIntegrated[["Scanoramaclusters"]] <- Idents(srtIntegrated)
+
       srtIntegrated
     },
     error = function(error) {
@@ -2375,6 +2401,7 @@ Scanorama_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, sr
           srtIntegrated <- RunDimReduction(
             srt = srtIntegrated, prefix = "Scanorama",
             reduction_use = "Scanorama", reduction_dims = Scanorama_dims_use,
+            graph_use = "Scanorama_SNN",
             nonlinear_reduction = nr, nonlinear_reduction_dims = n,
             nonlinear_reduction_params = nonlinear_reduction_params,
             force_nonlinear_reduction = force_nonlinear_reduction,
@@ -2416,7 +2443,7 @@ BBKNN_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtLis
                             do_scaling = TRUE, vars_to_regress = NULL, regression_model = "linear",
                             linear_reduction = "pca", linear_reduction_dims = 50, linear_reduction_dims_use = NULL, linear_reduction_params = list(), force_linear_reduction = FALSE,
                             nonlinear_reduction = "umap", nonlinear_reduction_dims = c(2, 3), nonlinear_reduction_params = list(), force_nonlinear_reduction = TRUE,
-                            do_cluster_finding = TRUE, cluster_algorithm = "louvain", cluster_resolution = 0.6, cluster_reorder = TRUE,
+                            cluster_algorithm = "louvain", cluster_resolution = 0.6, cluster_reorder = TRUE,
                             bbknn_params = list(), seed = 11) {
   if (length(linear_reduction) > 1) {
     warning("Only the first method in the 'linear_reduction' will be used.", immediate. = TRUE)
@@ -2432,8 +2459,8 @@ BBKNN_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtLis
   if (!is.null(linear_reduction_dims_use) && max(linear_reduction_dims_use) > linear_reduction_dims) {
     linear_reduction_dims <- max(linear_reduction_dims_use)
   }
-  if (any(!nonlinear_reduction %in% c("umap", "umap-naive"))) {
-    stop("'nonlinear_reduction' must be one of 'umap', 'umap-naive'.")
+  if (any(!nonlinear_reduction %in% c("umap", "umap-naive", "fr"))) {
+    stop("'nonlinear_reduction' must be one of 'umap', 'umap-naive', 'fr'.")
   }
   if (!cluster_algorithm %in% c("louvain", "slm", "leiden")) {
     stop("'cluster_algorithm' must be one of 'louvain', 'slm', 'leiden'.")
@@ -2448,7 +2475,7 @@ BBKNN_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtLis
     "leiden" = 4
   )
 
-  check_Python("bbknn")
+  check_Python("bbknn==1.5.1")
   bbknn <- import("bbknn")
   set.seed(seed)
 
@@ -2516,14 +2543,14 @@ BBKNN_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtLis
     verbose = FALSE, seed = seed
   )
   if (is.null(linear_reduction_dims_use)) {
-    linear_reduction_dims_use <- 1:linear_reduction_dims
+    linear_reduction_dims_use <- srtMerge@reductions[[paste0("BBKNN", linear_reduction)]]@misc[["dims_estimate"]]
     if (normalization_method == "TFIDF") {
       linear_reduction_dims_use <- 2:max(linear_reduction_dims_use)
     }
   }
 
   cat(paste0("[", Sys.time(), "]", " Perform integration(BBKNN) on the data...\n"))
-  message("BBKNN integration using Reduction(", paste0("BBKNN", linear_reduction), ", dims_range:", min(linear_reduction_dims_use), "-", max(linear_reduction_dims_use), ") as input")
+  message("BBKNN integration using Reduction(", paste0("BBKNN", linear_reduction), ", dims:", min(linear_reduction_dims_use), "-", max(linear_reduction_dims_use), ") as input")
   emb <- Embeddings(srtMerge, reduction = paste0("BBKNN", linear_reduction))[, linear_reduction_dims_use, drop = FALSE]
   params <- list(
     pca = emb,
@@ -2544,35 +2571,40 @@ BBKNN_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtLis
 
   bbknn_dist <- t(as.sparse(bem[[1]][1:nrow(bem[[1]]), , drop = FALSE]))
   rownames(bbknn_dist) <- colnames(bbknn_dist) <- rownames(emb)
+  bbknn_dist <- as.Graph(bbknn_dist)
+  bbknn_dist@assay.used <- DefaultAssay(srtIntegrated)
+  srtIntegrated@graphs[["BBKNN_dist"]] <- bbknn_dist
+
   val <- split(bbknn_dist@x, rep(1:ncol(bbknn_dist), diff(bbknn_dist@p)))
   pos <- split(bbknn_dist@i + 1, rep(1:ncol(bbknn_dist), diff(bbknn_dist@p)))
   idx <- t(mapply(function(x, y) {
-    out <- y[head(order(x, decreasing = F), n.neighbors)]
-    length(out) <- n.neighbors
+    out <- y[head(order(x, decreasing = F), n.neighbors - 1)]
+    length(out) <- n.neighbors - 1
     return(out)
   }, x = val, y = pos))
-  idx[is.na(idx)] <- seq_len(nrow(idx))
+  idx[is.na(idx)] <- sample(seq_len(nrow(idx)), size = sum(is.na(idx)), replace = TRUE)
+  idx <- cbind(seq_len(nrow(idx)), idx)
   dist <- t(mapply(function(x, y) {
-    out <- y[head(order(x, decreasing = F), n.neighbors)]
-    length(out) <- n.neighbors
+    out <- y[head(order(x, decreasing = F), n.neighbors - 1)]
+    length(out) <- n.neighbors - 1
     out[is.na(out)] <- 0
     return(out)
   }, x = val, y = val))
+  dist <- cbind(0, dist)
   srtIntegrated[["BBKNN_neighbors"]] <- new(Class = "Neighbor", nn.idx = idx, nn.dist = dist, alg.info = list(), cell.names = rownames(emb))
   nonlinear_reduction_params[["n.neighbors"]] <- n.neighbors
 
   srtIntegrated <- tryCatch(
     {
-      if (isTRUE(do_cluster_finding)) {
-        cat(paste0("[", Sys.time(), "]", " Perform FindClusters (", cluster_algorithm, ") on the data...\n"))
-        srtIntegrated <- FindClusters(object = srtIntegrated, graph.name = "BBKNN", resolution = cluster_resolution, algorithm = cluster_algorithm_index, method = "igraph", verbose = FALSE)
-        if (isTRUE(cluster_reorder)) {
-          cat(paste0("[", Sys.time(), "]", " Reorder clusters...\n"))
-          srtIntegrated <- SrtReorder(srtIntegrated, features = HVF, reorder_by = "seurat_clusters", slot = "data")
-        }
-        srtIntegrated[["seurat_clusters"]] <- NULL
-        srtIntegrated[["BBKNNclusters"]] <- Idents(srtIntegrated)
+      cat(paste0("[", Sys.time(), "]", " Perform FindClusters (", cluster_algorithm, ") on the data...\n"))
+      srtIntegrated <- FindClusters(object = srtIntegrated, graph.name = "BBKNN", resolution = cluster_resolution, algorithm = cluster_algorithm_index, method = "igraph", verbose = FALSE)
+      if (isTRUE(cluster_reorder)) {
+        cat(paste0("[", Sys.time(), "]", " Reorder clusters...\n"))
+        srtIntegrated <- SrtReorder(srtIntegrated, features = HVF, reorder_by = "seurat_clusters", slot = "data")
       }
+      srtIntegrated[["seurat_clusters"]] <- NULL
+      srtIntegrated[["BBKNNclusters"]] <- Idents(srtIntegrated)
+
       srtIntegrated
     },
     error = function(error) {
@@ -2586,10 +2618,16 @@ BBKNN_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtLis
     {
       for (nr in nonlinear_reduction) {
         cat("Perform nonlinear dimension reduction (", nr, ") on the data...\n", sep = "")
+        if (nr %in% c("fr")) {
+          nonlinear_reduction_params[["n.neighbors"]] <- NULL
+        } else {
+          nonlinear_reduction_params[["n.neighbors"]] <- n.neighbors
+        }
         for (n in nonlinear_reduction_dims) {
           srtIntegrated <- RunDimReduction(
             srt = srtIntegrated, prefix = "BBKNN", neighbor_use = "BBKNN_neighbors",
-            nonlinear_reduction = nonlinear_reduction, nonlinear_reduction_dims = n,
+            graph_use = "BBKNN",
+            nonlinear_reduction = nr, nonlinear_reduction_dims = n,
             nonlinear_reduction_params = nonlinear_reduction_params,
             force_nonlinear_reduction = force_nonlinear_reduction,
             verbose = FALSE, seed = seed
@@ -2629,7 +2667,7 @@ CSS_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtList 
                           linear_reduction = "pca", linear_reduction_dims = 50, linear_reduction_dims_use = NULL, linear_reduction_params = list(), force_linear_reduction = FALSE,
                           CSS_dims_use = NULL,
                           nonlinear_reduction = "umap", nonlinear_reduction_dims = c(2, 3), nonlinear_reduction_params = list(), force_nonlinear_reduction = TRUE,
-                          do_cluster_finding = TRUE, cluster_algorithm = "louvain", cluster_resolution = 0.6, cluster_reorder = TRUE,
+                          neighbor_metric = "euclidean", neighbor_k = 20L, neighbor_ntrees = 50L, cluster_algorithm = "louvain", cluster_resolution = 0.6, cluster_reorder = TRUE,
                           CSS_params = list(), seed = 11) {
   if (length(linear_reduction) > 1) {
     warning("Only the first method in the 'linear_reduction' will be used.", immediate. = TRUE)
@@ -2645,8 +2683,8 @@ CSS_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtList 
   if (!is.null(linear_reduction_dims_use) && max(linear_reduction_dims_use) > linear_reduction_dims) {
     linear_reduction_dims <- max(linear_reduction_dims_use)
   }
-  if (any(!nonlinear_reduction %in% c("umap", "umap-naive", "tsne", "dm", "phate", "pacmap", "trimap", "largevis"))) {
-    stop("'nonlinear_reduction' must be one of 'umap', 'tsne', 'dm', 'phate', 'pacmap', 'trimap', 'largevis'.")
+  if (any(!nonlinear_reduction %in% c("umap", "umap-naive", "tsne", "dm", "phate", "pacmap", "trimap", "largevis", "fr"))) {
+    stop("'nonlinear_reduction' must be one of 'umap', 'tsne', 'dm', 'phate', 'pacmap', 'trimap', 'largevis', 'fr'.")
   }
   if (!cluster_algorithm %in% c("louvain", "slm", "leiden")) {
     stop("'cluster_algorithm' must be one of 'louvain', 'slm', 'leiden'.")
@@ -2729,14 +2767,14 @@ CSS_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtList 
     verbose = FALSE, seed = seed
   )
   if (is.null(linear_reduction_dims_use)) {
-    linear_reduction_dims_use <- 1:linear_reduction_dims
+    linear_reduction_dims_use <- srtMerge@reductions[[paste0("CSS", linear_reduction)]]@misc[["dims_estimate"]]
     if (normalization_method == "TFIDF") {
       linear_reduction_dims_use <- 2:max(linear_reduction_dims_use)
     }
   }
 
   cat(paste0("[", Sys.time(), "]", " Perform integration(CSS) on the data...\n"))
-  message("CSS integration using Reduction(", paste0("CSS", linear_reduction), ", dims_range:", min(linear_reduction_dims_use), "-", max(linear_reduction_dims_use), ") as input")
+  message("CSS integration using Reduction(", paste0("CSS", linear_reduction), ", dims:", min(linear_reduction_dims_use), "-", max(linear_reduction_dims_use), ") as input")
   params <- list(
     object = srtMerge,
     use_dr = paste0("CSS", linear_reduction),
@@ -2761,17 +2799,21 @@ CSS_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtList 
 
   srtIntegrated <- tryCatch(
     {
-      srtIntegrated <- FindNeighbors(object = srtIntegrated, reduction = "CSS", dims = CSS_dims_use, force.recalc = TRUE, graph.name = paste0("CSS", "_", c("KNN", "SNN")), verbose = FALSE)
-      if (isTRUE(do_cluster_finding)) {
-        cat(paste0("[", Sys.time(), "]", " Perform FindClusters (", cluster_algorithm, ") on the data...\n"))
-        srtIntegrated <- FindClusters(object = srtIntegrated, resolution = cluster_resolution, algorithm = cluster_algorithm_index, method = "igraph", graph.name = paste0("CSS", "_SNN"), verbose = FALSE)
-        if (isTRUE(cluster_reorder)) {
-          cat(paste0("[", Sys.time(), "]", " Reorder clusters...\n"))
-          srtIntegrated <- SrtReorder(srtIntegrated, features = HVF, reorder_by = "seurat_clusters", slot = "data")
-        }
-        srtIntegrated[["seurat_clusters"]] <- NULL
-        srtIntegrated[["CSSclusters"]] <- Idents(srtIntegrated)
+      srtIntegrated <- FindNeighbors(
+        object = srtIntegrated, reduction = "CSS", dims = CSS_dims_use,
+        annoy.metric = neighbor_metric, k.param = neighbor_k, n.trees = neighbor_ntrees,
+        force.recalc = TRUE, graph.name = paste0("CSS", "_", c("KNN", "SNN")), verbose = FALSE
+      )
+
+      cat(paste0("[", Sys.time(), "]", " Perform FindClusters (", cluster_algorithm, ") on the data...\n"))
+      srtIntegrated <- FindClusters(object = srtIntegrated, resolution = cluster_resolution, algorithm = cluster_algorithm_index, method = "igraph", graph.name = "CSS_SNN", verbose = FALSE)
+      if (isTRUE(cluster_reorder)) {
+        cat(paste0("[", Sys.time(), "]", " Reorder clusters...\n"))
+        srtIntegrated <- SrtReorder(srtIntegrated, features = HVF, reorder_by = "seurat_clusters", slot = "data")
       }
+      srtIntegrated[["seurat_clusters"]] <- NULL
+      srtIntegrated[["CSSclusters"]] <- Idents(srtIntegrated)
+
       srtIntegrated
     },
     error = function(error) {
@@ -2789,6 +2831,7 @@ CSS_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtList 
           srtIntegrated <- RunDimReduction(
             srt = srtIntegrated, prefix = "CSS",
             reduction_use = "CSS", reduction_dims = CSS_dims_use,
+            graph_use = "CSS_SNN",
             nonlinear_reduction = nr, nonlinear_reduction_dims = n,
             nonlinear_reduction_params = nonlinear_reduction_params,
             force_nonlinear_reduction = force_nonlinear_reduction,
@@ -2828,10 +2871,10 @@ LIGER_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtLis
                             do_scaling = TRUE, vars_to_regress = NULL, regression_model = "linear",
                             LIGER_dims_use = NULL,
                             nonlinear_reduction = "umap", nonlinear_reduction_dims = c(2, 3), nonlinear_reduction_params = list(), force_nonlinear_reduction = TRUE,
-                            do_cluster_finding = TRUE, cluster_algorithm = "louvain", cluster_resolution = 0.6, cluster_reorder = TRUE,
+                            neighbor_metric = "euclidean", neighbor_k = 20L, neighbor_ntrees = 50L, cluster_algorithm = "louvain", cluster_resolution = 0.6, cluster_reorder = TRUE,
                             optimizeALS_params = list(), quantilenorm_params = list(), seed = 11) {
-  if (any(!nonlinear_reduction %in% c("umap", "umap-naive", "tsne", "dm", "phate", "pacmap", "trimap", "largevis"))) {
-    stop("'nonlinear_reduction' must be one of 'umap', 'tsne', 'dm', 'phate', 'pacmap', 'trimap', 'largevis'.")
+  if (any(!nonlinear_reduction %in% c("umap", "umap-naive", "tsne", "dm", "phate", "pacmap", "trimap", "largevis", "fr"))) {
+    stop("'nonlinear_reduction' must be one of 'umap', 'tsne', 'dm', 'phate', 'pacmap', 'trimap', 'largevis', 'fr'.")
   }
   if (!cluster_algorithm %in% c("louvain", "slm", "leiden")) {
     stop("'cluster_algorithm' must be one of 'louvain', 'slm', 'leiden'.")
@@ -2959,17 +3002,21 @@ LIGER_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtLis
 
   srtIntegrated <- tryCatch(
     {
-      srtIntegrated <- FindNeighbors(object = srtIntegrated, reduction = "LIGER", dims = LIGER_dims_use, force.recalc = TRUE, graph.name = paste0("LIGER", "_", c("KNN", "SNN")), verbose = FALSE)
-      if (isTRUE(do_cluster_finding)) {
-        cat(paste0("[", Sys.time(), "]", " Perform FindClusters (", cluster_algorithm, ") on the data...\n"))
-        srtIntegrated <- FindClusters(object = srtIntegrated, resolution = cluster_resolution, algorithm = cluster_algorithm_index, method = "igraph", graph.name = paste0("LIGER", "_SNN"), verbose = FALSE)
-        if (isTRUE(cluster_reorder)) {
-          cat(paste0("[", Sys.time(), "]", " Reorder clusters...\n"))
-          srtIntegrated <- SrtReorder(srtIntegrated, features = HVF, reorder_by = "seurat_clusters", slot = "data")
-        }
-        srtIntegrated[["seurat_clusters"]] <- NULL
-        srtIntegrated[["LIGERclusters"]] <- Idents(srtIntegrated)
+      srtIntegrated <- FindNeighbors(
+        object = srtIntegrated, reduction = "LIGER", dims = LIGER_dims_use,
+        annoy.metric = neighbor_metric, k.param = neighbor_k, n.trees = neighbor_ntrees,
+        force.recalc = TRUE, graph.name = paste0("LIGER", "_", c("KNN", "SNN")), verbose = FALSE
+      )
+
+      cat(paste0("[", Sys.time(), "]", " Perform FindClusters (", cluster_algorithm, ") on the data...\n"))
+      srtIntegrated <- FindClusters(object = srtIntegrated, resolution = cluster_resolution, algorithm = cluster_algorithm_index, method = "igraph", graph.name = "LIGER_SNN", verbose = FALSE)
+      if (isTRUE(cluster_reorder)) {
+        cat(paste0("[", Sys.time(), "]", " Reorder clusters...\n"))
+        srtIntegrated <- SrtReorder(srtIntegrated, features = HVF, reorder_by = "seurat_clusters", slot = "data")
       }
+      srtIntegrated[["seurat_clusters"]] <- NULL
+      srtIntegrated[["LIGERclusters"]] <- Idents(srtIntegrated)
+
       srtIntegrated
     },
     error = function(error) {
@@ -2987,6 +3034,7 @@ LIGER_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtLis
           srtIntegrated <- RunDimReduction(
             srt = srtIntegrated, prefix = "LIGER",
             reduction_use = "LIGER", reduction_dims = LIGER_dims_use,
+            graph_use = "LIGER_SNN",
             nonlinear_reduction = nr, nonlinear_reduction_dims = n,
             nonlinear_reduction_params = nonlinear_reduction_params,
             force_nonlinear_reduction = force_nonlinear_reduction,
@@ -3027,7 +3075,7 @@ Conos_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtLis
                             do_scaling = TRUE, vars_to_regress = NULL, regression_model = "linear",
                             linear_reduction = "pca", linear_reduction_dims = 50, linear_reduction_dims_use = NULL, linear_reduction_params = list(), force_linear_reduction = FALSE,
                             nonlinear_reduction = "umap", nonlinear_reduction_dims = c(2, 3), nonlinear_reduction_params = list(), force_nonlinear_reduction = TRUE,
-                            do_cluster_finding = TRUE, cluster_algorithm = "louvain", cluster_resolution = 0.6, cluster_reorder = TRUE,
+                            cluster_algorithm = "louvain", cluster_resolution = 0.6, cluster_reorder = TRUE,
                             buildGraph_params = list(), num_threads = 2, seed = 11) {
   if (length(linear_reduction) > 1) {
     warning("Only the first method in the 'linear_reduction' will be used.", immediate. = TRUE)
@@ -3043,8 +3091,8 @@ Conos_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtLis
   if (!is.null(linear_reduction_dims_use) && max(linear_reduction_dims_use) > linear_reduction_dims) {
     linear_reduction_dims <- max(linear_reduction_dims_use)
   }
-  if (any(!nonlinear_reduction %in% c("umap", "umap-naive"))) {
-    stop("'nonlinear_reduction' must be one of 'umap', 'umap-naive'.")
+  if (any(!nonlinear_reduction %in% c("umap", "umap-naive", "fr"))) {
+    stop("'nonlinear_reduction' must be one of 'umap', 'umap-naive', 'fr'.")
   }
   if (!cluster_algorithm %in% c("louvain", "slm", "leiden")) {
     stop("'cluster_algorithm' must be one of 'louvain', 'slm', 'leiden'.")
@@ -3137,7 +3185,7 @@ Conos_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtLis
   }
 
   if (is.null(linear_reduction_dims_use)) {
-    maxdims <- linear_reduction_dims
+    maxdims <- max(unlist(sapply(srtList, function(srt) max(srt@reductions[[paste0("", linear_reduction)]]@misc[["dims_estimate"]]))))
   } else {
     maxdims <- max(linear_reduction_dims_use)
   }
@@ -3147,7 +3195,6 @@ Conos_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtLis
   srtList_con <- conos::Conos$new(srtList, n.cores = num_threads)
   params <- list(
     ncomps = maxdims,
-    k = 15,
     verbose = FALSE
   )
   for (nm in names(buildGraph_params)) {
@@ -3162,16 +3209,15 @@ Conos_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtLis
 
   srtIntegrated <- tryCatch(
     {
-      if (isTRUE(do_cluster_finding)) {
-        cat(paste0("[", Sys.time(), "]", " Perform FindClusters (", cluster_algorithm, ") on the data...\n"))
-        srtIntegrated <- FindClusters(object = srtIntegrated, graph.name = "Conos", resolution = cluster_resolution, algorithm = cluster_algorithm_index, method = "igraph", verbose = FALSE)
-        if (isTRUE(cluster_reorder)) {
-          cat(paste0("[", Sys.time(), "]", " Reorder clusters...\n"))
-          srtIntegrated <- SrtReorder(srtIntegrated, features = HVF, reorder_by = "seurat_clusters", slot = "data")
-        }
-        srtIntegrated[["seurat_clusters"]] <- NULL
-        srtIntegrated[["Conosclusters"]] <- Idents(srtIntegrated)
+      cat(paste0("[", Sys.time(), "]", " Perform FindClusters (", cluster_algorithm, ") on the data...\n"))
+      srtIntegrated <- FindClusters(object = srtIntegrated, graph.name = "Conos", resolution = cluster_resolution, algorithm = cluster_algorithm_index, method = "igraph", verbose = FALSE)
+      if (isTRUE(cluster_reorder)) {
+        cat(paste0("[", Sys.time(), "]", " Reorder clusters...\n"))
+        srtIntegrated <- SrtReorder(srtIntegrated, features = HVF, reorder_by = "seurat_clusters", slot = "data")
       }
+      srtIntegrated[["seurat_clusters"]] <- NULL
+      srtIntegrated[["Conosclusters"]] <- Idents(srtIntegrated)
+
       srtIntegrated
     },
     error = function(error) {
@@ -3185,6 +3231,11 @@ Conos_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtLis
     {
       for (nr in nonlinear_reduction) {
         cat("Perform nonlinear dimension reduction (", nr, ") on the data...\n", sep = "")
+        if (nr %in% c("fr")) {
+          nonlinear_reduction_params[["n.neighbors"]] <- NULL
+        } else {
+          nonlinear_reduction_params[["n.neighbors"]] <- params[["k"]]
+        }
         for (n in nonlinear_reduction_dims) {
           srtIntegrated <- RunDimReduction(
             srt = srtIntegrated, prefix = "Conos", graph_use = "Conos",
@@ -3227,7 +3278,7 @@ ComBat_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtLi
                              do_scaling = TRUE, vars_to_regress = NULL, regression_model = "linear",
                              linear_reduction = "pca", linear_reduction_dims = 50, linear_reduction_dims_use = NULL, linear_reduction_params = list(), force_linear_reduction = FALSE,
                              nonlinear_reduction = "umap", nonlinear_reduction_dims = c(2, 3), nonlinear_reduction_params = list(), force_nonlinear_reduction = TRUE,
-                             do_cluster_finding = TRUE, cluster_algorithm = "louvain", cluster_resolution = 0.6, cluster_reorder = TRUE,
+                             neighbor_metric = "euclidean", neighbor_k = 20L, neighbor_ntrees = 50L, cluster_algorithm = "louvain", cluster_resolution = 0.6, cluster_reorder = TRUE,
                              ComBat_params = list(), seed = 11) {
   if (length(linear_reduction) > 1) {
     warning("Only the first method in the 'linear_reduction' will be used.", immediate. = TRUE)
@@ -3243,8 +3294,8 @@ ComBat_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtLi
   if (!is.null(linear_reduction_dims_use) && max(linear_reduction_dims_use) > linear_reduction_dims) {
     linear_reduction_dims <- max(linear_reduction_dims_use)
   }
-  if (any(!nonlinear_reduction %in% c("umap", "umap-naive", "tsne", "dm", "phate", "pacmap", "trimap", "largevis"))) {
-    stop("'nonlinear_reduction' must be one of 'umap', 'tsne', 'dm', 'phate', 'pacmap', 'trimap', 'largevis'.")
+  if (any(!nonlinear_reduction %in% c("umap", "umap-naive", "tsne", "dm", "phate", "pacmap", "trimap", "largevis", "fr"))) {
+    stop("'nonlinear_reduction' must be one of 'umap', 'tsne', 'dm', 'phate', 'pacmap', 'trimap', 'largevis', 'fr'.")
   }
   if (!cluster_algorithm %in% c("louvain", "slm", "leiden")) {
     stop("'cluster_algorithm' must be one of 'louvain', 'slm', 'leiden'.")
@@ -3344,7 +3395,7 @@ ComBat_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtLi
     verbose = FALSE, seed = seed
   )
   if (is.null(linear_reduction_dims_use)) {
-    linear_reduction_dims_use <- 1:linear_reduction_dims
+    linear_reduction_dims_use <- srtIntegrated@reductions[[paste0("ComBat", linear_reduction)]]@misc[["dims_estimate"]]
     if (normalization_method == "TFIDF") {
       linear_reduction_dims_use <- 2:max(linear_reduction_dims_use)
     }
@@ -3352,17 +3403,21 @@ ComBat_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtLi
 
   srtIntegrated <- tryCatch(
     {
-      srtIntegrated <- FindNeighbors(object = srtIntegrated, reduction = paste0("ComBat", linear_reduction), dims = linear_reduction_dims_use, force.recalc = TRUE, graph.name = paste0("ComBat", linear_reduction, "_", c("KNN", "SNN")), verbose = FALSE)
-      if (isTRUE(do_cluster_finding)) {
-        cat(paste0("[", Sys.time(), "]", " Perform FindClusters (", cluster_algorithm, ") on the data...\n"))
-        srtIntegrated <- FindClusters(object = srtIntegrated, resolution = cluster_resolution, algorithm = cluster_algorithm_index, method = "igraph", graph.name = paste0("ComBat", linear_reduction, "_SNN"), verbose = FALSE)
-        if (isTRUE(cluster_reorder)) {
-          cat(paste0("[", Sys.time(), "]", " Reorder clusters...\n"))
-          srtIntegrated <- SrtReorder(srtIntegrated, features = HVF, reorder_by = "seurat_clusters", slot = "data")
-        }
-        srtIntegrated[["seurat_clusters"]] <- NULL
-        srtIntegrated[["ComBatclusters"]] <- Idents(srtIntegrated)
+      srtIntegrated <- FindNeighbors(
+        object = srtIntegrated, reduction = paste0("ComBat", linear_reduction), dims = linear_reduction_dims_use,
+        annoy.metric = neighbor_metric, k.param = neighbor_k, n.trees = neighbor_ntrees,
+        force.recalc = TRUE, graph.name = paste0("ComBat_", c("KNN", "SNN")), verbose = FALSE
+      )
+
+      cat(paste0("[", Sys.time(), "]", " Perform FindClusters (", cluster_algorithm, ") on the data...\n"))
+      srtIntegrated <- FindClusters(object = srtIntegrated, resolution = cluster_resolution, algorithm = cluster_algorithm_index, method = "igraph", graph.name = "ComBat_SNN", verbose = FALSE)
+      if (isTRUE(cluster_reorder)) {
+        cat(paste0("[", Sys.time(), "]", " Reorder clusters...\n"))
+        srtIntegrated <- SrtReorder(srtIntegrated, features = HVF, reorder_by = "seurat_clusters", slot = "data")
       }
+      srtIntegrated[["seurat_clusters"]] <- NULL
+      srtIntegrated[["ComBatclusters"]] <- Idents(srtIntegrated)
+
       srtIntegrated
     },
     error = function(error) {
@@ -3380,6 +3435,7 @@ ComBat_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtLi
           srtIntegrated <- RunDimReduction(
             srt = srtIntegrated, prefix = "ComBat",
             reduction_use = paste0("ComBat", linear_reduction), reduction_dims = linear_reduction_dims_use,
+            graph_use = "ComBat_SNN",
             nonlinear_reduction = nr, nonlinear_reduction_dims = n,
             nonlinear_reduction_params = nonlinear_reduction_params,
             force_nonlinear_reduction = force_nonlinear_reduction,
@@ -3432,7 +3488,7 @@ ComBat_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtLi
 #' plist1 <- lapply(linear_reductions, function(lr) CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = paste0("Standard", lr, "UMAP2D"), theme_use = "theme_blank"))
 #' patchwork::wrap_plots(plotlist = plist1)
 #'
-#' nonlinear_reductions <- c("umap", "tsne", "dm", "phate", "pacmap", "trimap", "largevis")
+#' nonlinear_reductions <- c("umap", "tsne", "dm", "phate", "pacmap", "trimap", "largevis", "fr")
 #' pancreas_sub <- Standard_SCP(
 #'   srt = pancreas_sub,
 #'   linear_reduction = "pca",
@@ -3450,7 +3506,7 @@ Standard_SCP <- function(srt, prefix = "Standard", assay = NULL,
                          do_scaling = TRUE, vars_to_regress = NULL, regression_model = "linear",
                          linear_reduction = "pca", linear_reduction_dims = 50, linear_reduction_dims_use = NULL, linear_reduction_params = list(), force_linear_reduction = FALSE,
                          nonlinear_reduction = "umap", nonlinear_reduction_dims = c(2, 3), nonlinear_reduction_params = list(), force_nonlinear_reduction = TRUE,
-                         do_cluster_finding = TRUE, cluster_algorithm = "louvain", cluster_resolution = 0.6, cluster_reorder = TRUE,
+                         neighbor_metric = "euclidean", neighbor_k = 20L, neighbor_ntrees = 50L, cluster_algorithm = "louvain", cluster_resolution = 0.6, cluster_reorder = TRUE,
                          seed = 11) {
   if (!inherits(srt, "Seurat")) {
     stop("'srt' is not a Seurat object.")
@@ -3461,8 +3517,8 @@ Standard_SCP <- function(srt, prefix = "Standard", assay = NULL,
   if (!is.null(linear_reduction_dims_use) && max(linear_reduction_dims_use) > linear_reduction_dims) {
     linear_reduction_dims <- max(linear_reduction_dims_use)
   }
-  if (any(!nonlinear_reduction %in% c("umap", "umap-naive", "tsne", "dm", "phate", "pacmap", "trimap", "largevis"))) {
-    stop("'nonlinear_reduction' must be one of 'umap', 'tsne', 'dm', 'phate', 'pacmap', 'trimap', 'largevis'.")
+  if (any(!nonlinear_reduction %in% c("umap", "umap-naive", "tsne", "dm", "phate", "pacmap", "trimap", "largevis", "fr"))) {
+    stop("'nonlinear_reduction' must be one of 'umap', 'tsne', 'dm', 'phate', 'pacmap', 'trimap', 'largevis', 'fr'.")
   }
   if (!cluster_algorithm %in% c("louvain", "slm", "leiden")) {
     stop("'cluster_algorithm' must be one of 'louvain', 'slm', 'leiden'.")
@@ -3515,7 +3571,7 @@ Standard_SCP <- function(srt, prefix = "Standard", assay = NULL,
       verbose = FALSE, seed = seed
     )
     if (is.null(linear_reduction_dims_use)) {
-      linear_reduction_dims_use_current <- 1:linear_reduction_dims
+      linear_reduction_dims_use_current <- srt@reductions[[paste0(prefix, lr)]]@misc[["dims_estimate"]]
       if (normalization_method == "TFIDF") {
         linear_reduction_dims_use_current <- 2:max(linear_reduction_dims_use_current)
       }
@@ -3525,17 +3581,21 @@ Standard_SCP <- function(srt, prefix = "Standard", assay = NULL,
 
     srt <- tryCatch(
       {
-        srt <- FindNeighbors(object = srt, reduction = paste0(prefix, lr), dims = linear_reduction_dims_use_current, force.recalc = TRUE, graph.name = paste0(prefix, lr, "_", c("KNN", "SNN")), verbose = FALSE)
-        if (isTRUE(do_cluster_finding)) {
-          cat(paste0("[", Sys.time(), "]", " Perform FindClusters (", cluster_algorithm, ") on the data...\n"))
-          srt <- FindClusters(object = srt, resolution = cluster_resolution, algorithm = cluster_algorithm_index, method = "igraph", graph.name = paste0(prefix, lr, "_SNN"), verbose = FALSE)
-          if (isTRUE(cluster_reorder)) {
-            cat(paste0("[", Sys.time(), "]", " Reorder clusters...\n"))
-            srt <- SrtReorder(srt, features = HVF, reorder_by = "seurat_clusters", slot = "data")
-          }
-          srt[["seurat_clusters"]] <- NULL
-          srt[[paste0(prefix, lr, "clusters")]] <- Idents(srt)
+        srt <- FindNeighbors(
+          object = srt, reduction = paste0(prefix, lr), dims = linear_reduction_dims_use_current,
+          annoy.metric = neighbor_metric, k.param = neighbor_k, n.trees = neighbor_ntrees,
+          force.recalc = TRUE, graph.name = paste0(prefix, lr, "_", c("KNN", "SNN")), verbose = FALSE
+        )
+
+        cat(paste0("[", Sys.time(), "]", " Perform FindClusters (", cluster_algorithm, ") on the data...\n"))
+        srt <- FindClusters(object = srt, resolution = cluster_resolution, algorithm = cluster_algorithm_index, method = "igraph", graph.name = paste0(prefix, lr, "_SNN"), verbose = FALSE)
+        if (isTRUE(cluster_reorder)) {
+          cat(paste0("[", Sys.time(), "]", " Reorder clusters...\n"))
+          srt <- SrtReorder(srt, features = HVF, reorder_by = "seurat_clusters", slot = "data")
         }
+        srt[["seurat_clusters"]] <- NULL
+        srt[[paste0(prefix, lr, "clusters")]] <- Idents(srt)
+
         srt
       },
       error = function(error) {
@@ -3553,6 +3613,7 @@ Standard_SCP <- function(srt, prefix = "Standard", assay = NULL,
             srt <- RunDimReduction(
               srt = srt, prefix = paste0(prefix, lr),
               reduction_use = paste0(prefix, lr), reduction_dims = linear_reduction_dims_use_current,
+              graph_use = paste0(prefix, lr, "_SNN"),
               nonlinear_reduction = nr, nonlinear_reduction_dims = n,
               nonlinear_reduction_params = nonlinear_reduction_params,
               force_nonlinear_reduction = force_nonlinear_reduction,
@@ -3624,7 +3685,6 @@ Standard_SCP <- function(srt, prefix = "Standard", assay = NULL,
 #' @param cluster_reorder Whether to reorder the cluster names using hierarchical clustering.
 #' @param seed Set a random seed.
 #' @param force_linear_reduction
-#' @param do_cluster_finding
 #' @param linear_reduction_params
 #' @param nonlinear_reduction_params
 #' @param force_nonlinear_reduction
@@ -3649,12 +3709,12 @@ Standard_SCP <- function(srt, prefix = "Standard", assay = NULL,
 #' for (method in integration_methods) {
 #'   panc8_sub <- Integration_SCP(
 #'     srtMerge = panc8_sub, batch = "tech",
-#'     integration_method = method, nonlinear_reduction = "umap"
+#'     integration_method = method, linear_reduction_dims_use = 1:50, nonlinear_reduction = "umap"
 #'   )
 #'   print(CellDimPlot(panc8_sub, group.by = c("tech", "celltype"), reduction = paste0(method, "UMAP2D"), theme_use = "theme_blank"))
 #' }
 #'
-#' nonlinear_reductions <- c("umap", "tsne", "dm", "phate", "pacmap", "trimap", "largevis")
+#' nonlinear_reductions <- c("umap", "tsne", "dm", "phate", "pacmap", "trimap", "largevis", "fr")
 #' panc8_sub <- Integration_SCP(
 #'   srtMerge = panc8_sub, batch = "tech", integration_method = "Seurat",
 #'   nonlinear_reduction = nonlinear_reductions
@@ -3672,7 +3732,7 @@ Integration_SCP <- function(srtMerge = NULL, batch, append = TRUE, srtList = NUL
                             do_scaling = TRUE, vars_to_regress = NULL, regression_model = "linear",
                             linear_reduction = "pca", linear_reduction_dims = 50, linear_reduction_dims_use = NULL, linear_reduction_params = list(), force_linear_reduction = FALSE,
                             nonlinear_reduction = "umap", nonlinear_reduction_dims = c(2, 3), nonlinear_reduction_params = list(), force_nonlinear_reduction = TRUE,
-                            do_cluster_finding = TRUE, cluster_algorithm = "louvain", cluster_resolution = 0.6, cluster_reorder = TRUE,
+                            neighbor_metric = "euclidean", neighbor_k = 20L, neighbor_ntrees = 50L, cluster_algorithm = "louvain", cluster_resolution = 0.6, cluster_reorder = TRUE,
                             seed = 11, ...) {
   if (is.null(srtList) && is.null(srtMerge)) {
     stop("Neither 'srtList' nor 'srtMerge' was found.")

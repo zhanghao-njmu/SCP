@@ -1427,7 +1427,7 @@ server <- function(input, output, session) {
         # print(">>> plot:")
         # print(system.time(
         p2_dim <- SCP::FeatureDimPlot(
-          srt = srt_tmp, features = features2, split.by = split2, reduction = reduction2, slot = slots2, raster = raster2,
+          srt = srt_tmp, features = features2, split.by = split2, reduction = reduction2, slot = "data", raster = raster2,
           calculate_coexp = ifelse(coExp2 == "Yes", TRUE, FALSE), palette = palette2, theme_use = theme2,
           ncol = ncol2, byrow = ifelse(arrange2 == "Row", TRUE, FALSE), force = TRUE
         )
@@ -1647,7 +1647,7 @@ server <- function(input, output, session) {
         # print(">>> plot:")
         # print(system.time(
         p4 <- SCP::FeatureStatPlot(
-          srt = srt_tmp, stat.by = features4, group.by = group4, split.by = split4, plot_type = plottype4,
+          srt = srt_tmp, stat.by = features4, group.by = group4, split.by = split4, slot = "data", plot_type = plottype4,
           calculate_coexp = ifelse(coExp4 == "Yes", TRUE, FALSE), palette = palette4,
           aspect.ratio = 6 / max(length(unique(srt_tmp[[group4, drop = TRUE]])), 1),
           ncol = ncol4, byrow = ifelse(arrange4 == "Row", TRUE, FALSE), force = TRUE

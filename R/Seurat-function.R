@@ -169,9 +169,11 @@ RunNMF.default <- function(object, assay = NULL, slot = "data", nbes = 50,
   nbes <- min(nbes, nrow(x = object) - 1)
   if (nmf.method == "RcppML") {
     check_R("RcppML")
-    require("Matrix", quietly = TRUE)
+    library("RcppML")
+    library("Matrix")
     nmf.results <- RcppML::nmf(
-      A = t(object), k = nbes, tol = tol, maxit = maxit,
+      t(object),
+      k = nbes, tol = tol, maxit = maxit,
       seed = seed.use, verbose = verbose, ...
     )
     cell.embeddings <- nmf.results$w
@@ -622,7 +624,7 @@ RunDM <- function(object, ...) {
 #'
 RunDM.Seurat <- function(object,
                          reduction = "pca", dims = 1:30, features = NULL, assay = NULL, slot = "data",
-                         graph = NULL, ndcs = 2, sigma = "local", k = 30, dist.method = "euclidean",
+                         graph = NULL, neighbor = NULL, ndcs = 2, sigma = "local", k = 30, dist.method = "euclidean",
                          reduction.name = "dm", reduction.key = "DM_", seed.use = 42, verbose = TRUE, ...) {
   if (!is.null(x = features)) {
     assay <- assay %||% DefaultAssay(object = object)
@@ -644,6 +646,28 @@ RunDM.Seurat <- function(object,
         call. = FALSE
       )
     }
+  } else if (!is.null(x = neighbor)) {
+    if (!inherits(x = object[[neighbor]], what = "Neighbor")) {
+      stop(
+        "Please specify a Neighbor object name, ",
+        "instead of the name of a ",
+        class(object[[neighbor]]),
+        " object",
+        call. = FALSE
+      )
+    }
+    data.use <- object[[neighbor]]
+  } else if (!is.null(x = graph)) {
+    if (!inherits(x = object[[graph]], what = "Graph")) {
+      stop(
+        "Please specify a Graph object name, ",
+        "instead of the name of a ",
+        class(object[[graph]]),
+        " object",
+        call. = FALSE
+      )
+    }
+    data.use <- object[[graph]]
   } else {
     stop("Please specify one of dims, features")
   }
@@ -757,9 +781,9 @@ RunDM.matrix <- function(object, ndcs = 2, sigma = "local", k = 30, dist.method 
 #' @importFrom Seurat CreateDimReducObject
 #' @importFrom rlang "%||%"
 #' @export
-RunDM.dist <- function(object,
-                       ndcs = 2, sigma = "local", k = 30, slot = "data",
-                       assay = NULL, reduction.key = "DM_", verbose = TRUE, seed.use = 42, ...) {
+RunDM.Neighbor <- function(object,
+                           ndcs = 2, sigma = "local", k = 30, slot = "data",
+                           assay = NULL, reduction.key = "DM_", verbose = TRUE, seed.use = 42, ...) {
   check_R("destiny")
   if (!is.null(x = seed.use)) {
     set.seed(seed = seed.use)
@@ -1232,7 +1256,7 @@ RunUMAP2.default <- function(object, assay = NULL,
         out[is.na(out)] <- 0
         return(out)
       }, x = val, y = val))
-      idx[is.na(idx)] <- sample(1:nrow(object), size = sum(connectivity == 0), replace = TRUE)
+      idx[is.na(idx)] <- sample(1:nrow(object), size = sum(is.na(idx)), replace = TRUE)
       nn <- list(idx = idx, dist = max(connectivity) - connectivity + min(diff(range(connectivity)), 1) / 1e50)
       # idx <- t(as.matrix(apply(object, 2, function(x) order(x, decreasing = TRUE)[1:n.neighbors])))
       # connectivity <- t(as.matrix(apply(object, 2, function(x) x[order(x, decreasing = TRUE)[1:n.neighbors]])))
@@ -2082,6 +2106,174 @@ RunLargeVis.default <- function(object, assay = NULL,
   )
   return(reduction)
 }
+
+#' Create the force-directed layout developed by Fruchterman and Reingold.
+#'
+#' @param object
+#' @param ...
+#'
+#' @rdname RunFR
+#' @export RunFR
+#'
+RunFR <- function(object, ...) {
+  UseMethod(generic = "RunFR", object = object)
+}
+
+#' @param object
+#'
+#' @param dims
+#' @param reduction
+#' @param features
+#' @param assay
+#' @param slot
+#' @param seed.use
+#' @param verbose
+#' @param reduction.name
+#' @param reduction.key
+#' @param ...
+#' @param init
+#' @param perplexity
+#' @param n_neighbors
+#' @param metric
+#' @param n_epochs
+#' @param learning_rate
+#' @param scale
+#' @param init_sdev
+#' @param repulsion_strength
+#' @param negative_sample_rate
+#' @param nn_method
+#' @param n_trees
+#' @param search_k
+#' @param n_threads
+#' @param n_sgd_threads
+#' @param grain_size
+#' @param kernel
+#' @param pca
+#' @param pca_center
+#' @param pcg_rand
+#' @param fast_sgd
+#' @param batch
+#' @param opt_args
+#' @param epoch_callback
+#' @param pca_method
+#' @param n_components
+#'
+#' @rdname RunFR
+#' @method RunFR Seurat
+#' @concept dimensional_reduction
+#' @importFrom Seurat LogSeuratCommand
+#' @export
+RunFR.Seurat <- function(object, reduction = NULL, dims = NULL, features = NULL,
+                         assay = DefaultAssay(object = object), slot = "data",
+                         graph = NULL, neighbor = NULL,
+                         k.param = 20, ndim = 2, niter = 500,
+                         seed.use = 42L, verbose = TRUE,
+                         reduction.name = "FR", reduction.key = "FR_",
+                         ...) {
+  if (sum(c(is.null(x = dims), is.null(x = features), is.null(neighbor), is.null(x = graph))) == 4) {
+    stop("Please specify only one of the following arguments: dims, features, neighbor or graph")
+  }
+  if (!is.null(x = graph)) {
+    if (!inherits(x = object[[graph]], what = "Graph")) {
+      stop(
+        "Please specify a Graph object name, ",
+        "instead of the name of a ",
+        class(object[[graph]]),
+        " object",
+        call. = FALSE
+      )
+    }
+    data.use <- object[[graph]]
+  } else if (!is.null(x = neighbor)) {
+    if (!inherits(x = object[[neighbor]], what = "Neighbor")) {
+      stop(
+        "Please specify a Neighbor object name, ",
+        "instead of the name of a ",
+        class(object[[neighbor]]),
+        " object",
+        call. = FALSE
+      )
+    }
+    data.use <- object[[neighbor]]
+  } else if (!is.null(x = features)) {
+    data.use <- t(GetAssayData(object = object, slot = slot, assay = assay)[features, ])
+    data.use <- FindNeighbors(data.use, k.param = k.param)[["snn"]]
+  } else if (!is.null(x = dims)) {
+    object <- FindNeighbors(object, reduction = reduction, dims = dims, k.param = k.param, verbose = FALSE)
+    data.use <- object[[paste0(assay, "_snn")]]
+  } else {
+    stop("Please specify one of dims, features, neighbor, or graph")
+  }
+  object[[reduction.name]] <- RunFR(
+    object = data.use, ndim = ndim, niter = niter,
+    seed.use = seed.use, verbose = verbose, reduction.key = reduction.key,
+    ...
+  )
+  object <- LogSeuratCommand(object = object)
+  return(object)
+}
+
+#' @param object
+#'
+#' @param seed.use
+#' @param verbose
+#' @param reduction.key
+#' @param ...
+#' @param init
+#' @param assay
+#' @param perplexity
+#' @param n_neighbors
+#' @param metric
+#' @param n_epochs
+#' @param learning_rate
+#' @param scale
+#' @param init_sdev
+#' @param repulsion_strength
+#' @param negative_sample_rate
+#' @param nn_method
+#' @param n_trees
+#' @param search_k
+#' @param n_threads
+#' @param n_sgd_threads
+#' @param grain_size
+#' @param kernel
+#' @param pca
+#' @param pca_center
+#' @param pcg_rand
+#' @param fast_sgd
+#' @param batch
+#' @param opt_args
+#' @param epoch_callback
+#' @param pca_method
+#' @param n_components
+#'
+#' @rdname RunFR
+#' @method RunFR default
+#' @concept dimensional_reduction
+#' @importFrom Seurat CreateDimReducObject as.Graph
+#' @importFrom igraph graph_from_adjacency_matrix layout_with_fr
+#' @export
+RunFR.default <- function(object, ndim = 2, niter = 500,
+                          reduction.key = "FR_",
+                          verbose = TRUE, seed.use = 11L,
+                          ...) {
+  if (!is.null(x = seed.use)) {
+    set.seed(seed = seed.use)
+  }
+  if (inherits(object, "Neighbor")) {
+    object <- as.Graph(object)
+  }
+  g <- graph_from_adjacency_matrix(object, weighted = TRUE)
+  embedding <- layout_with_fr(graph = g, dim = ndim, niter = niter, ...)
+  colnames(x = embedding) <- paste0(reduction.key, seq_len(ncol(x = embedding)))
+  rownames(x = embedding) <- rownames(object)
+  reduction <- CreateDimReducObject(
+    embeddings = embedding,
+    key = reduction.key, assay = object@assay.used, global = TRUE
+  )
+  return(reduction)
+}
+
 
 # RunIsomap <- function(object, ...) {
 #   UseMethod(generic = "RunIsomap", object = object)

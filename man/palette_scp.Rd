@@ -54,7 +54,7 @@ names(all_palettes)
 
 \dontrun{
 if (interactive()) {
-  check_R(c("stringr", "RColorBrewer", "ggsci", "Redmonder", "rcartocolor", "nord", "viridis", "pals", "oompaBase", "dichromat", "jcolors"))
+  check_R(c("stringr", "RColorBrewer", "ggsci", "Redmonder", "rcartocolor", "nord", "viridis", "pals", "oompaBase", "dichromat", "jaredhuling/jcolors"))
   library(stringr)
   library(RColorBrewer)
   library(ggsci)
@@ -77,10 +77,11 @@ if (interactive()) {
   ocean_palettes <- pals:::syspals[ocean_names]
   dichromat_palettes <- dichromat::colorschemes
   jcolors_names <- paste0("jcolors-", c("default", "pal2", "pal3", "pal4", "pal5", "pal6", "pal7", "pal8", "pal9", "pal10", "pal11", "pal12", "rainbow"))
-  custom_names <- c("jet", "simspec")
+  custom_names <- c("jet", "simspec", "GdRd")
   custom_palettes <- list(
     oompaBase::jetColors(N = 100),
-    c("#c22b86", "#f769a1", "#fcc5c1", "#253777", "#1d92c0", "#9ec9e1", "#015b33", "#42aa5e", "#d9f0a2", "#E66F00", "#f18c28", "#FFBB61")
+    c("#c22b86", "#f769a1", "#fcc5c1", "#253777", "#1d92c0", "#9ec9e1", "#015b33", "#42aa5e", "#d9f0a2", "#E66F00", "#f18c28", "#FFBB61"),
+    c("gold", "red3")
   )
   names(custom_palettes) <- custom_names
 

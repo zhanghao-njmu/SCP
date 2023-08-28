@@ -22,16 +22,13 @@ Scanorama_integrate(
   vars_to_regress = NULL,
   regression_model = "linear",
   Scanorama_dims_use = NULL,
-  linear_reduction = "pca",
-  linear_reduction_dims = 50,
-  linear_reduction_dims_use = NULL,
-  linear_reduction_params = list(),
-  force_linear_reduction = FALSE,
   nonlinear_reduction = "umap",
   nonlinear_reduction_dims = c(2, 3),
   nonlinear_reduction_params = list(),
   force_nonlinear_reduction = TRUE,
-  do_cluster_finding = TRUE,
+  neighbor_metric = "euclidean",
+  neighbor_k = 20L,
+  neighbor_ntrees = 50L,
   cluster_algorithm = "louvain",
   cluster_resolution = 0.6,
   cluster_reorder = TRUE,
@@ -66,12 +63,6 @@ Scanorama_integrate(
 \item{vars_to_regress}{Variables to regress out.}
 
 \item{regression_model}{Use a linear model or generalized linear model (poisson, negative binomial) for the regression. Options are "linear" (default), "poisson", and "negbinom".}
-
-\item{linear_reduction}{linear reduction method name. Can be one of "pca", "ica", "nmf", "mds", "glmpca".}
-
-\item{linear_reduction_dims}{Dimensions to calculate when performing linear reduction.}
-
-\item{linear_reduction_dims_use}{Which dimensions to use when performing the nonlinear reduction.}
 
 \item{nonlinear_reduction}{Non-linear reduction method name. Can be one of "umap", "umap-naive", "tsne", "dm", "phate", "pacmap", "trimap", "largevis".}
 

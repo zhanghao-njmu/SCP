@@ -10,7 +10,7 @@ panel_fix_single(
   respect = NULL,
   width = NULL,
   height = NULL,
-  margin = 0,
+  margin = 1,
   units = "in",
   raster = FALSE,
   dpi = 300,

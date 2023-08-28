@@ -31,7 +31,9 @@ Integration_SCP(
   nonlinear_reduction_dims = c(2, 3),
   nonlinear_reduction_params = list(),
   force_nonlinear_reduction = TRUE,
-  do_cluster_finding = TRUE,
+  neighbor_metric = "euclidean",
+  neighbor_k = 20L,
+  neighbor_ntrees = 50L,
   cluster_algorithm = "louvain",
   cluster_resolution = 0.6,
   cluster_reorder = TRUE,
@@ -111,12 +113,12 @@ integration_methods <- c("Uncorrected", "Seurat", "scVI", "MNN", "fastMNN", "Har
 for (method in integration_methods) {
   panc8_sub <- Integration_SCP(
     srtMerge = panc8_sub, batch = "tech",
-    integration_method = method, nonlinear_reduction = "umap"
+    integration_method = method, linear_reduction_dims_use = 1:50, nonlinear_reduction = "umap"
   )
   print(CellDimPlot(panc8_sub, group.by = c("tech", "celltype"), reduction = paste0(method, "UMAP2D"), theme_use = "theme_blank"))
 }
 
-nonlinear_reductions <- c("umap", "tsne", "dm", "phate", "pacmap", "trimap", "largevis")
+nonlinear_reductions <- c("umap", "tsne", "dm", "phate", "pacmap", "trimap", "largevis", "fr")
 panc8_sub <- Integration_SCP(
   srtMerge = panc8_sub, batch = "tech", integration_method = "Seurat",
   nonlinear_reduction = nonlinear_reductions

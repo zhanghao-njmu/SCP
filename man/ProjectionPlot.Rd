@@ -7,11 +7,13 @@
 ProjectionPlot(
   srt_query,
   srt_ref,
-  query_group = "orig.ident",
-  ref_group = "orig.ident",
-  query_reduction = "ref.umap",
+  query_group = NULL,
+  ref_group = NULL,
+  query_feature = NULL,
+  ref_feature = NULL,
+  query_reduction = "ref.embeddings",
   ref_reduction = srt_query[[query_reduction]]@misc[["reduction.model"]] \%||\% NULL,
-  query_param = list(palette = "Dark2"),
+  query_param = list(palette = "Set1", cells.highlight = TRUE),
   ref_param = list(palette = "Paired"),
   xlim = NULL,
   ylim = NULL,
@@ -24,4 +26,16 @@ ProjectionPlot(
 }
 \description{
 Projection Plot
+}
+\examples{
+data("panc8_sub")
+srt_ref <- panc8_sub[, panc8_sub$tech != "fluidigmc1"]
+srt_query <- panc8_sub[, panc8_sub$tech == "fluidigmc1"]
+srt_ref <- Integration_SCP(srt_ref, batch = "tech", integration_method = "Seurat")
+CellDimPlot(srt_ref, group.by = c("celltype", "tech"))
+
+# Projection
+srt_query <- RunKNNMap(srt_query = srt_query, srt_ref = srt_ref, ref_umap = "SeuratUMAP2D")
+ProjectionPlot(srt_query = srt_query, srt_ref = srt_ref, query_group = "celltype", ref_group = "celltype")
+
 }

@@ -13,21 +13,36 @@ EnrichmentPlot(
   res = NULL,
   pvalueCutoff = NULL,
   padjustCutoff = 0.05,
-  plot_type = c("bar", "lollipop", "wordcloud", "comparison"),
-  palette = "Spectral",
-  palcolor = NULL,
-  topTerm = 6,
+  compare_only_sig = FALSE,
+  plot_type = c("bar", "dot", "lollipop", "network", "enrichmap", "wordcloud",
+    "comparison"),
+  topTerm = ifelse(plot_type == "enrichmap", 100, 6),
   topWord = 100,
   word_type = c("term", "feature"),
   word_size = c(2, 8),
   min_word_length = 3,
-  only_sig = FALSE,
+  network_layout = "fr",
+  network_labelsize = 5,
+  network_blendmode = "blend",
+  network_layoutadjust = TRUE,
+  network_adjscale = 60,
+  network_adjiter = 100,
+  enrichmap_layout = "fr",
+  enrichmap_cluster = "fast_greedy",
+  enrichmap_label = "term",
+  enrichmap_labelsize = 5,
+  enrlichmap_nlabel = 4,
+  enrichmap_show_keyword = FALSE,
+  enrichmap_mark = "ellipse",
+  enrichmap_expand = c(0.5, 0.5),
   exclude_words = c("cell", "cellular", "dna", "rna", "protein", "development",
-    "organization", "system", "regulation", "positive", "negative", "response",
-    "process"),
-  aspect.ratio = 1,
+    "involved", "organization", "system", "regulation", "positive", "negative",
+    "response", "process"),
   character_width = 50,
   lineheight = 0.7,
+  palette = "Spectral",
+  palcolor = NULL,
+  aspect.ratio = 1,
   legend.position = "right",
   legend.direction = "vertical",
   theme_use = "theme_scp",
@@ -46,11 +61,11 @@ EnrichmentPlot(
 
 \item{plot_type}{Type of plot to be visualized.}
 
-\item{palette}{palette}
-
 \item{topTerm}{Number of terms to plot if \code{plot_type="bar"} or \code{plot_type="lollipop"}.}
 
 \item{topWord}{Number of features to plot if \code{plot_type="wordcloud"}.}
+
+\item{palette}{palette}
 
 \item{combine}{combine}
 
@@ -66,6 +81,7 @@ EnrichmentPlot(
 EnrichmentPlot
 }
 \examples{
+library(dplyr)
 data("pancreas_sub")
 pancreas_sub <- RunDEtest(pancreas_sub, group_by = "CellType")
 pancreas_sub <- RunEnrichment(srt = pancreas_sub, db = "GO_BP", group_by = "CellType", species = "Mus_musculus")
@@ -76,13 +92,34 @@ EnrichmentPlot(pancreas_sub,
   theme_use = ggplot2::theme_classic, theme_args = list(base_size = 10)
 )
 EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", topTerm = 3, plot_type = "comparison")
-EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", topTerm = 3, plot_type = "comparison", only_sig = TRUE)
+EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", topTerm = 3, plot_type = "comparison", compare_only_sig = TRUE)
 
 EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = c("Ductal", "Endocrine"), plot_type = "bar", ncol = 1)
-EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = c("Ductal", "Endocrine"), plot_type = "lollipop", ncol = 1)
+EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = c("Ductal", "Endocrine"), plot_type = "dot", ncol = 1, palette = "GdRd")
+EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = c("Ductal", "Endocrine"), plot_type = "lollipop", ncol = 1, palette = "GdRd")
 EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = c("Ductal", "Endocrine"), plot_type = "wordcloud")
 EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = c("Ductal", "Endocrine"), plot_type = "wordcloud", word_type = "feature")
 EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = c("Ductal", "Endocrine"), plot_type = "comparison")
+
+EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = "Ductal", plot_type = "network")
+EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = "Ductal", plot_type = "network", network_layoutadjust = FALSE)
+EnrichmentPlot(pancreas_sub,
+  db = "GO_BP", group_by = "CellType", group_use = "Ductal", plot_type = "network",
+  topTerm = 4, network_blendmode = "average",
+  theme_use = "theme_blank", theme_args = list(add_coord = FALSE)
+) \%>\% panel_fix(height = 5)
+
+EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = "Ductal", plot_type = "enrichmap")
+EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = "Ductal", plot_type = "enrichmap", enrichmap_expand = c(2, 1))
+EnrichmentPlot(pancreas_sub,
+  db = "GO_BP", group_by = "CellType", group_use = "Ductal", plot_type = "enrichmap",
+  enrichmap_show_keyword = TRUE, character_width = 10
+)
+EnrichmentPlot(pancreas_sub,
+  db = "GO_BP", group_by = "CellType", group_use = "Ductal", plot_type = "enrichmap",
+  topTerm = 200, enrichmap_mark = "hull", enrichmap_label = "gene", enrlichmap_nlabel = 3, character_width = 10,
+  theme_use = "theme_blank", theme_args = list(add_coord = FALSE)
+) \%>\% panel_fix(height = 4)
 
 pancreas_sub <- RunEnrichment(srt = pancreas_sub, db = c("MP", "DO"), group_by = "CellType", convert_species = TRUE, species = "Mus_musculus")
 EnrichmentPlot(pancreas_sub, db = c("MP", "DO"), group_by = "CellType", group_use = "Endocrine", ncol = 1)

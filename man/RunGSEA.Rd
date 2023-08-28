@@ -28,7 +28,7 @@ RunGSEA(
   TERM2NAME = NULL,
   minGSSize = 10,
   maxGSSize = 500,
-  unlimited_db = c("Chromosome", "GeneType", "TF", "Enzyme", "SP"),
+  unlimited_db = c("Chromosome", "GeneType", "TF", "Enzyme", "CSPA"),
   GO_simplify = FALSE,
   GO_simplify_cutoff = "p.adjust < 0.05",
   simplify_method = "Wang",

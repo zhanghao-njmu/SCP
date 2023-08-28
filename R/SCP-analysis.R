@@ -412,7 +412,7 @@ GeneConvert <- function(geneID, geneID_from_IDtype = "symbol", geneID_to_IDtype 
   geneID_collapse <- geneID_collapse[sapply(geneID_collapse$to_geneID, length) > 0, , drop = FALSE]
   geneID_collapse <- reshape2::dcast(geneID_collapse, formula = from_geneID ~ to_IDtype, value.var = "to_geneID")
   rownames(geneID_collapse) <- geneID_collapse[, "from_geneID"]
-  geneID_expand <- unnest(data = geneID_collapse, cols = colnames(geneID_collapse)[sapply(geneID_collapse, class) == "list"], keep_empty = FALSE)
+  geneID_expand <- unnest(data = geneID_collapse, cols = colnames(geneID_collapse)[sapply(geneID_collapse, class) %in% c("list", "AsIs")], keep_empty = FALSE)
 
   return(list(geneID_res = geneID_res, geneID_collapse = geneID_collapse, geneID_expand = geneID_expand, Ensembl_version = version, Datasets = Datasets, Attributes = Attributes, geneID_unmapped = geneID))
 }
@@ -1231,12 +1231,12 @@ FindConservedMarkers2 <- function(object, grouping.var, ident.1, ident.2 = NULL,
 #'
 #' @examples
 #' library(dplyr)
-#' data("ifnb_sub")
+#' data("pancreas_sub")
 #'
-#' ifnb_sub <- RunDEtest(ifnb_sub, group_by = "seurat_annotations")
-#' AllMarkers <- filter(ifnb_sub@tools$DEtest_seurat_annotations$AllMarkers_wilcox, p_val_adj < 0.05 & avg_log2FC > 1)
+#' pancreas_sub <- RunDEtest(pancreas_sub, group_by = "SubCellType")
+#' AllMarkers <- filter(pancreas_sub@tools$DEtest_SubCellType$AllMarkers_wilcox, p_val_adj < 0.05 & avg_log2FC > 1)
 #' table(AllMarkers$group1)
-#' ht1 <- GroupHeatmap(ifnb_sub, features = AllMarkers$gene, feature_split = AllMarkers$group1, group.by = "seurat_annotations")
+#' ht1 <- GroupHeatmap(pancreas_sub, features = AllMarkers$gene, feature_split = AllMarkers$group1, group.by = "SubCellType")
 #' ht1$plot
 #'
 #' TopMarkers <- AllMarkers %>%
@@ -1244,54 +1244,65 @@ FindConservedMarkers2 <- function(object, grouping.var, ident.1, ident.2 = NULL,
 #'   top_n(1, avg_log2FC) %>%
 #'   group_by(group1) %>%
 #'   top_n(3, avg_log2FC)
-#' ht2 <- GroupHeatmap(ifnb_sub, features = TopMarkers$gene, feature_split = TopMarkers$group1, group.by = "seurat_annotations", show_row_names = TRUE)
+#' ht2 <- GroupHeatmap(pancreas_sub, features = TopMarkers$gene, feature_split = TopMarkers$group1, group.by = "SubCellType", show_row_names = TRUE)
 #' ht2$plot
 #'
-#' ifnb_sub <- RunDEtest(ifnb_sub, group_by = "seurat_annotations", markers_type = "paired")
-#' PairedMarkers <- filter(ifnb_sub@tools$DEtest_seurat_annotations$PairedMarkers_wilcox, p_val_adj < 0.05 & avg_log2FC > 1)
+#' pancreas_sub <- RunDEtest(pancreas_sub, group_by = "SubCellType", markers_type = "paired")
+#' PairedMarkers <- filter(pancreas_sub@tools$DEtest_SubCellType$PairedMarkers_wilcox, p_val_adj < 0.05 & avg_log2FC > 1)
 #' table(PairedMarkers$group1)
-#' ht3 <- GroupHeatmap(ifnb_sub, features = PairedMarkers$gene, feature_split = PairedMarkers$group1, group.by = "seurat_annotations")
+#' ht3 <- GroupHeatmap(pancreas_sub, features = PairedMarkers$gene, feature_split = PairedMarkers$group1, group.by = "SubCellType")
 #' ht3$plot
 #'
-#' ifnb_sub <- RunDEtest(ifnb_sub, group_by = "seurat_annotations", grouping.var = "stim", markers_type = "conserved")
-#' ConservedMarkers <- filter(ifnb_sub@tools$DEtest_seurat_annotations$ConservedMarkers_wilcox, p_val_adj < 0.05 & avg_log2FC > 1)
-#' table(ConservedMarkers$group1)
-#' ht4 <- GroupHeatmap(ifnb_sub,
-#'   features = ConservedMarkers$gene, feature_split = ConservedMarkers$group1,
-#'   group.by = "seurat_annotations", split.by = "stim"
+#' data("panc8_sub")
+#' panc8_sub <- Integration_SCP(panc8_sub, batch = "tech", integration_method = "Seurat")
+#' CellDimPlot(panc8_sub, group.by = c("celltype", "tech"))
+#'
+#' panc8_sub <- RunDEtest(panc8_sub, group_by = "celltype", grouping.var = "tech", markers_type = "conserved")
+#' ConservedMarkers1 <- filter(panc8_sub@tools$DEtest_celltype$ConservedMarkers_wilcox, p_val_adj < 0.05 & avg_log2FC > 1)
+#' table(ConservedMarkers1$group1)
+#' ht4 <- GroupHeatmap(panc8_sub,
+#'   slot = "data",
+#'   features = ConservedMarkers1$gene, feature_split = ConservedMarkers1$group1,
+#'   group.by = "tech", split.by = "celltype", within_groups = TRUE
 #' )
 #' ht4$plot
 #'
-#' ifnb_sub <- RunDEtest(ifnb_sub, group_by = "seurat_annotations", grouping.var = "stim", markers_type = "disturbed")
-#' DisturbedMarkers_STIM <- filter(ifnb_sub@tools$DEtest_seurat_annotations$DisturbedMarkers_wilcox, p_val_adj < 0.05 & avg_log2FC > 1 & var1 == "STIM")
-#' table(DisturbedMarkers_STIM$group1)
-#' ht5 <- GroupHeatmap(ifnb_sub,
-#'   features = DisturbedMarkers_STIM$gene, feature_split = DisturbedMarkers_STIM$group1,
-#'   group.by = "seurat_annotations", split.by = "stim"
+#' panc8_sub <- RunDEtest(panc8_sub, group_by = "tech", grouping.var = "celltype", markers_type = "conserved")
+#' ConservedMarkers2 <- filter(panc8_sub@tools$DEtest_tech$ConservedMarkers_wilcox, p_val_adj < 0.05 & avg_log2FC > 1)
+#' table(ConservedMarkers2$group1)
+#' ht4 <- GroupHeatmap(panc8_sub,
+#'   slot = "data",
+#'   features = ConservedMarkers2$gene, feature_split = ConservedMarkers2$group1,
+#'   group.by = "tech", split.by = "celltype"
+#' )
+#' ht4$plot
+#'
+#' panc8_sub <- RunDEtest(panc8_sub, group_by = "celltype", grouping.var = "tech", markers_type = "disturbed")
+#' DisturbedMarkers <- filter(panc8_sub@tools$DEtest_celltype$DisturbedMarkers_wilcox, p_val_adj < 0.05 & avg_log2FC > 1 & var1 == "smartseq2")
+#' table(DisturbedMarkers$group1)
+#' ht5 <- GroupHeatmap(panc8_sub,
+#'   slot = "data",
+#'   features = DisturbedMarkers$gene, feature_split = DisturbedMarkers$group1,
+#'   group.by = "celltype", split.by = "tech"
 #' )
 #' ht5$plot
 #'
-#' gene_specific <- names(which(table(DisturbedMarkers_STIM$gene) <= 2))
-#' DisturbedMarkers_STIM_specific <- DisturbedMarkers_STIM[DisturbedMarkers_STIM$gene %in% gene_specific, ]
-#' table(DisturbedMarkers_STIM_specific$group1)
-#' ht6 <- GroupHeatmap(ifnb_sub,
-#'   features = DisturbedMarkers_STIM_specific$gene, feature_split = DisturbedMarkers_STIM_specific$group1,
-#'   group.by = "seurat_annotations", split.by = "stim"
+#' gene_specific <- names(which(table(DisturbedMarkers$gene) == 1))
+#' DisturbedMarkers_specific <- DisturbedMarkers[DisturbedMarkers$gene %in% gene_specific, ]
+#' table(DisturbedMarkers_specific$group1)
+#' ht6 <- GroupHeatmap(panc8_sub,
+#'   slot = "data",
+#'   features = DisturbedMarkers_specific$gene, feature_split = DisturbedMarkers_specific$group1,
+#'   group.by = "celltype", split.by = "tech"
 #' )
 #' ht6$plot
 #'
-#' ht7 <- GroupHeatmap(ifnb_sub,
-#'   features = DisturbedMarkers_STIM_specific$gene, feature_split = DisturbedMarkers_STIM_specific$group1,
-#'   group.by = "seurat_annotations", grouping.var = "stim", numerator = "STIM", limits = c(-2, 2)
+#' ht7 <- GroupHeatmap(panc8_sub,
+#'   slot = "data", aggregate_fun = function(x) mean(expm1(x)) + 1,
+#'   features = DisturbedMarkers_specific$gene, feature_split = DisturbedMarkers_specific$group1,
+#'   group.by = "celltype", grouping.var = "tech", numerator = "smartseq2"
 #' )
 #' ht7$plot
-#'
-#' ht8 <- GroupHeatmap(ifnb_sub,
-#'   features = DisturbedMarkers_STIM_specific$gene, feature_split = DisturbedMarkers_STIM_specific$group1,
-#'   group.by = "seurat_annotations", grouping.var = "stim", numerator = "STIM",
-#'   slot = "data", aggregate_fun = function(x) mean(expm1(x)) + 1
-#' )
-#' ht8$plot
 #'
 #' @importFrom BiocParallel bplapply SerialParam bpprogressbar<- bpRNGseed<- bpworkers
 #' @importFrom Seurat FindMarkers Assays Idents
@@ -1330,7 +1341,7 @@ RunDEtest <- function(srt, group_by = NULL, group1 = NULL, group2 = NULL, cells1
       srt <- suppressWarnings(NormalizeData(object = srt, assay = assay, normalization.method = "LogNormalize", verbose = FALSE))
     }
     if (status == "unknown") {
-      stop("Data in the 'data' slot is unknown. Please check the data type.")
+      warning("Data in the 'data' slot is unknown. Please check the data type.")
     }
   }
   bpprogressbar(BPPARAM) <- TRUE
@@ -1750,8 +1761,11 @@ RunDEtest <- function(srt, group_by = NULL, group1 = NULL, group2 = NULL, cells1
 ListDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
                    db = c(
                      "GO", "GO_BP", "GO_CC", "GO_MF", "KEGG", "WikiPathway", "Reactome",
-                     "ProteinComplex", "DGI", "MP", "DO", "PFAM",
-                     "Chromosome", "GeneType", "Enzyme", "TF", "SP", "CellTalk", "CellChat"
+                     "ProteinComplex", "DGI", "MP", "DO", "HPO", "PFAM",
+                     "Chromosome", "GeneType", "Enzyme", "TF",
+                     "CSPA", "Surfaceome", "SPRomeDB", "VerSeDa",
+                     "TFLink", "hTFtarget", "TRRUST", "JASPAR", "ENCODE",
+                     "CellTalk", "CellChat"
                    )) {
   pathnames <- dir(path = getCacheRootPath(), pattern = "[.]Rcache$", full.names = TRUE)
   if (length(pathnames) == 0) {
@@ -1767,8 +1781,8 @@ ListDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
   dbinfo <- do.call(rbind.data.frame, dbinfo)
   dbinfo[["file"]] <- pathnames
 
-  patterns <- paste0(species, "-", db)
-  dbinfo <- dbinfo[unlist(lapply(patterns, function(pat) grep(pat, dbinfo[["db_name"]], fixed = TRUE))), , drop = FALSE]
+  patterns <- paste0("^", species, "-", db, "$")
+  dbinfo <- dbinfo[unlist(lapply(patterns, function(pat) grep(pat, dbinfo[["db_name"]]))), , drop = FALSE]
   dbinfo <- dbinfo[order(dbinfo[["timestamp"]], decreasing = TRUE), , drop = FALSE]
   rownames(dbinfo) <- NULL
   return(dbinfo)
@@ -1845,8 +1859,11 @@ ListDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
 PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
                       db = c(
                         "GO", "GO_BP", "GO_CC", "GO_MF", "KEGG", "WikiPathway", "Reactome",
-                        "ProteinComplex", "DGI", "MP", "DO", "PFAM",
-                        "Chromosome", "GeneType", "Enzyme", "TF", "SP", "CellTalk", "CellChat"
+                        "ProteinComplex", "DGI", "MP", "DO", "HPO", "PFAM",
+                        "Chromosome", "GeneType", "Enzyme", "TF",
+                        "CSPA", "Surfaceome", "SPRomeDB", "VerSeDa",
+                        "TFLink", "hTFtarget", "TRRUST", "JASPAR", "ENCODE",
+                        "CellTalk", "CellChat"
                       ),
                       db_IDtypes = c("symbol", "entrez_id", "ensembl_id"),
                       db_version = "latest", db_update = FALSE,
@@ -1860,8 +1877,10 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
     default_IDtypes <- c(
       "GO" = "entrez_id", "GO_BP" = "entrez_id", "GO_CC" = "entrez_id", "GO_MF" = "entrez_id", "KEGG" = "entrez_id",
       "WikiPathway" = "entrez_id", "Reactome" = "entrez_id", "ProteinComplex" = "entrez_id",
-      "DGI" = "entrez_id", "MP" = "symbol", "DO" = "symbol", "PFAM" = "entrez_id", "Chromosome" = "entrez_id",
-      "GeneType" = "entrez_id", "Enzyme" = "entrez_id", "TF" = "symbol", "SP" = "symbol",
+      "DGI" = "entrez_id", "MP" = "symbol", "DO" = "symbol", "HPO" = "symbol", "PFAM" = "entrez_id", "Chromosome" = "entrez_id",
+      "GeneType" = "entrez_id", "Enzyme" = "entrez_id", "TF" = "symbol",
+      "CSPA" = "symbol", "Surfaceome" = "symbol", "SPRomeDB" = "entrez_id", "VerSeDa" = "symbol",
+      "TFLink" = "symbol", "hTFtarget" = "symbol", "TRRUST" = "symbol", "JASPAR" = "symbol", "ENCODE" = "symbol",
       "CellTalk" = "symbol", "CellChat" = "symbol"
     )
     if (!is.null(custom_TERM2GENE)) {
@@ -1891,12 +1910,9 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
           if (!is.na(pathname)) {
             header <- readCacheHeader(pathname)
             cached_version <- strsplit(header[["comment"]], "\\|")[[1]][1]
-            message("Loading cached db:", term, " version:", cached_version, " created:", header[["timestamp"]])
+            message("Loading cached db: ", term, " version:", cached_version, " created:", header[["timestamp"]])
             db_loaded <- loadCache(pathname = pathname)
-            if (is.null(db_loaded)) {
-              Sys.sleep(3)
-              db_loaded <- loadCache(pathname = pathname)
-            } # Second attempt
+            Sys.sleep(0.5)
             db_list[[sps]][[term]] <- db_loaded
           }
         }
@@ -1976,6 +1992,7 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
               TERM2NAME <- bg[which(bg[["ONTOLOGYALL"]] %in% simpleterm), c("GOALL", "TERM")]
               colnames(TERM2GENE) <- c("Term", default_IDtypes[subterm])
               colnames(TERM2NAME) <- c("Term", "Name")
+              TERM2NAME[["ONTOLOGY"]] <- simpleterm
               semData <- suppressMessages(GOSemSim::godata(orgdb, ont = simpleterm))
             }
             TERM2GENE <- na.omit(unique(TERM2GENE))
@@ -2331,6 +2348,44 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
           }
         }
 
+        ## HPO ---------------------------------------------------------------------------
+        if (any(db == "HPO") && (!"HPO" %in% names(db_list[[sps]]))) {
+          message("Preparing database: HPO")
+          if (!sps %in% c("Homo_sapiens")) {
+            if (isTRUE(convert_species)) {
+              warning("Use the human annotation to create the HPO database for ", sps, immediate. = TRUE)
+              db_species["HPO"] <- "Homo_sapiens"
+            } else {
+              warning("HPO database only support Homo_sapiens. Consider using convert_species=TRUE", immediate. = TRUE)
+              stop("Stop the preparation.")
+            }
+          }
+          temp <- tempfile()
+          download(url = "https://api.github.com/repos/obophenotype/human-phenotype-ontology/releases?per_page=1", destfile = temp)
+          release <- readLines(temp, warn = FALSE)
+          version <- regmatches(release, m = regexpr("(?<=tag_name\\\":\\\")\\S+(?=\\\",\\\"target_commitish)", release, perl = T))
+
+          download(url = "http://purl.obolibrary.org/obo/hp/hpoa/phenotype_to_genes.txt", destfile = temp)
+          hpo <- read.table(temp, header = TRUE, sep = "\t", fill = TRUE, quote = "")
+          unlink(temp)
+
+          TERM2GENE <- hpo[, c("hpo_id", "gene_symbol")]
+          TERM2NAME <- hpo[, c("hpo_id", "hpo_name")]
+          colnames(TERM2GENE) <- c("Term", default_IDtypes["HPO"])
+          colnames(TERM2NAME) <- c("Term", "Name")
+          TERM2GENE <- na.omit(unique(TERM2GENE))
+          TERM2NAME <- na.omit(unique(TERM2NAME))
+          db_list[[db_species["HPO"]]][["HPO"]][["TERM2GENE"]] <- TERM2GENE
+          db_list[[db_species["HPO"]]][["HPO"]][["TERM2NAME"]] <- TERM2NAME
+          db_list[[db_species["HPO"]]][["HPO"]][["version"]] <- version
+          if (sps == db_species["HPO"]) {
+            saveCache(db_list[[db_species["HPO"]]][["HPO"]],
+              key = list(version, as.character(db_species["HPO"]), "HPO"),
+              comment = paste0(version, " nterm:", length(TERM2NAME[[1]]), "|", db_species["HPO"], "-HPO")
+            )
+          }
+        }
+
         ## PFAM ---------------------------------------------------------------------------
         if (any(db == "PFAM") && (!"PFAM" %in% names(db_list[[sps]]))) {
           message("Preparing database: PFAM")
@@ -2537,42 +2592,329 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
           }
         }
 
-        ## SP ---------------------------------------------------------------------------
-        if (any(db == "SP") && (!"SP" %in% names(db_list[[sps]]))) {
+        ## CSPA ---------------------------------------------------------------------------
+        if (any(db == "CSPA") && (!"CSPA" %in% names(db_list[[sps]]))) {
           if (!sps %in% c("Homo_sapiens", "Mus_musculus")) {
             if (isTRUE(convert_species)) {
-              warning("Use the human annotation to create the SP database for ", sps, immediate. = TRUE)
-              db_species["SP"] <- "Homo_sapiens"
+              warning("Use the human annotation to create the CSPA database for ", sps, immediate. = TRUE)
+              db_species["CSPA"] <- "Homo_sapiens"
             } else {
-              warning("SP database only support Homo_sapiens and Mus_musculus. Consider using convert_species=TRUE", immediate. = TRUE)
+              warning("CSPA database only support Homo_sapiens and Mus_musculus. Consider using convert_species=TRUE", immediate. = TRUE)
               stop("Stop the preparation.")
             }
           }
           check_R("openxlsx")
-          message("Preparing database: SP")
+          message("Preparing database: CSPA")
           temp <- tempfile(fileext = ".xlsx")
           url <- "https://wlab.ethz.ch/cspa/data/S1_File.xlsx"
           download(url = url, destfile = temp, mode = ifelse(.Platform$OS.type == "windows", "wb", "w"))
           surfacepro <- openxlsx::read.xlsx(temp, sheet = 1)
           unlink(temp)
-          surfacepro <- surfacepro[surfacepro[["organism"]] == switch(db_species["SP"],
+          surfacepro <- surfacepro[surfacepro[["organism"]] == switch(db_species["CSPA"],
             "Homo_sapiens" = "Human",
             "Mus_musculus" = "Mouse"
           ), , drop = FALSE]
           TERM2GENE <- data.frame("Term" = "SurfaceProtein", "symbol" = surfacepro[["ENTREZ.gene.symbol"]])
           TERM2NAME <- data.frame("Term" = "SurfaceProtein", "Name" = "SurfaceProtein")
-          colnames(TERM2GENE) <- c("Term", default_IDtypes["SP"])
+          colnames(TERM2GENE) <- c("Term", default_IDtypes["CSPA"])
           colnames(TERM2NAME) <- c("Term", "Name")
           TERM2GENE <- na.omit(unique(TERM2GENE))
           TERM2NAME <- na.omit(unique(TERM2NAME))
-          version <- "cspa"
-          db_list[[db_species["SP"]]][["SP"]][["TERM2GENE"]] <- TERM2GENE
-          db_list[[db_species["SP"]]][["SP"]][["TERM2NAME"]] <- TERM2NAME
-          db_list[[db_species["SP"]]][["SP"]][["version"]] <- version
-          if (sps == db_species["SP"]) {
-            saveCache(db_list[[db_species["SP"]]][["SP"]],
-              key = list(version, as.character(db_species["SP"]), "SP"),
-              comment = paste0(version, " nterm:", length(TERM2NAME[[1]]), "|", db_species["SP"], "-SP")
+          version <- "CSPA"
+          db_list[[db_species["CSPA"]]][["CSPA"]][["TERM2GENE"]] <- TERM2GENE
+          db_list[[db_species["CSPA"]]][["CSPA"]][["TERM2NAME"]] <- TERM2NAME
+          db_list[[db_species["CSPA"]]][["CSPA"]][["version"]] <- version
+          if (sps == db_species["CSPA"]) {
+            saveCache(db_list[[db_species["CSPA"]]][["CSPA"]],
+              key = list(version, as.character(db_species["CSPA"]), "CSPA"),
+              comment = paste0(version, " nterm:", length(TERM2NAME[[1]]), "|", db_species["CSPA"], "-CSPA")
+            )
+          }
+        }
+
+        ## Surfaceome ---------------------------------------------------------------------------
+        if (any(db == "Surfaceome") && (!"Surfaceome" %in% names(db_list[[sps]]))) {
+          if (!sps %in% c("Homo_sapiens")) {
+            if (isTRUE(convert_species)) {
+              warning("Use the human annotation to create the Surfaceome database for ", sps, immediate. = TRUE)
+              db_species["Surfaceome"] <- "Homo_sapiens"
+            } else {
+              warning("Surfaceome database only support Homo_sapiens. Consider using convert_species=TRUE", immediate. = TRUE)
+              stop("Stop the preparation.")
+            }
+          }
+          check_R("openxlsx")
+          message("Preparing database: Surfaceome")
+          temp <- tempfile(fileext = ".xlsx")
+          url <- "http://wlab.ethz.ch/surfaceome/table_S3_surfaceome.xlsx"
+          download(url = url, destfile = temp, mode = ifelse(.Platform$OS.type == "windows", "wb", "w"))
+          surfaceome <- openxlsx::read.xlsx(temp, sheet = 2, colNames = TRUE, startRow = 2)
+          unlink(temp)
+          TERM2GENE <- data.frame("Term" = "SurfaceProtein", "symbol" = surfaceome[["UniProt.gene"]])
+          TERM2NAME <- data.frame("Term" = "SurfaceProtein", "Name" = "SurfaceProtein")
+          colnames(TERM2GENE) <- c("Term", default_IDtypes["Surfaceome"])
+          colnames(TERM2NAME) <- c("Term", "Name")
+          TERM2GENE <- na.omit(unique(TERM2GENE))
+          TERM2NAME <- na.omit(unique(TERM2NAME))
+          version <- "Surfaceome"
+          db_list[[db_species["Surfaceome"]]][["Surfaceome"]][["TERM2GENE"]] <- TERM2GENE
+          db_list[[db_species["Surfaceome"]]][["Surfaceome"]][["TERM2NAME"]] <- TERM2NAME
+          db_list[[db_species["Surfaceome"]]][["Surfaceome"]][["version"]] <- version
+          if (sps == db_species["Surfaceome"]) {
+            saveCache(db_list[[db_species["Surfaceome"]]][["Surfaceome"]],
+              key = list(version, as.character(db_species["Surfaceome"]), "Surfaceome"),
+              comment = paste0(version, " nterm:", length(TERM2NAME[[1]]), "|", db_species["Surfaceome"], "-Surfaceome")
+            )
+          }
+        }
+
+        ## SPRomeDB ---------------------------------------------------------------------------
+        if (any(db == "SPRomeDB") && (!"SPRomeDB" %in% names(db_list[[sps]]))) {
+          if (!sps %in% c("Homo_sapiens")) {
+            if (isTRUE(convert_species)) {
+              warning("Use the human annotation to create the SPRomeDB database for ", sps, immediate. = TRUE)
+              db_species["SPRomeDB"] <- "Homo_sapiens"
+            } else {
+              warning("SPRomeDB database only support Homo_sapiens. Consider using convert_species=TRUE", immediate. = TRUE)
+              stop("Stop the preparation.")
+            }
+          }
+          message("Preparing database: SPRomeDB")
+          temp <- tempfile()
+          url <- "http://119.3.41.228/SPRomeDB/files/download/secreted_proteins_SPRomeDB.csv"
+          download(url = url, destfile = temp)
+          spromedb <- read.csv(temp, header = TRUE)
+          unlink(temp)
+          TERM2GENE <- data.frame("Term" = "SecretoryProtein", "entrez_id" = unlist(strsplit(spromedb$Gene_ID, ";")))
+          TERM2NAME <- data.frame("Term" = "SecretoryProtein", "Name" = "SecretoryProtein")
+          colnames(TERM2GENE) <- c("Term", default_IDtypes["SPRomeDB"])
+          colnames(TERM2NAME) <- c("Term", "Name")
+          TERM2GENE <- na.omit(unique(TERM2GENE))
+          TERM2NAME <- na.omit(unique(TERM2NAME))
+          version <- "SPRomeDB"
+          db_list[[db_species["SPRomeDB"]]][["SPRomeDB"]][["TERM2GENE"]] <- TERM2GENE
+          db_list[[db_species["SPRomeDB"]]][["SPRomeDB"]][["TERM2NAME"]] <- TERM2NAME
+          db_list[[db_species["SPRomeDB"]]][["SPRomeDB"]][["version"]] <- version
+          if (sps == db_species["SPRomeDB"]) {
+            saveCache(db_list[[db_species["SPRomeDB"]]][["SPRomeDB"]],
+              key = list(version, as.character(db_species["SPRomeDB"]), "SPRomeDB"),
+              comment = paste0(version, " nterm:", length(TERM2NAME[[1]]), "|", db_species["SPRomeDB"], "-SPRomeDB")
+            )
+          }
+        }
+
+        ## VerSeDa ---------------------------------------------------------------------------
+        if (any(db == "VerSeDa") && (!"VerSeDa" %in% names(db_list[[sps]]))) {
+          temp <- tempfile()
+          download(url = "http://genomics.cicbiogune.es/VerSeDa/downloads.php", destfile = temp)
+          verseda_sps <- readLines(temp)
+          verseda_sps <- regmatches(verseda_sps, m = regexpr("(?<=Downloads/)\\S+(?=\\.zip)", verseda_sps, perl = TRUE))
+          verseda_sps <- setdiff(verseda_sps, c("NonRefined", "NonRefined_Curated", "Refined", "Refined_Curated"))
+          if (!tolower(sps) %in% verseda_sps) {
+            if (isTRUE(convert_species)) {
+              warning("Use the human annotation to create the VerSeDa database for ", sps, immediate. = TRUE)
+              db_species["VerSeDa"] <- "Homo_sapiens"
+            } else {
+              warning("VerSeDa database only support ", paste0(verseda_sps, collapse = ","), ". Consider using convert_species=TRUE", immediate. = TRUE)
+              stop("Stop the preparation.")
+            }
+          }
+          message("Preparing database: VerSeDa")
+          temp <- tempfile(fileext = ".zip")
+          url <- paste0("http://genomics.cicbiogune.es/VerSeDa/Downloads/", tolower(db_species["VerSeDa"]), ".zip")
+          download(url = url, destfile = temp)
+          con <- unz(temp, paste0(tolower(db_species["VerSeDa"]), "/", tolower(db_species["VerSeDa"]), "_Refined.sequences"))
+          verseda <- readLines(con)
+          close(con)
+          unlink(temp)
+          verseda <- verseda[grep("^>", verseda)]
+          verseda <- gsub("^>", "", verseda)
+          verseda_id <- GeneConvert(geneID = verseda, geneID_from_IDtype = "ensembl_peptide_id", geneID_to_IDtype = "symbol", species_from = db_species["VerSeDa"])
+          TERM2GENE <- data.frame("Term" = "SecretoryProtein", "symbol" = unique(verseda_id$geneID_expand$symbol))
+          TERM2NAME <- data.frame("Term" = "SecretoryProtein", "Name" = "SecretoryProtein")
+          colnames(TERM2GENE) <- c("Term", default_IDtypes["VerSeDa"])
+          colnames(TERM2NAME) <- c("Term", "Name")
+          TERM2GENE <- na.omit(unique(TERM2GENE))
+          TERM2NAME <- na.omit(unique(TERM2NAME))
+          version <- "VerSeDa"
+          db_list[[db_species["VerSeDa"]]][["VerSeDa"]][["TERM2GENE"]] <- TERM2GENE
+          db_list[[db_species["VerSeDa"]]][["VerSeDa"]][["TERM2NAME"]] <- TERM2NAME
+          db_list[[db_species["VerSeDa"]]][["VerSeDa"]][["version"]] <- version
+          if (sps == db_species["VerSeDa"]) {
+            saveCache(db_list[[db_species["VerSeDa"]]][["VerSeDa"]],
+              key = list(version, as.character(db_species["VerSeDa"]), "VerSeDa"),
+              comment = paste0(version, " nterm:", length(TERM2NAME[[1]]), "|", db_species["VerSeDa"], "-VerSeDa")
+            )
+          }
+        }
+
+        ## TFLink ---------------------------------------------------------------------------
+        if (any(db == "TFLink") && (!"TFLink" %in% names(db_list[[sps]]))) {
+          tflink_sp <- c("Homo_sapiens", "Mus_musculus", "Rattus_norvegicus", "Danio_rerio", "Drosophila_melanogaster", "Caenorhabditis_elegans", "Saccharomyces_cerevisiae")
+          if (!sps %in% tflink_sp) {
+            if (isTRUE(convert_species)) {
+              warning("Use the human annotation to create the TFLink database for ", sps, immediate. = TRUE)
+              db_species["TFLink"] <- "Homo_sapiens"
+            } else {
+              warning("TFLink database only support ", paste0(tflink_sp, collapse = ","), ". Consider using convert_species=TRUE", immediate. = TRUE)
+              stop("Stop the preparation.")
+            }
+          }
+          message("Preparing database: TFLink")
+          url <- paste0("https://cdn.netbiol.org/tflink/download_files/TFLink_", db_species["TFLink"], "_interactions_All_GMT_proteinName_v1.0.gmt")
+          temp <- tempfile()
+          download(url = url, destfile = temp)
+          TERM2GENE <- clusterProfiler::read.gmt(temp)
+          version <- "v1.0"
+          TERM2NAME <- TERM2GENE[, c(1, 1)]
+          colnames(TERM2GENE) <- c("Term", default_IDtypes["TFLink"])
+          colnames(TERM2NAME) <- c("Term", "Name")
+          TERM2GENE <- na.omit(unique(TERM2GENE))
+          TERM2NAME <- na.omit(unique(TERM2NAME))
+          db_list[[db_species["TFLink"]]][["TFLink"]][["TERM2GENE"]] <- TERM2GENE
+          db_list[[db_species["TFLink"]]][["TFLink"]][["TERM2NAME"]] <- TERM2NAME
+          db_list[[db_species["TFLink"]]][["TFLink"]][["version"]] <- version
+          if (sps == db_species["TFLink"]) {
+            saveCache(db_list[[db_species["TFLink"]]][["TFLink"]],
+              key = list(version, as.character(db_species["TFLink"]), "TFLink"),
+              comment = paste0(version, " nterm:", length(TERM2NAME[[1]]), "|", db_species["TFLink"], "-TFLink")
+            )
+          }
+        }
+
+        ## hTFtarget ---------------------------------------------------------------------------
+        if (any(db == "hTFtarget") && (!"hTFtarget" %in% names(db_list[[sps]]))) {
+          if (!sps %in% "Homo_sapiens") {
+            if (isTRUE(convert_species)) {
+              warning("Use the human annotation to create the hTFtarget database for ", sps, immediate. = TRUE)
+              db_species["hTFtarget"] <- "Homo_sapiens"
+            } else {
+              warning("hTFtarget database only support Homo_sapiens. Consider using convert_species=TRUE", immediate. = TRUE)
+              stop("Stop the preparation.")
+            }
+          }
+          message("Preparing database: hTFtarget")
+          url <- paste0("http://bioinfo.life.hust.edu.cn/static/hTFtarget/file_download/tf-target-infomation.txt")
+          temp <- tempfile()
+          download(url = url, destfile = temp)
+          TERM2GENE <- read.table(temp, header = TRUE, fill = T, sep = "\t")
+          version <- "v1.0"
+          TERM2NAME <- TERM2GENE[, c(1, 1)]
+          colnames(TERM2GENE) <- c("Term", default_IDtypes["hTFtarget"])
+          colnames(TERM2NAME) <- c("Term", "Name")
+          TERM2GENE <- na.omit(unique(TERM2GENE))
+          TERM2NAME <- na.omit(unique(TERM2NAME))
+          db_list[[db_species["hTFtarget"]]][["hTFtarget"]][["TERM2GENE"]] <- TERM2GENE
+          db_list[[db_species["hTFtarget"]]][["hTFtarget"]][["TERM2NAME"]] <- TERM2NAME
+          db_list[[db_species["hTFtarget"]]][["hTFtarget"]][["version"]] <- version
+          if (sps == db_species["hTFtarget"]) {
+            saveCache(db_list[[db_species["hTFtarget"]]][["hTFtarget"]],
+              key = list(version, as.character(db_species["hTFtarget"]), "hTFtarget"),
+              comment = paste0(version, " nterm:", length(TERM2NAME[[1]]), "|", db_species["hTFtarget"], "-hTFtarget")
+            )
+          }
+        }
+
+        ## TRRUST ---------------------------------------------------------------------------
+        if (any(db == "TRRUST") && (!"TRRUST" %in% names(db_list[[sps]]))) {
+          if (!sps %in% c("Homo_sapiens", "Mus_musculus")) {
+            if (isTRUE(convert_species)) {
+              warning("Use the human annotation to create the hTFtarget database for ", sps, immediate. = TRUE)
+              db_species["hTFtarget"] <- "Homo_sapiens"
+            } else {
+              warning("hTFtarget database only support Homo_sapiens and Mus_musculus. Consider using convert_species=TRUE", immediate. = TRUE)
+              stop("Stop the preparation.")
+            }
+          }
+          message("Preparing database: TRRUST")
+          url <- switch(db_species["TRRUST"],
+            "Homo_sapiens" = "https://www.grnpedia.org/trrust/data/trrust_rawdata.human.tsv",
+            "Mus_musculus" = "https://www.grnpedia.org/trrust/data/trrust_rawdata.mouse.tsv"
+          )
+          temp <- tempfile()
+          download(url = url, destfile = temp)
+          TERM2GENE <- read.table(temp, header = FALSE, fill = T, sep = "\t")[, 1:2]
+          version <- "v2.0"
+          TERM2NAME <- TERM2GENE[, c(1, 1)]
+          colnames(TERM2GENE) <- c("Term", default_IDtypes["TRRUST"])
+          colnames(TERM2NAME) <- c("Term", "Name")
+          TERM2GENE <- na.omit(unique(TERM2GENE))
+          TERM2NAME <- na.omit(unique(TERM2NAME))
+          db_list[[db_species["TRRUST"]]][["TRRUST"]][["TERM2GENE"]] <- TERM2GENE
+          db_list[[db_species["TRRUST"]]][["TRRUST"]][["TERM2NAME"]] <- TERM2NAME
+          db_list[[db_species["TRRUST"]]][["TRRUST"]][["version"]] <- version
+          if (sps == db_species["TRRUST"]) {
+            saveCache(db_list[[db_species["TRRUST"]]][["TRRUST"]],
+              key = list(version, as.character(db_species["TRRUST"]), "TRRUST"),
+              comment = paste0(version, " nterm:", length(TERM2NAME[[1]]), "|", db_species["TRRUST"], "-TRRUST")
+            )
+          }
+        }
+
+        ## JASPAR ---------------------------------------------------------------------------
+        if (any(db == "JASPAR") && (!"JASPAR" %in% names(db_list[[sps]]))) {
+          if (!sps %in% c("Homo_sapiens")) {
+            if (isTRUE(convert_species)) {
+              warning("Use the human annotation to create the JASPAR database for ", sps, immediate. = TRUE)
+              db_species["JASPAR"] <- "Homo_sapiens"
+            } else {
+              warning("JASPAR database only support Homo_sapiens. Consider using convert_species=TRUE", immediate. = TRUE)
+              stop("Stop the preparation.")
+            }
+          }
+          message("Preparing database: JASPAR")
+          url <- "https://maayanlab.cloud/static/hdfs/harmonizome/data/jasparpwm/gene_set_library_crisp.gmt.gz"
+          temp <- tempfile(fileext = ".gz")
+          download(url = url, destfile = temp)
+          R.utils::gunzip(temp)
+          TERM2GENE <- clusterProfiler::read.gmt(gsub(".gz", "", temp))
+          version <- "Harmonizome 3.0"
+          TERM2NAME <- TERM2GENE[, c(1, 1)]
+          colnames(TERM2GENE) <- c("Term", default_IDtypes["JASPAR"])
+          colnames(TERM2NAME) <- c("Term", "Name")
+          TERM2GENE <- na.omit(unique(TERM2GENE))
+          TERM2NAME <- na.omit(unique(TERM2NAME))
+          db_list[[db_species["JASPAR"]]][["JASPAR"]][["TERM2GENE"]] <- TERM2GENE
+          db_list[[db_species["JASPAR"]]][["JASPAR"]][["TERM2NAME"]] <- TERM2NAME
+          db_list[[db_species["JASPAR"]]][["JASPAR"]][["version"]] <- version
+          if (sps == db_species["JASPAR"]) {
+            saveCache(db_list[[db_species["JASPAR"]]][["JASPAR"]],
+              key = list(version, as.character(db_species["JASPAR"]), "JASPAR"),
+              comment = paste0(version, " nterm:", length(TERM2NAME[[1]]), "|", db_species["JASPAR"], "-JASPAR")
+            )
+          }
+        }
+
+        ## ENCODE ---------------------------------------------------------------------------
+        if (any(db == "ENCODE") && (!"ENCODE" %in% names(db_list[[sps]]))) {
+          if (!sps %in% c("Homo_sapiens")) {
+            if (isTRUE(convert_species)) {
+              warning("Use the human annotation to create the ENCODE database for ", sps, immediate. = TRUE)
+              db_species["ENCODE"] <- "Homo_sapiens"
+            } else {
+              warning("ENCODE database only support Homo_sapiens. Consider using convert_species=TRUE", immediate. = TRUE)
+              stop("Stop the preparation.")
+            }
+          }
+          message("Preparing database: ENCODE")
+          url <- "https://maayanlab.cloud/static/hdfs/harmonizome/data/encodetfppi/gene_set_library_crisp.gmt.gz"
+          temp <- tempfile(fileext = ".gz")
+          download(url = url, destfile = temp)
+          R.utils::gunzip(temp)
+          TERM2GENE <- clusterProfiler::read.gmt(gsub(".gz", "", temp))
+          version <- "Harmonizome 3.0"
+          TERM2NAME <- TERM2GENE[, c(1, 1)]
+          colnames(TERM2GENE) <- c("Term", default_IDtypes["ENCODE"])
+          colnames(TERM2NAME) <- c("Term", "Name")
+          TERM2GENE <- na.omit(unique(TERM2GENE))
+          TERM2NAME <- na.omit(unique(TERM2NAME))
+          db_list[[db_species["ENCODE"]]][["ENCODE"]][["TERM2GENE"]] <- TERM2GENE
+          db_list[[db_species["ENCODE"]]][["ENCODE"]][["TERM2NAME"]] <- TERM2NAME
+          db_list[[db_species["ENCODE"]]][["ENCODE"]][["version"]] <- version
+          if (sps == db_species["ENCODE"]) {
+            saveCache(db_list[[db_species["ENCODE"]]][["ENCODE"]],
+              key = list(version, as.character(db_species["ENCODE"]), "ENCODE"),
+              comment = paste0(version, " nterm:", length(TERM2NAME[[1]]), "|", db_species["ENCODE"], "-ENCODE")
             )
           }
         }
@@ -2589,20 +2931,15 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
             }
           }
           message("Preparing database: CellTalk")
-          url <- paste0(
-            "http://tcm.zju.edu.cn/celltalkdb/download/processed_data/",
-            switch(db_species["CellTalk"],
-              "Homo_sapiens" = "human_lr_pair.txt",
-              "Mus_musculus" = "mouse_lr_pair.txt"
-            )
+          url <- switch(db_species["CellTalk"],
+            "Homo_sapiens" = "https://raw.githubusercontent.com/ZJUFanLab/CellTalkDB/master/database/human_lr_pair.rds",
+            "Mus_musculus" = "https://raw.githubusercontent.com/ZJUFanLab/CellTalkDB/master/database/mouse_lr_pair.rds"
           )
+
           temp <- tempfile()
           download(url = url, destfile = temp)
-          lr <- read.table(temp, header = TRUE, sep = "\t", stringsAsFactors = FALSE, fill = TRUE, quote = "")
-          download(url = "http://tcm.zju.edu.cn/celltalkdb/index.php", destfile = temp)
-          version <- grep(pattern = "Latest update", x = readLines(temp), value = TRUE)
-          version <- gsub(pattern = "(.*Latest update: )|(</span>)", replacement = "", x = version)
-          unlink(temp)
+          lr <- readRDS(temp)
+          version <- "v1.0"
 
           lr[["ligand_gene_symbol2"]] <- paste0("ligand_", lr[["ligand_gene_symbol"]])
           lr[["receptor_gene_symbol2"]] <- paste0("receptor_", lr[["receptor_gene_symbol"]])
@@ -2943,7 +3280,7 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
 RunEnrichment <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_threshold = "avg_log2FC > 0 & p_val_adj < 0.05",
                           geneID = NULL, geneID_groups = NULL, geneID_exclude = NULL, IDtype = "symbol", result_IDtype = "symbol", species = "Homo_sapiens",
                           db = "GO_BP", db_update = FALSE, db_version = "latest", db_combine = FALSE, convert_species = TRUE, Ensembl_version = 103, mirror = NULL,
-                          TERM2GENE = NULL, TERM2NAME = NULL, minGSSize = 10, maxGSSize = 500, unlimited_db = c("Chromosome", "GeneType", "TF", "Enzyme", "SP"),
+                          TERM2GENE = NULL, TERM2NAME = NULL, minGSSize = 10, maxGSSize = 500, unlimited_db = c("Chromosome", "GeneType", "TF", "Enzyme", "CSPA"),
                           GO_simplify = FALSE, GO_simplify_cutoff = "p.adjust < 0.05", simplify_method = "Wang", simplify_similarityCutoff = 0.7,
                           BPPARAM = BiocParallel::bpparam(), seed = 11) {
   bpprogressbar(BPPARAM) <- TRUE
@@ -3115,6 +3452,7 @@ RunEnrichment <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_t
           result_sim[["Groups"]] <- group
           result_sim[["Database"]] <- paste0(term, "_sim")
           result_sim[["Version"]] <- as.character(db_list[[species]][[term]][["version"]])
+          result_sim[["ONTOLOGY"]] <- NULL
           sim_res@result <- result_sim
           enrich_res <- list(enrich_res, sim_res)
           names(enrich_res) <- paste(group, c(term, paste0(term, "_sim")), sep = "-")
@@ -3218,7 +3556,7 @@ RunEnrichment <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_t
 RunGSEA <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_threshold = "p_val_adj < 0.05", scoreType = "std",
                     geneID = NULL, geneScore = NULL, geneID_groups = NULL, geneID_exclude = NULL, IDtype = "symbol", result_IDtype = "symbol", species = "Homo_sapiens",
                     db = "GO_BP", db_update = FALSE, db_version = "latest", db_combine = FALSE, convert_species = TRUE, Ensembl_version = 103, mirror = NULL,
-                    TERM2GENE = NULL, TERM2NAME = NULL, minGSSize = 10, maxGSSize = 500, unlimited_db = c("Chromosome", "GeneType", "TF", "Enzyme", "SP"),
+                    TERM2GENE = NULL, TERM2NAME = NULL, minGSSize = 10, maxGSSize = 500, unlimited_db = c("Chromosome", "GeneType", "TF", "Enzyme", "CSPA"),
                     GO_simplify = FALSE, GO_simplify_cutoff = "p.adjust < 0.05", simplify_method = "Wang", simplify_similarityCutoff = 0.7,
                     BPPARAM = BiocParallel::bpparam(), seed = 11) {
   bpprogressbar(BPPARAM) <- TRUE
@@ -3347,6 +3685,7 @@ RunGSEA <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_thresho
   message("Permform GSEA...")
   suppressPackageStartupMessages(requireNamespace("DOSE", quietly = TRUE))
   comb <- expand.grid(group = levels(geneID_groups), term = db, stringsAsFactors = FALSE)
+
   res_list <- bplapply(seq_len(nrow(comb)), function(i, id) {
     group <- comb[i, "group"]
     term <- comb[i, "term"]
@@ -3400,7 +3739,7 @@ RunGSEA <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_thresho
       if (isTRUE(GO_simplify) && term %in% c("GO", "GO_BP", "GO_CC", "GO_MF")) {
         sim_res <- enrich_res
         if (term == "GO") {
-          enrich_res@result[["ONTOLOGY"]] <- setNames(TERM2NAME_tmp[["ONTOLOGY"]], TERM2NAME_tmp[["Term"]])[enrich_res@result[["ID"]]]
+          sim_res@result[["ONTOLOGY"]] <- setNames(TERM2NAME_tmp[["ONTOLOGY"]], TERM2NAME_tmp[["Term"]])[enrich_res@result[["ID"]]]
           sim_res@setType <- "GOALL"
         } else {
           sim_res@setType <- gsub(pattern = "GO_", replacement = "", x = term)
@@ -3422,6 +3761,7 @@ RunGSEA <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_thresho
           result_sim[["Groups"]] <- group
           result_sim[["Database"]] <- paste0(term, "_sim")
           result_sim[["Version"]] <- as.character(db_list[[species]][[term]][["version"]])
+          result_sim[["ONTOLOGY"]] <- NULL
           sim_res@result <- result_sim
           enrich_res <- list(enrich_res, sim_res)
           names(enrich_res) <- paste(group, c(term, paste0(term, "_sim")), sep = "-")
@@ -3589,9 +3929,9 @@ RunSlingshot <- function(srt, group.by, reduction = NULL, dims = NULL, start = N
 #'   names(pancreas_sub@tools$Monocle2)
 #'   trajectory <- pancreas_sub@tools$Monocle2$trajectory
 #'
-#'   p1 <- CellDimPlot(pancreas_sub, group.by = "Monocle2_State", reduction = "DDRTree", label = TRUE, theme = "theme_blank") + trajectory
-#'   p2 <- CellDimPlot(pancreas_sub, group.by = "Monocle2_State", reduction = "UMAP", label = TRUE, theme = "theme_blank")
-#'   p3 <- FeatureDimPlot(pancreas_sub, features = "Monocle2_Pseudotime", reduction = "UMAP", theme = "theme_blank")
+#'   p1 <- CellDimPlot(pancreas_sub, group.by = "Monocle2_State", reduction = "DDRTree", label = TRUE, theme_use = "theme_blank") + trajectory
+#'   p2 <- CellDimPlot(pancreas_sub, group.by = "Monocle2_State", reduction = "UMAP", label = TRUE, theme_use = "theme_blank")
+#'   p3 <- FeatureDimPlot(pancreas_sub, features = "Monocle2_Pseudotime", reduction = "UMAP", theme_use = "theme_blank")
 #'   print(p1 + p2 + p3)
 #'
 #'   pancreas_sub <- RunMonocle2(
@@ -3599,9 +3939,9 @@ RunSlingshot <- function(srt, group.by, reduction = NULL, dims = NULL, start = N
 #'     feature_type = "Disp", disp_filter = "mean_expression >= 0.01 & dispersion_empirical >= 1 * dispersion_fit"
 #'   )
 #'   trajectory <- pancreas_sub@tools$Monocle2$trajectory
-#'   p1 <- CellDimPlot(pancreas_sub, group.by = "Monocle2_State", reduction = "DDRTree", label = TRUE, theme = "theme_blank") + trajectory
-#'   p2 <- CellDimPlot(pancreas_sub, group.by = "Monocle2_State", reduction = "UMAP", label = TRUE, theme = "theme_blank")
-#'   p3 <- FeatureDimPlot(pancreas_sub, features = "Monocle2_Pseudotime", reduction = "UMAP", theme = "theme_blank")
+#'   p1 <- CellDimPlot(pancreas_sub, group.by = "Monocle2_State", reduction = "DDRTree", label = TRUE, theme_use = "theme_blank") + trajectory
+#'   p2 <- CellDimPlot(pancreas_sub, group.by = "Monocle2_State", reduction = "UMAP", label = TRUE, theme_use = "theme_blank")
+#'   p3 <- FeatureDimPlot(pancreas_sub, features = "Monocle2_Pseudotime", reduction = "UMAP", theme_use = "theme_blank")
 #'   print(p1 + p2 + p3)
 #' }
 #' @importFrom Seurat DefaultAssay CreateDimReducObject GetAssayData VariableFeatures FindVariableFeatures
@@ -3647,7 +3987,7 @@ RunMonocle2 <- function(srt, annotation = NULL, assay = NULL, slot = "counts", e
   message("features number: ", length(features))
   cds <- monocle::setOrderingFilter(cds, features)
   p <- monocle::plot_ordering_genes(cds)
-  suppressWarnings(print(panel_fix(p, verbose = FALSE)))
+  print(p)
 
   cds <- monocle::reduceDimension(
     cds = cds,
@@ -3679,7 +4019,7 @@ RunMonocle2 <- function(srt, annotation = NULL, assay = NULL, slot = "counts", e
       trajectory
     p <- p + p_anno
   }
-  suppressWarnings(print(panel_fix(p, verbose = FALSE)))
+  print(p)
   if (is.null(root_state)) {
     root_state <- select.list(sort(unique(cds[["State"]])), title = "Select the root state to order cells:")
     if (root_state == "" || length(root_state) == 0) {
@@ -3694,7 +4034,7 @@ RunMonocle2 <- function(srt, annotation = NULL, assay = NULL, slot = "counts", e
   p1 <- CellDimPlot(srt, group.by = "Monocle2_State", reduction = reduction_method, label = TRUE, force = TRUE) + trajectory
   p2 <- FeatureDimPlot(srt, features = "Monocle2_Pseudotime", reduction = reduction_method) + trajectory
   p <- p1 + p2
-  suppressWarnings(print(panel_fix(p, verbose = FALSE)))
+  print(p)
   return(srt)
 }
 
@@ -3901,14 +4241,14 @@ extract_ddrtree_ordering <- function(cds, root_cell, verbose = TRUE) {
 #' if (interactive()) {
 #'   data("pancreas_sub")
 #'   # Use Monocle clusters to infer the trajectories
-#'   pancreas_sub <- RunMonocle3(srt = pancreas_sub, annotation = "CellType")
+#'   pancreas_sub <- RunMonocle3(srt = pancreas_sub, annotation = "CellType", reduction = "UMAP")
 #'   names(pancreas_sub@tools$Monocle3)
 #'   trajectory <- pancreas_sub@tools$Monocle3$trajectory
 #'   milestones <- pancreas_sub@tools$Monocle3$milestones
 #'
-#'   p1 <- CellDimPlot(pancreas_sub, group.by = "Monocle3_partitions", reduction = "UMAP", label = TRUE, theme = "theme_blank") + trajectory + milestones
-#'   p2 <- CellDimPlot(pancreas_sub, group.by = "Monocle3_clusters", reduction = "UMAP", label = TRUE, theme = "theme_blank") + trajectory
-#'   p3 <- FeatureDimPlot(pancreas_sub, features = "Monocle3_Pseudotime", reduction = "UMAP", theme = "theme_blank") + trajectory
+#'   p1 <- CellDimPlot(pancreas_sub, group.by = "Monocle3_partitions", reduction = "UMAP", label = TRUE, theme_use = "theme_blank") + trajectory + milestones
+#'   p2 <- CellDimPlot(pancreas_sub, group.by = "Monocle3_clusters", reduction = "UMAP", label = TRUE, theme_use = "theme_blank") + trajectory
+#'   p3 <- FeatureDimPlot(pancreas_sub, features = "Monocle3_Pseudotime", reduction = "UMAP", theme_use = "theme_blank") + trajectory
 #'   print(p1 + p2 + p3)
 #'
 #'   # Select the lineage using monocle3::choose_graph_segments
@@ -3916,16 +4256,16 @@ extract_ddrtree_ordering <- function(cds, root_cell, verbose = TRUE) {
 #'   cds_sub <- monocle3::choose_graph_segments(cds, starting_pr_node = NULL, ending_pr_nodes = NULL)
 #'   pancreas_sub$Lineages_1 <- NA
 #'   pancreas_sub$Lineages_1[colnames(cds_sub)] <- pancreas_sub$Monocle3_Pseudotime[colnames(cds_sub)]
-#'   CellDimPlot(pancreas_sub, group.by = "SubCellType", lineages = "Lineages_1", lineages_span = 0.1, theme = "theme_blank")
+#'   CellDimPlot(pancreas_sub, group.by = "SubCellType", lineages = "Lineages_1", lineages_span = 0.1, theme_use = "theme_blank")
 #'
 #'   # Use Seurat clusters to infer the trajectories
 #'   pancreas_sub <- Standard_SCP(pancreas_sub)
-#'   CellDimPlot(pancreas_sub, group.by = c("Standardclusters", "CellType"), label = TRUE, theme = "theme_blank")
+#'   CellDimPlot(pancreas_sub, group.by = c("Standardclusters", "CellType"), label = TRUE, theme_use = "theme_blank")
 #'   pancreas_sub <- RunMonocle3(srt = pancreas_sub, annotation = "CellType", clusters = "Standardclusters")
 #'   trajectory <- pancreas_sub@tools$Monocle3$trajectory
-#'   p1 <- CellDimPlot(pancreas_sub, group.by = "Monocle3_partitions", reduction = "StandardUMAP2D", label = TRUE, theme = "theme_blank") + trajectory
-#'   p2 <- CellDimPlot(pancreas_sub, group.by = "Monocle3_clusters", reduction = "StandardUMAP2D", label = TRUE, theme = "theme_blank") + trajectory
-#'   p3 <- FeatureDimPlot(pancreas_sub, features = "Monocle3_Pseudotime", reduction = "StandardUMAP2D", theme = "theme_blank") + trajectory
+#'   p1 <- CellDimPlot(pancreas_sub, group.by = "Monocle3_partitions", reduction = "StandardUMAP2D", label = TRUE, theme_use = "theme_blank") + trajectory
+#'   p2 <- CellDimPlot(pancreas_sub, group.by = "Monocle3_clusters", reduction = "StandardUMAP2D", label = TRUE, theme_use = "theme_blank") + trajectory
+#'   p3 <- FeatureDimPlot(pancreas_sub, features = "Monocle3_Pseudotime", reduction = "StandardUMAP2D", theme_use = "theme_blank") + trajectory
 #'   print(p1 + p2 + p3)
 #'
 #'   # Use custom graphs and cell clusters to infer the partitions and trajectories, respectively
@@ -3936,9 +4276,9 @@ extract_ddrtree_ordering <- function(cds, root_cell, verbose = TRUE) {
 #'     clusters = "Standardclusters", graph = "Standardpca_SNN"
 #'   )
 #'   trajectory <- pancreas_sub@tools$Monocle3$trajectory
-#'   p1 <- CellDimPlot(pancreas_sub, group.by = "Monocle3_partitions", reduction = "StandardUMAP2D", label = TRUE, theme = "theme_blank") + trajectory
-#'   p2 <- CellDimPlot(pancreas_sub, group.by = "Monocle3_clusters", reduction = "StandardUMAP2D", label = TRUE, theme = "theme_blank") + trajectory
-#'   p3 <- FeatureDimPlot(pancreas_sub, features = "Monocle3_Pseudotime", reduction = "StandardUMAP2D", theme = "theme_blank") + trajectory
+#'   p1 <- CellDimPlot(pancreas_sub, group.by = "Monocle3_partitions", reduction = "StandardUMAP2D", label = TRUE, theme_use = "theme_blank") + trajectory
+#'   p2 <- CellDimPlot(pancreas_sub, group.by = "Monocle3_clusters", reduction = "StandardUMAP2D", label = TRUE, theme_use = "theme_blank") + trajectory
+#'   p3 <- FeatureDimPlot(pancreas_sub, features = "Monocle3_Pseudotime", reduction = "StandardUMAP2D", theme_use = "theme_blank") + trajectory
 #'   print(p1 + p2 + p3)
 #' }
 #' @importFrom SeuratObject as.sparse Embeddings Loadings Stdev
@@ -4039,7 +4379,7 @@ RunMonocle3 <- function(srt, annotation = NULL, assay = NULL, slot = "counts",
   p1 <- CellDimPlot(srt, "Monocle3_partitions", reduction = reduction, label = FALSE, force = TRUE)
   p2 <- CellDimPlot(srt, "Monocle3_clusters", reduction = reduction, label = FALSE, force = TRUE)
   p <- p1 + p2
-  suppressWarnings(print(panel_fix(p, verbose = FALSE)))
+  print(p)
   if (is.null(use_partition)) {
     use_partition <- select.list(c(TRUE, FALSE), title = "Whether to use partitions to learn disjoint graph in each partition?")
     if (use_partition == "" || length(use_partition) == 0) {
@@ -4086,7 +4426,7 @@ RunMonocle3 <- function(srt, annotation = NULL, assay = NULL, slot = "counts",
       trajectory + milestones
     p <- p + p_anno
   }
-  suppressWarnings(print(panel_fix(p, verbose = FALSE)))
+  print(p)
 
   if (is.null(root_pr_nodes) && is.null(root_cells)) {
     root_pr_nodes <- select.list(names(pps), title = "Select the root nodes to order cells, or leave blank for interactive selection:", multiple = TRUE)
@@ -4106,7 +4446,7 @@ RunMonocle3 <- function(srt, annotation = NULL, assay = NULL, slot = "counts",
     theme(legend.position = "none") +
     trajectory)
   p <- p1 + p2
-  suppressWarnings(print(panel_fix(p, verbose = FALSE)))
+  print(p)
   return(srt)
 }
 
@@ -4534,6 +4874,13 @@ RunDynamicEnrichment <- function(srt, lineages,
   return(srt)
 }
 
+#' @importFrom reticulate py_to_r
+py_to_r_auto <- function(x) {
+  if (inherits(x, "python.builtin.object")) {
+    x <- py_to_r(x)
+  }
+  return(x)
+}
 
 #' Convert a seurat object to an anndata object using reticulate
 #'
@@ -4602,25 +4949,25 @@ srt_to_adata <- function(srt, features = NULL,
       }
     }
   }
+  if (length(VariableFeatures(srt, assay = assay_X) > 0)) {
+    if ("highly_variable" %in% colnames(var)) {
+      var <- var[, colnames(var) != "highly_variable"]
+    }
+    var[["highly_variable"]] <- features %in% VariableFeatures(srt, assay = assay_X)
+  }
 
-  X <- Matrix::t(GetAssayData(srt, assay = assay_X, slot = slot_X)[features, , drop = FALSE])
+  X <- t(GetAssayData(srt, assay = assay_X, slot = slot_X)[features, , drop = FALSE])
   adata <- sc$AnnData(
     X = np_array(X, dtype = np$float32),
     obs = obs,
     var = cbind(data.frame(features = features), var)
   )
   adata$var_names <- features
-  if (length(VariableFeatures(srt, assay = assay_X) > 0)) {
-    if ("highly_variable" %in% colnames(var)) {
-      adata$var <- var[, colnames(var) != "highly_variable"]
-    }
-    adata$var <- adata$var$join(data.frame(row.names = features, highly_variable = features %in% VariableFeatures(srt, assay = assay_X)))
-  }
 
   layer_list <- list()
   for (assay in names(srt@assays)[names(srt@assays) != assay_X]) {
     if (assay %in% assay_layers) {
-      layer <- Matrix::t(GetAssayData(srt, assay = assay, slot = slot_layers[assay]))
+      layer <- t(GetAssayData(srt, assay = assay, slot = slot_layers[assay]))
       if (!identical(dim(layer), dim(X))) {
         if (all(colnames(X) %in% colnames(layer))) {
           layer <- layer[, colnames(X)]
@@ -4735,16 +5082,19 @@ adata_to_srt <- function(adata) {
   if (!inherits(adata, "python.builtin.object")) {
     stop("'adata' is not a python.builtin.object.")
   }
-  x <- t(adata$X)
+  sc <- import("scanpy", convert = TRUE)
+  np <- import("numpy", convert = TRUE)
+
+  x <- t(py_to_r_auto(adata$X))
   if (!inherits(x, "dgCMatrix")) {
     x <- as.sparse(x[1:nrow(x), , drop = FALSE])
   }
-  rownames(x) <- adata$var_names$values
-  colnames(x) <- adata$obs_names$values
+  rownames(x) <- py_to_r_auto(adata$var_names$values)
+  colnames(x) <- py_to_r_auto(adata$obs_names$values)
 
   metadata <- NULL
   if (length(adata$obs_keys()) > 0) {
-    metadata <- as.data.frame(adata$obs)
+    metadata <- as.data.frame(py_to_r_auto(adata$obs))
     colnames(metadata) <- make.names(colnames(metadata))
   }
 
@@ -4757,16 +5107,17 @@ adata_to_srt <- function(adata) {
   }
   if (length(keys) > 0) {
     for (k in keys) {
-      if (!inherits(adata$layers[[k]], c("Matrix", "matrix"))) {
+      layer <- py_to_r_auto(adata$layers[[k]])
+      if (!inherits(layer, c("Matrix", "matrix"))) {
         stop(paste0("The object in '", k, "' layers is not a matrix: ", paste0(class(adata$layers[[k]]), collapse = ",")))
       }
-      layer <- t(adata$layers[[k]])
+      layer <- t(layer)
       if (!inherits(layer, "dgCMatrix")) {
         layer <- as.sparse(layer[1:nrow(layer), , drop = FALSE])
       }
-      rownames(layer) <- adata$var_names$values
-      colnames(layer) <- adata$obs_names$values
-      srt[[k]] <- CreateAssayObject(counts = layer)
+      rownames(layer) <- py_to_r_auto(adata$var_names$values)
+      colnames(layer) <- py_to_r_auto(adata$obs_names$values)
+      srt[[py_to_r_auto(k)]] <- CreateAssayObject(counts = layer)
     }
   }
 
@@ -4777,7 +5128,7 @@ adata_to_srt <- function(adata) {
   }
   if (length(keys) > 0) {
     for (k in keys) {
-      obsm <- tryCatch(adata$obsm[[k]], error = identity)
+      obsm <- tryCatch(py_to_r_auto(adata$obsm[[k]]), error = identity)
       if (inherits(obsm, "error")) {
         warning("'obsm: ", k, "' will not be converted. You may need to convert it manually.", immediate. = TRUE)
         next
@@ -4785,10 +5136,10 @@ adata_to_srt <- function(adata) {
       if (!inherits(obsm, "matrix")) {
         obsm <- as.matrix(obsm)
       }
-      k <- gsub(pattern = "^X_", replacement = "", x = k)
+      k <- gsub(pattern = "^X_", replacement = "", x = py_to_r_auto(k))
       colnames(obsm) <- paste0(k, "_", seq_len(ncol(obsm)))
-      rownames(obsm) <- adata$obs_names$values
-      srt[[k]] <- CreateDimReducObject(embeddings = obsm, assay = "RNA", key = paste0(gsub(pattern = "_", replacement = "", x = k), "_"))
+      rownames(obsm) <- py_to_r_auto(adata$obs_names$values)
+      srt[[py_to_r_auto(k)]] <- CreateDimReducObject(embeddings = obsm, assay = "RNA", key = paste0(gsub(pattern = "_", replacement = "", x = k), "_"))
     }
   }
 
@@ -4799,7 +5150,7 @@ adata_to_srt <- function(adata) {
   }
   if (length(keys) > 0) {
     for (k in keys) {
-      obsp <- tryCatch(adata$obsp[[k]], error = identity)
+      obsp <- tryCatch(py_to_r_auto(adata$obsp[[k]]), error = identity)
       if (inherits(obsp, "error")) {
         warning("'obsp: ", k, "' will not be converted. You may need to convert it manually.", immediate. = TRUE)
         next
@@ -4807,16 +5158,16 @@ adata_to_srt <- function(adata) {
       if (!inherits(obsp, "dgCMatrix")) {
         obsp <- as.sparse(obsp[1:nrow(obsp), , drop = FALSE])
       }
-      colnames(obsp) <- adata$obs_names$values
-      rownames(obsp) <- adata$obs_names$values
+      colnames(obsp) <- py_to_r_auto(adata$obs_names$values)
+      rownames(obsp) <- py_to_r_auto(adata$obs_names$values)
       obsp <- as.Graph(obsp[seq_len(nrow(obsp)), , drop = FALSE])
       DefaultAssay(object = obsp) <- "RNA"
-      srt[[k]] <- obsp
+      srt[[py_to_r_auto(k)]] <- obsp
     }
   }
 
   if (length(adata$var_keys()) > 0) {
-    srt[["RNA"]] <- AddMetaData(srt[["RNA"]], metadata = as.data.frame(adata$var))
+    srt[["RNA"]] <- AddMetaData(srt[["RNA"]], metadata = as.data.frame(py_to_r_auto(adata$var)))
   }
 
   if (inherits(adata$varm, "python.builtin.object")) {
@@ -4826,7 +5177,7 @@ adata_to_srt <- function(adata) {
   }
   if (length(keys) > 0) {
     for (k in keys) {
-      varm <- tryCatch(adata$varm[[k]], error = identity)
+      varm <- tryCatch(py_to_r_auto(adata$varm[[k]]), error = identity)
       if (inherits(varm, "error")) {
         warning("'varm: ", k, "' will not be converted. You may need to convert it manually.", immediate. = TRUE)
         next
@@ -4834,9 +5185,9 @@ adata_to_srt <- function(adata) {
       if (!inherits(varm, "matrix")) {
         varm <- as.matrix(varm)
       }
-      colnames(varm) <- paste0(k, "_", seq_len(ncol(varm)))
-      rownames(varm) <- adata$var_names$values
-      srt[["RNA"]]@misc[["feature.loadings"]][[k]] <- varm
+      colnames(varm) <- paste0(py_to_r_auto(k), "_", seq_len(ncol(varm)))
+      rownames(varm) <- py_to_r_auto(adata$var_names$values)
+      srt[["RNA"]]@misc[["feature.loadings"]][[py_to_r_auto(k)]] <- varm
     }
   }
 
@@ -4847,7 +5198,7 @@ adata_to_srt <- function(adata) {
   }
   if (length(keys) > 0) {
     for (k in keys) {
-      varp <- tryCatch(adata$varp[[k]], error = identity)
+      varp <- tryCatch(py_to_r_auto(adata$varp[[k]]), error = identity)
       if (inherits(varp, "error")) {
         warning("'varp: ", k, "' will not be converted. You may need to convert it manually.", immediate. = TRUE)
         next
@@ -4855,9 +5206,9 @@ adata_to_srt <- function(adata) {
       if (!inherits(varp, "matrix")) {
         varp <- as.matrix(varp)
       }
-      colnames(varp) <- adata$var_names$values
-      rownames(varp) <- adata$var_names$values
-      srt[["RNA"]]@misc[["feature.graphs"]][[k]] <- varp
+      colnames(varp) <- py_to_r_auto(adata$var_names$values)
+      rownames(varp) <- py_to_r_auto(adata$var_names$values)
+      srt[["RNA"]]@misc[["feature.graphs"]][[py_to_r_auto(k)]] <- varp
     }
   }
 
@@ -4868,7 +5219,7 @@ adata_to_srt <- function(adata) {
   }
   if (length(keys) > 0) {
     for (k in keys) {
-      uns <- tryCatch(adata$uns[[k]], error = identity)
+      uns <- tryCatch(py_to_r_auto(adata$uns[[k]]), error = identity)
       if (inherits(uns, "error")) {
         warning("'uns: ", k, "' will not be converted. You may need to convert it manually.", immediate. = TRUE)
         next
@@ -4879,7 +5230,7 @@ adata_to_srt <- function(adata) {
         next
       }
       if (!inherits(uns, "python.builtin.object")) {
-        srt@misc[[k]] <- uns
+        srt@misc[[py_to_r_auto(k)]] <- uns
       } else {
         warning("'uns: ", k, "' will not be converted. You may need to convert it manually.", immediate. = TRUE)
         next
@@ -4965,7 +5316,7 @@ check_python_element <- function(x, depth = maxDepth(x)) {
 #' @export
 #'
 RunPAGA <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_layers = c("spliced", "unspliced"), slot_layers = "counts",
-                    adata = NULL, h5ad = NULL, group_by = NULL,
+                    adata = NULL, group_by = NULL, palette = "Paired", palcolor = NULL,
                     linear_reduction = NULL, nonlinear_reduction = NULL, basis = NULL,
                     n_pcs = 30, n_neighbors = 30, use_rna_velocity = FALSE, vkey = "stochastic",
                     embedded_with_PAGA = FALSE, paga_layout = "fr", threshold = 0.1, point_size = 20,
@@ -4973,8 +5324,8 @@ RunPAGA <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_layers
                     show_plot = TRUE, dpi = 300, save = FALSE, dirpath = "./", fileprefix = "",
                     return_seurat = !is.null(srt)) {
   check_Python("scanpy")
-  if (all(is.null(srt), is.null(adata), is.null(h5ad))) {
-    stop("One of 'srt', 'adata' or 'h5ad' must be provided.")
+  if (all(is.null(srt), is.null(adata))) {
+    stop("One of 'srt', 'adata' must be provided.")
   }
   if (is.null(group_by)) {
     stop("'group_by' must be provided.")
@@ -5001,17 +5352,19 @@ RunPAGA <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_layers
       arg
     }
   })
+  args <- args[!names(args) %in% c("srt", "assay_X", "slot_X", "assay_layers", "slot_layers", "return_seurat", "palette", "palcolor")]
+
   if (!is.null(srt)) {
-    adata <- srt_to_adata(
+    args[["adata"]] <- srt_to_adata(
       srt = srt,
       assay_X = assay_X, slot_X = slot_X,
       assay_layers = assay_layers, slot_layers = slot_layers
     )
-    args[["adata"]] <- adata
   }
-  args <- args[!names(args) %in% c("srt", "assay_X", "slot_X", "assay_layers", "slot_layers", "return_seurat")]
+  groups <- py_to_r_auto(args[["adata"]]$obs)[[group_by]]
+  args[["palette"]] <- palette_scp(levels(groups) %||% unique(groups), palette = palette, palcolor = palcolor)
 
-  SCP_analysis <- reticulate::import_from_path("SCP_analysis", system.file("python", package = "SCP", mustWork = TRUE))
+  SCP_analysis <- reticulate::import_from_path("SCP_analysis", path = system.file("python", package = "SCP", mustWork = TRUE), convert = TRUE)
   adata <- do.call(SCP_analysis$PAGA, args)
 
   if (isTRUE(return_seurat)) {
@@ -5090,7 +5443,7 @@ RunPAGA <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_layers
 #' @export
 #'
 RunSCVELO <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_layers = c("spliced", "unspliced"), slot_layers = "counts",
-                      adata = NULL, h5ad = NULL, group_by = NULL, n_jobs = 1,
+                      adata = NULL, group_by = NULL, palette = "Paired", palcolor = NULL,
                       linear_reduction = NULL, nonlinear_reduction = NULL, basis = NULL,
                       mode = "stochastic", fitting_by = "stochastic",
                       magic_impute = FALSE, knn = 5, t = 2,
@@ -5098,15 +5451,15 @@ RunSCVELO <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_laye
                       stream_smooth = NULL, stream_density = 2,
                       arrow_length = 5, arrow_size = 5, arrow_density = 0.5,
                       denoise = FALSE, denoise_topn = 3, kinetics = FALSE, kinetics_topn = 100,
-                      calculate_velocity_genes = FALSE,
+                      calculate_velocity_genes = FALSE, top_n = 6, n_jobs = 1,
                       show_plot = TRUE, dpi = 300, save = FALSE, dirpath = "./", fileprefix = "",
                       return_seurat = !is.null(srt)) {
   check_Python("scvelo")
   if (isTRUE(magic_impute)) {
     check_Python("magic-impute")
   }
-  if (all(is.null(srt), is.null(adata), is.null(h5ad))) {
-    stop("One of 'srt', 'adata' or 'h5ad' must be provided.")
+  if (all(is.null(srt), is.null(adata))) {
+    stop("One of 'srt', 'adata' must be provided.")
   }
   if (is.null(group_by)) {
     stop("'roup_by' must be provided.")
@@ -5133,17 +5486,20 @@ RunSCVELO <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_laye
       arg
     }
   })
+  args <- args[!names(args) %in% c("srt", "assay_X", "slot_X", "assay_layers", "slot_layers", "return_seurat", "palette", "palcolor")]
+
   if (!is.null(srt)) {
-    adata <- srt_to_adata(
+    args[["adata"]] <- srt_to_adata(
       srt = srt,
       assay_X = assay_X, slot_X = slot_X,
       assay_layers = assay_layers, slot_layers = slot_layers
     )
-    args[["adata"]] <- adata
   }
-  args <- args[!names(args) %in% c("srt", "assay_X", "slot_X", "assay_layers", "slot_layers", "return_seurat")]
+  groups <- py_to_r_auto(args[["adata"]]$obs)[[group_by]]
+  args[["palette"]] <- palette_scp(levels(groups) %||% unique(groups), palette = palette, palcolor = palcolor)
 
-  SCP_analysis <- reticulate::import_from_path("SCP_analysis", system.file("python", package = "SCP", mustWork = TRUE))
+
+  SCP_analysis <- reticulate::import_from_path("SCP_analysis", path = system.file("python", package = "SCP", mustWork = TRUE), convert = TRUE)
   adata <- do.call(SCP_analysis$SCVELO, args)
 
   if (isTRUE(return_seurat)) {
@@ -5180,7 +5536,7 @@ RunSCVELO <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_laye
 #' @export
 #'
 RunPalantir <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_layers = c("spliced", "unspliced"), slot_layers = "counts",
-                        adata = NULL, h5ad = NULL, group_by = NULL,
+                        adata = NULL, group_by = NULL, palette = "Paired", palcolor = NULL,
                         linear_reduction = NULL, nonlinear_reduction = NULL, basis = NULL,
                         n_pcs = 30, n_neighbors = 30, dm_n_components = 10, dm_alpha = 0, dm_n_eigs = NULL,
                         early_group = NULL, terminal_groups = NULL, early_cell = NULL, terminal_cells = NULL,
@@ -5190,8 +5546,8 @@ RunPalantir <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_la
                         show_plot = TRUE, dpi = 300, save = FALSE, dirpath = "./", fileprefix = "",
                         return_seurat = !is.null(srt)) {
   check_Python("palantir")
-  if (all(is.null(srt), is.null(adata), is.null(h5ad))) {
-    stop("One of 'srt', 'adata' or 'h5ad' must be provided.")
+  if (all(is.null(srt), is.null(adata))) {
+    stop("One of 'srt', 'adata' must be provided.")
   }
   if (is.null(group_by) && any(!is.null(early_group), !is.null(terminal_groups))) {
     stop("'group_by' must be provided when early_group or terminal_groups provided.")
@@ -5221,17 +5577,94 @@ RunPalantir <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_la
       arg
     }
   })
+  args <- args[!names(args) %in% c("srt", "assay_X", "slot_X", "assay_layers", "slot_layers", "return_seurat", "palette", "palcolor")]
+
   if (!is.null(srt)) {
-    adata <- srt_to_adata(
+    args[["adata"]] <- srt_to_adata(
       srt = srt,
       assay_X = assay_X, slot_X = slot_X,
       assay_layers = assay_layers, slot_layers = slot_layers
     )
-    args[["adata"]] <- adata
   }
-  args <- args[!names(args) %in% c("srt", "assay_X", "slot_X", "assay_layers", "slot_layers", "return_seurat")]
+  groups <- py_to_r_auto(args[["adata"]]$obs)[[group_by]]
+  args[["palette"]] <- palette_scp(levels(groups) %||% unique(groups), palette = palette, palcolor = palcolor)
 
-  SCP_analysis <- reticulate::import_from_path("SCP_analysis", system.file("python", package = "SCP", mustWork = TRUE))
+  SCP_analysis <- reticulate::import_from_path("SCP_analysis", path = system.file("python", package = "SCP", mustWork = TRUE), convert = TRUE)
+  adata <- do.call(SCP_analysis$Palantir, args)
+
+  if (isTRUE(return_seurat)) {
+    srt_out <- adata_to_srt(adata)
+    if (is.null(srt)) {
+      return(srt_out)
+    } else {
+      srt_out1 <- SrtAppend(srt_raw = srt, srt_append = srt_out)
+      srt_out2 <- SrtAppend(srt_raw = srt_out1, srt_append = srt_out, pattern = "(palantir)|(dm_kernel)|(_diff_potential)", overwrite = TRUE, verbose = FALSE)
+      return(srt_out2)
+    }
+  } else {
+    return(adata)
+  }
+}
+
+#' Run WOT analysis
+#' @inheritParams RunSCVELO
+#'
+#' @return A \code{anndata} object.
+RunWOT <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_layers = c("spliced", "unspliced"), slot_layers = "counts",
+                   adata = NULL, group_by = NULL, palette = "Paired", palcolor = NULL,
+                   linear_reduction = NULL, nonlinear_reduction = NULL, basis = NULL,
+                   n_pcs = 30, n_neighbors = 30, dm_n_components = 10, dm_alpha = 0, dm_n_eigs = NULL,
+                   early_group = NULL, terminal_groups = NULL, early_cell = NULL, terminal_cells = NULL,
+                   num_waypoints = 1200, scale_components = TRUE, use_early_cell_as_start = TRUE,
+                   adjust_early_cell = FALSE, adjust_terminal_cells = FALSE,
+                   max_iterations = 25, n_jobs = 8, point_size = 20,
+                   show_plot = TRUE, dpi = 300, save = FALSE, dirpath = "./", fileprefix = "",
+                   return_seurat = !is.null(srt)) {
+  check_Python("wot")
+  if (all(is.null(srt), is.null(adata))) {
+    stop("One of 'srt', 'adata' must be provided.")
+  }
+  if (is.null(group_by) && any(!is.null(early_group), !is.null(terminal_groups))) {
+    stop("'group_by' must be provided when early_group or terminal_groups provided.")
+  }
+  if (is.null(linear_reduction) && is.null(nonlinear_reduction)) {
+    stop("'linear_reduction' or 'nonlinear_reduction' must be provided at least one.")
+  }
+  if (is.null(early_cell) && is.null(early_group)) {
+    stop("'early_cell' or 'early_group' must be provided.")
+  }
+  args <- mget(names(formals()))
+  args <- lapply(args, function(x) {
+    if (is.numeric(x)) {
+      y <- ifelse(grepl("\\.", as.character(x)), as.double(x), as.integer(x))
+    } else {
+      y <- x
+    }
+    return(y)
+  })
+  call.envir <- parent.frame(1)
+  args <- lapply(args, function(arg) {
+    if (is.symbol(arg)) {
+      eval(arg, envir = call.envir)
+    } else if (is.call(arg)) {
+      eval(arg, envir = call.envir)
+    } else {
+      arg
+    }
+  })
+  args <- args[!names(args) %in% c("srt", "assay_X", "slot_X", "assay_layers", "slot_layers", "return_seurat", "palette", "palcolor")]
+
+  if (!is.null(srt)) {
+    args[["adata"]] <- srt_to_adata(
+      srt = srt,
+      assay_X = assay_X, slot_X = slot_X,
+      assay_layers = assay_layers, slot_layers = slot_layers
+    )
+  }
+  groups <- py_to_r_auto(args[["adata"]]$obs)[[group_by]]
+  args[["palette"]] <- palette_scp(levels(groups) %||% unique(groups), palette = palette, palcolor = palcolor)
+
+  SCP_analysis <- reticulate::import_from_path("SCP_analysis", path = system.file("python", package = "SCP", mustWork = TRUE), convert = TRUE)
   adata <- do.call(SCP_analysis$Palantir, args)
 
   if (isTRUE(return_seurat)) {
@@ -5249,7 +5682,7 @@ RunPalantir <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_la
 }
 
 RunCellRank <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_layers = c("spliced", "unspliced"), slot_layers = "counts",
-                        adata = NULL, h5ad = NULL, group_by = NULL, n_jobs = 1,
+                        adata = NULL, group_by = NULL, n_jobs = 1,
                         linear_reduction = NULL, nonlinear_reduction = NULL, basis = NULL,
                         mode = "stochastic", fitting_by = "stochastic",
                         magic_impute = FALSE, knn = 5, t = 2,
@@ -5264,8 +5697,8 @@ RunCellRank <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_la
   if (isTRUE(magic_impute)) {
     check_Python("magic-impute")
   }
-  if (all(is.null(srt), is.null(adata), is.null(h5ad))) {
-    stop("One of 'srt', 'adata' or 'h5ad' must be provided.")
+  if (all(is.null(srt), is.null(adata))) {
+    stop("One of 'srt', 'adata' must be provided.")
   }
   if (is.null(group_by)) {
     stop("'group_by' must be provided.")
@@ -5293,17 +5726,19 @@ RunCellRank <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_la
       arg
     }
   })
+  args <- args[!names(args) %in% c("srt", "assay_X", "slot_X", "assay_layers", "slot_layers", "return_seurat", "palette", "palcolor")]
+
   if (!is.null(srt)) {
-    adata <- srt_to_adata(
+    args[["adata"]] <- srt_to_adata(
       srt = srt,
       assay_X = assay_X, slot_X = slot_X,
       assay_layers = assay_layers, slot_layers = slot_layers
     )
-    args[["adata"]] <- adata
   }
-  args <- args[!names(args) %in% c("srt", "assay_X", "slot_X", "assay_layers", "slot_layers", "return_seurat")]
+  groups <- py_to_r_auto(args[["adata"]]$obs)[[group_by]]
+  args[["palette"]] <- palette_scp(levels(groups) %||% unique(groups), palette = palette, palcolor = palcolor)
 
-  SCP_analysis <- reticulate::import_from_path("SCP_analysis", system.file("python", package = "SCP", mustWork = TRUE))
+  SCP_analysis <- reticulate::import_from_path("SCP_analysis", path = system.file("python", package = "SCP", mustWork = TRUE), convert = TRUE)
   adata <- do.call(SCP_analysis$CellRank, args)
 
   if (isTRUE(return_seurat)) {
@@ -5319,7 +5754,7 @@ RunCellRank <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_la
 }
 
 RunDynamo <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_layers = c("spliced", "unspliced"), slot_layers = "counts",
-                      adata = NULL, h5ad = NULL, group_by = NULL,
+                      adata = NULL, group_by = NULL,
                       linear_reduction = NULL, nonlinear_reduction = NULL, basis = NULL,
                       n_pcs = 30, n_neighbors = 30, dm_n_components = 10, dm_alpha = 0, dm_n_eigs = NULL,
                       early_group = NULL, terminal_groups = NULL, early_cell = NULL, terminal_cells = NULL,
@@ -5328,8 +5763,8 @@ RunDynamo <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_laye
                       show_plot = TRUE, dpi = 300, save = FALSE, dirpath = "./", fileprefix = "",
                       return_seurat = !is.null(srt)) {
   check_Python("dynamo-release")
-  if (all(is.null(srt), is.null(adata), is.null(h5ad))) {
-    stop("One of 'srt', 'adata' or 'h5ad' must be provided.")
+  if (all(is.null(srt), is.null(adata))) {
+    stop("One of 'srt', 'adata' must be provided.")
   }
   if (is.null(group_by)) {
     stop("'group_by' must be provided.")
@@ -5356,17 +5791,19 @@ RunDynamo <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_laye
       arg
     }
   })
+  args <- args[!names(args) %in% c("srt", "assay_X", "slot_X", "assay_layers", "slot_layers", "return_seurat", "palette", "palcolor")]
+
   if (!is.null(srt)) {
-    adata <- srt_to_adata(
+    args[["adata"]] <- srt_to_adata(
       srt = srt,
       assay_X = assay_X, slot_X = slot_X,
       assay_layers = assay_layers, slot_layers = slot_layers
     )
-    args[["adata"]] <- adata
   }
-  args <- args[!names(args) %in% c("srt", "assay_X", "slot_X", "assay_layers", "slot_layers", "return_seurat")]
+  groups <- py_to_r_auto(args[["adata"]]$obs)[[group_by]]
+  args[["palette"]] <- palette_scp(levels(groups) %||% unique(groups), palette = palette, palcolor = palcolor)
 
-  SCP_analysis <- reticulate::import_from_path("SCP_analysis", system.file("python", package = "SCP", mustWork = TRUE))
+  SCP_analysis <- reticulate::import_from_path("SCP_analysis", path = system.file("python", package = "SCP", mustWork = TRUE), convert = TRUE)
   adata <- do.call(SCP_analysis$Dynamo, args)
 
   if (isTRUE(return_seurat)) {

@@ -208,6 +208,9 @@ The analysis is based on a subsetted version of [mouse pancreas data](https://do
 
 ```{r library,results='markup'}
 library(SCP)
+library(BiocParallel)
+register(MulticoreParam(workers = 8, progressbar = TRUE))
+
 data("pancreas_sub")
 print(pancreas_sub)
 ```
@@ -420,7 +423,7 @@ print(ht$plot)
 ```{r RunEnrichment}
 pancreas_sub <- RunEnrichment(
   srt = pancreas_sub, group_by = "CellType", db = "GO_BP", species = "Mus_musculus",
-  DE_threshold = "avg_log2FC > 1 & p_val_adj < 0.05"
+  DE_threshold = "avg_log2FC > log2(1.5) & p_val_adj < 0.05"
 )
 EnrichmentPlot(
   srt = pancreas_sub, group_by = "CellType", group_use = c("Ductal", "Endocrine"),
@@ -434,7 +437,19 @@ EnrichmentPlot(
   srt = pancreas_sub, group_by = "CellType", group_use = c("Ductal", "Endocrine"),
   plot_type = "wordcloud", word_type = "feature"
 )
+EnrichmentPlot(
+  srt = pancreas_sub, group_by = "CellType", group_use = "Ductal",
+  plot_type = "network"
+)
 ```
+
+```{r Enrichment_enrichmap, fig.height=9.5,fig.width=15}
+EnrichmentPlot(
+  srt = pancreas_sub, group_by = "CellType", group_use = "Ductal",
+  plot_type = "enrichmap"
+)
+```
+
 
 ```{r Enrichment_comparison, fig.height=6}
 EnrichmentPlot(srt = pancreas_sub, group_by = "CellType", plot_type = "comparison")

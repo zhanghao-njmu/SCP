@@ -44,7 +44,6 @@ FeatureStatPlot(
   sizes.highlight = 1,
   alpha.highlight = 1,
   calculate_coexp = FALSE,
-  compare_features = FALSE,
   same.y.lims = FALSE,
   y.min = NULL,
   y.max = NULL,
