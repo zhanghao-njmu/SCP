@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">SCP</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.8</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.1</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -84,6 +84,7 @@
 <span>  density_filled_palette <span class="op">=</span> <span class="st">"Greys"</span>,</span>
 <span>  density_filled_palcolor <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  lineages <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  lineages_weights <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  lineages_trim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.01</span>, <span class="fl">0.99</span><span class="op">)</span>,</span>
 <span>  lineages_span <span class="op">=</span> <span class="fl">0.75</span>,</span>
 <span>  lineages_palette <span class="op">=</span> <span class="st">"Dark2"</span>,</span>
@@ -99,7 +100,7 @@
 <span>  stat_type <span class="op">=</span> <span class="st">"percent"</span>,</span>
 <span>  stat_plot_type <span class="op">=</span> <span class="st">"pie"</span>,</span>
 <span>  stat_plot_position <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"stack"</span>, <span class="st">"dodge"</span><span class="op">)</span>,</span>
-<span>  stat_plot_size <span class="op">=</span> <span class="fl">0.1</span>,</span>
+<span>  stat_plot_size <span class="op">=</span> <span class="fl">0.15</span>,</span>
 <span>  stat_plot_palette <span class="op">=</span> <span class="st">"Set1"</span>,</span>
 <span>  stat_palcolor <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  stat_plot_alpha <span class="op">=</span> <span class="fl">1</span>,</span>
@@ -131,12 +132,11 @@
 <span>  velocity_cutoff_perc <span class="op">=</span> <span class="fl">5</span>,</span>
 <span>  velocity_arrow_color <span class="op">=</span> <span class="st">"black"</span>,</span>
 <span>  velocity_arrow_angle <span class="op">=</span> <span class="fl">20</span>,</span>
-<span>  velocity_arrow_flank <span class="op">=</span> <span class="fl">0.8</span>,</span>
 <span>  streamline_L <span class="op">=</span> <span class="fl">5</span>,</span>
 <span>  streamline_minL <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  streamline_res <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  streamline_n <span class="op">=</span> <span class="fl">15</span>,</span>
-<span>  streamlinewidth <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0.8</span><span class="op">)</span>,</span>
+<span>  streamline_width <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0.8</span><span class="op">)</span>,</span>
 <span>  streamline_alpha <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  streamline_color <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  streamline_palette <span class="op">=</span> <span class="st">"RdYlBu"</span>,</span>
@@ -498,10 +498,6 @@
 <dd><p>Angle of arrows in velocity plot.</p></dd>
 
 
-<dt>velocity_arrow_flank</dt>
-<dd><p>Flank of arrows in velocity plot.</p></dd>
-
-
 <dt>streamline_L</dt>
 <dd><p>Typical length of a streamline in x and y units</p></dd>
 
@@ -518,7 +514,7 @@
 <dd><p>Number of points to draw.</p></dd>
 
 
-<dt>streamlinewidth</dt>
+<dt>streamline_width</dt>
 <dd><p>Size of streamline.</p></dd>
 
 
@@ -729,22 +725,22 @@
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Show neighbors graphs on the plot</span></span></span>
 <span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="Standard_SCP.html">Standard_SCP</a></span><span class="op">(</span><span class="va">pancreas_sub</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-04-27 08:02:19.991213] Start Standard_SCP</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-04-27 08:02:19.991378] Checking srtList... ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-08-29 04:56:39.012342] Start Standard_SCP</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-08-29 04:56:39.01254] Checking srtList... ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Data 1/1 of the srtList is raw_counts. Perform NormalizeData(LogNormalize) on the data ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform FindVariableFeatures on the data 1/1 of the srtList...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Use the separate HVF from srtList...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Number of available HVF: 2000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-04-27 08:02:21.025987] Finished checking.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-04-27 08:02:21.026211] Perform ScaleData on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-04-27 08:02:21.164763] Perform linear dimension reduction (pca) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-04-27 08:02:21.975665] Perform FindClusters (louvain) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-04-27 08:02:22.126205] Reorder clusters...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-04-27 08:02:22.390365] Perform nonlinear dimension reduction (umap) on the data...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Non-linear dimensionality reduction(umap) using Reduction(Standardpca, dims_range:1-50) as input</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Non-linear dimensionality reduction(umap) using Reduction(Standardpca, dims_range:1-50) as input</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-04-27 08:02:31.22588] Standard_SCP done</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 11.23 secs </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-08-29 04:56:40.553703] Finished checking.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-08-29 04:56:40.553931] Perform ScaleData on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-08-29 04:56:40.716767] Perform linear dimension reduction (pca) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-08-29 04:56:41.714269] Perform FindClusters (louvain) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-08-29 04:56:41.861163] Reorder clusters...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-08-29 04:56:42.169781] Perform nonlinear dimension reduction (umap) on the data...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Non-linear dimensionality reduction(umap) using Reduction(Standardpca, dims:1-13) as input</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Non-linear dimensionality reduction(umap) using Reduction(Standardpca, dims:1-13) as input</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-08-29 04:56:52.028405] Standard_SCP done</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 13.02 secs </span>
 <span class="r-in"><span><span class="fu">CellDimPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, group.by <span class="op">=</span> <span class="st">"CellType"</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span>, graph <span class="op">=</span> <span class="st">"Standardpca_SNN"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="CellDimPlot-15.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="fu">CellDimPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, group.by <span class="op">=</span> <span class="st">"CellType"</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span>, graph <span class="op">=</span> <span class="st">"Standardpca_SNN"</span>, edge_color <span class="op">=</span> <span class="st">"grey80"</span><span class="op">)</span></span></span>
@@ -769,8 +765,8 @@
 <span class="r-in"><span><span class="co"># Show PAGA results on the plot</span></span></span>
 <span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="RunPAGA.html">RunPAGA</a></span><span class="op">(</span>srt <span class="op">=</span> <span class="va">pancreas_sub</span>, group_by <span class="op">=</span> <span class="st">"SubCellType"</span>, linear_reduction <span class="op">=</span> <span class="st">"PCA"</span>, nonlinear_reduction <span class="op">=</span> <span class="st">"UMAP"</span>, return_seurat <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>SCP_env python environment does not exist. Create it with the PrepareEnv function...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> + '/usr/share/miniconda/bin/conda' 'create' '--yes' '--name' 'SCP_env' 'python=3.8' '--quiet' '-c' 'conda-forge'</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Try to install numpy==1.21.6,numba==0.55.2,scikit-learn==1.1.2,pandas==1.3.5,python-igraph==0.10.2,matplotlib==3.6.3,scipy,versioned-hdf5,leidenalg,scanpy,scvelo,palantir ...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> + /usr/share/miniconda/bin/conda 'create' '--yes' '--name' 'SCP_env' 'python=3.8' '--quiet' '-c' 'conda-forge'</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Try to install numpy==1.21.6,numba==0.55.2,scikit-learn==1.1.2,pandas==1.3.5,python-igraph==0.10.2,matplotlib==3.6.3,palantir==1.0.1,scipy,versioned-hdf5,leidenalg,scanpy,scvelo ...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ====================== SCP conda environment ======================</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> conda: /usr/share/miniconda/bin/conda</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> environment: /usr/share/miniconda/envs/SCP_env</span>
@@ -778,11 +774,11 @@
 <span class="r-msg co"><span class="r-pr">#&gt;</span> python:         /usr/share/miniconda/envs/SCP_env/bin/python3.8</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> libpython:      /usr/share/miniconda/envs/SCP_env/lib/libpython3.8.so</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> pythonhome:     /usr/share/miniconda/envs/SCP_env:/usr/share/miniconda/envs/SCP_env</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> version:        3.8.16 | packaged by conda-forge | (default, Feb  1 2023, 16:01:55)  [GCC 11.3.0]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> version:        3.8.17 | packaged by conda-forge | (default, Jun 16 2023, 07:06:00)  [GCC 11.4.0]</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> numpy:          /usr/share/miniconda/envs/SCP_env/lib/python3.8/site-packages/numpy</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> numpy_version:  1.21.6</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> NOTE: Python version was forced by use_python function</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> NOTE: Python version was forced by use_python() function</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ===================================================================</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> 'misc' slot is not converted.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> 'tools' slot is not converted.</span>
@@ -813,17 +809,11 @@
 <span class="r-plt img"><img src="CellDimPlot-25.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="fu">CellDimPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, group.by <span class="op">=</span> <span class="st">"SubCellType"</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span>, pt.size <span class="op">=</span> <span class="fl">5</span>, pt.alpha <span class="op">=</span> <span class="fl">0.2</span>, velocity <span class="op">=</span> <span class="st">"stochastic"</span>, velocity_plot_type <span class="op">=</span> <span class="st">"grid"</span><span class="op">)</span></span></span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Removed 14 rows containing missing values (`geom_segment()`).</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Removed 14 rows containing missing values (`geom_segment()`).</span>
 <span class="r-plt img"><img src="CellDimPlot-26.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="fu">CellDimPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, group.by <span class="op">=</span> <span class="st">"SubCellType"</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span>, pt.size <span class="op">=</span> <span class="fl">5</span>, pt.alpha <span class="op">=</span> <span class="fl">0.2</span>, velocity <span class="op">=</span> <span class="st">"stochastic"</span>, velocity_plot_type <span class="op">=</span> <span class="st">"grid"</span>, velocity_scale <span class="op">=</span> <span class="fl">1.5</span><span class="op">)</span></span></span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Removed 14 rows containing missing values (`geom_segment()`).</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Removed 14 rows containing missing values (`geom_segment()`).</span>
 <span class="r-plt img"><img src="CellDimPlot-27.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="fu">CellDimPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, group.by <span class="op">=</span> <span class="st">"SubCellType"</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span>, pt.size <span class="op">=</span> <span class="fl">5</span>, pt.alpha <span class="op">=</span> <span class="fl">0.2</span>, velocity <span class="op">=</span> <span class="st">"stochastic"</span>, velocity_plot_type <span class="op">=</span> <span class="st">"stream"</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>The dot-dot notation (`..dx..`) was deprecated in ggplot2 3.4.0.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Please use `after_stat(dx)` instead.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The deprecated feature was likely used in the <span style="color: #0000BB;">SCP</span> package.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span>   Please report the issue to the authors.</span>
 <span class="r-plt img"><img src="CellDimPlot-28.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="fu">CellDimPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>,</span></span>
 <span class="r-in"><span>  group.by <span class="op">=</span> <span class="st">"SubCellType"</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span>, pt.size <span class="op">=</span> <span class="fl">5</span>, pt.alpha <span class="op">=</span> <span class="fl">0.2</span>,</span></span>

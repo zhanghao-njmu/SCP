@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">SCP</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.8</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.1</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -55,8 +55,9 @@
 <span>  assay_layers <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"spliced"</span>, <span class="st">"unspliced"</span><span class="op">)</span>,</span>
 <span>  slot_layers <span class="op">=</span> <span class="st">"counts"</span>,</span>
 <span>  adata <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  h5ad <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  group_by <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  palette <span class="op">=</span> <span class="st">"Paired"</span>,</span>
+<span>  palcolor <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  linear_reduction <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  nonlinear_reduction <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  basis <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -94,10 +95,6 @@
 
 <dt>adata</dt>
 <dd><p>An <code>anndata</code> object. Can be created through <code><a href="srt_to_adata.html">srt_to_adata</a></code></p></dd>
-
-
-<dt>h5ad</dt>
-<dd><p>h5ad file path.</p></dd>
 
 
 <dt>group_by</dt>
@@ -179,21 +176,21 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span> AGAGCTTGTGTGACCC SeuratProject       6498         2516 -0.11406432 -0.17830831           6498             2516</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                  nCount_unspliced nFeature_unspliced      CellType   SubCellType Phase palantir_pseudotime</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> CAGCCGAAGCGATATA             1587               1063        Ductal        Ductal   G2M          0.25910808</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> AGTGTCATCGCCGTGA             1199                803 Pre-endocrine Pre-endocrine    G1          0.49968986</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GATGAAAAGTTGTAGA             2166               1379   Ngn3 low EP   Ngn3 low EP   G2M          0.29036672</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> CACAGTACATCCGTGG             1339                859     Endocrine          Beta    G1          0.69014106</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> CGGAGCTCATTGGGCC              976                745        Ductal        Ductal   G2M          0.11107711</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> AGTGTCATCGCCGTGA             1199                803 Pre-endocrine Pre-endocrine    G1          0.49968980</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GATGAAAAGTTGTAGA             2166               1379   Ngn3 low EP   Ngn3 low EP   G2M          0.29036675</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> CACAGTACATCCGTGG             1339                859     Endocrine          Beta    G1          0.69014101</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> CGGAGCTCATTGGGCC              976                745        Ductal        Ductal   G2M          0.11107706</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> AGAGCTTGTGTGACCC              822                591        Ductal        Ductal    G1          0.03843483</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                  palantir_diff_potential Delta_diff_potential Epsilon_diff_potential Alpha_diff_potential</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> CAGCCGAAGCGATATA               1.1828662            0.3363344             0.09180839           0.10830496</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> AGTGTCATCGCCGTGA               1.1772546            0.3362933             0.08943491           0.10713295</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GATGAAAAGTTGTAGA               1.1828662            0.3363344             0.09180839           0.10830496</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> CACAGTACATCCGTGG               0.9354272            0.2798338             0.02801622           0.06885161</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> CGGAGCTCATTGGGCC               1.1828662            0.3363344             0.09180839           0.10830496</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> AGAGCTTGTGTGACCC               1.1828662            0.3363344             0.09180839           0.10830496</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> CAGCCGAAGCGATATA               1.1828661            0.3363345             0.09180837           0.10830487</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> AGTGTCATCGCCGTGA               1.1772545            0.3362934             0.08943487           0.10713285</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GATGAAAAGTTGTAGA               1.1828661            0.3363345             0.09180837           0.10830487</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> CACAGTACATCCGTGG               0.9354271            0.2798339             0.02801623           0.06885154</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> CGGAGCTCATTGGGCC               1.1828661            0.3363345             0.09180837           0.10830487</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> AGAGCTTGTGTGACCC               1.1828661            0.3363345             0.09180837           0.10830487</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                  Beta_diff_potential</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> CAGCCGAAGCGATATA           0.4635523</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> AGTGTCATCGCCGTGA           0.4671388</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> AGTGTCATCGCCGTGA           0.4671389</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> GATGAAAAGTTGTAGA           0.4635523</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> CACAGTACATCCGTGG           0.6232984</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> CGGAGCTCATTGGGCC           0.4635523</span>

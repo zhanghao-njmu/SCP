@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">SCP</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.8</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.1</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -78,7 +78,7 @@
 <span class="r-in"><span><span class="va">srt_ref</span> <span class="op">&lt;-</span> <span class="va">panc8_sub</span><span class="op">[</span>, <span class="va">panc8_sub</span><span class="op">$</span><span class="va">tech</span> <span class="op">!=</span> <span class="st">"fluidigmc1"</span><span class="op">]</span></span></span>
 <span class="r-in"><span><span class="va">srt_query</span> <span class="op">&lt;-</span> <span class="va">panc8_sub</span><span class="op">[</span>, <span class="va">panc8_sub</span><span class="op">$</span><span class="va">tech</span> <span class="op">==</span> <span class="st">"fluidigmc1"</span><span class="op">]</span></span></span>
 <span class="r-in"><span><span class="va">srt_ref</span> <span class="op">&lt;-</span> <span class="fu"><a href="Integration_SCP.html">Integration_SCP</a></span><span class="op">(</span><span class="va">srt_ref</span>, batch <span class="op">=</span> <span class="st">"tech"</span>, integration_method <span class="op">=</span> <span class="st">"Harmony"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-04-27 09:35:46.205863] Start Harmony_integrate</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-08-29 06:43:35.203384] Start Harmony_integrate</span>
 <span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in Integration_SCP(srt_ref, batch = "tech", integration_method = "Harmony"):</span> object 'srt_ref' not found</span>
 <span class="r-in"><span><span class="fu"><a href="CellDimPlot.html">CellDimPlot</a></span><span class="op">(</span><span class="va">srt_ref</span>, group.by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"celltype"</span>, <span class="st">"tech"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in DefaultReduction(srt):</span> Unable to find any reductions.</span>
@@ -90,7 +90,7 @@
 <span class="r-msg co"><span class="r-pr">#&gt;</span> for details.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Replacement repositories:</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>     CRAN: https://cloud.r-project.org</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Bioconductor version 3.17 (BiocManager 1.30.20), R 4.3.0 (2023-04-21)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Bioconductor version 3.17 (BiocManager 1.30.22), R 4.3.1 (2023-06-16)</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Installing github package(s) 'immunogenomics/symphony'</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>package ‘immunogenomics/symphony’ is not available for this version of R</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> </span>
@@ -103,7 +103,7 @@
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Installing packages into ‘/home/runner/work/_temp/Library’</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> (as ‘lib’ is unspecified)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="color: #00BBBB;">R CMD build</span> <span style="color: #00BBBB;">─────────────────────────────────────────────────────────────────────────────────────────────────────────</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> * checking for file ‘/tmp/RtmpN2X8wu/remotes8fa83038d549/immunogenomics-symphony-bf7aaf9/DESCRIPTION’ ... OK</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> * checking for file ‘/tmp/RtmpQ5KWgM/remotes8d6b3e416018/immunogenomics-symphony-bf7aaf9/DESCRIPTION’ ... OK</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> * preparing ‘symphony’:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> * checking DESCRIPTION meta-information ... OK</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> * cleaning src</span>
@@ -115,7 +115,7 @@
 <span class="r-msg co"><span class="r-pr">#&gt;</span> (as ‘lib’ is unspecified)</span>
 <span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> Cannot find 'Harmonypca' in this Seurat object</span>
 <span class="r-in"><span><span class="fu"><a href="ProjectionPlot.html">ProjectionPlot</a></span><span class="op">(</span>srt_query <span class="op">=</span> <span class="va">srt_query</span>, srt_ref <span class="op">=</span> <span class="va">srt_ref</span>, query_group <span class="op">=</span> <span class="st">"celltype"</span>, ref_group <span class="op">=</span> <span class="st">"celltype"</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> Cannot find 'ref.umap' in this Seurat object</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> Cannot find 'ref.embeddings' in this Seurat object</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">SCP</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.8</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.1</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -112,25 +112,23 @@
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"ifnb_sub"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"pancreas_sub"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">ifnb_sub</span> <span class="op">&lt;-</span> <span class="fu">RunDEtest</span><span class="op">(</span><span class="va">ifnb_sub</span>, group_by <span class="op">=</span> <span class="st">"seurat_annotations"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu">RunDEtest</span><span class="op">(</span><span class="va">pancreas_sub</span>, group_by <span class="op">=</span> <span class="st">"SubCellType"</span><span class="op">)</span></span></span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Data in the 'data' slot is raw counts. Perform NormalizeData(LogNormalize) on the data.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-04-27 08:41:37.48499] Start DEtest</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-08-29 05:40:45.351844] Start DEtest</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Workers: 1</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Find all markers(wilcox) among 13 groups...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Find all markers(wilcox) among 8 groups...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |==============================================================================================================| 100%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-04-27 08:41:58.76361] DEtest done</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:21.28 secs</span>
-<span class="r-in"><span><span class="va">AllMarkers</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">ifnb_sub</span><span class="op">@</span><span class="va">tools</span><span class="op">$</span><span class="va">DEtest_seurat_annotations</span><span class="op">$</span><span class="va">AllMarkers_wilcox</span>, <span class="va">p_val_adj</span> <span class="op">&lt;</span> <span class="fl">0.05</span> <span class="op">&amp;</span> <span class="va">avg_log2FC</span> <span class="op">&gt;</span> <span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-08-29 05:40:51.244913] DEtest done</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:5.89 secs</span>
+<span class="r-in"><span><span class="va">AllMarkers</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">pancreas_sub</span><span class="op">@</span><span class="va">tools</span><span class="op">$</span><span class="va">DEtest_SubCellType</span><span class="op">$</span><span class="va">AllMarkers_wilcox</span>, <span class="va">p_val_adj</span> <span class="op">&lt;</span> <span class="fl">0.05</span> <span class="op">&amp;</span> <span class="va">avg_log2FC</span> <span class="op">&gt;</span> <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">AllMarkers</span><span class="op">$</span><span class="va">group1</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    CD14 Mono  CD4 Naive T CD4 Memory T    CD16 Mono            B        CD8 T  T activated           NK           DC </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          183           72           27           82           39           36          258           79           77 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  B Activated           Mk          pDC        Eryth </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          187           26          140           37 </span>
-<span class="r-in"><span><span class="va">ht1</span> <span class="op">&lt;-</span> <span class="fu"><a href="GroupHeatmap.html">GroupHeatmap</a></span><span class="op">(</span><span class="va">ifnb_sub</span>, features <span class="op">=</span> <span class="va">AllMarkers</span><span class="op">$</span><span class="va">gene</span>, feature_split <span class="op">=</span> <span class="va">AllMarkers</span><span class="op">$</span><span class="va">group1</span>, group.by <span class="op">=</span> <span class="st">"seurat_annotations"</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        Ductal   Ngn3 low EP  Ngn3 high EP Pre-endocrine          Beta         Alpha         Delta       Epsilon </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            75            29            69            39            61            50            37            44 </span>
+<span class="r-in"><span><span class="va">ht1</span> <span class="op">&lt;-</span> <span class="fu"><a href="GroupHeatmap.html">GroupHeatmap</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, features <span class="op">=</span> <span class="va">AllMarkers</span><span class="op">$</span><span class="va">gene</span>, feature_split <span class="op">=</span> <span class="va">AllMarkers</span><span class="op">$</span><span class="va">group1</span>, group.by <span class="op">=</span> <span class="st">"SubCellType"</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> 'magick' package is suggested to install to give better rasterization.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Set `ht_opt$message = FALSE` to turn off this message.</span>
@@ -142,69 +140,170 @@
 <span class="r-in"><span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/top_n.html" class="external-link">top_n</a></span><span class="op">(</span><span class="fl">1</span>, <span class="va">avg_log2FC</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">group1</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/top_n.html" class="external-link">top_n</a></span><span class="op">(</span><span class="fl">3</span>, <span class="va">avg_log2FC</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">ht2</span> <span class="op">&lt;-</span> <span class="fu"><a href="GroupHeatmap.html">GroupHeatmap</a></span><span class="op">(</span><span class="va">ifnb_sub</span>, features <span class="op">=</span> <span class="va">TopMarkers</span><span class="op">$</span><span class="va">gene</span>, feature_split <span class="op">=</span> <span class="va">TopMarkers</span><span class="op">$</span><span class="va">group1</span>, group.by <span class="op">=</span> <span class="st">"seurat_annotations"</span>, show_row_names <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">ht2</span> <span class="op">&lt;-</span> <span class="fu"><a href="GroupHeatmap.html">GroupHeatmap</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, features <span class="op">=</span> <span class="va">TopMarkers</span><span class="op">$</span><span class="va">gene</span>, feature_split <span class="op">=</span> <span class="va">TopMarkers</span><span class="op">$</span><span class="va">group1</span>, group.by <span class="op">=</span> <span class="st">"SubCellType"</span>, show_row_names <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> 'magick' package is suggested to install to give better rasterization.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Set `ht_opt$message = FALSE` to turn off this message.</span>
 <span class="r-in"><span><span class="va">ht2</span><span class="op">$</span><span class="va">plot</span></span></span>
 <span class="r-plt img"><img src="RunDEtest-2.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">ifnb_sub</span> <span class="op">&lt;-</span> <span class="fu">RunDEtest</span><span class="op">(</span><span class="va">ifnb_sub</span>, group_by <span class="op">=</span> <span class="st">"seurat_annotations"</span>, markers_type <span class="op">=</span> <span class="st">"paired"</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-04-27 08:42:03.967952] Start DEtest</span>
+<span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu">RunDEtest</span><span class="op">(</span><span class="va">pancreas_sub</span>, group_by <span class="op">=</span> <span class="st">"SubCellType"</span>, markers_type <span class="op">=</span> <span class="st">"paired"</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-08-29 05:40:55.108805] Start DEtest</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Workers: 1</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Find paired markers(wilcox) among 13 groups...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Find paired markers(wilcox) among 8 groups...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |==============================================================================================================| 100%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-04-27 08:43:52.8289] DEtest done</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:1.81 mins</span>
-<span class="r-in"><span><span class="va">PairedMarkers</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">ifnb_sub</span><span class="op">@</span><span class="va">tools</span><span class="op">$</span><span class="va">DEtest_seurat_annotations</span><span class="op">$</span><span class="va">PairedMarkers_wilcox</span>, <span class="va">p_val_adj</span> <span class="op">&lt;</span> <span class="fl">0.05</span> <span class="op">&amp;</span> <span class="va">avg_log2FC</span> <span class="op">&gt;</span> <span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-08-29 05:41:22.854804] DEtest done</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:27.75 secs</span>
+<span class="r-in"><span><span class="va">PairedMarkers</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">pancreas_sub</span><span class="op">@</span><span class="va">tools</span><span class="op">$</span><span class="va">DEtest_SubCellType</span><span class="op">$</span><span class="va">PairedMarkers_wilcox</span>, <span class="va">p_val_adj</span> <span class="op">&lt;</span> <span class="fl">0.05</span> <span class="op">&amp;</span> <span class="va">avg_log2FC</span> <span class="op">&gt;</span> <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">PairedMarkers</span><span class="op">$</span><span class="va">group1</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    CD14 Mono  CD4 Naive T CD4 Memory T    CD16 Mono            B        CD8 T  T activated           NK           DC </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         1770          695          617         1633          626          577         1270          674         1605 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  B Activated           Mk          pDC        Eryth </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         1355          422         1191          265 </span>
-<span class="r-in"><span><span class="va">ht3</span> <span class="op">&lt;-</span> <span class="fu"><a href="GroupHeatmap.html">GroupHeatmap</a></span><span class="op">(</span><span class="va">ifnb_sub</span>, features <span class="op">=</span> <span class="va">PairedMarkers</span><span class="op">$</span><span class="va">gene</span>, feature_split <span class="op">=</span> <span class="va">PairedMarkers</span><span class="op">$</span><span class="va">group1</span>, group.by <span class="op">=</span> <span class="st">"seurat_annotations"</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        Ductal   Ngn3 low EP  Ngn3 high EP Pre-endocrine          Beta         Alpha         Delta       Epsilon </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           893           787           680           571           645           575           426           575 </span>
+<span class="r-in"><span><span class="va">ht3</span> <span class="op">&lt;-</span> <span class="fu"><a href="GroupHeatmap.html">GroupHeatmap</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, features <span class="op">=</span> <span class="va">PairedMarkers</span><span class="op">$</span><span class="va">gene</span>, feature_split <span class="op">=</span> <span class="va">PairedMarkers</span><span class="op">$</span><span class="va">group1</span>, group.by <span class="op">=</span> <span class="st">"SubCellType"</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> 'magick' package is suggested to install to give better rasterization.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Set `ht_opt$message = FALSE` to turn off this message.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> `use_raster` is automatically set to TRUE for a matrix with more than 2000 rows. You can control</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> `use_raster` argument by explicitly setting TRUE/FALSE to it.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Set `ht_opt$message = FALSE` to turn off this message.</span>
 <span class="r-in"><span><span class="va">ht3</span><span class="op">$</span><span class="va">plot</span></span></span>
 <span class="r-plt img"><img src="RunDEtest-3.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">ifnb_sub</span> <span class="op">&lt;-</span> <span class="fu">RunDEtest</span><span class="op">(</span><span class="va">ifnb_sub</span>, group_by <span class="op">=</span> <span class="st">"seurat_annotations"</span>, grouping.var <span class="op">=</span> <span class="st">"stim"</span>, markers_type <span class="op">=</span> <span class="st">"conserved"</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-04-27 08:44:45.785852] Start DEtest</span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"panc8_sub"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">panc8_sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="Integration_SCP.html">Integration_SCP</a></span><span class="op">(</span><span class="va">panc8_sub</span>, batch <span class="op">=</span> <span class="st">"tech"</span>, integration_method <span class="op">=</span> <span class="st">"Seurat"</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-08-29 05:41:39.577016] Start Seurat_integrate</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-08-29 05:41:39.595906] Spliting srtMerge into srtList by column tech... ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-08-29 05:41:40.276338] Checking srtList... ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Data 1/5 of the srtList is raw_normalized_counts. Perform NormalizeData(LogNormalize) on the data ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Perform FindVariableFeatures on the data 1/5 of the srtList...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Data 2/5 of the srtList is raw_normalized_counts. Perform NormalizeData(LogNormalize) on the data ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Perform FindVariableFeatures on the data 2/5 of the srtList...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Data 3/5 of the srtList is raw_normalized_counts. Perform NormalizeData(LogNormalize) on the data ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Perform FindVariableFeatures on the data 3/5 of the srtList...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Data 4/5 of the srtList is raw_counts. Perform NormalizeData(LogNormalize) on the data ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Perform FindVariableFeatures on the data 4/5 of the srtList...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Data 5/5 of the srtList is raw_counts. Perform NormalizeData(LogNormalize) on the data ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Perform FindVariableFeatures on the data 5/5 of the srtList...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Use the separate HVF from srtList...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Number of available HVF: 2000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-08-29 05:41:44.998778] Finished checking.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-08-29 05:41:45.793757] Perform FindIntegrationAnchors on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-08-29 05:42:22.579447] Perform integration(Seurat) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-08-29 05:42:36.53136] Perform ScaleData on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-08-29 05:42:36.786559] Perform linear dimension reduction (pca) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-08-29 05:42:38.606823] Perform FindClusters (louvain) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-08-29 05:42:38.832505] Reorder clusters...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-08-29 05:42:39.133052] Perform nonlinear dimension reduction (umap) on the data...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Non-linear dimensionality reduction(umap) using Reduction(Seuratpca, dims:1-12) as input</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Non-linear dimensionality reduction(umap) using Reduction(Seuratpca, dims:1-12) as input</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-08-29 05:42:53.973948] Seurat_integrate done</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 1.24 mins </span>
+<span class="r-in"><span><span class="fu"><a href="CellDimPlot.html">CellDimPlot</a></span><span class="op">(</span><span class="va">panc8_sub</span>, group.by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"celltype"</span>, <span class="st">"tech"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="RunDEtest-4.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">panc8_sub</span> <span class="op">&lt;-</span> <span class="fu">RunDEtest</span><span class="op">(</span><span class="va">panc8_sub</span>, group_by <span class="op">=</span> <span class="st">"celltype"</span>, grouping.var <span class="op">=</span> <span class="st">"tech"</span>, markers_type <span class="op">=</span> <span class="st">"conserved"</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-08-29 05:42:55.264893] Start DEtest</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Workers: 1</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Find conserved markers(wilcox) among 13 groups...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>CTRL has fewer than 3 cells. Skipping CTRL</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>celseq has fewer than 3 cells. Skipping celseq</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>celseq has fewer than 3 cells. Skipping celseq</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>celseq2 has fewer than 3 cells. Skipping celseq2</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>fluidigmc1 has fewer than 3 cells. Skipping fluidigmc1</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>smartseq2 has fewer than 3 cells. Skipping smartseq2</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>indrop has fewer than 3 cells. Skipping indrop</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>No group was tested</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>celseq has fewer than 3 cells. Skipping celseq</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>celseq2 has fewer than 3 cells. Skipping celseq2</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>smartseq2 has fewer than 3 cells. Skipping smartseq2</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>celseq has fewer than 3 cells. Skipping celseq</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>fluidigmc1 has fewer than 3 cells. Skipping fluidigmc1</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>smartseq2 has fewer than 3 cells. Skipping smartseq2</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>celseq has fewer than 3 cells. Skipping celseq</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>celseq2 has fewer than 3 cells. Skipping celseq2</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>fluidigmc1 has fewer than 3 cells. Skipping fluidigmc1</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>smartseq2 has fewer than 3 cells. Skipping smartseq2</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Only a single group was tested</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>celseq has fewer than 3 cells. Skipping celseq</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>celseq2 has fewer than 3 cells. Skipping celseq2</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>smartseq2 has fewer than 3 cells. Skipping smartseq2</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>indrop has fewer than 3 cells. Skipping indrop</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Only a single group was tested</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |==============================================================================================================| 100%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-04-27 08:45:17.19129] DEtest done</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:31.41 secs</span>
-<span class="r-in"><span><span class="va">ConservedMarkers</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">ifnb_sub</span><span class="op">@</span><span class="va">tools</span><span class="op">$</span><span class="va">DEtest_seurat_annotations</span><span class="op">$</span><span class="va">ConservedMarkers_wilcox</span>, <span class="va">p_val_adj</span> <span class="op">&lt;</span> <span class="fl">0.05</span> <span class="op">&amp;</span> <span class="va">avg_log2FC</span> <span class="op">&gt;</span> <span class="fl">1</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">ConservedMarkers</span><span class="op">$</span><span class="va">group1</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-08-29 05:43:37.256338] DEtest done</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:41.99 secs</span>
+<span class="r-in"><span><span class="va">ConservedMarkers1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">panc8_sub</span><span class="op">@</span><span class="va">tools</span><span class="op">$</span><span class="va">DEtest_celltype</span><span class="op">$</span><span class="va">ConservedMarkers_wilcox</span>, <span class="va">p_val_adj</span> <span class="op">&lt;</span> <span class="fl">0.05</span> <span class="op">&amp;</span> <span class="va">avg_log2FC</span> <span class="op">&gt;</span> <span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">ConservedMarkers1</span><span class="op">$</span><span class="va">group1</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    CD14 Mono  CD4 Naive T CD4 Memory T    CD16 Mono            B        CD8 T  T activated           NK           DC </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          146           71           27           79           35           32          208           62           66 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  B Activated           Mk          pDC        Eryth </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          152           22           74           41 </span>
-<span class="r-in"><span><span class="va">ht4</span> <span class="op">&lt;-</span> <span class="fu"><a href="GroupHeatmap.html">GroupHeatmap</a></span><span class="op">(</span><span class="va">ifnb_sub</span>,</span></span>
-<span class="r-in"><span>  features <span class="op">=</span> <span class="va">ConservedMarkers</span><span class="op">$</span><span class="va">gene</span>, feature_split <span class="op">=</span> <span class="va">ConservedMarkers</span><span class="op">$</span><span class="va">group1</span>,</span></span>
-<span class="r-in"><span>  group.by <span class="op">=</span> <span class="st">"seurat_annotations"</span>, split.by <span class="op">=</span> <span class="st">"stim"</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>              alpha               beta             ductal             acinar activated_stellate              gamma </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                 34                 47                145                 89                171                 16 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>              delta            epsilon               mast        endothelial         macrophage quiescent_stellate </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                  8                  0                  0                128                152                105 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            schwann </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                 16 </span>
+<span class="r-in"><span><span class="va">ht4</span> <span class="op">&lt;-</span> <span class="fu"><a href="GroupHeatmap.html">GroupHeatmap</a></span><span class="op">(</span><span class="va">panc8_sub</span>,</span></span>
+<span class="r-in"><span>  slot <span class="op">=</span> <span class="st">"data"</span>,</span></span>
+<span class="r-in"><span>  features <span class="op">=</span> <span class="va">ConservedMarkers1</span><span class="op">$</span><span class="va">gene</span>, feature_split <span class="op">=</span> <span class="va">ConservedMarkers1</span><span class="op">$</span><span class="va">group1</span>,</span></span>
+<span class="r-in"><span>  group.by <span class="op">=</span> <span class="st">"tech"</span>, split.by <span class="op">=</span> <span class="st">"celltype"</span>, within_groups <span class="op">=</span> <span class="cn">TRUE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> 'magick' package is suggested to install to give better rasterization.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Set `ht_opt$message = FALSE` to turn off this message.</span>
 <span class="r-in"><span><span class="va">ht4</span><span class="op">$</span><span class="va">plot</span></span></span>
-<span class="r-plt img"><img src="RunDEtest-4.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="RunDEtest-5.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">ifnb_sub</span> <span class="op">&lt;-</span> <span class="fu">RunDEtest</span><span class="op">(</span><span class="va">ifnb_sub</span>, group_by <span class="op">=</span> <span class="st">"seurat_annotations"</span>, grouping.var <span class="op">=</span> <span class="st">"stim"</span>, markers_type <span class="op">=</span> <span class="st">"disturbed"</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-04-27 08:45:27.94393] Start DEtest</span>
+<span class="r-in"><span><span class="va">panc8_sub</span> <span class="op">&lt;-</span> <span class="fu">RunDEtest</span><span class="op">(</span><span class="va">panc8_sub</span>, group_by <span class="op">=</span> <span class="st">"tech"</span>, grouping.var <span class="op">=</span> <span class="st">"celltype"</span>, markers_type <span class="op">=</span> <span class="st">"conserved"</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-08-29 05:43:51.813167] Start DEtest</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Workers: 1</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Find conserved markers(wilcox) among 5 groups...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>mast has fewer than 3 cells. Skipping mast</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>schwann has fewer than 3 cells. Skipping schwann</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>epsilon has fewer than 3 cells. Skipping epsilon</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>macrophage has fewer than 3 cells. Skipping macrophage</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>quiescent_stellate has fewer than 3 cells. Skipping quiescent_stellate</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>endothelial has fewer than 3 cells. Skipping endothelial</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>activated_stellate has fewer than 3 cells. Skipping activated_stellate</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>mast has fewer than 3 cells. Skipping mast</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>schwann has fewer than 3 cells. Skipping schwann</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>epsilon has fewer than 3 cells. Skipping epsilon</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>quiescent_stellate has fewer than 3 cells. Skipping quiescent_stellate</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>endothelial has fewer than 3 cells. Skipping endothelial</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>mast has fewer than 3 cells. Skipping mast</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>schwann has fewer than 3 cells. Skipping schwann</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>epsilon has fewer than 3 cells. Skipping epsilon</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>macrophage has fewer than 3 cells. Skipping macrophage</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>quiescent_stellate has fewer than 3 cells. Skipping quiescent_stellate</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>mast has fewer than 3 cells. Skipping mast</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>schwann has fewer than 3 cells. Skipping schwann</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>epsilon has fewer than 3 cells. Skipping epsilon</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>mast has fewer than 3 cells. Skipping mast</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>schwann has fewer than 3 cells. Skipping schwann</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>epsilon has fewer than 3 cells. Skipping epsilon</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>macrophage has fewer than 3 cells. Skipping macrophage</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>quiescent_stellate has fewer than 3 cells. Skipping quiescent_stellate</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>endothelial has fewer than 3 cells. Skipping endothelial</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |==============================================================================================================| 100%</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-08-29 05:44:29.769802] DEtest done</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:37.96 secs</span>
+<span class="r-in"><span><span class="va">ConservedMarkers2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">panc8_sub</span><span class="op">@</span><span class="va">tools</span><span class="op">$</span><span class="va">DEtest_tech</span><span class="op">$</span><span class="va">ConservedMarkers_wilcox</span>, <span class="va">p_val_adj</span> <span class="op">&lt;</span> <span class="fl">0.05</span> <span class="op">&amp;</span> <span class="va">avg_log2FC</span> <span class="op">&gt;</span> <span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">ConservedMarkers2</span><span class="op">$</span><span class="va">group1</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     celseq    celseq2 fluidigmc1     indrop  smartseq2 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         29         11         61         52         22 </span>
+<span class="r-in"><span><span class="va">ht4</span> <span class="op">&lt;-</span> <span class="fu"><a href="GroupHeatmap.html">GroupHeatmap</a></span><span class="op">(</span><span class="va">panc8_sub</span>,</span></span>
+<span class="r-in"><span>  slot <span class="op">=</span> <span class="st">"data"</span>,</span></span>
+<span class="r-in"><span>  features <span class="op">=</span> <span class="va">ConservedMarkers2</span><span class="op">$</span><span class="va">gene</span>, feature_split <span class="op">=</span> <span class="va">ConservedMarkers2</span><span class="op">$</span><span class="va">group1</span>,</span></span>
+<span class="r-in"><span>  group.by <span class="op">=</span> <span class="st">"tech"</span>, split.by <span class="op">=</span> <span class="st">"celltype"</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 'magick' package is suggested to install to give better rasterization.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Set `ht_opt$message = FALSE` to turn off this message.</span>
+<span class="r-in"><span><span class="va">ht4</span><span class="op">$</span><span class="va">plot</span></span></span>
+<span class="r-plt img"><img src="RunDEtest-6.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">panc8_sub</span> <span class="op">&lt;-</span> <span class="fu">RunDEtest</span><span class="op">(</span><span class="va">panc8_sub</span>, group_by <span class="op">=</span> <span class="st">"celltype"</span>, grouping.var <span class="op">=</span> <span class="st">"tech"</span>, markers_type <span class="op">=</span> <span class="st">"disturbed"</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-08-29 05:44:34.782593] Start DEtest</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Workers: 1</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Find disturbed markers(wilcox) among 13 groups...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |==============================================================================================================| 100%</span>
@@ -233,65 +332,60 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |==============================================================================================================| 100%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-04-27 08:45:37.711732] DEtest done</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:9.77 secs</span>
-<span class="r-in"><span><span class="va">DisturbedMarkers_STIM</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">ifnb_sub</span><span class="op">@</span><span class="va">tools</span><span class="op">$</span><span class="va">DEtest_seurat_annotations</span><span class="op">$</span><span class="va">DisturbedMarkers_wilcox</span>, <span class="va">p_val_adj</span> <span class="op">&lt;</span> <span class="fl">0.05</span> <span class="op">&amp;</span> <span class="va">avg_log2FC</span> <span class="op">&gt;</span> <span class="fl">1</span> <span class="op">&amp;</span> <span class="va">var1</span> <span class="op">==</span> <span class="st">"STIM"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">DisturbedMarkers_STIM</span><span class="op">$</span><span class="va">group1</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-08-29 05:45:14.487167] DEtest done</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:39.7 secs</span>
+<span class="r-in"><span><span class="va">DisturbedMarkers</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">panc8_sub</span><span class="op">@</span><span class="va">tools</span><span class="op">$</span><span class="va">DEtest_celltype</span><span class="op">$</span><span class="va">DisturbedMarkers_wilcox</span>, <span class="va">p_val_adj</span> <span class="op">&lt;</span> <span class="fl">0.05</span> <span class="op">&amp;</span> <span class="va">avg_log2FC</span> <span class="op">&gt;</span> <span class="fl">1</span> <span class="op">&amp;</span> <span class="va">var1</span> <span class="op">==</span> <span class="st">"smartseq2"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">DisturbedMarkers</span><span class="op">$</span><span class="va">group1</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    CD14 Mono  CD4 Naive T CD4 Memory T    CD16 Mono            B        CD8 T  T activated           NK           DC </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          143           75           71          105           49           29           27           27           71 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  B Activated           Mk          pDC        Eryth </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            8            5            0            0 </span>
-<span class="r-in"><span><span class="va">ht5</span> <span class="op">&lt;-</span> <span class="fu"><a href="GroupHeatmap.html">GroupHeatmap</a></span><span class="op">(</span><span class="va">ifnb_sub</span>,</span></span>
-<span class="r-in"><span>  features <span class="op">=</span> <span class="va">DisturbedMarkers_STIM</span><span class="op">$</span><span class="va">gene</span>, feature_split <span class="op">=</span> <span class="va">DisturbedMarkers_STIM</span><span class="op">$</span><span class="va">group1</span>,</span></span>
-<span class="r-in"><span>  group.by <span class="op">=</span> <span class="st">"seurat_annotations"</span>, split.by <span class="op">=</span> <span class="st">"stim"</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>              alpha               beta             ductal             acinar activated_stellate              gamma </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                 37                117                 71                116                  5                  6 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>              delta            epsilon               mast        endothelial         macrophage quiescent_stellate </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                 16                  0                  0                  0                  0                  0 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            schwann </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                  0 </span>
+<span class="r-in"><span><span class="va">ht5</span> <span class="op">&lt;-</span> <span class="fu"><a href="GroupHeatmap.html">GroupHeatmap</a></span><span class="op">(</span><span class="va">panc8_sub</span>,</span></span>
+<span class="r-in"><span>  slot <span class="op">=</span> <span class="st">"data"</span>,</span></span>
+<span class="r-in"><span>  features <span class="op">=</span> <span class="va">DisturbedMarkers</span><span class="op">$</span><span class="va">gene</span>, feature_split <span class="op">=</span> <span class="va">DisturbedMarkers</span><span class="op">$</span><span class="va">group1</span>,</span></span>
+<span class="r-in"><span>  group.by <span class="op">=</span> <span class="st">"celltype"</span>, split.by <span class="op">=</span> <span class="st">"tech"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> 'magick' package is suggested to install to give better rasterization.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Set `ht_opt$message = FALSE` to turn off this message.</span>
 <span class="r-in"><span><span class="va">ht5</span><span class="op">$</span><span class="va">plot</span></span></span>
-<span class="r-plt img"><img src="RunDEtest-5.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="RunDEtest-7.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">gene_specific</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/which.html" class="external-link">which</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">DisturbedMarkers_STIM</span><span class="op">$</span><span class="va">gene</span><span class="op">)</span> <span class="op">&lt;=</span> <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">DisturbedMarkers_STIM_specific</span> <span class="op">&lt;-</span> <span class="va">DisturbedMarkers_STIM</span><span class="op">[</span><span class="va">DisturbedMarkers_STIM</span><span class="op">$</span><span class="va">gene</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">gene_specific</span>, <span class="op">]</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">DisturbedMarkers_STIM_specific</span><span class="op">$</span><span class="va">group1</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">gene_specific</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/which.html" class="external-link">which</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">DisturbedMarkers</span><span class="op">$</span><span class="va">gene</span><span class="op">)</span> <span class="op">==</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">DisturbedMarkers_specific</span> <span class="op">&lt;-</span> <span class="va">DisturbedMarkers</span><span class="op">[</span><span class="va">DisturbedMarkers</span><span class="op">$</span><span class="va">gene</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">gene_specific</span>, <span class="op">]</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">DisturbedMarkers_specific</span><span class="op">$</span><span class="va">group1</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    CD14 Mono  CD4 Naive T CD4 Memory T    CD16 Mono            B        CD8 T  T activated           NK           DC </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           65           17           15           33            3            2            0            1            8 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  B Activated           Mk          pDC        Eryth </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            0            0            0            0 </span>
-<span class="r-in"><span><span class="va">ht6</span> <span class="op">&lt;-</span> <span class="fu"><a href="GroupHeatmap.html">GroupHeatmap</a></span><span class="op">(</span><span class="va">ifnb_sub</span>,</span></span>
-<span class="r-in"><span>  features <span class="op">=</span> <span class="va">DisturbedMarkers_STIM_specific</span><span class="op">$</span><span class="va">gene</span>, feature_split <span class="op">=</span> <span class="va">DisturbedMarkers_STIM_specific</span><span class="op">$</span><span class="va">group1</span>,</span></span>
-<span class="r-in"><span>  group.by <span class="op">=</span> <span class="st">"seurat_annotations"</span>, split.by <span class="op">=</span> <span class="st">"stim"</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>              alpha               beta             ductal             acinar activated_stellate              gamma </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                  3                 67                 27                 61                  4                  3 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>              delta            epsilon               mast        endothelial         macrophage quiescent_stellate </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                 13                  0                  0                  0                  0                  0 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            schwann </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                  0 </span>
+<span class="r-in"><span><span class="va">ht6</span> <span class="op">&lt;-</span> <span class="fu"><a href="GroupHeatmap.html">GroupHeatmap</a></span><span class="op">(</span><span class="va">panc8_sub</span>,</span></span>
+<span class="r-in"><span>  slot <span class="op">=</span> <span class="st">"data"</span>,</span></span>
+<span class="r-in"><span>  features <span class="op">=</span> <span class="va">DisturbedMarkers_specific</span><span class="op">$</span><span class="va">gene</span>, feature_split <span class="op">=</span> <span class="va">DisturbedMarkers_specific</span><span class="op">$</span><span class="va">group1</span>,</span></span>
+<span class="r-in"><span>  group.by <span class="op">=</span> <span class="st">"celltype"</span>, split.by <span class="op">=</span> <span class="st">"tech"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> 'magick' package is suggested to install to give better rasterization.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Set `ht_opt$message = FALSE` to turn off this message.</span>
 <span class="r-in"><span><span class="va">ht6</span><span class="op">$</span><span class="va">plot</span></span></span>
-<span class="r-plt img"><img src="RunDEtest-6.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="RunDEtest-8.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">ht7</span> <span class="op">&lt;-</span> <span class="fu"><a href="GroupHeatmap.html">GroupHeatmap</a></span><span class="op">(</span><span class="va">ifnb_sub</span>,</span></span>
-<span class="r-in"><span>  features <span class="op">=</span> <span class="va">DisturbedMarkers_STIM_specific</span><span class="op">$</span><span class="va">gene</span>, feature_split <span class="op">=</span> <span class="va">DisturbedMarkers_STIM_specific</span><span class="op">$</span><span class="va">group1</span>,</span></span>
-<span class="r-in"><span>  group.by <span class="op">=</span> <span class="st">"seurat_annotations"</span>, grouping.var <span class="op">=</span> <span class="st">"stim"</span>, numerator <span class="op">=</span> <span class="st">"STIM"</span>, limits <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">2</span>, <span class="fl">2</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">ht7</span> <span class="op">&lt;-</span> <span class="fu"><a href="GroupHeatmap.html">GroupHeatmap</a></span><span class="op">(</span><span class="va">panc8_sub</span>,</span></span>
+<span class="r-in"><span>  slot <span class="op">=</span> <span class="st">"data"</span>, aggregate_fun <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">expm1</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> <span class="fl">1</span>,</span></span>
+<span class="r-in"><span>  features <span class="op">=</span> <span class="va">DisturbedMarkers_specific</span><span class="op">$</span><span class="va">gene</span>, feature_split <span class="op">=</span> <span class="va">DisturbedMarkers_specific</span><span class="op">$</span><span class="va">group1</span>,</span></span>
+<span class="r-in"><span>  group.by <span class="op">=</span> <span class="st">"celltype"</span>, grouping.var <span class="op">=</span> <span class="st">"tech"</span>, numerator <span class="op">=</span> <span class="st">"smartseq2"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>When 'grouping.var' is specified, 'exp_method' can only be 'log2fc'</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> 'magick' package is suggested to install to give better rasterization.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Set `ht_opt$message = FALSE` to turn off this message.</span>
 <span class="r-in"><span><span class="va">ht7</span><span class="op">$</span><span class="va">plot</span></span></span>
-<span class="r-plt img"><img src="RunDEtest-7.png" alt="" width="700" height="433"></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">ht8</span> <span class="op">&lt;-</span> <span class="fu"><a href="GroupHeatmap.html">GroupHeatmap</a></span><span class="op">(</span><span class="va">ifnb_sub</span>,</span></span>
-<span class="r-in"><span>  features <span class="op">=</span> <span class="va">DisturbedMarkers_STIM_specific</span><span class="op">$</span><span class="va">gene</span>, feature_split <span class="op">=</span> <span class="va">DisturbedMarkers_STIM_specific</span><span class="op">$</span><span class="va">group1</span>,</span></span>
-<span class="r-in"><span>  group.by <span class="op">=</span> <span class="st">"seurat_annotations"</span>, grouping.var <span class="op">=</span> <span class="st">"stim"</span>, numerator <span class="op">=</span> <span class="st">"STIM"</span>,</span></span>
-<span class="r-in"><span>  slot <span class="op">=</span> <span class="st">"data"</span>, aggregate_fun <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">expm1</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> <span class="fl">1</span></span></span>
-<span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>When 'grouping.var' is specified, 'exp_method' can only be 'log2fc'</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 'magick' package is suggested to install to give better rasterization.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Set `ht_opt$message = FALSE` to turn off this message.</span>
-<span class="r-in"><span><span class="va">ht8</span><span class="op">$</span><span class="va">plot</span></span></span>
-<span class="r-plt img"><img src="RunDEtest-8.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="RunDEtest-9.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

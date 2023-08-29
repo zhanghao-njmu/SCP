@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">SCP</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.8</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.1</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -51,11 +51,13 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">ProjectionPlot</span><span class="op">(</span></span>
 <span>  <span class="va">srt_query</span>,</span>
 <span>  <span class="va">srt_ref</span>,</span>
-<span>  query_group <span class="op">=</span> <span class="st">"orig.ident"</span>,</span>
-<span>  ref_group <span class="op">=</span> <span class="st">"orig.ident"</span>,</span>
-<span>  query_reduction <span class="op">=</span> <span class="st">"ref.umap"</span>,</span>
+<span>  query_group <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  ref_group <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  query_feature <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  ref_feature <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  query_reduction <span class="op">=</span> <span class="st">"ref.embeddings"</span>,</span>
 <span>  ref_reduction <span class="op">=</span> <span class="va">srt_query</span><span class="op">[[</span><span class="va">query_reduction</span><span class="op">]</span><span class="op">]</span><span class="op">@</span><span class="va">misc</span><span class="op">[[</span><span class="st">"reduction.model"</span><span class="op">]</span><span class="op">]</span> <span class="op">%||%</span> <span class="cn">NULL</span>,</span>
-<span>  query_param <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>palette <span class="op">=</span> <span class="st">"Dark2"</span><span class="op">)</span>,</span>
+<span>  query_param <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>palette <span class="op">=</span> <span class="st">"Set1"</span>, cells.highlight <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
 <span>  ref_param <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>palette <span class="op">=</span> <span class="st">"Paired"</span><span class="op">)</span>,</span>
 <span>  xlim <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  ylim <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -71,6 +73,25 @@
 
 </dl></div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"panc8_sub"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">srt_ref</span> <span class="op">&lt;-</span> <span class="va">panc8_sub</span><span class="op">[</span>, <span class="va">panc8_sub</span><span class="op">$</span><span class="va">tech</span> <span class="op">!=</span> <span class="st">"fluidigmc1"</span><span class="op">]</span></span></span>
+<span class="r-in"><span><span class="va">srt_query</span> <span class="op">&lt;-</span> <span class="va">panc8_sub</span><span class="op">[</span>, <span class="va">panc8_sub</span><span class="op">$</span><span class="va">tech</span> <span class="op">==</span> <span class="st">"fluidigmc1"</span><span class="op">]</span></span></span>
+<span class="r-in"><span><span class="va">srt_ref</span> <span class="op">&lt;-</span> <span class="fu"><a href="Integration_SCP.html">Integration_SCP</a></span><span class="op">(</span><span class="va">srt_ref</span>, batch <span class="op">=</span> <span class="st">"tech"</span>, integration_method <span class="op">=</span> <span class="st">"Seurat"</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-08-29 05:38:33.892792] Start Seurat_integrate</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in Integration_SCP(srt_ref, batch = "tech", integration_method = "Seurat"):</span> object 'srt_ref' not found</span>
+<span class="r-in"><span><span class="fu"><a href="CellDimPlot.html">CellDimPlot</a></span><span class="op">(</span><span class="va">srt_ref</span>, group.by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"celltype"</span>, <span class="st">"tech"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in DefaultReduction(srt):</span> Unable to find any reductions.</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Projection</span></span></span>
+<span class="r-in"><span><span class="va">srt_query</span> <span class="op">&lt;-</span> <span class="fu"><a href="RunKNNMap.html">RunKNNMap</a></span><span class="op">(</span>srt_query <span class="op">=</span> <span class="va">srt_query</span>, srt_ref <span class="op">=</span> <span class="va">srt_ref</span>, ref_umap <span class="op">=</span> <span class="st">"SeuratUMAP2D"</span><span class="op">)</span></span></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> Cannot find 'SeuratUMAP2D' in this Seurat object</span>
+<span class="r-in"><span><span class="fu">ProjectionPlot</span><span class="op">(</span>srt_query <span class="op">=</span> <span class="va">srt_query</span>, srt_ref <span class="op">=</span> <span class="va">srt_ref</span>, query_group <span class="op">=</span> <span class="st">"celltype"</span>, ref_group <span class="op">=</span> <span class="st">"celltype"</span><span class="op">)</span></span></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> Cannot find 'ref.embeddings' in this Seurat object</span>
+<span class="r-in"><span></span></span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside></div>
 

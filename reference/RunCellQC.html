@@ -14,7 +14,7 @@ and reject cell data for non-species of interest based on the proportion and num
     
     <a class="navbar-brand me-2" href="../index.html">SCP</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.8</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.1</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -57,11 +57,12 @@ and reject cell data for non-species of interest based on the proportion and num
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">RunCellQC</span><span class="op">(</span></span>
 <span>  <span class="va">srt</span>,</span>
 <span>  assay <span class="op">=</span> <span class="st">"RNA"</span>,</span>
+<span>  batch <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  qc_metrics <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"doublets"</span>, <span class="st">"outlier"</span>, <span class="st">"umi"</span>, <span class="st">"gene"</span>, <span class="st">"mito"</span>, <span class="st">"ribo"</span>, <span class="st">"ribo_mito_ratio"</span>,</span>
 <span>    <span class="st">"species"</span><span class="op">)</span>,</span>
 <span>  return_filtered <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  db_method <span class="op">=</span> <span class="st">"scDblFinder"</span>,</span>
-<span>  db_rate <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">srt</span><span class="op">)</span><span class="op">/</span><span class="fl">1000</span> <span class="op">*</span> <span class="fl">0.01</span>,</span>
+<span>  db_rate <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  outlier_cutoff <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"log10_nCount:lower:2.5"</span>, <span class="st">"log10_nCount:higher:5"</span>,</span>
 <span>    <span class="st">"log10_nFeature:lower:2.5"</span>, <span class="st">"log10_nFeature:higher:5"</span>, <span class="st">"featurecount_dist:lower:2.5"</span><span class="op">)</span>,</span>
 <span>  outlier_n <span class="op">=</span> <span class="fl">1</span>,</span>
@@ -185,23 +186,74 @@ and the ribo content in empty droplets is usually high and the mito content is l
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"pancreas_sub"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu">RunCellQC</span><span class="op">(</span><span class="va">pancreas_sub</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Run doublet-calling with scDblFinder</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Calculate outlier cells</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      log10_nCount:lower:2.5       log10_nCount:higher:5    log10_nFeature:lower:2.5     log10_nFeature:higher:5 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                           0                           0                           5                           0 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> featurecount_dist:lower:2.5 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                           8 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &gt;&gt;&gt; Total cells: 1000 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> &gt;&gt;&gt; Cells which are filtered out: 24 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &gt;&gt;&gt; Cells which are filtered out: 26 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ... 12 potential doublets </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> ... 12 outlier cells </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ... 14 outlier cells </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ... 0 low-UMI cells </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ... 0 low-gene cells </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ... 0 high-mito cells </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ... 0 high-ribo cells </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> ... 0  ribo_mito_ratio outlier cells </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ... 0 ribo_mito_ratio outlier cells </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ... 0 species-contaminated cells </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> &gt;&gt;&gt; Remained cells after filtering: 976 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &gt;&gt;&gt; Remained cells after filtering: 974 </span>
+<span class="r-in"><span><span class="fu"><a href="CellStatPlot.html">CellStatPlot</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  srt <span class="op">=</span> <span class="va">pancreas_sub</span>,</span></span>
+<span class="r-in"><span>  stat.by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>    <span class="st">"db_qc"</span>, <span class="st">"outlier_qc"</span>, <span class="st">"umi_qc"</span>, <span class="st">"gene_qc"</span>,</span></span>
+<span class="r-in"><span>    <span class="st">"mito_qc"</span>, <span class="st">"ribo_qc"</span>, <span class="st">"ribo_mito_ratio_qc"</span>, <span class="st">"species_qc"</span></span></span>
+<span class="r-in"><span>  <span class="op">)</span>,</span></span>
+<span class="r-in"><span>  plot_type <span class="op">=</span> <span class="st">"upset"</span>, stat_level <span class="op">=</span> <span class="st">"Fail"</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> `geom_line()`: Each group consists of only one observation.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Do you need to adjust the <span style="color: #00BB00;">group</span> aesthetic?</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> `geom_line()`: Each group consists of only one observation.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Do you need to adjust the <span style="color: #00BB00;">group</span> aesthetic?</span>
+<span class="r-plt img"><img src="RunCellQC-1.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">pancreas_sub</span><span class="op">$</span><span class="va">CellQC</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Pass Fail </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  974   26 </span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"ifnb_sub"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">ifnb_sub</span> <span class="op">&lt;-</span> <span class="fu">RunCellQC</span><span class="op">(</span><span class="va">ifnb_sub</span>, batch <span class="op">=</span> <span class="st">"stim"</span>, UMI_threshold <span class="op">=</span> <span class="fl">1000</span>, gene_threshold <span class="op">=</span> <span class="fl">550</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> === CTRL ===</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &gt;&gt;&gt; Total cells: 1000 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &gt;&gt;&gt; Cells which are filtered out: 315 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ... 54 potential doublets </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ... 8 outlier cells </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ... 28 low-UMI cells </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ... 250 low-gene cells </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ... 0 high-mito cells </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ... 0 high-ribo cells </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ... 0 ribo_mito_ratio outlier cells </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ... 0 species-contaminated cells </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &gt;&gt;&gt; Remained cells after filtering: 685 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> === STIM ===</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &gt;&gt;&gt; Total cells: 1000 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &gt;&gt;&gt; Cells which are filtered out: 303 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ... 42 potential doublets </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ... 12 outlier cells </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ... 25 low-UMI cells </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ... 251 low-gene cells </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ... 0 high-mito cells </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ... 0 high-ribo cells </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ... 0 ribo_mito_ratio outlier cells </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ... 0 species-contaminated cells </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &gt;&gt;&gt; Remained cells after filtering: 697 </span>
+<span class="r-in"><span><span class="fu"><a href="CellStatPlot.html">CellStatPlot</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  srt <span class="op">=</span> <span class="va">ifnb_sub</span>,</span></span>
+<span class="r-in"><span>  stat.by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>    <span class="st">"db_qc"</span>, <span class="st">"outlier_qc"</span>, <span class="st">"umi_qc"</span>, <span class="st">"gene_qc"</span>,</span></span>
+<span class="r-in"><span>    <span class="st">"mito_qc"</span>, <span class="st">"ribo_qc"</span>, <span class="st">"ribo_mito_ratio_qc"</span>, <span class="st">"species_qc"</span></span></span>
+<span class="r-in"><span>  <span class="op">)</span>,</span></span>
+<span class="r-in"><span>  plot_type <span class="op">=</span> <span class="st">"upset"</span>, stat_level <span class="op">=</span> <span class="st">"Fail"</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="RunCellQC-2.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">ifnb_sub</span><span class="op">$</span><span class="va">CellQC</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Fail Pass </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  618 1382 </span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>

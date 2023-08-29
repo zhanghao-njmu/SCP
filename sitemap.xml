@@ -166,6 +166,9 @@
     <loc>https://zhanghao-njmu.github.io/SCP/reference/RunEnrichment.html</loc>
   </url>
   <url>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/RunFR.html</loc>
+  </url>
+  <url>
     <loc>https://zhanghao-njmu.github.io/SCP/reference/RunGLMPCA.html</loc>
   </url>
   <url>
@@ -236,6 +239,9 @@
   </url>
   <url>
     <loc>https://zhanghao-njmu.github.io/SCP/reference/RunUMAP2.html</loc>
+  </url>
+  <url>
+    <loc>https://zhanghao-njmu.github.io/SCP/reference/RunWOT.html</loc>
   </url>
   <url>
     <loc>https://zhanghao-njmu.github.io/SCP/reference/SankeyPlot.html</loc>

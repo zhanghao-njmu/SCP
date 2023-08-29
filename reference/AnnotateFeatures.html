@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">SCP</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.8</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.1</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -79,7 +79,7 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"pancreas_sub"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu">AnnotateFeatures</span><span class="op">(</span><span class="va">pancreas_sub</span>,</span></span>
 <span class="r-in"><span>  species <span class="op">=</span> <span class="st">"Mus_musculus"</span>, IDtype <span class="op">=</span> <span class="st">"symbol"</span>,</span></span>
-<span class="r-in"><span>  db <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Chromosome"</span>, <span class="st">"GeneType"</span>, <span class="st">"Enzyme"</span>, <span class="st">"TF"</span>, <span class="st">"SP"</span>, <span class="st">"CellTalk"</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  db <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Chromosome"</span>, <span class="st">"GeneType"</span>, <span class="st">"Enzyme"</span>, <span class="st">"TF"</span>, <span class="st">"CSPA"</span>, <span class="st">"VerSeDa"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Species: Mus_musculus</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Preparing database: Chromosome</span>
@@ -91,10 +91,21 @@
 <span class="r-msg co"><span class="r-pr">#&gt;</span> for details.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Replacement repositories:</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>     CRAN: https://cloud.r-project.org</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Bioconductor version 3.17 (BiocManager 1.30.20), R 4.3.0 (2023-04-21)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Bioconductor version 3.17 (BiocManager 1.30.22), R 4.3.1 (2023-06-16)</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Installing package(s) 'BiocVersion', 'openxlsx'</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Preparing database: SP</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Preparing database: CellTalk</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Preparing database: CSPA</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Preparing database: VerSeDa</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Connect to the Ensembl archives...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Using the 103 version of biomart...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Connecting to the biomart...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Searching the dataset mmusculus ...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Connecting to the dataset mmusculus_gene_ensembl ...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Converting the geneIDs...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 11269 genes mapped with ensembl_peptide_id</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ==============================</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 11269 genes mapped</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 1197 genes unmapped</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ==============================</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Convert ID types for the database: Chromosome</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Connect to the Ensembl archives...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Using the 103 version of biomart...</span>
@@ -132,13 +143,13 @@
 <span class="r-msg co"><span class="r-pr">#&gt;</span> 20 genes unmapped</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ==============================</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">pancreas_sub</span><span class="op">[[</span><span class="st">"RNA"</span><span class="op">]</span><span class="op">]</span><span class="op">@</span><span class="va">meta.features</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>               highly_variable_genes Chromosome       GeneType Enzyme   TF   SP              CellTalk</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Mrpl15                        False       chr1 protein-coding   &lt;NA&gt; &lt;NA&gt; &lt;NA&gt;                  &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Npbwr1                         &lt;NA&gt;       chr1 protein-coding   &lt;NA&gt; &lt;NA&gt; &lt;NA&gt; ligand_Npb;ligand_Npw</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4732440D04Rik                 False       &lt;NA&gt;           &lt;NA&gt;   &lt;NA&gt; &lt;NA&gt; &lt;NA&gt;                  &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Gm26901                       False       &lt;NA&gt;           &lt;NA&gt;   &lt;NA&gt; &lt;NA&gt; &lt;NA&gt;                  &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Sntg1                          True       chr1 protein-coding   &lt;NA&gt; &lt;NA&gt; &lt;NA&gt;                  &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Mybl1                         False       chr1 protein-coding   &lt;NA&gt;   TF &lt;NA&gt;                  &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>               highly_variable_genes Chromosome       GeneType Enzyme   TF CSPA          VerSeDa</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Mrpl15                        False       chr1 protein-coding   &lt;NA&gt; &lt;NA&gt; &lt;NA&gt; SecretoryProtein</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Npbwr1                         &lt;NA&gt;       chr1 protein-coding   &lt;NA&gt; &lt;NA&gt; &lt;NA&gt;             &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4732440D04Rik                 False       &lt;NA&gt;           &lt;NA&gt;   &lt;NA&gt; &lt;NA&gt; &lt;NA&gt;             &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Gm26901                       False       &lt;NA&gt;           &lt;NA&gt;   &lt;NA&gt; &lt;NA&gt; &lt;NA&gt;             &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Sntg1                          True       chr1 protein-coding   &lt;NA&gt; &lt;NA&gt; &lt;NA&gt; SecretoryProtein</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Mybl1                         False       chr1 protein-coding   &lt;NA&gt;   TF &lt;NA&gt;             &lt;NA&gt;</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">## Annotate features using a GTF file</span></span></span>
 <span class="r-in"><span><span class="co"># pancreas_sub &lt;- AnnotateFeatures(pancreas_sub, gtf = "/data/reference/CellRanger/refdata-gex-mm10-2020-A/genes/genes.gtf")</span></span></span>
