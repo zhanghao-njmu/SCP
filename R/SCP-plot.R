@@ -12675,7 +12675,8 @@ EnrichmentPlot <- function(srt, db = "GO_BP", group_by = NULL, group_use = NULL,
   set.seed(seed)
   plot_type <- match.arg(plot_type)
   word_type <- match.arg(word_type)
-  enrichmap_mark <- match.arg(word_type)
+  enrichmap_label <- match.arg(enrichmap_label)
+  enrichmap_mark <- match.arg(enrichmap_mark)
 
   if (is.null(res)) {
     if (is.null(group_by)) {
