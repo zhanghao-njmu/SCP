@@ -291,7 +291,7 @@ isOutlier <- function(x, nmads = 2.5, constant = 1.4826, type = c("both", "lower
 #'   plot_type = "upset", stat_level = "Fail"
 #' )
 #' table(ifnb_sub$CellQC)
-#' @importFrom Seurat Assays as.SingleCellExperiment PercentageFeatureSet WhichCells SplitObject
+#' @importFrom Seurat Assays as.SingleCellExperiment PercentageFeatureSet WhichCells SplitObject AddMetaData
 #' @importFrom stats loess predict aggregate
 #' @importFrom Matrix colSums t
 #' @export
@@ -337,6 +337,7 @@ RunCellQC <- function(srt, assay = "RNA", batch = NULL,
   if (!paste0("nFeature_", assay) %in% colnames(srt@meta.data)) {
     srt@meta.data[[paste0("nFeature_", assay)]] <- colSums(srt[[assay]]@counts > 0)
   }
+  srt_raw <- srt
   if (!is.null(batch)) {
     srtList <- SplitObject(srt, split.by = batch)
   } else {
@@ -475,9 +476,9 @@ RunCellQC <- function(srt, assay = "RNA", batch = NULL,
     }
     srtList[[i]] <- srt
   }
-  if (length(srtList) > 1) {
-    return(Reduce(merge, srtList))
-  } else {
-    return(srtList[[1]])
-  }
+  cells <- unlist(lapply(srtList, colnames))
+  srt_raw <- srt_raw[, cells]
+  meta.data <- do.call(rbind.data.frame, unname(lapply(srtList, function(x) x@meta.data)))
+  srt_raw <- AddMetaData(srt_raw, metadata = meta.data)
+  return(srt_raw)
 }

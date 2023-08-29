@@ -13121,8 +13121,8 @@ EnrichmentPlot <- function(srt, db = "GO_BP", group_by = NULL, group_use = NULL,
         guides(linewidth = guide_legend(override.aes = list(alpha = 1, color = "grey"), order = 2)) +
         scale_fill_manual(
           name = switch(enrichmap_label,
-            "term" = "Gene:",
-            "gene" = "Term:"
+            "term" = "Feature:",
+            "feature" = "Term:"
           ),
           values = palette_scp(levels(df_nodes[["clusters"]]), palette = palette, palcolor = palcolor),
           labels = if (enrichmap_label == "term") df_keyword2[levels(df_nodes[["clusters"]]), "label"] else df_keyword1[levels(df_nodes[["clusters"]]), "label"],
