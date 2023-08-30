@@ -13,6 +13,7 @@ RunCellQC(
   return_filtered = FALSE,
   db_method = "scDblFinder",
   db_rate = NULL,
+  db_coefficient = 0.01,
   outlier_cutoff = c("log10_nCount:lower:2.5", "log10_nCount:higher:5",
     "log10_nFeature:lower:2.5", "log10_nFeature:higher:5", "featurecount_dist:lower:2.5"),
   outlier_n = 1,

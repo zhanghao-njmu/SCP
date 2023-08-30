@@ -299,7 +299,7 @@ isOutlier <- function(x, nmads = 2.5, constant = 1.4826, type = c("both", "lower
 RunCellQC <- function(srt, assay = "RNA", batch = NULL,
                       qc_metrics = c("doublets", "outlier", "umi", "gene", "mito", "ribo", "ribo_mito_ratio", "species"),
                       return_filtered = FALSE,
-                      db_method = "scDblFinder", db_rate = NULL,
+                      db_method = "scDblFinder", db_rate = NULL, db_coefficient = 0.01,
                       outlier_cutoff = c(
                         "log10_nCount:lower:2.5",
                         "log10_nCount:higher:5",
@@ -355,7 +355,7 @@ RunCellQC <- function(srt, assay = "RNA", batch = NULL,
     if ("doublets" %in% qc_metrics) {
       if (!is.null(db_method)) {
         if (is.null(db_rate)) {
-          db_rate <- ncol(srt) / 1000 * 0.01
+          db_rate <- ncol(srt) / 1000 * db_coefficient
         }
         if (db_rate >= 1) {
           stop("The db_rate is equal to or greater than 1!")
