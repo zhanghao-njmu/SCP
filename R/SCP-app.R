@@ -589,162 +589,302 @@ RunSCExplorer <- function(base_dir = "SCExplorer",
   }
 
   main_code <- '
-data_group <- rhdf5::h5ls(DataFile)$group
-meta_group <- rhdf5::h5ls(MetaFile)$group
-group <- intersect(data_group, meta_group)
-group <- group[group != "/"]
-group <- as.character(sapply(group, function(x) substr(x, 2, nchar(x))))
-if (length(group) == 0) {
-  stop("Can not find the shared group names in the DataFile and the MetaFile. They may not correspond to the same project.")
-}
-if (is.null(initial_dataset)) {
-  initial_dataset <- group[1]
-}
-if (substr(initial_dataset, 1, 1) == "/") {
-  initial_dataset <- substr(initial_dataset, 2, nchar(initial_dataset))
-}
-if (!initial_dataset %in% group) {
-  stop("Dataset ", group, " is not in the DataFile and the MetaFile")
-}
+  data_group <- rhdf5::h5ls(DataFile)$group
+  meta_group <- rhdf5::h5ls(MetaFile)$group
+  group <- intersect(data_group, meta_group)
+  group <- group[group != "/"]
+  group <- as.character(sapply(group, function(x) substr(x, 2, nchar(x))))
+  if (length(group) == 0) {
+    stop("Can not find the shared group names in the DataFile and the MetaFile. They may not correspond to the same project.")
+  }
+  if (is.null(initial_dataset)) {
+    initial_dataset <- group[1]
+  }
+  if (substr(initial_dataset, 1, 1) == "/") {
+    initial_dataset <- substr(initial_dataset, 2, nchar(initial_dataset))
+  }
+  if (!initial_dataset %in% group) {
+    stop("Dataset ", group, " is not in the DataFile and the MetaFile")
+  }
 
-assays <- unique(na.omit(sapply(strsplit(data_group[grep(initial_dataset, data_group)], "/"), function(x) x[3])))
-slots <- unique(na.omit(sapply(strsplit(data_group[grep(initial_dataset, data_group)], "/"), function(x) x[4])))
-if (is.null(initial_assay)) {
-  initial_assay <- as.character(rhdf5::h5read(DataFile, name = paste0("/", initial_dataset, "/Default_assay")))
-}
-if (is.null(initial_slot)) {
-  initial_slot <- ifelse("data" %in% slots, "data", slots[1])
-}
-if (!initial_assay %in% assays) {
-  stop("initial_assay is not in the dataset ", initial_dataset, " in the DataFile")
-}
-if (!initial_slot %in% slots) {
-  stop("initial_slot is not in the dataset ", initial_slot, " in the DataFile")
-}
+  assays <- unique(na.omit(sapply(strsplit(data_group[grep(initial_dataset, data_group)], "/"), function(x) x[3])))
+  slots <- unique(na.omit(sapply(strsplit(data_group[grep(initial_dataset, data_group)], "/"), function(x) x[4])))
+  if (is.null(initial_assay)) {
+    initial_assay <- as.character(rhdf5::h5read(DataFile, name = paste0("/", initial_dataset, "/Default_assay")))
+  }
+  if (is.null(initial_slot)) {
+    initial_slot <- ifelse("data" %in% slots, "data", slots[1])
+  }
+  if (!initial_assay %in% assays) {
+    stop("initial_assay is not in the dataset ", initial_dataset, " in the DataFile")
+  }
+  if (!initial_slot %in% slots) {
+    stop("initial_slot is not in the dataset ", initial_slot, " in the DataFile")
+  }
 
-data <- HDF5Array::TENxMatrix(filepath = DataFile, group = paste0("/", initial_dataset, "/", initial_assay, "/", initial_slot))
-all_features <- colnames(data)
+  data <- HDF5Array::TENxMatrix(filepath = DataFile, group = paste0("/", initial_dataset, "/", initial_assay, "/", initial_slot))
+  all_features <- colnames(data)
 
-meta_struc <- rhdf5::h5ls(MetaFile)
-meta_features_name <- rhdf5::h5read(MetaFile, name = paste0("/", initial_dataset, "/metadata.stat/asfeatures"))
-meta_groups_name <- rhdf5::h5read(MetaFile, name = paste0("/", initial_dataset, "/metadata.stat/asgroups"))
-reduction_name <- meta_struc[meta_struc$group == paste0("/", initial_dataset, "/reductions"), "name"]
-default_reduction <- as.character(rhdf5::h5read(MetaFile, name = paste0("/", initial_dataset, "/reductions.stat/Default_reduction")))
+  meta_struc <- rhdf5::h5ls(MetaFile)
+  meta_features_name <- rhdf5::h5read(MetaFile, name = paste0("/", initial_dataset, "/metadata.stat/asfeatures"))
+  meta_groups_name <- rhdf5::h5read(MetaFile, name = paste0("/", initial_dataset, "/metadata.stat/asgroups"))
+  reduction_name <- meta_struc[meta_struc$group == paste0("/", initial_dataset, "/reductions"), "name"]
+  default_reduction <- as.character(rhdf5::h5read(MetaFile, name = paste0("/", initial_dataset, "/reductions.stat/Default_reduction")))
 
-if (is.null(initial_reduction)) {
-  initial_reduction <- default_reduction
-}
-if (is.null(initial_group)) {
-  initial_group <- "orig.ident"
-}
-if (is.null(initial_feature)) {
-  initial_feature <- meta_features_name[1]
-}
-initial_raster = nrow(data) > 1e5
+  if (is.null(initial_reduction)) {
+    initial_reduction <- default_reduction
+  }
+  if (is.null(initial_group)) {
+    initial_group <- "orig.ident"
+  }
+  if (is.null(initial_feature)) {
+    initial_feature <- meta_features_name[1]
+  }
+  initial_raster <- nrow(data) > 1e5
 
-palette_list <- SCP:::palette_list
+  palette_list <- SCP:::palette_list
 
-panel_raster <- FALSE
+  panel_raster <- FALSE
 
-ui <- fluidPage(
-  theme = page_theme,
-  navbarPage(
-    title = title,
-    # 1. Cell dimensional reduction plot ----------------------------------------------------------------------
-    tabPanel(
-      title = "Cell dimensional reduction plot",
-      sidebarLayout(
-        sidebarPanel(
-          width = 3,
-          selectInput(
-            inputId = "dataset1",
-            label = "Select a dataset",
-            choices = group,
-            selected = substr(initial_dataset, 2, nchar(initial_dataset))
+  ui <- fluidPage(
+    theme = page_theme,
+    navbarPage(
+      title = title,
+      # 1. Cell dimensional reduction plot ----------------------------------------------------------------------
+      tabPanel(
+        title = "Cell dimensional reduction plot",
+        sidebarLayout(
+          sidebarPanel(
+            width = 3,
+            selectInput(
+              inputId = "dataset1",
+              label = "Select a dataset",
+              choices = group,
+              selected = substr(initial_dataset, 2, nchar(initial_dataset))
+            ),
+            selectInput(
+              inputId = "reduction1",
+              label = "Select a reduction",
+              choices = reduction_name,
+              selected = initial_reduction
+            ),
+            selectInput(
+              inputId = "group1",
+              label = "Select a variable to group cells",
+              choices = meta_groups_name,
+              selected = initial_group
+            ),
+            selectInput(
+              inputId = "split1",
+              label = "Select a variable to split cells",
+              choices = c("None", meta_groups_name),
+              selected = "None"
+            ),
+            radioButtons(
+              inputId = "label1",
+              label = "Whether to add labels",
+              choices = c("Yes", "No"),
+              selected = initial_label,
+              inline = TRUE
+            ),
+            selectInput(
+              inputId = "palette1",
+              label = "Select a palette",
+              choices = names(palette_list),
+              selected = initial_cell_palette
+            ),
+            selectInput(
+              inputId = "theme1",
+              label = "Select a theme",
+              choices = c("theme_scp", "theme_blank"),
+              selected = initial_theme
+            ),
+            selectInput(
+              inputId = "raster1",
+              label = "Raster",
+              choices = c("TRUE", "FALSE"),
+              selected = initial_raster
+            ),
+            numericInput(
+              inputId = "size1",
+              label = "Panel size",
+              value = initial_size,
+              min = 1,
+              max = 10,
+              step = 0.1,
+              width = "150px"
+            ),
+            numericInput(
+              inputId = "plot_dpi1",
+              label = "Resolution",
+              value = initial_dpi,
+              min = 50,
+              max = 1000,
+              step = 50,
+              width = "150px"
+            ),
+            numericInput(
+              inputId = "ncol1",
+              label = "Number of columns",
+              value = initial_ncol,
+              min = 1,
+              max = 100,
+              step = 1,
+              width = "150px"
+            ),
+            radioButtons(
+              inputId = "arrange1",
+              label = "Arrange by",
+              choices = c("Row", "Column"),
+              selected = initial_arrange,
+              inline = TRUE
+            ),
+            actionButton(inputId = "submit1", label = "Submit", icon("play")),
+            helpText("Click the submit button to update the plot displayed in the right panel.")
           ),
-          selectInput(
-            inputId = "reduction1",
-            label = "Select a reduction",
-            choices = reduction_name,
-            selected = initial_reduction
+          mainPanel(
+            width = 9,
+            fluidPage(
+              tabsetPanel(
+                tabPanel(
+                  title = "2D plot",
+                  column(
+                    width = 12, offset = 0, style = "padding:0px;margin:0%",
+                    div(
+                      style = "overflow-x: auto;",
+                      uiOutput("plot1")
+                    )
+                  )
+                ),
+                tabPanel(
+                  title = "3D plot",
+                  column(
+                    width = 12, offset = 0, style = "padding:0px;margin:0%",
+                    div(
+                      style = "overflow-x: auto;",
+                      plotly::plotlyOutput("plot1_3d", height = "100%", width = "100%")
+                    )
+                  )
+                )
+              )
+            )
+          )
+        )
+      ),
+      # 2. Feature dimensional reduction plot ----------------------------------------------------------------------
+      tabPanel(
+        title = "Feature dimensional reduction plot",
+        sidebarLayout(
+          sidebarPanel(
+            width = 3,
+            selectInput(
+              inputId = "dataset2",
+              label = "Select a dataset",
+              choices = group,
+              selected = substr(initial_dataset, 2, nchar(initial_dataset))
+            ),
+            selectInput(
+              inputId = "reduction2",
+              label = "Select a reduction",
+              choices = reduction_name,
+              selected = initial_reduction
+            ),
+            selectInput(
+              inputId = "assays2",
+              label = "Select a assay",
+              choices = assays,
+              selected = initial_assay
+            ),
+            selectInput(
+              inputId = "slots2",
+              label = "Select a slot",
+              choices = slots,
+              selected = initial_slot
+            ),
+            selectizeInput(
+              inputId = "features2",
+              label = "Select features",
+              choices = NULL,
+              selected = initial_feature,
+              multiple = TRUE,
+              options = list(maxOptions = 20, maxItems = 20)
+            ),
+            textAreaInput(
+              inputId = "feature_area2",
+              label = "Input features",
+              height = "200px",
+              placeholder = paste(sample(all_features, 4), collapse = "\n")
+            ),
+            selectInput(
+              inputId = "split2",
+              label = "Select a variable to split cells",
+              choices = c("None", meta_groups_name),
+              selected = "None"
+            ),
+            radioButtons(
+              inputId = "coExp2",
+              label = "Calculate co-expression?",
+              choices = c("Yes", "No"),
+              selected = "No",
+              inline = TRUE
+            ),
+            selectInput(
+              inputId = "palette2",
+              label = "Select a palette",
+              choices = names(palette_list),
+              selected = initial_feature_palette
+            ),
+            selectInput(
+              inputId = "theme2",
+              label = "Select a theme",
+              choices = c("theme_scp", "theme_blank"),
+              selected = initial_theme
+            ),
+            selectInput(
+              inputId = "raster2",
+              label = "Raster",
+              choices = c("TRUE", "FALSE"),
+              selected = initial_raster
+            ),
+            numericInput(
+              inputId = "size2",
+              label = "Panel size",
+              value = initial_size,
+              min = 1,
+              max = 10,
+              step = 0.1,
+              width = "150px"
+            ),
+            numericInput(
+              inputId = "plot_dpi2",
+              label = "Resolution",
+              value = initial_dpi,
+              min = 50,
+              max = 1000,
+              step = 50,
+              width = "150px"
+            ),
+            numericInput(
+              inputId = "ncol2",
+              label = "Number of columns",
+              value = initial_ncol,
+              min = 1,
+              max = 100,
+              step = 1,
+              width = "150px"
+            ),
+            radioButtons(
+              inputId = "arrange2",
+              label = "Arrange by",
+              choices = c("Row", "Column"),
+              selected = initial_arrange,
+              inline = TRUE
+            ),
+            actionButton(inputId = "submit2", label = "Submit", icon("play")),
+            helpText("Click the submit button to update the plot displayed in the right panel.")
           ),
-          selectInput(
-            inputId = "group1",
-            label = "Select a variable to group cells",
-            choices = meta_groups_name,
-            selected = initial_group
-          ),
-          selectInput(
-            inputId = "split1",
-            label = "Select a variable to split cells",
-            choices = c("None", meta_groups_name),
-            selected = "None"
-          ),
-          radioButtons(
-            inputId = "label1",
-            label = "Whether to add labels",
-            choices = c("Yes", "No"),
-            selected = initial_label,
-            inline = TRUE
-          ),
-          selectInput(
-            inputId = "palette1",
-            label = "Select a palette",
-            choices = names(palette_list),
-            selected = initial_cell_palette
-          ),
-          selectInput(
-            inputId = "theme1",
-            label = "Select a theme",
-            choices = c("theme_scp", "theme_blank"),
-            selected = initial_theme
-          ),
-          selectInput(
-            inputId = "raster1",
-            label = "Raster",
-            choices = c("TRUE", "FALSE"),
-            selected = initial_raster
-          ),
-          numericInput(
-            inputId = "size1",
-            label = "Panel size",
-            value = initial_size,
-            min = 1,
-            max = 10,
-            step = 0.1,
-            width = "150px"
-          ),
-          numericInput(
-            inputId = "plot_dpi1",
-            label = "Resolution",
-            value = initial_dpi,
-            min = 50,
-            max = 1000,
-            step = 50,
-            width = "150px"
-          ),
-          numericInput(
-            inputId = "ncol1",
-            label = "Number of columns",
-            value = initial_ncol,
-            min = 1,
-            max = 100,
-            step = 1,
-            width = "150px"
-          ),
-          radioButtons(
-            inputId = "arrange1",
-            label = "Arrange by",
-            choices = c("Row", "Column"),
-            selected = initial_arrange,
-            inline = TRUE
-          ),
-          actionButton(inputId = "submit1", label = "Submit", icon("play")),
-          helpText("Click the submit button to update the plot displayed in the right panel.")
-        ),
-        mainPanel(
-          width = 9,
-          fluidPage(
+          mainPanel(
+            width = 9,
             tabsetPanel(
               tabPanel(
                 title = "2D plot",
@@ -752,7 +892,7 @@ ui <- fluidPage(
                   width = 12, offset = 0, style = "padding:0px;margin:0%",
                   div(
                     style = "overflow-x: auto;",
-                    uiOutput("plot1")
+                    uiOutput("plot2")
                   )
                 )
               ),
@@ -762,388 +902,249 @@ ui <- fluidPage(
                   width = 12, offset = 0, style = "padding:0px;margin:0%",
                   div(
                     style = "overflow-x: auto;",
-                    plotly::plotlyOutput("plot1_3d", height = "100%", width = "100%")
+                    plotly::plotlyOutput("plot2_3d", height = "100%", width = "100%")
                   )
                 )
               )
             )
           )
         )
-      )
-    ),
-    # 2. Feature dimensional reduction plot ----------------------------------------------------------------------
-    tabPanel(
-      title = "Feature dimensional reduction plot",
-      sidebarLayout(
-        sidebarPanel(
-          width = 3,
-          selectInput(
-            inputId = "dataset2",
-            label = "Select a dataset",
-            choices = group,
-            selected = substr(initial_dataset, 2, nchar(initial_dataset))
-          ),
-          selectInput(
-            inputId = "reduction2",
-            label = "Select a reduction",
-            choices = reduction_name,
-            selected = initial_reduction
-          ),
-          selectInput(
-            inputId = "assays2",
-            label = "Select a assay",
-            choices = assays,
-            selected = initial_assay
-          ),
-          selectInput(
-            inputId = "slots2",
-            label = "Select a slot",
-            choices = slots,
-            selected = initial_slot
-          ),
-          selectizeInput(
-            inputId = "features2",
-            label = "Select features",
-            choices = NULL,
-            selected = initial_feature,
-            multiple = TRUE,
-            options = list(maxOptions = 20, maxItems = 20)
-          ),
-          textAreaInput(
-            inputId = "feature_area2",
-            label = "Input features",
-            height = "200px",
-            placeholder = paste(sample(all_features, 4), collapse = "\n")
-          ),
-          selectInput(
-            inputId = "split2",
-            label = "Select a variable to split cells",
-            choices = c("None", meta_groups_name),
-            selected = "None"
-          ),
-          radioButtons(
-            inputId = "coExp2",
-            label = "Calculate co-expression?",
-            choices = c("Yes", "No"),
-            selected = "No",
-            inline = TRUE
-          ),
-          selectInput(
-            inputId = "palette2",
-            label = "Select a palette",
-            choices = names(palette_list),
-            selected = initial_feature_palette
-          ),
-          selectInput(
-            inputId = "theme2",
-            label = "Select a theme",
-            choices = c("theme_scp", "theme_blank"),
-            selected = initial_theme
-          ),
-          selectInput(
-            inputId = "raster2",
-            label = "Raster",
-            choices = c("TRUE", "FALSE"),
-            selected = initial_raster
-          ),
-          numericInput(
-            inputId = "size2",
-            label = "Panel size",
-            value = initial_size,
-            min = 1,
-            max = 10,
-            step = 0.1,
-            width = "150px"
-          ),
-          numericInput(
-            inputId = "plot_dpi2",
-            label = "Resolution",
-            value = initial_dpi,
-            min = 50,
-            max = 1000,
-            step = 50,
-            width = "150px"
-          ),
-          numericInput(
-            inputId = "ncol2",
-            label = "Number of columns",
-            value = initial_ncol,
-            min = 1,
-            max = 100,
-            step = 1,
-            width = "150px"
-          ),
-          radioButtons(
-            inputId = "arrange2",
-            label = "Arrange by",
-            choices = c("Row", "Column"),
-            selected = initial_arrange,
-            inline = TRUE
-          ),
-          actionButton(inputId = "submit2", label = "Submit", icon("play")),
-          helpText("Click the submit button to update the plot displayed in the right panel.")
-        ),
-        mainPanel(
-          width = 9,
-          tabsetPanel(
-            tabPanel(
-              title = "2D plot",
-              column(
-                width = 12, offset = 0, style = "padding:0px;margin:0%",
-                div(
-                  style = "overflow-x: auto;",
-                  uiOutput("plot2")
-                )
-              )
+      ),
+      # 3. Cell statistical plot ----------------------------------------------------------------------
+      tabPanel(
+        title = "Cell statistical plot",
+        sidebarLayout(
+          sidebarPanel(
+            width = 3,
+            selectInput(
+              inputId = "dataset3",
+              label = "Select a dataset",
+              choices = group,
+              selected = substr(initial_dataset, 2, nchar(initial_dataset))
             ),
-            tabPanel(
-              title = "3D plot",
-              column(
-                width = 12, offset = 0, style = "padding:0px;margin:0%",
-                div(
-                  style = "overflow-x: auto;",
-                  plotly::plotlyOutput("plot2_3d", height = "100%", width = "100%")
-                )
-              )
-            )
-          )
-        )
-      )
-    ),
-    # 3. Cell statistical plot ----------------------------------------------------------------------
-    tabPanel(
-      title = "Cell statistical plot",
-      sidebarLayout(
-        sidebarPanel(
-          width = 3,
-          selectInput(
-            inputId = "dataset3",
-            label = "Select a dataset",
-            choices = group,
-            selected = substr(initial_dataset, 2, nchar(initial_dataset))
+            selectInput(
+              inputId = "plottype3",
+              label = "Select a plot type",
+              choices = c("bar", "rose", "ring", "pie", "trend", "area", "dot"),
+              selected = "bar"
+            ),
+            selectInput(
+              inputId = "stattype3",
+              label = "Select a value type",
+              choices = c("percent", "count"),
+              selected = "stack"
+            ),
+            selectInput(
+              inputId = "position3",
+              label = "Select a position",
+              choices = c("stack", "dodge"),
+              selected = "stack"
+            ),
+            selectInput(
+              inputId = "stat3",
+              label = "Select a variable to be counted",
+              choices = meta_groups_name,
+              selected = initial_group
+            ),
+            selectInput(
+              inputId = "group3",
+              label = "Select a variable to group cells",
+              choices = c("None", meta_groups_name),
+              selected = "None"
+            ),
+            selectInput(
+              inputId = "split3",
+              label = "Select a variable to split cells",
+              choices = c("None", meta_groups_name),
+              selected = "None"
+            ),
+            radioButtons(
+              inputId = "label3",
+              label = "Whether to add labels",
+              choices = c("Yes", "No"),
+              selected = initial_label,
+              inline = TRUE
+            ),
+            selectInput(
+              inputId = "palette3",
+              label = "Select a palette",
+              choices = names(palette_list),
+              selected = initial_cell_palette
+            ),
+            numericInput(
+              inputId = "size3",
+              label = "Panel size",
+              value = initial_size,
+              min = 1,
+              max = 10,
+              step = 0.1,
+              width = "150px"
+            ),
+            numericInput(
+              inputId = "plot_dpi3",
+              label = "Resolution",
+              value = initial_dpi,
+              min = 50,
+              max = 1000,
+              step = 50,
+              width = "150px"
+            ),
+            numericInput(
+              inputId = "ncol3",
+              label = "Number of columns",
+              value = initial_ncol,
+              min = 1,
+              max = 100,
+              step = 1,
+              width = "150px"
+            ),
+            radioButtons(
+              inputId = "arrange3",
+              label = "Arrange by",
+              choices = c("Row", "Column"),
+              selected = initial_arrange,
+              inline = TRUE
+            ),
+            actionButton(inputId = "submit3", label = "Submit", icon("play")),
+            helpText("Click the submit button to update the plot displayed in the right panel.")
           ),
-          selectInput(
-            inputId = "plottype3",
-            label = "Select a plot type",
-            choices = c("bar", "rose", "ring", "pie", "trend", "area", "dot"),
-            selected = "bar"
-          ),
-          selectInput(
-            inputId = "stattype3",
-            label = "Select a value type",
-            choices = c("percent", "count"),
-            selected = "stack"
-          ),
-          selectInput(
-            inputId = "position3",
-            label = "Select a position",
-            choices = c("stack", "dodge"),
-            selected = "stack"
-          ),
-          selectInput(
-            inputId = "stat3",
-            label = "Select a variable to be counted",
-            choices = meta_groups_name,
-            selected = initial_group
-          ),
-          selectInput(
-            inputId = "group3",
-            label = "Select a variable to group cells",
-            choices = c("None", meta_groups_name),
-            selected = "None"
-          ),
-          selectInput(
-            inputId = "split3",
-            label = "Select a variable to split cells",
-            choices = c("None", meta_groups_name),
-            selected = "None"
-          ),
-          radioButtons(
-            inputId = "label3",
-            label = "Whether to add labels",
-            choices = c("Yes", "No"),
-            selected = initial_label,
-            inline = TRUE
-          ),
-          selectInput(
-            inputId = "palette3",
-            label = "Select a palette",
-            choices = names(palette_list),
-            selected = initial_cell_palette
-          ),
-          numericInput(
-            inputId = "size3",
-            label = "Panel size",
-            value = initial_size,
-            min = 1,
-            max = 10,
-            step = 0.1,
-            width = "150px"
-          ),
-          numericInput(
-            inputId = "plot_dpi3",
-            label = "Resolution",
-            value = initial_dpi,
-            min = 50,
-            max = 1000,
-            step = 50,
-            width = "150px"
-          ),
-          numericInput(
-            inputId = "ncol3",
-            label = "Number of columns",
-            value = initial_ncol,
-            min = 1,
-            max = 100,
-            step = 1,
-            width = "150px"
-          ),
-          radioButtons(
-            inputId = "arrange3",
-            label = "Arrange by",
-            choices = c("Row", "Column"),
-            selected = initial_arrange,
-            inline = TRUE
-          ),
-          actionButton(inputId = "submit3", label = "Submit", icon("play")),
-          helpText("Click the submit button to update the plot displayed in the right panel.")
-        ),
-        mainPanel(
-          width = 9,
-          fluidPage(
-            tabsetPanel(
-              tabPanel(
-                title = "Statistical plot",
-                column(
-                  width = 12, offset = 0, style = "padding:0px;margin:0%",
-                  div(
-                    style = "overflow-x: auto;",
-                    uiOutput("plot3")
+          mainPanel(
+            width = 9,
+            fluidPage(
+              tabsetPanel(
+                tabPanel(
+                  title = "Statistical plot",
+                  column(
+                    width = 12, offset = 0, style = "padding:0px;margin:0%",
+                    div(
+                      style = "overflow-x: auto;",
+                      uiOutput("plot3")
+                    )
                   )
                 )
               )
             )
           )
         )
-      )
-    ),
-    # 4. Feature statistical plot ----------------------------------------------------------------------
-    tabPanel(
-      title = "Feature statistical plot",
-      sidebarLayout(
-        sidebarPanel(
-          width = 3,
-          selectInput(
-            inputId = "dataset4",
-            label = "Select a dataset",
-            choices = group,
-            selected = substr(initial_dataset, 2, nchar(initial_dataset))
+      ),
+      # 4. Feature statistical plot ----------------------------------------------------------------------
+      tabPanel(
+        title = "Feature statistical plot",
+        sidebarLayout(
+          sidebarPanel(
+            width = 3,
+            selectInput(
+              inputId = "dataset4",
+              label = "Select a dataset",
+              choices = group,
+              selected = substr(initial_dataset, 2, nchar(initial_dataset))
+            ),
+            selectInput(
+              inputId = "assays4",
+              label = "Select a assay",
+              choices = assays,
+              selected = initial_assay
+            ),
+            selectInput(
+              inputId = "slots4",
+              label = "Select a slot",
+              choices = slots,
+              selected = initial_slot
+            ),
+            selectInput(
+              inputId = "plottype4",
+              label = "Select a plot type",
+              choices = c("violin", "box", "bar", "dot", "col"),
+              selected = "violin"
+            ),
+            selectizeInput(
+              inputId = "features4",
+              label = "Select features",
+              choices = NULL,
+              selected = initial_feature,
+              multiple = TRUE,
+              options = list(maxOptions = 20, maxItems = 20)
+            ),
+            textAreaInput(
+              inputId = "feature_area4",
+              label = "Input features",
+              height = "200px",
+              placeholder = paste(sample(all_features, 4), collapse = "\n")
+            ),
+            selectInput(
+              inputId = "group4",
+              label = "Select a variable to group cells",
+              choices = c("None", meta_groups_name),
+              selected = initial_group
+            ),
+            selectInput(
+              inputId = "split4",
+              label = "Select a variable to split cells",
+              choices = c("None", meta_groups_name),
+              selected = "None"
+            ),
+            radioButtons(
+              inputId = "coExp4",
+              label = "Calculate co-expression?",
+              choices = c("Yes", "No"),
+              selected = "No",
+              inline = TRUE
+            ),
+            selectInput(
+              inputId = "palette4",
+              label = "Select a palette",
+              choices = names(palette_list),
+              selected = initial_cell_palette
+            ),
+            numericInput(
+              inputId = "size4",
+              label = "Panel size",
+              value = initial_size,
+              min = 1,
+              max = 10,
+              step = 0.1,
+              width = "150px"
+            ),
+            numericInput(
+              inputId = "plot_dpi4",
+              label = "Resolution",
+              value = initial_dpi,
+              min = 50,
+              max = 1000,
+              step = 50,
+              width = "150px"
+            ),
+            numericInput(
+              inputId = "ncol4",
+              label = "Number of columns",
+              value = initial_ncol,
+              min = 1,
+              max = 100,
+              step = 1,
+              width = "150px"
+            ),
+            radioButtons(
+              inputId = "arrange4",
+              label = "Arrange by",
+              choices = c("Row", "Column"),
+              selected = initial_arrange,
+              inline = TRUE
+            ),
+            actionButton(inputId = "submit4", label = "Submit", icon("play")),
+            helpText("Click the submit button to update the plot displayed in the right panel.")
           ),
-          selectInput(
-            inputId = "assays4",
-            label = "Select a assay",
-            choices = assays,
-            selected = initial_assay
-          ),
-          selectInput(
-            inputId = "slots4",
-            label = "Select a slot",
-            choices = slots,
-            selected = initial_slot
-          ),
-          selectInput(
-            inputId = "plottype4",
-            label = "Select a plot type",
-            choices = c("violin", "box", "bar", "dot", "col"),
-            selected = "violin"
-          ),
-          selectizeInput(
-            inputId = "features4",
-            label = "Select features",
-            choices = NULL,
-            selected = initial_feature,
-            multiple = TRUE,
-            options = list(maxOptions = 20, maxItems = 20)
-          ),
-          textAreaInput(
-            inputId = "feature_area4",
-            label = "Input features",
-            height = "200px",
-            placeholder = paste(sample(all_features, 4), collapse = "\n")
-          ),
-          selectInput(
-            inputId = "group4",
-            label = "Select a variable to group cells",
-            choices = c("None", meta_groups_name),
-            selected = initial_group
-          ),
-          selectInput(
-            inputId = "split4",
-            label = "Select a variable to split cells",
-            choices = c("None", meta_groups_name),
-            selected = "None"
-          ),
-          radioButtons(
-            inputId = "coExp4",
-            label = "Calculate co-expression?",
-            choices = c("Yes", "No"),
-            selected = "No",
-            inline = TRUE
-          ),
-          selectInput(
-            inputId = "palette4",
-            label = "Select a palette",
-            choices = names(palette_list),
-            selected = initial_cell_palette
-          ),
-          numericInput(
-            inputId = "size4",
-            label = "Panel size",
-            value = initial_size,
-            min = 1,
-            max = 10,
-            step = 0.1,
-            width = "150px"
-          ),
-          numericInput(
-            inputId = "plot_dpi4",
-            label = "Resolution",
-            value = initial_dpi,
-            min = 50,
-            max = 1000,
-            step = 50,
-            width = "150px"
-          ),
-          numericInput(
-            inputId = "ncol4",
-            label = "Number of columns",
-            value = initial_ncol,
-            min = 1,
-            max = 100,
-            step = 1,
-            width = "150px"
-          ),
-          radioButtons(
-            inputId = "arrange4",
-            label = "Arrange by",
-            choices = c("Row", "Column"),
-            selected = initial_arrange,
-            inline = TRUE
-          ),
-          actionButton(inputId = "submit4", label = "Submit", icon("play")),
-          helpText("Click the submit button to update the plot displayed in the right panel.")
-        ),
-        mainPanel(
-          width = 9,
-          fluidPage(
-            tabsetPanel(
-              tabPanel(
-                title = "Statistical plot",
-                column(
-                  width = 12, offset = 0, style = "padding:0px;margin:0%",
-                  div(
-                    style = "overflow-x: auto;",
-                    uiOutput("plot4")
+          mainPanel(
+            width = 9,
+            fluidPage(
+              tabsetPanel(
+                tabPanel(
+                  title = "Statistical plot",
+                  column(
+                    width = 12, offset = 0, style = "padding:0px;margin:0%",
+                    div(
+                      style = "overflow-x: auto;",
+                      uiOutput("plot4")
+                    )
                   )
                 )
               )
@@ -1153,550 +1154,555 @@ ui <- fluidPage(
       )
     )
   )
-)
 
-server <- function(input, output, session) {
-  # Initial  ----------------------------------------------------------------
-  promisedData <- reactiveValues()
+  server <- function(input, output, session) {
+    # Initial  ----------------------------------------------------------------
+    promisedData <- reactiveValues()
 
-  get_attr <- function(x, attr, verbose = FALSE) {
-    width <- attr(x, "size")$width
-    height <- attr(x, "size")$height
-    units <- attr(x, "size")$units
-    dpi <- attr(x, "dpi")
-    if (verbose) {
-      message(paste("width:", width, "height:", height, "units:", units, "dpi:", dpi))
+    get_attr <- function(x, attr, verbose = FALSE) {
+      width <- attr(x, "size")$width
+      height <- attr(x, "size")$height
+      units <- attr(x, "size")$units
+      dpi <- attr(x, "dpi")
+      if (verbose) {
+        message(paste("width:", width, "height:", height, "units:", units, "dpi:", dpi))
+      }
+      if (attr == "width") {
+        return(width)
+      }
+      if (attr == "height") {
+        return(height)
+      }
+      if (attr == "units") {
+        return(units)
+      }
+      if (attr == "dpi") {
+        return(dpi)
+      }
     }
-    if (attr == "width") {
-      return(width)
-    }
-    if (attr == "height") {
-      return(height)
-    }
-    if (attr == "units") {
-      return(units)
-    }
-    if (attr == "dpi") {
-      return(dpi)
-    }
-  }
 
-  updateSelectizeInput(session, "features2", choices = c(meta_features_name, all_features), selected = initial_feature, server = TRUE)
-  updateSelectizeInput(session, "features4", choices = c(meta_features_name, all_features), selected = initial_feature, server = TRUE)
+    updateSelectizeInput(session, "features2", choices = c(meta_features_name, all_features), selected = initial_feature, server = TRUE)
+    updateSelectizeInput(session, "features4", choices = c(meta_features_name, all_features), selected = initial_feature, server = TRUE)
 
-  # change dataset  ----------------------------------------------------------------
-  observe({
-    meta_groups_name <- rhdf5::h5read(MetaFile, name = paste0("/", input$dataset1, "/metadata.stat/asgroups"))
-    reduction_name <- meta_struc[meta_struc$group == paste0("/", input$dataset1, "/reductions"), "name"]
-    default_reduction <- as.character(rhdf5::h5read(MetaFile, name = paste0("/", input$dataset1, "/reductions.stat/Default_reduction")))
-    all_cells <- rhdf5::h5read(DataFile, name = paste0("/", input$dataset1, "/cells"))
-    updateSelectInput(session, "reduction1", choices = reduction_name, selected = default_reduction)
-    updateSelectInput(session, "group1", choices = meta_groups_name, selected = "orig.ident")
-    updateSelectInput(session, "split1", choices = c("None", meta_groups_name), selected = "None")
-    updateSelectInput(session, "raster1", choices = c("TRUE", "FALSE"), selected = length(all_cells) > 1e5)
-  }) %>% bindEvent(input$dataset1, ignoreNULL = TRUE, ignoreInit = TRUE)
+    # change dataset  ----------------------------------------------------------------
+    observe({
+      meta_groups_name <- rhdf5::h5read(MetaFile, name = paste0("/", input$dataset1, "/metadata.stat/asgroups"))
+      reduction_name <- meta_struc[meta_struc$group == paste0("/", input$dataset1, "/reductions"), "name"]
+      default_reduction <- as.character(rhdf5::h5read(MetaFile, name = paste0("/", input$dataset1, "/reductions.stat/Default_reduction")))
+      all_cells <- rhdf5::h5read(DataFile, name = paste0("/", input$dataset1, "/cells"))
+      updateSelectInput(session, "reduction1", choices = reduction_name, selected = default_reduction)
+      updateSelectInput(session, "group1", choices = meta_groups_name, selected = "orig.ident")
+      updateSelectInput(session, "split1", choices = c("None", meta_groups_name), selected = "None")
+      updateSelectInput(session, "raster1", choices = c("TRUE", "FALSE"), selected = length(all_cells) > 1e5)
+    }) %>% bindEvent(input$dataset1, ignoreNULL = TRUE, ignoreInit = TRUE)
 
-  observe({
-    assays <- unique(na.omit(sapply(strsplit(data_group[grep(input$dataset2, data_group)], "/"), function(x) x[3])))
-    slots <- unique(na.omit(sapply(strsplit(data_group[grep(input$dataset2, data_group)], "/"), function(x) x[4])))
-    default_assay <- as.character(rhdf5::h5read(DataFile, name = paste0("/", input$dataset2, "/Default_assay")))
-    default_slot <- ifelse("data" %in% slots, "data", slots[1])
-    updateSelectInput(session, "assays2", choices = assays, selected = default_assay)
-    updateSelectInput(session, "slots2", choices = slots, selected = default_slot)
-    data <- HDF5Array::TENxMatrix(filepath = DataFile, group = paste0("/", input$dataset2, "/", default_assay, "/", default_slot))
-    all_features <- colnames(data)
-    all_cells <- rhdf5::h5read(DataFile, name = paste0("/", input$dataset2, "/cells"))
-    meta_features_name <- rhdf5::h5read(MetaFile, name = paste0("/", input$dataset2, "/metadata.stat/asfeatures"))
-    meta_groups_name <- rhdf5::h5read(MetaFile, name = paste0("/", input$dataset2, "/metadata.stat/asgroups"))
-    reduction_name <- meta_struc[meta_struc$group == paste0("/", input$dataset2, "/reductions"), "name"]
-    default_reduction <- as.character(rhdf5::h5read(MetaFile, name = paste0("/", input$dataset2, "/reductions.stat/Default_reduction")))
-    updateSelectInput(session, "reduction2", choices = reduction_name, selected = default_reduction)
-    updateSelectizeInput(session, "features2",
-      choices = c(meta_features_name, all_features), selected = meta_features_name[1],
-      options = list(maxOptions = 20, maxItems = 20), server = TRUE
-    )
-    updateSelectInput(session, "split2", choices = c("None", meta_groups_name), selected = "None")
-    updateSelectInput(session, "group2", choices = meta_groups_name, selected = "orig.ident")
-    updateSelectInput(session, "raster2", choices = c("TRUE", "FALSE"), selected = length(all_cells) > 1e5)
-  }) %>% bindEvent(input$dataset2, ignoreNULL = TRUE, ignoreInit = TRUE)
+    observe({
+      assays <- unique(na.omit(sapply(strsplit(data_group[grep(input$dataset2, data_group)], "/"), function(x) x[3])))
+      slots <- unique(na.omit(sapply(strsplit(data_group[grep(input$dataset2, data_group)], "/"), function(x) x[4])))
+      default_assay <- as.character(rhdf5::h5read(DataFile, name = paste0("/", input$dataset2, "/Default_assay")))
+      default_slot <- ifelse("data" %in% slots, "data", slots[1])
+      updateSelectInput(session, "assays2", choices = assays, selected = default_assay)
+      updateSelectInput(session, "slots2", choices = slots, selected = default_slot)
+      data <- HDF5Array::TENxMatrix(filepath = DataFile, group = paste0("/", input$dataset2, "/", default_assay, "/", default_slot))
+      all_features <- colnames(data)
+      all_cells <- rhdf5::h5read(DataFile, name = paste0("/", input$dataset2, "/cells"))
+      meta_features_name <- rhdf5::h5read(MetaFile, name = paste0("/", input$dataset2, "/metadata.stat/asfeatures"))
+      meta_groups_name <- rhdf5::h5read(MetaFile, name = paste0("/", input$dataset2, "/metadata.stat/asgroups"))
+      reduction_name <- meta_struc[meta_struc$group == paste0("/", input$dataset2, "/reductions"), "name"]
+      default_reduction <- as.character(rhdf5::h5read(MetaFile, name = paste0("/", input$dataset2, "/reductions.stat/Default_reduction")))
+      updateSelectInput(session, "reduction2", choices = reduction_name, selected = default_reduction)
+      updateSelectizeInput(session, "features2",
+        choices = c(meta_features_name, all_features), selected = meta_features_name[1],
+        options = list(maxOptions = 20, maxItems = 20), server = TRUE
+      )
+      updateSelectInput(session, "split2", choices = c("None", meta_groups_name), selected = "None")
+      updateSelectInput(session, "group2", choices = meta_groups_name, selected = "orig.ident")
+      updateSelectInput(session, "raster2", choices = c("TRUE", "FALSE"), selected = length(all_cells) > 1e5)
+    }) %>% bindEvent(input$dataset2, ignoreNULL = TRUE, ignoreInit = TRUE)
 
-  observe({
-    meta_groups_name <- rhdf5::h5read(MetaFile, name = paste0("/", input$dataset3, "/metadata.stat/asgroups"))
-    updateSelectInput(session, "stat3", choices = meta_groups_name, selected = "orig.ident")
-    updateSelectInput(session, "group3", choices = meta_groups_name, selected = "orig.ident")
-    updateSelectInput(session, "split3", choices = c("None", meta_groups_name), selected = "None")
-  }) %>% bindEvent(input$dataset3, ignoreNULL = TRUE, ignoreInit = TRUE)
+    observe({
+      meta_groups_name <- rhdf5::h5read(MetaFile, name = paste0("/", input$dataset3, "/metadata.stat/asgroups"))
+      updateSelectInput(session, "stat3", choices = meta_groups_name, selected = "orig.ident")
+      updateSelectInput(session, "group3", choices = meta_groups_name, selected = "orig.ident")
+      updateSelectInput(session, "split3", choices = c("None", meta_groups_name), selected = "None")
+    }) %>% bindEvent(input$dataset3, ignoreNULL = TRUE, ignoreInit = TRUE)
 
-  observe({
-    assays <- unique(na.omit(sapply(strsplit(data_group[grep(input$dataset4, data_group)], "/"), function(x) x[3])))
-    slots <- unique(na.omit(sapply(strsplit(data_group[grep(input$dataset4, data_group)], "/"), function(x) x[4])))
-    default_assay <- as.character(rhdf5::h5read(DataFile, name = paste0("/", input$dataset4, "/Default_assay")))
-    default_slot <- ifelse("data" %in% slots, "data", slots[1])
-    updateSelectInput(session, "assays2", choices = assays, selected = default_assay)
-    updateSelectInput(session, "slots2", choices = slots, selected = default_slot)
-    data <- HDF5Array::TENxMatrix(filepath = DataFile, group = paste0("/", input$dataset4, "/", default_assay, "/", default_slot))
-    all_features <- colnames(data)
-    meta_features_name <- rhdf5::h5read(MetaFile, name = paste0("/", input$dataset4, "/metadata.stat/asfeatures"))
-    meta_groups_name <- rhdf5::h5read(MetaFile, name = paste0("/", input$dataset4, "/metadata.stat/asgroups"))
-    updateSelectizeInput(session, "features2",
-      choices = c(meta_features_name, all_features), selected = meta_features_name[1],
-      options = list(maxOptions = 20, maxItems = 20), server = TRUE
-    )
-    updateSelectInput(session, "split2", choices = c("None", meta_groups_name), selected = "None")
-    updateSelectInput(session, "group2", choices = meta_groups_name, selected = "orig.ident")
-  }) %>% bindEvent(input$dataset4, ignoreNULL = TRUE, ignoreInit = TRUE)
+    observe({
+      assays <- unique(na.omit(sapply(strsplit(data_group[grep(input$dataset4, data_group)], "/"), function(x) x[3])))
+      slots <- unique(na.omit(sapply(strsplit(data_group[grep(input$dataset4, data_group)], "/"), function(x) x[4])))
+      default_assay <- as.character(rhdf5::h5read(DataFile, name = paste0("/", input$dataset4, "/Default_assay")))
+      default_slot <- ifelse("data" %in% slots, "data", slots[1])
+      updateSelectInput(session, "assays2", choices = assays, selected = default_assay)
+      updateSelectInput(session, "slots2", choices = slots, selected = default_slot)
+      data <- HDF5Array::TENxMatrix(filepath = DataFile, group = paste0("/", input$dataset4, "/", default_assay, "/", default_slot))
+      all_features <- colnames(data)
+      meta_features_name <- rhdf5::h5read(MetaFile, name = paste0("/", input$dataset4, "/metadata.stat/asfeatures"))
+      meta_groups_name <- rhdf5::h5read(MetaFile, name = paste0("/", input$dataset4, "/metadata.stat/asgroups"))
+      updateSelectizeInput(session, "features2",
+        choices = c(meta_features_name, all_features), selected = meta_features_name[1],
+        options = list(maxOptions = 20, maxItems = 20), server = TRUE
+      )
+      updateSelectInput(session, "split2", choices = c("None", meta_groups_name), selected = "None")
+      updateSelectInput(session, "group2", choices = meta_groups_name, selected = "orig.ident")
+    }) %>% bindEvent(input$dataset4, ignoreNULL = TRUE, ignoreInit = TRUE)
 
-  # submit1  ----------------------------------------------------------------
-  r1 <- reactive({
-    dataset1 <- input$dataset1
-    group1 <- input$group1
-    if (is.null(group1)) {
-      message("input group1 is null")
-      group1 <- "orig.ident"
-    }
-    if (input$split1 == "None") {
-      split1 <- NULL
-    } else {
-      split1 <- input$split1
-    }
-    reduction1 <- input$reduction1
-    label1 <- input$label1
-    raster1 <- input$raster1 == "TRUE"
-    palette1 <- input$palette1
-    theme1 <- input$theme1
-    size1 <- input$size1
-    plot_dpi1 <- input$plot_dpi1
-    ncol1 <- input$ncol1
-    arrange1 <- input$arrange1
+    # submit1  ----------------------------------------------------------------
+    r1 <- reactive({
+      dataset1 <- input$dataset1
+      group1 <- input$group1
+      if (is.null(group1)) {
+        message("input group1 is null")
+        group1 <- "orig.ident"
+      }
+      if (input$split1 == "None") {
+        split1 <- NULL
+      } else {
+        split1 <- input$split1
+      }
+      reduction1 <- input$reduction1
+      label1 <- input$label1
+      raster1 <- input$raster1 == "TRUE"
+      palette1 <- input$palette1
+      theme1 <- input$theme1
+      size1 <- input$size1
+      plot_dpi1 <- input$plot_dpi1
+      ncol1 <- input$ncol1
+      arrange1 <- input$arrange1
 
-    # message("dataset1:", dataset1)
-    # message("group1:", group1)
-    # message("split1:", split1)
-    # message("reduction1:", reduction1)
-    # message("label1:", label1)
-    # message("raster1:", raster1)
-    # message("palette1:", palette1)
-    # message("theme1:", theme1)
-    # message("size1:", size1)
-    # message("plot_dpi1:", plot_dpi1)
-    # message("ncol1:", ncol1)
-    # message("arrange1:", arrange1)
+      # message("dataset1:", dataset1)
+      # message("group1:", group1)
+      # message("split1:", split1)
+      # message("reduction1:", reduction1)
+      # message("label1:", label1)
+      # message("raster1:", raster1)
+      # message("palette1:", palette1)
+      # message("theme1:", theme1)
+      # message("size1:", size1)
+      # message("plot_dpi1:", plot_dpi1)
+      # message("ncol1:", ncol1)
+      # message("arrange1:", arrange1)
 
-    promisedData[["p1_dim"]] <- NULL
-    promisedData[["p1_3d"]] <- NULL
-    promises::future_promise(
-      {
-        # print("******************************** New task ********************************")
-        # print(">>> fetch data:")
-        # print(system.time(
-        srt_tmp <- SCP::FetchH5(
-          DataFile = DataFile, MetaFile = MetaFile, name = dataset1,
-          metanames = unique(c(group1, split1)), reduction = reduction1
-        )
-        # ))
-
-        # print(">>> plot:")
-        # print(system.time(
-        p1_dim <- SCP::CellDimPlot(srt_tmp,
-          group.by = group1, split.by = split1, reduction = reduction1, raster = raster1,
-          label = ifelse(label1 == "Yes", TRUE, FALSE), palette = palette1, theme_use = theme1,
-          ncol = ncol1, byrow = ifelse(arrange1 == "Row", TRUE, FALSE), force = TRUE
-        )
-        # ))
-
-        # print(">>> panel_fix:")
-        # print(system.time(
-        p1_dim <- SCP::panel_fix(SCP::slim_data(p1_dim), height = size1, raster = panel_raster, BPPARAM = BPPARAM, verbose = FALSE)
-        # ))
-        attr(p1_dim, "dpi") <- plot_dpi1
-        plot3d <- max(sapply(names(srt_tmp@reductions), function(r) dim(srt_tmp[[r]])[2])) >= 3
-        if (isTRUE(plot3d)) {
-          p1_3d <- SCP::CellDimPlot3D(srt_tmp, group.by = group1, reduction = reduction1, palette = palette1, force = TRUE)
-        } else {
-          p1_3d <- NULL
-        }
-        return(list(p1_dim, p1_3d))
-      },
-      seed = TRUE
-    )
-  }) %>%
-    bindCache(input$dataset1, input$group1, input$split1, input$reduction1, input$label1, input$raster1, input$palette1, input$theme1, input$size1, input$plot_dpi1, input$ncol1, input$arrange1) %>%
-    bindEvent(input$submit1, ignoreNULL = FALSE, ignoreInit = FALSE)
-
-  observe({
-    prog <- Progress$new(min = 1, max = 10)
-    prog$set(value = 3, message = "Fetch data...", detail = "[Cell dimensional reduction plot]")
-    r1()$then(function(x) {
-      promisedData[["p1_dim"]] <- x[[1]]
-      promisedData[["p1_3d"]] <- x[[2]]
-      width <- get_attr(x[[1]], "width")
-      height <- get_attr(x[[1]], "height")
-      dpi <- get_attr(x[[1]], "dpi")
-
-      prog$set(value = 8, message = "Render plot...", detail = "[Cell dimensional reduction plot]")
-      # print("renderPlot:")
-      # print(system.time(
-      output$plot1 <- renderUI({
-        renderPlot(
-          {
-            x[[1]]
-          },
-          width = width * dpi,
-          height = height * dpi,
-          res = dpi
-        )
-      })
-      # ))
-
-      # print("renderPlotly:")
-      # print(system.time(
-      output$plot1_3d <- plotly::renderPlotly({
-        x[[2]]
-      })
-      # ))
-    }) %>%
-      finally(~ {
-        prog$set(value = 10, message = "Done.", detail = "[Cell dimensional reduction plot]")
-        prog$close()
-      })
-  }) %>% bindEvent(input$submit1, ignoreNULL = FALSE, ignoreInit = FALSE)
-
-  # submit2  ----------------------------------------------------------------
-  r2 <- reactive({
-    dataset2 <- input$dataset2
-    assays2 <- input$assays2
-    slots2 <- input$slots2
-    features2 <- input$features2
-    feature_area2 <- input$feature_area2
-    coExp2 <- input$coExp2
-    reduction2 <- input$reduction2
-    raster2 <- input$raster2 == "TRUE"
-    if (input$split2 == "None") {
-      split2 <- NULL
-    } else {
-      split2 <- input$split2
-    }
-    palette2 <- input$palette2
-    theme2 <- input$theme2
-    size2 <- input$size2
-    plot_dpi2 <- input$plot_dpi2
-    ncol2 <- input$ncol2
-    arrange2 <- input$arrange2
-
-    # message("dataset2:", dataset2)
-    # message("assays2:", assays2)
-    # message("slots2:", slots2)
-    # message("features2:", features2)
-    # message("coExp2:", coExp2)
-    # message("split2:", split2)
-    # message("reduction2:", reduction2)
-    # message("raster2:", raster2)
-    # message("palette2:", palette2)
-    # message("theme2:", theme2)
-    # message("size2:", size2)
-    # message("plot_dpi2:", plot_dpi2)
-    # message("ncol2:", ncol2)
-    # message("arrange2:", arrange2)
-
-    data <- HDF5Array::TENxMatrix(filepath = DataFile, group = paste0("/", dataset2, "/", assays2, "/", slots2))
-    all_features <- colnames(data)
-    meta_features_name <- rhdf5::h5read(MetaFile, name = paste0("/", dataset2, "/metadata.stat/asfeatures"))
-
-    if (is.null(features2)) {
-      message("input feature2 is null")
-      features2 <- meta_features_name[1]
-    }
-    feature_area2 <- gsub(x = unlist(strsplit(feature_area2, "(\\r)|(\\n)", perl = TRUE)), pattern = " ", replacement = "")
-    features2 <- c(as.character(features2), as.character(feature_area2))
-    features2 <- unique(features2[features2 %in% c(all_features, meta_features_name)])
-
-    promisedData[["p2_dim"]] <- NULL
-    promisedData[["p2_3d"]] <- NULL
-    promises::future_promise(
-      {
-        # print("******************************** New task ********************************")
-        # print(">>> fetch data:")
-        # print(system.time(
-        srt_tmp <- SCP::FetchH5(
-          DataFile = DataFile, MetaFile = MetaFile, name = dataset2,
-          features = features2, slot = slots2, assay = assays2,
-          metanames = split2, reduction = reduction2
-        )
-        # ))
-
-        # print(">>> plot:")
-        # print(system.time(
-        p2_dim <- SCP::FeatureDimPlot(
-          srt = srt_tmp, features = features2, split.by = split2, reduction = reduction2, slot = "data", raster = raster2,
-          calculate_coexp = ifelse(coExp2 == "Yes", TRUE, FALSE), palette = palette2, theme_use = theme2,
-          ncol = ncol2, byrow = ifelse(arrange2 == "Row", TRUE, FALSE), force = TRUE
-        )
-        # ))
-
-        # print(">>> panel_fix:")
-        # print(system.time(
-        p2_dim <- SCP::panel_fix(SCP::slim_data(p2_dim), height = size2, raster = panel_raster, BPPARAM = BPPARAM, verbose = FALSE)
-        # ))
-        attr(p2_dim, "dpi") <- plot_dpi2
-        plot3d <- max(sapply(names(srt_tmp@reductions), function(r) dim(srt_tmp[[r]])[2])) >= 3
-        if (isTRUE(plot3d)) {
-          p2_3d <- SCP::FeatureDimPlot3D(
-            srt = srt_tmp, features = features2, reduction = reduction2,
-            calculate_coexp = ifelse(coExp2 == "Yes", TRUE, FALSE), force = TRUE
+      promisedData[["p1_dim"]] <- NULL
+      promisedData[["p1_3d"]] <- NULL
+      promises::future_promise(
+        {
+          # print("******************************** New task ********************************")
+          # print(">>> fetch data:")
+          # print(system.time(
+          srt_tmp <- SCP::FetchH5(
+            DataFile = DataFile, MetaFile = MetaFile, name = dataset1,
+            metanames = unique(c(group1, split1)), reduction = reduction1
           )
+          # ))
+
+          # print(">>> plot:")
+          # print(system.time(
+          p1_dim <- SCP::CellDimPlot(srt_tmp,
+            group.by = group1, split.by = split1, reduction = reduction1, raster = raster1,
+            label = ifelse(label1 == "Yes", TRUE, FALSE), palette = palette1, theme_use = theme1,
+            ncol = ncol1, byrow = ifelse(arrange1 == "Row", TRUE, FALSE), force = TRUE
+          )
+          # ))
+
+          # print(">>> panel_fix:")
+          # print(system.time(
+          p1_dim <- SCP::panel_fix(SCP::slim_data(p1_dim), height = size1, raster = panel_raster, BPPARAM = BPPARAM, verbose = FALSE)
+          # ))
+          attr(p1_dim, "dpi") <- plot_dpi1
+          plot3d <- max(sapply(names(srt_tmp@reductions), function(r) dim(srt_tmp[[r]])[2])) >= 3
+          if (isTRUE(plot3d)) {
+            p1_3d <- SCP::CellDimPlot3D(srt_tmp, group.by = group1, reduction = reduction1, palette = palette1, force = TRUE)
+          } else {
+            p1_3d <- NULL
+          }
+          return(list(p1_dim, p1_3d))
+        },
+        seed = TRUE
+      )
+    }) %>%
+      bindCache(input$dataset1, input$group1, input$split1, input$reduction1, input$label1, input$raster1, input$palette1, input$theme1, input$size1, input$plot_dpi1, input$ncol1, input$arrange1) %>%
+      bindEvent(input$submit1, ignoreNULL = FALSE, ignoreInit = FALSE)
+
+    observe({
+      prog <- Progress$new(min = 1, max = 10)
+      prog$set(value = 3, message = "Fetch data...", detail = "[Cell dimensional reduction plot]")
+      r1()$then(function(x) {
+        promisedData[["p1_dim"]] <- x[[1]]
+        promisedData[["p1_3d"]] <- x[[2]]
+        width <- get_attr(x[[1]], "width")
+        height <- get_attr(x[[1]], "height")
+        dpi <- get_attr(x[[1]], "dpi")
+
+        prog$set(value = 8, message = "Render plot...", detail = "[Cell dimensional reduction plot]")
+        # print("renderPlot:")
+        # print(system.time(
+        output$plot1 <- renderUI({
+          renderPlot(
+            {
+              x[[1]]
+            },
+            width = width * dpi,
+            height = height * dpi,
+            res = dpi
+          )
+        })
+        # ))
+
+        # print("renderPlotly:")
+        # print(system.time(
+        output$plot1_3d <- plotly::renderPlotly({
+          x[[2]]
+        })
+        # ))
+      }) %>%
+        finally(~ {
+          prog$set(value = 10, message = "Done.", detail = "[Cell dimensional reduction plot]")
+          prog$close()
+        })
+    }) %>% bindEvent(input$submit1, ignoreNULL = FALSE, ignoreInit = FALSE)
+
+    # submit2  ----------------------------------------------------------------
+    r2 <- reactive({
+      dataset2 <- input$dataset2
+      assays2 <- input$assays2
+      slots2 <- input$slots2
+      features2 <- input$features2
+      feature_area2 <- input$feature_area2
+      coExp2 <- input$coExp2
+      reduction2 <- input$reduction2
+      raster2 <- input$raster2 == "TRUE"
+      if (input$split2 == "None") {
+        split2 <- NULL
+      } else {
+        split2 <- input$split2
+      }
+      palette2 <- input$palette2
+      theme2 <- input$theme2
+      size2 <- input$size2
+      plot_dpi2 <- input$plot_dpi2
+      ncol2 <- input$ncol2
+      arrange2 <- input$arrange2
+
+      # message("dataset2:", dataset2)
+      # message("assays2:", assays2)
+      # message("slots2:", slots2)
+      # message("features2:", features2)
+      # message("coExp2:", coExp2)
+      # message("split2:", split2)
+      # message("reduction2:", reduction2)
+      # message("raster2:", raster2)
+      # message("palette2:", palette2)
+      # message("theme2:", theme2)
+      # message("size2:", size2)
+      # message("plot_dpi2:", plot_dpi2)
+      # message("ncol2:", ncol2)
+      # message("arrange2:", arrange2)
+
+      data <- HDF5Array::TENxMatrix(filepath = DataFile, group = paste0("/", dataset2, "/", assays2, "/", slots2))
+      all_features <- colnames(data)
+      meta_features_name <- rhdf5::h5read(MetaFile, name = paste0("/", dataset2, "/metadata.stat/asfeatures"))
+
+      if (is.null(features2)) {
+        if (is.null(initial_feature)) {
+          features2 <- initial_feature
         } else {
-          p2_3d <- NULL
+          features2 <- meta_features_name[1]
         }
-        return(list(p2_dim, p2_3d))
-      },
-      seed = TRUE
-    )
-  }) %>%
-    bindCache(input$dataset2, input$assays2, input$slots2, input$features2, input$feature_area2, input$coExp2, input$reduction2, input$raster2, input$split2, input$palette2, input$theme2, input$size2, input$plot_dpi2, input$ncol2, input$arrange2) %>%
-    bindEvent(input$submit2, ignoreNULL = FALSE, ignoreInit = FALSE)
+      }
+      feature_area2 <- gsub(x = unlist(strsplit(feature_area2, "(\\r)|(\\n)", perl = TRUE)), pattern = " ", replacement = "")
+      features2 <- c(as.character(features2), as.character(feature_area2))
+      features2 <- unique(features2[features2 %in% c(all_features, meta_features_name)])
 
-  observe({
-    prog <- Progress$new(min = 1, max = 10)
-    prog$set(value = 3, message = "Fetch data...", detail = "[Feature dimensional reduction plot]")
-    r2()$then(function(x) {
-      promisedData[["p2_dim"]] <- x[[1]]
-      promisedData[["p2_3d"]] <- x[[2]]
-      width <- get_attr(x[[1]], "width")
-      height <- get_attr(x[[1]], "height")
-      dpi <- get_attr(x[[1]], "dpi")
+      promisedData[["p2_dim"]] <- NULL
+      promisedData[["p2_3d"]] <- NULL
+      promises::future_promise(
+        {
+          # print("******************************** New task ********************************")
+          # print(">>> fetch data:")
+          # print(system.time(
+          srt_tmp <- SCP::FetchH5(
+            DataFile = DataFile, MetaFile = MetaFile, name = dataset2,
+            features = features2, slot = slots2, assay = assays2,
+            metanames = split2, reduction = reduction2
+          )
+          # ))
 
-      prog$set(value = 8, message = "Render plot...", detail = "[Feature dimensional reduction plot]")
-      # print("renderPlot:")
-      # print(system.time(
-      output$plot2 <- renderUI({
-        renderPlot(
-          {
-            x[[1]]
-          },
-          width = width * dpi,
-          height = height * dpi,
-          res = dpi
-        )
-      })
-      # ))
+          # print(">>> plot:")
+          # print(system.time(
+          p2_dim <- SCP::FeatureDimPlot(
+            srt = srt_tmp, features = features2, split.by = split2, reduction = reduction2, slot = "data", raster = raster2,
+            calculate_coexp = ifelse(coExp2 == "Yes", TRUE, FALSE), palette = palette2, theme_use = theme2,
+            ncol = ncol2, byrow = ifelse(arrange2 == "Row", TRUE, FALSE), force = TRUE
+          )
+          # ))
 
-      # print("renderPlotly:")
-      # print(system.time(
-      output$plot2_3d <- plotly::renderPlotly({
-        x[[2]]
-      })
-      # ))
+          # print(">>> panel_fix:")
+          # print(system.time(
+          p2_dim <- SCP::panel_fix(SCP::slim_data(p2_dim), height = size2, raster = panel_raster, BPPARAM = BPPARAM, verbose = FALSE)
+          # ))
+          attr(p2_dim, "dpi") <- plot_dpi2
+          plot3d <- max(sapply(names(srt_tmp@reductions), function(r) dim(srt_tmp[[r]])[2])) >= 3
+          if (isTRUE(plot3d)) {
+            p2_3d <- SCP::FeatureDimPlot3D(
+              srt = srt_tmp, features = features2, reduction = reduction2,
+              calculate_coexp = ifelse(coExp2 == "Yes", TRUE, FALSE), force = TRUE
+            )
+          } else {
+            p2_3d <- NULL
+          }
+          return(list(p2_dim, p2_3d))
+        },
+        seed = TRUE
+      )
     }) %>%
-      finally(~ {
-        prog$set(value = 10, message = "Done.", detail = "[Feature dimensional reduction plot]")
-        prog$close()
-      })
-  }) %>% bindEvent(input$submit2, ignoreNULL = FALSE, ignoreInit = FALSE)
+      bindCache(input$dataset2, input$assays2, input$slots2, input$features2, input$feature_area2, input$coExp2, input$reduction2, input$raster2, input$split2, input$palette2, input$theme2, input$size2, input$plot_dpi2, input$ncol2, input$arrange2) %>%
+      bindEvent(input$submit2, ignoreNULL = FALSE, ignoreInit = FALSE)
 
-  # submit3  ----------------------------------------------------------------
-  r3 <- reactive({
-    dataset3 <- input$dataset3
-    plottype3 <- input$plottype3
-    stattype3 <- input$stattype3
-    position3 <- input$position3
-    stat3 <- input$stat3
-    group3 <- input$group3
-    if (input$group3 == "None") {
-      group3 <- NULL
-    } else {
+    observe({
+      prog <- Progress$new(min = 1, max = 10)
+      prog$set(value = 3, message = "Fetch data...", detail = "[Feature dimensional reduction plot]")
+      r2()$then(function(x) {
+        promisedData[["p2_dim"]] <- x[[1]]
+        promisedData[["p2_3d"]] <- x[[2]]
+        width <- get_attr(x[[1]], "width")
+        height <- get_attr(x[[1]], "height")
+        dpi <- get_attr(x[[1]], "dpi")
+
+        prog$set(value = 8, message = "Render plot...", detail = "[Feature dimensional reduction plot]")
+        # print("renderPlot:")
+        # print(system.time(
+        output$plot2 <- renderUI({
+          renderPlot(
+            {
+              x[[1]]
+            },
+            width = width * dpi,
+            height = height * dpi,
+            res = dpi
+          )
+        })
+        # ))
+
+        # print("renderPlotly:")
+        # print(system.time(
+        output$plot2_3d <- plotly::renderPlotly({
+          x[[2]]
+        })
+        # ))
+      }) %>%
+        finally(~ {
+          prog$set(value = 10, message = "Done.", detail = "[Feature dimensional reduction plot]")
+          prog$close()
+        })
+    }) %>% bindEvent(input$submit2, ignoreNULL = FALSE, ignoreInit = FALSE)
+
+    # submit3  ----------------------------------------------------------------
+    r3 <- reactive({
+      dataset3 <- input$dataset3
+      plottype3 <- input$plottype3
+      stattype3 <- input$stattype3
+      position3 <- input$position3
+      stat3 <- input$stat3
       group3 <- input$group3
-    }
-    if (input$split3 == "None") {
-      split3 <- NULL
-    } else {
-      split3 <- input$split3
-    }
-    label3 <- input$label3
-    palette3 <- input$palette3
-    size3 <- input$size3
-    plot_dpi3 <- input$plot_dpi3
-    ncol3 <- input$ncol3
-    arrange3 <- input$arrange3
+      if (input$group3 == "None") {
+        group3 <- NULL
+      } else {
+        group3 <- input$group3
+      }
+      if (input$split3 == "None") {
+        split3 <- NULL
+      } else {
+        split3 <- input$split3
+      }
+      label3 <- input$label3
+      palette3 <- input$palette3
+      size3 <- input$size3
+      plot_dpi3 <- input$plot_dpi3
+      ncol3 <- input$ncol3
+      arrange3 <- input$arrange3
 
-    # message("dataset3:", dataset3)
-    # message("plottype3:", plottype3)
-    # message("stattype3:", stattype3)
-    # message("position3:", position3)
-    # message("stat3:", stat3)
-    # message("group3:", group3)
-    # message("split3:", split3)
-    # message("label3:", label3)
-    # message("palette3:", palette3)
-    # message("size3:", size3)
-    # message("plot_dpi3:", plot_dpi3)
-    # message("ncol3:", ncol3)
-    # message("arrange3:", arrange3)
+      # message("dataset3:", dataset3)
+      # message("plottype3:", plottype3)
+      # message("stattype3:", stattype3)
+      # message("position3:", position3)
+      # message("stat3:", stat3)
+      # message("group3:", group3)
+      # message("split3:", split3)
+      # message("label3:", label3)
+      # message("palette3:", palette3)
+      # message("size3:", size3)
+      # message("plot_dpi3:", plot_dpi3)
+      # message("ncol3:", ncol3)
+      # message("arrange3:", arrange3)
 
-    promisedData[["p3"]] <- NULL
-    promises::future_promise(
-      {
-        # print("******************************** New task ********************************")
-        # print(">>> fetch data:")
-        # print(system.time(
-        srt_tmp <- SCP::FetchH5(
-          DataFile = DataFile, MetaFile = MetaFile, name = dataset3,
-          metanames = unique(c(stat3, group3, split3))
-        )
-        # ))
+      promisedData[["p3"]] <- NULL
+      promises::future_promise(
+        {
+          # print("******************************** New task ********************************")
+          # print(">>> fetch data:")
+          # print(system.time(
+          srt_tmp <- SCP::FetchH5(
+            DataFile = DataFile, MetaFile = MetaFile, name = dataset3,
+            metanames = unique(c(stat3, group3, split3))
+          )
+          # ))
 
-        # print(">>> plot:")
-        # print(system.time(
-        p3 <- SCP::CellStatPlot(
-          srt = srt_tmp, stat.by = stat3, group.by = group3, split.by = split3,
-          plot_type = plottype3, stat_type = stattype3, position = position3,
-          label = ifelse(label3 == "Yes", TRUE, FALSE), palette = palette3,
-          aspect.ratio = 6 / max(length(unique(srt_tmp[[group3, drop = TRUE]])), 1),
-          ncol = ncol3, byrow = ifelse(arrange3 == "Row", TRUE, FALSE), force = TRUE
-        )
-        # ))
+          # print(">>> plot:")
+          # print(system.time(
+          p3 <- SCP::CellStatPlot(
+            srt = srt_tmp, stat.by = stat3, group.by = group3, split.by = split3,
+            plot_type = plottype3, stat_type = stattype3, position = position3,
+            label = ifelse(label3 == "Yes", TRUE, FALSE), palette = palette3,
+            aspect.ratio = 6 / max(length(unique(srt_tmp[[group3, drop = TRUE]])), 1),
+            ncol = ncol3, byrow = ifelse(arrange3 == "Row", TRUE, FALSE), force = TRUE
+          )
+          # ))
 
-        # print(">>> panel_fix:")
-        # print(system.time(
-        p3 <- SCP::panel_fix(SCP::slim_data(p3), height = size3, raster = panel_raster, BPPARAM = BPPARAM, verbose = FALSE)
-        # ))
-        attr(p3, "dpi") <- plot_dpi3
-        return(p3)
-      },
-      seed = TRUE
-    )
-  }) %>%
-    bindCache(input$dataset3, input$plottype3, input$stattype3, input$position3, input$stat3, input$group3, input$split3, input$label3, input$palette3, input$size3, input$plot_dpi3, input$ncol3, input$arrange3) %>%
-    bindEvent(input$submit3, ignoreNULL = FALSE, ignoreInit = FALSE)
-
-  observe({
-    prog <- Progress$new(min = 1, max = 10)
-    prog$set(value = 3, message = "Fetch data...", detail = "[Cell statistical plot]")
-    r3()$then(function(x) {
-      promisedData[["p3"]] <- x
-      width <- get_attr(x, "width")
-      height <- get_attr(x, "height")
-      dpi <- get_attr(x, "dpi")
-
-      prog$set(value = 8, message = "Render plot...", detail = "[Cell statistical plot]")
-      # print("renderPlot:")
-      # print(system.time(
-      output$plot3 <- renderUI({
-        renderPlot(
-          {
-            x
-          },
-          width = width * dpi,
-          height = height * dpi,
-          res = dpi
-        )
-      })
-      # ))
+          # print(">>> panel_fix:")
+          # print(system.time(
+          p3 <- SCP::panel_fix(SCP::slim_data(p3), height = size3, raster = panel_raster, BPPARAM = BPPARAM, verbose = FALSE)
+          # ))
+          attr(p3, "dpi") <- plot_dpi3
+          return(p3)
+        },
+        seed = TRUE
+      )
     }) %>%
-      finally(~ {
-        prog$set(value = 10, message = "Done.", detail = "[Cell statistical plot]")
-        prog$close()
-      })
-  }) %>% bindEvent(input$submit3, ignoreNULL = FALSE, ignoreInit = FALSE)
+      bindCache(input$dataset3, input$plottype3, input$stattype3, input$position3, input$stat3, input$group3, input$split3, input$label3, input$palette3, input$size3, input$plot_dpi3, input$ncol3, input$arrange3) %>%
+      bindEvent(input$submit3, ignoreNULL = FALSE, ignoreInit = FALSE)
 
-  # submit4  ----------------------------------------------------------------
-  r4 <- reactive({
-    dataset4 <- input$dataset4
-    assays4 <- input$assays4
-    slots4 <- input$slots4
-    plottype4 <- input$plottype4
-    features4 <- input$features4
-    feature_area4 <- input$feature_area4
-    coExp4 <- input$coExp4
-    group4 <- input$group4
-    if (input$split4 == "None") {
-      split4 <- NULL
-    } else {
-      split4 <- input$split4
-    }
-    palette4 <- input$palette4
-    size4 <- input$size4
-    plot_dpi4 <- input$plot_dpi4
-    ncol4 <- input$ncol4
-    arrange4 <- input$arrange4
+    observe({
+      prog <- Progress$new(min = 1, max = 10)
+      prog$set(value = 3, message = "Fetch data...", detail = "[Cell statistical plot]")
+      r3()$then(function(x) {
+        promisedData[["p3"]] <- x
+        width <- get_attr(x, "width")
+        height <- get_attr(x, "height")
+        dpi <- get_attr(x, "dpi")
 
-    data <- HDF5Array::TENxMatrix(filepath = DataFile, group = paste0("/", dataset4, "/", assays4, "/", slots4))
-    all_features <- colnames(data)
-    meta_features_name <- rhdf5::h5read(MetaFile, name = paste0("/", dataset4, "/metadata.stat/asfeatures"))
-
-    if (is.null(features4)) {
-      message("input feature4 is null")
-      features4 <- meta_features_name[1]
-    }
-    feature_area4 <- gsub(x = unlist(strsplit(feature_area4, "(\\r)|(\\n)", perl = TRUE)), pattern = " ", replacement = "")
-    features4 <- c(as.character(features4), as.character(feature_area4))
-    features4 <- unique(features4[features4 %in% c(all_features, meta_features_name)])
-
-    promisedData[["p4"]] <- NULL
-    promises::future_promise(
-      {
-        # print("******************************** New task ********************************")
-        # print(">>> fetch data:")
+        prog$set(value = 8, message = "Render plot...", detail = "[Cell statistical plot]")
+        # print("renderPlot:")
         # print(system.time(
-        srt_tmp <- SCP::FetchH5(
-          DataFile = DataFile, MetaFile = MetaFile, name = dataset4,
-          features = features4, slot = slots4, assay = assays4,
-          metanames = unique(c(group4, split4))
-        )
+        output$plot3 <- renderUI({
+          renderPlot(
+            {
+              x
+            },
+            width = width * dpi,
+            height = height * dpi,
+            res = dpi
+          )
+        })
         # ))
+      }) %>%
+        finally(~ {
+          prog$set(value = 10, message = "Done.", detail = "[Cell statistical plot]")
+          prog$close()
+        })
+    }) %>% bindEvent(input$submit3, ignoreNULL = FALSE, ignoreInit = FALSE)
 
-        # print(">>> plot:")
-        # print(system.time(
-        p4 <- SCP::FeatureStatPlot(
-          srt = srt_tmp, stat.by = features4, group.by = group4, split.by = split4, slot = "data", plot_type = plottype4,
-          calculate_coexp = ifelse(coExp4 == "Yes", TRUE, FALSE), palette = palette4,
-          aspect.ratio = 6 / max(length(unique(srt_tmp[[group4, drop = TRUE]])), 1),
-          ncol = ncol4, byrow = ifelse(arrange4 == "Row", TRUE, FALSE), force = TRUE
-        )
-        # ))
+    # submit4  ----------------------------------------------------------------
+    r4 <- reactive({
+      dataset4 <- input$dataset4
+      assays4 <- input$assays4
+      slots4 <- input$slots4
+      plottype4 <- input$plottype4
+      features4 <- input$features4
+      feature_area4 <- input$feature_area4
+      coExp4 <- input$coExp4
+      group4 <- input$group4
+      if (input$split4 == "None") {
+        split4 <- NULL
+      } else {
+        split4 <- input$split4
+      }
+      palette4 <- input$palette4
+      size4 <- input$size4
+      plot_dpi4 <- input$plot_dpi4
+      ncol4 <- input$ncol4
+      arrange4 <- input$arrange4
 
-        # print(">>> panel_fix:")
-        # print(system.time(
-        p4 <- SCP::panel_fix(SCP::slim_data(p4), height = size4, raster = panel_raster, BPPARAM = BPPARAM, verbose = FALSE)
-        # ))
-        attr(p4, "dpi") <- plot_dpi4
-        return(p4)
-      },
-      seed = TRUE
-    )
-  }) %>%
-    bindCache(input$dataset4, input$assays4, input$slots4, input$plottype4, input$features4, input$feature_area4, input$coExp4, input$group4, input$split4, input$palette4, input$size4, input$plot_dpi4, input$ncol4, input$arrange4) %>%
-    bindEvent(input$submit4, ignoreNULL = FALSE, ignoreInit = FALSE)
+      data <- HDF5Array::TENxMatrix(filepath = DataFile, group = paste0("/", dataset4, "/", assays4, "/", slots4))
+      all_features <- colnames(data)
+      meta_features_name <- rhdf5::h5read(MetaFile, name = paste0("/", dataset4, "/metadata.stat/asfeatures"))
 
-  observe({
-    prog <- Progress$new(min = 1, max = 10)
-    prog$set(value = 3, message = "Fetch data...", detail = "[Feature statistical plot]")
-    r4()$then(function(x) {
-      promisedData[["p4"]] <- x
-      width <- get_attr(x, "width")
-      height <- get_attr(x, "height")
-      dpi <- get_attr(x, "dpi")
+      if (is.null(features4)) {
+        if (is.null(initial_feature)) {
+          features4 <- initial_feature
+        } else {
+          features4 <- meta_features_name[1]
+        }
+      }
+      feature_area4 <- gsub(x = unlist(strsplit(feature_area4, "(\\r)|(\\n)", perl = TRUE)), pattern = " ", replacement = "")
+      features4 <- c(as.character(features4), as.character(feature_area4))
+      features4 <- unique(features4[features4 %in% c(all_features, meta_features_name)])
 
-      prog$set(value = 8, message = "Render plot...", detail = "[Feature statistical plot]")
-      # print("renderPlot:")
-      # print(system.time(
-      output$plot4 <- renderUI({
-        renderPlot(
-          {
-            x
-          },
-          width = width * dpi,
-          height = height * dpi,
-          res = dpi
-        )
-      })
-      # ))
+      promisedData[["p4"]] <- NULL
+      promises::future_promise(
+        {
+          # print("******************************** New task ********************************")
+          # print(">>> fetch data:")
+          # print(system.time(
+          srt_tmp <- SCP::FetchH5(
+            DataFile = DataFile, MetaFile = MetaFile, name = dataset4,
+            features = features4, slot = slots4, assay = assays4,
+            metanames = unique(c(group4, split4))
+          )
+          # ))
+
+          # print(">>> plot:")
+          # print(system.time(
+          p4 <- SCP::FeatureStatPlot(
+            srt = srt_tmp, stat.by = features4, group.by = group4, split.by = split4, slot = "data", plot_type = plottype4,
+            calculate_coexp = ifelse(coExp4 == "Yes", TRUE, FALSE), palette = palette4,
+            aspect.ratio = 6 / max(length(unique(srt_tmp[[group4, drop = TRUE]])), 1),
+            ncol = ncol4, byrow = ifelse(arrange4 == "Row", TRUE, FALSE), force = TRUE
+          )
+          # ))
+
+          # print(">>> panel_fix:")
+          # print(system.time(
+          p4 <- SCP::panel_fix(SCP::slim_data(p4), height = size4, raster = panel_raster, BPPARAM = BPPARAM, verbose = FALSE)
+          # ))
+          attr(p4, "dpi") <- plot_dpi4
+          return(p4)
+        },
+        seed = TRUE
+      )
     }) %>%
-      finally(~ {
-        prog$set(value = 10, message = "Done.", detail = "[Feature statistical plot]")
-        prog$close()
-      })
-  }) %>% bindEvent(input$submit4, ignoreNULL = FALSE, ignoreInit = FALSE)
-}
+      bindCache(input$dataset4, input$assays4, input$slots4, input$plottype4, input$features4, input$feature_area4, input$coExp4, input$group4, input$split4, input$palette4, input$size4, input$plot_dpi4, input$ncol4, input$arrange4) %>%
+      bindEvent(input$submit4, ignoreNULL = FALSE, ignoreInit = FALSE)
+
+    observe({
+      prog <- Progress$new(min = 1, max = 10)
+      prog$set(value = 3, message = "Fetch data...", detail = "[Feature statistical plot]")
+      r4()$then(function(x) {
+        promisedData[["p4"]] <- x
+        width <- get_attr(x, "width")
+        height <- get_attr(x, "height")
+        dpi <- get_attr(x, "dpi")
+
+        prog$set(value = 8, message = "Render plot...", detail = "[Feature statistical plot]")
+        # print("renderPlot:")
+        # print(system.time(
+        output$plot4 <- renderUI({
+          renderPlot(
+            {
+              x
+            },
+            width = width * dpi,
+            height = height * dpi,
+            res = dpi
+          )
+        })
+        # ))
+      }) %>%
+        finally(~ {
+          prog$set(value = 10, message = "Done.", detail = "[Feature statistical plot]")
+          prog$close()
+        })
+    }) %>% bindEvent(input$submit4, ignoreNULL = FALSE, ignoreInit = FALSE)
+  }
   '
 
   main_code <- readLines(textConnection(main_code))
