@@ -1874,7 +1874,7 @@ CellDimPlot <- function(srt, group.by, reduction = NULL, dims = c(1, 2), split.b
         p <- p + geom_text_repel(
           data = label_df, aes(x = .data[["x"]], y = .data[["y"]], label = .data[["label"]]),
           fontface = "bold", min.segment.length = 0, segment.color = label_segment_color,
-          point.size = NA, max.overlaps = 100,
+          point.size = NA, max.overlaps = 100, force = 0,
           color = label.fg, bg.color = label.bg, bg.r = label.bg.r, size = label.size, inherit.aes = FALSE
         )
       }
@@ -2105,6 +2105,10 @@ FeatureDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), spli
                            theme_use = "theme_scp", theme_args = list(),
                            combine = TRUE, nrow = NULL, ncol = NULL, byrow = TRUE, force = FALSE, seed = 11) {
   set.seed(seed)
+
+  if (!is.null(keep_scale)) {
+    keep_scale <- match.arg(keep_scale, choices = c("feature", "all"))
+  }
 
   color_blend_mode <- match.arg(color_blend_mode)
   require("ggrepel", quietly = TRUE)
@@ -2465,7 +2469,7 @@ FeatureDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), spli
             p <- p + geom_text_repel(
               data = label_df, aes(x = .data[["x"]], y = .data[["y"]], label = .data[["label"]], color = .data[["label"]]),
               fontface = "bold", min.segment.length = 0, segment.color = label_segment_color,
-              point.size = NA, max.overlaps = 100,
+              point.size = NA, max.overlaps = 100, force = 0,
               color = label.fg, bg.color = label.bg, bg.r = label.bg.r, size = label.size, inherit.aes = FALSE, show.legend = FALSE
             )
           }
@@ -2491,7 +2495,7 @@ FeatureDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), spli
             p <- p + geom_text_repel(
               data = label_df, aes(x = .data[["x"]], y = .data[["y"]], label = .data[["rank"]], color = .data[["label"]]),
               fontface = "bold", min.segment.length = 0, segment.colour = label_segment_color,
-              point.size = NA, max.overlaps = 100,
+              point.size = NA, max.overlaps = 100, force = 0,
               bg.color = label.bg, bg.r = label.bg.r, size = label.size, inherit.aes = FALSE, key_glyph = "point"
             )
           }
@@ -2798,7 +2802,7 @@ FeatureDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), spli
           p <- p + annotate(
             geom = "text_repel", x = label_df[["x"]], y = label_df[["y"]], label = label_df[["label"]],
             fontface = "bold",
-            point.size = NA, max.overlaps = 100,
+            point.size = NA, max.overlaps = 100, force = 0,
             color = label.fg, bg.color = label.bg, bg.r = label.bg.r, size = label.size
           )
         }
@@ -3944,7 +3948,7 @@ FeatureStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.b
         y_max_use <- layer_scales(p)$y$range$range[2]
       } else {
         p <- p + stat_compare_means(
-          aes(x = .data[["group.by"]], y = .data[["value"]], group = .data[["group.unique"]]),
+          mapping = aes(x = .data[["group.by"]], y = .data[["value"]], group = .data[["group.unique"]]),
           label = sig_label,
           label.y = y_max_use,
           size = 3.5,
@@ -4768,7 +4772,7 @@ StatPlot <- function(meta.data, stat.by, group.by = NULL, split.by = NULL, bg.by
             ),
             colour = label.fg, size = label.size,
             bg.color = label.bg, bg.r = label.bg.r,
-            point.size = NA, max.overlaps = 100, min.segment.length = 0,
+            point.size = NA, max.overlaps = 100, min.segment.length = 0, force = 0,
             position = position_use
           )
         } else {
@@ -4779,7 +4783,7 @@ StatPlot <- function(meta.data, stat.by, group.by = NULL, split.by = NULL, bg.by
             ),
             colour = label.fg, size = label.size,
             bg.color = label.bg, bg.r = label.bg.r,
-            point.size = NA, max.overlaps = 100, min.segment.length = 0,
+            point.size = NA, max.overlaps = 100, min.segment.length = 0, force = 0,
             position = position_use
           )
         }
@@ -4878,14 +4882,14 @@ StatPlot <- function(meta.data, stat.by, group.by = NULL, split.by = NULL, bg.by
             fontface = "bold",
             colour = label.fg, size = label.size + 0.5,
             bg.color = label.bg, bg.r = label.bg.r,
-            point.size = NA, max.overlaps = 100,
+            point.size = NA, max.overlaps = 100, force = 0,
             min.segment.length = 0, segment.colour = "black"
           ) +
           geom_text_repel(
             data = dat_stat, aes(label = label, x = x, y = y),
             colour = label.fg, size = label.size,
             bg.color = label.bg, bg.r = label.bg.r,
-            point.size = NA, max.overlaps = 100,
+            point.size = NA, max.overlaps = 100, force = 0,
             min.segment.length = 0, segment.colour = "black"
           ) +
           scale_fill_identity() +
@@ -4912,7 +4916,7 @@ StatPlot <- function(meta.data, stat.by, group.by = NULL, split.by = NULL, bg.by
             stat = "count",
             colour = label.fg, size = label.size,
             bg.color = label.bg, bg.r = label.bg.r,
-            point.size = NA, max.overlaps = 100,
+            point.size = NA, max.overlaps = 100, force = 0,
             min.segment.length = 0, segment.colour = "black"
           ) +
           labs(title = title, subtitle = subtitle, x = sp, y = "Intersection size") +
@@ -6408,7 +6412,7 @@ GraphPlot <- function(node, edge, transition = NULL,
       label_layer <- list(geom_text_repel(
         data = node, aes(x = .data[["x"]], y = .data[["y"]], label = .data[["label"]]),
         fontface = "bold", min.segment.length = 0, segment.color = label_segment_color,
-        point.size = NA, max.overlaps = 100,
+        point.size = NA, max.overlaps = 100, force = 0,
         color = label.fg, bg.color = label.bg, bg.r = label.bg.r, size = label.size, inherit.aes = FALSE
       ))
     }
@@ -12617,6 +12621,7 @@ ProjectionPlot <- function(srt_query, srt_ref,
 #' EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", topTerm = 3, plot_type = "comparison")
 #' EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", topTerm = 3, plot_type = "comparison", compare_only_sig = TRUE)
 #'
+#'
 #' EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = c("Ductal", "Endocrine"), plot_type = "bar", ncol = 1)
 #' EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = c("Ductal", "Endocrine"), plot_type = "dot", ncol = 1, palette = "GdRd")
 #' EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = c("Ductal", "Endocrine"), plot_type = "lollipop", ncol = 1, palette = "GdRd")
@@ -12625,6 +12630,7 @@ ProjectionPlot <- function(srt_query, srt_ref,
 #' EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = c("Ductal", "Endocrine"), plot_type = "comparison")
 #'
 #' EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = "Ductal", plot_type = "network")
+#' EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = "Ductal", plot_type = "network", id_use = c("GO:0050678", "GO:0035270", "GO:0090276", "GO:0030073"))
 #' EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = "Ductal", plot_type = "network", network_layoutadjust = FALSE)
 #' EnrichmentPlot(pancreas_sub,
 #'   db = "GO_BP", group_by = "CellType", group_use = "Ductal", plot_type = "network",
@@ -12657,9 +12663,9 @@ ProjectionPlot <- function(srt_query, srt_ref,
 #' @importFrom igraph as_data_frame graph_from_data_frame V layout_with_dh layout_with_drl layout_with_fr layout_with_gem layout_with_graphopt layout_with_kk layout_with_lgl layout_with_mds layout_in_circle layout_as_tree layout_on_grid cluster_fast_greedy cluster_infomap cluster_leiden cluster_louvain cluster_spinglass cluster_walktrap cluster_fluid_communities
 #' @export
 #'
-EnrichmentPlot <- function(srt, db = "GO_BP", group_by = NULL, group_use = NULL, test.use = "wilcox",
-                           res = NULL, pvalueCutoff = NULL, padjustCutoff = 0.05, compare_only_sig = FALSE,
+EnrichmentPlot <- function(srt, db = "GO_BP", group_by = NULL, test.use = "wilcox", res = NULL,
                            plot_type = c("bar", "dot", "lollipop", "network", "enrichmap", "wordcloud", "comparison"),
+                           group_use = NULL, id_use = NULL, pvalueCutoff = NULL, padjustCutoff = 0.05, compare_only_sig = FALSE,
                            topTerm = ifelse(plot_type == "enrichmap", 100, 6), topWord = 100,
                            word_type = c("term", "feature"), word_size = c(2, 8), min_word_length = 3,
                            network_layout = "fr", network_labelsize = 5, network_blendmode = "blend",
@@ -12706,11 +12712,18 @@ EnrichmentPlot <- function(srt, db = "GO_BP", group_by = NULL, group_use = NULL,
   if (!is.null(group_use)) {
     res <- res[res[["Groups"]] %in% group_use, , drop = FALSE]
   }
+  if (length(id_use) > 0) {
+    pvalueCutoff <- Inf
+    padjustCutoff <- Inf
+    compare_only_sig <- FALSE
+    topTerm <- Inf
+    res <- res[res[["ID"]] %in% id_use, , drop = FALSE]
+  }
 
   metric <- ifelse(is.null(padjustCutoff), "pvalue", "p.adjust")
   metric_value <- ifelse(is.null(padjustCutoff), pvalueCutoff, padjustCutoff)
-  pvalueCutoff <- ifelse(is.null(pvalueCutoff), 1, pvalueCutoff)
-  padjustCutoff <- ifelse(is.null(padjustCutoff), 1, padjustCutoff)
+  pvalueCutoff <- ifelse(is.null(pvalueCutoff), Inf, pvalueCutoff)
+  padjustCutoff <- ifelse(is.null(padjustCutoff), Inf, padjustCutoff)
 
   if (any(db %in% c("GO_sim", "GO_BP_sim", "GO_CC_sim", "GO_MF_sim"))) {
     res_sim <- res[res[["Database"]] %in% gsub("_sim", "", db), , drop = FALSE]
@@ -12765,7 +12778,7 @@ EnrichmentPlot <- function(srt, db = "GO_BP", group_by = NULL, group_use = NULL,
       guides(size = guide_legend(override.aes = list(fill = "grey30", shape = 21), order = 1)) +
       scale_fill_gradientn(
         name = paste0(metric),
-        limits = c(0, min(pvalueCutoff, padjustCutoff)),
+        limits = c(0, min(metric_value, 1)),
         n.breaks = 3,
         colors = palette_scp(palette = palette, palcolor = palcolor, reverse = TRUE),
         na.value = "grey80",
@@ -12932,7 +12945,7 @@ EnrichmentPlot <- function(srt, db = "GO_BP", group_by = NULL, group_use = NULL,
       df_edges[["color"]] <- colors[df_edges$from]
       node_colors <- aggregate(df_unnest$Description, by = list(df_unnest$geneID), FUN = function(x) blendcolors(colors = colors[x], mode = network_blendmode))
       colors <- c(colors, setNames(node_colors[, 2], node_colors[, 1]))
-      label_colors <- ifelse(colSums(col2rgb(colors)) > 382.5, "black", "white")
+      label_colors <- ifelse(colSums(col2rgb(colors)) > 255 * 2, "black", "white")
       df_nodes[["color"]] <- colors[df_nodes$name]
       df_nodes[["label_color"]] <- label_colors[df_nodes$name]
       df_nodes[["label"]] <- NA
@@ -12958,7 +12971,7 @@ EnrichmentPlot <- function(srt, db = "GO_BP", group_by = NULL, group_use = NULL,
         geom_text_repel(
           data = df_nodes[df_nodes$class == "term", ], aes(x = dim1, y = dim2, label = label),
           fontface = "bold", min.segment.length = 0, segment.color = "black",
-          point.size = NA, max.overlaps = 100, color = "white", bg.color = "black", bg.r = 0.1, size = network_labelsize
+          point.size = NA, max.overlaps = 100, force = 0, color = "white", bg.color = "black", bg.r = 0.1, size = network_labelsize
         ) +
         scale_color_identity(guide = "none") +
         scale_fill_identity(
@@ -13095,7 +13108,7 @@ EnrichmentPlot <- function(srt, db = "GO_BP", group_by = NULL, group_use = NULL,
         ),
         list(
           data = df_nodes, aes(
-            x = dim1, y = dim2, color = clusters, fill = clusters, linewidth = 1,
+            x = dim1, y = dim2, color = clusters, fill = clusters,
             label = clusters, description = if (enrichmap_label == "term") keyword1 else keyword2
           ),
           expand = unit(3, "mm"),
@@ -13374,7 +13387,7 @@ adjustlayout <- function(graph, layout, width, height = 2, scale = 100, iter = 1
 #' GSEA Plot
 #'
 #' @param res
-#' @param geneSetID
+#' @param id_use
 #' @param base_size
 #' @param rel_heights
 #' @param subplots
@@ -13417,8 +13430,8 @@ adjustlayout <- function(graph, layout, width, height = 2, scale = 100, iter = 1
 #' pancreas_sub <- RunDEtest(pancreas_sub, group_by = "CellType", only.pos = FALSE, fc.threshold = 1)
 #' pancreas_sub <- RunGSEA(pancreas_sub, group_by = "CellType", db = "GO_BP", species = "Mus_musculus")
 #' GSEAPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = "Ductal")
-#' GSEAPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = "Ductal", geneSetID = "GO:0006412")
-#' GSEAPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = "Endocrine", geneSetID = c("GO:0046903", "GO:0015031", "GO:0007600")) %>%
+#' GSEAPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = "Ductal", id_use = "GO:0006412")
+#' GSEAPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = "Endocrine", id_use = c("GO:0046903", "GO:0015031", "GO:0007600")) %>%
 #'   panel_fix_single(width = 5) # Because the plot is made by combining, we want to adjust the overall height and width
 #' GSEAPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", topTerm = 3, plot_type = "comparison")
 #' GSEAPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", topTerm = 3, plot_type = "comparison", compare_only_sig = TRUE)
@@ -13432,10 +13445,10 @@ adjustlayout <- function(graph, layout, width, height = 2, scale = 100, iter = 1
 #' @importFrom gtable gtable_add_rows gtable_add_grob
 #' @importFrom grid textGrob
 #' @export
-GSEAPlot <- function(srt, db = "GO_BP", group_by = NULL, group_use = NULL, test.use = "wilcox",
-                     res = NULL, pvalueCutoff = NULL, padjustCutoff = 0.05,
+GSEAPlot <- function(srt, db = "GO_BP", group_by = NULL, test.use = "wilcox", res = NULL,
                      plot_type = c("line", "comparison"), palette = "Spectral", palcolor = NULL,
-                     topTerm = 6, geneSetID = NULL, only_pos = FALSE, compare_only_sig = FALSE,
+                     group_use = NULL, id_use = NULL, pvalueCutoff = NULL, padjustCutoff = 0.05,
+                     topTerm = 6, only_pos = FALSE, compare_only_sig = FALSE,
                      subplots = 1:3, rel_heights = c(1.5, 0.5, 1), rel_width = 3,
                      linewidth = 1.5, line_alpha = 1, line_color = "#6BB82D",
                      n_coregene = 10, sample_coregene = FALSE, features_label = NULL,
@@ -13560,7 +13573,7 @@ GSEAPlot <- function(srt, db = "GO_BP", group_by = NULL, group_use = NULL, test.
   } else if (plot_type == "line") {
     for (nm in names(res)) {
       res_enrich <- res[[nm]]
-      if (is.null(geneSetID)) {
+      if (is.null(id_use)) {
         geneSetID_filter <- res_enrich@result[res_enrich@result[[metric]] < metric_value, , drop = FALSE]
         geneSetID_filter <- geneSetID_filter[order(geneSetID_filter[[metric]]), , drop = FALSE]
         geneSetID_up <- geneSetID_filter[geneSetID_filter[["NES"]] > 0, , drop = FALSE]
@@ -13573,10 +13586,10 @@ GSEAPlot <- function(srt, db = "GO_BP", group_by = NULL, group_use = NULL, test.
           geneSetID_use <- head(c(geneSetID_up, geneSetID_down), topTerm)
         }
       } else {
-        geneSetID_use <- geneSetID
+        geneSetID_use <- id_use
       }
       if (length(geneSetID_use) == 1) {
-        gsdata <- gsInfo(object = res_enrich, geneSetID = geneSetID_use)
+        gsdata <- gsInfo(object = res_enrich, id_use = geneSetID_use)
       } else {
         gsdata <- do.call(rbind, lapply(geneSetID_use, gsInfo, object = res_enrich))
       }
@@ -13831,12 +13844,12 @@ GSEAPlot <- function(srt, db = "GO_BP", group_by = NULL, group_use = NULL, test.
   }
 }
 
-gsInfo <- function(object, geneSetID) {
+gsInfo <- function(object, id_use) {
   geneList <- object@geneList
-  if (is.numeric(geneSetID)) {
-    geneSetID <- object@result[geneSetID, "ID"]
+  if (is.numeric(id_use)) {
+    id_use <- object@result[id_use, "ID"]
   }
-  geneSet <- object@geneSets[[geneSetID]]
+  geneSet <- object@geneSets[[id_use]]
   exponent <- object@params[["exponent"]]
   df <- gseaScores(geneList, geneSet, exponent)
   df$ymin <- 0
@@ -13846,8 +13859,8 @@ gsInfo <- function(object, geneSetID) {
   df$ymin[pos] <- -h
   df$ymax[pos] <- h
   df$geneList <- geneList
-  df$Description <- object@result[geneSetID, "Description"]
-  df$CoreGene <- object@result[geneSetID, "core_enrichment"]
+  df$Description <- object@result[id_use, "Description"]
+  df$CoreGene <- object@result[id_use, "core_enrichment"]
   if (length(object@gene2Symbol) == length(object@geneList)) {
     df$GeneName <- object@gene2Symbol
   } else {

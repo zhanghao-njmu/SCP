@@ -8,14 +8,15 @@ EnrichmentPlot(
   srt,
   db = "GO_BP",
   group_by = NULL,
-  group_use = NULL,
   test.use = "wilcox",
   res = NULL,
+  plot_type = c("bar", "dot", "lollipop", "network", "enrichmap", "wordcloud",
+    "comparison"),
+  group_use = NULL,
+  id_use = NULL,
   pvalueCutoff = NULL,
   padjustCutoff = 0.05,
   compare_only_sig = FALSE,
-  plot_type = c("bar", "dot", "lollipop", "network", "enrichmap", "wordcloud",
-    "comparison"),
   topTerm = ifelse(plot_type == "enrichmap", 100, 6),
   topWord = 100,
   word_type = c("term", "feature"),
@@ -55,11 +56,11 @@ EnrichmentPlot(
 )
 }
 \arguments{
+\item{plot_type}{Type of plot to be visualized.}
+
 \item{pvalueCutoff}{pvalueCutoff}
 
 \item{padjustCutoff}{padjustCutoff}
-
-\item{plot_type}{Type of plot to be visualized.}
 
 \item{topTerm}{Number of terms to plot if \code{plot_type="bar"} or \code{plot_type="lollipop"}.}
 
@@ -94,6 +95,7 @@ EnrichmentPlot(pancreas_sub,
 EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", topTerm = 3, plot_type = "comparison")
 EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", topTerm = 3, plot_type = "comparison", compare_only_sig = TRUE)
 
+
 EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = c("Ductal", "Endocrine"), plot_type = "bar", ncol = 1)
 EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = c("Ductal", "Endocrine"), plot_type = "dot", ncol = 1, palette = "GdRd")
 EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = c("Ductal", "Endocrine"), plot_type = "lollipop", ncol = 1, palette = "GdRd")
@@ -102,6 +104,7 @@ EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = c(
 EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = c("Ductal", "Endocrine"), plot_type = "comparison")
 
 EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = "Ductal", plot_type = "network")
+EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = "Ductal", plot_type = "network", id_use = c("GO:0050678", "GO:0035270", "GO:0090276", "GO:0030073"))
 EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = "Ductal", plot_type = "network", network_layoutadjust = FALSE)
 EnrichmentPlot(pancreas_sub,
   db = "GO_BP", group_by = "CellType", group_use = "Ductal", plot_type = "network",
