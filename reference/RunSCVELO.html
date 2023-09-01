@@ -278,21 +278,21 @@ This function performs scVelo workflow in R by reticulate.</p>
 <span class="r-plt img"><img src="RunSCVELO-4.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="Standard_SCP.html">Standard_SCP</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, normalization_method <span class="op">=</span> <span class="st">"SCT"</span>, nonlinear_reduction <span class="op">=</span> <span class="st">"tsne"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-08-29 11:36:14.355335] Start Standard_SCP</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-08-29 11:36:14.355529] Checking srtList... ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-09-01 06:19:44.411433] Start Standard_SCP</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-09-01 06:19:44.41202] Checking srtList... ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform FindVariableFeatures on the data 1/1 of the srtList...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform SCTransform on the data 1 of the srtList...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Use the separate HVF from srtList...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Number of available HVF: 2000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-08-29 11:36:30.611026] Finished checking.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-08-29 11:36:30.611217] Perform linear dimension reduction (pca) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-08-29 11:36:31.499072] Perform FindClusters (louvain) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-08-29 11:36:31.665798] Reorder clusters...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-08-29 11:36:32.042263] Perform nonlinear dimension reduction (tsne) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-09-01 06:19:59.688846] Finished checking.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-09-01 06:19:59.689076] Perform linear dimension reduction (pca) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-09-01 06:20:00.741204] Perform FindClusters (louvain) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-09-01 06:20:00.992314] Reorder clusters...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-09-01 06:20:01.334325] Perform nonlinear dimension reduction (tsne) on the data...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Non-linear dimensionality reduction(tsne) using Reduction(Standardpca, dims:1-11) as input</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Non-linear dimensionality reduction(tsne) using Reduction(Standardpca, dims:1-11) as input</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-08-29 11:36:43.824413] Standard_SCP done</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 29.47 secs </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-09-01 06:20:12.709804] Standard_SCP done</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 28.3 secs </span>
 <span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu">RunSCVELO</span><span class="op">(</span>srt <span class="op">=</span> <span class="va">pancreas_sub</span>, assay_X <span class="op">=</span> <span class="st">"SCT"</span>, group_by <span class="op">=</span> <span class="st">"SubCellType"</span>, linear_reduction <span class="op">=</span> <span class="st">"Standardpca"</span>, nonlinear_reduction <span class="op">=</span> <span class="st">"StandardTSNE2D"</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Assay 'RNA' is in the srt object but not converted.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Assay 'Ms' is in the srt object but not converted.</span>

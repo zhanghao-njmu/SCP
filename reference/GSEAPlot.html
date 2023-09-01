@@ -52,16 +52,16 @@
 <span>  <span class="va">srt</span>,</span>
 <span>  db <span class="op">=</span> <span class="st">"GO_BP"</span>,</span>
 <span>  group_by <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  group_use <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  test.use <span class="op">=</span> <span class="st">"wilcox"</span>,</span>
 <span>  res <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  pvalueCutoff <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  padjustCutoff <span class="op">=</span> <span class="fl">0.05</span>,</span>
 <span>  plot_type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"line"</span>, <span class="st">"comparison"</span><span class="op">)</span>,</span>
 <span>  palette <span class="op">=</span> <span class="st">"Spectral"</span>,</span>
 <span>  palcolor <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  group_use <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  id_use <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  pvalueCutoff <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  padjustCutoff <span class="op">=</span> <span class="fl">0.05</span>,</span>
 <span>  topTerm <span class="op">=</span> <span class="fl">6</span>,</span>
-<span>  geneSetID <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  only_pos <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  compare_only_sig <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  subplots <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">3</span>,</span>
@@ -102,18 +102,18 @@
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"pancreas_sub"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="RunDEtest.html">RunDEtest</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, group_by <span class="op">=</span> <span class="st">"CellType"</span>, only.pos <span class="op">=</span> <span class="cn">FALSE</span>, fc.threshold <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Data in the 'data' slot is raw counts. Perform NormalizeData(LogNormalize) on the data.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-08-29 10:32:47.467884] Start DEtest</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-09-01 05:20:11.379435] Start DEtest</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Workers: 1</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Find all markers(wilcox) among 5 groups...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |==============================================================================================================| 100%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-08-29 10:38:52.095446] DEtest done</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:6.08 mins</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-09-01 05:25:12.837516] DEtest done</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:5.02 mins</span>
 <span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="RunGSEA.html">RunGSEA</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, group_by <span class="op">=</span> <span class="st">"CellType"</span>, db <span class="op">=</span> <span class="st">"GO_BP"</span>, species <span class="op">=</span> <span class="st">"Mus_musculus"</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-08-29 10:38:52.100227] Start GSEA</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-09-01 05:25:12.841963] Start GSEA</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Workers: 1</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Species: Mus_musculus</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db: GO_BP version:3.17.0 nterm:16027 created:2023-08-29 10:23:27.635742</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db: GO_BP version:3.17.0 nterm:16027 created:2023-09-01 05:12:05.52538</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Permform GSEA...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |==============================================================================================================| 100%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -127,13 +127,13 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |==============================================================================================================| 100%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-08-29 10:44:40.40618] GSEA done</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:5.81 mins</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-09-01 05:30:38.518748] GSEA done</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:5.43 mins</span>
 <span class="r-in"><span><span class="fu">GSEAPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, db <span class="op">=</span> <span class="st">"GO_BP"</span>, group_by <span class="op">=</span> <span class="st">"CellType"</span>, group_use <span class="op">=</span> <span class="st">"Ductal"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="GSEAPlot-1.png" alt="" width="700" height="433"></span>
-<span class="r-in"><span><span class="fu">GSEAPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, db <span class="op">=</span> <span class="st">"GO_BP"</span>, group_by <span class="op">=</span> <span class="st">"CellType"</span>, group_use <span class="op">=</span> <span class="st">"Ductal"</span>, geneSetID <span class="op">=</span> <span class="st">"GO:0006412"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">GSEAPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, db <span class="op">=</span> <span class="st">"GO_BP"</span>, group_by <span class="op">=</span> <span class="st">"CellType"</span>, group_use <span class="op">=</span> <span class="st">"Ductal"</span>, id_use <span class="op">=</span> <span class="st">"GO:0006412"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="GSEAPlot-2.png" alt="" width="700" height="433"></span>
-<span class="r-in"><span><span class="fu">GSEAPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, db <span class="op">=</span> <span class="st">"GO_BP"</span>, group_by <span class="op">=</span> <span class="st">"CellType"</span>, group_use <span class="op">=</span> <span class="st">"Endocrine"</span>, geneSetID <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"GO:0046903"</span>, <span class="st">"GO:0015031"</span>, <span class="st">"GO:0007600"</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span></span>
+<span class="r-in"><span><span class="fu">GSEAPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, db <span class="op">=</span> <span class="st">"GO_BP"</span>, group_by <span class="op">=</span> <span class="st">"CellType"</span>, group_use <span class="op">=</span> <span class="st">"Endocrine"</span>, id_use <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"GO:0046903"</span>, <span class="st">"GO:0015031"</span>, <span class="st">"GO:0007600"</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="panel_fix_single.html">panel_fix_single</a></span><span class="op">(</span>width <span class="op">=</span> <span class="fl">5</span><span class="op">)</span> <span class="co"># Because the plot is made by combining, we want to adjust the overall height and width</span></span></span>
 <span class="r-plt img"><img src="GSEAPlot-3.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="fu">GSEAPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, db <span class="op">=</span> <span class="st">"GO_BP"</span>, group_by <span class="op">=</span> <span class="st">"CellType"</span>, topTerm <span class="op">=</span> <span class="fl">3</span>, plot_type <span class="op">=</span> <span class="st">"comparison"</span><span class="op">)</span></span></span>
