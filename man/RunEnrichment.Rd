@@ -77,10 +77,17 @@ Perform the enrichment analysis(over-representation) on the genes
 data("pancreas_sub")
 pancreas_sub <- RunDEtest(pancreas_sub, group_by = "CellType")
 pancreas_sub <- RunEnrichment(
-  srt = pancreas_sub, group_by = "CellType", DE_threshold = "avg_log2FC > 0 & p_val_adj < 0.05",
+  srt = pancreas_sub, group_by = "CellType", DE_threshold = "p_val_adj < 0.05",
   db = "GO_BP", species = "Mus_musculus"
 )
 EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", plot_type = "comparison")
+
+pancreas_sub <- RunEnrichment(
+  srt = pancreas_sub, group_by = "CellType", DE_threshold = "p_val_adj < 0.05",
+  db = c("MSigDB", "MSigDB_MH"), species = "Mus_musculus"
+)
+EnrichmentPlot(pancreas_sub, db = "MSigDB", group_by = "CellType", plot_type = "comparison")
+EnrichmentPlot(pancreas_sub, db = "MSigDB_MH", group_by = "CellType", plot_type = "comparison")
 
 # Remove redundant GO terms
 pancreas_sub <- RunEnrichment(srt = pancreas_sub, group_by = "CellType", db = "GO_BP", GO_simplify = TRUE, species = "Mus_musculus")
@@ -96,7 +103,7 @@ pancreas_sub <- RunEnrichment(
 EnrichmentPlot(pancreas_sub, db = "Combined", group_by = "CellType", plot_type = "comparison")
 
 # Or use "geneID" and "geneID_groups" as input to run enrichment
-de_df <- dplyr::filter(pancreas_sub@tools$DEtest_CellType$AllMarkers_wilcox, avg_log2FC > 0 & p_val_adj < 0.05)
+de_df <- dplyr::filter(pancreas_sub@tools$DEtest_CellType$AllMarkers_wilcox, p_val_adj < 0.05)
 enrich_out <- RunEnrichment(geneID = de_df[["gene"]], geneID_groups = de_df[["group1"]], db = "GO_BP", species = "Mus_musculus")
 EnrichmentPlot(res = enrich_out, db = "GO_BP", plot_type = "comparison")
 

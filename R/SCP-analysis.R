@@ -83,8 +83,9 @@ GeneConvert <- function(geneID, geneID_from_IDtype = "symbol", geneID_to_IDtype 
       "entrez_symbol" = "entrezgene_accession",
       "entrez_id" = "entrezgene_id",
       "uniprot_symbol" = "uniprot_gn_symbol",
-      "wiki_symbol" = "wikigene_name"
-    ) %||% x
+      "wiki_symbol" = "wikigene_name",
+      x
+    )
   })
   names(from_IDtype) <- geneID_from_IDtype
 
@@ -94,8 +95,9 @@ GeneConvert <- function(geneID, geneID_from_IDtype = "symbol", geneID_to_IDtype 
       "ensembl_symbol" = "external_gene_name",
       "entrez_symbol" = "external_gene_name",
       "ensembl_id" = "ensembl_gene_id",
-      "entrez_id" = "entrezgene_id"
-    ) %||% x
+      "entrez_id" = "entrezgene_id",
+      x
+    )
   })
 
   if (species_from != species_to && all(geneID_to_IDtype %in% c("symbol", "ensembl_id"))) {
@@ -1757,16 +1759,10 @@ RunDEtest <- function(srt, group_by = NULL, group1 = NULL, group2 = NULL, cells1
 #' @export
 #' @examples
 #' ListDB(species = "Homo_sapiens")
+#' ListDB(species = "Mus_musculus")
 #'
-ListDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
-                   db = c(
-                     "GO", "GO_BP", "GO_CC", "GO_MF", "KEGG", "WikiPathway", "Reactome",
-                     "ProteinComplex", "DGI", "MP", "DO", "HPO", "PFAM",
-                     "Chromosome", "GeneType", "Enzyme", "TF",
-                     "CSPA", "Surfaceome", "SPRomeDB", "VerSeDa",
-                     "TFLink", "hTFtarget", "TRRUST", "JASPAR", "ENCODE",
-                     "CellTalk", "CellChat"
-                   )) {
+ListDB <- function(species = "Homo_sapiens",
+                   db = NULL) {
   pathnames <- dir(path = getCacheRootPath(), pattern = "[.]Rcache$", full.names = TRUE)
   if (length(pathnames) == 0) {
     return(NULL)
@@ -1781,6 +1777,9 @@ ListDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
   dbinfo <- do.call(rbind.data.frame, dbinfo)
   dbinfo[["file"]] <- pathnames
 
+  if (is.null(db)) {
+    db <- ".*"
+  }
   patterns <- paste0("^", species, "-", db, "$")
   dbinfo <- dbinfo[unlist(lapply(patterns, function(pat) grep(pat, dbinfo[["db_name"]]))), , drop = FALSE]
   dbinfo <- dbinfo[order(dbinfo[["timestamp"]], decreasing = TRUE), , drop = FALSE]
@@ -1813,14 +1812,18 @@ ListDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
 #'   head(db_list[["Homo_sapiens"]][["GO_BP"]][["TERM2GENE"]])
 #'
 #'   # Based on homologous gene conversion, prepare a gene annotation database that originally does not exist in the species.
-#'   db_list <- PrepareDB(species = "Homo_sapiens", db = "MP", convert_species = TRUE)
+#'   db_list <- PrepareDB(species = "Homo_sapiens", db = "MP")
 #'   ListDB(species = "Homo_sapiens", db = "MP")
 #'   head(db_list[["Homo_sapiens"]][["MP"]][["TERM2GENE"]])
 #'
 #'   # Prepare databases for other species
-#'   db_list <- PrepareDB(species = "Macaca_fascicularis", db = "GO_BP", convert_species = TRUE)
+#'   db_list <- PrepareDB(species = "Macaca_fascicularis", db = "GO_BP")
 #'   ListDB(species = "Macaca_fascicularis", db = "GO_BP")
 #'   head(db_list[["Macaca_fascicularis"]][["GO_BP"]][["TERM2GENE"]])
+#'
+#'   db_list <- PrepareDB(species = "Saccharomyces_cerevisiae", db = "GO_BP")
+#'   ListDB(species = "Saccharomyces_cerevisiae", db = "GO_BP")
+#'   head(db_list[["Saccharomyces_cerevisiae"]][["GO_BP"]][["TERM2GENE"]])
 #'
 #'   # Prepare databases for Arabidopsis (plant)
 #'   db_list <- PrepareDB(
@@ -1863,7 +1866,7 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
                         "Chromosome", "GeneType", "Enzyme", "TF",
                         "CSPA", "Surfaceome", "SPRomeDB", "VerSeDa",
                         "TFLink", "hTFtarget", "TRRUST", "JASPAR", "ENCODE",
-                        "CellTalk", "CellChat"
+                        "MSigDB", "CellTalk", "CellChat"
                       ),
                       db_IDtypes = c("symbol", "entrez_id", "ensembl_id"),
                       db_version = "latest", db_update = FALSE,
@@ -1881,7 +1884,7 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
       "GeneType" = "entrez_id", "Enzyme" = "entrez_id", "TF" = "symbol",
       "CSPA" = "symbol", "Surfaceome" = "symbol", "SPRomeDB" = "entrez_id", "VerSeDa" = "symbol",
       "TFLink" = "symbol", "hTFtarget" = "symbol", "TRRUST" = "symbol", "JASPAR" = "symbol", "ENCODE" = "symbol",
-      "CellTalk" = "symbol", "CellChat" = "symbol"
+      "MSigDB" = "symbol", "CellTalk" = "symbol", "CellChat" = "symbol"
     )
     if (!is.null(custom_TERM2GENE)) {
       if (length(db) > 1) {
@@ -2919,6 +2922,85 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
           }
         }
 
+        ## MSigDB ---------------------------------------------------------------------------
+        if (any(grepl("MSigDB", db)) && (!"MSigDB" %in% names(db_list[[sps]]))) {
+          if (!sps %in% c("Homo_sapiens", "Mus_musculus")) {
+            if (isTRUE(convert_species)) {
+              warning("Use the human annotation to create the MSigDB database for ", sps, immediate. = TRUE)
+              db_species["MSigDB"] <- "Homo_sapiens"
+            } else {
+              warning("MSigDB database only support Homo_sapiens and Mus_musculus. Consider using convert_species=TRUE", immediate. = TRUE)
+              stop("Stop the preparation.")
+            }
+          }
+          message("Preparing database: MSigDB")
+
+          temp <- tempfile()
+          download(url = "https://data.broadinstitute.org/gsea-msigdb/msigdb/release/", destfile = temp)
+          version <- readLines(temp)
+          version <- version[grep("alt=\"\\[DIR\\]\"", version)]
+          version <- version[grep(switch(db_species["MSigDB"],
+            "Homo_sapiens" = "Hs",
+            "Mus_musculus" = "Mm"
+          ), version)]
+          version <- version[length(version)]
+          version <- regmatches(version, m = regexpr("(?<=href\\=\")\\S+(?=/\"\\>)", version, perl = TRUE))
+
+          url <- paste0("https://data.broadinstitute.org/gsea-msigdb/msigdb/release/", version, "/msigdb.v", version, ".json")
+          download(url = url, destfile = temp)
+          lines <- readLines(temp, warn = FALSE)
+          lines <- gsub("\"", "", lines)
+          genesets <- strsplit(lines, "\\{|\\}")
+          term_list <- list()
+          for (idx in seq_along(genesets)) {
+            term_content <- genesets[[idx]]
+            if (length(term_content) == 1) {
+              next
+            }
+            term_name <- trimws(gsub(":|_", " ", term_content[[1]]))
+            term_id <- trimws(regmatches(term_content[[2]], m = regexpr("(?<=systematicName:)\\S+(?=,pmid)", term_content[[2]], perl = TRUE)))
+            term_gene <- trimws(regmatches(term_content[[2]], m = regexpr(pattern = "(?<=geneSymbols:\\[)\\S+(?=\\],msigdbURL)", term_content[[2]], perl = TRUE)))
+            term_collection <- trimws(gsub(".*collection:", "", term_content[[2]]))
+            term_collection <- gsub(":.*", "", term_collection)
+            term_list[[idx]] <- c(id = term_id, "name" = term_name, "gene" = term_gene, "collection" = term_collection)
+          }
+          df <- as.data.frame(do.call(rbind, term_list))
+          df$gene <- strsplit(df$gene, split = ",")
+          df <- unnest(df, cols = "gene")
+
+          TERM2NAME <- df[, c(1, 2, 4)]
+          TERM2GENE <- df[, c(1, 3)]
+          colnames(TERM2NAME) <- c("Term", "Name", "Collection")
+          colnames(TERM2GENE) <- c("Term", default_IDtypes["MSigDB"])
+          TERM2NAME <- na.omit(unique(TERM2NAME))
+          TERM2GENE <- na.omit(unique(TERM2GENE))
+
+          db_list[[db_species["MSigDB"]]][["MSigDB"]][["TERM2GENE"]] <- TERM2GENE
+          db_list[[db_species["MSigDB"]]][["MSigDB"]][["TERM2NAME"]] <- TERM2NAME
+          db_list[[db_species["MSigDB"]]][["MSigDB"]][["version"]] <- version
+          if (sps == db_species["MSigDB"]) {
+            saveCache(db_list[[db_species["MSigDB"]]][["MSigDB"]],
+              key = list(version, as.character(db_species["MSigDB"]), "MSigDB"),
+              comment = paste0(version, " nterm:", length(TERM2NAME[[1]]), "|", db_species["MSigDB"], "-MSigDB")
+            )
+          }
+
+          for (collection in unique(TERM2NAME[["Collection"]])) {
+            db_species[paste0("MSigDB_", collection)] <- db_species["MSigDB"]
+            TERM2NAME_sub <- TERM2NAME[TERM2NAME[["Collection"]] == collection, , drop = FALSE]
+            TERM2GENE_sub <- TERM2GENE[TERM2GENE[["Term"]] %in% TERM2NAME_sub[["Term"]], , drop = FALSE]
+            db_list[[db_species["MSigDB"]]][[paste0("MSigDB_", collection)]][["TERM2GENE"]] <- TERM2GENE_sub
+            db_list[[db_species["MSigDB"]]][[paste0("MSigDB_", collection)]][["TERM2NAME"]] <- TERM2NAME_sub
+            db_list[[db_species["MSigDB"]]][[paste0("MSigDB_", collection)]][["version"]] <- version
+            if (sps == db_species["MSigDB"]) {
+              saveCache(db_list[[db_species["MSigDB"]]][[paste0("MSigDB_", collection)]],
+                key = list(version, as.character(db_species["MSigDB"]), paste0("MSigDB_", collection)),
+                comment = paste0(version, " nterm:", length(TERM2NAME[[1]]), "|", db_species["MSigDB"], "-MSigDB_", collection)
+              )
+            }
+          }
+        }
+
         ## CellTalk ---------------------------------------------------------------------------
         if (any(db == "CellTalk") && (!"CellTalk" %in% names(db_list[[sps]]))) {
           if (!sps %in% c("Homo_sapiens", "Mus_musculus")) {
@@ -3250,10 +3332,17 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
 #' data("pancreas_sub")
 #' pancreas_sub <- RunDEtest(pancreas_sub, group_by = "CellType")
 #' pancreas_sub <- RunEnrichment(
-#'   srt = pancreas_sub, group_by = "CellType", DE_threshold = "avg_log2FC > 0 & p_val_adj < 0.05",
+#'   srt = pancreas_sub, group_by = "CellType", DE_threshold = "p_val_adj < 0.05",
 #'   db = "GO_BP", species = "Mus_musculus"
 #' )
 #' EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", plot_type = "comparison")
+#'
+#' pancreas_sub <- RunEnrichment(
+#'   srt = pancreas_sub, group_by = "CellType", DE_threshold = "p_val_adj < 0.05",
+#'   db = c("MSigDB", "MSigDB_MH"), species = "Mus_musculus"
+#' )
+#' EnrichmentPlot(pancreas_sub, db = "MSigDB", group_by = "CellType", plot_type = "comparison")
+#' EnrichmentPlot(pancreas_sub, db = "MSigDB_MH", group_by = "CellType", plot_type = "comparison")
 #'
 #' # Remove redundant GO terms
 #' pancreas_sub <- RunEnrichment(srt = pancreas_sub, group_by = "CellType", db = "GO_BP", GO_simplify = TRUE, species = "Mus_musculus")
@@ -3269,7 +3358,7 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
 #' EnrichmentPlot(pancreas_sub, db = "Combined", group_by = "CellType", plot_type = "comparison")
 #'
 #' # Or use "geneID" and "geneID_groups" as input to run enrichment
-#' de_df <- dplyr::filter(pancreas_sub@tools$DEtest_CellType$AllMarkers_wilcox, avg_log2FC > 0 & p_val_adj < 0.05)
+#' de_df <- dplyr::filter(pancreas_sub@tools$DEtest_CellType$AllMarkers_wilcox, p_val_adj < 0.05)
 #' enrich_out <- RunEnrichment(geneID = de_df[["gene"]], geneID_groups = de_df[["group1"]], db = "GO_BP", species = "Mus_musculus")
 #' EnrichmentPlot(res = enrich_out, db = "GO_BP", plot_type = "comparison")
 #'

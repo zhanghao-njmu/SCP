@@ -9,7 +9,7 @@ PrepareDB(
   db = c("GO", "GO_BP", "GO_CC", "GO_MF", "KEGG", "WikiPathway", "Reactome",
     "ProteinComplex", "DGI", "MP", "DO", "HPO", "PFAM", "Chromosome", "GeneType",
     "Enzyme", "TF", "CSPA", "Surfaceome", "SPRomeDB", "VerSeDa", "TFLink", "hTFtarget",
-    "TRRUST", "JASPAR", "ENCODE", "CellTalk", "CellChat"),
+    "TRRUST", "JASPAR", "ENCODE", "MSigDB", "CellTalk", "CellChat"),
   db_IDtypes = c("symbol", "entrez_id", "ensembl_id"),
   db_version = "latest",
   db_update = FALSE,
@@ -47,14 +47,18 @@ if (interactive()) {
   head(db_list[["Homo_sapiens"]][["GO_BP"]][["TERM2GENE"]])
 
   # Based on homologous gene conversion, prepare a gene annotation database that originally does not exist in the species.
-  db_list <- PrepareDB(species = "Homo_sapiens", db = "MP", convert_species = TRUE)
+  db_list <- PrepareDB(species = "Homo_sapiens", db = "MP")
   ListDB(species = "Homo_sapiens", db = "MP")
   head(db_list[["Homo_sapiens"]][["MP"]][["TERM2GENE"]])
 
   # Prepare databases for other species
-  db_list <- PrepareDB(species = "Macaca_fascicularis", db = "GO_BP", convert_species = TRUE)
+  db_list <- PrepareDB(species = "Macaca_fascicularis", db = "GO_BP")
   ListDB(species = "Macaca_fascicularis", db = "GO_BP")
   head(db_list[["Macaca_fascicularis"]][["GO_BP"]][["TERM2GENE"]])
+
+  db_list <- PrepareDB(species = "Saccharomyces_cerevisiae", db = "GO_BP")
+  ListDB(species = "Saccharomyces_cerevisiae", db = "GO_BP")
+  head(db_list[["Saccharomyces_cerevisiae"]][["GO_BP"]][["TERM2GENE"]])
 
   # Prepare databases for Arabidopsis (plant)
   db_list <- PrepareDB(

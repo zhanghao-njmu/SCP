@@ -589,6 +589,9 @@ RunSCExplorer <- function(base_dir = "SCExplorer",
   }
 
   main_code <- '
+  if (!file.exists("Rplots.pdf")) {
+      file.create("Rplots.pdf")
+  }
   data_group <- rhdf5::h5ls(DataFile)$group
   meta_group <- rhdf5::h5ls(MetaFile)$group
   group <- intersect(data_group, meta_group)
@@ -1403,11 +1406,7 @@ RunSCExplorer <- function(base_dir = "SCExplorer",
       meta_features_name <- rhdf5::h5read(MetaFile, name = paste0("/", dataset2, "/metadata.stat/asfeatures"))
 
       if (is.null(features2)) {
-        if (is.null(initial_feature)) {
-          features2 <- initial_feature
-        } else {
-          features2 <- meta_features_name[1]
-        }
+        features2 <- initial_feature
       }
       feature_area2 <- gsub(x = unlist(strsplit(feature_area2, "(\\r)|(\\n)", perl = TRUE)), pattern = " ", replacement = "")
       features2 <- c(as.character(features2), as.character(feature_area2))
@@ -1627,11 +1626,7 @@ RunSCExplorer <- function(base_dir = "SCExplorer",
       meta_features_name <- rhdf5::h5read(MetaFile, name = paste0("/", dataset4, "/metadata.stat/asfeatures"))
 
       if (is.null(features4)) {
-        if (is.null(initial_feature)) {
-          features4 <- initial_feature
-        } else {
-          features4 <- meta_features_name[1]
-        }
+        features4 <- initial_feature
       }
       feature_area4 <- gsub(x = unlist(strsplit(feature_area4, "(\\r)|(\\n)", perl = TRUE)), pattern = " ", replacement = "")
       features4 <- c(as.character(features4), as.character(feature_area4))

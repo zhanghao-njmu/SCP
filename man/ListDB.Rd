@@ -4,13 +4,7 @@
 \alias{ListDB}
 \title{ListDB}
 \usage{
-ListDB(
-  species = c("Homo_sapiens", "Mus_musculus"),
-  db = c("GO", "GO_BP", "GO_CC", "GO_MF", "KEGG", "WikiPathway", "Reactome",
-    "ProteinComplex", "DGI", "MP", "DO", "HPO", "PFAM", "Chromosome", "GeneType",
-    "Enzyme", "TF", "CSPA", "Surfaceome", "SPRomeDB", "VerSeDa", "TFLink", "hTFtarget",
-    "TRRUST", "JASPAR", "ENCODE", "CellTalk", "CellChat")
-)
+ListDB(species = "Homo_sapiens", db = NULL)
 }
 \arguments{
 \item{db}{}
@@ -20,5 +14,6 @@ ListDB
 }
 \examples{
 ListDB(species = "Homo_sapiens")
+ListDB(species = "Mus_musculus")
 
 }
