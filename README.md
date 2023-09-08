@@ -451,6 +451,13 @@ PAGAPlot(srt = pancreas_sub, reduction = "UMAP", label = TRUE, label_insitu = TR
 
 ### Velocity analysis
 
+> To estimate cell velocity, you need to have both “spliced” and
+> “unspliced” assays in your Seurat object. You can generate these
+> matrices using [velocyto](http://velocyto.org/velocyto.py/index.html),
+> [bustools](https://bustools.github.io/BUS_notebooks_R/velocity.html),
+> or
+> [alevin](https://combine-lab.github.io/alevin-fry-tutorials/2021/alevin-fry-velocity/).
+
 ``` r
 pancreas_sub <- RunSCVELO(
   srt = pancreas_sub, group_by = "SubCellType",
@@ -480,11 +487,11 @@ VolcanoPlot(srt = pancreas_sub, group_by = "CellType")
 DEGs <- pancreas_sub@tools$DEtest_CellType$AllMarkers_wilcox
 DEGs <- DEGs[with(DEGs, avg_log2FC > 1 & p_val_adj < 0.05), ]
 # Annotate features with transcription factors and surface proteins
-pancreas_sub <- AnnotateFeatures(pancreas_sub, species = "Mus_musculus", db = c("TF", "SP"))
+pancreas_sub <- AnnotateFeatures(pancreas_sub, species = "Mus_musculus", db = c("TF", "CSPA"))
 ht <- FeatureHeatmap(
   srt = pancreas_sub, group.by = "CellType", features = DEGs$gene, feature_split = DEGs$group1,
   species = "Mus_musculus", db = c("GO_BP", "KEGG", "WikiPathway"), anno_terms = TRUE,
-  feature_annotation = c("TF", "SP"), feature_annotation_palcolor = list(c("gold", "steelblue"), c("forestgreen")),
+  feature_annotation = c("TF", "CSPA"), feature_annotation_palcolor = list(c("gold", "steelblue"), c("forestgreen")),
   height = 5, width = 4
 )
 print(ht$plot)
@@ -534,6 +541,9 @@ EnrichmentPlot(
 
 <img src="README/README-RunEnrichment-4.png" width="100%" style="display: block; margin: auto;" />
 
+> To ensure that labels are visible, you can adjust the size of the
+> viewer panel on Rstudio IDE.
+
 ``` r
 EnrichmentPlot(
   srt = pancreas_sub, group_by = "CellType", group_use = "Ductal",
@@ -556,7 +566,7 @@ pancreas_sub <- RunGSEA(
   srt = pancreas_sub, group_by = "CellType", db = "GO_BP", species = "Mus_musculus",
   DE_threshold = "p_val_adj < 0.05"
 )
-GSEAPlot(srt = pancreas_sub, group_by = "CellType", group_use = "Endocrine", geneSetID = "GO:0007186")
+GSEAPlot(srt = pancreas_sub, group_by = "CellType", group_use = "Endocrine", id_use = "GO:0007186")
 ```
 
 <img src="README/README-RunGSEA-1.png" width="100%" style="display: block; margin: auto;" />
@@ -597,7 +607,7 @@ ht <- DynamicHeatmap(
   species = "Mus_musculus", db = "GO_BP", anno_terms = TRUE, anno_keys = TRUE, anno_features = TRUE,
   heatmap_palette = "viridis", cell_annotation = "SubCellType",
   separate_annotation = list("SubCellType", c("Nnat", "Irx1")), separate_annotation_palette = c("Paired", "Set1"),
-  feature_annotation = c("TF", "SP"), feature_annotation_palcolor = list(c("gold", "steelblue"), c("forestgreen")),
+  feature_annotation = c("TF", "CSPA"), feature_annotation_palcolor = list(c("gold", "steelblue"), c("forestgreen")),
   pseudotime_label = 25, pseudotime_label_color = "red",
   height = 5, width = 2
 )

@@ -12,28 +12,15 @@ RunWOT(
   slot_layers = "counts",
   adata = NULL,
   group_by = NULL,
+  time_field = "Time",
+  growth_iters = 3L,
+  tmap_out = "tmaps/tmap_out",
+  time_from = 1,
+  time_to = NULL,
+  get_coupling = FALSE,
+  recalculate = FALSE,
   palette = "Paired",
   palcolor = NULL,
-  linear_reduction = NULL,
-  nonlinear_reduction = NULL,
-  basis = NULL,
-  n_pcs = 30,
-  n_neighbors = 30,
-  dm_n_components = 10,
-  dm_alpha = 0,
-  dm_n_eigs = NULL,
-  early_group = NULL,
-  terminal_groups = NULL,
-  early_cell = NULL,
-  terminal_cells = NULL,
-  num_waypoints = 1200,
-  scale_components = TRUE,
-  use_early_cell_as_start = TRUE,
-  adjust_early_cell = FALSE,
-  adjust_terminal_cells = FALSE,
-  max_iterations = 25,
-  n_jobs = 8,
-  point_size = 20,
   show_plot = TRUE,
   dpi = 300,
   save = FALSE,
@@ -48,18 +35,6 @@ RunWOT(
 \item{adata}{An \code{anndata} object. Can be created through \code{\link{srt_to_adata}}}
 
 \item{group_by}{group_by.}
-
-\item{linear_reduction}{linear_reduction.}
-
-\item{nonlinear_reduction}{nonlinear_reduction.}
-
-\item{basis}{basis.}
-
-\item{n_pcs}{n_pcs.}
-
-\item{n_neighbors}{n_neighbors.}
-
-\item{n_jobs}{n_jobs.}
 
 \item{dpi}{dpi.}
 

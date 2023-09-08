@@ -46,7 +46,11 @@ AnnotateFeatures <- function(srt, species = "Homo_sapiens", IDtype = c("symbol",
       species = species, db = db, db_update = db_update, db_version = db_version, convert_species = convert_species,
       db_IDtypes = IDtype, Ensembl_version = Ensembl_version, mirror = mirror
     )
-    for (single_db in db) {
+    db_notfound <- setdiff(db, names(db_list[[species]]))
+    if (length(db_notfound) > 0) {
+      warning(paste0("The following databases are not found:", paste0(db_notfound, collapse = ",")))
+    }
+    for (single_db in names(db_list[[species]])) {
       TERM2GENE <- unique(db_list[[species]][[single_db]][["TERM2GENE"]])
       TERM2NAME <- unique(db_list[[species]][[single_db]][["TERM2NAME"]])
       rownames(TERM2NAME) <- TERM2NAME[, 1]
@@ -66,7 +70,7 @@ AnnotateFeatures <- function(srt, species = "Homo_sapiens", IDtype = c("symbol",
         }
         db_sub <- db_df[rownames(db_df) %in% rownames(meta.features), , drop = FALSE]
         if (nrow(db_sub) == 0) {
-          stop(paste0("No db data found in the seurat object. Please check if the species name is correct. The expected feature names are ", paste(head(rownames(db_df), 10), collapse = ","), "."))
+          stop(paste0("No data to append was found in the Seurat object. Please check if the species name is correct. The expected feature names are ", paste(head(rownames(db_df), 10), collapse = ","), "."))
         }
         meta.features <- cbind(meta.features, db_sub[rownames(meta.features), setdiff(colnames(db_sub), colnames(meta.features)), drop = FALSE])
         srt[[assay]]@meta.features <- meta.features
