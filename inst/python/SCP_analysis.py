@@ -768,15 +768,15 @@ def Palantir(adata=None, h5ad=None,group_by=None,palette=None,
 
   return adata
 
-def WOT(adata=None, h5ad=None, group_by=None,palette=None, linear_reduction=None, nonlinear_reduction=None,basis=None,
-            n_pcs=30,n_neighbors=30, use_rna_velocity=False,vkey="stochastic",
-            embedded_with_PAGA=False,paga_layout="fr", threshold=0.1, point_size=20, 
-            infer_pseudotime = False,root_cell = None,root_group=None,n_dcs = 10, n_branchings = 0, min_group_size = 0.01,
-            show_plot=True, dpi=300, save=False, dirpath="./", fileprefix=""):
+def WOT(adata=None, h5ad=None, group_by=None,palette=None, 
+        time_field = "Time", growth_iters = 3, tmap_out = "tmaps/tmap_out",
+        time_from = 1, time_to = None, get_coupling = False,recalculate=False,
+        show_plot=True, dpi=300, save=False, dirpath="./", fileprefix=""):
   import matplotlib.pyplot as plt
   import scanpy as sc
   import numpy as np
   import statistics
+  import pandas as pd
   from math import hypot
 
   import warnings
@@ -810,101 +810,58 @@ def WOT(adata=None, h5ad=None, group_by=None,palette=None, linear_reduction=None
     if group_by is None:
       print("group_by must be provided.")
       exit()
-      
-    if linear_reduction is None and nonlinear_reduction is None:
-      print("linear_reduction or nonlinear_reduction must be provided at least one.")
-      exit()
-    
-    if linear_reduction is None:
-      sc.pp.pca(adata, n_comps = n_pcs)
-      linear_reduction="X_pca"
-      
-    if basis is None:
-      if nonlinear_reduction is not None:
-        basis=nonlinear_reduction
-      else:
-        basis="basis"
-        adata.obsm["basis"]=adata.obsm[linear_reduction][:,0:2]
-        
-    if point_size is None:
-      point_size = min(100000 / adata.shape[0],20)  
-      
-    if infer_pseudotime is True and root_cell is None and root_group is None:
-      print("root_cell or root_group should be provided.")
-      exit()
 
-    if use_rna_velocity is True:
-      adata.uns["velocity_graph"]=adata.uns[vkey+"_graph"]
-    # del adata.uns
-    
     adata.obs[group_by] = adata.obs[group_by].astype(dtype = "category")
-    
-    if "X_diffmap" in adata.obsm_keys():
-      X_diffmap = adata.obsm['X_diffmap']
-      del adata.obsm['X_diffmap']
-      sc.pp.neighbors(adata, n_pcs = n_pcs, use_rep = linear_reduction, n_neighbors = n_neighbors)
-      adata.obsm['X_diffmap'] = X_diffmap
+    if pd.api.types.is_categorical_dtype(adata.obs[time_field]):
+      adata.obs["time_field"] = adata.obs[time_field].cat.codes
+    elif not pd.api.types.is_numeric_dtype(adata.obs[time_field]):
+      try:
+        adata.obs['time_field'] = adata.obs[time_field].astype("float")
+      except ValueError:
+        print("Unable to convert column '" + time_field + "' to float type.")
     else:
-      sc.pp.neighbors(adata, n_pcs = n_pcs, use_rep = linear_reduction, n_neighbors = n_neighbors)
+      adata.obs["time_field"] = adata.obs[time_field]
+      
+    time_dict = dict(zip(adata.obs[time_field],adata.obs["time_field"]))
+    ot_model <- wot.ot.OTModel(adata, growth_iters = growth_iters, day_field = "time_field")
     
-    sc.tl.paga(adata, groups = group_by, use_rna_velocity = use_rna_velocity)
-    
-    if use_rna_velocity is True:
-      sc.pl.paga_compare(adata, basis=basis,palette=palette, threshold = threshold, size = point_size, min_edge_width = 1, node_size_scale = 1,
-      dashed_edges='connectivities', solid_edges='transitions_confidence', transitions='transitions_confidence',
-      title = basis,frameon = False, edges = True, save = False, show = False)
+    if recalculate is True:
+      ot_model.compute_all_transport_maps(tmap_out = tmap_out)
+      tmap_model = wot.tmap.TransportMapModel.from_directory(tmap_out)
     else:
-      sc.pl.paga_compare(adata, basis=basis,palette=palette, threshold = threshold, size = point_size, title = basis,frameon = False, edges = True, save = False, show = False)
-    if show_plot is True:
-      plt.show()
-    if save:
-      plt.savefig('.'.join(filter(None, [fileprefix, "paga_compare.png"])), dpi=dpi)
-    
-    sc.pl.paga(adata, threshold = threshold, layout = paga_layout, title = "PAGA layout: " + paga_layout, frameon = False, save = False, show = False)
-    if show_plot is True:
-      plt.show()
-    if save:
-      plt.savefig('.'.join(filter(None, [fileprefix, "paga_layout.png"])), dpi=dpi)
-      
-    sc.tl.draw_graph(adata, init_pos = "paga", layout = paga_layout)
-    sc.pl.draw_graph(adata, color=group_by,palette=palette, title = "PAGA layout: " + paga_layout, layout = paga_layout,  frameon = False, legend_loc="on data",show = False)
-    if show_plot is True:
-      plt.show()
-    if save:
-      plt.savefig('.'.join(filter(None, [fileprefix, "paga_graph.png"])), dpi=dpi)
-      
-    if embedded_with_PAGA is True:
-      umap2d = sc.tl.umap(adata, init_pos = "paga", n_components=2, copy = True)
-      adata.obsm["PAGAUMAP2D"] = umap2d.obsm["X_umap"]
-      sc.pl.paga_compare(adata, basis = "PAGAUMAP2D",palette=palette, threshold = threshold, size = point_size, title = "PAGA-initialized UMAP", edges = True, save = False, show = False)
-      if show_plot is True:
-        plt.show()
-      if save:
-        plt.savefig('.'.join(filter(None, [fileprefix, "paga_umap.png"])), dpi=dpi)
-        
-    if infer_pseudotime is True:
-      if root_group is not None and root_cell is None:
-        cell = adata.obs[group_by].index.values[adata.obs[group_by]==root_group]
-        root_group_cell=adata.obsm[basis][adata.obs[group_by]==root_group,][:, [0, 1]]
-        x=statistics.median(root_group_cell[:,0])
-        y=statistics.median(root_group_cell[:,1])
-        diff=np.array((x - root_group_cell[:,0], y - root_group_cell[:,1]))
-        dist=[]
-        for i in range(diff.shape[1]):
-          dist.append(hypot(diff[0,i],diff[1,i]))
+      try:
+        tmap_model = wot.tmap.TransportMapModel.from_directory(tmap_out)
+      except ValueError:
+        ot_model.compute_all_transport_maps(tmap_out = tmap_out)
+        tmap_model = wot.tmap.TransportMapModel.from_directory(tmap_out)
 
-        root_cell=cell[dist.index(min(dist))]
-        
-      sc.tl.diffmap(adata, n_comps = n_dcs)
-      adata.uns['iroot'] = np.flatnonzero(adata.obs_names == root_cell)[0]
-      sc.tl.dpt(adata, n_dcs = n_dcs, n_branchings = n_branchings, min_group_size = min_group_size)
-      
-      sc.pl.embedding(adata, basis = basis, color = "dpt_pseudotime", save = False, show = False)
-      if show_plot is True:
-          plt.show()
-      if save:
-          plt.savefig('.'.join(filter(None, [fileprefix, "dpt_pseudotime.png"])), dpi=dpi)
-      
+    cell_sets = {}
+    for k, v in zip(adata.obs[group_by], adata.obs_names):
+        if k not in cell_sets:
+          cell_sets[k] = []
+        cell_sets[k].append(v)
+    
+    from_populations = tmap_model.population_from_cell_sets(cell_sets, at_time = time_dict[time_from])
+    
+    trajectory_ds = tmap_model.trajectories(from_populations)
+    trajectory_df = pd.DataFrame(trajectory_ds.X, index=trajectory_ds.obs_names, columns=trajectory_ds.var_names)
+    adata.uns["trajectory_"+str(time_from)]= trajectory_df
+
+    fates_ds = tmap_model.fates(from_populations)
+    fates_df = pd.DataFrame(fates_ds.X, index=fates_ds.obs_names, columns=fates_ds.var_names)
+    adata.uns["fates_"+str(time_from)]= fates_df
+    
+    # obs_list = wot.tmap.trajectory_trends_from_trajectory(trajectory_ds = trajectory_ds, expression_ds = adata)
+  
+    if time_to is not None:
+      to_populations = tmap_model.population_from_cell_sets(cell_sets, at_time = time_dict[time_to])
+      transition_table = tmap_model.transition_table(from_populations, to_populations)
+      transition_df = pd.DataFrame(transition_table.X, index=transition_table.obs_names, columns=transition_table.var_names)
+      adata.uns["transition_"+str(time_from)+"_to_"+str(time_to)]= fates_df
+      if get_coupling is True:
+        coupling = tmap_model.get_coupling(time_dict[time_from], time_dict[time_to])
+        coupling_df = pd.DataFrame(coupling.X, index=coupling.obs_names, columns=coupling.var_names)
+        adata.uns["coupling_"+str(time_from)+"_to_"+str(time_to)]= coupling_df
 
   finally:
       os.chdir(prevdir)

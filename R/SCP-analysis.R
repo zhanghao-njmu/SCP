@@ -5405,11 +5405,12 @@ check_python_element <- function(x, depth = maxDepth(x)) {
 #' @export
 #'
 RunPAGA <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_layers = c("spliced", "unspliced"), slot_layers = "counts",
-                    adata = NULL, group_by = NULL, palette = "Paired", palcolor = NULL,
+                    adata = NULL, group_by = NULL,
                     linear_reduction = NULL, nonlinear_reduction = NULL, basis = NULL,
                     n_pcs = 30, n_neighbors = 30, use_rna_velocity = FALSE, vkey = "stochastic",
                     embedded_with_PAGA = FALSE, paga_layout = "fr", threshold = 0.1, point_size = 20,
                     infer_pseudotime = FALSE, root_group = NULL, root_cell = NULL, n_dcs = 10, n_branchings = 0, min_group_size = 0.01,
+                    palette = "Paired", palcolor = NULL,
                     show_plot = TRUE, dpi = 300, save = FALSE, dirpath = "./", fileprefix = "",
                     return_seurat = !is.null(srt)) {
   check_Python("scanpy")
@@ -5532,7 +5533,7 @@ RunPAGA <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_layers
 #' @export
 #'
 RunSCVELO <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_layers = c("spliced", "unspliced"), slot_layers = "counts",
-                      adata = NULL, group_by = NULL, palette = "Paired", palcolor = NULL,
+                      adata = NULL, group_by = NULL,
                       linear_reduction = NULL, nonlinear_reduction = NULL, basis = NULL,
                       mode = "stochastic", fitting_by = "stochastic",
                       magic_impute = FALSE, knn = 5, t = 2,
@@ -5541,6 +5542,7 @@ RunSCVELO <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_laye
                       arrow_length = 5, arrow_size = 5, arrow_density = 0.5,
                       denoise = FALSE, denoise_topn = 3, kinetics = FALSE, kinetics_topn = 100,
                       calculate_velocity_genes = FALSE, top_n = 6, n_jobs = 1,
+                      palette = "Paired", palcolor = NULL,
                       show_plot = TRUE, dpi = 300, save = FALSE, dirpath = "./", fileprefix = "",
                       return_seurat = !is.null(srt)) {
   check_Python("scvelo")
@@ -5625,13 +5627,14 @@ RunSCVELO <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_laye
 #' @export
 #'
 RunPalantir <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_layers = c("spliced", "unspliced"), slot_layers = "counts",
-                        adata = NULL, group_by = NULL, palette = "Paired", palcolor = NULL,
+                        adata = NULL, group_by = NULL,
                         linear_reduction = NULL, nonlinear_reduction = NULL, basis = NULL,
                         n_pcs = 30, n_neighbors = 30, dm_n_components = 10, dm_alpha = 0, dm_n_eigs = NULL,
                         early_group = NULL, terminal_groups = NULL, early_cell = NULL, terminal_cells = NULL,
                         num_waypoints = 1200, scale_components = TRUE, use_early_cell_as_start = TRUE,
                         adjust_early_cell = FALSE, adjust_terminal_cells = FALSE,
                         max_iterations = 25, n_jobs = 8, point_size = 20,
+                        palette = "Paired", palcolor = NULL,
                         show_plot = TRUE, dpi = 300, save = FALSE, dirpath = "./", fileprefix = "",
                         return_seurat = !is.null(srt)) {
   check_Python("palantir")
@@ -5698,15 +5701,13 @@ RunPalantir <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_la
 #' Run WOT analysis
 #' @inheritParams RunSCVELO
 #'
+#' @examples
 #' @return A \code{anndata} object.
 RunWOT <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_layers = c("spliced", "unspliced"), slot_layers = "counts",
-                   adata = NULL, group_by = NULL, palette = "Paired", palcolor = NULL,
-                   linear_reduction = NULL, nonlinear_reduction = NULL, basis = NULL,
-                   n_pcs = 30, n_neighbors = 30, dm_n_components = 10, dm_alpha = 0, dm_n_eigs = NULL,
-                   early_group = NULL, terminal_groups = NULL, early_cell = NULL, terminal_cells = NULL,
-                   num_waypoints = 1200, scale_components = TRUE, use_early_cell_as_start = TRUE,
-                   adjust_early_cell = FALSE, adjust_terminal_cells = FALSE,
-                   max_iterations = 25, n_jobs = 8, point_size = 20,
+                   adata = NULL, group_by = NULL,
+                   time_field = "Time", growth_iters = 3L, tmap_out = "tmaps/tmap_out",
+                   time_from = 1, time_to = NULL, get_coupling = FALSE, recalculate = FALSE,
+                   palette = "Paired", palcolor = NULL,
                    show_plot = TRUE, dpi = 300, save = FALSE, dirpath = "./", fileprefix = "",
                    return_seurat = !is.null(srt)) {
   check_Python("wot")
@@ -5754,7 +5755,7 @@ RunWOT <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_layers 
   args[["palette"]] <- palette_scp(levels(groups) %||% unique(groups), palette = palette, palcolor = palcolor)
 
   SCP_analysis <- reticulate::import_from_path("SCP_analysis", path = system.file("python", package = "SCP", mustWork = TRUE), convert = TRUE)
-  adata <- do.call(SCP_analysis$Palantir, args)
+  adata <- do.call(SCP_analysis$WOT, args)
 
   if (isTRUE(return_seurat)) {
     srt_out <- adata_to_srt(adata)
@@ -5762,7 +5763,7 @@ RunWOT <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_layers 
       return(srt_out)
     } else {
       srt_out1 <- SrtAppend(srt_raw = srt, srt_append = srt_out)
-      srt_out2 <- SrtAppend(srt_raw = srt_out1, srt_append = srt_out, pattern = "(palantir)|(dm_kernel)|(_diff_potential)", overwrite = TRUE, verbose = FALSE)
+      srt_out2 <- SrtAppend(srt_raw = srt_out1, srt_append = srt_out, pattern = "(trajectory_)|(fates_)|(transition_)|(coupling_)", overwrite = TRUE, verbose = FALSE)
       return(srt_out2)
     }
   } else {
