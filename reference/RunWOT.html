@@ -56,28 +56,15 @@
 <span>  slot_layers <span class="op">=</span> <span class="st">"counts"</span>,</span>
 <span>  adata <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  group_by <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  time_field <span class="op">=</span> <span class="st">"Time"</span>,</span>
+<span>  growth_iters <span class="op">=</span> <span class="fl">3L</span>,</span>
+<span>  tmap_out <span class="op">=</span> <span class="st">"tmaps/tmap_out"</span>,</span>
+<span>  time_from <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  time_to <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  get_coupling <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  recalculate <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  palette <span class="op">=</span> <span class="st">"Paired"</span>,</span>
 <span>  palcolor <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  linear_reduction <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  nonlinear_reduction <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  basis <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  n_pcs <span class="op">=</span> <span class="fl">30</span>,</span>
-<span>  n_neighbors <span class="op">=</span> <span class="fl">30</span>,</span>
-<span>  dm_n_components <span class="op">=</span> <span class="fl">10</span>,</span>
-<span>  dm_alpha <span class="op">=</span> <span class="fl">0</span>,</span>
-<span>  dm_n_eigs <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  early_group <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  terminal_groups <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  early_cell <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  terminal_cells <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  num_waypoints <span class="op">=</span> <span class="fl">1200</span>,</span>
-<span>  scale_components <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  use_early_cell_as_start <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  adjust_early_cell <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  adjust_terminal_cells <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  max_iterations <span class="op">=</span> <span class="fl">25</span>,</span>
-<span>  n_jobs <span class="op">=</span> <span class="fl">8</span>,</span>
-<span>  point_size <span class="op">=</span> <span class="fl">20</span>,</span>
 <span>  show_plot <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  dpi <span class="op">=</span> <span class="fl">300</span>,</span>
 <span>  save <span class="op">=</span> <span class="cn">FALSE</span>,</span>
@@ -99,30 +86,6 @@
 
 <dt>group_by</dt>
 <dd><p>group_by.</p></dd>
-
-
-<dt>linear_reduction</dt>
-<dd><p>linear_reduction.</p></dd>
-
-
-<dt>nonlinear_reduction</dt>
-<dd><p>nonlinear_reduction.</p></dd>
-
-
-<dt>basis</dt>
-<dd><p>basis.</p></dd>
-
-
-<dt>n_pcs</dt>
-<dd><p>n_pcs.</p></dd>
-
-
-<dt>n_neighbors</dt>
-<dd><p>n_neighbors.</p></dd>
-
-
-<dt>n_jobs</dt>
-<dd><p>n_jobs.</p></dd>
 
 
 <dt>dpi</dt>

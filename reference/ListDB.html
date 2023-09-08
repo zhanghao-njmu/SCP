@@ -48,13 +48,7 @@
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">ListDB</span><span class="op">(</span></span>
-<span>  species <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Homo_sapiens"</span>, <span class="st">"Mus_musculus"</span><span class="op">)</span>,</span>
-<span>  db <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"GO"</span>, <span class="st">"GO_BP"</span>, <span class="st">"GO_CC"</span>, <span class="st">"GO_MF"</span>, <span class="st">"KEGG"</span>, <span class="st">"WikiPathway"</span>, <span class="st">"Reactome"</span>,</span>
-<span>    <span class="st">"ProteinComplex"</span>, <span class="st">"DGI"</span>, <span class="st">"MP"</span>, <span class="st">"DO"</span>, <span class="st">"HPO"</span>, <span class="st">"PFAM"</span>, <span class="st">"Chromosome"</span>, <span class="st">"GeneType"</span>,</span>
-<span>    <span class="st">"Enzyme"</span>, <span class="st">"TF"</span>, <span class="st">"CSPA"</span>, <span class="st">"Surfaceome"</span>, <span class="st">"SPRomeDB"</span>, <span class="st">"VerSeDa"</span>, <span class="st">"TFLink"</span>, <span class="st">"hTFtarget"</span>,</span>
-<span>    <span class="st">"TRRUST"</span>, <span class="st">"JASPAR"</span>, <span class="st">"ENCODE"</span>, <span class="st">"CellTalk"</span>, <span class="st">"CellChat"</span><span class="op">)</span></span>
-<span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">ListDB</span><span class="op">(</span>species <span class="op">=</span> <span class="st">"Homo_sapiens"</span>, db <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -69,6 +63,37 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">ListDB</span><span class="op">(</span>species <span class="op">=</span> <span class="st">"Homo_sapiens"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] identifier version    comment    timestamp  date       db_version db_name    file      </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;0 rows&gt; (or 0-length row.names)</span>
+<span class="r-in"><span><span class="fu">ListDB</span><span class="op">(</span>species <span class="op">=</span> <span class="st">"Mus_musculus"</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                                         identifier version                                      comment</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 Rcache v0.1.7 (R package R.cache by Henrik Bengtsson)              0.1.7             6.0.0 nterm:5960|Mus_musculus-DO</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 Rcache v0.1.7 (R package R.cache by Henrik Bengtsson)              0.1.7 2023-09-04 08:03 nterm:10294|Mus_musculus-MP</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 Rcache v0.1.7 (R package R.cache by Henrik Bengtsson)              0.1.7        3.17.0 nterm:16027|Mus_musculus-GO_BP</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 Rcache v0.1.7 (R package R.cache by Henrik Bengtsson)              0.1.7          3.17.0 nterm:56|Mus_musculus-Enzyme</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5 Rcache v0.1.7 (R package R.cache by Henrik Bengtsson)              0.1.7        3.17.0 nterm:11|Mus_musculus-GeneType</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6 Rcache v0.1.7 (R package R.cache by Henrik Bengtsson)              0.1.7      3.17.0 nterm:23|Mus_musculus-Chromosome</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7 Rcache v0.1.7 (R package R.cache by Henrik Bengtsson)              0.1.7         VerSeDa nterm:1|Mus_musculus-VerSeDa</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8 Rcache v0.1.7 (R package R.cache by Henrik Bengtsson)              0.1.7               CSPA nterm:1|Mus_musculus-CSPA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9 Rcache v0.1.7 (R package R.cache by Henrik Bengtsson)              0.1.7          AnimalTFDB4 nterm:2|Mus_musculus-TF</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    timestamp                       date                   db_version                 db_name</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 1694187370 2023-09-08 15:36:09.611605             6.0.0 nterm:5960         Mus_musculus-DO</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 1694187363 2023-09-08 15:36:02.719487 2023-09-04 08:03 nterm:10294         Mus_musculus-MP</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 1694187056 2023-09-08 15:30:55.528871           3.17.0 nterm:16027      Mus_musculus-GO_BP</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 1694186476 2023-09-08 15:21:16.402184              3.17.0 nterm:56     Mus_musculus-Enzyme</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5 1694186469 2023-09-08 15:21:08.639145              3.17.0 nterm:11   Mus_musculus-GeneType</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6 1694186408 2023-09-08 15:20:08.228887              3.17.0 nterm:23 Mus_musculus-Chromosome</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7 1694186352 2023-09-08 15:19:12.293131              VerSeDa nterm:1    Mus_musculus-VerSeDa</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8 1694186327 2023-09-08 15:18:47.073713                 CSPA nterm:1       Mus_musculus-CSPA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9 1694186316 2023-09-08 15:18:36.351696          AnimalTFDB4 nterm:2         Mus_musculus-TF</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                                                    file</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 /home/runner/.cache/R/R.cache/792dd0f1ca33ed8236cf6e82be723937.Rcache</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 /home/runner/.cache/R/R.cache/bc3123b03f0a175d52acb01b33815f41.Rcache</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 /home/runner/.cache/R/R.cache/42b4d036008b98824957461afba8e2f3.Rcache</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 /home/runner/.cache/R/R.cache/008eb78c5dea0f0a9c643a671db7ba86.Rcache</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5 /home/runner/.cache/R/R.cache/feae616aade8debb4c248b537cbdaf65.Rcache</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6 /home/runner/.cache/R/R.cache/e2c36a88c14e46ebb8d542a1faefd195.Rcache</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7 /home/runner/.cache/R/R.cache/c81fdce160dcfca80a3a94cacd3ca65b.Rcache</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8 /home/runner/.cache/R/R.cache/267624ab3d48b245ce01deac5165a7b1.Rcache</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9 /home/runner/.cache/R/R.cache/82f852e1d9ed5c0a5ad672b843c18742.Rcache</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
