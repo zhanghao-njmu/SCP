@@ -7,8 +7,9 @@
 Standard_SCP(
   srt,
   prefix = "Standard",
+  assay = NULL,
   do_normalization = NULL,
-  normalization_method = "logCPM",
+  normalization_method = "LogNormalize",
   do_HVF_finding = TRUE,
   HVF_method = "vst",
   nHVF = 2000,
@@ -16,16 +17,18 @@ Standard_SCP(
   do_scaling = TRUE,
   vars_to_regress = NULL,
   regression_model = "linear",
-  liner_reduction = "pca",
-  liner_reduction_dims = 100,
-  liner_reduction_dims_use = NULL,
-  liner_reduction_params = list(),
-  force_liner_reduction = FALSE,
-  nonliner_reduction = "umap",
-  nonliner_reduction_dims = c(2, 3),
-  nonliner_reduction_params = list(),
-  force_nonliner_reduction = TRUE,
-  do_cluster_finding = TRUE,
+  linear_reduction = "pca",
+  linear_reduction_dims = 50,
+  linear_reduction_dims_use = NULL,
+  linear_reduction_params = list(),
+  force_linear_reduction = FALSE,
+  nonlinear_reduction = "umap",
+  nonlinear_reduction_dims = c(2, 3),
+  nonlinear_reduction_params = list(),
+  force_nonlinear_reduction = TRUE,
+  neighbor_metric = "euclidean",
+  neighbor_k = 20L,
+  neighbor_ntrees = 50L,
   cluster_algorithm = "louvain",
   cluster_resolution = 0.6,
   cluster_reorder = TRUE,
@@ -39,7 +42,7 @@ Standard_SCP(
 
 \item{do_normalization}{Whether to normalize the data. If NULL, will automatically determine.}
 
-\item{normalization_method}{Normalization method.Can be one of "logCPM", "SCT".}
+\item{normalization_method}{Normalization method.Can be one of "LogNormalize", "SCT".}
 
 \item{do_HVF_finding}{Whether to find the high variable features(HVF). If NULL, will automatically determine.}
 
@@ -53,17 +56,15 @@ Standard_SCP(
 
 \item{regression_model}{Use a linear model or generalized linear model (poisson, negative binomial) for the regression. Options are "linear" (default), "poisson", and "negbinom".}
 
-\item{liner_reduction}{Liner reduction method name. Can be one of "pca", "ica", "nmf", "mds", "glmpca".}
+\item{linear_reduction}{linear reduction method name. Can be one of "pca", "ica", "nmf", "mds", "glmpca".}
 
-\item{liner_reduction_dims}{Dimensions to calculate when performing liner reduction.}
+\item{linear_reduction_dims}{Dimensions to calculate when performing linear reduction.}
 
-\item{liner_reduction_dims_use}{Which dimensions to use when performing the nonliner reduction.}
+\item{linear_reduction_dims_use}{Which dimensions to use when performing the nonlinear reduction.}
 
-\item{nonliner_reduction}{Non-liner reduction method name. Can be one of "umap", "umap-naive", "tsne", "dm", "phate", "pacmap", "trimap", "largevis".}
+\item{nonlinear_reduction}{Non-linear reduction method name. Can be one of "umap", "umap-naive", "tsne", "dm", "phate", "pacmap", "trimap", "largevis".}
 
-\item{nonliner_reduction_dims}{Dimensions to calculate when performing non-liner reduction.}
-
-\item{force_nonliner_reduction}{}
+\item{nonlinear_reduction_dims}{Dimensions to calculate when performing non-linear reduction.}
 
 \item{cluster_algorithm}{Algorithm for modularity optimization when finding clusters. Can be one of "louvain", "slm", "leiden".}
 
@@ -74,7 +75,7 @@ Standard_SCP(
 \item{seed}{Set a random seed.}
 }
 \value{
-A \code{Seurat} object containing the result.
+A \code{Seurat} object.
 }
 \description{
 Single cell pipeline for the single dataset.
@@ -82,5 +83,25 @@ Single cell pipeline for the single dataset.
 \examples{
 data("pancreas_sub")
 pancreas_sub <- Standard_SCP(srt = pancreas_sub)
-ClassDimPlot(pancreas_sub, group.by = "CellType")
+CellDimPlot(pancreas_sub, group.by = "SubCellType")
+
+# Use a combination of different linear or non-linear dimension reduction methods
+linear_reductions <- c("pca", "ica", "nmf", "mds", "glmpca")
+pancreas_sub <- Standard_SCP(
+  srt = pancreas_sub,
+  linear_reduction = linear_reductions,
+  nonlinear_reduction = "umap"
+)
+plist1 <- lapply(linear_reductions, function(lr) CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = paste0("Standard", lr, "UMAP2D"), theme_use = "theme_blank"))
+patchwork::wrap_plots(plotlist = plist1)
+
+nonlinear_reductions <- c("umap", "tsne", "dm", "phate", "pacmap", "trimap", "largevis", "fr")
+pancreas_sub <- Standard_SCP(
+  srt = pancreas_sub,
+  linear_reduction = "pca",
+  nonlinear_reduction = nonlinear_reductions
+)
+plist2 <- lapply(nonlinear_reductions, function(nr) CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = paste0("Standardpca", toupper(nr), "2D"), theme_use = "theme_blank"))
+patchwork::wrap_plots(plotlist = plist2)
+
 }

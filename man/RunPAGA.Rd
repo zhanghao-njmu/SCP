@@ -11,10 +11,9 @@ RunPAGA(
   assay_layers = c("spliced", "unspliced"),
   slot_layers = "counts",
   adata = NULL,
-  h5ad = NULL,
   group_by = NULL,
-  liner_reduction = NULL,
-  nonliner_reduction = NULL,
+  linear_reduction = NULL,
+  nonlinear_reduction = NULL,
   basis = NULL,
   n_pcs = 30,
   n_neighbors = 30,
@@ -30,12 +29,14 @@ RunPAGA(
   n_dcs = 10,
   n_branchings = 0,
   min_group_size = 0.01,
+  palette = "Paired",
+  palcolor = NULL,
   show_plot = TRUE,
   dpi = 300,
   save = FALSE,
   dirpath = "./",
   fileprefix = "",
-  return_seurat = FALSE
+  return_seurat = !is.null(srt)
 )
 }
 \arguments{
@@ -43,13 +44,11 @@ RunPAGA(
 
 \item{adata}{An \code{anndata} object. Can be created through \code{\link{srt_to_adata}}}
 
-\item{h5ad}{h5ad file path.}
-
 \item{group_by}{group_by.}
 
-\item{liner_reduction}{liner_reduction.}
+\item{linear_reduction}{linear_reduction.}
 
-\item{nonliner_reduction}{nonliner_reduction.}
+\item{nonlinear_reduction}{nonlinear_reduction.}
 
 \item{basis}{basis.}
 
@@ -85,17 +84,19 @@ Run PAGA analysis
 }
 \examples{
 data("pancreas_sub")
-pancreas_sub <- RunPAGA(srt = pancreas_sub, group_by = "SubCellType", liner_reduction = "PCA", nonliner_reduction = "UMAP", return_seurat = TRUE)
-PAGAPlot(pancreas_sub)
+pancreas_sub <- RunPAGA(srt = pancreas_sub, assay_X = "RNA", group_by = "SubCellType", linear_reduction = "PCA", nonlinear_reduction = "UMAP")
+CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "draw_graph_fr")
+PAGAPlot(pancreas_sub, reduction = "UMAP")
+CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", paga = pancreas_sub@misc$paga)
 
 pancreas_sub <- RunPAGA(
-  srt = pancreas_sub, group_by = "SubCellType", liner_reduction = "PCA", nonliner_reduction = "UMAP",
-  embedded_with_PAGA = TRUE, infer_pseudotime = TRUE, root_group = "Ductal", return_seurat = TRUE
+  srt = pancreas_sub, group_by = "SubCellType", linear_reduction = "PCA", nonlinear_reduction = "UMAP",
+  embedded_with_PAGA = TRUE, infer_pseudotime = TRUE, root_group = "Ductal"
 )
 head(pancreas_sub[[]])
 names(pancreas_sub@reductions)
-ExpDimPlot(pancreas_sub, "dpt_pseudotime", reduction = "PAGAUMAP2D")
+FeatureDimPlot(pancreas_sub, features = "dpt_pseudotime", reduction = "PAGAUMAP2D")
 PAGAPlot(pancreas_sub, reduction = "PAGAUMAP2D")
-ClassDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "PAGAUMAP2D", paga = pancreas_sub@misc$paga)
+CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "PAGAUMAP2D", paga = pancreas_sub@misc$paga)
 
 }

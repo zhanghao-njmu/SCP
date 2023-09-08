@@ -7,10 +7,11 @@
 RunSeuratMap(
   srt_query,
   srt_ref,
+  query_assay = NULL,
+  ref_assay = srt_ref[[ref_pca]]@assay.used,
   ref_pca = NULL,
   ref_dims = 1:30,
   ref_umap = NULL,
-  force = FALSE,
   ref_group = NULL,
   normalization.method = "LogNormalize",
   reduction_project_method = "pcaproject",
@@ -18,7 +19,7 @@ RunSeuratMap(
   k.filter = 200,
   k.score = 30,
   k.weight = 100,
-  projection_method = "model",
+  projection_method = c("model", "knn"),
   nn_method = NULL,
   k = 30,
   distance_metric = "cosine",
@@ -26,25 +27,20 @@ RunSeuratMap(
 )
 }
 \arguments{
-\item{vote_fun}{}
+\item{ref_assay}{}
 }
 \description{
 Single-cell reference mapping with Seurat method
 }
 \examples{
 data("panc8_sub")
-# Simply convert genes from human to mouse and preprocess the data
-genenames <- make.unique(stringr::str_to_title(rownames(panc8_sub)))
-panc8_sub <- RenameFeatures(panc8_sub, newnames = genenames)
-head(rownames(panc8_sub))
-
-panc8_sub <- Integration_SCP(panc8_sub, batch = "tech", integration_method = "Seurat")
-ClassDimPlot(panc8_sub, "celltype")
+srt_ref <- panc8_sub[, panc8_sub$tech != "fluidigmc1"]
+srt_query <- panc8_sub[, panc8_sub$tech == "fluidigmc1"]
+srt_ref <- Integration_SCP(srt_ref, batch = "tech", integration_method = "Seurat")
+CellDimPlot(srt_ref, group.by = c("celltype", "tech"))
 
 # Projection
-data("pancreas_sub")
-pancreas_sub <- Standard_SCP(pancreas_sub)
-pancreas_sub <- RunSeuratMap(srt_query = pancreas_sub, srt_ref = panc8_sub, ref_pca = "Seuratpca", ref_umap = "SeuratUMAP2D", k.weight = 80)
-ProjectionPlot(srt_query = pancreas_sub, srt_ref = panc8_sub, query_group = "SubCellType", ref_group = "celltype")
+srt_query <- RunSeuratMap(srt_query = srt_query, srt_ref = srt_ref, ref_pca = "Seuratpca", ref_umap = "SeuratUMAP2D", k.weight = 50)
+ProjectionPlot(srt_query = srt_query, srt_ref = srt_ref, query_group = "celltype", ref_group = "celltype")
 
 }

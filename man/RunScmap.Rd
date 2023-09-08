@@ -13,8 +13,7 @@ RunScmap(
   threshold = 0.5,
   k = 10,
   query_assay = "RNA",
-  ref_assay = "RNA",
-  force = FALSE
+  ref_assay = "RNA"
 )
 }
 \arguments{
@@ -26,7 +25,7 @@ Annotate single cells using scmap.
 \examples{
 data("panc8_sub")
 # Simply convert genes from human to mouse and preprocess the data
-genenames <- make.unique(stringr::str_to_title(rownames(panc8_sub)))
+genenames <- make.unique(capitalize(rownames(panc8_sub), force_tolower = TRUE))
 panc8_sub <- RenameFeatures(panc8_sub, newnames = genenames)
 panc8_sub <- check_srtMerge(panc8_sub, batch = "tech")[["srtMerge"]]
 
@@ -37,12 +36,12 @@ pancreas_sub <- RunScmap(
   srt_query = pancreas_sub, srt_ref = panc8_sub,
   ref_group = "celltype", method = "scmapCluster"
 )
-ClassDimPlot(pancreas_sub, group.by = "scmap_annotation")
+CellDimPlot(pancreas_sub, group.by = "scmap_annotation")
 
 pancreas_sub <- RunScmap(
   srt_query = pancreas_sub, srt_ref = panc8_sub,
   ref_group = "celltype", method = "scmapCell"
 )
-ClassDimPlot(pancreas_sub, group.by = "scmap_annotation")
+CellDimPlot(pancreas_sub, group.by = "scmap_annotation")
 
 }

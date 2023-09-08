@@ -9,6 +9,7 @@ RunGSEA(
   group_by = NULL,
   test.use = "wilcox",
   DE_threshold = "p_val_adj < 0.05",
+  scoreType = "std",
   geneID = NULL,
   geneScore = NULL,
   geneID_groups = NULL,
@@ -16,23 +17,24 @@ RunGSEA(
   IDtype = "symbol",
   result_IDtype = "symbol",
   species = "Homo_sapiens",
-  enrichment = "GO_BP",
-  db_IDtype = "symbol",
+  db = "GO_BP",
   db_update = FALSE,
   db_version = "latest",
+  db_combine = FALSE,
+  convert_species = TRUE,
   Ensembl_version = 103,
   mirror = NULL,
   TERM2GENE = NULL,
   TERM2NAME = NULL,
   minGSSize = 10,
   maxGSSize = 500,
-  scoreType = "std",
-  GO_simplify = TRUE,
-  GO_simplify_padjustCutoff = 0.2,
-  simplify_method = "Rel",
+  unlimited_db = c("Chromosome", "GeneType", "TF", "Enzyme", "CSPA"),
+  GO_simplify = FALSE,
+  GO_simplify_cutoff = "p.adjust < 0.05",
+  simplify_method = "Wang",
   simplify_similarityCutoff = 0.7,
   BPPARAM = BiocParallel::bpparam(),
-  progressbar = TRUE
+  seed = 11
 )
 }
 \arguments{
@@ -40,17 +42,17 @@ RunGSEA(
 
 \item{geneID_groups}{geneID_groups}
 
-\item{geneID_exclude}{}
-
 \item{IDtype}{IDtype}
 
 \item{result_IDtype}{result_IDtype}
 
 \item{species}{species}
 
-\item{enrichment}{enrichment}
+\item{db}{enrichment database}
 
 \item{db_update}{db_update}
+
+\item{convert_species}{}
 
 \item{TERM2GENE}{TERM2GENE}
 
@@ -62,11 +64,11 @@ RunGSEA(
 
 \item{GO_simplify}{GO_simplify}
 
-\item{GO_simplify_padjustCutoff}{GO_simplify_padjustCutoff}
-
 \item{simplify_method}{simplify_method}
 
 \item{simplify_similarityCutoff}{simplify_similarityCutoff}
+
+\item{GO_simplify_padjustCutoff}{GO_simplify_padjustCutoff}
 }
 \description{
 Perform the enrichment analysis(GSEA) on the genes
@@ -74,14 +76,30 @@ Perform the enrichment analysis(GSEA) on the genes
 \examples{
 data("pancreas_sub")
 pancreas_sub <- RunDEtest(pancreas_sub, group_by = "CellType", only.pos = FALSE, fc.threshold = 1)
-pancreas_sub <- RunGSEA(pancreas_sub, group_by = "CellType", enrichment = "GO_BP", species = "Mus_musculus")
-GSEAPlot(pancreas_sub, group_by = "CellType")
-GSEAPlot(pancreas_sub, group_by = "CellType", group_use = "Ductal", enrichment = "GO_BP", geneSetID = "GO:0006412")
-GSEAPlot(pancreas_sub, group_by = "CellType", group_use = "Endocrine", enrichment = "GO_BP", geneSetID = c("GO:0046903", "GO:0015031", "GO:0007600"))
+pancreas_sub <- RunGSEA(pancreas_sub,
+  group_by = "CellType", DE_threshold = "p_val_adj < 0.05",
+  scoreType = "std", db = "GO_BP", species = "Mus_musculus"
+)
+GSEAPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", plot_type = "comparison")
+GSEAPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = "Ductal", id_use = "GO:0006412")
+GSEAPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = "Endocrine", id_use = c("GO:0046903", "GO:0015031", "GO:0007600"))
 
-# Or run GSEA with "geneID", "geneScore" and "geneID_groups" as input
+# Remove redundant GO terms
+pancreas_sub <- RunGSEA(srt = pancreas_sub, group_by = "CellType", db = "GO_BP", GO_simplify = TRUE, species = "Mus_musculus")
+GSEAPlot(pancreas_sub, db = "GO_BP_sim", group_by = "CellType", plot_type = "comparison")
+
+# Use a combined database
+pancreas_sub <- RunGSEA(
+  srt = pancreas_sub, group_by = "CellType",
+  db = c("KEGG", "WikiPathway", "Reactome", "PFAM", "MP"),
+  db_combine = TRUE,
+  species = "Mus_musculus"
+)
+GSEAPlot(pancreas_sub, db = "Combined", group_by = "CellType", plot_type = "comparison")
+
+# Or use "geneID", "geneScore" and "geneID_groups" as input to run GSEA
 de_df <- dplyr::filter(pancreas_sub@tools$DEtest_CellType$AllMarkers_wilcox, p_val_adj < 0.05)
-gsea_out <- RunGSEA(geneID = de_df[["gene"]], geneScore = de_df[["avg_log2FC"]], geneID_groups = de_df[["group1"]], enrichment = "GO_BP", species = "Mus_musculus")
-GSEAPlot(res = gsea_out, group_use = c("Ngn3 low EP", "Endocrine"), enrichment = "GO_BP")
+gsea_out <- RunGSEA(geneID = de_df[["gene"]], geneScore = de_df[["avg_log2FC"]], geneID_groups = de_df[["group1"]], db = "GO_BP", species = "Mus_musculus")
+GSEAPlot(res = gsea_out, db = "GO_BP", plot_type = "comparison")
 
 }

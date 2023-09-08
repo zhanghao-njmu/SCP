@@ -9,10 +9,16 @@ theme_scp(aspect.ratio = NULL, base_size = 12, ...)
 \arguments{
 \item{aspect.ratio}{Aspect ratio of the panel.}
 
-\item{base_size}{}
+\item{base_size}{Base font size}
 
 \item{...}{Arguments passed to the \code{\link[ggplot2]{theme}}.}
 }
 \description{
 The default theme for SCP plot function.
+}
+\examples{
+library(ggplot2)
+p <- ggplot(mtcars, aes(x = wt, y = mpg, colour = factor(cyl))) +
+  geom_point()
+p + theme_scp()
 }

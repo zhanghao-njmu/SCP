@@ -2,7 +2,7 @@
 % Please edit documentation in R/SCP-plot.R
 \name{palette_scp}
 \alias{palette_scp}
-\title{SCP palette}
+\title{Color palettes collected in SCP.}
 \usage{
 palette_scp(
   x,
@@ -17,41 +17,44 @@ palette_scp(
 )
 }
 \arguments{
-\item{x}{A vector of character/factor or numeric values for color mapping.}
+\item{x}{A vector of character/factor or numeric values. If missing, numeric values 1:n will be used as x.}
 
-\item{palette}{Palette name. All palette names can be queried with \code{names(SCP:::palette_list)}.}
+\item{n}{The number of colors to return for numeric values.}
 
-\item{palcolor}{}
+\item{palette}{Palette name. All available palette names can be queried with \code{show_palettes()}.}
 
-\item{type}{Type of \code{x}.Can be one of "auto","discrete" or "continuous". The default is "auto", which automatically detects if \code{x} is a numeric value.
-If it is numeric, then \code{x} is interpolated to the palette color of length 100 in ascending order.
-Otherwise, the color is assigned to \code{x} according to its type number.}
+\item{palcolor}{Custom colors used to create a color palette.}
 
-\item{matched}{Whether to return a matched color vector of length \code{x}}
+\item{type}{Type of \code{x}. Can be one of "auto", "discrete" or "continuous". The default is "auto", which automatically detects if \code{x} is a numeric value.}
+
+\item{matched}{If \code{TRUE}, will return a color vector of the same length as \code{x}.}
 
 \item{reverse}{Whether to invert the colors.}
 
 \item{NA_keep}{Whether to keep the color assignment to NA in \code{x}.}
 
-\item{NA_color}{NA colors if NA_keep is \code{TRUE}.}
+\item{NA_color}{Color assigned to NA if NA_keep is \code{TRUE}.}
 }
 \description{
-The default palette for SCP plot function.
+Color palettes collected in SCP.
 }
 \examples{
 x <- c(1:3, NA, 3:5)
-pal1 <- palette_scp(x, palette = "Spectral")
-pal2 <- palette_scp(x, palette = "Spectral", matched = TRUE)
-pal3 <- palette_scp(x, palette = "Spectral", matched = TRUE, NA_keep = TRUE)
-pal4 <- palette_scp(x, palette = "Paired", type = "discrete")
-list_palette(list(pal1, pal2, pal3, pal4))
+(pal1 <- palette_scp(x, palette = "Spectral"))
+(pal2 <- palette_scp(x, palcolor = c("red", "white", "blue")))
+(pal3 <- palette_scp(x, palette = "Spectral", n = 10))
+(pal4 <- palette_scp(x, palette = "Spectral", n = 10, reverse = TRUE))
+(pal5 <- palette_scp(x, palette = "Spectral", matched = TRUE))
+(pal6 <- palette_scp(x, palette = "Spectral", matched = TRUE, NA_keep = TRUE))
+(pal7 <- palette_scp(x, palette = "Paired", type = "discrete"))
+show_palettes(list(pal1, pal2, pal3, pal4, pal5, pal6, pal7))
 
-names(SCP:::palette_list)
-list_palette(SCP:::palette_list)
+all_palettes <- show_palettes(return_palettes = TRUE)
+names(all_palettes)
 
 \dontrun{
 if (interactive()) {
-  check_R(c("stringr", "RColorBrewer", "ggsci", "Redmonder", "rcartocolor", "nord", "viridis", "pals", "oompaBase", "dichromat", "jcolors"))
+  check_R(c("stringr", "RColorBrewer", "ggsci", "Redmonder", "rcartocolor", "nord", "viridis", "pals", "oompaBase", "dichromat", "jaredhuling/jcolors"))
   library(stringr)
   library(RColorBrewer)
   library(ggsci)
@@ -70,14 +73,15 @@ if (interactive()) {
   nord_palettes <- nord::nord_palettes
   viridis_names <- c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")
   viridis_palettes <- lapply(setNames(viridis_names, viridis_names), function(x) viridis::viridis(100, option = x))
-  ocean_names <- names(pals:::syspals)[str_detect(names(pals:::syspals), "ocean")]
+  ocean_names <- names(pals:::syspals)[grep("ocean", names(pals:::syspals))]
   ocean_palettes <- pals:::syspals[ocean_names]
   dichromat_palettes <- dichromat::colorschemes
   jcolors_names <- paste0("jcolors-", c("default", "pal2", "pal3", "pal4", "pal5", "pal6", "pal7", "pal8", "pal9", "pal10", "pal11", "pal12", "rainbow"))
-  custom_names <- c("jet", "simspec")
+  custom_names <- c("jet", "simspec", "GdRd")
   custom_palettes <- list(
     oompaBase::jetColors(N = 100),
-    c("#c22b86", "#f769a1", "#fcc5c1", "#253777", "#1d92c0", "#9ec9e1", "#015b33", "#42aa5e", "#d9f0a2", "#E66F00", "#f18c28", "#FFBB61")
+    c("#c22b86", "#f769a1", "#fcc5c1", "#253777", "#1d92c0", "#9ec9e1", "#015b33", "#42aa5e", "#d9f0a2", "#E66F00", "#f18c28", "#FFBB61"),
+    c("gold", "red3")
   )
   names(custom_palettes) <- custom_names
 
@@ -186,4 +190,7 @@ if (interactive()) {
   # usethis::use_data(palette_list, internal = TRUE)
 }
 }
+}
+\seealso{
+\code{\link{show_palettes}}
 }

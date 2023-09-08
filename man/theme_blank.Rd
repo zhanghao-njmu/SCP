@@ -6,19 +6,36 @@
 \usage{
 theme_blank(
   add_coord = TRUE,
-  xlab = "Dim1",
-  ylab = "Dim2",
   xlen_npc = 0.15,
   ylen_npc = 0.15,
-  lab_cex = 1,
+  xlab = "",
+  ylab = "",
+  lab_size = 12,
   ...
 )
 }
 \arguments{
-\item{add_coord}{}
+\item{add_coord}{Whether to add coordinate arrows. Default is \code{TRUE}.}
 
-\item{...}{}
+\item{xlen_npc}{The length of the x-axis arrow in "npc".}
+
+\item{ylen_npc}{The length of the y-axis arrow in "npc".}
+
+\item{xlab}{x-axis label.}
+
+\item{ylab}{y-axis label.}
+
+\item{lab_size}{Label size.}
+
+\item{...}{Arguments passed to the \code{\link[ggplot2]{theme}}.}
 }
 \description{
 Blank theme
+}
+\examples{
+library(ggplot2)
+p <- ggplot(mtcars, aes(x = wt, y = mpg, colour = factor(cyl))) +
+  geom_point()
+p + theme_blank()
+p + theme_blank(xlab = "x-axis", ylab = "y-axis", lab_size = 16)
 }

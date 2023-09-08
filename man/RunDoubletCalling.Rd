@@ -32,6 +32,6 @@ Identification of heterotypic (or neotypic) doublets in single-cell RNAseq data.
 \examples{
 data("pancreas_sub")
 pancreas_sub <- RunDoubletCalling(pancreas_sub, db_method = "scDblFinder")
-ClassDimPlot(pancreas_sub, reduction = "umap", group.by = "db.scDblFinder_class")
-ExpDimPlot(pancreas_sub, reduction = "umap", features = "db.scDblFinder_score")
+CellDimPlot(pancreas_sub, reduction = "umap", group.by = "db.scDblFinder_class")
+FeatureDimPlot(pancreas_sub, reduction = "umap", features = "db.scDblFinder_score")
 }

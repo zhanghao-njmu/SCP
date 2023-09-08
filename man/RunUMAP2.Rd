@@ -15,7 +15,6 @@ RunUMAP2(object, ...)
   features = NULL,
   neighbor = NULL,
   graph = NULL,
-  distance = NULL,
   assay = DefaultAssay(object = object),
   slot = "data",
   umap.method = "uwot",

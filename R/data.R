@@ -1,6 +1,6 @@
-#' A subsetted version of 'pancreas' datasets
+#' A subsetted version of mouse 'pancreas' datasets
 #'
-#' \code{pancreas} is a mouse pancreatic endocrinogenesis dataset from \href{https://doi.org/10.1242/dev.173849}{Bastidas-Ponce et al. (2019)}. A total of 1000 cells were downsampled to form the \code{pancreas1k} dataset.
+#' Mouse pancreatic endocrinogenesis dataset from \href{https://doi.org/10.1242/dev.173849}{Bastidas-Ponce et al. (2019)}. A total of 1000 cells were downsampled to form the \code{pancreas_sub} dataset.
 #'
 #' @format A \code{Seurat} object.
 #' @concept data
@@ -8,6 +8,7 @@
 #' @examples
 #' \dontrun{
 #' if (interactive()) {
+#'   library(Seurat)
 #'   library(reticulate)
 #'   check_Python("scvelo")
 #'   scv <- import("scvelo")
@@ -25,14 +26,15 @@
 #'   pancreas_sub[["PCA"]] <- pancreas_sub[["X_pca"]]
 #'   pancreas_sub[["UMAP"]] <- pancreas_sub[["X_umap"]]
 #'   pancreas_sub[["X_umap"]] <- pancreas_sub[["X_pca"]] <- NULL
+#'   VariableFeatures(pancreas_sub) <- rownames(pancreas_sub[["RNA"]])[which(pancreas_sub[["RNA"]]@meta.features$highly_variable_genes == "True")]
 #'   # usethis::use_data(pancreas_sub, compress = "xz")
 #' }
 #' }
 "pancreas_sub"
 
-#' A subsetted version of 'panc8' datasets
+#' A subsetted version of human 'panc8' datasets
 #'
-#' \code{panc8} is human pancreatic islet cell datasets produced across four technologies, CelSeq (GSE81076) CelSeq2 (GSE85241), Fluidigm C1 (GSE86469), and SMART-Seq2 (E-MTAB-5061) from \href{https://github.com/satijalab/seurat-data}{SeuratData} package. For each data set in `panc8`, 200 cells were downsampled to form the \code{panc8_sub} dataset.
+#' Human pancreatic islet cell datasets produced across four technologies, CelSeq (GSE81076) CelSeq2 (GSE85241), Fluidigm C1 (GSE86469), and SMART-Seq2 (E-MTAB-5061) from \href{https://github.com/satijalab/seurat-data}{SeuratData} package. For each data set in `panc8`, 200 cells were downsampled to form the \code{panc8_sub} dataset.
 #'
 #' @format A \code{Seurat} object.
 #' @concept data
@@ -40,7 +42,7 @@
 #' @examples
 #' \dontrun{
 #' if (interactive()) {
-#'   data("pancreas1k")
+#'   data("pancreas_sub")
 #'   if (!require("SeuratData", quietly = TRUE)) {
 #'     devtools::install_github("satijalab/seurat-data")
 #'   }
@@ -52,12 +54,39 @@
 #'   cells_sub <- unlist(lapply(split(colnames(panc8), panc8$dataset), function(x) sample(x, size = 200)))
 #'   panc8_sub <- subset(panc8, cells = cells_sub)
 #'   panc8_sub <- panc8_sub[rowSums(panc8_sub@assays$RNA@counts) > 0, ]
-#'   panc8_sub <- panc8_sub[toupper(rownames(panc8_sub)) %in% toupper(rownames(pancreas1k)), ]
+#'   panc8_sub <- panc8_sub[toupper(rownames(panc8_sub)) %in% toupper(rownames(pancreas_sub)), ]
 #'   panc8_sub <- UpdateSeuratObject(panc8_sub)
 #'   # usethis::use_data(panc8_sub, compress = "xz")
 #' }
 #' }
 "panc8_sub"
+
+#' A subsetted version of 'ifnb' datasets
+#'
+#' Human PBMC control/IFNB-stimulated dataset
+#'
+#' @format A \code{Seurat} object.
+#' @concept data
+#' @source \url{https://www.nature.com/articles/nbt.4042}
+#' @examples
+#' \dontrun{
+#' if (interactive()) {
+#'   if (!require("SeuratData", quietly = TRUE)) {
+#'     devtools::install_github("satijalab/seurat-data")
+#'   }
+#'   library(SeuratData)
+#'   library(Seurat)
+#'   suppressWarnings(InstallData("ifnb"))
+#'   data("ifnb")
+#'   set.seed(11)
+#'   cells_sub <- unlist(lapply(split(colnames(ifnb), ifnb$stim), function(x) sample(x, size = 1000)))
+#'   ifnb_sub <- subset(ifnb, cells = cells_sub)
+#'   ifnb_sub <- ifnb_sub[rowSums(ifnb_sub@assays$RNA@counts) > 0, ]
+#'   ifnb_sub <- UpdateSeuratObject(ifnb_sub)
+#'   # usethis::use_data(ifnb_sub, compress = "xz")
+#' }
+#' }
+"ifnb_sub"
 
 # ref_scHCL <- scHCL::ref.expr
 # ref_scMCA <- scMCA::ref.expr
@@ -71,12 +100,6 @@
 # save(ref_scHCL, file = "data/ref_scHCL.rda",version = 2,compress = "xz")
 # save(ref_scMCA, file = "data/ref_scMCA.rda",version = 2,compress = "xz")
 # save(ref_scZCL, file = "data/ref_scZCL.rda",version = 2,compress = "xz")
-
-# load("~/Git/pancreas.rda")
-# pancreas_sub <- subset(pancreas, cells = sample(colnames(pancreas),size = 1000));
-# ClassDimPlot(pancreas_sub,reduction = "umap",group.by = "CellType")
-# save(pancreas_sub, file = "data/pancreas1k.rda",version = 2,compress = "xz")
-
 # lifemap_cell <- readRDS("data/cell_gene_list.rds") %>% bind_rows()
 # lifemap_compartment <- readRDS("data/compartment_gene_list.rds") %>% bind_rows()
 # lifemap_organ <- readRDS("data/organ_gene_list.rds") %>% bind_rows()

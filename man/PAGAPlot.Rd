@@ -10,8 +10,10 @@ PAGAPlot(
   type = "connectivities",
   reduction = NULL,
   dims = c(1, 2),
+  cells = NULL,
   show_transition = FALSE,
   node_palette = "Paired",
+  node_palcolor = NULL,
   node_size = 4,
   node_alpha = 1,
   node_highlight = NULL,
@@ -52,29 +54,27 @@ PAGAPlot(
   transition_offset = 0,
   transition_highlight = NULL,
   transition_highlight_color = "red",
-  theme_use = "theme_scp",
   aspect.ratio = 1,
   title = "PAGA",
   subtitle = NULL,
   xlab = NULL,
   ylab = NULL,
-  lab_cex = 1,
-  xlen_npc = 0.15,
-  ylen_npc = 0.15,
   legend.position = "right",
   legend.direction = "vertical",
+  theme_use = "theme_scp",
+  theme_args = list(),
   return_layer = FALSE
 )
 }
 \arguments{
-\item{type}{}
+\item{theme_args}{}
 }
 \description{
 PAGA plot
 }
 \examples{
 data("pancreas_sub")
-pancreas_sub <- RunPAGA(srt = pancreas_sub, group_by = "SubCellType", liner_reduction = "PCA", nonliner_reduction = "UMAP", return_seurat = TRUE)
+pancreas_sub <- RunPAGA(srt = pancreas_sub, group_by = "SubCellType", linear_reduction = "PCA", nonlinear_reduction = "UMAP", return_seurat = TRUE)
 PAGAPlot(pancreas_sub)
 PAGAPlot(pancreas_sub, type = "connectivities_tree")
 PAGAPlot(pancreas_sub, reduction = "PCA")
@@ -87,7 +87,7 @@ PAGAPlot(pancreas_sub, node_size = "GroupSize")
 PAGAPlot(pancreas_sub, node_highlight = "Ductal")
 PAGAPlot(pancreas_sub, edge_highlight = paste("Pre-endocrine", levels(pancreas_sub$SubCellType), sep = "-"))
 
-pancreas_sub <- RunSCVELO(srt = pancreas_sub, group_by = "SubCellType", liner_reduction = "PCA", nonliner_reduction = "UMAP", return_seurat = TRUE)
+pancreas_sub <- RunSCVELO(srt = pancreas_sub, group_by = "SubCellType", linear_reduction = "PCA", nonlinear_reduction = "UMAP", return_seurat = TRUE)
 PAGAPlot(pancreas_sub, show_transition = TRUE)
 
 }

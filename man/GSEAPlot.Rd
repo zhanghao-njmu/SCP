@@ -6,23 +6,26 @@
 \usage{
 GSEAPlot(
   srt,
-  enrichment = "GO_BP",
+  db = "GO_BP",
   group_by = NULL,
-  group_use = NULL,
   test.use = "wilcox",
   res = NULL,
+  plot_type = c("line", "comparison"),
+  palette = "Spectral",
+  palcolor = NULL,
+  group_use = NULL,
+  id_use = NULL,
   pvalueCutoff = NULL,
   padjustCutoff = 0.05,
   topTerm = 6,
-  geneSetID = NULL,
-  ES_geom = c("line", "dot"),
+  only_pos = FALSE,
+  compare_only_sig = FALSE,
   subplots = 1:3,
   rel_heights = c(1.5, 0.5, 1),
   rel_width = 3,
-  size = 1.5,
-  alpha = 1,
-  color = "#6BB82D",
-  palette = "Set1",
+  linewidth = 1.5,
+  line_alpha = 1,
+  line_color = "#6BB82D",
   n_coregene = 10,
   sample_coregene = FALSE,
   features_label = NULL,
@@ -30,26 +33,33 @@ GSEAPlot(
   label.bg = "white",
   label.bg.r = 0.1,
   label.size = 4,
+  aspect.ratio = NULL,
   base_size = 12,
-  title = NULL,
-  subtitle = NULL,
+  character_width = 50,
+  lineheight = 0.7,
   combine = TRUE,
   nrow = NULL,
   ncol = NULL,
-  byrow = TRUE
+  byrow = TRUE,
+  seed = 11
 )
 }
 \arguments{
-\item{term_use}{}
+\item{seed}{}
 }
 \description{
 GSEA Plot
 }
 \examples{
+library(dplyr)
 data("pancreas_sub")
 pancreas_sub <- RunDEtest(pancreas_sub, group_by = "CellType", only.pos = FALSE, fc.threshold = 1)
-pancreas_sub <- RunGSEA(pancreas_sub, group_by = "CellType", enrichment = "GO_BP", species = "Mus_musculus")
-GSEAPlot(pancreas_sub, group_by = "CellType", group_use = c("Ngn3 low EP", "Endocrine"))
-GSEAPlot(pancreas_sub, group_by = "CellType", group_use = "Ductal", geneSetID = "GO:0006412")
-GSEAPlot(pancreas_sub, group_by = "CellType", group_use = "Endocrine", geneSetID = c("GO:0046903", "GO:0015031", "GO:0007600"))
+pancreas_sub <- RunGSEA(pancreas_sub, group_by = "CellType", db = "GO_BP", species = "Mus_musculus")
+GSEAPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = "Ductal")
+GSEAPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = "Ductal", id_use = "GO:0006412")
+GSEAPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = "Endocrine", id_use = c("GO:0046903", "GO:0015031", "GO:0007600")) \%>\%
+  panel_fix_single(width = 5) # Because the plot is made by combining, we want to adjust the overall height and width
+GSEAPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", topTerm = 3, plot_type = "comparison")
+GSEAPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", topTerm = 3, plot_type = "comparison", compare_only_sig = TRUE)
+GSEAPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", topTerm = 3, plot_type = "comparison", pvalueCutoff = 0.05, padjustCutoff = NULL, only_pos = TRUE, compare_only_sig = TRUE)
 }

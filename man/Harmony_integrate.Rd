@@ -6,30 +6,34 @@
 \usage{
 Harmony_integrate(
   srtMerge = NULL,
-  batch = "orig.ident",
+  batch = NULL,
   append = TRUE,
   srtList = NULL,
+  assay = NULL,
   do_normalization = NULL,
-  normalization_method = "logCPM",
+  normalization_method = "LogNormalize",
   do_HVF_finding = TRUE,
   HVF_source = "separate",
   HVF_method = "vst",
   nHVF = 2000,
+  HVF_min_intersection = 1,
   HVF = NULL,
   do_scaling = TRUE,
   vars_to_regress = NULL,
   regression_model = "linear",
-  liner_reduction = "pca",
-  liner_reduction_dims = 100,
-  liner_reduction_dims_use = NULL,
-  liner_reduction_params = list(),
-  force_liner_reduction = FALSE,
+  linear_reduction = "pca",
+  linear_reduction_dims = 50,
+  linear_reduction_dims_use = NULL,
+  linear_reduction_params = list(),
+  force_linear_reduction = FALSE,
   Harmony_dims_use = NULL,
-  nonliner_reduction = "umap",
-  nonliner_reduction_dims = c(2, 3),
-  nonliner_reduction_params = list(),
-  force_nonliner_reduction = TRUE,
-  do_cluster_finding = TRUE,
+  nonlinear_reduction = "umap",
+  nonlinear_reduction_dims = c(2, 3),
+  nonlinear_reduction_params = list(),
+  force_nonlinear_reduction = TRUE,
+  neighbor_metric = "euclidean",
+  neighbor_k = 20L,
+  neighbor_ntrees = 50L,
   cluster_algorithm = "louvain",
   cluster_resolution = 0.6,
   cluster_reorder = TRUE,
@@ -38,9 +42,49 @@ Harmony_integrate(
 )
 }
 \arguments{
-\item{srtMerge}{}
+\item{srtMerge}{A merged \code{Seurat} object with batch information.}
 
-\item{seed}{}
+\item{batch}{Metadata column name containing the batch information.}
+
+\item{append}{Whether append results into the \code{srtMerge}. Only valid when srtMerge is provided.}
+
+\item{srtList}{A list of \code{Seurat} object.}
+
+\item{do_normalization}{Whether to normalize the data. If NULL, will automatically determine.}
+
+\item{normalization_method}{Normalization method.Can be one of "LogNormalize", "SCT".}
+
+\item{do_HVF_finding}{Whether to find the high variable features(HVF). If NULL, will automatically determine.}
+
+\item{HVF_source}{Source of the HVF. Can be one of "separate" and "global".}
+
+\item{nHVF}{HVF number to use.}
+
+\item{HVF}{Custom high variable features.}
+
+\item{do_scaling}{Whether to scale the data. If NULL, will automatically determine.}
+
+\item{vars_to_regress}{Variables to regress out.}
+
+\item{regression_model}{Use a linear model or generalized linear model (poisson, negative binomial) for the regression. Options are "linear" (default), "poisson", and "negbinom".}
+
+\item{linear_reduction}{linear reduction method name. Can be one of "pca", "ica", "nmf", "mds", "glmpca".}
+
+\item{linear_reduction_dims}{Dimensions to calculate when performing linear reduction.}
+
+\item{linear_reduction_dims_use}{Which dimensions to use when performing the nonlinear reduction.}
+
+\item{nonlinear_reduction}{Non-linear reduction method name. Can be one of "umap", "umap-naive", "tsne", "dm", "phate", "pacmap", "trimap", "largevis".}
+
+\item{nonlinear_reduction_dims}{Dimensions to calculate when performing non-linear reduction.}
+
+\item{cluster_algorithm}{Algorithm for modularity optimization when finding clusters. Can be one of "louvain", "slm", "leiden".}
+
+\item{cluster_resolution}{Cluster resolution parameter.}
+
+\item{cluster_reorder}{Whether to reorder the cluster names using hierarchical clustering.}
+
+\item{seed}{Set a random seed.}
 }
 \description{
 Harmony_integrate

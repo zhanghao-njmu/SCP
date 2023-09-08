@@ -11,22 +11,29 @@ RunDEtest(
   group2 = NULL,
   cells1 = NULL,
   cells2 = NULL,
-  FindAllMarkers = TRUE,
-  FindPairedMarkers = FALSE,
+  features = NULL,
+  markers_type = c("all", "paired", "conserved", "disturbed"),
+  grouping.var = NULL,
+  meta.method = c("maximump", "minimump", "wilkinsonp", "meanp", "sump", "votep"),
   test.use = "wilcox",
   only.pos = TRUE,
   fc.threshold = 1.5,
   base = 2,
+  pseudocount.use = 1,
+  mean.fxn = NULL,
   min.pct = 0.1,
   min.diff.pct = -Inf,
   max.cells.per.ident = Inf,
   latent.vars = NULL,
+  min.cells.feature = 3,
+  min.cells.group = 3,
   norm.method = "LogNormalize",
+  p.adjust.method = "bonferroni",
   slot = "data",
-  assay = "RNA",
+  assay = NULL,
   BPPARAM = BiocParallel::bpparam(),
-  progressbar = TRUE,
-  force = FALSE,
+  seed = 11,
+  verbose = TRUE,
   ...
 )
 }
@@ -35,15 +42,11 @@ RunDEtest(
 
 \item{group_by}{group_by}
 
-\item{FindAllMarkers}{Whether to find markers across all cells.}
-
-\item{FindPairedMarkers}{Whether to find markers between pairs of the cell groups.}
-
 \item{fc.threshold}{fc.threshold}
 
 \item{min.pct}{min.pct}
 
-\item{norm.method}{}
+\item{verbose}{}
 
 \item{force}{force}
 }
@@ -52,18 +55,77 @@ Differential gene test
 }
 \examples{
 library(dplyr)
-data(pancreas_sub)
-pancreas_sub <- RunDEtest(pancreas_sub, group_by = "CellType")
+data("pancreas_sub")
 
-# Heatmap
-de_filter <- filter(pancreas_sub@tools$DEtest_CellType$AllMarkers_wilcox, p_val_adj < 0.05 & avg_log2FC > 1)
-ExpHeatmap(pancreas_sub, features = de_filter$gene, feature_split = de_filter$group1, cell_split_by = "CellType")
+pancreas_sub <- RunDEtest(pancreas_sub, group_by = "SubCellType")
+AllMarkers <- filter(pancreas_sub@tools$DEtest_SubCellType$AllMarkers_wilcox, p_val_adj < 0.05 & avg_log2FC > 1)
+table(AllMarkers$group1)
+ht1 <- GroupHeatmap(pancreas_sub, features = AllMarkers$gene, feature_split = AllMarkers$group1, group.by = "SubCellType")
+ht1$plot
 
-# Dot plot
-de_top <- de_filter \%>\%
+TopMarkers <- AllMarkers \%>\%
   group_by(gene) \%>\%
   top_n(1, avg_log2FC) \%>\%
   group_by(group1) \%>\%
   top_n(3, avg_log2FC)
-ExpDotPlot(pancreas_sub, features = de_top$gene, feature_split = de_top$group1, cell_split_by = "CellType")
+ht2 <- GroupHeatmap(pancreas_sub, features = TopMarkers$gene, feature_split = TopMarkers$group1, group.by = "SubCellType", show_row_names = TRUE)
+ht2$plot
+
+pancreas_sub <- RunDEtest(pancreas_sub, group_by = "SubCellType", markers_type = "paired")
+PairedMarkers <- filter(pancreas_sub@tools$DEtest_SubCellType$PairedMarkers_wilcox, p_val_adj < 0.05 & avg_log2FC > 1)
+table(PairedMarkers$group1)
+ht3 <- GroupHeatmap(pancreas_sub, features = PairedMarkers$gene, feature_split = PairedMarkers$group1, group.by = "SubCellType")
+ht3$plot
+
+data("panc8_sub")
+panc8_sub <- Integration_SCP(panc8_sub, batch = "tech", integration_method = "Seurat")
+CellDimPlot(panc8_sub, group.by = c("celltype", "tech"))
+
+panc8_sub <- RunDEtest(panc8_sub, group_by = "celltype", grouping.var = "tech", markers_type = "conserved")
+ConservedMarkers1 <- filter(panc8_sub@tools$DEtest_celltype$ConservedMarkers_wilcox, p_val_adj < 0.05 & avg_log2FC > 1)
+table(ConservedMarkers1$group1)
+ht4 <- GroupHeatmap(panc8_sub,
+  slot = "data",
+  features = ConservedMarkers1$gene, feature_split = ConservedMarkers1$group1,
+  group.by = "tech", split.by = "celltype", within_groups = TRUE
+)
+ht4$plot
+
+panc8_sub <- RunDEtest(panc8_sub, group_by = "tech", grouping.var = "celltype", markers_type = "conserved")
+ConservedMarkers2 <- filter(panc8_sub@tools$DEtest_tech$ConservedMarkers_wilcox, p_val_adj < 0.05 & avg_log2FC > 1)
+table(ConservedMarkers2$group1)
+ht4 <- GroupHeatmap(panc8_sub,
+  slot = "data",
+  features = ConservedMarkers2$gene, feature_split = ConservedMarkers2$group1,
+  group.by = "tech", split.by = "celltype"
+)
+ht4$plot
+
+panc8_sub <- RunDEtest(panc8_sub, group_by = "celltype", grouping.var = "tech", markers_type = "disturbed")
+DisturbedMarkers <- filter(panc8_sub@tools$DEtest_celltype$DisturbedMarkers_wilcox, p_val_adj < 0.05 & avg_log2FC > 1 & var1 == "smartseq2")
+table(DisturbedMarkers$group1)
+ht5 <- GroupHeatmap(panc8_sub,
+  slot = "data",
+  features = DisturbedMarkers$gene, feature_split = DisturbedMarkers$group1,
+  group.by = "celltype", split.by = "tech"
+)
+ht5$plot
+
+gene_specific <- names(which(table(DisturbedMarkers$gene) == 1))
+DisturbedMarkers_specific <- DisturbedMarkers[DisturbedMarkers$gene \%in\% gene_specific, ]
+table(DisturbedMarkers_specific$group1)
+ht6 <- GroupHeatmap(panc8_sub,
+  slot = "data",
+  features = DisturbedMarkers_specific$gene, feature_split = DisturbedMarkers_specific$group1,
+  group.by = "celltype", split.by = "tech"
+)
+ht6$plot
+
+ht7 <- GroupHeatmap(panc8_sub,
+  slot = "data", aggregate_fun = function(x) mean(expm1(x)) + 1,
+  features = DisturbedMarkers_specific$gene, feature_split = DisturbedMarkers_specific$group1,
+  group.by = "celltype", grouping.var = "tech", numerator = "smartseq2"
+)
+ht7$plot
+
 }

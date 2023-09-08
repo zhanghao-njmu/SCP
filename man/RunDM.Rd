@@ -4,7 +4,7 @@
 \alias{RunDM}
 \alias{RunDM.Seurat}
 \alias{RunDM.matrix}
-\alias{RunDM.dist}
+\alias{RunDM.Neighbor}
 \title{Run DiffusionMap(DM)}
 \usage{
 RunDM(object, ...)
@@ -17,6 +17,7 @@ RunDM(object, ...)
   assay = NULL,
   slot = "data",
   graph = NULL,
+  neighbor = NULL,
   ndcs = 2,
   sigma = "local",
   k = 30,
@@ -42,7 +43,7 @@ RunDM(object, ...)
   ...
 )
 
-\method{RunDM}{dist}(
+\method{RunDM}{Neighbor}(
   object,
   ndcs = 2,
   sigma = "local",

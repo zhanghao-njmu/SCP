@@ -7,10 +7,20 @@
 adjcolors(colors, alpha)
 }
 \arguments{
-\item{colors}{}
+\item{colors}{Color vectors.}
 
-\item{alpha}{}
+\item{alpha}{Alpha level in [0,1]}
 }
 \description{
 Convert a color with arbitrary transparency to a fixed color
+}
+\examples{
+colors <- c("red", "blue", "green")
+adjcolors(colors, 0.5)
+
+library(scales)
+alpha(colors, 0.5)
+
+show_palettes(list(colors, adjcolors(colors, 0.5), alpha(colors, 0.5)))
+
 }

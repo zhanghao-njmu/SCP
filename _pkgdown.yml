@@ -11,3 +11,14 @@ navbar:
   right:
     - icon: fa-github
       href: https://github.com/zhanghao-njmu/SCP
+  figures:
+    dev: ragg::agg_png
+    dpi: 96
+    dev.args: []
+    fig.ext: png
+    fig.width: 10
+    fig.height: ~
+    fig.retina: 2
+    fig.asp: 1.618
+    bg: NA
+    other.parameters: []

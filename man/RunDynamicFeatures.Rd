@@ -13,10 +13,9 @@ RunDynamicFeatures(
   minfreq = 5,
   family = NULL,
   slot = "counts",
-  assay = "RNA",
+  assay = NULL,
   libsize = NULL,
   BPPARAM = BiocParallel::bpparam(),
-  progressbar = TRUE,
   seed = 11
 )
 }
@@ -30,16 +29,17 @@ RunDynamicFeatures
 data("pancreas_sub")
 pancreas_sub <- RunSlingshot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP")
 pancreas_sub <- RunDynamicFeatures(pancreas_sub, lineages = c("Lineage1", "Lineage2"), n_candidates = 200)
-ht_result <- DynamicHeatmap(
+names(pancreas_sub@tools$DynamicFeatures_Lineage1)
+head(pancreas_sub@tools$DynamicFeatures_Lineage1$DynamicFeatures)
+ht <- DynamicHeatmap(
   srt = pancreas_sub,
   lineages = c("Lineage1", "Lineage2"),
   cell_annotation = "SubCellType",
-  n_split = 6, reverse_ht = "Lineage1",
-  height = 5, width = 7, use_raster = FALSE
+  n_split = 6, reverse_ht = "Lineage1"
 )
-ht_result$plot
+ht$plot
 
-p <- DynamicPlot(
+DynamicPlot(
   srt = pancreas_sub,
   lineages = c("Lineage1", "Lineage2"),
   features = c("Nnat", "Irx1"),
@@ -47,5 +47,4 @@ p <- DynamicPlot(
   compare_lineages = TRUE,
   compare_features = FALSE
 )
-p
 }

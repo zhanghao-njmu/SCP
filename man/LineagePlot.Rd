@@ -7,35 +7,36 @@
 LineagePlot(
   srt,
   lineages,
+  weights = NULL,
   reduction = NULL,
   dims = c(1, 2),
+  cells = NULL,
   trim = c(0.01, 0.99),
   span = 0.75,
   palette = "Dark2",
   palcolor = NULL,
   lineages_arrow = arrow(length = unit(0.1, "inches")),
-  line_size = 1,
+  linewidth = 1,
   line_bg = "white",
-  line_bg_r = 0.5,
+  line_bg_stroke = 0.5,
   whiskers = FALSE,
-  whiskers_size = 0.5,
+  whiskers_linewidth = 0.5,
   whiskers_alpha = 0.5,
-  theme_use = "theme_scp",
   aspect.ratio = 1,
   title = NULL,
   subtitle = NULL,
   xlab = NULL,
   ylab = NULL,
-  lab_cex = 1,
-  xlen_npc = 0.15,
-  ylen_npc = 0.15,
   legend.position = "right",
   legend.direction = "vertical",
-  return_layer = FALSE
+  theme_use = "theme_scp",
+  theme_args = list(),
+  return_layer = FALSE,
+  seed = 11
 )
 }
 \arguments{
-\item{return_layer}{}
+\item{seed}{}
 }
 \description{
 LineagePlot

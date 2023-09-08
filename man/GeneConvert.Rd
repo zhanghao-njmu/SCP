@@ -11,8 +11,9 @@ GeneConvert(
   species_from = "Homo_sapiens",
   species_to = NULL,
   Ensembl_version = 103,
-  attempts = 5,
-  mirror = NULL
+  biomart = NULL,
+  mirror = NULL,
+  max_tries = 5
 )
 }
 \arguments{
@@ -28,9 +29,11 @@ GeneConvert(
 
 \item{Ensembl_version}{Ensembl database version. If NULL, use the current release version.}
 
-\item{attempts}{Number of attempts to connect with the biomart service.}
+\item{biomart}{BioMart database name you want to connect to. ("ensembl", "protists_mart", "fungi_mart", "plants_mart")}
 
 \item{mirror}{Specify an Ensembl mirror to connect to. The valid options here are 'www', 'uswest', 'useast', 'asia'.}
+
+\item{max_tries}{Number of max_tries to connect with the biomart service.}
 }
 \value{
 A list.
@@ -40,9 +43,31 @@ This function can convert different gene ID types within one species or bewteen 
 }
 \examples{
 res <- GeneConvert(
-  geneID = c("CDK1", "MKI67", "TOP2A", "AURKA", "CTCF"), geneID_from_IDtype = "symbol", geneID_to_IDtype = "entrez_id",
-  species_from = "Homo_sapiens", species_to = "Mus_musculus", Ensembl_version = 103
+  geneID = c("CDK1", "MKI67", "TOP2A", "AURKA", "CTCF"),
+  geneID_from_IDtype = "symbol",
+  geneID_to_IDtype = "entrez_id",
+  species_from = "Homo_sapiens",
+  species_to = "Mus_musculus",
+  Ensembl_version = 103
 )
 str(res)
+
+# Convert the human genes to mouse homologs and replace the raw counts in a Seurat object.
+data("pancreas_sub")
+counts <- pancreas_sub@assays$RNA@counts
+res <- GeneConvert(
+  geneID = rownames(counts),
+  geneID_from_IDtype = "symbol",
+  geneID_to_IDtype = "symbol",
+  species_from = "Mus_musculus",
+  species_to = "Homo_sapiens",
+  Ensembl_version = 103
+)
+homologs_counts <- counts[res$geneID_expand[, "from_geneID"], ]
+rownames(homologs_counts) <- res$geneID_expand[, "symbol"]
+homologs_counts <- aggregate(homologs_counts, by = list(row.names(homologs_counts)), FUN = sum)
+rownames(homologs_counts) <- homologs_counts[, 1]
+homologs_counts <- as(as.matrix(homologs_counts[, -1]), "dgCMatrix")
+homologs_counts
 
 }

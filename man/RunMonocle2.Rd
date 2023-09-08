@@ -23,7 +23,7 @@ RunMonocle2(
 )
 }
 \arguments{
-\item{root_state}{}
+\item{seed}{}
 }
 \description{
 Run Monocle2 analysis
@@ -35,9 +35,9 @@ if (interactive()) {
   names(pancreas_sub@tools$Monocle2)
   trajectory <- pancreas_sub@tools$Monocle2$trajectory
 
-  p1 <- ClassDimPlot(pancreas_sub, group.by = "Monocle2_State", reduction = "DDRTree", label = TRUE) + trajectory
-  p2 <- ClassDimPlot(pancreas_sub, group.by = "Monocle2_State", reduction = "UMAP", label = TRUE)
-  p3 <- ExpDimPlot(pancreas_sub, features = "Monocle2_Pseudotime", reduction = "UMAP")
+  p1 <- CellDimPlot(pancreas_sub, group.by = "Monocle2_State", reduction = "DDRTree", label = TRUE, theme_use = "theme_blank") + trajectory
+  p2 <- CellDimPlot(pancreas_sub, group.by = "Monocle2_State", reduction = "UMAP", label = TRUE, theme_use = "theme_blank")
+  p3 <- FeatureDimPlot(pancreas_sub, features = "Monocle2_Pseudotime", reduction = "UMAP", theme_use = "theme_blank")
   print(p1 + p2 + p3)
 
   pancreas_sub <- RunMonocle2(
@@ -45,9 +45,9 @@ if (interactive()) {
     feature_type = "Disp", disp_filter = "mean_expression >= 0.01 & dispersion_empirical >= 1 * dispersion_fit"
   )
   trajectory <- pancreas_sub@tools$Monocle2$trajectory
-  p1 <- ClassDimPlot(pancreas_sub, group.by = "Monocle2_State", reduction = "DDRTree", label = TRUE) + trajectory
-  p2 <- ClassDimPlot(pancreas_sub, group.by = "Monocle2_State", reduction = "UMAP", label = TRUE)
-  p3 <- ExpDimPlot(pancreas_sub, features = "Monocle2_Pseudotime", reduction = "UMAP")
+  p1 <- CellDimPlot(pancreas_sub, group.by = "Monocle2_State", reduction = "DDRTree", label = TRUE, theme_use = "theme_blank") + trajectory
+  p2 <- CellDimPlot(pancreas_sub, group.by = "Monocle2_State", reduction = "UMAP", label = TRUE, theme_use = "theme_blank")
+  p3 <- FeatureDimPlot(pancreas_sub, features = "Monocle2_Pseudotime", reduction = "UMAP", theme_use = "theme_blank")
   print(p1 + p2 + p3)
 }
 }

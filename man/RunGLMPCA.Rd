@@ -2,9 +2,14 @@
 % Please edit documentation in R/Seurat-function.R
 \name{RunGLMPCA}
 \alias{RunGLMPCA}
+\alias{RunGLMPCA.Seurat}
+\alias{RunGLMPCA.Assay}
+\alias{RunGLMPCA.default}
 \title{Run GLMPCA}
 \usage{
-RunGLMPCA(
+RunGLMPCA(object, ...)
+
+\method{RunGLMPCA}{Seurat}(
   object,
   L = 5,
   fam = c("poi", "nb", "nb2", "binom", "mult", "bern"),
@@ -16,9 +21,36 @@ RunGLMPCA(
   verbose = TRUE,
   ...
 )
+
+\method{RunGLMPCA}{Assay}(
+  object,
+  L = 5,
+  fam = c("poi", "nb", "nb2", "binom", "mult", "bern"),
+  assay = NULL,
+  slot = "counts",
+  features = NULL,
+  reduction.name = "glmpca",
+  reduction.key = "GLMPC_",
+  verbose = TRUE,
+  ...
+)
+
+\method{RunGLMPCA}{default}(
+  object,
+  L = 5,
+  fam = c("poi", "nb", "nb2", "binom", "mult", "bern"),
+  assay = NULL,
+  slot = "counts",
+  features = NULL,
+  reduction.key = "GLMPC_",
+  verbose = TRUE,
+  ...
+)
 }
 \arguments{
 \item{object}{A Seurat object}
+
+\item{...}{}
 
 \item{L}{The number of dimensions to return (defaults to 5)}
 
@@ -29,8 +61,6 @@ RunGLMPCA(
 \item{reduction.name}{Name to store resulting DimReduc object as. Defaults to glmpca}
 
 \item{reduction.key}{Key for resulting DimReduc. Defaults to GLMPC_}
-
-\item{...}{Extra parameters passed to \code{\link[glmpca]{glmpca}}}
 }
 \value{
 A Seurat object containing the output of GLMPCA stored as a DimReduc object.
@@ -38,10 +68,4 @@ A Seurat object containing the output of GLMPCA stored as a DimReduc object.
 \description{
 Run GLMPCA
 }
-\references{
-Townes, W., Hicks, SC, Aryee, MJ, Irizarry, RA. (2019). "Feature selection and dimension reduction for single-cell RNA-Seq based on a multinomial model."
-Genome Biology.
-}
-\author{
-Will Townes
-}
+\concept{dimensional_reduction}

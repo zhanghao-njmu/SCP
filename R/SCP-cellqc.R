@@ -8,8 +8,8 @@
 #' @examples
 #' data("pancreas_sub")
 #' pancreas_sub <- db_scDblFinder(pancreas_sub)
-#' ClassDimPlot(pancreas_sub, reduction = "umap", group.by = "db.scDblFinder_class")
-#' ExpDimPlot(pancreas_sub, reduction = "umap", features = "db.scDblFinder_score")
+#' CellDimPlot(pancreas_sub, reduction = "umap", group.by = "db.scDblFinder_class")
+#' FeatureDimPlot(pancreas_sub, reduction = "umap", features = "db.scDblFinder_score")
 #' @importFrom Seurat as.SingleCellExperiment
 #' @export
 db_scDblFinder <- function(srt, assay = "RNA", db_rate = ncol(srt) / 1000 * 0.01, ...) {
@@ -18,7 +18,7 @@ db_scDblFinder <- function(srt, assay = "RNA", db_rate = ncol(srt) / 1000 * 0.01
   }
   status <- check_DataType(srt, slot = "counts", assay = assay)
   if (status != "raw_counts") {
-    stop("Infinite values or floating values in the counts slot of the srt object!")
+    stop("Data type is not raw counts!")
   }
   check_R("scDblFinder")
   sce <- as.SingleCellExperiment(srt, assay = assay)
@@ -39,8 +39,8 @@ db_scDblFinder <- function(srt, assay = "RNA", db_rate = ncol(srt) / 1000 * 0.01
 #' @examples
 #' data("pancreas_sub")
 #' pancreas_sub <- db_scds(pancreas_sub, method = "hybrid")
-#' ClassDimPlot(pancreas_sub, reduction = "umap", group.by = "db.scds_hybrid_class")
-#' ExpDimPlot(pancreas_sub, reduction = "umap", features = "db.scds_hybrid_score")
+#' CellDimPlot(pancreas_sub, reduction = "umap", group.by = "db.scds_hybrid_class")
+#' FeatureDimPlot(pancreas_sub, reduction = "umap", features = "db.scds_hybrid_score")
 #' @importFrom Seurat as.SingleCellExperiment
 #' @export
 db_scds <- function(srt, assay = "RNA", db_rate = ncol(srt) / 1000 * 0.01, method = "hybrid", ...) {
@@ -49,7 +49,7 @@ db_scds <- function(srt, assay = "RNA", db_rate = ncol(srt) / 1000 * 0.01, metho
   }
   status <- check_DataType(srt, slot = "counts", assay = assay)
   if (status != "raw_counts") {
-    stop("Infinite values or floating values in the counts slot of the srt object!")
+    stop("Data type is not raw counts!")
   }
   check_R("scds")
   sce <- as.SingleCellExperiment(srt, assay = assay)
@@ -74,8 +74,8 @@ db_scds <- function(srt, assay = "RNA", db_rate = ncol(srt) / 1000 * 0.01, metho
 #' @examples
 #' data("pancreas_sub")
 #' pancreas_sub <- db_Scrublet(pancreas_sub)
-#' ClassDimPlot(pancreas_sub, reduction = "umap", group.by = "db.Scrublet_class")
-#' ExpDimPlot(pancreas_sub, reduction = "umap", features = "db.Scrublet_score")
+#' CellDimPlot(pancreas_sub, reduction = "umap", group.by = "db.Scrublet_class")
+#' FeatureDimPlot(pancreas_sub, reduction = "umap", features = "db.Scrublet_score")
 #' @importFrom reticulate import
 #' @importFrom Seurat GetAssayData
 #' @export
@@ -85,9 +85,9 @@ db_Scrublet <- function(srt, assay = "RNA", db_rate = ncol(srt) / 1000 * 0.01, .
   }
   status <- check_DataType(srt, slot = "counts", assay = assay)
   if (status != "raw_counts") {
-    stop("Infinite values or floating values in the counts slot of the srt object!")
+    stop("Data type is not raw counts!")
   }
-  check_Python("scrublet", envname = "SCP")
+  check_Python("scrublet")
   scr <- import("scrublet")
   raw_counts <- t(as.matrix(GetAssayData(object = srt, assay = assay, slot = "counts")))
   scrub <- scr$Scrublet(raw_counts, expected_doublet_rate = db_rate, ...)
@@ -115,8 +115,8 @@ db_Scrublet <- function(srt, assay = "RNA", db_rate = ncol(srt) / 1000 * 0.01, .
 #' @examples
 #' data("pancreas_sub")
 #' pancreas_sub <- db_DoubletDetection(pancreas_sub)
-#' ClassDimPlot(pancreas_sub, reduction = "umap", group.by = "db.DoubletDetection_class")
-#' ExpDimPlot(pancreas_sub, reduction = "umap", features = "db.DoubletDetection_score")
+#' CellDimPlot(pancreas_sub, reduction = "umap", group.by = "db.DoubletDetection_class")
+#' FeatureDimPlot(pancreas_sub, reduction = "umap", features = "db.DoubletDetection_score")
 #' @importFrom reticulate import
 #' @importFrom Seurat GetAssayData
 #' @export
@@ -126,9 +126,9 @@ db_DoubletDetection <- function(srt, assay = "RNA", db_rate = ncol(srt) / 1000 *
   }
   status <- check_DataType(srt, slot = "counts", assay = assay)
   if (status != "raw_counts") {
-    stop("Infinite values or floating values in the counts slot of the srt object!")
+    stop("Data type is not raw counts!")
   }
-  check_Python("doubletdetection", envname = "SCP")
+  check_Python("doubletdetection")
   doubletdetection <- import("doubletdetection")
   counts <- GetAssayData(object = srt, assay = assay, slot = "counts")
   clf <- doubletdetection$BoostClassifier(
@@ -149,8 +149,6 @@ db_DoubletDetection <- function(srt, assay = "RNA", db_rate = ncol(srt) / 1000 *
   return(srt)
 }
 
-## db_Solo
-
 #' Run doublet-calling for single cell RNA-seq data.
 #'
 #' Identification of heterotypic (or neotypic) doublets in single-cell RNAseq data.
@@ -166,8 +164,8 @@ db_DoubletDetection <- function(srt, assay = "RNA", db_rate = ncol(srt) / 1000 *
 #' @examples
 #' data("pancreas_sub")
 #' pancreas_sub <- RunDoubletCalling(pancreas_sub, db_method = "scDblFinder")
-#' ClassDimPlot(pancreas_sub, reduction = "umap", group.by = "db.scDblFinder_class")
-#' ExpDimPlot(pancreas_sub, reduction = "umap", features = "db.scDblFinder_score")
+#' CellDimPlot(pancreas_sub, reduction = "umap", group.by = "db.scDblFinder_class")
+#' FeatureDimPlot(pancreas_sub, reduction = "umap", features = "db.scDblFinder_score")
 #' @export
 #'
 RunDoubletCalling <- function(srt, assay = "RNA", db_method = "scDblFinder", db_rate = ncol(srt) / 1000 * 0.01, ...) {
@@ -176,10 +174,9 @@ RunDoubletCalling <- function(srt, assay = "RNA", db_method = "scDblFinder", db_
   }
   status <- check_DataType(srt, slot = "counts", assay = assay)
   if (status != "raw_counts") {
-    stop("Infinite values or floating values in the counts slot of the srt object!")
+    stop("Data type is not raw counts!")
   }
   if (db_method %in% c("scDblFinder", "Scrublet", "DoubletDetection", "scds_cxds", "scds_bcds", "scds_hybrid")) {
-    message("Run doublet-calling with ", db_method)
     methods <- unlist(strsplit(db_method, "_"))
     method1 <- methods[1]
     method2 <- methods[2]
@@ -273,15 +270,36 @@ isOutlier <- function(x, nmads = 2.5, constant = 1.4826, type = c("both", "lower
 #' @examples
 #' data("pancreas_sub")
 #' pancreas_sub <- RunCellQC(pancreas_sub)
-#' @importFrom Seurat Assays as.SingleCellExperiment PercentageFeatureSet WhichCells
+#' CellStatPlot(
+#'   srt = pancreas_sub,
+#'   stat.by = c(
+#'     "db_qc", "outlier_qc", "umi_qc", "gene_qc",
+#'     "mito_qc", "ribo_qc", "ribo_mito_ratio_qc", "species_qc"
+#'   ),
+#'   plot_type = "upset", stat_level = "Fail"
+#' )
+#' table(pancreas_sub$CellQC)
+#'
+#' data("ifnb_sub")
+#' ifnb_sub <- RunCellQC(ifnb_sub, batch = "stim", UMI_threshold = 1000, gene_threshold = 550)
+#' CellStatPlot(
+#'   srt = ifnb_sub,
+#'   stat.by = c(
+#'     "db_qc", "outlier_qc", "umi_qc", "gene_qc",
+#'     "mito_qc", "ribo_qc", "ribo_mito_ratio_qc", "species_qc"
+#'   ),
+#'   plot_type = "upset", stat_level = "Fail"
+#' )
+#' table(ifnb_sub$CellQC)
+#' @importFrom Seurat Assays as.SingleCellExperiment PercentageFeatureSet WhichCells SplitObject AddMetaData
 #' @importFrom stats loess predict aggregate
 #' @importFrom Matrix colSums t
 #' @export
 #'
-RunCellQC <- function(srt, assay = "RNA",
+RunCellQC <- function(srt, assay = "RNA", batch = NULL,
                       qc_metrics = c("doublets", "outlier", "umi", "gene", "mito", "ribo", "ribo_mito_ratio", "species"),
                       return_filtered = FALSE,
-                      db_method = "scDblFinder", db_rate = ncol(srt) / 1000 * 0.01,
+                      db_method = "scDblFinder", db_rate = NULL, db_coefficient = 0.01,
                       outlier_cutoff = c(
                         "log10_nCount:lower:2.5",
                         "log10_nCount:higher:5",
@@ -311,7 +329,7 @@ RunCellQC <- function(srt, assay = "RNA",
   }
   status <- check_DataType(srt, slot = "counts", assay = assay)
   if (status != "raw_counts") {
-    stop("Infinite values or floating values in the counts slot of the srt object!")
+    stop("Data type is not raw counts!")
   }
   if (!paste0("nCount_", assay) %in% colnames(srt@meta.data)) {
     srt@meta.data[[paste0("nCount_", assay)]] <- colSums(srt[[assay]]@counts)
@@ -319,128 +337,150 @@ RunCellQC <- function(srt, assay = "RNA",
   if (!paste0("nFeature_", assay) %in% colnames(srt@meta.data)) {
     srt@meta.data[[paste0("nFeature_", assay)]] <- colSums(srt[[assay]]@counts > 0)
   }
-
-  ntotal <- ncol(srt)
-
-  db_qc <- c()
-  if ("doublets" %in% qc_metrics) {
-    if (!is.null(db_method)) {
-      for (dbm in db_method) {
-        srt <- RunDoubletCalling(srt = srt, db_method = dbm, db_rate = db_rate)
-        db_qc <- unique(c(db_qc, colnames(srt)[srt[[paste0("db.", dbm, "_class"), drop = TRUE]] == "doublet"]))
-      }
-    }
+  srt_raw <- srt
+  if (!is.null(batch)) {
+    srtList <- SplitObject(srt, split.by = batch)
+  } else {
+    srtList <- list(srt)
   }
 
-  outlier_qc <- c()
-  for (n in 1:length(species)) {
-    if (n == 0) {
-      break
+  for (i in seq_along(srtList)) {
+    srt <- srtList[[i]]
+    if (!is.null(batch)) {
+      cat("===", srt@meta.data[[batch]][1], "===\n")
     }
-    sp <- species[n]
-    prefix <- species_gene_prefix[n]
-    sp_genes <- rownames(srt)[grep(pattern = paste0("^", prefix), x = rownames(srt))]
-    nCount <- srt[[paste0(c(paste0("nCount_", assay), sp), collapse = ".")]] <- colSums(srt[[assay]]@counts[sp_genes, ])
-    nFeature <- srt[[paste0(c(paste0("nFeature_", assay), sp), collapse = ".")]] <- colSums(srt[[assay]]@counts[sp_genes, ] > 0)
-    percent.mito <- srt[[paste0(c("percent.mito", sp), collapse = ".")]] <- PercentageFeatureSet(object = srt, assay = assay, pattern = paste0("(", paste0("^", prefix, "-*", mito_pattern), ")", collapse = "|"), features = mito_gene)[[1]]
-    percent.ribo <- srt[[paste0(c("percent.ribo", sp), collapse = ".")]] <- PercentageFeatureSet(object = srt, assay = assay, pattern = paste0("(", paste0("^", prefix, "-*", ribo_pattern), ")", collapse = "|"), features = ribo_gene)[[1]]
-    percent.ribo <- srt[[paste0(c("ribo.mito.ratio", sp), collapse = ".")]] <- srt[[paste0(c("percent.ribo", sp), collapse = "."), drop = TRUE]] / srt[[paste0(c("percent.mito", sp), collapse = "."), drop = TRUE]]
-    percent.genome <- srt[[paste0(c("percent.genome", sp), collapse = ".")]] <- PercentageFeatureSet(object = srt, assay = assay, pattern = paste0("^", prefix))[[1]]
+    ntotal <- ncol(srt)
 
-    if (n == 1) {
-      if ("outlier" %in% qc_metrics) {
-        message("Calculate outlier cells")
-
-        # "percent.top_20:higher:5"
-        # countx <- as(srt[[assay]]@counts[sp_genes, ], "sparseMatrix")
-        # agg <- aggregate(x = countx@x, by = list(rep(colnames(countx), diff(countx@p))), FUN = function(x) {
-        #   sum(head(x, 20))
-        # })
-        # rownames(agg) <- agg[[1]]
-        # percent.top_20 <- srt[[paste0(c("percent.top_20", sp), collapse = ".")]] <- agg[colnames(srt), "x"]
-
-        log10_nFeature <- srt[[paste0(c(paste0("log10_nFeature_", assay), sp), collapse = ".")]] <- log10(nFeature)
-        log10_nCount <- srt[[paste0(c(paste0("log10_nCount_", assay), sp), collapse = ".")]] <- log10(nCount)
-        log10_nCount[is.infinite(log10_nCount)] <- NA
-        log10_nFeature[is.infinite(log10_nFeature)] <- NA
-        mod <- loess(log10_nFeature ~ log10_nCount, span = 1)
-        pred <- predict(mod, newdata = data.frame(log10_nCount = log10_nCount))
-        featurecount_dist <- srt[[paste0(c("featurecount_dist", sp), collapse = ".")]] <- log10_nFeature - pred
-
-        # df <- data.frame(cell = colnames(srt), ribo = srt$percent.ribo.Homo_sapiens, y = log10_nFeature, x = log10_nCount, pred = pred, featurecount_dist = featurecount_dist)
-        # lower_df <- subset(df, featurecount_dist < median(df$featurecount_dist) - 2.5 * mad(df$featurecount_dist))
-        # higher_df <- subset(df, featurecount_dist > median(df$featurecount_dist) + 2.5 * mad(df$featurecount_dist))
-        # ggplot(df) +
-        #   geom_point(aes(x = x, y = y, color = featurecount_dist)) +
-        #   scale_color_gradientn(colors = c("green", "white", "orange"), values = scales::rescale(c(min(df$featurecount_dist), 0, max(df$featurecount_dist)))) +
-        #   geom_point(data = lower_df, aes(x = x, y = y), shape = 21, fill = "transparent", color = "blue") +
-        #   geom_point(data = higher_df, aes(x = x, y = y), shape = 21, fill = "transparent", color = "red") +
-        #   geom_line(aes(x = x, y = pred), color = "black")+
-        #   theme(panel.background = element_rect(fill = "grey"))
-        # nrow(lower_df)
-
-        var <- sapply(strsplit(outlier_cutoff, ":"), function(x) x[[1]])
-        var_valid <- var %in% colnames(srt@meta.data) | sapply(var, FUN = function(x) exists(x, where = environment()))
-        if (any(!var_valid)) {
-          stop("Variable ", paste0(names(var_valid)[!var_valid], collapse = ","), " is not found in the srt object.")
+    db_qc <- c()
+    if ("doublets" %in% qc_metrics) {
+      if (!is.null(db_method)) {
+        if (is.null(db_rate)) {
+          db_rate <- ncol(srt) / 1000 * db_coefficient
         }
-        outlier <- lapply(strsplit(outlier_cutoff, ":"), function(m) {
-          colnames(srt)[isOutlier(get(m[1]), nmads = as.numeric(m[3]), type = m[2])]
-        })
-        names(outlier) <- outlier_cutoff
-        print(unlist(lapply(outlier, length)))
-        outlier_tb <- table(unlist(outlier))
-        outlier_qc <- c(outlier_qc, names(outlier_tb)[outlier_tb >= outlier_n])
-        for (nm in names(outlier)) {
-          srt[[make.names(nm)]] <- colnames(srt) %in% outlier[[nm]]
+        if (db_rate >= 1) {
+          stop("The db_rate is equal to or greater than 1!")
+        }
+        for (dbm in db_method) {
+          srt <- RunDoubletCalling(srt = srt, db_method = dbm, db_rate = db_rate)
+          db_qc <- unique(c(db_qc, colnames(srt)[srt[[paste0("db.", dbm, "_class"), drop = TRUE]] == "doublet"]))
         }
       }
     }
-  }
 
-  umi_qc <- gene_qc <- mito_qc <- ribo_qc <- ribo_mito_ratio_qc <- species_qc <- c()
-  if ("umi" %in% qc_metrics) {
-    umi_qc <- colnames(srt)[srt[[paste0(c(paste0("nCount_", assay), species[1]), collapse = "."), drop = TRUE]] < UMI_threshold]
-  }
-  if ("gene" %in% qc_metrics) {
-    gene_qc <- colnames(srt)[srt[[paste0(c(paste0("nFeature_", assay), species[1]), collapse = "."), drop = TRUE]] < gene_threshold]
-  }
-  if ("mito" %in% qc_metrics) {
-    mito_qc <- colnames(srt)[srt[[paste0(c("percent.mito", species[1]), collapse = "."), drop = TRUE]] > mito_threshold]
-  }
-  if ("ribo" %in% qc_metrics) {
-    ribo_qc <- colnames(srt)[srt[[paste0(c("percent.ribo", species[1]), collapse = "."), drop = TRUE]] > ribo_threshold]
-  }
-  if ("ribo_mito_ratio" %in% qc_metrics) {
-    ribo_mito_ratio_qc <- colnames(srt)[srt[[paste0(c("ribo.mito.ratio", species[1]), collapse = "."), drop = TRUE]] < ribo_mito_ratio_range[1] | srt[[paste0(c("ribo.mito.ratio", species[1]), collapse = "."), drop = TRUE]] > ribo_mito_ratio_range[2]]
-  }
-  if ("species" %in% qc_metrics) {
-    species_qc <- colnames(srt)[srt[[paste0(c("percent.genome", species[1]), collapse = "."), drop = TRUE]] < species_percent]
-  }
+    outlier_qc <- c()
+    for (n in 1:length(species)) {
+      if (n == 0) {
+        break
+      }
+      sp <- species[n]
+      prefix <- species_gene_prefix[n]
+      sp_genes <- rownames(srt[[assay]])[grep(pattern = paste0("^", prefix), x = rownames(srt[[assay]]))]
+      nCount <- srt[[paste0(c(paste0("nCount_", assay), sp), collapse = ".")]] <- colSums(srt[[assay]]@counts[sp_genes, ])
+      nFeature <- srt[[paste0(c(paste0("nFeature_", assay), sp), collapse = ".")]] <- colSums(srt[[assay]]@counts[sp_genes, ] > 0)
+      percent.mito <- srt[[paste0(c("percent.mito", sp), collapse = ".")]] <- PercentageFeatureSet(object = srt, assay = assay, pattern = paste0("(", paste0("^", prefix, "-*", mito_pattern), ")", collapse = "|"), features = mito_gene)[[1]]
+      percent.ribo <- srt[[paste0(c("percent.ribo", sp), collapse = ".")]] <- PercentageFeatureSet(object = srt, assay = assay, pattern = paste0("(", paste0("^", prefix, "-*", ribo_pattern), ")", collapse = "|"), features = ribo_gene)[[1]]
+      percent.genome <- srt[[paste0(c("percent.genome", sp), collapse = ".")]] <- PercentageFeatureSet(object = srt, assay = assay, pattern = paste0("^", prefix))[[1]]
+      ribo.mito.ratio <- srt[[paste0(c("percent.ribo", sp), collapse = "."), drop = TRUE]] / srt[[paste0(c("percent.mito", sp), collapse = "."), drop = TRUE]]
+      ribo.mito.ratio[is.na(ribo.mito.ratio)] <- 1
+      srt[[paste0(c("ribo.mito.ratio", sp), collapse = ".")]] <- ribo.mito.ratio
 
-  CellQC <- unique(c(db_qc, outlier_qc, umi_qc, gene_qc, mito_qc, ribo_qc, ribo_mito_ratio_qc, species_qc))
-  cat(">>>", "Total cells:", ntotal, "\n")
-  cat(">>>", "Cells which are filtered out:", length(CellQC), "\n")
-  cat("...", length(db_qc), "potential doublets", "\n")
-  cat("...", length(outlier_qc), "outlier cells", "\n")
-  cat("...", length(umi_qc), "low-UMI cells", "\n")
-  cat("...", length(gene_qc), "low-gene cells", "\n")
-  cat("...", length(mito_qc), "high-mito cells", "\n")
-  cat("...", length(ribo_qc), "high-ribo cells", "\n")
-  cat("...", length(ribo_mito_ratio_qc), " ribo_mito_ratio outlier cells", "\n")
-  cat("...", length(species_qc), "species-contaminated cells", "\n")
-  cat(">>>", "Remained cells after filtering:", ntotal - length(CellQC), "\n")
+      if (n == 1) {
+        if ("outlier" %in% qc_metrics) {
+          # "percent.top_20:higher:5"
+          # countx <- as(srt[[assay]]@counts[sp_genes, ], "sparseMatrix")
+          # agg <- aggregate(x = countx@x, by = list(rep(colnames(countx), diff(countx@p))), FUN = function(x) {
+          #   sum(head(x, 20))
+          # })
+          # rownames(agg) <- agg[[1]]
+          # percent.top_20 <- srt[[paste0(c("percent.top_20", sp), collapse = ".")]] <- agg[colnames(srt), "x"]
 
-  qc_nm <- c("db_qc", "outlier_qc", "umi_qc", "gene_qc", "mito_qc", "ribo_qc", "ribo_mito_ratio_qc", "species_qc", "CellQC")
-  for (qc in qc_nm) {
-    srt[[qc]] <- ifelse(colnames(srt) %in% get(qc), "Fail", "Pass")
-    srt[[qc]] <- factor(srt[[qc, drop = TRUE]], levels = c("Pass", "Fail"))
+          log10_nFeature <- srt[[paste0(c(paste0("log10_nFeature_", assay), sp), collapse = ".")]] <- log10(nFeature)
+          log10_nCount <- srt[[paste0(c(paste0("log10_nCount_", assay), sp), collapse = ".")]] <- log10(nCount)
+          log10_nCount[is.infinite(log10_nCount)] <- NA
+          log10_nFeature[is.infinite(log10_nFeature)] <- NA
+          mod <- loess(log10_nFeature ~ log10_nCount)
+          pred <- predict(mod, newdata = data.frame(log10_nCount = log10_nCount))
+          featurecount_dist <- srt[[paste0(c("featurecount_dist", sp), collapse = ".")]] <- log10_nFeature - pred
+
+          # df <- data.frame(cell = colnames(srt), ribo = srt$percent.ribo.Homo_sapiens, y = log10_nFeature, x = log10_nCount, pred = pred, featurecount_dist = featurecount_dist)
+          # lower_df <- subset(df, featurecount_dist < median(df$featurecount_dist) - 2.5 * mad(df$featurecount_dist))
+          # higher_df <- subset(df, featurecount_dist > median(df$featurecount_dist) + 2.5 * mad(df$featurecount_dist))
+          # ggplot(df) +
+          #   geom_point(aes(x = x, y = y, color = featurecount_dist)) +
+          #   scale_color_gradientn(colors = c("green", "white", "orange"), values = scales::rescale(c(min(df$featurecount_dist), 0, max(df$featurecount_dist)))) +
+          #   geom_point(data = lower_df, aes(x = x, y = y), shape = 21, fill = "transparent", color = "blue") +
+          #   geom_point(data = higher_df, aes(x = x, y = y), shape = 21, fill = "transparent", color = "red") +
+          #   geom_line(aes(x = x, y = pred), color = "black")+
+          #   theme(panel.background = element_rect(fill = "grey"))
+          # nrow(lower_df)
+
+          var <- sapply(strsplit(outlier_cutoff, ":"), function(x) x[[1]])
+          var_valid <- var %in% colnames(srt@meta.data) | sapply(var, FUN = function(x) exists(x, where = environment()))
+          if (any(!var_valid)) {
+            stop("Variable ", paste0(names(var_valid)[!var_valid], collapse = ","), " is not found in the srt object.")
+          }
+          outlier <- lapply(strsplit(outlier_cutoff, ":"), function(m) {
+            colnames(srt)[isOutlier(get(m[1]), nmads = as.numeric(m[3]), type = m[2])]
+          })
+          names(outlier) <- outlier_cutoff
+          # print(unlist(lapply(outlier, length)))
+          outlier_tb <- table(unlist(outlier))
+          outlier_qc <- c(outlier_qc, names(outlier_tb)[outlier_tb >= outlier_n])
+          for (nm in names(outlier)) {
+            srt[[make.names(nm)]] <- colnames(srt) %in% outlier[[nm]]
+          }
+        }
+      }
+    }
+
+    umi_qc <- gene_qc <- mito_qc <- ribo_qc <- ribo_mito_ratio_qc <- species_qc <- c()
+    if ("umi" %in% qc_metrics) {
+      umi_qc <- colnames(srt)[which(srt[[paste0(c(paste0("nCount_", assay), species[1]), collapse = "."), drop = TRUE]] < UMI_threshold)]
+    }
+    if ("gene" %in% qc_metrics) {
+      gene_qc <- colnames(srt)[which(srt[[paste0(c(paste0("nFeature_", assay), species[1]), collapse = "."), drop = TRUE]] < gene_threshold)]
+    }
+    if ("mito" %in% qc_metrics) {
+      mito_qc <- colnames(srt)[which(srt[[paste0(c("percent.mito", species[1]), collapse = "."), drop = TRUE]] > mito_threshold)]
+    }
+    if ("ribo" %in% qc_metrics) {
+      ribo_qc <- colnames(srt)[which(srt[[paste0(c("percent.ribo", species[1]), collapse = "."), drop = TRUE]] > ribo_threshold)]
+    }
+    if ("ribo_mito_ratio" %in% qc_metrics) {
+      ribo_mito_ratio_qc <- colnames(srt)[which(srt[[paste0(c("ribo.mito.ratio", species[1]), collapse = "."), drop = TRUE]] < ribo_mito_ratio_range[1] | srt[[paste0(c("ribo.mito.ratio", species[1]), collapse = "."), drop = TRUE]] > ribo_mito_ratio_range[2])]
+    }
+    if ("species" %in% qc_metrics) {
+      species_qc <- colnames(srt)[which(srt[[paste0(c("percent.genome", species[1]), collapse = "."), drop = TRUE]] < species_percent)]
+    }
+
+    CellQC <- unique(c(db_qc, outlier_qc, umi_qc, gene_qc, mito_qc, ribo_qc, ribo_mito_ratio_qc, species_qc))
+    cat(">>>", "Total cells:", ntotal, "\n")
+    cat(">>>", "Cells which are filtered out:", length(CellQC), "\n")
+    cat("...", length(db_qc), "potential doublets", "\n")
+    cat("...", length(outlier_qc), "outlier cells", "\n")
+    cat("...", length(umi_qc), "low-UMI cells", "\n")
+    cat("...", length(gene_qc), "low-gene cells", "\n")
+    cat("...", length(mito_qc), "high-mito cells", "\n")
+    cat("...", length(ribo_qc), "high-ribo cells", "\n")
+    cat("...", length(ribo_mito_ratio_qc), "ribo_mito_ratio outlier cells", "\n")
+    cat("...", length(species_qc), "species-contaminated cells", "\n")
+    cat(">>>", "Remained cells after filtering:", ntotal - length(CellQC), "\n")
+
+    qc_nm <- c("db_qc", "outlier_qc", "umi_qc", "gene_qc", "mito_qc", "ribo_qc", "ribo_mito_ratio_qc", "species_qc", "CellQC")
+    for (qc in qc_nm) {
+      srt[[qc]] <- ifelse(colnames(srt) %in% get(qc), "Fail", "Pass")
+      srt[[qc]] <- factor(srt[[qc, drop = TRUE]], levels = c("Pass", "Fail"))
+    }
+
+    if (return_filtered) {
+      srt <- srt[, srt$CellQC == "Pass"]
+      srt@meta.data[, intersect(qc_nm, colnames(srt@meta.data))] <- NULL
+    }
+    srtList[[i]] <- srt
   }
-
-  if (return_filtered) {
-    srt <- subset(srt, cell = WhichCells(srt, expression = CellQC == "Pass"))
-    srt@meta.data[, qc_nm] <- NULL
-  }
-
-  return(srt)
+  cells <- unlist(lapply(srtList, colnames))
+  srt_raw <- srt_raw[, cells]
+  meta.data <- do.call(rbind.data.frame, unname(lapply(srtList, function(x) x@meta.data)))
+  srt_raw <- AddMetaData(srt_raw, metadata = meta.data)
+  return(srt_raw)
 }

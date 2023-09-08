@@ -4,13 +4,21 @@
 \alias{blendcolors}
 \title{Blend colors}
 \usage{
-blendcolors(colors, mode = "blend")
+blendcolors(colors, mode = c("blend", "average", "screen", "multiply"))
 }
 \arguments{
-\item{colors}{}
+\item{colors}{Color vectors.}
 
-\item{mode}{}
+\item{mode}{Blend mode.}
 }
 \description{
 Blend colors
+}
+\examples{
+blend <- c("red", "green", blendcolors(c("red", "green"), mode = "blend"))
+average <- c("red", "green", blendcolors(c("red", "green"), mode = "average"))
+screen <- c("red", "green", blendcolors(c("red", "green"), mode = "screen"))
+multiply <- c("red", "green", blendcolors(c("red", "green"), mode = "multiply"))
+show_palettes(list("blend" = blend, "average" = average, "screen" = screen, "multiply" = multiply))
+
 }

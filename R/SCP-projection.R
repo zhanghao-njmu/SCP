@@ -6,7 +6,6 @@ NULL
 #' @param srt_query
 #' @param srt_ref
 #' @param ref_umap
-#' @param force
 #' @param ref_group
 #' @param features
 #' @param nfeatures
@@ -19,33 +18,31 @@ NULL
 #' @param k
 #' @param distance_metric
 #' @param vote_fun
+#' @param query_assay
+#' @param ref_assay
 #'
 #' @examples
 #' data("panc8_sub")
-#' # Simply convert genes from human to mouse and preprocess the data
-#' genenames <- make.unique(stringr::str_to_title(rownames(panc8_sub)))
-#' panc8_sub <- RenameFeatures(panc8_sub, newnames = genenames)
-#' head(rownames(panc8_sub))
-#'
-#' panc8_sub <- Integration_SCP(panc8_sub, batch = "tech", integration_method = "Seurat")
-#' ClassDimPlot(panc8_sub, "celltype")
+#' srt_ref <- panc8_sub[, panc8_sub$tech != "fluidigmc1"]
+#' srt_query <- panc8_sub[, panc8_sub$tech == "fluidigmc1"]
+#' srt_ref <- Integration_SCP(srt_ref, batch = "tech", integration_method = "Seurat")
+#' CellDimPlot(srt_ref, group.by = c("celltype", "tech"))
 #'
 #' # Projection
-#' data("pancreas_sub")
-#' pancreas_sub <- Standard_SCP(pancreas_sub)
-#' head(intersect(rownames(panc8_sub), rownames(pancreas_sub)))
-#' pancreas_sub <- RunKNNMap(srt_query = pancreas_sub, srt_ref = panc8_sub, ref_umap = "SeuratUMAP2D")
-#' ProjectionPlot(srt_query = pancreas_sub, srt_ref = panc8_sub, query_group = "SubCellType", ref_group = "celltype")
+#' srt_query <- RunKNNMap(srt_query = srt_query, srt_ref = srt_ref, ref_umap = "SeuratUMAP2D")
+#' ProjectionPlot(srt_query = srt_query, srt_ref = srt_ref, query_group = "celltype", ref_group = "celltype")
 #'
 #' @importFrom Seurat Reductions Embeddings FindVariableFeatures VariableFeatures GetAssayData FindNeighbors CreateDimReducObject DefaultAssay
 #' @importFrom SeuratObject as.sparse
 #' @importFrom Matrix t
+#' @importFrom dplyr bind_rows
 #' @export
-RunKNNMap <- function(srt_query, srt_ref, ref_umap = NULL, force = FALSE,
-                      ref_group = NULL,
+RunKNNMap <- function(srt_query, srt_ref, query_assay = NULL, ref_assay = NULL, ref_umap = NULL, ref_group = NULL,
                       features = NULL, nfeatures = 2000,
                       query_reduction = NULL, ref_reduction = NULL, query_dims = 1:30, ref_dims = 1:30,
-                      projection_method = "model", nn_method = NULL, k = 30, distance_metric = "cosine", vote_fun = "mean") {
+                      projection_method = c("model", "knn"), nn_method = NULL, k = 30, distance_metric = "cosine", vote_fun = "mean") {
+  query_assay <- query_assay %||% DefaultAssay(srt_query)
+  ref_assay <- ref_assay %||% DefaultAssay(srt_ref)
   if (!is.null(ref_group)) {
     if (length(ref_group) == ncol(srt_ref)) {
       srt_ref[["ref_group"]] <- ref_group
@@ -68,9 +65,7 @@ RunKNNMap <- function(srt_query, srt_ref, ref_umap = NULL, force = FALSE,
       message("Set ref_umap to ", ref_umap)
     }
   }
-  if (!projection_method %in% c("model", "knn")) {
-    stop("projection_method must be one of 'model' and 'knn'")
-  }
+  projection_method <- match.arg(projection_method)
   if (projection_method == "model" && !"model" %in% names(srt_ref[[ref_umap]]@misc)) {
     message("No UMAP model detected. Set the projection_method to 'knn'")
     projection_method <- "knn"
@@ -79,14 +74,14 @@ RunKNNMap <- function(srt_query, srt_ref, ref_umap = NULL, force = FALSE,
     stop("distance_metric must be one of euclidean, cosine, manhattan, and hamming when projection_method='model'")
   }
   simil_method <- c(
-    "cosine", "correlation", "jaccard", "ejaccard", "dice", "edice", "hamman",
-    "simple matching", "faith"
+    "pearson", "spearman", "cosine", "correlation", "jaccard", "ejaccard", "dice", "edice",
+    "hamman", "simple matching", "faith"
   )
   dist_method <- c(
     "euclidean", "chisquared", "kullback", "manhattan", "maximum", "canberra",
     "minkowski", "hamming"
   )
-  if (!distance_metric %in% c(simil_method, dist_method, "pearson", "spearman")) {
+  if (!distance_metric %in% c(simil_method, dist_method)) {
     stop(distance_metric, " method is invalid.")
   }
   if (projection_method == "model") {
@@ -114,44 +109,39 @@ RunKNNMap <- function(srt_query, srt_ref, ref_umap = NULL, force = FALSE,
     }
   } else {
     message("Use the features to calculate distance metric.")
-    ref_assay <- srt_ref[[ref_umap]]@assay.used
-    status_query <- check_DataType(data = GetAssayData(srt_query, slot = "data"))
+    status_query <- check_DataType(data = GetAssayData(srt_query, slot = "data", assay = query_assay))
     message("Detected srt_query data type: ", status_query)
     status_ref <- check_DataType(data = GetAssayData(srt_ref, slot = "data", assay = ref_assay))
     message("Detected srt_ref data type: ", status_ref)
     if (status_ref != status_query || any(status_query == "unknown", status_ref == "unknown")) {
-      if (isTRUE(force)) {
-        warning("Data type is different between query and ref.")
-      } else {
-        stop("Data type is different between query and ref. Set force=TRUE if want to run it anyway.")
-      }
+      warning("Data type is unknown or different between srt_query and srt_ref.", immediate. = TRUE)
     }
     if (length(features) == 0) {
-      if (length(VariableFeatures(srt_ref)) == 0) {
+      if (length(VariableFeatures(srt_ref, assay = ref_assay)) == 0) {
         srt_ref <- FindVariableFeatures(srt_ref, nfeatures = nfeatures, assay = ref_assay)
       }
-      if (length(VariableFeatures(srt_query)) == 0) {
-        srt_query <- FindVariableFeatures(srt_query, nfeatures = nfeatures)
+      if (length(VariableFeatures(srt_query, assay = query_assay)) == 0) {
+        srt_query <- FindVariableFeatures(srt_query, nfeatures = nfeatures, assay = query_assay)
       }
-      features <- intersect(VariableFeatures(srt_query), VariableFeatures(srt_ref, assay = ref_assay))
+      features <- intersect(VariableFeatures(srt_query, assay = query_assay), VariableFeatures(srt_ref, assay = ref_assay))
     }
-    features_common <- Reduce(intersect, list(features, rownames(srt_query), rownames(srt_ref)))
-    message("Use ", length(features_common), " common features to calculate distance.")
-    query <- t(GetAssayData(srt_query, slot = "data")[features_common, ])
+    features_common <- Reduce(intersect, list(features, rownames(srt_query[[query_assay]]), rownames(srt_ref[[ref_assay]])))
+    message("Use ", length(features_common), " features to calculate distance.")
+    query <- t(GetAssayData(srt_query, slot = "data", assay = query_assay)[features_common, ])
     ref <- t(GetAssayData(srt_ref, slot = "data", assay = ref_assay)[features_common, ])
   }
 
   if (projection_method == "model" && "layout" %in% names(model) && is.null(ref_group)) {
-    srt_query[["ref.umap"]] <- RunUMAP2(object = query, reduction.model = srt_ref[[ref_umap]], assay = DefaultAssay(srt_query))
-    srt_query[["ref.umap"]]@misc[["reduction.model"]] <- ref_umap
+    srt_query[["ref.embeddings"]] <- RunUMAP2(object = query, reduction.model = srt_ref[[ref_umap]], assay = query_assay)
+    srt_query[["ref.embeddings"]]@misc[["reduction.model"]] <- ref_umap
     return(srt_query)
   }
 
   if (is.null(nn_method)) {
-    if (as.numeric(nrow(query)) * as.numeric(nrow(ref)) < 1e9) {
-      nn_method <- "raw"
-    } else {
+    if (as.numeric(nrow(query)) * as.numeric(nrow(ref)) >= 1e8) {
       nn_method <- "annoy"
+    } else {
+      nn_method <- "raw"
     }
   }
   message("Use '", nn_method, "' method to find neighbors.")
@@ -211,31 +201,31 @@ RunKNNMap <- function(srt_query, srt_ref, ref_umap = NULL, force = FALSE,
       match_k_cell <- t(as.matrix(apply(d, 2, function(x) names(x)[order(x, decreasing = FALSE)[1:k]])))
       match_k_distance <- t(as.matrix(apply(d, 2, function(x) x[order(x, decreasing = FALSE)[1:k]])))
     }
-    knn_cells <- c(match_k_cell)
-    refumap_all <- srt_ref[[ref_umap]]@cell.embeddings[knn_cells, ]
+    knn_cells <- match_k_cell
+    refumap_all <- srt_ref[[ref_umap]]@cell.embeddings[knn_cells, , drop = FALSE]
     group <- rep(colnames(d), k)
   }
 
   if (projection_method == "model") {
     if ("layout" %in% names(model)) {
-      srt_query[["ref.umap"]] <- RunUMAP2(object = query, reduction.model = srt_ref[[ref_umap]], assay = DefaultAssay(srt_query))
-      srt_query[["ref.umap"]]@misc[["reduction.model"]] <- ref_umap
+      srt_query[["ref.embeddings"]] <- RunUMAP2(object = query, reduction.model = srt_ref[[ref_umap]], assay = query_assay)
+      srt_query[["ref.embeddings"]]@misc[["reduction.model"]] <- ref_umap
     } else if ("embedding" %in% names(model)) {
       neighborlist <- list(idx = match_k, dist = match_k_distance)
-      srt_query[["ref.umap"]] <- RunUMAP2(object = neighborlist, reduction.model = srt_ref[[ref_umap]], assay = DefaultAssay(srt_query))
-      srt_query[["ref.umap"]]@misc[["reduction.model"]] <- ref_umap
+      srt_query[["ref.embeddings"]] <- RunUMAP2(object = neighborlist, reduction.model = srt_ref[[ref_umap]], assay = query_assay)
+      srt_query[["ref.embeddings"]]@misc[["reduction.model"]] <- ref_umap
     }
   } else {
     refumap <- aggregate(refumap_all, by = list(group), FUN = vote_fun)
     rownames(refumap) <- refumap[, 1]
     refumap[, 1] <- NULL
-    colnames(refumap) <- paste0("refUMAP_", seq_len(ncol(refumap)))
+    colnames(refumap) <- paste0("Dim_", seq_len(ncol(refumap)))
     refumap <- as.matrix(refumap)
-    srt_query[["ref.umap"]] <- CreateDimReducObject(embeddings = refumap, key = "refUMAP_", assay = DefaultAssay(srt_query), misc = list(reduction.model = ref_umap))
+    srt_query[["ref.embeddings"]] <- CreateDimReducObject(embeddings = refumap, key = "Dim_", assay = query_assay, misc = list(reduction.model = ref_umap))
   }
 
   if (!is.null(ref_group)) {
-    message("Predicting cell types based on ref_group: ", ref_group) ## slow
+    message("Predicting cell types based on ref_group.") ## slow
     level <- as.character(unique(srt_ref[["ref_group", drop = TRUE]]))
     if (k == 1) {
       match_best <- srt_ref[["ref_group", drop = TRUE]][match_k_cell[, 1]]
@@ -256,7 +246,7 @@ RunKNNMap <- function(srt_query, srt_ref, ref_umap = NULL, force = FALSE,
         x <- x / sum(x)
         return(x)
       }) %>%
-        bind_rows()
+        dplyr::bind_rows()
       match_prob <- as.matrix(match_prob)
       rownames(match_prob) <- names(match_freq)
       match_best <- apply(match_prob, 1, function(x) names(x)[order(x, decreasing = TRUE)][1])
@@ -274,36 +264,33 @@ RunKNNMap <- function(srt_query, srt_ref, ref_umap = NULL, force = FALSE,
 #' @param ref_pca
 #' @param ref_dims
 #' @param ref_umap
-#' @param force
 #' @param ref_group
 #' @param projection_method
 #' @param nn_method
 #' @param k
 #' @param distance_metric
 #' @param vote_fun
+#' @param query_assay
+#' @param ref_assay
 #'
 #' @examples
 #' data("panc8_sub")
-#' # Simply convert genes from human to mouse and preprocess the data
-#' genenames <- make.unique(stringr::str_to_title(rownames(panc8_sub)))
-#' panc8_sub <- RenameFeatures(panc8_sub, newnames = genenames)
-#' head(rownames(panc8_sub))
-#'
-#' panc8_sub <- Integration_SCP(panc8_sub, batch = "tech", integration_method = "Seurat")
-#' ClassDimPlot(panc8_sub, "celltype")
+#' srt_ref <- panc8_sub[, panc8_sub$tech != "fluidigmc1"]
+#' srt_query <- panc8_sub[, panc8_sub$tech == "fluidigmc1"]
+#' srt_ref <- Integration_SCP(srt_ref, batch = "tech", integration_method = "Seurat")
+#' CellDimPlot(srt_ref, group.by = c("celltype", "tech"))
 #'
 #' # Projection
-#' data("pancreas_sub")
-#' pancreas_sub <- Standard_SCP(pancreas_sub)
-#' pancreas_sub <- RunPCAMap(srt_query = pancreas_sub, srt_ref = panc8_sub, ref_pca = "Seuratpca", ref_umap = "SeuratUMAP2D")
-#' ProjectionPlot(srt_query = pancreas_sub, srt_ref = panc8_sub, query_group = "SubCellType", ref_group = "celltype")
+#' srt_query <- RunPCAMap(srt_query = srt_query, srt_ref = srt_ref, ref_pca = "Seuratpca", ref_umap = "SeuratUMAP2D")
+#' ProjectionPlot(srt_query = srt_query, srt_ref = srt_ref, query_group = "celltype", ref_group = "celltype")
 #'
 #' @importFrom Seurat Reductions GetAssayData CreateDimReducObject ProjectUMAP
 #' @export
-RunPCAMap <- function(srt_query, srt_ref, ref_pca = NULL, ref_dims = 1:30, ref_umap = NULL, force = FALSE,
-                      ref_group = NULL,
-                      projection_method = "model", nn_method = NULL, k = 30, distance_metric = "cosine", vote_fun = "mean") {
-  check_R("MatrixGenerics")
+RunPCAMap <- function(srt_query, srt_ref, query_assay = NULL, ref_assay = srt_ref[[ref_pca]]@assay.used,
+                      ref_pca = NULL, ref_dims = 1:30, ref_umap = NULL, ref_group = NULL,
+                      projection_method = c("model", "knn"), nn_method = NULL, k = 30, distance_metric = "cosine", vote_fun = "mean") {
+  query_assay <- query_assay %||% DefaultAssay(srt_query)
+  ref_assay <- ref_assay %||% DefaultAssay(srt_ref)
   if (!is.null(ref_group)) {
     if (length(ref_group) == ncol(srt_ref)) {
       srt_ref[["ref_group"]] <- ref_group
@@ -334,9 +321,7 @@ RunPCAMap <- function(srt_query, srt_ref, ref_pca = NULL, ref_dims = 1:30, ref_u
       message("Set ref_umap to ", ref_umap)
     }
   }
-  if (!projection_method %in% c("model", "knn")) {
-    stop("projection_method must be one of 'model' and 'knn'")
-  }
+  projection_method <- match.arg(projection_method)
   if (projection_method == "model" && !"model" %in% names(srt_ref[[ref_umap]]@misc)) {
     message("No UMAP model detected. Set the projection_method to 'knn'")
     projection_method <- "knn"
@@ -346,36 +331,32 @@ RunPCAMap <- function(srt_query, srt_ref, ref_pca = NULL, ref_dims = 1:30, ref_u
   }
 
   pca.out <- srt_ref[[ref_pca]]
-  status_query <- check_DataType(data = GetAssayData(srt_query, slot = "data"))
+  status_query <- check_DataType(data = GetAssayData(srt_query, slot = "data", assay = query_assay))
   message("Detected srt_query data type: ", status_query)
-  status_ref <- check_DataType(data = GetAssayData(srt_ref, slot = "data", assay = pca.out@assay.used))
+  status_ref <- check_DataType(data = GetAssayData(srt_ref, slot = "data", assay = ref_assay))
   message("Detected srt_ref data type: ", status_ref)
   if (status_ref != status_query || any(status_query == "unknown", status_ref == "unknown")) {
-    if (isTRUE(force)) {
-      warning("Data type is different between query and ref.")
-    } else {
-      stop("Data type is different between query and ref. Set force=TRUE if want to run it anyway.")
-    }
+    warning("Data type is unknown or different between srt_query and srt_ref.", immediate. = TRUE)
   }
 
   message("Run PCA projection")
   features <- rownames(pca.out@feature.loadings)
-  center <- MatrixGenerics::rowMeans2(GetAssayData(object = srt_ref, slot = "data", assay = pca.out@assay.used)[features, ])
+  center <- apply(GetAssayData(object = srt_ref, slot = "data", assay = ref_assay)[features, ], 1, mean)
   names(center) <- features
-  sds <- MatrixGenerics::rowSds(GetAssayData(object = srt_ref, slot = "data", assay = pca.out@assay.used)[features, ])
+  sds <- apply(GetAssayData(object = srt_ref, slot = "data", assay = ref_assay)[features, ], 1, sd)
   names(sds) <- features
   rotation <- pca.out@feature.loadings
 
-  features_common <- Reduce(intersect, list(features, rownames(srt_query), rownames(srt_ref)))
-  message("Use ", length(features_common), " common features to calculate PC.")
-  query_data <- t(GetAssayData(srt_query, slot = "data")[features_common, ])
+  features_common <- Reduce(intersect, list(features, rownames(srt_query[[query_assay]]), rownames(srt_ref[[ref_assay]])))
+  message("Use ", length(features_common), " features to calculate PC.")
+  query_data <- t(GetAssayData(srt_query, slot = "data", assay = query_assay)[features_common, ])
   query_pca <- scale(query_data[, features_common], center[features_common], sds[features_common]) %*% rotation[features_common, ]
   # ggplot(data = as.data.frame(pca.out@cell.embeddings))+geom_point(aes(x=StandardPC_1,y=StandardPC_2 ))+geom_point(data = as.data.frame(query_pca),mapping = aes(x=StandardPC_1,y=StandardPC_2),color="red")
-  srt_query[["ref.pca"]] <- CreateDimReducObject(embeddings = query_pca, key = pca.out@key, assay = DefaultAssay(srt_query))
+  srt_query[["ref.pca"]] <- CreateDimReducObject(embeddings = query_pca, key = pca.out@key, assay = query_assay)
 
   message("Run UMAP projection")
   srt_query <- RunKNNMap(
-    srt_query = srt_query, srt_ref = srt_ref, ref_group = ref_group, ref_umap = ref_umap, force = force,
+    srt_query = srt_query, query_assay = query_assay, srt_ref = srt_ref, ref_assay = ref_assay, ref_group = ref_group, ref_umap = ref_umap,
     query_reduction = "ref.pca", ref_reduction = ref_pca, query_dims = ref_dims, ref_dims = ref_dims,
     projection_method = projection_method, nn_method = nn_method, k = k, distance_metric = distance_metric, vote_fun = vote_fun
   )
@@ -389,7 +370,6 @@ RunPCAMap <- function(srt_query, srt_ref, ref_pca = NULL, ref_dims = 1:30, ref_u
 #' @param ref_pca
 #' @param ref_dims
 #' @param ref_umap
-#' @param force
 #' @param ref_group
 #' @param normalization.method
 #' @param reduction_project_method
@@ -402,31 +382,29 @@ RunPCAMap <- function(srt_query, srt_ref, ref_pca = NULL, ref_dims = 1:30, ref_u
 #' @param k
 #' @param distance_metric
 #' @param vote_fun
+#' @param query_assay
+#' @param ref_assay
 #'
 #' @examples
 #' data("panc8_sub")
-#' # Simply convert genes from human to mouse and preprocess the data
-#' genenames <- make.unique(stringr::str_to_title(rownames(panc8_sub)))
-#' panc8_sub <- RenameFeatures(panc8_sub, newnames = genenames)
-#' head(rownames(panc8_sub))
-#'
-#' panc8_sub <- Integration_SCP(panc8_sub, batch = "tech", integration_method = "Seurat")
-#' ClassDimPlot(panc8_sub, "celltype")
+#' srt_ref <- panc8_sub[, panc8_sub$tech != "fluidigmc1"]
+#' srt_query <- panc8_sub[, panc8_sub$tech == "fluidigmc1"]
+#' srt_ref <- Integration_SCP(srt_ref, batch = "tech", integration_method = "Seurat")
+#' CellDimPlot(srt_ref, group.by = c("celltype", "tech"))
 #'
 #' # Projection
-#' data("pancreas_sub")
-#' pancreas_sub <- Standard_SCP(pancreas_sub)
-#' pancreas_sub <- RunSeuratMap(srt_query = pancreas_sub, srt_ref = panc8_sub, ref_pca = "Seuratpca", ref_umap = "SeuratUMAP2D", k.weight = 80)
-#' ProjectionPlot(srt_query = pancreas_sub, srt_ref = panc8_sub, query_group = "SubCellType", ref_group = "celltype")
+#' srt_query <- RunSeuratMap(srt_query = srt_query, srt_ref = srt_ref, ref_pca = "Seuratpca", ref_umap = "SeuratUMAP2D", k.weight = 50)
+#' ProjectionPlot(srt_query = srt_query, srt_ref = srt_ref, query_group = "celltype", ref_group = "celltype")
 #'
 #' @importFrom Seurat Reductions FindTransferAnchors TransferData IntegrateEmbeddings ProjectUMAP
 #' @export
-RunSeuratMap <- function(srt_query, srt_ref,
-                         ref_pca = NULL, ref_dims = 1:30, ref_umap = NULL, force = FALSE,
-                         ref_group = NULL,
+RunSeuratMap <- function(srt_query, srt_ref, query_assay = NULL, ref_assay = srt_ref[[ref_pca]]@assay.used,
+                         ref_pca = NULL, ref_dims = 1:30, ref_umap = NULL, ref_group = NULL,
                          normalization.method = "LogNormalize", reduction_project_method = "pcaproject",
                          k.anchor = 5, k.filter = 200, k.score = 30, k.weight = 100,
-                         projection_method = "model", nn_method = NULL, k = 30, distance_metric = "cosine", vote_fun = "mean") {
+                         projection_method = c("model", "knn"), nn_method = NULL, k = 30, distance_metric = "cosine", vote_fun = "mean") {
+  query_assay <- query_assay %||% DefaultAssay(srt_query)
+  ref_assay <- ref_assay %||% DefaultAssay(srt_ref)
   weight.reduction <- switch(reduction_project_method,
     "pcaproject" = "pcaproject",
     "lsiproject" = "lsiproject",
@@ -451,9 +429,7 @@ RunSeuratMap <- function(srt_query, srt_ref,
       message("Set ref_umap to ", ref_umap)
     }
   }
-  if (!projection_method %in% c("model", "knn")) {
-    stop("projection_method must be one of 'model' and 'knn'")
-  }
+  projection_method <- match.arg(projection_method)
   if (projection_method == "model" && !"model" %in% names(srt_ref[[ref_umap]]@misc)) {
     message("No UMAP model detected. Set the projection_method to 'knn'")
     projection_method <- "knn"
@@ -462,22 +438,18 @@ RunSeuratMap <- function(srt_query, srt_ref,
     stop("distance_metric must be one of euclidean, cosine, manhattan, and hamming when projection_method='model'")
   }
 
-  status_query <- check_DataType(data = GetAssayData(srt_query, slot = "data"))
+  status_query <- check_DataType(data = GetAssayData(srt_query, slot = "data", assay = query_assay))
   message("Detected srt_query data type: ", status_query)
-  status_ref <- check_DataType(data = GetAssayData(srt_ref, slot = "data", assay = srt_ref[[ref_pca]]@assay.used))
+  status_ref <- check_DataType(data = GetAssayData(srt_ref, slot = "data", assay = ref_assay))
   message("Detected srt_ref data type: ", status_ref)
   if (status_ref != status_query || any(status_query == "unknown", status_ref == "unknown")) {
-    if (isTRUE(force)) {
-      warning("Data type is different between query and ref.")
-    } else {
-      stop("Data type is different between query and ref. Set force=TRUE if want to run it anyway.")
-    }
+    warning("Data type is unknown or different between srt_query and srt_ref.", immediate. = TRUE)
   }
 
   message("Run FindTransferAnchors")
   anchors <- FindTransferAnchors(
-    query = srt_query, reference = srt_ref, normalization.method = normalization.method, dims = ref_dims,
-    reference.reduction = ref_pca, reduction = reduction_project_method, reference.assay = srt_ref[[ref_pca]]@assay.used,
+    query = srt_query, query.assay = query_assay, reference = srt_ref, normalization.method = normalization.method, dims = ref_dims,
+    reference.reduction = ref_pca, reduction = reduction_project_method, reference.assay = ref_assay,
     k.anchor = k.anchor, k.filter = k.filter, k.score = k.score
   )
   if (reduction_project_method != "cca") {
@@ -490,7 +462,7 @@ RunSeuratMap <- function(srt_query, srt_ref,
 
   message("Run UMAP projection")
   srt_query <- RunKNNMap(
-    srt_query = srt_query, srt_ref = srt_ref, ref_group = ref_group, ref_umap = ref_umap, force = force,
+    srt_query = srt_query, query_assay = query_assay, srt_ref = srt_ref, ref_assay = ref_assay, ref_group = ref_group, ref_umap = ref_umap,
     query_reduction = "ref.pca", ref_reduction = ref_pca, query_dims = ref_dims, ref_dims = ref_dims,
     projection_method = projection_method, nn_method = nn_method, k = k, distance_metric = distance_metric, vote_fun = vote_fun
   )
@@ -504,35 +476,34 @@ RunSeuratMap <- function(srt_query, srt_ref,
 #' @param srt_ref
 #' @param ref_css
 #' @param ref_umap
-#' @param force
 #' @param ref_group
 #' @param projection_method
 #' @param nn_method
 #' @param k
 #' @param distance_metric
 #' @param vote_fun
+#' @param query_assay
+#' @param ref_assay
 #'
 #' @examples
 #' data("panc8_sub")
-#' # Simply convert genes from human to mouse and preprocess the data
-#' genenames <- make.unique(stringr::str_to_title(rownames(panc8_sub)))
-#' panc8_sub <- RenameFeatures(panc8_sub, newnames = genenames)
-#' head(rownames(panc8_sub))
-#'
-#' panc8_sub <- Integration_SCP(panc8_sub, batch = "tech", integration_method = "CSS")
-#' ClassDimPlot(panc8_sub, "celltype")
+#' srt_ref <- panc8_sub[, panc8_sub$tech != "fluidigmc1"]
+#' srt_query <- panc8_sub[, panc8_sub$tech == "fluidigmc1"]
+#' srt_ref <- Integration_SCP(srt_ref, batch = "tech", integration_method = "CSS")
+#' CellDimPlot(srt_ref, group.by = c("celltype", "tech"))
 #'
 #' # Projection
-#' data("pancreas_sub")
-#' pancreas_sub <- Standard_SCP(pancreas_sub)
-#' pancreas_sub <- RunCSSMap(srt_query = pancreas_sub, srt_ref = panc8_sub, ref_css = "CSS", ref_umap = "CSSUMAP2D")
-#' ProjectionPlot(srt_query = pancreas_sub, srt_ref = panc8_sub, query_group = "SubCellType", ref_group = "celltype")
+#' srt_query <- RunCSSMap(srt_query = srt_query, srt_ref = srt_ref, ref_css = "CSS", ref_umap = "CSSUMAP2D")
+#' ProjectionPlot(srt_query = srt_query, srt_ref = srt_ref, query_group = "celltype", ref_group = "celltype")
 #'
 #' @importFrom Seurat Reductions CreateDimReducObject ProjectUMAP
 #' @export
-RunCSSMap <- function(srt_query, srt_ref, ref_css = NULL, ref_umap = NULL, force = FALSE,
-                      ref_group = NULL,
-                      projection_method = "model", nn_method = NULL, k = 30, distance_metric = "cosine", vote_fun = "mean") {
+RunCSSMap <- function(srt_query, srt_ref, query_assay = NULL, ref_assay = srt_ref[[ref_css]]@assay.used,
+                      ref_css = NULL, ref_umap = NULL, ref_group = NULL,
+                      projection_method = c("model", "knn"), nn_method = NULL, k = 30, distance_metric = "cosine", vote_fun = "mean") {
+  check_R("quadbiolab/simspec")
+  query_assay <- query_assay %||% DefaultAssay(srt_query)
+  ref_assay <- ref_assay %||% DefaultAssay(srt_ref)
   if (!is.null(ref_group)) {
     if (length(ref_group) == ncol(srt_ref)) {
       srt_ref[["ref_group"]] <- ref_group
@@ -566,9 +537,7 @@ RunCSSMap <- function(srt_query, srt_ref, ref_css = NULL, ref_umap = NULL, force
       message("Set ref_umap to ", ref_umap)
     }
   }
-  if (!projection_method %in% c("model", "knn")) {
-    stop("projection_method must be one of 'model' and 'knn'")
-  }
+  projection_method <- match.arg(projection_method)
   if (projection_method == "model" && !"model" %in% names(srt_ref[[ref_umap]]@misc)) {
     message("No UMAP model detected. Set the projection_method to 'knn'")
     projection_method <- "knn"
@@ -577,30 +546,29 @@ RunCSSMap <- function(srt_query, srt_ref, ref_css = NULL, ref_umap = NULL, force
     stop("distance_metric must be one of euclidean, cosine, manhattan, and hamming when projection_method='model'")
   }
 
-  status_query <- check_DataType(data = GetAssayData(srt_query, slot = "data"))
+  ref_assay <- srt_ref[[ref_css]]@assay.used
+  status_query <- check_DataType(data = GetAssayData(srt_query, slot = "data", assay = query_assay))
   message("Detected srt_query data type: ", status_query)
-  status_ref <- check_DataType(data = GetAssayData(srt_ref, slot = "data", assay = srt_ref[[ref_css]]@assay.used))
+  status_ref <- check_DataType(data = GetAssayData(srt_ref, slot = "data", assay = ref_assay))
   message("Detected srt_ref data type: ", status_ref)
   if (status_ref != status_query || any(status_query == "unknown", status_ref == "unknown")) {
-    if (isTRUE(force)) {
-      warning("Data type is different between query and ref.")
-    } else {
-      stop("Data type is different between query and ref. Set force=TRUE if want to run it anyway.")
-    }
+    warning("Data type is unknown or different between srt_query and srt_ref.", immediate. = TRUE)
   }
 
   message("Run CSS projection")
   CSSmodel <- srt_ref[[ref_css]]@misc$model
+  raw_assay <- DefaultAssay(srt_query)
+  DefaultAssay(srt_query) <- query_assay
   srt_query <- simspec::css_project(object = srt_query, model = CSSmodel)
+  DefaultAssay(srt_query) <- raw_assay
 
   message("Run UMAP projection")
   ref_dims <- seq_len(dim(srt_ref[[ref_css]])[2])
   srt_query <- RunKNNMap(
-    srt_query = srt_query, srt_ref = srt_ref, ref_group = ref_group, ref_umap = ref_umap, force = force,
+    srt_query = srt_query, query_assay = query_assay, srt_ref = srt_ref, ref_assay = ref_assay, ref_group = ref_group, ref_umap = ref_umap,
     query_reduction = "css_proj", ref_reduction = ref_css, query_dims = ref_dims, ref_dims = ref_dims,
     projection_method = projection_method, nn_method = nn_method, k = k, distance_metric = distance_metric, vote_fun = vote_fun
   )
-
   return(srt_query)
 }
 
@@ -621,26 +589,23 @@ RunCSSMap <- function(srt_query, srt_ref, ref_css = NULL, ref_umap = NULL, force
 #'
 #' @examples
 #' data("panc8_sub")
-#' # Simply convert genes from human to mouse and preprocess the data
-#' genenames <- make.unique(stringr::str_to_title(rownames(panc8_sub)))
-#' panc8_sub <- RenameFeatures(panc8_sub, newnames = genenames)
-#' head(rownames(panc8_sub))
-#'
-#' panc8_sub <- Integration_SCP(panc8_sub, batch = "tech", integration_method = "Harmony")
-#' ClassDimPlot(panc8_sub, "celltype")
+#' srt_ref <- panc8_sub[, panc8_sub$tech != "fluidigmc1"]
+#' srt_query <- panc8_sub[, panc8_sub$tech == "fluidigmc1"]
+#' srt_ref <- Integration_SCP(srt_ref, batch = "tech", integration_method = "Harmony")
+#' CellDimPlot(srt_ref, group.by = c("celltype", "tech"))
 #'
 #' # Projection
-#' data("pancreas_sub")
-#' pancreas_sub <- Standard_SCP(pancreas_sub)
-#' pancreas_sub <- RunSymphonyMap(srt_query = pancreas_sub, srt_ref = panc8_sub, ref_pca = "Harmonypca", ref_harmony = "Harmony", ref_umap = "HarmonyUMAP2D")
-#' ProjectionPlot(srt_query = pancreas_sub, srt_ref = panc8_sub, query_group = "SubCellType", ref_group = "celltype")
+#' srt_query <- RunSymphonyMap(srt_query = srt_query, srt_ref = srt_ref, ref_pca = "Harmonypca", ref_harmony = "Harmony", ref_umap = "HarmonyUMAP2D")
+#' ProjectionPlot(srt_query = srt_query, srt_ref = srt_ref, query_group = "celltype", ref_group = "celltype")
 #'
 #' @importFrom Seurat Reductions GetAssayData DefaultAssay ProjectUMAP
 #' @export
-RunSymphonyMap <- function(srt_query, srt_ref, ref_pca = NULL, ref_harmony = NULL, ref_umap = NULL, force = FALSE,
-                           ref_group = NULL,
-                           projection_method = "model", nn_method = NULL, k = 30, distance_metric = "cosine", vote_fun = "mean") {
-  check_R("symphony")
+RunSymphonyMap <- function(srt_query, srt_ref, query_assay = NULL, ref_assay = srt_ref[[ref_pca]]@assay.used,
+                           ref_pca = NULL, ref_harmony = NULL, ref_umap = NULL, ref_group = NULL,
+                           projection_method = c("model", "knn"), nn_method = NULL, k = 30, distance_metric = "cosine", vote_fun = "mean") {
+  check_R("immunogenomics/symphony")
+  query_assay <- query_assay %||% DefaultAssay(srt_query)
+  ref_assay <- ref_assay %||% DefaultAssay(srt_ref)
   if (!is.null(ref_group)) {
     if (length(ref_group) == ncol(srt_ref)) {
       srt_ref[["ref_group"]] <- ref_group
@@ -679,9 +644,9 @@ RunSymphonyMap <- function(srt_query, srt_ref, ref_pca = NULL, ref_harmony = NUL
       message("Set ref_umap to ", ref_umap)
     }
   }
-  if (!projection_method %in% c("model", "knn")) {
-    stop("projection_method must be one of 'model' and 'knn'")
-  }
+  ref_pca_dims <- srt_ref[[ref_harmony]]@misc$reduction_dims
+
+  projection_method <- match.arg(projection_method)
   if (projection_method == "model" && !"model" %in% names(srt_ref[[ref_umap]]@misc)) {
     message("No UMAP model detected. Set the projection_method to 'knn'")
     projection_method <- "knn"
@@ -690,27 +655,26 @@ RunSymphonyMap <- function(srt_query, srt_ref, ref_pca = NULL, ref_harmony = NUL
     stop("distance_metric must be one of euclidean, cosine, manhattan, and hamming when projection_method='model'")
   }
 
-  status_query <- check_DataType(data = GetAssayData(srt_query, slot = "data"))
+  status_query <- check_DataType(data = GetAssayData(srt_query, slot = "data", assay = query_assay))
   message("Detected srt_query data type: ", status_query)
-  status_ref <- check_DataType(data = GetAssayData(srt_ref, slot = "data", assay = srt_ref[[ref_pca]]@assay.used))
+  status_ref <- check_DataType(data = GetAssayData(srt_ref, slot = "data", assay = ref_assay))
   message("Detected srt_ref data type: ", status_ref)
   if (status_ref != status_query || any(status_query == "unknown", status_ref == "unknown")) {
-    if (isTRUE(force)) {
-      warning("Data type is different between query and ref.")
-    } else {
-      stop("Data type is different between query and ref. Set force=TRUE if want to run it anyway.")
-    }
+    warning("Data type is unknown or different between srt_query and srt_ref.", immediate. = TRUE)
   }
 
   message("Build reference")
   ref <- buildReferenceFromSeurat(
     obj = srt_ref,
-    assay = srt_ref[[ref_pca]]@assay.used,
-    pca = ref_pca, harmony = ref_harmony, umap = ref_umap
+    assay = ref_assay,
+    pca = ref_pca,
+    pca_dims = ref_pca_dims,
+    harmony = ref_harmony,
+    umap = ref_umap
   )
   message("Run mapQuery")
   res <- mapQuery(
-    exp_query = GetAssayData(srt_query, slot = "data"),
+    exp_query = GetAssayData(srt_query, slot = "data", assay = query_assay),
     metadata_query = srt_query@meta.data,
     ref_obj = ref,
     vars = NULL,
@@ -725,13 +689,13 @@ RunSymphonyMap <- function(srt_query, srt_ref, ref_pca = NULL, ref_harmony = NUL
     embeddings = t(Z_pca_query),
     loadings = ref$loadings,
     stdev = as.numeric(apply(Z_pca_query, 1, stats::sd)),
-    assay = DefaultAssay(srt_query),
+    assay = query_assay,
     key = "refpca_"
   )
   srt_query[["ref.harmony"]] <- CreateDimReducObject(
     embeddings = t(Zq_corr),
     stdev = as.numeric(apply(Zq_corr, 1, stats::sd)),
-    assay = DefaultAssay(srt_query),
+    assay = query_assay,
     key = "refharmony_",
     misc = list(R = R_query)
   )
@@ -739,7 +703,7 @@ RunSymphonyMap <- function(srt_query, srt_ref, ref_pca = NULL, ref_harmony = NUL
   message("Run UMAP projection")
   ref_dims <- seq_len(dim(srt_ref[[ref_harmony]])[2])
   srt_query <- RunKNNMap(
-    srt_query = srt_query, srt_ref = srt_ref, ref_group = ref_group, ref_umap = ref_umap, force = force,
+    srt_query = srt_query, query_assay = query_assay, srt_ref = srt_ref, ref_assay = ref_assay, ref_group = ref_group, ref_umap = ref_umap,
     query_reduction = "ref.harmony", ref_reduction = ref_harmony, query_dims = ref_dims, ref_dims = ref_dims,
     projection_method = projection_method, nn_method = nn_method, k = k, distance_metric = distance_metric, vote_fun = vote_fun
   )
@@ -750,14 +714,17 @@ RunSymphonyMap <- function(srt_query, srt_ref, ref_pca = NULL, ref_harmony = NUL
 #' @importFrom Matrix rowMeans
 #' @importFrom Seurat Key Embeddings
 #'
-buildReferenceFromSeurat <- function(obj, assay = "RNA", pca = "pca", harmony = "harmony", umap = "umap") {
+buildReferenceFromSeurat <- function(obj, assay = "RNA", pca = "pca", pca_dims = NULL, harmony = "harmony", umap = "umap") {
   if (!assay %in% c("RNA", "SCT")) {
     stop("Only supported assays are RNA or SCT.")
+  }
+  if (is.null(pca_dims)) {
+    pca_dims <- seq_len(ncol(Embeddings(obj, pca)))
   }
   res <- list()
   ## TODO: check that these objects are all correctly initialized
   res$Z_corr <- t(Embeddings(obj, harmony))
-  res$Z_orig <- t(Embeddings(obj, pca))
+  res$Z_orig <- t(Embeddings(obj, pca)[, pca_dims, drop = FALSE])
   message("Saved embeddings")
 
   res$R <- t(obj[[harmony]]@misc$R)
@@ -787,7 +754,7 @@ buildReferenceFromSeurat <- function(obj, assay = "RNA", pca = "pca", harmony = 
   res$vargenes_means_sds <- vargenes_means_sds
   message("Saved variable gene information for ", nrow(vargenes_means_sds), " genes.")
 
-  res$loadings <- obj[[pca]]@feature.loadings
+  res$loadings <- obj[[pca]]@feature.loadings[, pca_dims, drop = FALSE]
   message("Saved PCA loadings.")
 
   res$meta_data <- obj@meta.data

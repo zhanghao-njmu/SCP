@@ -7,57 +7,86 @@
 DynamicHeatmap(
   srt,
   lineages,
-  feature_from = lineages,
-  exp_method = c("zscore", "raw", "log2fc", "log1p"),
-  slot = "counts",
-  assay = "RNA",
+  features = NULL,
+  num_intersections = NULL,
   use_fitted = FALSE,
-  lib_normalize = TRUE,
-  libsize = NULL,
+  border = TRUE,
+  flip = FALSE,
   min_expcells = 20,
   r.sq = 0.2,
   dev.expl = 0.2,
   padjust = 0.05,
   cell_density = 1,
+  cell_bins = 100,
   order_by = c("peaktime", "valleytime"),
-  decreasing = FALSE,
+  slot = "counts",
+  assay = NULL,
+  exp_method = c("zscore", "raw", "fc", "log2fc", "log1p"),
+  legend_title = NULL,
+  limits = NULL,
+  lib_normalize = identical(slot, "counts"),
+  libsize = NULL,
+  family = NULL,
+  cluster_features_by = NULL,
+  cluster_rows = FALSE,
+  cluster_row_slices = FALSE,
+  cluster_columns = FALSE,
+  cluster_column_slices = FALSE,
+  show_row_names = FALSE,
+  show_column_names = FALSE,
+  row_names_side = ifelse(flip, "left", "right"),
+  column_names_side = ifelse(flip, "bottom", "top"),
+  row_names_rot = 0,
+  column_names_rot = 90,
+  row_title = NULL,
+  column_title = NULL,
+  row_title_side = "left",
+  column_title_side = "top",
+  row_title_rot = 0,
+  column_title_rot = ifelse(flip, 90, 0),
   feature_split = NULL,
-  row_title_size = 12,
+  feature_split_by = NULL,
   n_split = NULL,
-  heatmap_split_by = lineages,
+  split_order = NULL,
   split_method = c("mfuzz", "kmeans", "kmeans-peaktime", "hclust", "hclust-peaktime"),
+  decreasing = FALSE,
   fuzzification = NULL,
   show_fuzzification = FALSE,
   anno_terms = FALSE,
   anno_keys = FALSE,
   anno_features = FALSE,
+  terms_width = unit(4, "in"),
+  terms_fontsize = 8,
+  keys_width = unit(2, "in"),
+  keys_fontsize = c(6, 10),
+  features_width = unit(2, "in"),
+  features_fontsize = c(6, 10),
   IDtype = "symbol",
   species = "Homo_sapiens",
-  db_IDtype = "symbol",
   db_update = FALSE,
   db_version = "latest",
+  db_combine = FALSE,
+  convert_species = FALSE,
   Ensembl_version = 103,
   mirror = NULL,
-  enrichment = "GO_BP",
+  db = "GO_BP",
   TERM2GENE = NULL,
   TERM2NAME = NULL,
   minGSSize = 10,
   maxGSSize = 500,
-  universe = NULL,
   GO_simplify = FALSE,
-  GO_simplify_padjustCutoff = 0.2,
-  simplify_method = "Rel",
+  GO_simplify_cutoff = "p.adjust < 0.05",
+  simplify_method = "Wang",
   simplify_similarityCutoff = 0.7,
   pvalueCutoff = NULL,
   padjustCutoff = 0.05,
   topTerm = 5,
-  show_id = TRUE,
+  show_termid = FALSE,
   topWord = 20,
   min_word_length = 3,
-  exclude_words = c("cell", "cellular", "dna", "rna", "protein", "development", "system",
-    "regulation", "positive", "negative", "response", "process"),
-  anno_width = unit(c(4, 2, 2), "in"),
-  anno_size = c(6, 10),
+  exclude_words = c("cell", "cellular", "dna", "rna", "protein", "development",
+    "involved", "organization", "system", "regulation", "positive", "negative",
+    "response", "process"),
   nlabel = 20,
   features_label = NULL,
   label_size = 10,
@@ -65,26 +94,39 @@ DynamicHeatmap(
   pseudotime_label = NULL,
   pseudotime_label_color = "black",
   pseudotime_label_linetype = 2,
-  pseudotime_label_linewidth = 2,
-  heatmap_palette = "RdBu",
+  pseudotime_label_linewidth = 3,
+  heatmap_palette = "viridis",
+  heatmap_palcolor = NULL,
   pseudotime_palette = "cividis",
-  feature_split_palette = "jama",
+  pseudotime_palcolor = NULL,
+  feature_split_palette = "simspec",
+  feature_split_palcolor = NULL,
   cell_annotation = NULL,
-  cell_palette = "Paired",
-  cell_palcolor = NULL,
+  cell_annotation_palette = "Paired",
+  cell_annotation_palcolor = NULL,
+  cell_annotation_params = list(),
   feature_annotation = NULL,
-  feature_palette = "Dark2",
-  feature_palcolor = NULL,
+  feature_annotation_palette = "Dark2",
+  feature_annotation_palcolor = NULL,
+  feature_annotation_params = list(),
+  separate_annotation = NULL,
+  separate_annotation_palette = "Paired",
+  separate_annotation_palcolor = NULL,
+  separate_annotation_params = if (flip) list(width = grid::unit(2, "cm")) else
+    list(height = grid::unit(2, "cm")),
   reverse_ht = NULL,
   use_raster = NULL,
+  raster_device = "png",
+  raster_by_magick = FALSE,
   height = NULL,
   width = NULL,
   units = "inch",
-  seed = 11
+  seed = 11,
+  ht_params = list()
 )
 }
 \arguments{
-\item{seed}{}
+\item{db_combine}{}
 }
 \description{
 Heatmap plot for dynamic features along lineages
@@ -93,31 +135,86 @@ Heatmap plot for dynamic features along lineages
 data("pancreas_sub")
 pancreas_sub <- RunSlingshot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP")
 pancreas_sub <- RunDynamicFeatures(pancreas_sub, lineages = c("Lineage1", "Lineage2"), n_candidates = 200)
-ht_result1 <- DynamicHeatmap(
+ht1 <- DynamicHeatmap(
   srt = pancreas_sub,
-  lineages = c("Lineage1"), order_by = "peaktime",
-  cell_annotation = "SubCellType",
-  n_split = 5, split_method = "kmeans-peaktime",
-  height = 6, width = 7, use_raster = FALSE
+  lineages = "Lineage1",
+  n_split = 5,
+  split_method = "kmeans-peaktime",
+  cell_annotation = "SubCellType"
 )
-ht_result1$plot
+ht1$plot
+panel_fix(ht1$plot, raster = TRUE, dpi = 50)
 
-ht_result2 <- DynamicHeatmap(
+ht2 <- DynamicHeatmap(
+  srt = pancreas_sub,
+  lineages = "Lineage1",
+  features = c("Sox9", "Neurod2", "Isl1", "Rbp4", "Pyy", "S_score", "G2M_score"),
+  cell_annotation = "SubCellType"
+)
+ht2$plot
+panel_fix(ht2$plot, height = 5, width = 5, raster = TRUE, dpi = 50)
+
+ht3 <- DynamicHeatmap(
   srt = pancreas_sub,
   lineages = c("Lineage1", "Lineage2"),
-  cell_annotation = "SubCellType",
-  n_split = 5, reverse_ht = "Lineage1",
-  height = 6, width = 7, use_raster = FALSE
+  n_split = 5,
+  split_method = "kmeans",
+  cluster_rows = TRUE,
+  cell_annotation = "SubCellType"
 )
-ht_result2$plot
+ht3$plot
 
-ht_result3 <- DynamicHeatmap(
+pancreas_sub <- AnnotateFeatures(pancreas_sub, species = "Mus_musculus", db = c("TF", "CSPA"))
+ht4 <- DynamicHeatmap(
   srt = pancreas_sub,
   lineages = c("Lineage1", "Lineage2"),
-  cell_annotation = "SubCellType",
-  n_split = 5, reverse_ht = "Lineage1",
-  species = "Mus_musculus", anno_terms = TRUE, anno_keys = TRUE, anno_features = TRUE,
-  height = 6, width = 7, use_raster = FALSE
+  reverse_ht = "Lineage1",
+  use_fitted = TRUE,
+  n_split = 6,
+  split_method = "mfuzz",
+  heatmap_palette = "viridis",
+  cell_annotation = c("SubCellType", "Phase", "G2M_score"),
+  cell_annotation_palette = c("Paired", "simspec", "Purples"),
+  separate_annotation = list("SubCellType", c("Nnat", "Irx1")),
+  separate_annotation_palette = c("Paired", "Set1"),
+  separate_annotation_params = list(height = grid::unit(2, "cm")),
+  feature_annotation = c("TF", "CSPA"),
+  feature_annotation_palcolor = list(c("gold", "steelblue"), c("forestgreen")),
+  pseudotime_label = 25,
+  pseudotime_label_color = "red"
 )
-ht_result3$plot
+ht4$plot
+
+ht5 <- DynamicHeatmap(
+  srt = pancreas_sub,
+  lineages = c("Lineage1", "Lineage2"),
+  reverse_ht = "Lineage1",
+  use_fitted = TRUE,
+  n_split = 6,
+  split_method = "mfuzz",
+  heatmap_palette = "viridis",
+  cell_annotation = c("SubCellType", "Phase", "G2M_score"),
+  cell_annotation_palette = c("Paired", "simspec", "Purples"),
+  separate_annotation = list("SubCellType", c("Nnat", "Irx1")),
+  separate_annotation_palette = c("Paired", "Set1"),
+  separate_annotation_params = list(width = grid::unit(2, "cm")),
+  feature_annotation = c("TF", "CSPA"),
+  feature_annotation_palcolor = list(c("gold", "steelblue"), c("forestgreen")),
+  pseudotime_label = 25,
+  pseudotime_label_color = "red",
+  flip = TRUE, column_title_rot = 45
+)
+ht5$plot
+
+ht6 <- DynamicHeatmap(
+  srt = pancreas_sub,
+  lineages = c("Lineage1", "Lineage2"),
+  reverse_ht = "Lineage1",
+  cell_annotation = "SubCellType",
+  n_split = 5, split_method = "mfuzz",
+  species = "Mus_musculus", db = "GO_BP",
+  anno_terms = TRUE, anno_keys = TRUE, anno_features = TRUE
+)
+ht6$plot
+
 }

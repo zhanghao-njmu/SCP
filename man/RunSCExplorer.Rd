@@ -11,20 +11,20 @@ RunSCExplorer(
   title = "SCExplorer",
   initial_dataset = NULL,
   initial_reduction = NULL,
-  initial_metaname = NULL,
+  initial_group = NULL,
   initial_feature = NULL,
   initial_assay = NULL,
   initial_slot = NULL,
   initial_label = "No",
-  initial_palette1 = "Paired",
-  initial_palette2 = "Spectral",
-  initial_theme1 = "theme_scp",
-  initial_theme2 = "theme_scp",
-  initial_coExp = "No",
+  initial_cell_palette = "Paired",
+  initial_feature_palette = "Spectral",
+  initial_theme = "theme_scp",
   initial_size = 4,
   initial_ncol = 3,
   initial_arrange = "Row",
-  initial_plot_dpi = 100,
+  initial_dpi = 100,
+  workers = 2,
+  threads_per_workers = 10,
   create_script = TRUE,
   style_script = require("styler", quietly = TRUE),
   overwrite = FALSE,
@@ -32,7 +32,7 @@ RunSCExplorer(
 )
 }
 \arguments{
-\item{return_app}{}
+\item{workers}{}
 }
 \description{
 RunSCExplorer
@@ -41,20 +41,24 @@ RunSCExplorer
 \dontrun{
 data("pancreas_sub")
 pancreas_sub <- Standard_SCP(pancreas_sub)
-PrepareSCExplorer(pancreas_sub, base_dir = "./SCExplorer")
+data("panc8_sub")
+panc8_sub <- Integration_SCP(srtMerge = panc8_sub, batch = "tech", integration_method = "Seurat")
+
+PrepareSCExplorer(list(mouse_pancreas = pancreas_sub, human_pancreas = panc8_sub), base_dir = "./SCExplorer", overwrite = TRUE)
 
 # Create the app.R script
-app <- RunSCExplorer(base_dir = "./SCExplorer", return_app = TRUE)
-list.files("./SCExplorer")
+app <- RunSCExplorer(base_dir = "./SCExplorer", workers = 2, overwrite = TRUE)
+list.files("./SCExplorer") # This directory can be used as site directory for Shiny Server.
 
 # Run shiny app
 if (interactive()) {
   shiny::runApp(app)
 }
+# Note: If SCP installed in the isolated environment using renv, you need to add `renv::activate(project = "path/to/SCP_env")` to the app.R script.
 
 ####################################################################################################################
-# You can also deploy the app on the self-hosted shiny server(https://www.rstudio.com/products/shiny/shiny-server/)
-# or deploy the app on the website(https://www.shinyapps.io) for free:
+# You can deploy the app on the self-hosted shiny server(https://www.rstudio.com/products/shiny/shiny-server/).
+# Or deploy the app on the website(https://www.shinyapps.io) for free:
 
 ### step1: set the repository URL for Bioconductor packages and update them to the latest version
 # options(repos = BiocManager::repositories())

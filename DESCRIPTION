@@ -1,17 +1,17 @@
 Package: SCP
 Type: Package
 Title: Single Cell Pipeline
-Version: 0.2.0
+Version: 0.5.1
 Author: Hao Zhang
 Maintainer: Hao Zhang <haozhang@njmu.edu.cn>
-Description: The SCP package provides a comprehensive set of tools for single cell data processing and downstream analysis.
+Description: An end-to-end Single-Cell Pipeline designed to facilitate comprehensive analysis and exploration of single-cell data.
 License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: True
 LazyDataCompression: xz
 Depends:
-    R (>= 3.5.0)
-biocViews: SingleCell, Visualization
+    R (>= 4.1.0)
+biocViews: SingleCell, GeneExpression, SingleCellWorkflow, Visualization, ShinyApps
 Imports:
     AnnotationDbi,
     BiocParallel,
@@ -19,86 +19,91 @@ Imports:
     ComplexHeatmap (>= 2.13.0),
     circlize,
     clusterProfiler,
-    cowplot,
-    destiny,
-    dplyr,
+    data.table,
+    dplyr (>= 1.1.0),
     ggnewscale,
-    ggplot2,
+    ggplot2 (>= 3.4.0),
+    ggtree (>= 3.6.1),
     ggrepel,
-    ggupset,
-    ggwordcloud,
+    ggforce,
     GO.db,
     GOSemSim,
     grDevices,
     grid,
+    gridGraphics,
     gtable,
     gtools,
-    harmony,
-    HDF5Array,
+    graphics,
     igraph,
     intrinsicDimension,
-    Matrix,
-    MatrixGenerics,
+    Matrix (>= 1.5-3),
     methods,
     mgcv,
     org.Hs.eg.db,
     org.Mm.eg.db,
     parallelDist,
-    plotly,
+    patchwork,
     png,
     proxyC,
     R.cache,
     R.utils,
-    RcppML,
     Rcpp,
     reshape2,
     reticulate,
-    rhdf5,
     rlang,
-    rliger,
+    Signac,
     Seurat (>= 4.2.0),
     SeuratObject,
     scales,
-    sf,
-    shiny,
-    shinycssloaders,
     simplifyEnrichment (>= 1.5.2),
     slingshot,
-    stringr,
     uwot
-Remotes: 
-    davidsjoberg/ggsankey,
-    quadbiolab/simspec,
-    carmonalab/UCell,
+Remotes:
     jokergoo/ComplexHeatmap,
-    jokergoo/simplifyEnrichment
+    jokergoo/simplifyEnrichment,
+    YuLab-SMU/ggtree
 Suggests:
     AUCell,
+    concaveman,
     covr,
+    destiny,
     devtools,
-    ggVennDiagram,
+    future,
+    ggupset,
     ggsignif,
+    ggwordcloud,
+    ggVennDiagram,
+    glmGamPoi,
     hexbin,
     htmlwidgets,
     httr,
+    HDF5Array,
     MASS,
     Mfuzz,
     metR,
     monocle,
     NMF,
+    plotly,
+    promises,
     RcppParallel,
+    RcppML,
     renv,
+    rhdf5,
+    rliger,
     S4Vectors,
     scattermore,
     scds,
     scDblFinder,
     scmap,
+    shiny (>= 1.6.0),
     styler,
-    symphony,
+    sva,
     SingleR,
+    ragg,
     testthat (>= 3.0.0),
+    UCell,
     umap
 LinkingTo: Rcpp
-RoxygenNote: 7.2.1
+RoxygenNote: 7.2.3
 Config/testthat/edition: 3
-URL: https://github.com/zhanghao-njmu/SCP/, https://zhanghao-njmu.github.io/SCP/
+URL: https://github.com/zhanghao-njmu/SCP

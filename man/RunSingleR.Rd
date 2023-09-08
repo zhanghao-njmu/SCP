@@ -21,8 +21,7 @@ RunSingleR(
   prune = TRUE,
   BPPARAM = BiocParallel::bpparam(),
   query_assay = "RNA",
-  ref_assay = "RNA",
-  force = FALSE
+  ref_assay = "RNA"
 )
 }
 \arguments{
@@ -34,7 +33,7 @@ Annotate single cells using scmap.
 \examples{
 data("panc8_sub")
 # Simply convert genes from human to mouse and preprocess the data
-genenames <- make.unique(stringr::str_to_title(rownames(panc8_sub)))
+genenames <- make.unique(capitalize(rownames(panc8_sub), force_tolower = TRUE))
 panc8_sub <- RenameFeatures(panc8_sub, newnames = genenames)
 panc8_sub <- check_srtMerge(panc8_sub, batch = "tech")[["srtMerge"]]
 
@@ -45,12 +44,12 @@ pancreas_sub <- RunSingleR(
   srt_query = pancreas_sub, srt_ref = panc8_sub,
   query_group = "Standardclusters", ref_group = "celltype",
 )
-ClassDimPlot(pancreas_sub, group.by = "singler_annotation")
+CellDimPlot(pancreas_sub, group.by = "singler_annotation")
 
 pancreas_sub <- RunSingleR(
   srt_query = pancreas_sub, srt_ref = panc8_sub,
   query_group = NULL, ref_group = "celltype"
 )
-ClassDimPlot(pancreas_sub, group.by = "singler_annotation")
+CellDimPlot(pancreas_sub, group.by = "singler_annotation")
 
 }

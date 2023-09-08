@@ -15,12 +15,13 @@ Convert an anndata object to a seurat object using reticulate
 \examples{
 data("pancreas_sub")
 adata <- srt_to_adata(pancreas_sub)
-adata <- RunPAGA(adata = adata, group_by = "SubCellType", liner_reduction = "PCA", nonliner_reduction = "UMAP")
+adata <- RunPAGA(adata = adata, group_by = "SubCellType", linear_reduction = "PCA", nonlinear_reduction = "UMAP")
 srt <- adata_to_srt(adata)
 srt
 
 ### Or convert a h5ad file to Seurat object
 # library(reticulate)
+# check_Python("scanpy")
 # sc <- import("scanpy")
 # adata <- sc$read_h5ad("pancreas.h5ad")
 # srt <- adata_to_srt(adata)

@@ -5,16 +5,36 @@
 \title{Check and install python packages}
 \usage{
 check_Python(
-  pkgs,
-  pkg_names = NULL,
-  envname = "SCP",
-  pipy_mirror = "https://pypi.org/simple/",
-  force = FALSE
+  packages,
+  envname = NULL,
+  conda = "auto",
+  force = FALSE,
+  pip = TRUE,
+  pip_options = character(),
+  ...
 )
 }
 \arguments{
-\item{force}{}
+\item{packages}{A character vector, indicating package names which should be installed or removed. Use \code{⁠<package>==<version>}⁠ to request the installation of a specific version of a package.}
+
+\item{envname}{The name of a conda environment.}
+
+\item{conda}{The path to a conda executable. Use \code{"auto"} to allow SCP to automatically find an appropriate conda binary.}
+
+\item{force}{Whether to force package installation. Default is \code{FALSE}.}
+
+\item{pip}{Whether to use pip for package installation. By default, packages are installed from the active conda channels.}
+
+\item{pip_options}{An optional character vector of additional command line arguments to be passed to \code{pip}. Only relevant when \code{pip = TRUE}.}
+
+\item{...}{Other arguments passed to \code{\link[reticulate]{conda_install}}}
 }
 \description{
 Check and install python packages
+}
+\examples{
+check_Python(packages = c("bbknn", "scanorama"))
+\dontrun{
+check_Python(packages = "scvi-tools==0.20.0", envname = "SCP_env", pip_options = "-i https://pypi.tuna.tsinghua.edu.cn/simple")
+}
 }

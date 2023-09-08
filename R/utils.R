@@ -1,156 +1,149 @@
-#' Prepare SCP python virtual environment
+#' Prepare SCP python environment
 #'
-#' @param python Python path which is used to create the virtual environment.
-#' @param pipy_mirror pipy mirrors. Default is "https://pypi.org/simple/". Options can be "https://pypi.tuna.tsinghua.edu.cn/simple", "http://mirrors.aliyun.com/pypi/simple/", "https://pypi.mirrors.ustc.edu.cn/simple/", etc.
-#' @param remove_old Whether to remove the old SCP virtual environment.
+#' @param python_version The version of python to install. Default is \code{3.8}
+#' @param miniconda_repo  Repositories for miniconda. Default is \code{https://repo.anaconda.com/miniconda}
+#' @param force Whether to force a new environment to be created. If \code{TRUE}, the existing environment will be recreated. Default is \code{FALSE}
+#' @inheritParams check_Python
+#'
 #' @export
-PrepareVirtualEnv <- function(python = NULL, pipy_mirror = "https://pypi.org/simple/", remove_old = FALSE, install_version = "3.8.8") {
-  if (isTRUE(remove_old) || reticulate::virtualenv_exists("SCP")) {
-    if (isTRUE(reticulate:::is_python_initialized())) {
-      stop("Python is initialized in the current R session. You may run SCP::PrepareVirtualEnv() in a new R seesion to create SCP virtual environmenet. If you want to disable virtual environment initialization, you can set options(SCP_virtualenv_init = FALSE) before library(SCP).")
-    }
-  }
-  if (isTRUE(remove_old)) {
-    unlink(reticulate:::virtualenv_path("SCP"), recursive = TRUE)
-  }
-  if (!is.null(python) && file.exists(python)) {
-    pythons <- python
-  } else {
-    pythons <- unique(c(reticulate::virtualenv_python("SCP"), Sys.getenv("RETICULATE_PYTHON"), Sys.which("python3"), Sys.which("python")))
-  }
-  python_path <- NULL
-  sys_bit <- ifelse(grepl("64", Sys.info()["machine"]), "64bit", "32bit")
-  for (py in pythons) {
-    if (py != "" && !file.exists(py)) {
-      # packageStartupMessage(py, " is not a Python executable file.")
-      next
-    }
-    # py <- file.path(normalizePath(dirname(py)), basename(py))
-    py_version <- tryCatch(suppressWarnings(reticulate:::python_version(py)),
-      error = identity
-    )
-    if (inherits(py_version, "error") || length(py_version) == 0) {
-      next
-    }
-    if (py_version < numeric_version("3.7.0") || py_version >= numeric_version("3.10.0")) {
-      next
-    }
-    py_bit <- tryCatch(suppressWarnings(system2(command = py, args = " -c \"import platform; print(platform.architecture()[0])\"", stdout = TRUE)),
-      error = identity
-    )
-    if (inherits(py_bit, "error") || length(py_bit) == 0) {
-      next
-    }
-    if (identical(py_bit, sys_bit)) {
-      python_path <- py
-      # packageStartupMessage("python path: ", python_path)
-      break
+PrepareEnv <- function(conda = "auto", miniconda_repo = "https://repo.anaconda.com/miniconda",
+                       python_version = "3.8", envname = NULL, force = FALSE, ...) {
+  envname <- get_envname(envname)
+
+  if (!is.null(conda)) {
+    if (identical(conda, "auto")) {
+      conda <- find_conda()
     } else {
-      # packageStartupMessage("System architecture is ", sys_bit, " but ", py, " is ", py_bit)
-      next
+      options(reticulate.conda_binary = conda)
+      conda <- find_conda()
     }
   }
 
-  if (!reticulate::virtualenv_exists("SCP")) {
-    if (!is.null(python_path)) {
-      packageStartupMessage("Create SCP virtual environment. The path is: ", reticulate:::virtualenv_path("SCP"))
-      env_status <- tryCatch(reticulate::virtualenv_create(envname = "SCP", python = python_path, packages = FALSE), error = identity)
-      if (inherits(env_status, "error") || length(env_status) == 0) {
-        python_path <- NULL
-      }
-    }
-    if (is.null(python_path)) {
-      packageStartupMessage("Python(3.7-3.9) is unavailable. Install python(", install_version, ") automatically ...")
-      git_exist <- suppressWarnings(system("git", ignore.stdout = TRUE, ignore.stderr = TRUE))
-      if (git_exist == 127) {
-        stop("You need to install git first! (http://git-scm.com/download/) or install python manually.")
-      }
-      options(timeout = 120)
-      python_path <- reticulate::install_python(version = ifelse(sys_bit == "64bit", install_version, paste0(install_version, "-win32")))
-      packageStartupMessage("Create SCP virtual environment. The path is: ", reticulate:::virtualenv_path("SCP"))
-      reticulate::virtualenv_create(envname = "SCP", python = python_path, packages = FALSE)
-    }
-    if (!exist_pkg("pip", envname = "SCP")) {
-      temp <- tempfile()
-      download.file("https://bootstrap.pypa.io/get-pip.py", temp)
-      suppressWarnings(system2(command = reticulate::virtualenv_python("SCP"), args = temp, stdout = TRUE))
-      unlink(temp)
-    }
-    check_Python(
-      pkgs = c("pip", "setuptools", "wheel"),
-      envname = "SCP",
-      pipy_mirror = pipy_mirror,
-      force = TRUE
-    )
-  }
-  python_path <- reticulate::virtualenv_python("SCP")
-  Sys.setenv(RETICULATE_PYTHON = python_path)
-
-  version <- tryCatch(suppressWarnings(reticulate:::python_version(python_path)), error = identity)
-  if (inherits(version, "error")) {
-    stop("SCP need python 3.7-3.9! Please install python and reload the SCP!")
+  if (is.null(conda)) {
+    env <- FALSE
   } else {
-    if (version < numeric_version("3.7.0") || version >= numeric_version("3.10.0")) {
+    envs_dir <- reticulate:::conda_info(conda = conda)$envs_dirs[1]
+    env <- env_exist(conda = conda, envname = envname, envs_dir = envs_dir)
+    if (isTRUE(force) && isTRUE(env)) {
+      unlink(paste0(envs_dir, "/", envname), recursive = TRUE)
+      env <- FALSE
+    }
+  }
+
+  if (isTRUE(env)) {
+    python_path <- conda_python(conda = conda, envname = envname)
+    installed_python_version <- reticulate:::python_version(python_path)
+    if (installed_python_version < numeric_version("3.7.0") || installed_python_version >= numeric_version("3.10.0")) {
+      stop("The python version in the installed SCP environment does not match the requirements. You need to recreate the SCP environment.")
+    }
+  } else {
+    force <- TRUE
+    if (is.null(conda)) {
+      message("Conda not found. Installing miniconda...")
+      options(timeout = 360)
+      version <- "3"
+      info <- as.list(Sys.info())
+      if (info$sysname == "Darwin" && info$machine == "arm64") {
+        base <- "https://github.com/conda-forge/miniforge/releases/latest/download"
+        name <- "Miniforge3-MacOSX-arm64.sh"
+        return(file.path(base, name))
+      }
+      base <- miniconda_repo
+      info <- as.list(Sys.info())
+      arch <- reticulate:::miniconda_installer_arch(info)
+      version <- as.character(version)
+      name <- if (reticulate:::is_windows()) {
+        sprintf(
+          "Miniconda%s-latest-Windows-%s.exe", version,
+          arch
+        )
+      } else if (reticulate:::is_osx()) {
+        sprintf(
+          "Miniconda%s-latest-MacOSX-%s.sh", version,
+          arch
+        )
+      } else if (reticulate:::is_linux()) {
+        sprintf("Miniconda%s-latest-Linux-%s.sh", version, arch)
+      } else {
+        stopf("unsupported platform %s", shQuote(Sys.info()[["sysname"]]))
+      }
+      url <- file.path(base, name)
+      options(reticulate.miniconda.url = url)
+      if (!is.na(Sys.getenv("USER", unset = NA))) {
+        miniconda_path <- gsub(pattern = "\\$USER", replacement = Sys.getenv("USER"), reticulate::miniconda_path())
+      } else {
+        miniconda_path <- reticulate::miniconda_path()
+      }
+      unlink(miniconda_path, recursive = TRUE)
+      reticulate::install_miniconda(path = miniconda_path, force = TRUE, update = FALSE)
+      conda <- reticulate:::miniconda_conda(miniconda_path)
+      envs_dir <- reticulate:::conda_info(conda = conda)$envs_dirs[1]
+    }
+    if (python_version < numeric_version("3.7.0") || python_version >= numeric_version("3.10.0")) {
+      stop("SCP currently only support python version 3.7-3.9!")
+    }
+    python_path <- reticulate::conda_create(conda = conda, envname = envname, python_version = python_version)
+    env_path <- paste0(envs_dir, "/", envname)
+    env <- file.exists(env_path)
+    if (isFALSE(env)) {
+      print(reticulate:::conda_info(conda = conda))
+      print(reticulate::conda_list(conda = conda))
       stop(
-        "SCP currently only support python version 3.7-3.9! The version of Python currently is ", version,
-        "!\nPython related functions may not work. Please install the right version of python and reload the SCP!"
+        "Unable to find SCP environment under the expected path: ", env_path, "\n",
+        "conda: ", conda, "\n",
+        "SCP python: ", python_path, "\n"
       )
-    } else {
-      reticulate::use_virtualenv("SCP", required = TRUE)
-
-      if (!exist_pkg("pip", envname = "SCP")) {
-        temp <- tempfile()
-        download.file("https://bootstrap.pypa.io/get-pip.py", temp)
-        suppressWarnings(system2(command = reticulate::virtualenv_python("SCP"), args = temp, stdout = TRUE))
-        unlink(temp)
-      }
-      # reticulate::py_install("numpy==1.23.2", pip_options = "--no-binary='numpy'", ignore_installed = TRUE, envname = "SCP")
-      # check_Python(pkgs = c("numba==0.53.1", "python-igraph==0.9.9", "pandas", "matplotlib", "versioned-hdf5", "scanpy", "scvelo", "palantir"), envname = "SCP")
-      check_Python(
-        pkgs = c(
-          "numpy==1.21.6", "numba==0.55.2", "python-igraph==0.10.2",
-          "pandas", "matplotlib", "versioned-hdf5", "scanpy", "scvelo", "palantir"
-        ),
-        envname = "SCP",
-        pipy_mirror = pipy_mirror
-      )
-
-      pyinfo <- utils::capture.output(reticulate::py_config())
-      pyinfo_mesg <- c(
-        "======================== SCP python config ========================",
-        pyinfo,
-        "==================================================================="
-      )
-      invisible(lapply(pyinfo_mesg, packageStartupMessage))
-      invisible(run_Python(command = "import matplotlib", envir = .GlobalEnv))
-      if (!interactive()) {
-        invisible(run_Python(command = "matplotlib.use('pdf')", envir = .GlobalEnv))
-      }
-      invisible(run_Python(command = "import matplotlib.pyplot as plt", envir = .GlobalEnv))
-      invisible(run_Python(command = "import scanpy", envir = .GlobalEnv))
     }
   }
+
+  packages <- c(
+    "numpy==1.21.6", "numba==0.55.2", "scikit-learn==1.1.2", "pandas==1.3.5", "python-igraph==0.10.2", "matplotlib==3.6.3",
+    "palantir==1.0.1", "wot==1.0.8.post2",
+    "scipy", "versioned-hdf5", "leidenalg", "scanpy", "scvelo"
+  )
+  check_Python(packages = packages, envname = envname, conda = conda, force = force, ...)
+
+  Sys.unsetenv("RETICULATE_PYTHON")
+  python_path <- conda_python(conda = conda, envname = envname)
+  reticulate::use_python(python_path, required = TRUE)
+
+  pyinfo <- utils::capture.output(reticulate::py_config())
+  pyinfo_mesg <- c(
+    "====================== SCP conda environment ======================",
+    paste0("conda: ", conda),
+    paste0("environment: ", paste0(envs_dir, "/", get_envname())),
+    "======================== SCP python config ========================",
+    pyinfo,
+    "==================================================================="
+  )
+  invisible(lapply(pyinfo_mesg, packageStartupMessage))
+  invisible(run_Python(command = "import matplotlib", envir = .GlobalEnv))
+  if (!interactive()) {
+    invisible(run_Python(command = "matplotlib.use('pdf')", envir = .GlobalEnv))
+  }
+  invisible(run_Python(command = "import matplotlib.pyplot as plt", envir = .GlobalEnv))
+  invisible(run_Python(command = "import scanpy", envir = .GlobalEnv))
 }
 
 #' Check and install R packages
 #'
-#' @param pkgs
-#'
-#' @param pkg_names
-#' @param install_methods
-#' @param lib
-#' @param force
+#' @param packages Package to be installed. Package source can be CRAN, Bioconductor or Github, e.g. scmap, davidsjoberg/ggsankey.
+#' @param package_names The name of the package that corresponds to the \code{packages} parameter, used to check if the package is already installed.
+#' By default, the package name is extracted according to the \code{packages} parameter.
+#' @param install_methods Functions used to install R packages.
+#' @param lib  The location of the library directories where to install the packages.
+#' @param force Whether to force the installation of packages. Default is \code{FALSE}.
 #'
 #' @importFrom rlang %||%
 #' @importFrom utils packageVersion
 #' @export
-check_R <- function(pkgs, pkg_names = NULL, install_methods = c("BiocManager::install", "install.packages", "devtools::install_github"), lib = .libPaths()[1], force = FALSE) {
-  if (length(pkg_names) != 0 && length(pkg_names) != length(pkgs)) {
-    stop("pkg_names must be NULL or a vector of the same length with pkgs")
+check_R <- function(packages, package_names = NULL, install_methods = c("BiocManager::install", "install.packages", "devtools::install_github"), lib = .libPaths()[1], force = FALSE) {
+  if (length(package_names) != 0 && length(package_names) != length(packages)) {
+    stop("package_names must be NULL or a vector of the same length with packages")
   }
   status_list <- list()
-  for (n in seq_along(pkgs)) {
-    pkg <- pkgs[n]
+  for (n in seq_along(packages)) {
+    pkg <- packages[n]
     pkg_info <- pkg
     if (!grepl("/", pkg_info)) {
       pkg_info <- paste0("/", pkg_info)
@@ -160,39 +153,47 @@ check_R <- function(pkgs, pkg_names = NULL, install_methods = c("BiocManager::in
     }
     git <- grep("/", sub(pattern = "(.*/)(.*)(@.*)", replacement = "\\1", x = pkg_info), value = TRUE)
     git <- gsub("/", "", git)
-    pkg_name <- pkg_names[n] %||% sub(pattern = "(.*/)(.*)(@.*)", replacement = "\\2", x = pkg_info)
+    pkg_name <- package_names[n] %||% sub(pattern = "(.*/)(.*)(@.*)", replacement = "\\2", x = pkg_info)
     version <- grep("@", sub(pattern = "(.*/)(.*)(@.*)", replacement = "\\3", x = pkg_info), value = TRUE)
     version <- gsub("@", "", version)
     if (version != "") {
-      force <- isTRUE(packageVersion(pkg_name) < package_version(version))
+      force_update <- isTRUE(packageVersion(pkg_name) < package_version(version)) || isTRUE(force)
+    } else {
+      force_update <- isTRUE(force)
     }
-    if (!suppressPackageStartupMessages(requireNamespace(pkg_name, quietly = TRUE)) || isTRUE(force)) {
-      message("Install package: '", pkg_name, "' ...")
+    if (!suppressPackageStartupMessages(requireNamespace(pkg_name, quietly = TRUE)) || isTRUE(force_update)) {
+      message("Install package: \"", pkg_name, "\" ...")
       status_list[[pkg]] <- FALSE
       i <- 1
-      while (!isTRUE(status_list[[pkg]])) {
+      while (isFALSE(status_list[[pkg]])) {
         tryCatch(expr = {
           if (grepl("BiocManager", install_methods[i])) {
-            if (!require("BiocManager", quietly = TRUE)) {
+            if (!requireNamespace("BiocManager", quietly = TRUE)) {
               install.packages("BiocManager", lib = lib)
             }
-            eval(str2lang(paste0(install_methods[i], "('", pkg, "', lib='", lib, "', update = FALSE, upgrade = 'never', ask = FALSE, force = TRUE)")))
+            eval(str2lang(paste0(install_methods[i], "(\"", pkg, "\", lib=\"", lib, "\", update = FALSE, upgrade = \"never\", ask = FALSE, force = TRUE)")))
           } else if (grepl("devtools", install_methods[i])) {
-            if (!require("devtools", quietly = TRUE)) {
+            if (!requireNamespace("devtools", quietly = TRUE)) {
               install.packages("devtools", lib = lib)
             }
-            if (!require("withr", quietly = TRUE)) {
+            if (!requireNamespace("withr", quietly = TRUE)) {
               install.packages("withr", lib = lib)
             }
-            eval(str2lang(paste0("withr::with_libpaths(new = '", lib, "', ", install_methods[i], "('", pkg, "', upgrade = 'never', force = TRUE))")))
+            eval(str2lang(paste0("withr::with_libpaths(new = \"", lib, "\", ", install_methods[i], "(\"", pkg, "\", upgrade = \"never\", force = TRUE))")))
           } else {
-            eval(str2lang(paste0(install_methods[i], "('", pkg, "', lib='", lib, "', force = TRUE)")))
+            eval(str2lang(paste0(install_methods[i], "(\"", pkg, "\", lib=\"", lib, "\", force = TRUE)")))
           }
         }, error = function(e) {
           status_list[[pkg]] <- FALSE
         })
-        if (requireNamespace(pkg_name, quietly = TRUE)) {
-          status_list[[pkg]] <- TRUE
+        if (version == "") {
+          status_list[[pkg]] <- requireNamespace(pkg_name, quietly = TRUE)
+        } else {
+          if (requireNamespace(pkg_name, quietly = TRUE)) {
+            status_list[[pkg]] <- packageVersion(pkg_name) >= package_version(version)
+          } else {
+            status_list[[pkg]] <- FALSE
+          }
         }
         i <- i + 1
         if (i > length(install_methods)) {
@@ -210,104 +211,264 @@ check_R <- function(pkgs, pkg_names = NULL, install_methods = c("BiocManager::in
   }
 }
 
+#' Show all the python packages in the environment
+#'
+#' @inheritParams check_Python
 #' @export
-exist_pkg <- function(pkg, envname = "SCP") {
-  pkg_info <- strsplit(pkg, split = "==")[[1]]
-  pkg_name <- pkg_info[1]
-  pkg_version <- pkg_info[2]
-  pkg_exist <- suppressWarnings(system2(command = reticulate::virtualenv_python(envname), args = paste0("-m pip show ", pkg_name), stdout = TRUE))
-  if (length(pkg_exist) == 0 || isTRUE(attr(pkg_exist, "status") == 1)) {
-    return(FALSE)
+installed_Python_pkgs <- function(envname = NULL, conda = "auto") {
+  envname <- get_envname(envname)
+  if (identical(conda, "auto")) {
+    conda <- find_conda()
   } else {
-    if (!is.na(pkg_version)) {
-      pkg_installed_version <- strsplit(pkg_exist, split = "Version: ")[[2]][2]
-      if (pkg_installed_version == pkg_version) {
-        return(TRUE)
+    options(reticulate.conda_binary = conda)
+    conda <- find_conda()
+  }
+  env <- env_exist(conda = conda, envname = envname)
+  if (isFALSE(env)) {
+    stop("Can not find the conda environment: ", envname)
+  }
+  all_installed <- reticulate:::conda_list_packages(conda = conda, envname = envname, no_pip = FALSE)
+  return(all_installed)
+}
+
+#' Check if the python package exists in the environment
+#'
+#' @inheritParams check_Python
+#' @export
+exist_Python_pkgs <- function(packages, envname = NULL, conda = "auto") {
+  envname <- get_envname(envname)
+  if (identical(conda, "auto")) {
+    conda <- find_conda()
+  } else {
+    options(reticulate.conda_binary = conda)
+    conda <- find_conda()
+  }
+  env <- env_exist(conda = conda, envname = envname)
+  if (isFALSE(env)) {
+    stop("Can not find the conda environment: ", envname)
+  }
+  all_installed <- installed_Python_pkgs(envname = envname, conda = conda)
+  packages_installed <- NULL
+  for (pkg in packages) {
+    pkg_info <- strsplit(pkg, split = "==")[[1]]
+    pkg_name <- pkg_info[1]
+    pkg_version <- pkg_info[2]
+    if (pkg_name %in% all_installed$package) {
+      if (!is.na(pkg_version)) {
+        packages_installed[pkg] <- all_installed$version[all_installed$package == pkg_name] == pkg_version
       } else {
-        return(FALSE)
+        packages_installed[pkg] <- TRUE
       }
     } else {
-      return(TRUE)
+      packages_installed[pkg] <- FALSE
     }
   }
+  return(packages_installed)
 }
 
 #' Check and install python packages
 #'
-#' @param pkgs
-#' @param pkg_names
-#' @param envname
-#' @param force
+#' @param packages A character vector, indicating package names which should be installed or removed. Use \code{⁠<package>==<version>}⁠ to request the installation of a specific version of a package.
+#' @param envname The name of a conda environment.
+#' @param conda The path to a conda executable. Use \code{"auto"} to allow SCP to automatically find an appropriate conda binary.
+#' @param force Whether to force package installation. Default is \code{FALSE}.
+#' @param pip Whether to use pip for package installation. By default, packages are installed from the active conda channels.
+#' @param pip_options An optional character vector of additional command line arguments to be passed to \code{pip}. Only relevant when \code{pip = TRUE}.
+#' @param ... Other arguments passed to \code{\link[reticulate]{conda_install}}
 #'
-#' @importFrom rlang %||%
+#' @examples
+#' check_Python(packages = c("bbknn", "scanorama"))
+#' \dontrun{
+#' check_Python(packages = "scvi-tools==0.20.0", envname = "SCP_env", pip_options = "-i https://pypi.tuna.tsinghua.edu.cn/simple")
+#' }
 #' @export
-check_Python <- function(pkgs, pkg_names = NULL, envname = "SCP", pipy_mirror = "https://pypi.org/simple/", force = FALSE) {
-  if (!reticulate::virtualenv_exists("SCP")) {
-    warning("SCP python virtual environment do not exist. Create it with the PrepareVirtualEnv function...", immediate. = TRUE)
-    PrepareVirtualEnv(pipy_mirror = pipy_mirror)
+check_Python <- function(packages, envname = NULL, conda = "auto", force = FALSE, pip = TRUE, pip_options = character(), ...) {
+  envname <- get_envname(envname)
+  if (identical(conda, "auto")) {
+    conda <- find_conda()
+  } else {
+    options(reticulate.conda_binary = conda)
+    conda <- find_conda()
   }
-  if (length(pkg_names) != 0 && length(pkg_names) != length(pkgs)) {
-    stop("pkg_names must be NULL or a vector of the same length with pkgs")
+  env <- env_exist(conda = conda, envname = envname)
+  if (isFALSE(env)) {
+    warning(envname, " python environment does not exist. Create it with the PrepareEnv function...", immediate. = TRUE)
+    PrepareEnv()
   }
-  status_list <- list()
-  for (n in seq_along(pkgs)) {
-    pkg <- pkgs[n]
-    pkg_name <- pkg_names[n] %||% gsub("(.*)(\\[.*\\])", "\\1", pkg)
-    exist <- exist_pkg(pkg_name, envname)
-    if (!isTRUE(exist) || isTRUE(force)) {
-      message("Try to install '", pkg, "' ...")
-      tryCatch(expr = {
-        reticulate::py_install(pkg, envname = envname, pip_options = paste("-i", pipy_mirror))
-      }, error = function(e) {
-        warning("Something went wrong when installing the package ", pkg)
-      })
+  if (isTRUE(force)) {
+    pkg_installed <- setNames(rep(FALSE, length(packages)), packages)
+    pip_options <- c(pip_options, "--force-reinstall")
+  } else {
+    pkg_installed <- exist_Python_pkgs(packages = packages, envname = envname, conda = conda)
+  }
+  if (sum(!pkg_installed) > 0) {
+    pkgs_to_install <- names(pkg_installed)[!pkg_installed]
+    message("Try to install ", paste0(pkgs_to_install, collapse = ","), " ...")
+    if (isTRUE(pip)) {
+      pkgs_to_install <- c("pip", pkgs_to_install)
     }
+    tryCatch(expr = {
+      conda_install(conda = conda, packages = pkgs_to_install, envname = envname, pip = pip, pip_options = pip_options, ...)
+    }, error = identity)
   }
-  for (n in seq_along(pkgs)) {
-    pkg <- pkgs[n]
-    pkg_name <- pkg_names[n] %||% gsub("(.*)(\\[.*\\])", "\\1", pkg)
-    exist <- exist_pkg(pkg_name, envname)
-    if (isTRUE(exist)) {
-      status_list[[pkg_name]] <- TRUE
+
+  pkg_installed <- exist_Python_pkgs(packages = packages, envname = envname, conda = conda)
+  if (sum(!pkg_installed) > 0) {
+    stop("Failed to install the package(s): ", paste0(names(pkg_installed)[!pkg_installed], collapse = ","), " into the environment \"", envname, "\". Please install manually.")
+  } else {
+    return(invisible(NULL))
+  }
+}
+
+#' Check if a conda environment exists
+#'
+#' @param envs_dir Directories in which conda environments are located.
+#' @inheritParams check_Python
+env_exist <- function(conda = "auto", envname = NULL, envs_dir = NULL) {
+  envname <- get_envname(envname)
+  if (identical(conda, "auto")) {
+    conda <- find_conda()
+  } else {
+    options(reticulate.conda_binary = conda)
+    conda <- find_conda()
+  }
+  if (!is.null(conda)) {
+    if (is.null(envs_dir)) {
+      envs_dir <- reticulate:::conda_info(conda = conda)$envs_dirs[1]
+    }
+    exist <- file.exists(paste0(envs_dir, "/", envname))
+  } else {
+    exist <- FALSE
+  }
+  return(exist)
+}
+
+get_envname <- function(envname = NULL) {
+  if (is.character(envname)) {
+    envname <- envname
+  } else {
+    envname <- getOption("SCP_env_name", default = "SCP_env")
+  }
+  return(envname)
+}
+
+#' Find an appropriate conda binary
+#'
+#' @export
+find_conda <- function() {
+  conda <- tryCatch(reticulate::conda_binary(conda = "auto"), error = identity)
+  conda_exist <- !inherits(conda, "error")
+  if (isFALSE(conda_exist)) {
+    if (!is.na(Sys.getenv("USER", unset = NA))) {
+      miniconda_path <- gsub(pattern = "\\$USER", replacement = Sys.getenv("USER"), reticulate::miniconda_path())
     } else {
-      status_list[[pkg_name]] <- FALSE
+      miniconda_path <- reticulate::miniconda_path()
+    }
+    conda_exist <- reticulate:::miniconda_exists(miniconda_path) && reticulate:::miniconda_test(miniconda_path)
+    if (isTRUE(conda_exist)) {
+      conda <- reticulate:::miniconda_conda(miniconda_path)
+    } else {
+      conda <- NULL
     }
   }
-  out <- sapply(status_list, isTRUE)
-  out <- out[!out]
-  if (length(out) > 0) {
-    stop("Failed to install the module(s): ", paste0(names(out), collapse = ","), " into the environment '", envname, "'. Please install manually.")
-  }
+  return(conda)
 }
 
+#' Installs a list of packages into a specified conda environment
+#'
+#' @inheritParams reticulate::conda_install
 #' @importFrom rlang %||%
-#' @export
-list_palette <- function(palette_list, names = NULL) {
-  if (is.null(names)) {
-    names <- names %||% names(palette_list) %||% seq_along(palette_list)
+conda_install <- function(envname = NULL, packages, forge = TRUE, channel = character(),
+                          pip = FALSE, pip_options = character(), pip_ignore_installed = FALSE,
+                          conda = "auto", python_version = NULL, ...) {
+  envname <- get_envname(envname)
+  reticulate:::check_forbidden_install("Python packages")
+  if (missing(packages)) {
+    if (!is.null(envname)) {
+      fmt <- paste("argument \"packages\" is missing, with no default",
+        "- did you mean 'conda_install(<envname>, %1$s)'?",
+        "- use 'py_install(%1$s)' to install into the active Python environment",
+        sep = "\n"
+      )
+      stopf(fmt, deparse1(substitute(envname)), call. = FALSE)
+    } else {
+      packages
+    }
   }
-  par(mar = c(0, 0, 0, 0) + 0.1)
-
-  plot(0, 0,
-    type = "n", axes = FALSE, bty = "n", xlab = "", ylab = "",
-    xlim = c(0, 1), ylim = c(-length(palette_list) - 1, -1)
-  )
-
-  for (i in seq_len(length(palette_list))) {
-    colors_len <- length(palette_list[[i]])
-    breaks <- seq(from = 0, to = 1, length = colors_len + 1)
-
-
-    text(0, -i, names[i], pos = 4)
-    rect(
-      xleft = breaks[1:colors_len], xright = breaks[1:colors_len + 1],
-      ytop = -0.15 - i, ybottom = -0.8 - i,
-      col = palette_list[[i]], border = NA
+  conda <- reticulate::conda_binary(conda)
+  envname <- reticulate:::condaenv_resolve(envname)
+  python_package <- if (is.null(python_version)) {
+    NULL
+  } else if (grepl("[><=]", python_version)) {
+    paste0("python", python_version)
+  } else {
+    sprintf("python=%s", python_version)
+  }
+  python <- tryCatch(conda_python(envname = envname, conda = conda), error = identity)
+  if (inherits(python, "error") || !file.exists(python)) {
+    reticulate::conda_create(envname = envname, packages = python_package %||% "python", forge = forge, channel = channel, conda = conda)
+    python <- conda_python(envname = envname, conda = conda)
+  }
+  if (!is.null(python_version)) {
+    args <- reticulate:::conda_args("install", envname, python_package)
+    status <- reticulate:::system2t(conda, shQuote(args))
+    if (status != 0L) {
+      fmt <- "installation of '%s' into environment '%s' failed [error code %i]"
+      msg <- sprintf(fmt, python_package, envname, status)
+      stop(msg, call. = FALSE)
+    }
+  }
+  if (pip) {
+    # target_dir <- system2(command = python, args = c("-c \"import site; print(site.getsitepackages()[0])\""), stdout = TRUE)
+    # pip_options <- c(pip_options, paste("--target", target_dir))
+    result <- reticulate:::pip_install(
+      python = python, packages = packages,
+      pip_options = pip_options, ignore_installed = pip_ignore_installed,
+      conda = conda, envname = envname
     )
+    return(result)
   }
+  args <- reticulate:::conda_args("install", envname)
+  channels <- if (length(channel)) {
+    channel
+  } else if (forge) {
+    "conda-forge"
+  }
+  for (ch in channels) args <- c(args, "-c", ch)
+  args <- c(args, python_package, packages)
+  result <- reticulate:::system2t(conda, shQuote(args))
+  if (result != 0L) {
+    fmt <- "one or more Python packages failed to install [error code %i]"
+    stopf(fmt, result)
+  }
+  invisible(packages)
 }
 
-#' @export
+#' Find the path to Python associated with a conda environment
+#'
+#' @inheritParams reticulate::conda_python
+conda_python <- function(envname = NULL, conda = "auto", all = FALSE) {
+  envname <- get_envname(envname)
+  envname <- reticulate:::condaenv_resolve(envname)
+  if (grepl("[/\\\\]", envname)) {
+    suffix <- if (reticulate:::is_windows()) "python.exe" else "bin/python"
+    path <- file.path(envname, suffix)
+    if (file.exists(path)) {
+      return(path)
+    }
+    fmt <- "no conda environment exists at path '%s'"
+    stop(sprintf(fmt, envname))
+  }
+  conda_envs <- reticulate::conda_list(conda = conda)
+  conda_envs <- conda_envs[grep(normalizePath(reticulate:::conda_info(conda = conda)$envs_dirs[1]), x = normalizePath(conda_envs$python), fixed = TRUE), , drop = FALSE]
+  env <- conda_envs[conda_envs$name == envname, , drop = FALSE]
+  if (nrow(env) == 0) {
+    stop("conda environment \"", envname, "\" not found")
+  }
+  python <- if (all) env$python else env$python[[1L]]
+  return(normalizePath(as.character(python)))
+}
+
 run_Python <- function(command, envir = .GlobalEnv) {
   tryCatch(expr = {
     eval(
@@ -316,24 +477,66 @@ run_Python <- function(command, envir = .GlobalEnv) {
       },
       envir = envir
     )
-  }, error = function(e) {
-    message(e)
-    stop("Failed to run '", command, "'. Please check manually.")
+  }, error = function(error) {
+    message(error)
+    stop("Failed to run \"", command, "\". Please check manually.")
   })
 }
 
+#' @export
+try_get <- function(expr, max_tries = 5, error_message = "", retry_message = "Retrying...") {
+  out <- simpleError("start")
+  ntry <- 0
+  while (inherits(out, "error")) {
+    ntry <- ntry + 1
+    # print(paste0("ntry: ", ntry, collapse = ""))
+    out <- tryCatch(
+      expr = eval.parent(substitute(expr)),
+      error = function(error) {
+        message(error)
+        message("")
+        message(error_message)
+        Sys.sleep(1)
+        return(error)
+      }
+    )
+    if (inherits(out, "error") && ntry >= max_tries) {
+      stop(out)
+    } else {
+      if (!inherits(out, "error")) {
+        break
+      } else {
+        message(retry_message)
+      }
+    }
+  }
+  return(out)
+}
+
+#' Download File from the Internet
+#'
+#' @inheritParams utils::download.file
+#' @param methods Methods to be used for downloading files. The default is to try different download methods in turn until the download is successfully completed.
+#' @param max_tries Number of tries for each download method.
+#' @param ... Other arguments passed to \code{\link[utils]{download.file}}
+#'
 #' @importFrom utils download.file
-kegg_get <- function(url) {
-  temp <- tempfile()
+#' @export
+download <- function(url, destfile, methods = c("auto", "wget", "libcurl", "curl", "wininet", "internal"), quiet = FALSE, ..., max_tries = 2) {
+  if (missing(url) || missing(destfile)) {
+    stop("'url' and 'destfile' must be both provided.")
+  }
   ntry <- 0
   status <- NULL
   while (is.null(status)) {
-    methods <- c("auto", "wget", "libcurl", "curl", "internal", "wininet")
     for (method in methods) {
       status <- tryCatch(expr = {
-        download.file(url, destfile = temp, method = method, quiet = TRUE)
-      }, error = function(e) {
-        message("Get errors when connecting with KEGG...\nRetrying...")
+        suppressWarnings(download.file(url, destfile = destfile, method = method, quiet = quiet, ...))
+        status <- 1
+      }, error = function(error) {
+        message(error)
+        message("Cannot download from the url: ", url)
+        message("Failed to download using \"", method, "\". Retry...\n")
         Sys.sleep(1)
         return(NULL)
       })
@@ -342,23 +545,27 @@ kegg_get <- function(url) {
       }
     }
     ntry <- ntry + 1
-    if (is.null(status) && ntry >= 5) {
-      stop("Stop connecting...")
+    if (is.null(status) && ntry >= max_tries) {
+      stop("Download failed.")
     }
   }
-  content <- readLines(temp) %>%
-    strsplit(., "\t") %>%
-    do.call("rbind", .)
-  res <- data.frame(from = content[, 1], to = content[, 2])
-  unlink(temp)
-  return(res)
+  return(invisible(NULL))
 }
 
-rescale <- function(x, to = c(0, 1), from = range(x, na.rm = TRUE, finite = TRUE)) {
+kegg_get <- function(url) {
+  temp <- tempfile()
+  on.exit(unlink(temp))
+  download(url = url, destfile = temp)
+  content <- as.data.frame(do.call(rbind, strsplit(readLines(temp), split = "\t")))
+  return(content)
+}
+
+rescale <- function(x, from = range(x, na.rm = TRUE, finite = TRUE), to = c(0, 1)) {
   if (zero_range(from) || zero_range(to)) {
     return(ifelse(is.na(x), NA, mean(to)))
+  } else {
+    return((x - from[1]) / diff(from) * diff(to) + to[1])
   }
-  (x - from[1]) / diff(from) * diff(to) + to[1]
 }
 
 zero_range <- function(x, tol = 1000 * .Machine$double.eps) {
@@ -390,10 +597,16 @@ col2hex <- function(cname) {
   rgb(red = colMat[1, ] / 255, green = colMat[2, ] / 255, blue = colMat[3, ] / 255)
 }
 
-#' @export
+#' Invoke a function with a list of arguments
+#' @param .fn A function, or function name as a string.
+#' @param .args A list of arguments.
+#' @param Other arguments passed to the function.
+#' @param .env Environment in which to evaluate the call. This will be most useful if .fn is a string, or the function has side-effects.
 #' @importFrom rlang caller_env is_null is_scalar_character is_character is_function set_names env env_get env_bind syms call2
-invoke <- function(.fn, .args = list(), ..., .env = caller_env(), .bury = c(".fn", "")) {
+#' @export
+invoke <- function(.fn, .args = list(), ..., .env = caller_env()) {
   args <- c(.args, list(...))
+  .bury <- c(".fn", "")
   if (is_null(.bury) || !length(args)) {
     if (is_scalar_character(.fn)) {
       .fn <- env_get(.env, .fn, inherit = TRUE)
@@ -419,6 +632,10 @@ invoke <- function(.fn, .args = list(), ..., .env = caller_env(), .bury = c(".fn
   .External2(rlang:::ffi_eval, call, .env)
 }
 
+#' Implement similar functions to the \code{unnest} function in the tidyr package
+#' @param data A data frame.
+#' @param cols Columns to unnest.
+#' @param keep_empty By default, you get one row of output for each element of the list your unchopping/unnesting. This means that if there's a size-0 element (like \code{NULL} or an empty data frame), that entire row will be dropped from the output. If you want to preserve all rows, use \code{keep_empty = TRUE} to replace size-0 elements with a single row of missing values.
 #' @export
 unnest <- function(data, cols, keep_empty = FALSE) {
   if (nrow(data) == 0 || length(cols) == 0) {
@@ -439,18 +656,124 @@ unnest <- function(data, cols, keep_empty = FALSE) {
   return(data)
 }
 
+#' Attempts to turn a dgCMatrix into a dense matrix
+#' @param matrix A dgCMatrix
 #' @useDynLib SCP
 #' @export
-as_matrix <- function(mat) {
-  row_pos <- mat@i
-  col_pos <- findInterval(seq(mat@x) - 1, mat@p[-1])
+as_matrix <- function(matrix) {
+  if (!inherits(matrix, "dgCMatrix")) {
+    stop("matrix is not a dgCMatrix.")
+  }
+  row_pos <- matrix@i
+  col_pos <- findInterval(seq(matrix@x) - 1, matrix@p[-1])
 
-  tmp <- asMatrix(
-    rp = row_pos, cp = col_pos, z = mat@x,
-    nrows = mat@Dim[1], ncols = mat@Dim[2]
+  out <- asMatrix(
+    rp = row_pos, cp = col_pos, z = matrix@x,
+    nrows = matrix@Dim[1], ncols = matrix@Dim[2]
   )
 
-  row.names(tmp) <- mat@Dimnames[[1]]
-  colnames(tmp) <- mat@Dimnames[[2]]
-  return(tmp)
+  row.names(out) <- matrix@Dimnames[[1]]
+  colnames(out) <- matrix@Dimnames[[2]]
+  return(out)
+}
+
+#' Capitalizes the characters
+#' Making the first letter uppercase
+#'
+#' @examples
+#' x <- c("dna methylation", "rRNA processing", "post-Transcriptional gene silencing")
+#' capitalize(x)
+#' @param x A vector of character strings to be capitalized.
+#' @param force_tolower Whether to force the remaining letters to be lowercase.
+#' @export
+capitalize <- function(x, force_tolower = FALSE) {
+  if (is.null(x)) {
+    return(NULL)
+  }
+  if (inherits(x, "factor")) {
+    x <- as.character(x)
+  }
+  if (!inherits(x, "character")) {
+    stop("x must be the type of character.")
+  }
+  if (isTRUE(force_tolower)) {
+    x <- paste(toupper(substr(x, 1, 1)), tolower(substr(x, 2, nchar(x))), sep = "")
+  } else {
+    first_word <- sapply(strsplit(x, "\\s|-"), function(s) s[1])
+    index <- which(first_word == tolower(first_word))
+    x[index] <- paste(toupper(substr(x[index], 1, 1)), substr(x[index], 2, nchar(x[index])), sep = "")
+  }
+  return(x)
+}
+
+str_wrap <- function(x, width = 80) {
+  if (is.null(x)) {
+    return(NULL)
+  }
+  if (inherits(x, "factor")) {
+    x <- as.character(x)
+  }
+  x_wrap <- unlist(lapply(x, function(i) paste0(strwrap(i, width = width), collapse = "\n")))
+  return(x_wrap)
+}
+
+#' Split a vector into the chunks
+#'
+#' @param x A vector.
+#' @param nchunks Number of chunks.
+#' @examples
+#' x <- 1:10
+#' names(x) <- letters[1:10]
+#' tochunks(x, nchunks = 3)
+#' @export
+tochunks <- function(x, nchunks) {
+  split(x, cut(seq_along(x), nchunks, labels = FALSE))
+}
+
+#' Generate a iterator along chunks of a vector
+#' @param x A vector.
+#' @param nchunks Number of chunks.
+#' @examples
+#' \dontrun{
+#' library(BiocParallel)
+#' x <- 1:100
+#' BPPARAM <- bpparam()
+#' bpprogressbar(BPPARAM) <- TRUE
+#' bpworkers(BPPARAM) <- 10
+#' slow_fun <- function(x) {
+#'   out <- NULL
+#'   for (i in seq_along(x)) {
+#'     Sys.sleep(0.5)
+#'     out[[i]] <- x[[i]] + 3
+#'   }
+#'   return(out)
+#' }
+#' system.time({
+#'   res0 <- lapply(x, FUN = slow_fun)
+#' })
+#' unlist(res0, recursive = FALSE, use.names = FALSE)[71:73]
+#' system.time({
+#'   res1 <- bplapply(x, FUN = slow_fun, BPPARAM = BPPARAM)
+#' })
+#' unlist(res1, recursive = FALSE, use.names = FALSE)[71:73]
+#' system.time({
+#'   res2 <- bplapply(tochunks(x, nchunks = bpworkers(BPPARAM)), FUN = slow_fun, BPPARAM = BPPARAM)
+#' })
+#' unlist(res2, recursive = FALSE, use.names = FALSE)[71:73]
+#' system.time({
+#'   res3 <- bpiterate(ITER = iterchunks(x, nchunks = bpworkers(BPPARAM)), FUN = slow_fun, BPPARAM = BPPARAM)
+#' })
+#' unlist(res3, recursive = FALSE, use.names = FALSE)[71:73]
+#' }
+#' @export
+iterchunks <- function(x, nchunks) {
+  chunks <- tochunks(x, nchunks)
+  i <- 0L
+  function() {
+    if (i >= length(chunks)) {
+      return(NULL)
+    }
+    i <<- i + 1L
+    x[chunks[[i]]]
+  }
 }

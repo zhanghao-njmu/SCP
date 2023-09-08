@@ -10,17 +10,17 @@ RunDynamicEnrichment(
   score_method = "AUCell",
   ncore = 1,
   slot = "data",
-  assay = "RNA",
+  assay = NULL,
   min_expcells = 20,
   r.sq = 0.2,
   dev.expl = 0.2,
   padjust = 0.05,
-  geneID = NULL,
   IDtype = "symbol",
   species = "Homo_sapiens",
-  enrichment = "GO_BP",
+  db = "GO_BP",
   db_update = FALSE,
   db_version = "latest",
+  convert_species = TRUE,
   Ensembl_version = 103,
   mirror = NULL,
   TERM2GENE = NULL,
@@ -28,12 +28,11 @@ RunDynamicEnrichment(
   minGSSize = 10,
   maxGSSize = 500,
   BPPARAM = BiocParallel::bpparam(),
-  progressbar = TRUE,
   seed = 11
 )
 }
 \arguments{
-\item{seed}{}
+\item{convert_species}{}
 }
 \description{
 RunDynamicEnrichment
@@ -41,28 +40,29 @@ RunDynamicEnrichment
 \examples{
 data("pancreas_sub")
 pancreas_sub <- RunSlingshot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP")
-pancreas_sub <- RunDynamicFeatures(pancreas_sub, lineages = c("Lineage1", "Lineage2"), n_candidates = 200)
-ht_result <- DynamicHeatmap(
+pancreas_sub <- RunDynamicFeatures(pancreas_sub, lineages = "Lineage1", n_candidates = 200)
+ht1 <- DynamicHeatmap(
   srt = pancreas_sub,
-  lineages = c("Lineage1", "Lineage2"),
+  lineages = "Lineage1",
   cell_annotation = "SubCellType",
-  n_split = 6, reverse_ht = 1, use_raster = FALSE
+  n_split = 4
 )
-ht_result$plot
+ht1$plot
 
 pancreas_sub <- RunDynamicEnrichment(
   srt = pancreas_sub,
-  lineages = c("Lineage1", "Lineage2"),
+  lineages = "Lineage1",
   score_method = "AUCell",
-  enrichment = "GO_BP",
+  db = "GO_BP",
   species = "Mus_musculus"
 )
-ht_result <- DynamicHeatmap(
-  srt = pancreas_sub, assay = "GO_BP", use_fitted = TRUE,
-  lineages = c("Lineage1_GO_BP", "Lineage2_GO_BP"),
+ht2 <- DynamicHeatmap(
+  srt = pancreas_sub,
+  assay = "GO_BP",
+  lineages = "Lineage1_GO_BP",
   cell_annotation = "SubCellType",
-  n_split = 6, reverse_ht = 1,
-  height = 5, width = 7, use_raster = FALSE
+  n_split = 4,
+  split_method = "kmeans-peaktime"
 )
-ht_result$plot
+ht2$plot
 }

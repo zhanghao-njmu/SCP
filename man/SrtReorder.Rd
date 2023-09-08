@@ -11,12 +11,23 @@ SrtReorder(
   slot = "data",
   assay = NULL,
   log = TRUE,
-  distance_metric = "euclidean",
-  reorder_FUN = "mean"
+  distance_metric = "euclidean"
 )
 }
 \arguments{
-\item{reorder_FUN}{}
+\item{srt}{A Seurat object.}
+
+\item{features}{Features used to reorder idents.}
+
+\item{reorder_by}{Reorder groups instead of idents.}
+
+\item{slot}{Specific slot to get data from.}
+
+\item{assay}{Specific assay to get data from.}
+
+\item{log}{Whether log1p transformation needs to be applied. Default is \code{TRUE}.}
+
+\item{distance_metric}{Metric to compute distance. Default is "euclidean".}
 }
 \description{
 Reorder idents by the gene expression

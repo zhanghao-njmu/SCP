@@ -1,13 +1,12 @@
-def SCVELO(adata=None, h5ad=None, group_by=None, n_jobs=1,
-          liner_reduction=None, nonliner_reduction=None,basis=None,
+def SCVELO(adata=None, h5ad=None, group_by=None, palette=None,
+          linear_reduction=None, nonlinear_reduction=None,basis=None,
           mode=["deterministic","stochastic","dynamical"],fitting_by="stochastic",
           magic_impute=False,knn=5, t=2,
           min_shared_counts=30, n_pcs=30, n_neighbors=30, approx=True, 
           stream_smooth=None, stream_density=2,
           arrow_size=5, arrow_length=5,arrow_density=0.5,
           denoise=False,denoise_topn=3,kinetics=False,kinetics_topn=100,
-          calculate_velocity_genes=False,
-          s_genes=None, g2m_genes=None, axis="equal",
+          calculate_velocity_genes=False,top_n=6,n_jobs=1,
           show_plot=True, dpi=300, save=False, dirpath="./", fileprefix=""):
   import matplotlib.pyplot as plt
   import scvelo as scv
@@ -43,24 +42,33 @@ def SCVELO(adata=None, h5ad=None, group_by=None, n_jobs=1,
       adata = scv.read(h5ad)
 
     if group_by is None :
-      print("group_by must be provided.")
+      print("'group_by' must be provided.")
       exit()
       
-    if liner_reduction is None and nonliner_reduction is None:
-      print("liner_reduction or nonliner_reduction must be provided at least one.")
+    if linear_reduction is None and nonlinear_reduction is None:
+      print("linear_reduction or nonlinear_reduction must be provided at least one.")
       exit()
       
-    if liner_reduction is None:
+    if linear_reduction is None:
       sc.pp.pca(adata, n_comps = n_pcs)
-      liner_reduction="X_pca"
+      linear_reduction="X_pca"
       
     if basis is None:
-      if nonliner_reduction is not None:
-        basis=nonliner_reduction
+      if nonlinear_reduction is not None:
+        basis=nonlinear_reduction
       else:
         basis="basis"
-        adata.obsm["basis"]=adata.obsm[liner_reduction][:,0:2]
-
+        adata.obsm[linear_reduction+"_basis"]=adata.obsm[linear_reduction][:,0:2]
+    scv.pl.utils.check_basis(adata, basis)
+     
+    if "spliced" not in adata.layers.keys():
+      print("'spliced' data must be provided.")
+      exit()
+      
+    if "unspliced" not in adata.layers.keys():
+      print("'unspliced' data must be provided.")
+      exit()
+      
     if type(mode) is str:
       mode=[mode]
 
@@ -81,11 +89,11 @@ def SCVELO(adata=None, h5ad=None, group_by=None, n_jobs=1,
       exit()
 
     adata.obs[group_by] = adata.obs[group_by].astype(dtype="category")
-    ax=scv.pl.proportions(adata,groupby=group_by,save=False,show=False)
+    scv.pl.proportions(adata,groupby=group_by,save=False,show=False)
     if show_plot is True:
       plt.show() 
     if save:
-      plt.savefig('.'.join(filter(None, [fileprefix, "sp_usp_proportions.png"])), dpi=dpi)
+      plt.savefig('.'.join(filter(None, [fileprefix, "proportions.png"])), dpi=dpi)
 
     scv.pp.filter_and_normalize(adata, min_shared_counts = min_shared_counts)
          
@@ -97,7 +105,7 @@ def SCVELO(adata=None, h5ad=None, group_by=None, n_jobs=1,
       adata.layers["spliced"] = magic_operator.fit_transform(adata.layers["spliced_raw"])
       adata.layers["unspliced"] = magic_operator.transform(adata.layers["unspliced_raw"])
 
-    scv.pp.moments(adata, n_pcs=n_pcs, n_neighbors = n_neighbors, use_rep=liner_reduction)
+    scv.pp.moments(adata, n_pcs=n_pcs, n_neighbors = n_neighbors, use_rep=linear_reduction)
 
     for m in mode:
       vkey_list=[m]
@@ -168,31 +176,28 @@ def SCVELO(adata=None, h5ad=None, group_by=None, n_jobs=1,
           adata.layers["velocity"]=adata.layers[m]
           adata.layers["variance_velocity"]=adata.layers["variance_"+m]
         
-        scv.pl.velocity_graph(adata, vkey=vkey,basis=basis,title=vkey,color=group_by, save=False, show=False)
-        plt.axis(axis)
-        if show_plot is True:
-          plt.show()
-        if save:
-          plt.savefig('.'.join(filter(None, [fileprefix, vkey+"_graph.png"])), dpi=dpi)
+        # scv.pl.velocity_graph(adata, vkey=vkey,basis=basis,title=vkey,color=group_by, save=False, show=False)
+        # plt.axis(axis)
+        # if show_plot is True:
+        #   plt.show()
+        # if save:
+        #   plt.savefig('.'.join(filter(None, [fileprefix, vkey+"_graph.png"])), dpi=dpi)
         
         # Velocity embedding
         scv.tl.velocity_embedding(adata, basis=basis, vkey=vkey, autoscale=autoscale)
-        scv.pl.velocity_embedding_stream(adata,vkey=vkey,basis=basis, title=vkey, color=group_by, smooth=stream_smooth, density=stream_density, save=False, show=False)
-        plt.axis(axis) 
+        scv.pl.velocity_embedding_stream(adata,vkey=vkey,basis=basis, title=vkey, color=group_by,palette=palette, smooth=stream_smooth, density=stream_density,legend_loc="none",save=False, show=False)
         if show_plot is True:
           plt.show()
         if save:
           plt.savefig('.'.join(filter(None, [fileprefix, vkey+"_stream.png"])), dpi=dpi)
           
-        scv.pl.velocity_embedding(adata,vkey=vkey,basis=basis, title=vkey,color=group_by, size=100, arrow_length=arrow_length, arrow_size=arrow_size, density=arrow_density, linewidth=0.2, save=False, show=False)
-        plt.axis(axis) 
+        scv.pl.velocity_embedding(adata,vkey=vkey,basis=basis, title=vkey,color=group_by,palette=palette, arrow_length=arrow_length, arrow_size=arrow_size, density=arrow_density, linewidth=0.3, save=False, show=False)
         if show_plot is True:
           plt.show()
         if save:
           plt.savefig('.'.join(filter(None, [fileprefix, vkey+"_arrow.png"])), dpi=dpi)
           
-        scv.pl.velocity_embedding_grid(adata,vkey=vkey,basis=basis, title=vkey, color=group_by, size=100, arrow_length=arrow_length/2, arrow_size=arrow_size/2, density = arrow_density*2, save=False, show=False)
-        plt.axis(axis) 
+        scv.pl.velocity_embedding_grid(adata,vkey=vkey,basis=basis, title=vkey, color=group_by,palette=palette, arrow_length=arrow_length/2, arrow_size=arrow_size/2, density = arrow_density*2, save=False, show=False)
         if show_plot is True:
           plt.show()
         if save:
@@ -201,14 +206,12 @@ def SCVELO(adata=None, h5ad=None, group_by=None, n_jobs=1,
         # Velocity confidence
         scv.tl.velocity_confidence(adata, vkey=vkey)
         scv.pl.scatter(adata, basis=basis, title=vkey+" length", color=vkey+"_length",cmap="coolwarm", save=False, show=False)
-        plt.axis(axis) 
         if show_plot is True:
           plt.show()
         if save:
           plt.savefig('.'.join(filter(None, [fileprefix, vkey+"_length.png"])), dpi=dpi)
           
-        scv.pl.scatter(adata, basis=basis, title=vkey+" confidence",color=vkey+"_confidence",cmap="coolwarm", save=False, show=False)
-        plt.axis(axis) 
+        scv.pl.scatter(adata, basis=basis, title=vkey+" confidence",color=vkey+"_confidence",cmap="magma", save=False, show=False)
         if show_plot is True:
           plt.show()
         if save:
@@ -218,14 +221,13 @@ def SCVELO(adata=None, h5ad=None, group_by=None, n_jobs=1,
         for term in ["root_cells","end_points",vkey+'_root_cells',vkey+'_end_points']:
           if term in adata.obs.columns:
             adata.obs.drop(term, axis=1, inplace=True)
-          
-        scv.tl.terminal_states(adata,vkey=vkey)
+
+        scv.tl.terminal_states(adata,vkey=vkey,)
         for term in ["root_cells","end_points"]:
           adata.obs[vkey+"_"+term]= adata.obs[term]
           adata.obs.drop(term, axis=1, inplace=True)
-        
+
         # scv.pl.scatter(adata,basis=basis,title=vkey+" terminal_states",color_gradients=[vkey+'_root_cells', vkey+'_end_points'], legend_loc="best", save=False, show=False)
-        # plt.axis(axis);plt.show() 
         # if show_plot is True:
         #   plt.show()
         # if save:
@@ -233,8 +235,7 @@ def SCVELO(adata=None, h5ad=None, group_by=None, n_jobs=1,
         
         # Pseudotime
         scv.tl.velocity_pseudotime(adata, vkey=vkey,root_key=vkey+'_root_cells',end_key=vkey+'_end_points')
-        scv.pl.scatter(adata, basis=basis,title=vkey+" pseudotime", color=vkey+"_pseudotime",cmap="gnuplot", save=False, show=False)
-        plt.axis(axis) 
+        scv.pl.scatter(adata, basis=basis,title=vkey+" pseudotime", color=vkey+"_pseudotime",cmap="cividis", save=False, show=False)
         if show_plot is True:
           plt.show()
         if save:
@@ -243,8 +244,7 @@ def SCVELO(adata=None, h5ad=None, group_by=None, n_jobs=1,
         # Latent time
         if m=="dynamical":
           scv.tl.latent_time(adata, vkey=vkey,root_key=vkey+'_root_cells',end_key=vkey+'_end_points')
-          scv.pl.scatter(adata, basis=basis,title=vkey+" latent time", color='latent_time',color_map='gnuplot', save=False, show=False)
-          plt.axis(axis)
+          scv.pl.scatter(adata, basis=basis,title=vkey+" latent time", color='latent_time',color_map='cividis', save=False, show=False)
           if show_plot is True:
             plt.show()
           if save:
@@ -254,8 +254,7 @@ def SCVELO(adata=None, h5ad=None, group_by=None, n_jobs=1,
         adata.uns["neighbors"]["distances"] = adata.obsp["distances"]
         adata.uns["neighbors"]["connectivities"] = adata.obsp["connectivities"]
         scv.tl.paga(adata, groups=group_by, vkey=vkey,root_key=vkey+'_root_cells',end_key=vkey+'_end_points')
-        scv.pl.paga(adata,title=vkey+" PAGA ("+group_by+")", basis=basis, size=50, alpha=0.05,min_edge_width=2, node_size_scale=1.5,legend_loc="best",legend_fontsize=10, save=False, show=False)
-        plt.axis(axis) 
+        scv.pl.paga(adata,title=vkey+" PAGA ("+group_by+")",node_colors=palette, basis=basis, alpha=0.5,min_edge_width=2, node_size_scale=1.5,legend_loc="none",save=False, show=False)
         if show_plot is True:
           plt.show()
         if save:
@@ -276,38 +275,33 @@ def SCVELO(adata=None, h5ad=None, group_by=None, n_jobs=1,
 
           for cluster in df.columns:
             #df[0:1].values.ravel()[:12] ### by row
-            ax=scv.pl.scatter(adata, color=group_by, basis=df[cluster].values[:6],vkey=vkey, size=20, linewidth=2, alpha=1, ylabel="cluster: "+cluster+"\nunspliced",
+            scv.pl.scatter(adata, color=group_by,palette=palette, basis=df[cluster].values[:top_n],vkey=vkey, size=10, linewidth=2, alpha=1, ylabel="cluster: "+cluster+"\nunspliced",
                               add_linfit=True, add_rug=True, add_outline=True, ncols=3, frameon=True, save=False, show=False)
-            #[a.axis(axis) for a in ax]
-            #if show_plot is True:
-            # plt.show() 
+            if show_plot is True:
+              plt.show()
             if save:
               plt.savefig('.'.join(filter(None, [fileprefix, cluster, vkey+"_genes1.png"])), dpi=dpi)
               
-            ax=scv.pl.velocity(adata, color=group_by, var_names=df[cluster].values[:6],vkey=vkey, size=10, linewidth=2, alpha=1, ylabel="cluster: "+cluster+"\nunspliced",
-                               add_outline=True,basis=basis, color_map=["Blues", "YlOrRd"], ncols=2, save=False, show=False)
-            #[a.axis(axis) for a in ax]
-            #if show_plot is True:
-            # plt.show() 
+            scv.pl.velocity(adata, color=group_by, var_names=df[cluster].values[:top_n],vkey=vkey, size=10, linewidth=2, alpha=1, ylabel="cluster: "+cluster+"\nunspliced", 
+                             add_outline=True,basis=basis, color_map=["Blues", "YlOrRd"], ncols=2, save=False, show=False)
+            if show_plot is True:
+              plt.show()
             if save:
               plt.savefig('.'.join(filter(None, [fileprefix, cluster, vkey+"_genes2.png"])), dpi=dpi)
     
     # Cell cycle  
     # if s_genes is not None and g2m_genes is not None:
-    scv.tl.score_genes_cell_cycle(adata, s_genes=s_genes, g2m_genes=g2m_genes)
+    # scv.tl.score_genes_cell_cycle(adata, s_genes=s_genes, g2m_genes=g2m_genes)
     # scv.pl.scatter(adata, basis=basis, color_gradients=('S_score', 'G2M_score'), smooth=True, legend_loc="best", save=False, show=False)
-    # plt.axis(axis);
     # if show_plot is True:
     #  plt.show() 
     # if save:
     #  plt.savefig('.'.join(filter(None, [fileprefix, "cycle_score.png"])), dpi=dpi)
-          
-    scv.pl.scatter(adata, basis=basis, color='phase',legend_loc="best",save=False, show=False)
-    plt.axis(axis) 
-    if show_plot is True:
-      plt.show()
-    if save:    
-      plt.savefig('.'.join(filter(None, [fileprefix, "cycle_phase.png"])), dpi=dpi)
+    # scv.pl.scatter(adata, basis=basis, color='phase',legend_loc="best",save=False, show=False)
+    # if show_plot is True:
+    #   plt.show()
+    # if save:    
+    #   plt.savefig('.'.join(filter(None, [fileprefix, "cycle_phase.png"])), dpi=dpi)
 
   finally:
       os.chdir(prevdir)
@@ -320,15 +314,15 @@ def SCVELO(adata=None, h5ad=None, group_by=None, n_jobs=1,
 
   return adata
 
-def CellRank(adata=None, h5ad=None, group_by=None, n_jobs=1,
-             liner_reduction=None, nonliner_reduction=None,basis=None,
+def CellRank(adata=None, h5ad=None, group_by=None,palette=None,
+             linear_reduction=None, nonlinear_reduction=None,basis=None,
              mode=["deterministic","stochastic","dynamical"],fitting_by="stochastic",
              magic_impute=False,knn=5, t=2,
              min_shared_counts=30, n_pcs=30, n_neighbors=30, approx=True, 
              stream_smooth=None, stream_density=2,
              arrow_size=5, arrow_length=5,arrow_density=0.5,
              s_genes=None, g2m_genes=None,calculate_velocity_genes=False,
-             denoise=False,kinetics=False,axis="equal",
+             denoise=False,kinetics=False, n_jobs=1,
              show_plot=True, dpi=300, save=False, dirpath="./", fileprefix=""):
   import matplotlib.pyplot as plt
   import scvelo as scv
@@ -369,20 +363,20 @@ def CellRank(adata=None, h5ad=None, group_by=None, n_jobs=1,
       print("group_by must be provided.")
       exit()
       
-    if liner_reduction is None and nonliner_reduction is None:
-      print("liner_reduction or nonliner_reduction must be provided at least one.")
+    if linear_reduction is None and nonlinear_reduction is None:
+      print("linear_reduction or nonlinear_reduction must be provided at least one.")
       exit()
       
-    if liner_reduction is None:
+    if linear_reduction is None:
       sc.pp.pca(adata, n_comps = n_pcs)
-      liner_reduction="X_pca"
+      linear_reduction="X_pca"
       
     if basis is None:
-      if nonliner_reduction is not None:
-        basis=nonliner_reduction
+      if nonlinear_reduction is not None:
+        basis=nonlinear_reduction
       else:
         basis="basis"
-        adata.obsm["basis"]=adata.obsm[liner_reduction][:,0:2]
+        adata.obsm["basis"]=adata.obsm[linear_reduction][:,0:2]
 
     mode.append(fitting_by)
     if kinetics is True or denoise is True:
@@ -404,7 +398,7 @@ def CellRank(adata=None, h5ad=None, group_by=None, n_jobs=1,
 
     if mode[-1]+"_graph" not in adata.obs.keys():
       adata=SCVELO(adata=adata,group_by=group_by, n_jobs=n_jobs,
-                   liner_reduction=liner_reduction, nonliner_reduction=nonliner_reduction,basis=basis,
+                   linear_reduction=linear_reduction, nonlinear_reduction=nonlinear_reduction,basis=basis,
                    mode=mode,fitting_by=fitting_by,magic_impute=magic_impute,knn=knn, t=t,
                    min_shared_counts=min_shared_counts, n_pcs=n_pcs, n_neighbors=n_neighbors, approx=approx, 
                    stream_smooth=stream_smooth, stream_density=stream_density,
@@ -444,9 +438,9 @@ def CellRank(adata=None, h5ad=None, group_by=None, n_jobs=1,
 
   return adata
 
-def PAGA(adata=None, h5ad=None, group_by=None, liner_reduction=None, nonliner_reduction=None,basis=None,
+def PAGA(adata=None, h5ad=None, group_by=None,palette=None, linear_reduction=None, nonlinear_reduction=None,basis=None,
             n_pcs=30,n_neighbors=30, use_rna_velocity=False,vkey="stochastic",
-            embedded_with_PAGA=False,paga_layout="fr", threshold=0.1, point_size=20, axis = "equal",
+            embedded_with_PAGA=False,paga_layout="fr", threshold=0.1, point_size=20, 
             infer_pseudotime = False,root_cell = None,root_group=None,n_dcs = 10, n_branchings = 0, min_group_size = 0.01,
             show_plot=True, dpi=300, save=False, dirpath="./", fileprefix=""):
   import matplotlib.pyplot as plt
@@ -487,20 +481,20 @@ def PAGA(adata=None, h5ad=None, group_by=None, liner_reduction=None, nonliner_re
       print("group_by must be provided.")
       exit()
       
-    if liner_reduction is None and nonliner_reduction is None:
-      print("liner_reduction or nonliner_reduction must be provided at least one.")
+    if linear_reduction is None and nonlinear_reduction is None:
+      print("linear_reduction or nonlinear_reduction must be provided at least one.")
       exit()
     
-    if liner_reduction is None:
+    if linear_reduction is None:
       sc.pp.pca(adata, n_comps = n_pcs)
-      liner_reduction="X_pca"
+      linear_reduction="X_pca"
       
     if basis is None:
-      if nonliner_reduction is not None:
-        basis=nonliner_reduction
+      if nonlinear_reduction is not None:
+        basis=nonlinear_reduction
       else:
         basis="basis"
-        adata.obsm["basis"]=adata.obsm[liner_reduction][:,0:2]
+        adata.obsm["basis"]=adata.obsm[linear_reduction][:,0:2]
         
     if point_size is None:
       point_size = min(100000 / adata.shape[0],20)  
@@ -518,35 +512,32 @@ def PAGA(adata=None, h5ad=None, group_by=None, liner_reduction=None, nonliner_re
     if "X_diffmap" in adata.obsm_keys():
       X_diffmap = adata.obsm['X_diffmap']
       del adata.obsm['X_diffmap']
-      sc.pp.neighbors(adata, n_pcs = n_pcs, use_rep = liner_reduction, n_neighbors = n_neighbors)
+      sc.pp.neighbors(adata, n_pcs = n_pcs, use_rep = linear_reduction, n_neighbors = n_neighbors)
       adata.obsm['X_diffmap'] = X_diffmap
     else:
-      sc.pp.neighbors(adata, n_pcs = n_pcs, use_rep = liner_reduction, n_neighbors = n_neighbors)
+      sc.pp.neighbors(adata, n_pcs = n_pcs, use_rep = linear_reduction, n_neighbors = n_neighbors)
     
     sc.tl.paga(adata, groups = group_by, use_rna_velocity = use_rna_velocity)
     
     if use_rna_velocity is True:
-      ax=sc.pl.paga_compare(adata, basis=basis, threshold = threshold, size = point_size, min_edge_width = 1, node_size_scale = 1,
+      sc.pl.paga_compare(adata, basis=basis,palette=palette, threshold = threshold, size = point_size, min_edge_width = 1, node_size_scale = 1,
       dashed_edges='connectivities', solid_edges='transitions_confidence', transitions='transitions_confidence',
       title = basis,frameon = False, edges = True, save = False, show = False)
     else:
-      ax=sc.pl.paga_compare(adata, basis=basis, threshold = threshold, size = point_size, title = basis,frameon = False, edges = True, save = False, show = False)
-    [a.axis(axis) for a in ax] 
+      sc.pl.paga_compare(adata, basis=basis,palette=palette, threshold = threshold, size = point_size, title = basis,frameon = False, edges = True, save = False, show = False)
     if show_plot is True:
       plt.show()
     if save:
       plt.savefig('.'.join(filter(None, [fileprefix, "paga_compare.png"])), dpi=dpi)
     
     sc.pl.paga(adata, threshold = threshold, layout = paga_layout, title = "PAGA layout: " + paga_layout, frameon = False, save = False, show = False)
-    plt.axis(axis) 
     if show_plot is True:
       plt.show()
     if save:
       plt.savefig('.'.join(filter(None, [fileprefix, "paga_layout.png"])), dpi=dpi)
       
     sc.tl.draw_graph(adata, init_pos = "paga", layout = paga_layout)
-    sc.pl.draw_graph(adata, color=group_by, title = "PAGA layout: " + paga_layout, layout = paga_layout,  frameon = False, legend_loc="on data",show = False)
-    plt.axis(axis)
+    sc.pl.draw_graph(adata, color=group_by,palette=palette, title = "PAGA layout: " + paga_layout, layout = paga_layout,  frameon = False, legend_loc="on data",show = False)
     if show_plot is True:
       plt.show()
     if save:
@@ -555,8 +546,7 @@ def PAGA(adata=None, h5ad=None, group_by=None, liner_reduction=None, nonliner_re
     if embedded_with_PAGA is True:
       umap2d = sc.tl.umap(adata, init_pos = "paga", n_components=2, copy = True)
       adata.obsm["PAGAUMAP2D"] = umap2d.obsm["X_umap"]
-      ax=sc.pl.paga_compare(adata, basis = "PAGAUMAP2D", threshold = threshold, size = point_size, title = "PAGA-initialized UMAP", edges = True, save = False, show = False)
-      [a.axis(axis) for a in ax] 
+      sc.pl.paga_compare(adata, basis = "PAGAUMAP2D",palette=palette, threshold = threshold, size = point_size, title = "PAGA-initialized UMAP", edges = True, save = False, show = False)
       if show_plot is True:
         plt.show()
       if save:
@@ -580,7 +570,6 @@ def PAGA(adata=None, h5ad=None, group_by=None, liner_reduction=None, nonliner_re
       sc.tl.dpt(adata, n_dcs = n_dcs, n_branchings = n_branchings, min_group_size = min_group_size)
       
       sc.pl.embedding(adata, basis = basis, color = "dpt_pseudotime", save = False, show = False)
-      plt.axis(axis) 
       if show_plot is True:
           plt.show()
       if save:
@@ -599,13 +588,14 @@ def PAGA(adata=None, h5ad=None, group_by=None, liner_reduction=None, nonliner_re
   return adata
 
 
-def Palantir(adata=None, h5ad=None,group_by=None,
-             liner_reduction=None,nonliner_reduction=None,basis=None,
+def Palantir(adata=None, h5ad=None,group_by=None,palette=None,
+             linear_reduction=None,nonlinear_reduction=None,basis=None,
              n_pcs=30,n_neighbors=30,dm_n_components=10,dm_alpha=0,dm_n_eigs=None,
              early_group = None, terminal_groups = None,early_cell=None,terminal_cells=None,
              num_waypoints=1200,scale_components=True,use_early_cell_as_start=False,
+             adjust_early_cell=False,adjust_terminal_cells=False,
              max_iterations=25,n_jobs=1,
-             point_size=20,axis="equal",
+             point_size=20,
              show_plot=True, dpi=300, save=False, dirpath="./", fileprefix=""):
   import matplotlib.pyplot as plt
   import matplotlib
@@ -649,19 +639,19 @@ def Palantir(adata=None, h5ad=None,group_by=None,
       print("group_by must be provided.")
       exit()
     
-    if liner_reduction is None and nonliner_reduction is None:
-      print("liner_reduction or nonliner_reduction must be provided at least one.")
+    if linear_reduction is None and nonlinear_reduction is None:
+      print("linear_reduction or nonlinear_reduction must be provided at least one.")
       exit()
       
-    if liner_reduction is None:
+    if linear_reduction is None:
       sc.pp.pca(adata, n_comps = n_pcs)
-      liner_reduction="X_pca"
+      linear_reduction="X_pca"
       
     if basis is None:
-      if nonliner_reduction is not None:
-        basis=nonliner_reduction
+      if nonlinear_reduction is not None:
+        basis=nonlinear_reduction
       else:
-        basis=liner_reduction
+        basis=linear_reduction
       
     if point_size is None:
       point_size = min(100000 / adata.shape[0],20)  
@@ -696,7 +686,7 @@ def Palantir(adata=None, h5ad=None,group_by=None,
         dist=[]
         for i in range(diff.shape[1]):
           dist.append(hypot(diff[0,i],diff[1,i]))
-        terminal_cells_dict[cell[dist.index(min(dist))]]=terminal_group + "_diff_potential"
+        terminal_cells_dict[cell[dist.index(min(dist))]]=terminal_group.replace(" ", ".") + "_diff_potential"
         
       terminal_cells=list(terminal_cells_dict.keys())
 
@@ -721,21 +711,38 @@ def Palantir(adata=None, h5ad=None,group_by=None,
     # pca_projections=n_comps = np.where(np.cumsum(ad.uns['pca']['variance_ratio']) > 0.85)[0][0]
     # pca_projections, _ = palantir.utils.run_pca(adata, use_hvg=True)
 
-    pca_projections = pd.DataFrame(adata.obsm[liner_reduction][:,:n_pcs], index=adata.obs_names)
+    pca_projections = pd.DataFrame(adata.obsm[linear_reduction][:,:n_pcs], index=adata.obs_names)
     dm_res = palantir.utils.run_diffusion_maps(pca_projections, n_components=dm_n_components, knn=n_neighbors, alpha=dm_alpha)
     ms_data = palantir.utils.determine_multiscale_space(dm_res,n_eigs=dm_n_eigs)
-    pr_res = palantir.core.run_palantir(ms_data=ms_data,early_cell=early_cell,terminal_states=terminal_cells, knn=n_neighbors,num_waypoints=num_waypoints,
-    scale_components=scale_components,use_early_cell_as_start=use_early_cell_as_start,max_iterations=max_iterations,n_jobs=n_jobs)
+    pr_res = palantir.core.run_palantir(ms_data = ms_data,early_cell = early_cell, terminal_states = terminal_cells, knn = n_neighbors, num_waypoints = num_waypoints,
+    scale_components = scale_components, use_early_cell_as_start = use_early_cell_as_start, max_iterations = max_iterations, n_jobs = n_jobs)
+    
+    if adjust_early_cell is True or adjust_terminal_cells is True:
+      if adjust_early_cell is True:
+        early_cell_group=adata.obs[group_by][early_cell]
+        cells = adata.obs[group_by].index.values[adata.obs[group_by]==early_cell_group]
+        early_cell = pr_res.pseudotime[cells].index.values[pr_res.pseudotime[cells]==min(pr_res.pseudotime[cells])][0]
+      if adjust_terminal_cells is True:
+        terminal_cells_dict=dict()
+        for n in range(len(terminal_cells)):
+          terminal_cell=terminal_cells[n]
+          terminal_cell_group=adata.obs[group_by][terminal_cell]
+          cells = adata.obs[group_by].index.values[adata.obs[group_by]==terminal_cell_group]
+          terminal_cells_dict[pr_res.pseudotime[cells].index.values[pr_res.pseudotime[cells]==max(pr_res.pseudotime[cells])][0]]=terminal_cell_group.replace(" ", ".") + "_diff_potential"
+        terminal_cells=list(terminal_cells_dict.keys())
+        
+      pr_res = palantir.core.run_palantir(ms_data = ms_data,early_cell = early_cell, terminal_states = terminal_cells, knn = n_neighbors, num_waypoints = num_waypoints,
+    scale_components = scale_components, use_early_cell_as_start = use_early_cell_as_start, max_iterations = max_iterations, n_jobs = n_jobs)
 
     adata.obsm["palantir_dm"]=dm_res["T"].toarray()
     adata.uns["dm_kernel"]=dm_res["kernel"]
+    if len(terminal_cells_dict)>0:
+      pr_res.branch_probs=pr_res.branch_probs.rename(columns = terminal_cells_dict)
     for term in np.append(pr_res.branch_probs.columns.values, np.array(["palantir_pseudotime","palantir_diff_potential"])):
       if term in adata.obs.columns:
         adata.obs.drop(term, axis=1, inplace=True)
     adata.obs=adata.obs.join(pr_res.pseudotime.to_frame("palantir_pseudotime"))
     adata.obs=adata.obs.join(pr_res.entropy.to_frame("palantir_diff_potential"))
-    if len(terminal_cells_dict)>0:
-      pr_res.branch_probs=pr_res.branch_probs.rename(columns=terminal_cells_dict)
     adata.obs=adata.obs.join(pr_res.branch_probs)
     
     sc.pl.embedding(adata,basis=basis,color="palantir_pseudotime",size = point_size)
@@ -761,13 +768,120 @@ def Palantir(adata=None, h5ad=None,group_by=None,
 
   return adata
 
-def Dynamo(adata=None, h5ad=None,group_by=None,
-           liner_reduction=None,nonliner_reduction=None,basis=None,
+def WOT(adata=None, h5ad=None, group_by=None,palette=None, 
+        time_field = "Time", growth_iters = 3, tmap_out = "tmaps/tmap_out",
+        time_from = 1, time_to = None, get_coupling = False,recalculate=False,
+        show_plot=True, dpi=300, save=False, dirpath="./", fileprefix=""):
+  import matplotlib.pyplot as plt
+  import scanpy as sc
+  import numpy as np
+  import statistics
+  import pandas as pd
+  from math import hypot
+
+  import warnings
+  warnings.simplefilter("ignore", category=UserWarning)
+  warnings.simplefilter("ignore", category=FutureWarning)
+  warnings.simplefilter("ignore", category=DeprecationWarning)
+  
+  import os
+  prevdir = os.getcwd()
+  os.chdir(os.path.expanduser(dirpath))
+  
+  import platform
+  if platform.system()=="Windows":
+    import sys, multiprocessing, re
+    if re.match(pattern=".*pythonw.exe$",string=sys.executable):
+      pythonw=sys.executable
+    else:
+      pythonw=sys.executable.replace("python.exe", "pythonw.exe")
+    sys.executable = pythonw
+    sys._base_executable = pythonw
+    multiprocessing.set_executable(pythonw) 
+  
+  try:
+    if adata is None and h5ad is None:
+      print("adata or h5ad must be provided.")
+      exit()
+      
+    if adata is None:
+      adata = sc.read(h5ad)
+      
+    if group_by is None:
+      print("group_by must be provided.")
+      exit()
+
+    adata.obs[group_by] = adata.obs[group_by].astype(dtype = "category")
+    if pd.api.types.is_categorical_dtype(adata.obs[time_field]):
+      adata.obs["time_field"] = adata.obs[time_field].cat.codes
+    elif not pd.api.types.is_numeric_dtype(adata.obs[time_field]):
+      try:
+        adata.obs['time_field'] = adata.obs[time_field].astype("float")
+      except ValueError:
+        print("Unable to convert column '" + time_field + "' to float type.")
+    else:
+      adata.obs["time_field"] = adata.obs[time_field]
+      
+    time_dict = dict(zip(adata.obs[time_field],adata.obs["time_field"]))
+    ot_model <- wot.ot.OTModel(adata, growth_iters = growth_iters, day_field = "time_field")
+    
+    if recalculate is True:
+      ot_model.compute_all_transport_maps(tmap_out = tmap_out)
+      tmap_model = wot.tmap.TransportMapModel.from_directory(tmap_out)
+    else:
+      try:
+        tmap_model = wot.tmap.TransportMapModel.from_directory(tmap_out)
+      except ValueError:
+        ot_model.compute_all_transport_maps(tmap_out = tmap_out)
+        tmap_model = wot.tmap.TransportMapModel.from_directory(tmap_out)
+
+    cell_sets = {}
+    for k, v in zip(adata.obs[group_by], adata.obs_names):
+        if k not in cell_sets:
+          cell_sets[k] = []
+        cell_sets[k].append(v)
+    
+    from_populations = tmap_model.population_from_cell_sets(cell_sets, at_time = time_dict[time_from])
+    
+    trajectory_ds = tmap_model.trajectories(from_populations)
+    trajectory_df = pd.DataFrame(trajectory_ds.X, index=trajectory_ds.obs_names, columns=trajectory_ds.var_names)
+    adata.uns["trajectory_"+str(time_from)]= trajectory_df
+
+    fates_ds = tmap_model.fates(from_populations)
+    fates_df = pd.DataFrame(fates_ds.X, index=fates_ds.obs_names, columns=fates_ds.var_names)
+    adata.uns["fates_"+str(time_from)]= fates_df
+    
+    # obs_list = wot.tmap.trajectory_trends_from_trajectory(trajectory_ds = trajectory_ds, expression_ds = adata)
+  
+    if time_to is not None:
+      to_populations = tmap_model.population_from_cell_sets(cell_sets, at_time = time_dict[time_to])
+      transition_table = tmap_model.transition_table(from_populations, to_populations)
+      transition_df = pd.DataFrame(transition_table.X, index=transition_table.obs_names, columns=transition_table.var_names)
+      adata.uns["transition_"+str(time_from)+"_to_"+str(time_to)]= fates_df
+      if get_coupling is True:
+        coupling = tmap_model.get_coupling(time_dict[time_from], time_dict[time_to])
+        coupling_df = pd.DataFrame(coupling.X, index=coupling.obs_names, columns=coupling.var_names)
+        adata.uns["coupling_"+str(time_from)+"_to_"+str(time_to)]= coupling_df
+
+  finally:
+      os.chdir(prevdir)
+
+  try:
+    adata.__dict__['_raw'].__dict__['_var'] = adata.__dict__[
+        '_raw'].__dict__['_var'].rename(columns={'_index': 'features'})
+  except:
+    pass
+
+  return adata
+
+
+def Dynamo(adata=None, h5ad=None,group_by=None,palette=None,
+           linear_reduction=None,nonlinear_reduction=None,basis=None,
            n_pcs=30,n_neighbors=30,dm_n_components=10,dm_alpha=0,dm_n_eigs=None,
            early_group = None, terminal_groups = None,early_cell=None,terminal_cells=None,
            num_waypoints=1200,scale_components=True,use_early_cell_as_start=False,
            max_iterations=25,n_jobs=1,
-           point_size=20,axis="equal",
+           point_size=20,
            show_plot=True, dpi=300,save=False, dirpath="./", fileprefix=""):
   import matplotlib.pyplot as plt
   import matplotlib
@@ -811,19 +925,19 @@ def Dynamo(adata=None, h5ad=None,group_by=None,
       print("group_by must be provided.")
       exit()
     
-    if liner_reduction is None and nonliner_reduction is None:
-      print("liner_reduction or nonliner_reduction must be provided at least one.")
+    if linear_reduction is None and nonlinear_reduction is None:
+      print("linear_reduction or nonlinear_reduction must be provided at least one.")
       exit()
       
-    if liner_reduction is None:
+    if linear_reduction is None:
       sc.pp.pca(adata, n_comps = n_pcs)
-      liner_reduction="X_pca"
+      linear_reduction="X_pca"
       
     if basis is None:
-      if nonliner_reduction is not None:
-        basis=nonliner_reduction
+      if nonlinear_reduction is not None:
+        basis=nonlinear_reduction
       else:
-        basis=liner_reduction
+        basis=linear_reduction
       
     if point_size is None:
       point_size = min(100000 / adata.shape[0],20)  
@@ -864,7 +978,7 @@ def Dynamo(adata=None, h5ad=None,group_by=None,
     else:  
       print("terminal_cells: ",terminal_cells)
 
-    pca_projections = pd.DataFrame(adata.obsm[liner_reduction][:,:n_pcs], index=adata.obs_names)
+    pca_projections = pd.DataFrame(adata.obsm[linear_reduction][:,:n_pcs], index=adata.obs_names)
     dm_res = palantir.utils.run_diffusion_maps(pca_projections, n_components=dm_n_components, knn=n_neighbors, alpha=dm_alpha)
     ms_data = palantir.utils.determine_multiscale_space(dm_res,n_eigs=dm_n_eigs)
     pr_res = palantir.core.run_palantir(ms_data=ms_data,early_cell=early_cell,terminal_states=terminal_cells, knn=n_neighbors,num_waypoints=num_waypoints,

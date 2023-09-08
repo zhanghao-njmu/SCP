@@ -11,10 +11,9 @@ RunPalantir(
   assay_layers = c("spliced", "unspliced"),
   slot_layers = "counts",
   adata = NULL,
-  h5ad = NULL,
   group_by = NULL,
-  liner_reduction = NULL,
-  nonliner_reduction = NULL,
+  linear_reduction = NULL,
+  nonlinear_reduction = NULL,
   basis = NULL,
   n_pcs = 30,
   n_neighbors = 30,
@@ -27,16 +26,20 @@ RunPalantir(
   terminal_cells = NULL,
   num_waypoints = 1200,
   scale_components = TRUE,
-  use_early_cell_as_start = FALSE,
+  use_early_cell_as_start = TRUE,
+  adjust_early_cell = FALSE,
+  adjust_terminal_cells = FALSE,
   max_iterations = 25,
   n_jobs = 8,
   point_size = 20,
+  palette = "Paired",
+  palcolor = NULL,
   show_plot = TRUE,
   dpi = 300,
   save = FALSE,
   dirpath = "./",
   fileprefix = "",
-  return_seurat = FALSE
+  return_seurat = !is.null(srt)
 )
 }
 \arguments{
@@ -44,13 +47,11 @@ RunPalantir(
 
 \item{adata}{An \code{anndata} object. Can be created through \code{\link{srt_to_adata}}}
 
-\item{h5ad}{h5ad file path.}
-
 \item{group_by}{group_by.}
 
-\item{liner_reduction}{liner_reduction.}
+\item{linear_reduction}{linear_reduction.}
 
-\item{nonliner_reduction}{nonliner_reduction.}
+\item{nonlinear_reduction}{nonlinear_reduction.}
 
 \item{basis}{basis.}
 
@@ -81,11 +82,12 @@ Run Palantir analysis
 \examples{
 data("pancreas_sub")
 pancreas_sub <- RunPalantir(
-  srt = pancreas_sub, group_by = "SubCellType", liner_reduction = "PCA", nonliner_reduction = "UMAP",
-  early_group = "Ductal", terminal_groups = c("Alpha", "Beta", "Delta", "Epsilon"), return_seurat = TRUE
+  srt = pancreas_sub, group_by = "SubCellType", linear_reduction = "PCA", nonlinear_reduction = "UMAP",
+  early_group = "Ductal", use_early_cell_as_start = TRUE,
+  terminal_groups = c("Alpha", "Beta", "Delta", "Epsilon")
 )
 head(pancreas_sub[[]])
-ExpDimPlot(pancreas_sub, c("palantir_pseudotime", "palantir_diff_potential"))
-ExpDimPlot(pancreas_sub, paste0(c("Alpha", "Beta", "Delta", "Epsilon"), "_diff_potential"))
+FeatureDimPlot(pancreas_sub, c("palantir_pseudotime", "palantir_diff_potential"))
+FeatureDimPlot(pancreas_sub, paste0(c("Alpha", "Beta", "Delta", "Epsilon"), "_diff_potential"))
 
 }

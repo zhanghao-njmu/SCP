@@ -15,6 +15,6 @@ Run doublet-calling with Scrublet
 \examples{
 data("pancreas_sub")
 pancreas_sub <- db_Scrublet(pancreas_sub)
-ClassDimPlot(pancreas_sub, reduction = "umap", group.by = "db.Scrublet_class")
-ExpDimPlot(pancreas_sub, reduction = "umap", features = "db.Scrublet_score")
+CellDimPlot(pancreas_sub, reduction = "umap", group.by = "db.Scrublet_class")
+FeatureDimPlot(pancreas_sub, reduction = "umap", features = "db.Scrublet_score")
 }

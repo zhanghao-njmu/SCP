@@ -7,11 +7,13 @@
 RunCellQC(
   srt,
   assay = "RNA",
+  batch = NULL,
   qc_metrics = c("doublets", "outlier", "umi", "gene", "mito", "ribo", "ribo_mito_ratio",
     "species"),
   return_filtered = FALSE,
   db_method = "scDblFinder",
-  db_rate = ncol(srt)/1000 * 0.01,
+  db_rate = NULL,
+  db_coefficient = 0.01,
   outlier_cutoff = c("log10_nCount:lower:2.5", "log10_nCount:higher:5",
     "log10_nFeature:lower:2.5", "log10_nFeature:higher:5", "featurecount_dist:lower:2.5"),
   outlier_n = 1,
@@ -92,4 +94,25 @@ and the ribo content in empty droplets is usually high and the mito content is l
 \examples{
 data("pancreas_sub")
 pancreas_sub <- RunCellQC(pancreas_sub)
+CellStatPlot(
+  srt = pancreas_sub,
+  stat.by = c(
+    "db_qc", "outlier_qc", "umi_qc", "gene_qc",
+    "mito_qc", "ribo_qc", "ribo_mito_ratio_qc", "species_qc"
+  ),
+  plot_type = "upset", stat_level = "Fail"
+)
+table(pancreas_sub$CellQC)
+
+data("ifnb_sub")
+ifnb_sub <- RunCellQC(ifnb_sub, batch = "stim", UMI_threshold = 1000, gene_threshold = 550)
+CellStatPlot(
+  srt = ifnb_sub,
+  stat.by = c(
+    "db_qc", "outlier_qc", "umi_qc", "gene_qc",
+    "mito_qc", "ribo_qc", "ribo_mito_ratio_qc", "species_qc"
+  ),
+  plot_type = "upset", stat_level = "Fail"
+)
+table(ifnb_sub$CellQC)
 }

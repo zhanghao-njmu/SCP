@@ -6,30 +6,34 @@
 \usage{
 Integration_SCP(
   srtMerge = NULL,
-  batch = "orig.ident",
+  batch,
   append = TRUE,
   srtList = NULL,
+  assay = NULL,
   integration_method = "Uncorrected",
   do_normalization = NULL,
-  normalization_method = "logCPM",
+  normalization_method = "LogNormalize",
   do_HVF_finding = TRUE,
   HVF_source = "separate",
   HVF_method = "vst",
   nHVF = 2000,
+  HVF_min_intersection = 1,
   HVF = NULL,
   do_scaling = TRUE,
   vars_to_regress = NULL,
   regression_model = "linear",
-  liner_reduction = "pca",
-  liner_reduction_dims = 100,
-  liner_reduction_dims_use = NULL,
-  liner_reduction_params = list(),
-  force_liner_reduction = FALSE,
-  nonliner_reduction = "umap",
-  nonliner_reduction_dims = c(2, 3),
-  nonliner_reduction_params = list(),
-  force_nonliner_reduction = TRUE,
-  do_cluster_finding = TRUE,
+  linear_reduction = "pca",
+  linear_reduction_dims = 50,
+  linear_reduction_dims_use = NULL,
+  linear_reduction_params = list(),
+  force_linear_reduction = FALSE,
+  nonlinear_reduction = "umap",
+  nonlinear_reduction_dims = c(2, 3),
+  nonlinear_reduction_params = list(),
+  force_nonlinear_reduction = TRUE,
+  neighbor_metric = "euclidean",
+  neighbor_k = 20L,
+  neighbor_ntrees = 50L,
   cluster_algorithm = "louvain",
   cluster_resolution = 0.6,
   cluster_reorder = TRUE,
@@ -46,11 +50,11 @@ Integration_SCP(
 
 \item{srtList}{A list of \code{Seurat} object.}
 
-\item{integration_method}{Integration method. Can be one of "Uncorrected", "Seurat", "scVI", "MNN", "fastMNN", "Harmony", "Scanorama", "BBKNN", "CSS", "LIGER", "Conos".}
+\item{integration_method}{Integration method. Can be one of "Uncorrected", "Seurat", "scVI", "MNN", "fastMNN", "Harmony", "Scanorama", "BBKNN", "CSS", "LIGER", "Conos", "ComBat".}
 
 \item{do_normalization}{Whether to normalize the data. If NULL, will automatically determine.}
 
-\item{normalization_method}{Normalization method.Can be one of "logCPM", "SCT".}
+\item{normalization_method}{Normalization method.Can be one of "LogNormalize", "SCT".}
 
 \item{do_HVF_finding}{Whether to find the high variable features(HVF). If NULL, will automatically determine.}
 
@@ -66,17 +70,15 @@ Integration_SCP(
 
 \item{regression_model}{Use a linear model or generalized linear model (poisson, negative binomial) for the regression. Options are "linear" (default), "poisson", and "negbinom".}
 
-\item{liner_reduction}{Liner reduction method name. Can be one of "pca", "ica", "nmf", "mds", "glmpca".}
+\item{linear_reduction}{linear reduction method name. Can be one of "pca", "ica", "nmf", "mds", "glmpca".}
 
-\item{liner_reduction_dims}{Dimensions to calculate when performing liner reduction.}
+\item{linear_reduction_dims}{Dimensions to calculate when performing linear reduction.}
 
-\item{liner_reduction_dims_use}{Which dimensions to use when performing the nonliner reduction.}
+\item{linear_reduction_dims_use}{Which dimensions to use when performing the nonlinear reduction.}
 
-\item{nonliner_reduction}{Non-liner reduction method name. Can be one of "umap", "umap-naive", "tsne", "dm", "phate", "pacmap", "trimap", "largevis".}
+\item{nonlinear_reduction}{Non-linear reduction method name. Can be one of "umap", "umap-naive", "tsne", "dm", "phate", "pacmap", "trimap", "largevis".}
 
-\item{nonliner_reduction_dims}{Dimensions to calculate when performing non-liner reduction.}
-
-\item{force_nonliner_reduction}{}
+\item{nonlinear_reduction_dims}{Dimensions to calculate when performing non-linear reduction.}
 
 \item{cluster_algorithm}{Algorithm for modularity optimization when finding clusters. Can be one of "louvain", "slm", "leiden".}
 
@@ -85,37 +87,45 @@ Integration_SCP(
 \item{cluster_reorder}{Whether to reorder the cluster names using hierarchical clustering.}
 
 \item{seed}{Set a random seed.}
+
+\item{...}{}
 }
 \value{
-A \code{Seurat} object containing the result.
+A \code{Seurat} object.
 }
 \description{
 Single cell pipeline for the integration of multiple datasets.
 }
 \examples{
 data("panc8_sub")
-plist1 <- list()
-methods <- c("Uncorrected", "Seurat", "scVI", "MNN", "fastMNN", "Harmony", "Scanorama", "BBKNN", "CSS", "LIGER", "Conos")
-for (method in methods) {
-  panc8_sub <- Integration_SCP(panc8_sub,
-    batch = "tech", integration_method = method,
-    nonliner_reduction = "umap"
+panc8_sub <- Integration_SCP(
+  srtMerge = panc8_sub, batch = "tech", integration_method = "Uncorrected"
+)
+CellDimPlot(panc8_sub, group.by = c("tech", "celltype"))
+
+panc8_sub <- Integration_SCP(
+  srtMerge = panc8_sub, batch = "tech", integration_method = "Seurat"
+)
+CellDimPlot(panc8_sub, group.by = c("tech", "celltype"))
+
+\dontrun{
+integration_methods <- c("Uncorrected", "Seurat", "scVI", "MNN", "fastMNN", "Harmony", "Scanorama", "BBKNN", "CSS", "LIGER", "Conos", "ComBat")
+for (method in integration_methods) {
+  panc8_sub <- Integration_SCP(
+    srtMerge = panc8_sub, batch = "tech",
+    integration_method = method, linear_reduction_dims_use = 1:50, nonlinear_reduction = "umap"
   )
-  plist1[[method]] <- ClassDimPlot(panc8_sub, group.by = c("tech", "celltype"), theme_use = "theme_blank")
-}
-for (method in methods) {
-  print(plist1[[method]])
+  print(CellDimPlot(panc8_sub, group.by = c("tech", "celltype"), reduction = paste0(method, "UMAP2D"), theme_use = "theme_blank"))
 }
 
-plist2 <- list()
-reductions <- c("umap", "tsne", "dm", "phate", "pacmap", "trimap", "largevis")
-panc8_sub <- Integration_SCP(panc8_sub,
-  batch = "tech", integration_method = "Seurat",
-  nonliner_reduction = reductions
+nonlinear_reductions <- c("umap", "tsne", "dm", "phate", "pacmap", "trimap", "largevis", "fr")
+panc8_sub <- Integration_SCP(
+  srtMerge = panc8_sub, batch = "tech", integration_method = "Seurat",
+  nonlinear_reduction = nonlinear_reductions
 )
-for (reduc in reductions) {
-  plist2[[reduc]] <- ClassDimPlot(panc8_sub, group.by = c("tech", "celltype"), reduction = paste0("Seurat", reduc, "2D"), theme_use = "theme_blank")
-  print(plist2[[reduc]])
+for (nr in nonlinear_reductions) {
+  print(CellDimPlot(panc8_sub, group.by = c("tech", "celltype"), reduction = paste0("Seurat", nr, "2D"), theme_use = "theme_blank"))
+}
 }
 
 }

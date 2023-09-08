@@ -6,31 +6,68 @@
 \usage{
 scVI_integrate(
   srtMerge = NULL,
-  batch = "orig.ident",
+  batch = NULL,
   append = TRUE,
   srtList = NULL,
+  assay = NULL,
   do_normalization = NULL,
-  normalization_method = "logCPM",
+  normalization_method = "LogNormalize",
   do_HVF_finding = TRUE,
   HVF_source = "separate",
   HVF_method = "vst",
   nHVF = 2000,
+  HVF_min_intersection = 1,
   HVF = NULL,
-  nonliner_reduction = "umap",
-  nonliner_reduction_dims = c(2, 3),
-  nonliner_reduction_params = list(),
-  force_nonliner_reduction = TRUE,
-  do_cluster_finding = TRUE,
+  scVI_dims_use = NULL,
+  nonlinear_reduction = "umap",
+  nonlinear_reduction_dims = c(2, 3),
+  nonlinear_reduction_params = list(),
+  force_nonlinear_reduction = TRUE,
+  neighbor_metric = "euclidean",
+  neighbor_k = 20L,
+  neighbor_ntrees = 50L,
   cluster_algorithm = "louvain",
   cluster_resolution = 0.6,
   cluster_reorder = TRUE,
+  model = "SCVI",
   SCVI_params = list(),
+  PEAKVI_params = list(),
   num_threads = 8,
   seed = 11
 )
 }
 \arguments{
-\item{num_threads}{}
+\item{srtMerge}{A merged \code{Seurat} object with batch information.}
+
+\item{batch}{Metadata column name containing the batch information.}
+
+\item{append}{Whether append results into the \code{srtMerge}. Only valid when srtMerge is provided.}
+
+\item{srtList}{A list of \code{Seurat} object.}
+
+\item{do_normalization}{Whether to normalize the data. If NULL, will automatically determine.}
+
+\item{normalization_method}{Normalization method.Can be one of "LogNormalize", "SCT".}
+
+\item{do_HVF_finding}{Whether to find the high variable features(HVF). If NULL, will automatically determine.}
+
+\item{HVF_source}{Source of the HVF. Can be one of "separate" and "global".}
+
+\item{nHVF}{HVF number to use.}
+
+\item{HVF}{Custom high variable features.}
+
+\item{nonlinear_reduction}{Non-linear reduction method name. Can be one of "umap", "umap-naive", "tsne", "dm", "phate", "pacmap", "trimap", "largevis".}
+
+\item{nonlinear_reduction_dims}{Dimensions to calculate when performing non-linear reduction.}
+
+\item{cluster_algorithm}{Algorithm for modularity optimization when finding clusters. Can be one of "louvain", "slm", "leiden".}
+
+\item{cluster_resolution}{Cluster resolution parameter.}
+
+\item{cluster_reorder}{Whether to reorder the cluster names using hierarchical clustering.}
+
+\item{seed}{Set a random seed.}
 }
 \description{
 scVI_integrate

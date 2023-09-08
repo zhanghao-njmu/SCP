@@ -8,14 +8,14 @@ DynamicPlot(
   srt,
   features,
   lineages,
-  slot = "counts",
-  assay = "RNA",
-  family = NULL,
-  exp_method = c("log1p", "zscore", "log2fc", "raw"),
-  lib_normalize = TRUE,
-  libsize = NULL,
-  order.by = "pseudotime",
   group.by = NULL,
+  cells = NULL,
+  slot = "counts",
+  assay = NULL,
+  family = NULL,
+  exp_method = c("log1p", "raw", "zscore", "fc", "log2fc"),
+  lib_normalize = identical(slot, "counts"),
+  libsize = NULL,
   compare_lineages = TRUE,
   compare_features = FALSE,
   add_line = TRUE,
@@ -28,20 +28,23 @@ DynamicPlot(
   point_palette = "Paired",
   point_palcolor = NULL,
   add_rug = TRUE,
-  add_density = TRUE,
-  aspect.ratio = 0.5,
+  flip = FALSE,
+  reverse = FALSE,
+  x_order = c("value", "rank"),
+  aspect.ratio = NULL,
   legend.position = "right",
   legend.direction = "vertical",
+  theme_use = "theme_scp",
+  theme_args = list(),
   combine = TRUE,
   nrow = NULL,
   ncol = NULL,
   byrow = TRUE,
-  align = "hv",
-  axis = "lr"
+  seed = 11
 )
 }
 \arguments{
-\item{axis}{}
+\item{seed}{}
 }
 \description{
 Plot for dynamic features along lineages.
@@ -49,12 +52,28 @@ Plot for dynamic features along lineages.
 \examples{
 data("pancreas_sub")
 pancreas_sub <- RunSlingshot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP")
+CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", lineages = paste0("Lineage", 1:3), lineages_span = 0.1)
+DynamicPlot(
+  srt = pancreas_sub,
+  lineages = "Lineage1",
+  features = c("Nnat", "Irx1", "G2M_score"),
+  group.by = "SubCellType",
+  compare_features = TRUE
+)
 DynamicPlot(
   srt = pancreas_sub,
   lineages = c("Lineage1", "Lineage2"),
-  features = c("Nnat", "Irx1"),
+  features = c("Nnat", "Irx1", "G2M_score"),
   group.by = "SubCellType",
   compare_lineages = TRUE,
+  compare_features = FALSE
+)
+DynamicPlot(
+  srt = pancreas_sub,
+  lineages = c("Lineage1", "Lineage2"),
+  features = c("Nnat", "Irx1", "G2M_score"),
+  group.by = "SubCellType",
+  compare_lineages = FALSE,
   compare_features = FALSE
 )
 }

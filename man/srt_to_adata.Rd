@@ -6,6 +6,7 @@
 \usage{
 srt_to_adata(
   srt,
+  features = NULL,
   assay_X = "RNA",
   slot_X = "counts",
   assay_layers = c("spliced", "unspliced"),
@@ -21,6 +22,8 @@ srt_to_adata(
 \item{assay_X}{Assays to convert as X(main data matrix) in anndata object.}
 
 \item{assay_layers}{Assays to convert as layers in anndata object.}
+
+\item{verbose}{}
 }
 \value{
 A \code{anndata} object.

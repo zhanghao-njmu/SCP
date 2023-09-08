@@ -2,7 +2,7 @@
 % Please edit documentation in R/SCP-workflow.R
 \name{RunDimReduction}
 \alias{RunDimReduction}
-\title{RunDimReduction}
+\title{Run dimensionality reduction}
 \usage{
 RunDimReduction(
   srt,
@@ -10,30 +10,61 @@ RunDimReduction(
   features = NULL,
   assay = NULL,
   slot = "data",
-  liner_reduction = NULL,
-  liner_reduction_dims = 100,
-  liner_reduction_params = list(),
-  force_liner_reduction = FALSE,
-  nonliner_reduction = NULL,
-  nonliner_reduction_dims = 2,
+  linear_reduction = NULL,
+  linear_reduction_dims = 50,
+  linear_reduction_params = list(),
+  force_linear_reduction = FALSE,
+  nonlinear_reduction = NULL,
+  nonlinear_reduction_dims = 2,
   reduction_use = NULL,
   reduction_dims = NULL,
-  neighbor_use = NULL,
   graph_use = NULL,
-  distance_use = NULL,
-  nonliner_reduction_params = list(),
-  force_nonliner_reduction = TRUE,
+  neighbor_use = NULL,
+  nonlinear_reduction_params = list(),
+  force_nonlinear_reduction = TRUE,
   verbose = TRUE,
   seed = 11
 )
 }
 \arguments{
-\item{liner_reduction}{"pca", "ica", "nmf", "mds", "glmpca"}
+\item{srt}{A Seurat object.}
 
-\item{nonliner_reduction}{"umap", "umap-naive", "tsne", "dm", "phate", "pacmap", "trimap", "largevis"}
+\item{prefix}{The prefix used to name the result.}
 
-\item{force_nonliner_reduction}{}
+\item{features}{Use features expression data to run linear or nonlinear dimensionality reduction.}
+
+\item{assay}{Specific assay to get data from.}
+
+\item{slot}{Specific slot to get data from.}
+
+\item{linear_reduction}{Method of linear dimensionality reduction. Options are "pca", "ica", "nmf", "mds", "glmpca".}
+
+\item{linear_reduction_dims}{Total number of dimensions to compute and store for \code{linear_reduction}.}
+
+\item{linear_reduction_params}{Other parameters passed to the \code{linear_reduction} method.}
+
+\item{force_linear_reduction}{Whether force to do linear dimensionality reduction.}
+
+\item{nonlinear_reduction}{Method of nonlinear dimensionality reduction. Options are "umap", "umap-naive", "tsne", "dm", "phate", "pacmap", "trimap", "largevis"}
+
+\item{nonlinear_reduction_dims}{Total number of dimensions to compute and store for \code{nonlinear_reduction}.}
+
+\item{reduction_use}{Which dimensional reduction to use as input for \code{nonlinear_reduction}.}
+
+\item{reduction_dims}{Which dimensions to use as input for \code{nonlinear_reduction}, used only if \code{features} is \code{NULL}.}
+
+\item{graph_use}{Name of graph to use for the \code{nonlinear_reduction}.}
+
+\item{neighbor_use}{Name of neighbor to use for the \code{nonlinear_reduction}.}
+
+\item{nonlinear_reduction_params}{Other parameters passed to the \code{nonlinear_reduction} method.}
+
+\item{force_nonlinear_reduction}{Whether force to do nonlinear dimensionality reduction.}
+
+\item{verbose}{Show messages.}
+
+\item{seed}{Set a seed.}
 }
 \description{
-RunDimReduction
+Run dimensionality reduction
 }
