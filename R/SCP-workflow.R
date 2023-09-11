@@ -189,7 +189,7 @@ check_srtList <- function(srtList, batch = NULL, assay = NULL,
         }
       }
       if (status == "unknown") {
-        warning("Can not determine whether data ", i, " is log-normalized...\n", immediate. = TRUE)
+        warning("Can not determine whether data ", i, " is log-normalized...", immediate. = TRUE)
       }
     }
     if (is.null(HVF)) {

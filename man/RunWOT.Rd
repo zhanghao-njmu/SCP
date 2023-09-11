@@ -15,7 +15,7 @@ RunWOT(
   time_field = "Time",
   growth_iters = 3L,
   tmap_out = "tmaps/tmap_out",
-  time_from = 1,
+  time_from = NULL,
   time_to = NULL,
   get_coupling = FALSE,
   recalculate = FALSE,
@@ -45,9 +45,6 @@ RunWOT(
 \item{fileprefix}{fileprefix.}
 
 \item{return_seurat}{}
-}
-\value{
-A \code{anndata} object.
 }
 \description{
 Run WOT analysis

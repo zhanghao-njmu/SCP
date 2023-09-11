@@ -5340,7 +5340,7 @@ maxDepth <- function(x, depth = 0) {
 #' @importFrom reticulate py_to_r
 #' @export
 check_python_element <- function(x, depth = maxDepth(x)) {
-  if (depth == 0 || !is.list(x)) {
+  if (depth == 0 || !is.list(x) || !inherits(x, "python.builtin.object")) {
     if (inherits(x, "python.builtin.object")) {
       x_r <- tryCatch(py_to_r(x), error = identity)
       if (inherits(x_r, "error")) {
@@ -5702,11 +5702,11 @@ RunPalantir <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_la
 #' @inheritParams RunSCVELO
 #'
 #' @examples
-#' @return A \code{anndata} object.
+#' @export
 RunWOT <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_layers = c("spliced", "unspliced"), slot_layers = "counts",
                    adata = NULL, group_by = NULL,
                    time_field = "Time", growth_iters = 3L, tmap_out = "tmaps/tmap_out",
-                   time_from = 1, time_to = NULL, get_coupling = FALSE, recalculate = FALSE,
+                   time_from = NULL, time_to = NULL, get_coupling = FALSE, recalculate = FALSE,
                    palette = "Paired", palcolor = NULL,
                    show_plot = TRUE, dpi = 300, save = FALSE, dirpath = "./", fileprefix = "",
                    return_seurat = !is.null(srt)) {
@@ -5714,15 +5714,20 @@ RunWOT <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_layers 
   if (all(is.null(srt), is.null(adata))) {
     stop("One of 'srt', 'adata' must be provided.")
   }
-  if (is.null(group_by) && any(!is.null(early_group), !is.null(terminal_groups))) {
-    stop("'group_by' must be provided when early_group or terminal_groups provided.")
+  if (is.null(group_by)) {
+    stop("'group_by' must be provided.")
   }
-  if (is.null(linear_reduction) && is.null(nonlinear_reduction)) {
-    stop("'linear_reduction' or 'nonlinear_reduction' must be provided at least one.")
+  if (is.null(time_field)) {
+    stop("'time_field' must be provided.")
   }
-  if (is.null(early_cell) && is.null(early_group)) {
-    stop("'early_cell' or 'early_group' must be provided.")
+  if (is.null(time_from)) {
+    stop("'time_from' must be provided.")
   }
+  if (isTRUE(get_coupling) && is.null(time_to)) {
+
+  }
+  warning("The 'get_coupling' paramter is only valid when 'time_to' is specified.")
+
   args <- mget(names(formals()))
   args <- lapply(args, function(x) {
     if (is.numeric(x)) {
@@ -5755,7 +5760,7 @@ RunWOT <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_layers 
   args[["palette"]] <- palette_scp(levels(groups) %||% unique(groups), palette = palette, palcolor = palcolor)
 
   SCP_analysis <- reticulate::import_from_path("SCP_analysis", path = system.file("python", package = "SCP", mustWork = TRUE), convert = TRUE)
-  adata <- do.call(SCP_analysis$WOT, args)
+  adata <- do.call(WOT, args)
 
   if (isTRUE(return_seurat)) {
     srt_out <- adata_to_srt(adata)

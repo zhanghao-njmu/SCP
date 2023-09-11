@@ -770,7 +770,7 @@ def Palantir(adata=None, h5ad=None,group_by=None,palette=None,
 
 def WOT(adata=None, h5ad=None, group_by=None,palette=None, 
         time_field = "Time", growth_iters = 3, tmap_out = "tmaps/tmap_out",
-        time_from = 1, time_to = None, get_coupling = False,recalculate=False,
+        time_from = None, time_to = None, get_coupling = False,recalculate=False,
         show_plot=True, dpi=300, save=False, dirpath="./", fileprefix=""):
   import matplotlib.pyplot as plt
   import scanpy as sc
@@ -778,6 +778,7 @@ def WOT(adata=None, h5ad=None, group_by=None,palette=None,
   import statistics
   import pandas as pd
   from math import hypot
+  import wot
 
   import warnings
   warnings.simplefilter("ignore", category=UserWarning)
@@ -810,6 +811,10 @@ def WOT(adata=None, h5ad=None, group_by=None,palette=None,
     if group_by is None:
       print("group_by must be provided.")
       exit()
+      
+    if time_field is None:
+      print("time_field must be provided.")
+      exit()
 
     adata.obs[group_by] = adata.obs[group_by].astype(dtype = "category")
     if pd.api.types.is_categorical_dtype(adata.obs[time_field]):
@@ -823,7 +828,11 @@ def WOT(adata=None, h5ad=None, group_by=None,palette=None,
       adata.obs["time_field"] = adata.obs[time_field]
       
     time_dict = dict(zip(adata.obs[time_field],adata.obs["time_field"]))
-    ot_model <- wot.ot.OTModel(adata, growth_iters = growth_iters, day_field = "time_field")
+    if time_from not in time_dict.keys():
+      print("'time_from' is incorrect")
+      exit()
+    
+    ot_model = wot.ot.OTModel(adata, growth_iters = growth_iters, day_field = "time_field")
     
     if recalculate is True:
       ot_model.compute_all_transport_maps(tmap_out = tmap_out)
@@ -831,7 +840,7 @@ def WOT(adata=None, h5ad=None, group_by=None,palette=None,
     else:
       try:
         tmap_model = wot.tmap.TransportMapModel.from_directory(tmap_out)
-      except ValueError:
+      except (FileNotFoundError, ValueError):
         ot_model.compute_all_transport_maps(tmap_out = tmap_out)
         tmap_model = wot.tmap.TransportMapModel.from_directory(tmap_out)
 
@@ -845,15 +854,23 @@ def WOT(adata=None, h5ad=None, group_by=None,palette=None,
     
     trajectory_ds = tmap_model.trajectories(from_populations)
     trajectory_df = pd.DataFrame(trajectory_ds.X, index=trajectory_ds.obs_names, columns=trajectory_ds.var_names)
-    adata.uns["trajectory_"+str(time_from)]= trajectory_df
+    adata.uns["trajectory_"+str(time_from)]= trajectory_df.reindex(adata.obs_names)
 
     fates_ds = tmap_model.fates(from_populations)
     fates_df = pd.DataFrame(fates_ds.X, index=fates_ds.obs_names, columns=fates_ds.var_names)
-    adata.uns["fates_"+str(time_from)]= fates_df
+    existing_rows = fates_df.index.tolist()
+    new_rows = list(set(adata.obs_names) - set(existing_rows))
+    new_df = pd.DataFrame(0, index=new_rows, columns=fates_df.columns)
+    fates_df = pd.concat([fates_df, new_df])
+    adata.uns["fates_"+str(time_from)]= fates_df.reindex(adata.obs_names)
     
     # obs_list = wot.tmap.trajectory_trends_from_trajectory(trajectory_ds = trajectory_ds, expression_ds = adata)
   
     if time_to is not None:
+      if time_to not in time_dict.keys():
+        print("'time_to' is incorrect")
+        exit()
+      
       to_populations = tmap_model.population_from_cell_sets(cell_sets, at_time = time_dict[time_to])
       transition_table = tmap_model.transition_table(from_populations, to_populations)
       transition_df = pd.DataFrame(transition_table.X, index=transition_table.obs_names, columns=transition_table.var_names)
