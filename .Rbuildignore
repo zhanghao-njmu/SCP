@@ -13,3 +13,5 @@
 ^SCExplorer$
 ^README$
 ^README.md$
+^tmaps$
+^src/.*[^.cpp]$
