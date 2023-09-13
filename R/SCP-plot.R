@@ -12712,6 +12712,8 @@ EnrichmentPlot <- function(srt, db = "GO_BP", group_by = NULL, test.use = "wilco
   if (!is.null(group_use)) {
     res <- res[res[["Groups"]] %in% group_use, , drop = FALSE]
   }
+
+  metric <- ifelse(is.null(padjustCutoff), "pvalue", "p.adjust")
   if (length(id_use) > 0) {
     pvalueCutoff <- Inf
     padjustCutoff <- Inf
@@ -12719,9 +12721,8 @@ EnrichmentPlot <- function(srt, db = "GO_BP", group_by = NULL, test.use = "wilco
     topTerm <- Inf
     res <- res[res[["ID"]] %in% id_use, , drop = FALSE]
   }
-
-  metric <- ifelse(is.null(padjustCutoff), "pvalue", "p.adjust")
   metric_value <- ifelse(is.null(padjustCutoff), pvalueCutoff, padjustCutoff)
+
   pvalueCutoff <- ifelse(is.null(pvalueCutoff), Inf, pvalueCutoff)
   padjustCutoff <- ifelse(is.null(padjustCutoff), Inf, padjustCutoff)
 
