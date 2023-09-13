@@ -12715,6 +12715,7 @@ EnrichmentPlot <- function(srt, db = "GO_BP", group_by = NULL, test.use = "wilco
 
   metric <- ifelse(is.null(padjustCutoff), "pvalue", "p.adjust")
   if (length(id_use) > 0) {
+    metric <- ifelse(is.null(padjustCutoff), "pvalue", "p.adjust")
     pvalueCutoff <- Inf
     padjustCutoff <- Inf
     compare_only_sig <- FALSE
