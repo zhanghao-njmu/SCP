@@ -12612,19 +12612,28 @@ ProjectionPlot <- function(srt_query, srt_ref,
 #' data("pancreas_sub")
 #' pancreas_sub <- RunDEtest(pancreas_sub, group_by = "CellType")
 #' pancreas_sub <- RunEnrichment(srt = pancreas_sub, db = c("GO_BP", "GO_CC"), group_by = "CellType", species = "Mus_musculus")
-#' EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = "Endocrine", plot_type = "bar")
+#' EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = "Ductal", plot_type = "bar")
 #' EnrichmentPlot(pancreas_sub,
-#'   db = "GO_BP", group_by = "CellType", group_use = c("Ductal", "Endocrine"),
+#'   db = "GO_BP", group_by = "CellType", group_use = "Endocrine",
 #'   plot_type = "bar", character_width = 30,
 #'   theme_use = ggplot2::theme_classic, theme_args = list(base_size = 10)
 #' )
+#' EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", plot_type = "bar", color_by = "Groups", ncol = 2)
+#' EnrichmentPlot(pancreas_sub,
+#'   db = "GO_BP", group_by = "CellType", plot_type = "bar",
+#'   split_by = "Database", color_by = "Groups", palette = "Set1",
+#'   id_use = list(
+#'     "Ductal" = c("GO:0002181", "GO:0045787", "GO:0006260", "GO:0050679"),
+#'     "Ngn3 low EP" = c("GO:0050678", "GO:0051101", "GO:0072091", "GO:0006631"),
+#'     "Ngn3 high EP" = c("GO:0035270", "GO:0030325", "GO:0008637", "GO:0030856"),
+#'     "Pre-endocrine" = c("GO:0090276", "GO:0031018", "GO:0030073", "GO:1903532"),
+#'     "Endocrine" = c("GO:0009914", "GO:0030073", "GO:0009743", "GO:0042593")
+#'   )
+#' )
+#'
 #' EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", topTerm = 3, plot_type = "comparison")
 #' EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", topTerm = 3, plot_type = "comparison", compare_only_sig = TRUE)
 #'
-#' EnrichmentPlot(pancreas_sub,
-#'   db = c("GO_BP", "GO_CC"), group_by = "CellType", group_use = c("Ductal", "Endocrine"), plot_type = "bar",
-#'   split_by = "Groups"
-#' )
 #' EnrichmentPlot(pancreas_sub,
 #'   db = c("GO_BP", "GO_CC"), group_by = "CellType", group_use = c("Ductal", "Endocrine"), plot_type = "bar",
 #'   split_by = "Groups"
@@ -12646,7 +12655,6 @@ ProjectionPlot <- function(srt_query, srt_ref,
 #'   split_by = "Database", color_by = "Groups", palette = "Set1"
 #' )
 #'
-#' EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", plot_type = "bar", color_by = "Groups", palette = "Set1", ncol = 2)
 #' EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = c("Ductal", "Endocrine"), plot_type = "dot", palette = "GdRd", ncol = 1)
 #' EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = c("Ductal", "Endocrine"), plot_type = "lollipop", palette = "GdRd", ncol = 1)
 #' EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = c("Ductal", "Endocrine"), plot_type = "wordcloud", nrow = 1)
@@ -12708,11 +12716,13 @@ EnrichmentPlot <- function(srt, db = "GO_BP", group_by = NULL, test.use = "wilco
   word_type <- match.arg(word_type)
   enrichmap_label <- match.arg(enrichmap_label)
   enrichmap_mark <- match.arg(enrichmap_mark)
+  if (any(!split_by %in% c("Database", "Groups"))) {
+    stop("'split_by' must be either 'Database', 'Groups', or both of them")
+  }
   if (plot_type %in% c("network", "enrichmap") & length(split_by) == 1) {
     warning("When 'plot_type' is 'network' or 'enrichmap', the 'split_by' parameter does not take effect.", immediate. = TRUE)
     split_by <- c("Database", "Groups")
   }
-
 
   if (is.null(res)) {
     if (is.null(group_by)) {
@@ -12722,55 +12732,59 @@ EnrichmentPlot <- function(srt, db = "GO_BP", group_by = NULL, test.use = "wilco
     if (!slot %in% names(srt@tools)) {
       stop("No enrichment result found. You may perform RunEnrichment first.")
     }
-    res <- srt@tools[[slot]][["enrichment"]]
+    enrichment <- srt@tools[[slot]][["enrichment"]]
   } else {
-    res <- res[["enrichment"]]
+    enrichment <- res[["enrichment"]]
   }
 
   if (is.null(pvalueCutoff) && is.null(padjustCutoff)) {
     stop("One of 'pvalueCutoff' or 'padjustCutoff' must be specified")
   }
-  if (!is.factor(res["Groups"])) {
-    res[["Groups"]] <- factor(res[["Groups"]], levels = unique(res[["Groups"]]))
+  if (!is.factor(enrichment["Groups"])) {
+    enrichment[["Groups"]] <- factor(enrichment[["Groups"]], levels = unique(enrichment[["Groups"]]))
   }
-  if (length(db[!db %in% res[["Database"]]]) > 0) {
-    stop(paste0(db[!db %in% res[["Database"]]], " is not in the enrichment result."))
+  if (length(db[!db %in% enrichment[["Database"]]]) > 0) {
+    stop(paste0(db[!db %in% enrichment[["Database"]]], " is not in the enrichment result."))
   }
-  if (!is.factor(res[["Database"]])) {
-    res[["Database"]] <- factor(res[["Database"]], levels = unique(res[["Database"]]))
+  if (!is.factor(enrichment[["Database"]])) {
+    enrichment[["Database"]] <- factor(enrichment[["Database"]], levels = unique(enrichment[["Database"]]))
   }
   if (!is.null(group_use)) {
-    res <- res[res[["Groups"]] %in% group_use, , drop = FALSE]
+    enrichment <- enrichment[enrichment[["Groups"]] %in% group_use, , drop = FALSE]
+  }
+  if (length(id_use) > 0) {
+    topTerm <- Inf
+    if (is.list(id_use) & all(names(id_use) %in% enrichment[["Groups"]])) {
+      enrichment_list <- list()
+      for (i in seq_along(id_use)) {
+        enrichment_list[[i]] <- enrichment[enrichment[["ID"]] %in% id_use[[i]] & enrichment[["Groups"]] %in% names(id_use)[i], , drop = FALSE]
+      }
+      enrichment <- do.call(rbind, enrichment_list)
+    } else {
+      enrichment <- enrichment[enrichment[["ID"]] %in% unlist(id_use), , drop = FALSE]
+    }
   }
 
   metric <- ifelse(is.null(padjustCutoff), "pvalue", "p.adjust")
-  if (length(id_use) > 0) {
-    metric <- ifelse(is.null(padjustCutoff), "pvalue", "p.adjust")
-    pvalueCutoff <- Inf
-    padjustCutoff <- Inf
-    compare_only_sig <- FALSE
-    topTerm <- Inf
-    res <- res[res[["ID"]] %in% id_use, , drop = FALSE]
-  }
   metric_value <- ifelse(is.null(padjustCutoff), pvalueCutoff, padjustCutoff)
 
   pvalueCutoff <- ifelse(is.null(pvalueCutoff), Inf, pvalueCutoff)
   padjustCutoff <- ifelse(is.null(padjustCutoff), Inf, padjustCutoff)
 
   if (any(db %in% c("GO_sim", "GO_BP_sim", "GO_CC_sim", "GO_MF_sim"))) {
-    res_sim <- res[res[["Database"]] %in% gsub("_sim", "", db), , drop = FALSE]
+    enrichment_sim <- enrichment[enrichment[["Database"]] %in% gsub("_sim", "", db), , drop = FALSE]
   }
-  res <- res[res[["Database"]] %in% db, , drop = FALSE]
-  res_sig <- res[res[[metric]] < metric_value, , drop = FALSE]
-  res_sig <- res_sig[order(res_sig[[metric]]), , drop = FALSE]
-  if (nrow(res_sig) == 0) {
+  enrichment <- enrichment[enrichment[["Database"]] %in% db, , drop = FALSE]
+  enrichment_sig <- enrichment[enrichment[[metric]] < metric_value | enrichment[["ID"]] %in% id_use, , drop = FALSE]
+  enrichment_sig <- enrichment_sig[order(enrichment_sig[[metric]]), , drop = FALSE]
+  if (nrow(enrichment_sig) == 0) {
     stop(
       "No term enriched using the threshold: ",
       paste0("pvalueCutoff = ", pvalueCutoff), "; ",
       paste0("padjustCutoff = ", padjustCutoff)
     )
   }
-  df_list <- split(res_sig, formula(paste0("~", split_by, collapse = "+")))
+  df_list <- split(enrichment_sig, formula(paste0("~", split_by, collapse = "+")))
   df_list <- df_list[lapply(df_list, nrow) > 0]
 
   facet <- switch(paste0(split_by, collapse = "~"),
@@ -12793,30 +12807,30 @@ EnrichmentPlot <- function(srt, db = "GO_BP", group_by = NULL, test.use = "wilco
       ids <- unique(c(ids, df[, "ID"]))
     }
     if (any(db %in% c("GO_sim", "GO_BP_sim", "GO_CC_sim", "GO_MF_sim"))) {
-      res_sub <- subset(res_sim, ID %in% ids)
-      res_sub[["Database"]][res_sub[["Database"]] %in% c("GO", "GO_BP", "GO_CC", "GO_MF")] <- paste0(res_sub[["Database"]][res_sub[["Database"]] %in% c("GO", "GO_BP", "GO_CC", "GO_MF")], "_sim")
+      enrichment_sub <- subset(enrichment_sim, ID %in% ids)
+      enrichment_sub[["Database"]][enrichment_sub[["Database"]] %in% c("GO", "GO_BP", "GO_CC", "GO_MF")] <- paste0(enrichment_sub[["Database"]][enrichment_sub[["Database"]] %in% c("GO", "GO_BP", "GO_CC", "GO_MF")], "_sim")
     } else {
-      res_sub <- subset(res, ID %in% ids)
+      enrichment_sub <- subset(enrichment, ID %in% ids)
     }
-    res_sub[["Database"]] <- factor(res_sub[["Database"]], levels = db)
-    res_sub[["GeneRatio"]] <- sapply(res_sub[["GeneRatio"]], function(x) {
+    enrichment_sub[["Database"]] <- factor(enrichment_sub[["Database"]], levels = db)
+    enrichment_sub[["GeneRatio"]] <- sapply(enrichment_sub[["GeneRatio"]], function(x) {
       sp <- strsplit(x, "/")[[1]]
       GeneRatio <- as.numeric(sp[1]) / as.numeric(sp[2])
     })
-    res_sub[["BgRatio"]] <- sapply(res_sub[["BgRatio"]], function(x) {
+    enrichment_sub[["BgRatio"]] <- sapply(enrichment_sub[["BgRatio"]], function(x) {
       sp <- strsplit(x, "/")[[1]]
       BgRatio <- as.numeric(sp[1]) / as.numeric(sp[2])
       return(BgRatio)
     })
-    res_sub[["EnrichmentScore"]] <- res_sub[["GeneRatio"]] / res_sub[["BgRatio"]]
-    res_sub[["Description"]] <- capitalize(res_sub[["Description"]])
-    res_sub[["Description"]] <- str_wrap(res_sub[["Description"]], width = character_width)
-    terms <- setNames(res_sub[["Description"]], res_sub[["ID"]])
-    res_sub[["Description"]] <- factor(res_sub[["Description"]], levels = unique(rev(terms[ids])))
+    enrichment_sub[["EnrichmentScore"]] <- enrichment_sub[["GeneRatio"]] / enrichment_sub[["BgRatio"]]
+    enrichment_sub[["Description"]] <- capitalize(enrichment_sub[["Description"]])
+    enrichment_sub[["Description"]] <- str_wrap(enrichment_sub[["Description"]], width = character_width)
+    terms <- setNames(enrichment_sub[["Description"]], enrichment_sub[["ID"]])
+    enrichment_sub[["Description"]] <- factor(enrichment_sub[["Description"]], levels = unique(rev(terms[ids])))
     if (isTRUE(compare_only_sig)) {
-      res_sub <- res_sub[res_sub[[metric]] < metric_value, , drop = FALSE]
+      enrichment_sub <- enrichment_sub[enrichment_sub[[metric]] < metric_value, , drop = FALSE]
     }
-    p <- ggplot(res_sub, aes(x = Groups, y = Description)) +
+    p <- ggplot(enrichment_sub, aes(x = Groups, y = Description)) +
       geom_point(aes(size = GeneRatio, fill = .data[[metric]], color = ""), shape = 21) +
       scale_size_area(name = "GeneRatio", max_size = 6, n.breaks = 4) +
       guides(size = guide_legend(override.aes = list(fill = "grey30", shape = 21), order = 1)) +
@@ -12840,7 +12854,7 @@ EnrichmentPlot <- function(srt, db = "GO_BP", group_by = NULL, test.use = "wilco
         axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1),
         axis.text.y = element_text(
           lineheight = lineheight, hjust = 1,
-          face = ifelse(grepl("\n", levels(res_sub[["Description"]])), "italic", "plain")
+          face = ifelse(grepl("\n", levels(enrichment_sub[["Description"]])), "italic", "plain")
         )
       )
     plist <- list(p)
@@ -13498,10 +13512,12 @@ adjustlayout <- function(graph, layout, width, height = 2, scale = 100, iter = 1
 #' GSEAPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = "Ductal")
 #' GSEAPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = "Ductal", id_use = "GO:0006412")
 #' GSEAPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = "Endocrine", id_use = c("GO:0046903", "GO:0015031", "GO:0007600")) %>%
-#'   panel_fix_single(width = 5) # Because the plot is made by combining, we want to adjust the overall height and width
+#'   panel_fix_single(width = 5) # Because the plot is made by combining, we need to adjust the overall height and width
+#'
 #' GSEAPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", topTerm = 3, plot_type = "comparison")
 #' GSEAPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", topTerm = 3, plot_type = "comparison", compare_only_sig = TRUE)
-#' GSEAPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", topTerm = 3, plot_type = "comparison", pvalueCutoff = 0.05, padjustCutoff = NULL, only_pos = TRUE, compare_only_sig = TRUE)
+#' GSEAPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", topTerm = 3, plot_type = "comparison", only_pos = TRUE, compare_only_sig = TRUE)
+#'
 #' @importFrom ggplot2 ggplot aes theme theme_classic alpha element_blank element_rect margin geom_line geom_point geom_rect geom_linerange geom_hline geom_vline geom_segment annotate ggtitle labs xlab ylab scale_x_continuous scale_y_continuous scale_color_manual scale_alpha_manual guides guide_legend guide_none
 #' @importFrom ggrepel geom_text_repel
 #' @importFrom grDevices colorRamp
@@ -13558,9 +13574,22 @@ GSEAPlot <- function(srt, db = "GO_BP", group_by = NULL, test.use = "wilcox", re
   if (length(db[!db %in% enrichment[["Database"]]]) > 0) {
     stop(paste0(db[!db %in% enrichment[["Database"]]], " is not in the enrichment result."))
   }
+  if (length(id_use) > 0) {
+    topTerm <- Inf
+    if (is.list(id_use) & all(names(id_use) %in% enrichment[["Groups"]])) {
+      enrichment_list <- list()
+      for (i in seq_along(id_use)) {
+        enrichment_list[[i]] <- enrichment[enrichment[["ID"]] %in% id_use[[i]] & enrichment[["Groups"]] %in% names(id_use)[i], , drop = FALSE]
+      }
+      enrichment <- do.call(rbind, enrichment_list)
+    } else {
+      enrichment <- enrichment[enrichment[["ID"]] %in% unlist(id_use), , drop = FALSE]
+    }
+  }
 
   metric <- ifelse(is.null(padjustCutoff), "pvalue", "p.adjust")
   metric_value <- ifelse(is.null(padjustCutoff), pvalueCutoff, padjustCutoff)
+
   pvalueCutoff <- ifelse(is.null(pvalueCutoff), 1, pvalueCutoff)
   padjustCutoff <- ifelse(is.null(padjustCutoff), 1, padjustCutoff)
 
@@ -13571,41 +13600,47 @@ GSEAPlot <- function(srt, db = "GO_BP", group_by = NULL, test.use = "wilcox", re
 
   plist <- NULL
   if (plot_type == "comparison") {
-    ids <- NULL
-    for (i in group_use) {
-      df <- enrichment[enrichment[["Groups"]] == i, , drop = FALSE]
-      df <- df[df[["pvalue"]] <= pvalueCutoff & df[["p.adjust"]] <= padjustCutoff, , drop = FALSE]
-      df <- df[order(df[[metric]]), , drop = FALSE]
-      df_up <- df[df[["NES"]] > 0, , drop = FALSE]
-      ID_up <- df_up[head(order(df_up[[metric]]), topTerm), "ID"]
-      df_down <- df[df[["NES"]] < 0, , drop = FALSE]
-      ID_down <- df_down[head(order(df_down[[metric]]), topTerm), "ID"]
-      if (isTRUE(only_pos)) {
-        ids <- unique(c(ids, head(c(ID_up), topTerm)))
-      } else {
-        ids <- unique(c(ids, head(c(ID_up, ID_down), topTerm)))
+    # comparison -------------------------------------------------------------------------------------------------
+    if (length(id_use) > 0) {
+      ids <- unlist(id_use)
+    } else {
+      ids <- NULL
+      for (i in group_use) {
+        df <- enrichment[enrichment[["Groups"]] == i, , drop = FALSE]
+        df <- df[df[["pvalue"]] <= pvalueCutoff & df[["p.adjust"]] <= padjustCutoff, , drop = FALSE]
+        df <- df[order(df[[metric]]), , drop = FALSE]
+        df_up <- df[df[["NES"]] > 0, , drop = FALSE]
+        ID_up <- df_up[head(order(df_up[[metric]]), topTerm), "ID"]
+        df_down <- df[df[["NES"]] < 0, , drop = FALSE]
+        ID_down <- df_down[head(order(df_down[[metric]]), topTerm), "ID"]
+        if (isTRUE(only_pos)) {
+          ids <- unique(c(ids, head(c(ID_up), topTerm)))
+        } else {
+          ids <- unique(c(ids, head(c(ID_up, ID_down), topTerm)))
+        }
       }
     }
+
     if (any(db %in% c("GO_sim", "GO_BP_sim", "GO_CC_sim", "GO_MF_sim"))) {
-      res_sub <- subset(enrichment_sim, ID %in% ids)
-      res_sub[["Database"]][res_sub[["Database"]] %in% c("GO", "GO_BP", "GO_CC", "GO_MF")] <- paste0(res_sub[["Database"]][res_sub[["Database"]] %in% c("GO", "GO_BP", "GO_CC", "GO_MF")], "_sim")
+      enrichment_sub <- subset(enrichment_sim, ID %in% ids)
+      enrichment_sub[["Database"]][enrichment_sub[["Database"]] %in% c("GO", "GO_BP", "GO_CC", "GO_MF")] <- paste0(enrichment_sub[["Database"]][enrichment_sub[["Database"]] %in% c("GO", "GO_BP", "GO_CC", "GO_MF")], "_sim")
     } else {
-      res_sub <- subset(enrichment, ID %in% ids)
+      enrichment_sub <- subset(enrichment, ID %in% ids)
     }
-    res_sub[["Database"]] <- factor(res_sub[["Database"]], levels = db)
-    res_sub[["Description"]] <- capitalize(res_sub[["Description"]])
-    res_sub[["Description"]] <- str_wrap(res_sub[["Description"]], width = character_width)
-    terms <- setNames(res_sub[["Description"]], res_sub[["ID"]])
-    res_sub[["Description"]] <- factor(res_sub[["Description"]], levels = unique(rev(terms[ids])))
-    res_sub[["Significant"]] <- res_sub[[metric]] < metric_value
-    res_sub[["Significant"]] <- factor(res_sub[["Significant"]], levels = c("TRUE", "FALSE"))
+    enrichment_sub[["Database"]] <- factor(enrichment_sub[["Database"]], levels = db)
+    enrichment_sub[["Description"]] <- capitalize(enrichment_sub[["Description"]])
+    enrichment_sub[["Description"]] <- str_wrap(enrichment_sub[["Description"]], width = character_width)
+    terms <- setNames(enrichment_sub[["Description"]], enrichment_sub[["ID"]])
+    enrichment_sub[["Description"]] <- factor(enrichment_sub[["Description"]], levels = unique(rev(terms[ids])))
+    enrichment_sub[["Significant"]] <- enrichment_sub[[metric]] < metric_value
+    enrichment_sub[["Significant"]] <- factor(enrichment_sub[["Significant"]], levels = c("TRUE", "FALSE"))
     if (isTRUE(compare_only_sig)) {
-      res_sub <- res_sub[res_sub[["Significant"]] == "TRUE", , drop = FALSE]
+      enrichment_sub <- enrichment_sub[enrichment_sub[["Significant"]] == "TRUE", , drop = FALSE]
     }
     if (isTRUE(only_pos)) {
-      res_sub <- res_sub[res_sub[["NES"]] > 0, , drop = FALSE]
+      enrichment_sub <- enrichment_sub[enrichment_sub[["NES"]] > 0, , drop = FALSE]
     }
-    suppressWarnings(p <- ggplot(res_sub, aes(x = Groups, y = Description)) +
+    suppressWarnings(p <- ggplot(enrichment_sub, aes(x = Groups, y = Description)) +
       geom_point(aes(size = setSize, fill = NES, color = Significant), shape = 21, stroke = 0.8) +
       scale_size_area(name = "setSize", max_size = 6, n.breaks = 4) +
       guides(size = guide_legend(override.aes = list(fill = "grey30", shape = 21), order = 2)) +
@@ -13613,7 +13648,7 @@ GSEAPlot <- function(srt, db = "GO_BP", group_by = NULL, test.use = "wilcox", re
       scale_fill_gradientn(
         name = "NES",
         n.breaks = 4,
-        limits = c(-max(abs(res_sub[["NES"]])), max(abs(res_sub[["NES"]]))),
+        limits = c(-max(abs(enrichment_sub[["NES"]])), max(abs(enrichment_sub[["NES"]]))),
         colors = palette_scp(palette = palette, palcolor = palcolor),
         guide = guide_colorbar(frame.colour = "black", ticks.colour = "black", barheight = 4, barwidth = 1, order = 1)
       ) +
@@ -13632,11 +13667,12 @@ GSEAPlot <- function(srt, db = "GO_BP", group_by = NULL, test.use = "wilcox", re
         axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1),
         axis.text.y = element_text(
           lineheight = lineheight, hjust = 1,
-          face = ifelse(grepl("\n", levels(res_sub[["Description"]])), "italic", "plain")
+          face = ifelse(grepl("\n", levels(enrichment_sub[["Description"]])), "italic", "plain")
         )
       ))
     plist <- list(p)
   } else if (plot_type == "line") {
+    # line -------------------------------------------------------------------------------------------------
     for (nm in names(res)) {
       res_enrich <- res[[nm]]
       if (is.null(id_use)) {
@@ -13896,6 +13932,12 @@ GSEAPlot <- function(srt, db = "GO_BP", group_by = NULL, test.use = "wilcox", re
         plist[[nm]] <- p_out
       }
     }
+  } else if (plot_type == "bar") {
+    # bar -------------------------------------------------------------------------------------------------
+  } else if (plot_type == "network") {
+    # network -------------------------------------------------------------------------------------------------
+  } else if (plot_type == "enrichmap") {
+    # enrichmap -------------------------------------------------------------------------------------------------
   }
 
   if (isTRUE(combine)) {

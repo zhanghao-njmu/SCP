@@ -58,8 +58,10 @@ pancreas_sub <- RunGSEA(pancreas_sub, group_by = "CellType", db = "GO_BP", speci
 GSEAPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = "Ductal")
 GSEAPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = "Ductal", id_use = "GO:0006412")
 GSEAPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = "Endocrine", id_use = c("GO:0046903", "GO:0015031", "GO:0007600")) \%>\%
-  panel_fix_single(width = 5) # Because the plot is made by combining, we want to adjust the overall height and width
+  panel_fix_single(width = 5) # Because the plot is made by combining, we need to adjust the overall height and width
+
 GSEAPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", topTerm = 3, plot_type = "comparison")
 GSEAPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", topTerm = 3, plot_type = "comparison", compare_only_sig = TRUE)
-GSEAPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", topTerm = 3, plot_type = "comparison", pvalueCutoff = 0.05, padjustCutoff = NULL, only_pos = TRUE, compare_only_sig = TRUE)
+GSEAPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", topTerm = 3, plot_type = "comparison", only_pos = TRUE, compare_only_sig = TRUE)
+
 }
