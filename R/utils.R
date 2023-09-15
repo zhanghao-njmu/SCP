@@ -82,7 +82,7 @@ PrepareEnv <- function(conda = "auto", miniconda_repo = "https://repo.anaconda.c
     if (python_version < numeric_version("3.7.0") || python_version >= numeric_version("3.10.0")) {
       stop("SCP currently only support python version 3.7-3.9!")
     }
-    python_path <- reticulate::conda_create(conda = conda, envname = envname, python_version = python_version)
+    python_path <- reticulate::conda_create(conda = conda, envname = envname, python_version = python_version, packages = "pytables")
     env_path <- paste0(envs_dir, "/", envname)
     env <- file.exists(env_path)
     if (isFALSE(env)) {
@@ -97,9 +97,20 @@ PrepareEnv <- function(conda = "auto", miniconda_repo = "https://repo.anaconda.c
   }
 
   packages <- c(
-    "numpy==1.21.6", "numba==0.55.2", "scikit-learn==1.1.2", "pandas==1.3.5", "python-igraph==0.10.2", "matplotlib==3.6.3",
-    "palantir==1.0.1", "wot==1.0.8.post2",
-    "scipy", "versioned-hdf5", "leidenalg", "scanpy", "scvelo"
+    "numpy" = "numpy==1.21.6",
+    "numba" = "numba==0.55.2",
+    "scikit-learn" = "scikit-learn==1.1.2",
+    "pandas" = "pandas==1.3.5",
+    "python-igraph" = "python-igraph==0.10.2",
+    "matplotlib" = "matplotlib==3.6.3",
+    "tables" = "git+https://github.com/PyTables/PyTables", # Fixed: PyTables install fails on macOS M1
+    "palantir" = "palantir==1.0.1",
+    "wot" = "wot==1.0.8.post2",
+    "scipy" = "scipy",
+    "versioned-hdf5" = "versioned-hdf5",
+    "leidenalg" = "leidenalg",
+    "scanpy" = "scanpy",
+    "scvelo" = "scvelo"
   )
   check_Python(packages = packages, envname = envname, conda = conda, force = force, ...)
 
@@ -234,6 +245,7 @@ installed_Python_pkgs <- function(envname = NULL, conda = "auto") {
 #' Check if the python package exists in the environment
 #'
 #' @inheritParams check_Python
+#' @importFrom rlang %||%
 #' @export
 exist_Python_pkgs <- function(packages, envname = NULL, conda = "auto") {
   envname <- get_envname(envname)
@@ -249,10 +261,20 @@ exist_Python_pkgs <- function(packages, envname = NULL, conda = "auto") {
   }
   all_installed <- installed_Python_pkgs(envname = envname, conda = conda)
   packages_installed <- NULL
-  for (pkg in packages) {
-    pkg_info <- strsplit(pkg, split = "==")[[1]]
-    pkg_name <- pkg_info[1]
-    pkg_version <- pkg_info[2]
+  for (i in seq_along(packages)) {
+    pkg <- packages[i]
+    if (grepl("==", pkg)) {
+      pkg_info <- strsplit(pkg, split = "==")[[1]]
+      pkg_name <- names(pkg) %||% pkg_info[1]
+      pkg_version <- pkg_info[2]
+    } else if (grepl("git+", pkg)) {
+      pkg_info <- strsplit(pkg, "/")[[1]]
+      pkg_name <- names(pkg) %||% pkg_info[length(pkg_info)]
+      pkg_version <- NA
+    } else {
+      pkg_name <- names(pkg) %||% pkg
+      pkg_version <- NA
+    }
     if (pkg_name %in% all_installed$package) {
       if (!is.na(pkg_version)) {
         packages_installed[pkg] <- all_installed$version[all_installed$package == pkg_name] == pkg_version

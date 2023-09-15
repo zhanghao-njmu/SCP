@@ -7278,7 +7278,7 @@ heatmap_enrichment <- function(geneID, geneID_groups, feature_split_palette = "s
           if (isTRUE(anno_keys)) {
             check_R("jokergoo/simplifyEnrichment")
             keys_list <- lapply(subdf_list, function(df) {
-              if (df$Database[1] %in% c("GO_BP", "GO_CC", "GO_MF")) {
+              if (all(df$Database %in% c("GO", "GO_BP", "GO_CC", "GO_MF"))) {
                 df0 <- simplifyEnrichment::keyword_enrichment_from_GO(df[["ID"]])
                 if (nrow(df0) > 0) {
                   df <- df0 %>%
@@ -12611,7 +12611,7 @@ ProjectionPlot <- function(srt_query, srt_ref,
 #' library(dplyr)
 #' data("pancreas_sub")
 #' pancreas_sub <- RunDEtest(pancreas_sub, group_by = "CellType")
-#' pancreas_sub <- RunEnrichment(srt = pancreas_sub, db = "GO_BP", group_by = "CellType", species = "Mus_musculus")
+#' pancreas_sub <- RunEnrichment(srt = pancreas_sub, db = c("GO_BP", "GO_CC"), group_by = "CellType", species = "Mus_musculus")
 #' EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = "Endocrine", plot_type = "bar")
 #' EnrichmentPlot(pancreas_sub,
 #'   db = "GO_BP", group_by = "CellType", group_use = c("Ductal", "Endocrine"),
@@ -12621,12 +12621,36 @@ ProjectionPlot <- function(srt_query, srt_ref,
 #' EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", topTerm = 3, plot_type = "comparison")
 #' EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", topTerm = 3, plot_type = "comparison", compare_only_sig = TRUE)
 #'
+#' EnrichmentPlot(pancreas_sub,
+#'   db = c("GO_BP", "GO_CC"), group_by = "CellType", group_use = c("Ductal", "Endocrine"), plot_type = "bar",
+#'   split_by = "Groups"
+#' )
+#' EnrichmentPlot(pancreas_sub,
+#'   db = c("GO_BP", "GO_CC"), group_by = "CellType", group_use = c("Ductal", "Endocrine"), plot_type = "bar",
+#'   split_by = "Groups"
+#' )
+#' EnrichmentPlot(pancreas_sub,
+#'   db = c("GO_BP", "GO_CC"), group_by = "CellType", group_use = c("Ductal", "Endocrine"), plot_type = "bar",
+#'   split_by = "Database", color_by = "Groups",
+#' )
+#' EnrichmentPlot(pancreas_sub,
+#'   db = c("GO_BP", "GO_CC"), group_by = "CellType", group_use = c("Ductal", "Endocrine"), plot_type = "bar",
+#'   split_by = c("Database", "Groups")
+#' )
+#' EnrichmentPlot(pancreas_sub,
+#'   db = c("GO_BP", "GO_CC"), group_by = "CellType", group_use = c("Ductal", "Endocrine"), plot_type = "bar",
+#'   split_by = c("Groups", "Database")
+#' )
+#' EnrichmentPlot(pancreas_sub,
+#'   db = c("GO_BP", "GO_CC"), group_by = "CellType", plot_type = "bar",
+#'   split_by = "Database", color_by = "Groups", palette = "Set1"
+#' )
 #'
-#' EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = c("Ductal", "Endocrine"), plot_type = "bar", ncol = 1)
-#' EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = c("Ductal", "Endocrine"), plot_type = "dot", ncol = 1, palette = "GdRd")
-#' EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = c("Ductal", "Endocrine"), plot_type = "lollipop", ncol = 1, palette = "GdRd")
-#' EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = c("Ductal", "Endocrine"), plot_type = "wordcloud")
-#' EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = c("Ductal", "Endocrine"), plot_type = "wordcloud", word_type = "feature")
+#' EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", plot_type = "bar", color_by = "Groups", palette = "Set1", ncol = 2)
+#' EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = c("Ductal", "Endocrine"), plot_type = "dot", palette = "GdRd", ncol = 1)
+#' EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = c("Ductal", "Endocrine"), plot_type = "lollipop", palette = "GdRd", ncol = 1)
+#' EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = c("Ductal", "Endocrine"), plot_type = "wordcloud", nrow = 1)
+#' EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = c("Ductal", "Endocrine"), plot_type = "wordcloud", word_type = "feature", nrow = 1)
 #' EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = c("Ductal", "Endocrine"), plot_type = "comparison")
 #'
 #' EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = "Ductal", plot_type = "network")
@@ -12665,6 +12689,7 @@ ProjectionPlot <- function(srt_query, srt_ref,
 #'
 EnrichmentPlot <- function(srt, db = "GO_BP", group_by = NULL, test.use = "wilcox", res = NULL,
                            plot_type = c("bar", "dot", "lollipop", "network", "enrichmap", "wordcloud", "comparison"),
+                           split_by = c("Database", "Groups"), color_by = "Database",
                            group_use = NULL, id_use = NULL, pvalueCutoff = NULL, padjustCutoff = 0.05, compare_only_sig = FALSE,
                            topTerm = ifelse(plot_type == "enrichmap", 100, 6), topWord = 100,
                            word_type = c("term", "feature"), word_size = c(2, 8), min_word_length = 3,
@@ -12683,6 +12708,11 @@ EnrichmentPlot <- function(srt, db = "GO_BP", group_by = NULL, test.use = "wilco
   word_type <- match.arg(word_type)
   enrichmap_label <- match.arg(enrichmap_label)
   enrichmap_mark <- match.arg(enrichmap_mark)
+  if (plot_type %in% c("network", "enrichmap") & length(split_by) == 1) {
+    warning("When 'plot_type' is 'network' or 'enrichmap', the 'split_by' parameter does not take effect.", immediate. = TRUE)
+    split_by <- c("Database", "Groups")
+  }
+
 
   if (is.null(res)) {
     if (is.null(group_by)) {
@@ -12740,15 +12770,27 @@ EnrichmentPlot <- function(srt, db = "GO_BP", group_by = NULL, test.use = "wilco
       paste0("padjustCutoff = ", padjustCutoff)
     )
   }
-  df_list <- split.data.frame(res_sig, ~ Database + Groups)
+  df_list <- split(res_sig, formula(paste0("~", split_by, collapse = "+")))
   df_list <- df_list[lapply(df_list, nrow) > 0]
+
+  facet <- switch(paste0(split_by, collapse = "~"),
+    "Groups" = formula(paste0("Database ~ Groups")),
+    "Database" = formula(paste0("Groups ~ Database")),
+    formula(paste0(split_by, collapse = "~"))
+  )
 
   if (plot_type == "comparison") {
     # comparison -------------------------------------------------------------------------------------------------
     ids <- NULL
     for (i in seq_along(df_list)) {
       df <- df_list[[i]]
-      ids <- unique(c(ids, df[head(seq_len(nrow(df)), topTerm), "ID"]))
+      df_groups <- split(df, list(df$Database, df$Groups))
+      df_groups <- lapply(df_groups, function(group) {
+        filtered_group <- group[head(seq_len(nrow(group)), topTerm), , drop = FALSE]
+        return(filtered_group)
+      })
+      df <- do.call(rbind, df_groups)
+      ids <- unique(c(ids, df[, "ID"]))
     }
     if (any(db %in% c("GO_sim", "GO_BP_sim", "GO_CC_sim", "GO_MF_sim"))) {
       res_sub <- subset(res_sim, ID %in% ids)
@@ -12792,10 +12834,9 @@ EnrichmentPlot <- function(srt, db = "GO_BP", group_by = NULL, test.use = "wilco
       do.call(theme_use, theme_args) +
       theme(
         aspect.ratio = aspect.ratio,
-        panel.grid.major = element_line(colour = "grey80", linetype = 2),
-        strip.background.y = element_rect(fill = "white", color = "black", linetype = 1, linewidth = 1),
         legend.position = legend.position,
         legend.direction = legend.direction,
+        panel.grid.major = element_line(colour = "grey80", linetype = 2),
         axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1),
         axis.text.y = element_text(
           lineheight = lineheight, hjust = 1,
@@ -12806,38 +12847,40 @@ EnrichmentPlot <- function(srt, db = "GO_BP", group_by = NULL, test.use = "wilco
   } else if (plot_type == "bar") {
     # bar -------------------------------------------------------------------------------------------------
     plist <- suppressWarnings(lapply(df_list, function(df) {
-      df <- df[head(seq_len(nrow(df)), topTerm), , drop = FALSE]
+      df_groups <- split(df, list(df$Database, df$Groups))
+      df_groups <- lapply(df_groups, function(group) {
+        filtered_group <- group[head(seq_len(nrow(group)), topTerm), , drop = FALSE]
+        return(filtered_group)
+      })
+      df <- do.call(rbind, df_groups)
+
       df[["metric"]] <- -log10(df[[metric]])
       df[["Description"]] <- capitalize(df[["Description"]])
       df[["Description"]] <- str_wrap(df[["Description"]], width = character_width)
-      df[["Description"]] <- factor(df[["Description"]], levels = rev(df[["Description"]]))
+      df[["Description"]] <- factor(df[["Description"]], levels = unique(rev(df[["Description"]])))
 
       p <- ggplot(df, aes(
         x = .data[["Description"]], y = .data[["metric"]],
-        fill = .data[["Database"]],
-        label = .data[["Count"]]
+        fill = .data[[color_by]], label = .data[["Count"]]
       )) +
         geom_bar(width = 0.9, stat = "identity", color = "black") +
         geom_text(hjust = -0.5, size = 3.5, color = "white", fontface = "bold") +
         geom_text(hjust = -0.5, size = 3.5) +
         labs(x = "", y = paste0("-log10(", metric, ")")) +
         scale_fill_manual(
-          values = palette_scp(levels(df[["Database"]]), palette = palette, palcolor = palcolor),
+          values = palette_scp(levels(df[[color_by]]), palette = palette, palcolor = palcolor),
           na.value = "grey80",
           guide = "none"
         ) +
         scale_y_continuous(limits = c(0, 1.3 * max(df[["metric"]], na.rm = TRUE)), expand = expansion(0, 0)) +
-        facet_grid(Database ~ Groups, scales = "free") +
+        facet_grid(facet, scales = "free") +
         coord_flip() +
         do.call(theme_use, theme_args) +
         theme(
           aspect.ratio = aspect.ratio,
-          panel.grid.major = element_line(colour = "grey80", linetype = 2),
-          strip.background.y = element_rect(fill = "white", color = "black", linetype = 1, linewidth = 1),
-          legend.box.margin = margin(0, 0, 0, 0),
-          legend.margin = margin(0, 0, 0, 0),
           legend.position = legend.position,
           legend.direction = legend.direction,
+          panel.grid.major = element_line(colour = "grey80", linetype = 2),
           axis.text.y = element_text(
             lineheight = lineheight, hjust = 1,
             face = ifelse(grepl("\n", levels(df[["Description"]])), "italic", "plain")
@@ -12848,7 +12891,13 @@ EnrichmentPlot <- function(srt, db = "GO_BP", group_by = NULL, test.use = "wilco
   } else if (plot_type == "dot") {
     # dot -------------------------------------------------------------------------------------------------
     plist <- suppressWarnings(lapply(df_list, function(df) {
-      df <- df[head(seq_len(nrow(df)), topTerm), , drop = FALSE]
+      df_groups <- split(df, list(df$Database, df$Groups))
+      df_groups <- lapply(df_groups, function(group) {
+        filtered_group <- group[head(seq_len(nrow(group)), topTerm), , drop = FALSE]
+        return(filtered_group)
+      })
+      df <- do.call(rbind, df_groups)
+
       df[["GeneRatio"]] <- sapply(df[["GeneRatio"]], function(x) {
         sp <- strsplit(x, "/")[[1]]
         GeneRatio <- as.numeric(sp[1]) / as.numeric(sp[2])
@@ -12857,7 +12906,7 @@ EnrichmentPlot <- function(srt, db = "GO_BP", group_by = NULL, test.use = "wilco
       df[["metric"]] <- -log10(df[[metric]])
       df[["Description"]] <- capitalize(df[["Description"]])
       df[["Description"]] <- str_wrap(df[["Description"]], width = character_width)
-      df[["Description"]] <- factor(df[["Description"]], levels = rev(df[["Description"]]))
+      df[["Description"]] <- factor(df[["Description"]], levels = unique(rev(df[["Description"]])))
 
       p <- ggplot(df, aes(
         x = .data[["Description"]], y = .data[["GeneRatio"]]
@@ -12874,18 +12923,81 @@ EnrichmentPlot <- function(srt, db = "GO_BP", group_by = NULL, test.use = "wilco
           guide = guide_colorbar(frame.colour = "black", ticks.colour = "black", barheight = 4, barwidth = 1)
         ) +
         scale_y_continuous(limits = c(0, 1.3 * max(df[["GeneRatio"]], na.rm = TRUE)), expand = expansion(0, 0)) +
-        facet_grid(Database ~ Groups, scales = "free") +
+        facet_grid(facet, scales = "free") +
         coord_flip() +
         do.call(theme_use, theme_args) +
         theme(
           aspect.ratio = aspect.ratio,
-          panel.grid.major = element_line(colour = "grey80", linetype = 2),
-          strip.background.y = element_rect(fill = "white", color = "black", linetype = 1, linewidth = 1),
-          legend.box.margin = margin(0, 0, 0, 0),
-          legend.margin = margin(0, 0, 0, 0),
           legend.position = legend.position,
           legend.direction = legend.direction,
+          panel.grid.major = element_line(colour = "grey80", linetype = 2),
           axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1),
+          axis.text.y = element_text(
+            lineheight = lineheight, hjust = 1,
+            face = ifelse(grepl("\n", levels(df[["Description"]])), "italic", "plain")
+          )
+        )
+      return(p)
+    }))
+  } else if (plot_type == "lollipop") {
+    # lollipop -------------------------------------------------------------------------------------------------
+    plist <- suppressWarnings(lapply(df_list, function(df) {
+      df_groups <- split(df, list(df$Database, df$Groups))
+      df_groups <- lapply(df_groups, function(group) {
+        filtered_group <- group[head(seq_len(nrow(group)), topTerm), , drop = FALSE]
+        return(filtered_group)
+      })
+      df <- do.call(rbind, df_groups)
+
+      df[["GeneRatio"]] <- sapply(df[["GeneRatio"]], function(x) {
+        sp <- strsplit(x, "/")[[1]]
+        GeneRatio <- as.numeric(sp[1]) / as.numeric(sp[2])
+      })
+      df[["BgRatio"]] <- sapply(df[["BgRatio"]], function(x) {
+        sp <- strsplit(x, "/")[[1]]
+        BgRatio <- as.numeric(sp[1]) / as.numeric(sp[2])
+        return(BgRatio)
+      })
+      df[["FoldEnrichment"]] <- df[["GeneRatio"]] / df[["BgRatio"]]
+      df[["metric"]] <- -log10(df[[metric]])
+      df[["Description"]] <- capitalize(df[["Description"]])
+      df[["Description"]] <- str_wrap(df[["Description"]], width = character_width)
+      df[["Description"]] <- factor(df[["Description"]], levels = unique(df[order(df[["FoldEnrichment"]]), "Description"]))
+
+      p <- ggplot(df, aes(
+        x = .data[["Description"]], y = .data[["FoldEnrichment"]],
+        fill = .data[["metric"]]
+      )) +
+        geom_blank() +
+        geom_segment(
+          aes(y = 0, xend = .data[["Description"]], yend = .data[["FoldEnrichment"]]),
+          color = "black", linewidth = 2
+        ) +
+        geom_segment(
+          aes(y = 0, xend = .data[["Description"]], yend = .data[["FoldEnrichment"]], color = .data[["metric"]]),
+          linewidth = 1
+        ) +
+        geom_point(aes(size = .data[["GeneRatio"]]), shape = 21, color = "black") +
+        scale_size(name = "GeneRatio", range = c(3, 6), scales::breaks_extended(n = 4)) +
+        guides(size = guide_legend(override.aes = list(fill = "grey30", shape = 21), order = 1)) +
+        scale_y_continuous(limits = c(0, 1.2 * max(df[["FoldEnrichment"]], na.rm = TRUE)), expand = expansion(0, 0)) +
+        labs(x = "", y = "Fold Enrichment") +
+        scale_fill_gradientn(
+          name = paste0("-log10(", metric, ")"),
+          n.breaks = 3,
+          colors = palette_scp(palette = palette, palcolor = palcolor),
+          na.value = "grey80",
+          guide = guide_colorbar(frame.colour = "black", ticks.colour = "black", barheight = 4, barwidth = 1),
+          aesthetics = c("color", "fill")
+        ) +
+        facet_grid(facet, scales = "free") +
+        coord_flip() +
+        do.call(theme_use, theme_args) +
+        theme(
+          aspect.ratio = aspect.ratio,
+          legend.position = legend.position,
+          legend.direction = legend.direction,
+          panel.grid.major = element_line(colour = "grey80", linetype = 2),
           axis.text.y = element_text(
             lineheight = lineheight, hjust = 1,
             face = ifelse(grepl("\n", levels(df[["Description"]])), "italic", "plain")
@@ -12896,11 +13008,17 @@ EnrichmentPlot <- function(srt, db = "GO_BP", group_by = NULL, test.use = "wilco
   } else if (plot_type == "network") {
     # network -------------------------------------------------------------------------------------------------
     plist <- suppressWarnings(lapply(df_list, function(df) {
-      df <- df[head(seq_len(nrow(df)), topTerm), , drop = FALSE]
+      df_groups <- split(df, list(df$Database, df$Groups))
+      df_groups <- lapply(df_groups, function(group) {
+        filtered_group <- group[head(seq_len(nrow(group)), topTerm), , drop = FALSE]
+        return(filtered_group)
+      })
+      df <- do.call(rbind, df_groups)
+
       df[["metric"]] <- -log10(df[[metric]])
       df[["Description"]] <- capitalize(df[["Description"]])
       df[["Description"]] <- str_wrap(df[["Description"]], width = character_width)
-      df[["Description"]] <- factor(df[["Description"]], levels = df[["Description"]])
+      df[["Description"]] <- factor(df[["Description"]], levels = unique(df[["Description"]]))
       df$geneID <- strsplit(df$geneID, "/")
       df_unnest <- unnest(df, cols = "geneID")
 
@@ -12983,12 +13101,10 @@ EnrichmentPlot <- function(srt, db = "GO_BP", group_by = NULL, test.use = "wilco
         ) +
         guides(color = guide_legend(override.aes = list(color = "transparent"))) +
         labs(x = "", y = "") +
-        facet_grid(Database ~ Groups, scales = "free") +
+        facet_grid(facet, scales = "free") +
         do.call(theme_use, theme_args) +
         theme(
           aspect.ratio = aspect.ratio,
-          legend.box.margin = margin(0, 0, 0, 0),
-          legend.margin = margin(0, 0, 0, 0),
           legend.position = legend.position,
           legend.direction = legend.direction
         )
@@ -12997,10 +13113,16 @@ EnrichmentPlot <- function(srt, db = "GO_BP", group_by = NULL, test.use = "wilco
   } else if (plot_type == "enrichmap") {
     # enrichmap -------------------------------------------------------------------------------------------------
     plist <- suppressWarnings(lapply(df_list, function(df) {
-      df <- df[head(seq_len(nrow(df)), topTerm), , drop = FALSE]
+      df_groups <- split(df, list(df$Database, df$Groups))
+      df_groups <- lapply(df_groups, function(group) {
+        filtered_group <- group[head(seq_len(nrow(group)), topTerm), , drop = FALSE]
+        return(filtered_group)
+      })
+      df <- do.call(rbind, df_groups)
+
       df[["metric"]] <- -log10(df[[metric]])
       df[["Description"]] <- capitalize(df[["Description"]])
-      df[["Description"]] <- factor(df[["Description"]], levels = df[["Description"]])
+      df[["Description"]] <- factor(df[["Description"]], levels = unique(df[["Description"]]))
       df$geneID <- strsplit(df$geneID, "/")
       rownames(df) <- df[["ID"]]
 
@@ -13148,75 +13270,12 @@ EnrichmentPlot <- function(srt, db = "GO_BP", group_by = NULL, test.use = "wilco
         guides(color = guide_none()) +
         scale_x_continuous(expand = expansion(c(enrichmap_expand[1], enrichmap_expand[1]), 0)) +
         scale_y_continuous(expand = expansion(c(enrichmap_expand[2], enrichmap_expand[2]), 0)) +
-        facet_grid(Database ~ Groups, scales = "free") +
+        facet_grid(facet, scales = "free") +
         do.call(theme_use, theme_args) +
         theme(
           aspect.ratio = aspect.ratio,
-          legend.box.margin = margin(0, 0, 0, 0),
-          legend.margin = margin(0, 0, 0, 0),
           legend.position = legend.position,
           legend.direction = legend.direction
-        )
-      return(p)
-    }))
-  } else if (plot_type == "lollipop") {
-    # lollipop -------------------------------------------------------------------------------------------------
-    plist <- suppressWarnings(lapply(df_list, function(df) {
-      df <- df[head(seq_len(nrow(df)), topTerm), , drop = FALSE]
-      df[["GeneRatio"]] <- sapply(df[["GeneRatio"]], function(x) {
-        sp <- strsplit(x, "/")[[1]]
-        GeneRatio <- as.numeric(sp[1]) / as.numeric(sp[2])
-      })
-      df[["BgRatio"]] <- sapply(df[["BgRatio"]], function(x) {
-        sp <- strsplit(x, "/")[[1]]
-        BgRatio <- as.numeric(sp[1]) / as.numeric(sp[2])
-        return(BgRatio)
-      })
-      df[["EnrichmentScore"]] <- df[["GeneRatio"]] / df[["BgRatio"]]
-      df[["metric"]] <- -log10(df[[metric]])
-      df[["Description"]] <- capitalize(df[["Description"]])
-      df[["Description"]] <- str_wrap(df[["Description"]], width = character_width)
-      df[["Description"]] <- factor(df[["Description"]], levels = df[order(df[["EnrichmentScore"]]), "Description"])
-
-      p <- ggplot(df, aes(
-        x = .data[["Description"]], y = .data[["EnrichmentScore"]],
-        fill = .data[["metric"]]
-      )) +
-        geom_blank() +
-        geom_rect(
-          aes(
-            xmin = as.numeric(.data[["Description"]]) - 0.15, ymin = .data[["EnrichmentScore"]],
-            xmax = as.numeric(.data[["Description"]]) + 0.15, ymax = 0, fill = .data[["metric"]]
-          ),
-          color = "black", linewidth = 0.3
-        ) +
-        geom_point(aes(size = .data[["GeneRatio"]]), shape = 21, color = "black") +
-        scale_size(name = "GeneRatio", range = c(3, 6), scales::breaks_extended(n = 4)) +
-        guides(size = guide_legend(override.aes = list(fill = "grey30", shape = 21), order = 1)) +
-        scale_y_continuous(limits = c(0, 1.2 * max(df[["EnrichmentScore"]], na.rm = TRUE)), expand = expansion(0, 0)) +
-        labs(x = "", y = "Enrichment Score") +
-        scale_fill_gradientn(
-          name = paste0("-log10(", metric, ")"),
-          n.breaks = 3,
-          colors = palette_scp(palette = palette, palcolor = palcolor),
-          na.value = "grey80",
-          guide = guide_colorbar(frame.colour = "black", ticks.colour = "black", barheight = 4, barwidth = 1)
-        ) +
-        facet_grid(Database ~ Groups, scales = "free") +
-        coord_flip() +
-        do.call(theme_use, theme_args) +
-        theme(
-          aspect.ratio = aspect.ratio,
-          panel.grid.major = element_line(colour = "grey80", linetype = 2),
-          strip.background.y = element_rect(fill = "white", color = "black", linetype = 1, linewidth = 1),
-          legend.box.margin = margin(0, 0, 0, 0),
-          legend.margin = margin(0, 0, 0, 0),
-          legend.position = legend.position,
-          legend.direction = legend.direction,
-          axis.text.y = element_text(
-            lineheight = lineheight, hjust = 1,
-            face = ifelse(grepl("\n", levels(df[["Description"]])), "italic", "plain")
-          )
         )
       return(p)
     }))
@@ -13226,16 +13285,43 @@ EnrichmentPlot <- function(srt, db = "GO_BP", group_by = NULL, test.use = "wilco
     check_R("jokergoo/simplifyEnrichment")
     plist <- lapply(df_list, function(df) {
       if (word_type == "term") {
-        if (df$Database[1] %in% c("GO_BP", "GO_CC", "GO_MF")) {
-          df0 <- simplifyEnrichment::keyword_enrichment_from_GO(df[["ID"]])
-          if (nrow(df0 > 0)) {
-            df <- df0 %>%
+        df_groups <- split(df, list(df$Database, df$Groups))
+        df_groups <- df_groups[sapply(df_groups, nrow) > 0]
+        for (i in seq_along(df_groups)) {
+          df_sub <- df_groups[[i]]
+          if (all(df_sub$Database %in% c("GO", "GO_BP", "GO_CC", "GO_MF"))) {
+            df0 <- simplifyEnrichment::keyword_enrichment_from_GO(df_sub[["ID"]])
+            if (nrow(df0 > 0)) {
+              df_sub <- df0 %>%
+                reframe(
+                  keyword = .data[["keyword"]],
+                  score = -(log10(.data[["padj"]])),
+                  count = .data[["n_term"]],
+                  Database = df_sub[["Database"]][1],
+                  Groups = df_sub[["Groups"]][1]
+                ) %>%
+                filter(!grepl(pattern = "\\[.*\\]", x = .data[["keyword"]])) %>%
+                filter(nchar(.data[["keyword"]]) >= min_word_length) %>%
+                filter(!tolower(.data[["keyword"]]) %in% tolower(exclude_words)) %>%
+                distinct() %>%
+                mutate(angle = 90 * sample(c(0, 1), n(), replace = TRUE, prob = c(60, 40))) %>%
+                as.data.frame()
+              df_sub <- df_sub[head(order(df_sub[["score"]], decreasing = TRUE), topWord), , drop = FALSE]
+            } else {
+              df_sub <- NULL
+            }
+          } else {
+            df_sub <- df_sub %>%
+              mutate(keyword = strsplit(tolower(as.character(.data[["Description"]])), " ")) %>%
+              unnest(cols = "keyword") %>%
+              group_by(.data[["keyword"]], Database, Groups) %>%
               reframe(
                 keyword = .data[["keyword"]],
-                score = -(log10(.data[["padj"]])),
-                count = .data[["n_term"]],
-                Database = df[["Database"]][1],
-                Groups = df[["Groups"]][1]
+                score = sum(-(log10(.data[[metric]]))),
+                count = n(),
+                Database = .data[["Database"]],
+                Groups = .data[["Groups"]],
+                .groups = "keep"
               ) %>%
               filter(!grepl(pattern = "\\[.*\\]", x = .data[["keyword"]])) %>%
               filter(nchar(.data[["keyword"]]) >= min_word_length) %>%
@@ -13243,31 +13329,11 @@ EnrichmentPlot <- function(srt, db = "GO_BP", group_by = NULL, test.use = "wilco
               distinct() %>%
               mutate(angle = 90 * sample(c(0, 1), n(), replace = TRUE, prob = c(60, 40))) %>%
               as.data.frame()
-            df <- df[head(order(df[["score"]], decreasing = TRUE), topWord), , drop = FALSE]
-          } else {
-            return(NULL)
+            df_sub <- df_sub[head(order(df_sub[["score"]], decreasing = TRUE), topWord), , drop = FALSE]
           }
-        } else {
-          df <- df %>%
-            mutate(keyword = strsplit(tolower(as.character(.data[["Description"]])), " ")) %>%
-            unnest(cols = "keyword") %>%
-            group_by(.data[["keyword"]], Database, Groups) %>%
-            reframe(
-              keyword = .data[["keyword"]],
-              score = sum(-(log10(.data[[metric]]))),
-              count = n(),
-              Database = .data[["Database"]],
-              Groups = .data[["Groups"]],
-              .groups = "keep"
-            ) %>%
-            filter(!grepl(pattern = "\\[.*\\]", x = .data[["keyword"]])) %>%
-            filter(nchar(.data[["keyword"]]) >= min_word_length) %>%
-            filter(!tolower(.data[["keyword"]]) %in% tolower(exclude_words)) %>%
-            distinct() %>%
-            mutate(angle = 90 * sample(c(0, 1), n(), replace = TRUE, prob = c(60, 40))) %>%
-            as.data.frame()
-          df <- df[head(order(df[["score"]], decreasing = TRUE), topWord), , drop = FALSE]
+          df_groups[[i]] <- df_sub
         }
+        df <- do.call(rbind, df_groups)
       } else {
         df <- df %>%
           mutate(keyword = strsplit(as.character(.data[["geneID"]]), "/")) %>%
@@ -13296,13 +13362,11 @@ EnrichmentPlot <- function(srt, db = "GO_BP", group_by = NULL, test.use = "wilco
         ) +
         scale_size(name = "Count", range = word_size, breaks = ceiling(seq(min(df[["count"]], na.rm = TRUE), max(df[["count"]], na.rm = TRUE), length.out = 3))) +
         guides(size = guide_legend(override.aes = list(colour = "black", label = "G"), order = 1)) +
-        facet_grid(Database ~ Groups, scales = "free") +
+        facet_grid(facet, scales = "free") +
         coord_flip() +
         do.call(theme_use, theme_args) +
         theme(
           aspect.ratio = aspect.ratio,
-          legend.box.margin = margin(0, 0, 0, 0),
-          legend.margin = margin(0, 0, 0, 0),
           legend.position = legend.position,
           legend.direction = legend.direction
         )

@@ -12,6 +12,8 @@ EnrichmentPlot(
   res = NULL,
   plot_type = c("bar", "dot", "lollipop", "network", "enrichmap", "wordcloud",
     "comparison"),
+  split_by = c("Database", "Groups"),
+  color_by = "Database",
   group_use = NULL,
   id_use = NULL,
   pvalueCutoff = NULL,
@@ -85,7 +87,7 @@ EnrichmentPlot
 library(dplyr)
 data("pancreas_sub")
 pancreas_sub <- RunDEtest(pancreas_sub, group_by = "CellType")
-pancreas_sub <- RunEnrichment(srt = pancreas_sub, db = "GO_BP", group_by = "CellType", species = "Mus_musculus")
+pancreas_sub <- RunEnrichment(srt = pancreas_sub, db = c("GO_BP", "GO_CC"), group_by = "CellType", species = "Mus_musculus")
 EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = "Endocrine", plot_type = "bar")
 EnrichmentPlot(pancreas_sub,
   db = "GO_BP", group_by = "CellType", group_use = c("Ductal", "Endocrine"),
@@ -95,12 +97,36 @@ EnrichmentPlot(pancreas_sub,
 EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", topTerm = 3, plot_type = "comparison")
 EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", topTerm = 3, plot_type = "comparison", compare_only_sig = TRUE)
 
+EnrichmentPlot(pancreas_sub,
+  db = c("GO_BP", "GO_CC"), group_by = "CellType", group_use = c("Ductal", "Endocrine"), plot_type = "bar",
+  split_by = "Groups"
+)
+EnrichmentPlot(pancreas_sub,
+  db = c("GO_BP", "GO_CC"), group_by = "CellType", group_use = c("Ductal", "Endocrine"), plot_type = "bar",
+  split_by = "Groups"
+)
+EnrichmentPlot(pancreas_sub,
+  db = c("GO_BP", "GO_CC"), group_by = "CellType", group_use = c("Ductal", "Endocrine"), plot_type = "bar",
+  split_by = "Database", color_by = "Groups",
+)
+EnrichmentPlot(pancreas_sub,
+  db = c("GO_BP", "GO_CC"), group_by = "CellType", group_use = c("Ductal", "Endocrine"), plot_type = "bar",
+  split_by = c("Database", "Groups")
+)
+EnrichmentPlot(pancreas_sub,
+  db = c("GO_BP", "GO_CC"), group_by = "CellType", group_use = c("Ductal", "Endocrine"), plot_type = "bar",
+  split_by = c("Groups", "Database")
+)
+EnrichmentPlot(pancreas_sub,
+  db = c("GO_BP", "GO_CC"), group_by = "CellType", plot_type = "bar",
+  split_by = "Database", color_by = "Groups", palette = "Set1"
+)
 
-EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = c("Ductal", "Endocrine"), plot_type = "bar", ncol = 1)
-EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = c("Ductal", "Endocrine"), plot_type = "dot", ncol = 1, palette = "GdRd")
-EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = c("Ductal", "Endocrine"), plot_type = "lollipop", ncol = 1, palette = "GdRd")
-EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = c("Ductal", "Endocrine"), plot_type = "wordcloud")
-EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = c("Ductal", "Endocrine"), plot_type = "wordcloud", word_type = "feature")
+EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", plot_type = "bar", color_by = "Groups", palette = "Set1", ncol = 2)
+EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = c("Ductal", "Endocrine"), plot_type = "dot", palette = "GdRd", ncol = 1)
+EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = c("Ductal", "Endocrine"), plot_type = "lollipop", palette = "GdRd", ncol = 1)
+EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = c("Ductal", "Endocrine"), plot_type = "wordcloud", nrow = 1)
+EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = c("Ductal", "Endocrine"), plot_type = "wordcloud", word_type = "feature", nrow = 1)
 EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = c("Ductal", "Endocrine"), plot_type = "comparison")
 
 EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = "Ductal", plot_type = "network")
