@@ -36,6 +36,7 @@ NULL
 #' @importFrom SeuratObject as.sparse
 #' @importFrom Matrix t
 #' @importFrom dplyr bind_rows
+#' @importFrom proxyC simil dist
 #' @export
 RunKNNMap <- function(srt_query, srt_ref, query_assay = NULL, ref_assay = NULL, ref_umap = NULL, ref_group = NULL,
                       features = NULL, nfeatures = 2000,
@@ -167,8 +168,8 @@ RunKNNMap <- function(srt_query, srt_ref, query_assay = NULL, ref_assay = NULL, 
     refumap_all <- srt_ref[[ref_umap]]@cell.embeddings[knn_cells, ]
     group <- rep(query.neighbor@cell.names, ncol(query.neighbor@nn.idx))
   } else {
-    if (require("RcppParallel", quietly = TRUE)) {
-      setThreadOptions()
+    if (requireNamespace("RcppParallel", quietly = TRUE)) {
+      RcppParallel::setThreadOptions()
     }
     if (distance_metric %in% c(simil_method, "pearson", "spearman")) {
       if (distance_metric %in% c("pearson", "spearman")) {
@@ -178,14 +179,14 @@ RunKNNMap <- function(srt_query, srt_ref, query_assay = NULL, ref_assay = NULL, 
         }
         distance_metric <- "correlation"
       }
-      d <- 1 - proxyC::simil(
+      d <- 1 - simil(
         x = as.sparse(ref),
         y = as.sparse(query),
         method = distance_metric,
         use_nan = TRUE
       )
     } else if (distance_metric %in% dist_method) {
-      d <- proxyC::dist(
+      d <- dist(
         x = as.sparse(ref),
         y = as.sparse(query),
         method = distance_metric,
@@ -246,7 +247,7 @@ RunKNNMap <- function(srt_query, srt_ref, query_assay = NULL, ref_assay = NULL, 
         x <- x / sum(x)
         return(x)
       }) %>%
-        dplyr::bind_rows()
+        bind_rows()
       match_prob <- as.matrix(match_prob)
       rownames(match_prob) <- names(match_freq)
       match_best <- apply(match_prob, 1, function(x) names(x)[order(x, decreasing = TRUE)][1])
@@ -599,6 +600,7 @@ RunCSSMap <- function(srt_query, srt_ref, query_assay = NULL, ref_assay = srt_re
 #' ProjectionPlot(srt_query = srt_query, srt_ref = srt_ref, query_group = "celltype", ref_group = "celltype")
 #'
 #' @importFrom Seurat Reductions GetAssayData DefaultAssay ProjectUMAP
+#' @importFrom stats sd
 #' @export
 RunSymphonyMap <- function(srt_query, srt_ref, query_assay = NULL, ref_assay = srt_ref[[ref_pca]]@assay.used,
                            ref_pca = NULL, ref_harmony = NULL, ref_umap = NULL, ref_group = NULL,
@@ -688,13 +690,13 @@ RunSymphonyMap <- function(srt_query, srt_ref, query_assay = NULL, ref_assay = s
   srt_query[["ref.pca"]] <- CreateDimReducObject(
     embeddings = t(Z_pca_query),
     loadings = ref$loadings,
-    stdev = as.numeric(apply(Z_pca_query, 1, stats::sd)),
+    stdev = as.numeric(apply(Z_pca_query, 1, sd)),
     assay = query_assay,
     key = "refpca_"
   )
   srt_query[["ref.harmony"]] <- CreateDimReducObject(
     embeddings = t(Zq_corr),
-    stdev = as.numeric(apply(Zq_corr, 1, stats::sd)),
+    stdev = as.numeric(apply(Zq_corr, 1, sd)),
     assay = query_assay,
     key = "refharmony_",
     misc = list(R = R_query)
@@ -781,6 +783,8 @@ buildReferenceFromSeurat <- function(obj, assay = "RNA", pca = "pca", pca_dims =
 
 
 #' @importFrom Seurat Embeddings CreateSeuratObject CreateDimReducObject ProjectDim
+#' @importFrom Matrix Matrix
+#' @importFrom stats model.matrix
 mapQuery <- function(exp_query, metadata_query, ref_obj, vars = NULL,
                      sigma = 0.1, verbose = TRUE) {
   if (verbose) {
@@ -821,13 +825,13 @@ mapQuery <- function(exp_query, metadata_query, ref_obj, vars = NULL,
         if (length(unique(.x)) == 1) {
           rep(1, length(.x))
         } else {
-          stats::model.matrix(~ 0 + .x)
+          model.matrix(~ 0 + .x)
         }
       }) %>%
       purrr::reduce(cbind)
     Xq <- cbind(1, intercept = onehot) %>% t()
   } else {
-    Xq <- Matrix::Matrix(rbind(rep(1, ncol(Z_pca_query)), rep(1, ncol(Z_pca_query))),
+    Xq <- Matrix(rbind(rep(1, ncol(Z_pca_query)), rep(1, ncol(Z_pca_query))),
       sparse = TRUE
     )
   }

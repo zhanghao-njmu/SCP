@@ -93,14 +93,15 @@ p <- p1 / p2 # plot is combined by patchwork
 panel_fix(p, height = 1)
 
 # fix the panel of the plot combined by plot_grid
-library(cowplot)
-p1 <- CellDimPlot(pancreas_sub, c("Phase", "SubCellType"), label = TRUE) # plot is combined by patchwork
-p2 <- FeatureDimPlot(pancreas_sub, c("Ins1", "Gcg"), label = TRUE) # plot is combined by patchwork
-p <- plot_grid(p1, p2, nrow = 2) # plot is combined by plot_grid
-# fix the size of panel for each plot
-panel_fix(p, height = 1)
-# rasterize the panel while keeping all labels and text in vector format
-panel_fix(p, height = 1, raster = TRUE, dpi = 30)
+if (requireNamespace("cowplot", quietly = TRUE)) {
+  p1 <- CellDimPlot(pancreas_sub, c("Phase", "SubCellType"), label = TRUE) # plot is combined by patchwork
+  p2 <- FeatureDimPlot(pancreas_sub, c("Ins1", "Gcg"), label = TRUE) # plot is combined by patchwork
+  p <- cowplot::plot_grid(p1, p2, nrow = 2) # plot is combined by plot_grid
+  # fix the size of panel for each plot
+  panel_fix(p, height = 1)
+  # rasterize the panel while keeping all labels and text in vector format
+  panel_fix(p, height = 1, raster = TRUE, dpi = 30)
+}
 
 # fix the panel of the heatmap
 ht1 <- GroupHeatmap(pancreas_sub,

@@ -22,7 +22,6 @@ RunSCExplorer(
   initial_size = 4,
   initial_ncol = 3,
   initial_arrange = "Row",
-  initial_dpi = 100,
   workers = 2,
   threads_per_workers = 10,
   create_script = TRUE,
@@ -47,7 +46,13 @@ panc8_sub <- Integration_SCP(srtMerge = panc8_sub, batch = "tech", integration_m
 PrepareSCExplorer(list(mouse_pancreas = pancreas_sub, human_pancreas = panc8_sub), base_dir = "./SCExplorer", overwrite = TRUE)
 
 # Create the app.R script
-app <- RunSCExplorer(base_dir = "./SCExplorer", workers = 2, overwrite = TRUE)
+app <- RunSCExplorer(
+  base_dir = "./SCExplorer",
+  initial_dataset = "mouse_pancreas",
+  initial_group = "CellType",
+  initial_feature = "Neurog3",
+  workers = 2, overwrite = TRUE
+)
 list.files("./SCExplorer") # This directory can be used as site directory for Shiny Server.
 
 # Run shiny app

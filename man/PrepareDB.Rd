@@ -6,10 +6,10 @@
 \usage{
 PrepareDB(
   species = c("Homo_sapiens", "Mus_musculus"),
-  db = c("GO", "GO_BP", "GO_CC", "GO_MF", "KEGG", "WikiPathway", "Reactome",
-    "ProteinComplex", "DGI", "MP", "DO", "HPO", "PFAM", "Chromosome", "GeneType",
-    "Enzyme", "TF", "CSPA", "Surfaceome", "SPRomeDB", "VerSeDa", "TFLink", "hTFtarget",
-    "TRRUST", "JASPAR", "ENCODE", "MSigDB", "CellTalk", "CellChat"),
+  db = c("GO", "GO_BP", "GO_CC", "GO_MF", "KEGG", "WikiPathway", "Reactome", "CORUM",
+    "MP", "DO", "HPO", "PFAM", "CSPA", "Surfaceome", "SPRomeDB", "VerSeDa", "TFLink",
+    "hTFtarget", "TRRUST", "JASPAR", "ENCODE", "MSigDB", "CellChat", "Chromosome",
+    "GeneType", "Enzyme", "TF"),
   db_IDtypes = c("symbol", "entrez_id", "ensembl_id"),
   db_version = "latest",
   db_update = FALSE,

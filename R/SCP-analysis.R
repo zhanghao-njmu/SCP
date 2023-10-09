@@ -36,17 +36,18 @@
 #'   species_to = "Homo_sapiens",
 #'   Ensembl_version = 103
 #' )
-#' homologs_counts <- counts[res$geneID_expand[, "from_geneID"], ]
-#' rownames(homologs_counts) <- res$geneID_expand[, "symbol"]
-#' homologs_counts <- aggregate(homologs_counts, by = list(row.names(homologs_counts)), FUN = sum)
+#' homologs_counts <- aggregate(
+#'   x = counts[res$geneID_expand[, "from_geneID"], ],
+#'   by = list(res$geneID_expand[, "symbol"]), FUN = sum
+#' )
 #' rownames(homologs_counts) <- homologs_counts[, 1]
-#' homologs_counts <- as(as.matrix(homologs_counts[, -1]), "dgCMatrix")
+#' homologs_counts <- homologs_counts[, -1]
+#' homologs_counts <- as(as.matrix(homologs_counts), "dgCMatrix")
 #' homologs_counts
 #'
-#' @importFrom reshape2 dcast melt
 #' @importFrom R.cache loadCache saveCache
+#' @importFrom reshape2 dcast melt
 #' @importFrom biomaRt listEnsemblArchives useMart listDatasets useDataset getBM listAttributes useEnsembl
-#' @importFrom rlang %||%
 #' @export
 #'
 GeneConvert <- function(geneID, geneID_from_IDtype = "symbol", geneID_to_IDtype = "entrez_id",
@@ -293,7 +294,7 @@ GeneConvert <- function(geneID, geneID_from_IDtype = "symbol", geneID_to_IDtype 
           }
           geneID_res2[, "ensembl_gene_id_tmp"] <- geneID_res2[, "ensembl_gene_id"]
           geneID_res2 <- geneID_res2[, c("ensembl_gene_id_tmp", to_attr)]
-          geneID_res2 <- unique(reshape2::melt(geneID_res2, id.vars = "ensembl_gene_id_tmp", variable.name = "to_IDtype", value.name = "to_geneID"))
+          geneID_res2 <- unique(melt(geneID_res2, id.vars = "ensembl_gene_id_tmp", variable.name = "to_IDtype", value.name = "to_geneID"))
           geneID_res2$to_IDtype <- setNames(names(to_attr), nm = to_attr)[geneID_res2$to_IDtype]
           geneID_res_merge <- merge(x = geneID_res1, y = geneID_res2, by = "ensembl_gene_id_tmp")
         } else {
@@ -336,7 +337,7 @@ GeneConvert <- function(geneID, geneID_from_IDtype = "symbol", geneID_to_IDtype 
           }
           geneID_res3[, "ensembl_gene_id_tmp2"] <- geneID_res3[, "ensembl_gene_id"]
           geneID_res3 <- geneID_res3[, c("ensembl_gene_id_tmp2", to_attr)]
-          geneID_res3 <- unique(reshape2::melt(geneID_res3, id.vars = "ensembl_gene_id_tmp2", variable.name = "to_IDtype", value.name = "to_geneID"))
+          geneID_res3 <- unique(melt(geneID_res3, id.vars = "ensembl_gene_id_tmp2", variable.name = "to_IDtype", value.name = "to_geneID"))
           colnames(geneID_res3)[1] <- homolog_ensembl_gene
           geneID_res3$to_IDtype <- setNames(names(to_attr), nm = to_attr)[geneID_res3$to_IDtype]
           geneID_res_merge <- Reduce(merge, list(geneID_res1, geneID_res2, geneID_res3))
@@ -375,7 +376,7 @@ GeneConvert <- function(geneID, geneID_from_IDtype = "symbol", geneID_to_IDtype 
         geneID_res1_from[, "from_IDtype"] <- from_name
 
         geneID_res1_to <- unique(geneID_res1[, c("ensembl_gene_id_tmp", to_attr)])
-        geneID_res1_to <- unique(reshape2::melt(geneID_res1_to, id.vars = "ensembl_gene_id_tmp", variable.name = "to_IDtype", value.name = "to_geneID"))
+        geneID_res1_to <- unique(melt(geneID_res1_to, id.vars = "ensembl_gene_id_tmp", variable.name = "to_IDtype", value.name = "to_geneID"))
         geneID_res1_to$to_IDtype <- setNames(names(to_attr), nm = to_attr)[geneID_res1_to$to_IDtype]
 
         geneID_res_merge <- merge(x = geneID_res1_from, y = geneID_res1_to, by = "ensembl_gene_id_tmp")
@@ -412,7 +413,7 @@ GeneConvert <- function(geneID, geneID_from_IDtype = "symbol", geneID_to_IDtype 
   geneID_collapse <- do.call(rbind, geneID_res_stat)
   geneID_collapse <- unique(as.data.frame(geneID_collapse[, c("from_geneID", "to_IDtype", "to_geneID")]))
   geneID_collapse <- geneID_collapse[sapply(geneID_collapse$to_geneID, length) > 0, , drop = FALSE]
-  geneID_collapse <- reshape2::dcast(geneID_collapse, formula = from_geneID ~ to_IDtype, value.var = "to_geneID")
+  geneID_collapse <- dcast(geneID_collapse, formula = from_geneID ~ to_IDtype, value.var = "to_geneID")
   rownames(geneID_collapse) <- geneID_collapse[, "from_geneID"]
   geneID_expand <- unnest(data = geneID_collapse, cols = colnames(geneID_collapse)[sapply(geneID_collapse, class) %in% c("list", "AsIs")], keep_empty = FALSE)
 
@@ -491,6 +492,8 @@ LengthCheck <- function(values, cutoff = 0) {
 #' @importFrom SeuratObject DefaultAssay GetAssayData CheckGC
 #' @importFrom BiocParallel bplapply bpaggregate
 #' @importFrom stats rnorm
+#' @importFrom Matrix rowMeans colMeans
+#' @importFrom ggplot2 cut_number
 AddModuleScore2 <- function(object, slot = "data", features, pool = NULL, nbin = 24, ctrl = 100,
                             k = FALSE, assay = NULL, name = "Cluster", seed = 1, search = FALSE,
                             BPPARAM = BiocParallel::bpparam(), ...) {
@@ -566,9 +569,9 @@ AddModuleScore2 <- function(object, slot = "data", features, pool = NULL, nbin =
     ))
   }
   pool <- pool %||% rownames(x = object)
-  data.avg <- Matrix::rowMeans(x = assay.data[pool, , drop = FALSE])
+  data.avg <- rowMeans(x = assay.data[pool, , drop = FALSE])
   data.avg <- data.avg[order(data.avg)]
-  data.cut <- ggplot2::cut_number(x = data.avg + rnorm(n = length(data.avg)) / 1e+30, n = nbin, labels = FALSE, right = FALSE)
+  data.cut <- cut_number(x = data.avg + rnorm(n = length(data.avg)) / 1e+30, n = nbin, labels = FALSE, right = FALSE)
   names(x = data.cut) <- names(x = data.avg)
 
   scores <- bplapply(1:cluster.length, function(i) {
@@ -579,8 +582,8 @@ AddModuleScore2 <- function(object, slot = "data", features, pool = NULL, nbin =
       data.cut[which(data.cut == data.cut[features.use[j]])]
     }))
     ctrl.use <- names(sample(ctrl.use, size = min(ctrl * length(features.use), length(ctrl.use)), replace = FALSE))
-    ctrl.scores_i <- Matrix::colMeans(x = assay.data[ctrl.use, , drop = FALSE])
-    features.scores_i <- Matrix::colMeans(x = assay.data[features.use, , drop = FALSE])
+    ctrl.scores_i <- colMeans(x = assay.data[ctrl.use, , drop = FALSE])
+    features.scores_i <- colMeans(x = assay.data[features.use, , drop = FALSE])
     return(list(ctrl.scores_i, features.scores_i))
   }, BPPARAM = BPPARAM)
   ctrl.scores <- do.call(rbind, lapply(scores, function(x) x[[1]]))
@@ -1857,16 +1860,18 @@ ListDB <- function(species = "Homo_sapiens",
 #' @importFrom R.cache loadCache saveCache readCacheHeader
 #' @importFrom utils packageVersion read.table
 #' @importFrom stats na.omit
+#' @importFrom AnnotationDbi select keys columns mappedkeys
+#' @importFrom clusterProfiler read.gmt
 #' @export
 #'
 PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
                       db = c(
                         "GO", "GO_BP", "GO_CC", "GO_MF", "KEGG", "WikiPathway", "Reactome",
-                        "ProteinComplex", "DGI", "MP", "DO", "HPO", "PFAM",
-                        "Chromosome", "GeneType", "Enzyme", "TF",
+                        "CORUM", "MP", "DO", "HPO", "PFAM",
                         "CSPA", "Surfaceome", "SPRomeDB", "VerSeDa",
                         "TFLink", "hTFtarget", "TRRUST", "JASPAR", "ENCODE",
-                        "MSigDB", "CellTalk", "CellChat"
+                        "MSigDB", "CellChat",
+                        "Chromosome", "GeneType", "Enzyme", "TF"
                       ),
                       db_IDtypes = c("symbol", "entrez_id", "ensembl_id"),
                       db_version = "latest", db_update = FALSE,
@@ -1879,12 +1884,13 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
     message("Species: ", sps)
     default_IDtypes <- c(
       "GO" = "entrez_id", "GO_BP" = "entrez_id", "GO_CC" = "entrez_id", "GO_MF" = "entrez_id", "KEGG" = "entrez_id",
-      "WikiPathway" = "entrez_id", "Reactome" = "entrez_id", "ProteinComplex" = "entrez_id",
-      "DGI" = "entrez_id", "MP" = "symbol", "DO" = "symbol", "HPO" = "symbol", "PFAM" = "entrez_id", "Chromosome" = "entrez_id",
+      "WikiPathway" = "entrez_id", "Reactome" = "entrez_id", "CORUM" = "symbol",
+      "MP" = "symbol", "DO" = "symbol", "HPO" = "symbol", "PFAM" = "entrez_id", "Chromosome" = "entrez_id",
       "GeneType" = "entrez_id", "Enzyme" = "entrez_id", "TF" = "symbol",
       "CSPA" = "symbol", "Surfaceome" = "symbol", "SPRomeDB" = "entrez_id", "VerSeDa" = "symbol",
       "TFLink" = "symbol", "hTFtarget" = "symbol", "TRRUST" = "symbol", "JASPAR" = "symbol", "ENCODE" = "symbol",
-      "MSigDB" = "symbol", "CellTalk" = "symbol", "CellChat" = "symbol"
+      "MSigDB" = "symbol", "CellChat" = "symbol"
+      # "CellTalk" = "symbol", "DGI" = "entrez_id"
     )
     if (!is.null(custom_TERM2GENE)) {
       if (length(db) > 1) {
@@ -1976,9 +1982,9 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
         ## GO ---------------------------------------------------------------------------------
         if (any(db %in% c("GO", "GO_BP", "GO_CC", "GO_MF")) && any(!intersect(db, c("GO", "GO_BP", "GO_CC", "GO_MF")) %in% names(db_list[[sps]]))) {
           terms <- db[db %in% c("GO", "GO_BP", "GO_CC", "GO_MF")]
-          bg <- suppressMessages(AnnotationDbi::select(orgdb, keys = AnnotationDbi::keys(orgdb), columns = c("GOALL", org_key)))
+          bg <- suppressMessages(select(orgdb, keys = keys(orgdb), columns = c("GOALL", org_key)))
           bg <- unique(bg[!is.na(bg[["GOALL"]]), c("GOALL", "ONTOLOGYALL", org_key), drop = FALSE])
-          bg2 <- suppressMessages(AnnotationDbi::select(GO.db::GO.db, keys = AnnotationDbi::keys(GO.db::GO.db), columns = c("GOID", "TERM")))
+          bg2 <- suppressMessages(select(GO.db::GO.db, keys = keys(GO.db::GO.db), columns = c("GOID", "TERM")))
           bg <- merge(x = bg, by.x = "GOALL", y = bg2, by.y = "GOID", all.x = TRUE)
           for (subterm in terms) {
             message("Preparing database: ", subterm)
@@ -2097,7 +2103,7 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
           }
           version <- strsplit(gmtfile, split = "-")[[1]][[2]]
           download(url = paste0("https://wikipathways-data.wmcloud.org/current/gmt/", gmtfile), destfile = temp)
-          wiki_gmt <- clusterProfiler::read.gmt(temp)
+          wiki_gmt <- read.gmt(temp)
           unlink(temp)
           wiki_gmt <- apply(wiki_gmt, 1, function(x) {
             wikiid <- strsplit(x[["term"]], split = "%")[[1]][3]
@@ -2130,7 +2136,7 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
         if (any(db == "Reactome") && (!"Reactome" %in% names(db_list[[sps]]))) {
           message("Preparing database: Reactome")
           reactome_sp <- gsub(pattern = "_", replacement = " ", x = sps)
-          df_all <- suppressMessages(AnnotationDbi::select(reactome.db::reactome.db, keys = AnnotationDbi::keys(reactome.db::reactome.db), columns = c("PATHID", "PATHNAME")))
+          df_all <- suppressMessages(select(reactome.db::reactome.db, keys = keys(reactome.db::reactome.db), columns = c("PATHID", "PATHNAME")))
           df <- df_all[grepl(pattern = paste0("^", reactome_sp, ": "), x = df_all$PATHNAME), , drop = FALSE]
           if (nrow(df) == 0) {
             if (isTRUE(convert_species) && db_species["Reactome"] != "Homo_sapiens") {
@@ -2162,100 +2168,80 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
           }
         }
 
-        ## Protein complex ---------------------------------------------------------------------------
-        if (any(db == "ProteinComplex") && (!"ProteinComplex" %in% names(db_list[[sps]]))) {
-          message("Preparing database: ProteinComplex")
-          check_R("taxize")
-          temp <- tempfile(fileext = ".txt.zip")
-          download(url = "https://mips.helmholtz-muenchen.de/corum/download/coreComplexes.txt.zip", destfile = temp)
-          df_all <- read.table(unz(temp, "coreComplexes.txt"), header = TRUE, sep = "\t", stringsAsFactors = FALSE, fill = TRUE, quote = "")
-          complex_sp <- gsub(pattern = "_", replacement = " ", x = sps)
-          uid <- suppressMessages(taxize::get_uid(complex_sp, messages = FALSE))
-          common_name <- unlist(strsplit(unlist(suppressMessages(taxize::sci2comm(uid, db = "ncbi"))), " "))
-          common_name <- common_name[length(common_name)]
-          common_name <- paste(toupper(substr(common_name, 1, 1)), substr(common_name, 2, nchar(common_name)), sep = "")
-          df <- df_all[which(df_all[["Organism"]] == common_name), , drop = FALSE]
-          if (nrow(df) == 0) {
-            if (isTRUE(convert_species) && db_species["ProteinComplex"] != "Homo_sapiens") {
-              warning("Use the human annotation to create the ProteinComplex database for ", sps, immediate. = TRUE)
-              db_species["ProteinComplex"] <- "Homo_sapiens"
-              complex_sp <- gsub(pattern = "_", replacement = " ", x = "Homo_sapiens")
-              uid <- suppressMessages(taxize::get_uid(complex_sp, messages = FALSE))
-              common_name <- unlist(strsplit(unlist(suppressMessages(taxize::sci2comm(uid, db = "ncbi"))), " "))
-              common_name <- common_name[length(common_name)]
-              common_name <- paste(toupper(substr(common_name, 1, 1)), substr(common_name, 2, nchar(common_name)), sep = "")
-              df <- df_all[which(df_all[["Organism"]] == common_name), , drop = FALSE]
+        ## CORUM ---------------------------------------------------------------------------
+        if (any(db == "CORUM") && (!"CORUM" %in% names(db_list[[sps]]))) {
+          if (!sps %in% c("Homo_sapiens")) {
+            if (isTRUE(convert_species)) {
+              warning("Use the human annotation to create the CORUM database for ", sps, immediate. = TRUE)
+              db_species["CORUM"] <- "Homo_sapiens"
             } else {
+              warning("CORUM database only support Homo_sapiens. Consider using convert_species=TRUE", immediate. = TRUE)
               stop("Stop the preparation.")
             }
           }
-          s <- strsplit(df[["subunits.Entrez.IDs."]], split = ";") # subunits.Gene.name.
-          complex <- data.frame(V1 = rep(df$ComplexName, sapply(s, length)), V2 = unlist(s), V3 = rep(paste0("ComplexID:", df$ComplexID), sapply(s, length)))
-          complex$V1 <- gsub(pattern = "\\([^\\)]*\\)$", replacement = "", x = trimws(complex$V1), perl = FALSE)
-          complex <- complex[!duplicated(complex), , drop = FALSE]
-          complex <- complex[which(complex$V2 != "NULL"), , drop = FALSE]
-          TERM2GENE <- complex[, c(3, 2)]
-          TERM2NAME <- complex[, c(3, 1)]
-          colnames(TERM2GENE) <- c("Term", default_IDtypes["ProteinComplex"])
+          message("Preparing database: corum")
+          url <- "https://maayanlab.cloud/static/hdfs/harmonizome/data/corum/gene_set_library_crisp.gmt.gz"
+          temp <- tempfile(fileext = ".gz")
+          download(url = url, destfile = temp)
+          R.utils::gunzip(temp)
+          TERM2GENE <- read.gmt(gsub(".gz", "", temp))
+          version <- "Harmonizome 3.0"
+          TERM2NAME <- TERM2GENE[, c(1, 1)]
+          colnames(TERM2GENE) <- c("Term", default_IDtypes["CORUM"])
           colnames(TERM2NAME) <- c("Term", "Name")
           TERM2GENE <- na.omit(unique(TERM2GENE))
           TERM2NAME <- na.omit(unique(TERM2NAME))
-          download(url = "https://mips.helmholtz-muenchen.de/corum/download.html", destfile = temp)
-          lines <- readLines(temp, warn = FALSE)
-          lines <- lines[grep("current release", lines)]
-          version <- gsub("(.*\"setLightFont\">)|(current release.*)", "", lines)
-          unlink(temp)
-          db_list[[db_species["ProteinComplex"]]][["ProteinComplex"]][["TERM2GENE"]] <- TERM2GENE
-          db_list[[db_species["ProteinComplex"]]][["ProteinComplex"]][["TERM2NAME"]] <- TERM2NAME
-          db_list[[db_species["ProteinComplex"]]][["ProteinComplex"]][["version"]] <- version
-          if (sps == db_species["ProteinComplex"]) {
-            saveCache(db_list[[db_species["ProteinComplex"]]][["ProteinComplex"]],
-              key = list(version, as.character(db_species["ProteinComplex"]), "ProteinComplex"),
-              comment = paste0(version, " nterm:", length(TERM2NAME[[1]]), "|", db_species["ProteinComplex"], "-ProteinComplex")
+          db_list[[db_species["CORUM"]]][["CORUM"]][["TERM2GENE"]] <- TERM2GENE
+          db_list[[db_species["CORUM"]]][["CORUM"]][["TERM2NAME"]] <- TERM2NAME
+          db_list[[db_species["CORUM"]]][["CORUM"]][["version"]] <- version
+          if (sps == db_species["CORUM"]) {
+            saveCache(db_list[[db_species["CORUM"]]][["CORUM"]],
+              key = list(version, as.character(db_species["CORUM"]), "CORUM"),
+              comment = paste0(version, " nterm:", length(TERM2NAME[[1]]), "|", db_species["CORUM"], "-CORUM")
             )
           }
         }
 
         ## DGI ---------------------------------------------------------------------------
-        if (any(db == "DGI") && (!"DGI" %in% names(db_list[[sps]]))) {
-          if (sps != "Homo_sapiens") {
-            if (isTRUE(convert_species)) {
-              warning("Use the human annotation to create the DGI database for ", sps, immediate. = TRUE)
-              db_species["DGI"] <- "Homo_sapiens"
-            } else {
-              warning("DGI database only support Homo_sapiens. Consider using convert_species=TRUE", immediate. = TRUE)
-              stop("Stop the preparation.")
-            }
-          }
-          message("Preparing database: DGI")
-          temp <- tempfile()
-          download(url = "https://www.dgidb.org/downloads", destfile = temp)
-          lines <- readLines(temp, warn = FALSE)
-          lines <- lines[grep("data/monthly_tsvs/.*interactions.tsv", lines, perl = TRUE)]
-          lines <- gsub("(<td><a href=\\\")|(\\\">interactions.tsv</a></td>)", "", lines)
-          version <- strsplit(lines[1], split = "/")[[1]][3]
-          download(url = paste0("https://www.dgidb.org/", lines[1]), destfile = temp)
-          dgi <- read.table(temp, header = TRUE, sep = "\t", fill = TRUE, quote = "")
-          unlink(temp)
-          dgi <- dgi[!is.na(dgi[["entrez_id"]]), , drop = FALSE]
-          dgi <- dgi[, c("entrez_id", "drug_claim_name")]
-          dgi[, "drug_claim_name"] <- toupper(dgi[, "drug_claim_name"])
-          TERM2GENE <- dgi[, c("drug_claim_name", "entrez_id")]
-          TERM2NAME <- dgi[, c("drug_claim_name", "drug_claim_name")]
-          colnames(TERM2GENE) <- c("Term", default_IDtypes["DGI"])
-          colnames(TERM2NAME) <- c("Term", "Name")
-          TERM2GENE <- na.omit(unique(TERM2GENE))
-          TERM2NAME <- na.omit(unique(TERM2NAME))
-          db_list[[db_species["DGI"]]][["DGI"]][["TERM2GENE"]] <- TERM2GENE
-          db_list[[db_species["DGI"]]][["DGI"]][["TERM2NAME"]] <- TERM2NAME
-          db_list[[db_species["DGI"]]][["DGI"]][["version"]] <- version
-          if (sps == db_species["DGI"]) {
-            saveCache(db_list[[db_species["DGI"]]][["DGI"]],
-              key = list(version, as.character(db_species["DGI"]), "DGI"),
-              comment = paste0(version, " nterm:", length(TERM2NAME[[1]]), "|", db_species["DGI"], "-DGI")
-            )
-          }
-        }
+        # if (any(db == "DGI") && (!"DGI" %in% names(db_list[[sps]]))) {
+        #   if (sps != "Homo_sapiens") {
+        #     if (isTRUE(convert_species)) {
+        #       warning("Use the human annotation to create the DGI database for ", sps, immediate. = TRUE)
+        #       db_species["DGI"] <- "Homo_sapiens"
+        #     } else {
+        #       warning("DGI database only support Homo_sapiens. Consider using convert_species=TRUE", immediate. = TRUE)
+        #       stop("Stop the preparation.")
+        #     }
+        #   }
+        #   message("Preparing database: DGI")
+        #   temp <- tempfile()
+        #   download(url = "https://www.dgidb.org/downloads", destfile = temp)
+        #   lines <- readLines(temp, warn = FALSE)
+        #   lines <- lines[grep("data/monthly_tsvs/.*interactions.tsv", lines, perl = TRUE)]
+        #   lines <- gsub("(<td><a href=\\\")|(\\\">interactions.tsv</a></td>)", "", lines)
+        #   version <- strsplit(lines[1], split = "/")[[1]][3]
+        #   download(url = paste0("https://www.dgidb.org/", lines[1]), destfile = temp)
+        #   dgi <- read.table(temp, header = TRUE, sep = "\t", fill = TRUE, quote = "")
+        #   unlink(temp)
+        #   dgi <- dgi[!is.na(dgi[["entrez_id"]]), , drop = FALSE]
+        #   dgi <- dgi[, c("entrez_id", "drug_claim_name")]
+        #   dgi[, "drug_claim_name"] <- toupper(dgi[, "drug_claim_name"])
+        #   TERM2GENE <- dgi[, c("drug_claim_name", "entrez_id")]
+        #   TERM2NAME <- dgi[, c("drug_claim_name", "drug_claim_name")]
+        #   colnames(TERM2GENE) <- c("Term", default_IDtypes["DGI"])
+        #   colnames(TERM2NAME) <- c("Term", "Name")
+        #   TERM2GENE <- na.omit(unique(TERM2GENE))
+        #   TERM2NAME <- na.omit(unique(TERM2NAME))
+        #   db_list[[db_species["DGI"]]][["DGI"]][["TERM2GENE"]] <- TERM2GENE
+        #   db_list[[db_species["DGI"]]][["DGI"]][["TERM2NAME"]] <- TERM2NAME
+        #   db_list[[db_species["DGI"]]][["DGI"]][["version"]] <- version
+        #   if (sps == db_species["DGI"]) {
+        #     saveCache(db_list[[db_species["DGI"]]][["DGI"]],
+        #       key = list(version, as.character(db_species["DGI"]), "DGI"),
+        #       comment = paste0(version, " nterm:", length(TERM2NAME[[1]]), "|", db_species["DGI"], "-DGI")
+        #     )
+        #   }
+        # }
 
         ## MP ---------------------------------------------------------------------------
         if (any(db == "MP") && (!"MP" %in% names(db_list[[sps]]))) {
@@ -2392,12 +2378,12 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
         ## PFAM ---------------------------------------------------------------------------
         if (any(db == "PFAM") && (!"PFAM" %in% names(db_list[[sps]]))) {
           message("Preparing database: PFAM")
-          if (!"PFAM" %in% AnnotationDbi::columns(orgdb)) {
+          if (!"PFAM" %in% columns(orgdb)) {
             warning("PFAM is not in the orgdb: ", orgdb, " . Skip the preparation.", immediate. = TRUE)
           } else {
-            bg <- suppressMessages(AnnotationDbi::select(orgdb, keys = AnnotationDbi::keys(orgdb), columns = c("PFAM", org_key)))
+            bg <- suppressMessages(select(orgdb, keys = keys(orgdb), columns = c("PFAM", org_key)))
             bg <- unique(bg[!is.na(bg$PFAM), c("PFAM", org_key), drop = FALSE])
-            bg2 <- as.data.frame(PFAM.db::PFAMDE2AC[AnnotationDbi::mappedkeys(PFAM.db::PFAMDE2AC)])
+            bg2 <- as.data.frame(PFAM.db::PFAMDE2AC[mappedkeys(PFAM.db::PFAMDE2AC)])
             rownames(bg2) <- bg2[["ac"]]
             bg[["PFAM_name"]] <- bg2[bg$PFAM, "de"]
             bg[is.na(bg[["PFAM_name"]]), "PFAM_name"] <- bg[is.na(bg[["PFAM_name"]]), "PFAM"]
@@ -2424,7 +2410,7 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
         if (any(db == "Chromosome") && (!"Chromosome" %in% names(db_list[[sps]]))) {
           message("Preparing database: Chromosome")
           orgdbCHR <- get(paste0(gsub(pattern = ".db", "", org_sp), "CHR"))
-          chr <- as.data.frame(orgdbCHR[AnnotationDbi::mappedkeys(orgdbCHR)])
+          chr <- as.data.frame(orgdbCHR[mappedkeys(orgdbCHR)])
           chr[, 2] <- paste0("chr", chr[, 2])
           TERM2GENE <- chr[, c(2, 1)]
           TERM2NAME <- chr[, c(2, 2)]
@@ -2447,10 +2433,10 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
         ## GeneType ---------------------------------------------------------------------------
         if (any(db == "GeneType") && (!"GeneType" %in% names(db_list[[sps]]))) {
           message("Preparing database: GeneType")
-          if (!"GENETYPE" %in% AnnotationDbi::columns(orgdb)) {
+          if (!"GENETYPE" %in% columns(orgdb)) {
             warning("GENETYPE is not in the orgdb: ", org_sp, " . Skip the preparation.", immediate. = TRUE)
           } else {
-            bg <- suppressMessages(AnnotationDbi::select(orgdb, keys = AnnotationDbi::keys(orgdb), columns = c("GENETYPE", org_key)))
+            bg <- suppressMessages(select(orgdb, keys = keys(orgdb), columns = c("GENETYPE", org_key)))
             TERM2GENE <- bg[, c("GENETYPE", org_key)]
             TERM2NAME <- bg[, c("GENETYPE", "GENETYPE")]
             colnames(TERM2GENE) <- c("Term", default_IDtypes["GeneType"])
@@ -2473,10 +2459,10 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
         ## Enzyme ---------------------------------------------------------------------------
         if (any(db == "Enzyme") && (!"Enzyme" %in% names(db_list[[sps]]))) {
           message("Preparing database: Enzyme")
-          if (!"ENZYME" %in% AnnotationDbi::columns(orgdb)) {
+          if (!"ENZYME" %in% columns(orgdb)) {
             warning("ENZYME is not in the orgdb: ", orgdb, " . Skip the preparation.", immediate. = TRUE)
           } else {
-            bg <- suppressMessages(AnnotationDbi::select(orgdb, keys = AnnotationDbi::keys(orgdb), columns = c("ENZYME", org_key)))
+            bg <- suppressMessages(select(orgdb, keys = keys(orgdb), columns = c("ENZYME", org_key)))
             bg1 <- bg2 <- na.omit(bg)
             bg1[, "ENZYME"] <- sapply(strsplit(bg1[, "ENZYME"], "\\."), function(x) paste0(head(x, 1), collapse = "."))
             bg2[, "ENZYME"] <- sapply(strsplit(bg2[, "ENZYME"], "\\."), function(x) paste0(head(x, 2), collapse = "."))
@@ -2767,7 +2753,7 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
           url <- paste0("https://cdn.netbiol.org/tflink/download_files/TFLink_", db_species["TFLink"], "_interactions_All_GMT_proteinName_v1.0.gmt")
           temp <- tempfile()
           download(url = url, destfile = temp)
-          TERM2GENE <- clusterProfiler::read.gmt(temp)
+          TERM2GENE <- read.gmt(temp)
           version <- "v1.0"
           TERM2NAME <- TERM2GENE[, c(1, 1)]
           colnames(TERM2GENE) <- c("Term", default_IDtypes["TFLink"])
@@ -2870,7 +2856,7 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
           temp <- tempfile(fileext = ".gz")
           download(url = url, destfile = temp)
           R.utils::gunzip(temp)
-          TERM2GENE <- clusterProfiler::read.gmt(gsub(".gz", "", temp))
+          TERM2GENE <- read.gmt(gsub(".gz", "", temp))
           version <- "Harmonizome 3.0"
           TERM2NAME <- TERM2GENE[, c(1, 1)]
           colnames(TERM2GENE) <- c("Term", default_IDtypes["JASPAR"])
@@ -2904,7 +2890,7 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
           temp <- tempfile(fileext = ".gz")
           download(url = url, destfile = temp)
           R.utils::gunzip(temp)
-          TERM2GENE <- clusterProfiler::read.gmt(gsub(".gz", "", temp))
+          TERM2GENE <- read.gmt(gsub(".gz", "", temp))
           version <- "Harmonizome 3.0"
           TERM2NAME <- TERM2GENE[, c(1, 1)]
           colnames(TERM2GENE) <- c("Term", default_IDtypes["ENCODE"])
@@ -3002,48 +2988,48 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
         }
 
         ## CellTalk ---------------------------------------------------------------------------
-        if (any(db == "CellTalk") && (!"CellTalk" %in% names(db_list[[sps]]))) {
-          if (!sps %in% c("Homo_sapiens", "Mus_musculus")) {
-            if (isTRUE(convert_species)) {
-              warning("Use the human annotation to create the CellTalk database for ", sps, immediate. = TRUE)
-              db_species["CellTalk"] <- "Homo_sapiens"
-            } else {
-              warning("CellTalk database only support Homo_sapiens and Mus_musculus. Consider using convert_species=TRUE", immediate. = TRUE)
-              stop("Stop the preparation.")
-            }
-          }
-          message("Preparing database: CellTalk")
-          url <- switch(db_species["CellTalk"],
-            "Homo_sapiens" = "https://raw.githubusercontent.com/ZJUFanLab/CellTalkDB/master/database/human_lr_pair.rds",
-            "Mus_musculus" = "https://raw.githubusercontent.com/ZJUFanLab/CellTalkDB/master/database/mouse_lr_pair.rds"
-          )
-
-          temp <- tempfile()
-          download(url = url, destfile = temp)
-          lr <- readRDS(temp)
-          version <- "v1.0"
-
-          lr[["ligand_gene_symbol2"]] <- paste0("ligand_", lr[["ligand_gene_symbol"]])
-          lr[["receptor_gene_symbol2"]] <- paste0("receptor_", lr[["receptor_gene_symbol"]])
-          TERM2GENE <- rbind(
-            data.frame("Term" = lr[["ligand_gene_symbol2"]], "symbol" = lr[["receptor_gene_symbol"]]),
-            data.frame("Term" = lr[["receptor_gene_symbol2"]], "symbol" = lr[["ligand_gene_symbol"]])
-          )
-          TERM2NAME <- TERM2GENE[, c(1, 1)]
-          colnames(TERM2GENE) <- c("Term", default_IDtypes["CellTalk"])
-          colnames(TERM2NAME) <- c("Term", "Name")
-          TERM2GENE <- na.omit(unique(TERM2GENE))
-          TERM2NAME <- na.omit(unique(TERM2NAME))
-          db_list[[db_species["CellTalk"]]][["CellTalk"]][["TERM2GENE"]] <- TERM2GENE
-          db_list[[db_species["CellTalk"]]][["CellTalk"]][["TERM2NAME"]] <- TERM2NAME
-          db_list[[db_species["CellTalk"]]][["CellTalk"]][["version"]] <- version
-          if (sps == db_species["CellTalk"]) {
-            saveCache(db_list[[db_species["CellTalk"]]][["CellTalk"]],
-              key = list(version, as.character(db_species["CellTalk"]), "CellTalk"),
-              comment = paste0(version, " nterm:", length(TERM2NAME[[1]]), "|", db_species["CellTalk"], "-CellTalk")
-            )
-          }
-        }
+        # if (any(db == "CellTalk") && (!"CellTalk" %in% names(db_list[[sps]]))) {
+        #   if (!sps %in% c("Homo_sapiens", "Mus_musculus")) {
+        #     if (isTRUE(convert_species)) {
+        #       warning("Use the human annotation to create the CellTalk database for ", sps, immediate. = TRUE)
+        #       db_species["CellTalk"] <- "Homo_sapiens"
+        #     } else {
+        #       warning("CellTalk database only support Homo_sapiens and Mus_musculus. Consider using convert_species=TRUE", immediate. = TRUE)
+        #       stop("Stop the preparation.")
+        #     }
+        #   }
+        #   message("Preparing database: CellTalk")
+        #   url <- switch(db_species["CellTalk"],
+        #     "Homo_sapiens" = "https://raw.githubusercontent.com/ZJUFanLab/CellTalkDB/master/database/human_lr_pair.rds",
+        #     "Mus_musculus" = "https://raw.githubusercontent.com/ZJUFanLab/CellTalkDB/master/database/mouse_lr_pair.rds"
+        #   )
+        #
+        #   temp <- tempfile()
+        #   download(url = url, destfile = temp)
+        #   lr <- readRDS(temp)
+        #   version <- "v1.0"
+        #
+        #   lr[["ligand_gene_symbol2"]] <- paste0("ligand_", lr[["ligand_gene_symbol"]])
+        #   lr[["receptor_gene_symbol2"]] <- paste0("receptor_", lr[["receptor_gene_symbol"]])
+        #   TERM2GENE <- rbind(
+        #     data.frame("Term" = lr[["ligand_gene_symbol2"]], "symbol" = lr[["receptor_gene_symbol"]]),
+        #     data.frame("Term" = lr[["receptor_gene_symbol2"]], "symbol" = lr[["ligand_gene_symbol"]])
+        #   )
+        #   TERM2NAME <- TERM2GENE[, c(1, 1)]
+        #   colnames(TERM2GENE) <- c("Term", default_IDtypes["CellTalk"])
+        #   colnames(TERM2NAME) <- c("Term", "Name")
+        #   TERM2GENE <- na.omit(unique(TERM2GENE))
+        #   TERM2NAME <- na.omit(unique(TERM2NAME))
+        #   db_list[[db_species["CellTalk"]]][["CellTalk"]][["TERM2GENE"]] <- TERM2GENE
+        #   db_list[[db_species["CellTalk"]]][["CellTalk"]][["TERM2NAME"]] <- TERM2NAME
+        #   db_list[[db_species["CellTalk"]]][["CellTalk"]][["version"]] <- version
+        #   if (sps == db_species["CellTalk"]) {
+        #     saveCache(db_list[[db_species["CellTalk"]]][["CellTalk"]],
+        #       key = list(version, as.character(db_species["CellTalk"]), "CellTalk"),
+        #       comment = paste0(version, " nterm:", length(TERM2NAME[[1]]), "|", db_species["CellTalk"], "-CellTalk")
+        #     )
+        #   }
+        # }
 
         ## CellChat ---------------------------------------------------------------------------
         if (any(db == "CellChat") && (!"CellChat" %in% names(db_list[[sps]]))) {
@@ -3470,7 +3456,6 @@ RunEnrichment <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_t
   input <- input[!is.na(input[[IDtype]]), , drop = FALSE]
 
   message("Permform enrichment...")
-  suppressPackageStartupMessages(requireNamespace("DOSE", quietly = TRUE))
   comb <- expand.grid(group = levels(geneID_groups), term = db, stringsAsFactors = FALSE)
 
   res_list <- bplapply(seq_len(nrow(comb)), function(i, id) {
@@ -3772,7 +3757,6 @@ RunGSEA <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_thresho
   input <- input[!is.na(input[[IDtype]]), , drop = FALSE]
 
   message("Permform GSEA...")
-  suppressPackageStartupMessages(requireNamespace("DOSE", quietly = TRUE))
   comb <- expand.grid(group = levels(geneID_groups), term = db, stringsAsFactors = FALSE)
 
   res_list <- bplapply(seq_len(nrow(comb)), function(i, id) {
@@ -3937,7 +3921,7 @@ RunSlingshot <- function(srt, group.by, reduction = NULL, dims = NULL, start = N
   }
 
   set.seed(seed)
-  sl <- slingshot::slingshot(
+  sl <- slingshot(
     data = as.data.frame(srt_sub[[reduction]]@cell.embeddings[, dims]),
     clusterLabels = as.character(srt_sub[[group.by, drop = TRUE]]),
     start.clus = start, end.clus = end, ...
@@ -3965,7 +3949,7 @@ RunSlingshot <- function(srt, group.by, reduction = NULL, dims = NULL, start = N
   # )
 
   srt@tools[[paste("Slingshot", group.by, reduction, sep = "_")]] <- sl
-  df <- as.data.frame(slingshot::slingPseudotime(sl))
+  df <- as.data.frame(slingPseudotime(sl))
   colnames(df) <- paste0(prefix, colnames(df))
   if (isTRUE(reverse)) {
     if (isTRUE(align_start)) {
@@ -3975,7 +3959,7 @@ RunSlingshot <- function(srt, group.by, reduction = NULL, dims = NULL, start = N
     }
   }
   srt <- AddMetaData(srt, metadata = df)
-  srt <- AddMetaData(srt, metadata = slingshot::slingBranchID(sl), col.name = paste0(prefix, "BranchID"))
+  srt <- AddMetaData(srt, metadata = slingBranchID(sl), col.name = paste0(prefix, "BranchID"))
 
   if (isTRUE(show_plot)) {
     if (ncol(srt[[reduction]]@cell.embeddings) == 2 || ncol(srt[[reduction]]@cell.embeddings) > 3) {
@@ -5338,7 +5322,6 @@ maxDepth <- function(x, depth = 0) {
 }
 
 #' @importFrom reticulate py_to_r
-#' @export
 check_python_element <- function(x, depth = maxDepth(x)) {
   if (depth == 0 || !is.list(x) || !inherits(x, "python.builtin.object")) {
     if (inherits(x, "python.builtin.object")) {
@@ -5589,7 +5572,6 @@ RunSCVELO <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_laye
   groups <- py_to_r_auto(args[["adata"]]$obs)[[group_by]]
   args[["palette"]] <- palette_scp(levels(groups) %||% unique(groups), palette = palette, palcolor = palcolor)
 
-
   SCP_analysis <- reticulate::import_from_path("SCP_analysis", path = system.file("python", package = "SCP", mustWork = TRUE), convert = TRUE)
   adata <- do.call(SCP_analysis$SCVELO, args)
 
@@ -5760,7 +5742,7 @@ RunWOT <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_layers 
   args[["palette"]] <- palette_scp(levels(groups) %||% unique(groups), palette = palette, palcolor = palcolor)
 
   SCP_analysis <- reticulate::import_from_path("SCP_analysis", path = system.file("python", package = "SCP", mustWork = TRUE), convert = TRUE)
-  adata <- do.call(WOT, args)
+  adata <- do.call(SCP_analysis$WOT, args)
 
   if (isTRUE(return_seurat)) {
     srt_out <- adata_to_srt(adata)

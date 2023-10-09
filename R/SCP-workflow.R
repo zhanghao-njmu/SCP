@@ -589,6 +589,7 @@ RenameClusters <- function(srt, group.by, nameslist = list(), name = "newcluster
 #' @importFrom SeuratObject as.sparse
 #' @importFrom stats hclust reorder as.dendrogram as.dist
 #' @importFrom Matrix t colMeans
+#' @importFrom proxyC simil dist
 #' @export
 SrtReorder <- function(srt, features = NULL, reorder_by = NULL, slot = "data", assay = NULL, log = TRUE,
                        distance_metric = "euclidean") {
@@ -634,14 +635,14 @@ SrtReorder <- function(srt, features = NULL, reorder_by = NULL, slot = "data", a
       }
       distance_metric <- "correlation"
     }
-    d <- 1 - proxyC::simil(as.sparse(mat[1:nrow(mat), , drop = FALSE]), method = distance_metric)
+    d <- 1 - simil(as.sparse(mat[1:nrow(mat), , drop = FALSE]), method = distance_metric)
   } else if (distance_metric %in% dist_method) {
-    d <- proxyC::dist(as.sparse(mat[1:nrow(mat), , drop = FALSE]), method = distance_metric)
+    d <- dist(as.sparse(mat[1:nrow(mat), , drop = FALSE]), method = distance_metric)
   }
   data.dist <- as.dist(d)
   hc <- hclust(d = data.dist)
   dd <- as.dendrogram(hc)
-  dd_ordered <- reorder(dd, wts = colMeans(data.avg[features, , drop = FALSE]), agglo.FUN = base::mean)
+  dd_ordered <- reorder(dd, wts = colMeans(data.avg[features, , drop = FALSE]), agglo.FUN = mean)
   ident_new <- unname(setNames(object = seq_along(labels(dd_ordered)), nm = labels(dd_ordered))[as.character(srt$ident)])
   ident_new <- factor(ident_new, levels = seq_along(labels(dd_ordered)))
   Idents(srt) <- srt$ident <- ident_new
@@ -2699,8 +2700,7 @@ CSS_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtList 
     "leiden" = 4
   )
 
-  check_R("quadbiolab/simspec")
-  suppressPackageStartupMessages(requireNamespace("qlcMatrix"))
+  check_R(c("quadbiolab/simspec", "qlcMatrix"))
   set.seed(seed)
 
   if (is.null(srtList) && is.null(srtMerge)) {

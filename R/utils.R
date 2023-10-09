@@ -145,7 +145,6 @@ PrepareEnv <- function(conda = "auto", miniconda_repo = "https://repo.anaconda.c
 #' @param lib  The location of the library directories where to install the packages.
 #' @param force Whether to force the installation of packages. Default is \code{FALSE}.
 #'
-#' @importFrom rlang %||%
 #' @importFrom utils packageVersion
 #' @export
 check_R <- function(packages, package_names = NULL, install_methods = c("BiocManager::install", "install.packages", "devtools::install_github"), lib = .libPaths()[1], force = FALSE) {
@@ -245,7 +244,6 @@ installed_Python_pkgs <- function(envname = NULL, conda = "auto") {
 #' Check if the python package exists in the environment
 #'
 #' @inheritParams check_Python
-#' @importFrom rlang %||%
 #' @export
 exist_Python_pkgs <- function(packages, envname = NULL, conda = "auto") {
   envname <- get_envname(envname)
@@ -399,7 +397,6 @@ find_conda <- function() {
 #' Installs a list of packages into a specified conda environment
 #'
 #' @inheritParams reticulate::conda_install
-#' @importFrom rlang %||%
 conda_install <- function(envname = NULL, packages, forge = TRUE, channel = character(),
                           pip = FALSE, pip_options = character(), pip_ignore_installed = FALSE,
                           conda = "auto", python_version = NULL, ...) {
@@ -505,7 +502,34 @@ run_Python <- function(command, envir = .GlobalEnv) {
   })
 }
 
+#' Try to evaluate an expression a set number of times before failing
+#'
+#' The function is used as a fail-safe if your R code sometimes works and sometimes
+#' doesn't, usually because it depends on a resource that may be temporarily
+#' unavailable. It tries to evaluate the expression `max_tries` times. If all the
+#' attempts fail, it throws an error; if not, the evaluated expression is returned.
+#'
+#' @param expr The expression to be evaluated.
+#' @param max_tries The maximum number of attempts to evaluate the expression before giving up. Default is set to 5.
+#' @param error_message a string, additional custom error message you would like to be displayed when an error occurs.
+#' @param retry_message a string, a message displayed when a new try to evaluate the expression would be attempted.
+#'
+#' @return This function returns the evaluated expression if successful, otherwise it throws an error if all attempts are unsuccessful.
 #' @export
+#'
+#' @examples
+#' f <- function() {
+#'   value <- runif(1, min = 0, max = 1)
+#'   if (value > 0.5) {
+#'     message("value is larger than 0.5")
+#'     return(value)
+#'   } else {
+#'     stop("value is smaller than 0.5")
+#'   }
+#' }
+#' f_evaluated <- try_get(expr = f())
+#' print(f_evaluated)
+#'
 try_get <- function(expr, max_tries = 5, error_message = "", retry_message = "Retrying...") {
   out <- simpleError("start")
   ntry <- 0

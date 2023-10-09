@@ -10,16 +10,18 @@ GSEAPlot(
   group_by = NULL,
   test.use = "wilcox",
   res = NULL,
-  plot_type = c("line", "comparison"),
-  palette = "Spectral",
-  palcolor = NULL,
+  plot_type = c("line", "comparison", "bar", "network", "enrichmap", "wordcloud"),
   group_use = NULL,
   id_use = NULL,
   pvalueCutoff = NULL,
   padjustCutoff = 0.05,
-  topTerm = 6,
-  only_pos = FALSE,
+  topTerm = ifelse(plot_type == "enrichmap", 100, 6),
+  direction = c("pos", "neg", "both"),
   compare_only_sig = FALSE,
+  topWord = 100,
+  word_type = c("term", "feature"),
+  word_size = c(2, 8),
+  words_excluded = NULL,
   subplots = 1:3,
   rel_heights = c(1.5, 0.5, 1),
   rel_width = 3,
@@ -33,10 +35,29 @@ GSEAPlot(
   label.bg = "white",
   label.bg.r = 0.1,
   label.size = 4,
-  aspect.ratio = NULL,
-  base_size = 12,
+  network_layout = "fr",
+  network_labelsize = 5,
+  network_blendmode = "blend",
+  network_layoutadjust = TRUE,
+  network_adjscale = 60,
+  network_adjiter = 100,
+  enrichmap_layout = "fr",
+  enrichmap_cluster = "fast_greedy",
+  enrichmap_label = c("term", "feature"),
+  enrichmap_labelsize = 5,
+  enrlichmap_nlabel = 4,
+  enrichmap_show_keyword = FALSE,
+  enrichmap_mark = c("ellipse", "hull"),
+  enrichmap_expand = c(0.5, 0.5),
   character_width = 50,
   lineheight = 0.7,
+  palette = "Spectral",
+  palcolor = NULL,
+  aspect.ratio = NULL,
+  legend.position = "right",
+  legend.direction = "vertical",
+  theme_use = "theme_scp",
+  theme_args = list(),
   combine = TRUE,
   nrow = NULL,
   ncol = NULL,
@@ -58,10 +79,23 @@ pancreas_sub <- RunGSEA(pancreas_sub, group_by = "CellType", db = "GO_BP", speci
 GSEAPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = "Ductal")
 GSEAPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = "Ductal", id_use = "GO:0006412")
 GSEAPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = "Endocrine", id_use = c("GO:0046903", "GO:0015031", "GO:0007600")) \%>\%
-  panel_fix_single(width = 5) # Because the plot is made by combining, we need to adjust the overall height and width
+  panel_fix_single(height = 6) # Because the plot is made by combining, we need to adjust the overall height and width
 
 GSEAPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", topTerm = 3, plot_type = "comparison")
+GSEAPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", topTerm = 3, plot_type = "comparison", direction = "neg")
+GSEAPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", topTerm = 3, plot_type = "comparison", direction = "both")
 GSEAPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", topTerm = 3, plot_type = "comparison", compare_only_sig = TRUE)
-GSEAPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", topTerm = 3, plot_type = "comparison", only_pos = TRUE, compare_only_sig = TRUE)
+
+GSEAPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", plot_type = "bar")
+GSEAPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", plot_type = "bar", direction = "both")
+GSEAPlot(pancreas_sub,
+  db = "GO_BP", group_by = "CellType", group_use = "Ductal",
+  plot_type = "bar", topTerm = 20, direction = "both", palcolor = c("red3", "steelblue")
+)
+
+GSEAPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = "Endocrine", plot_type = "network")
+GSEAPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = "Endocrine", plot_type = "enrichmap")
+GSEAPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = "Endocrine", plot_type = "wordcloud")
+GSEAPlot(pancreas_sub, db = "GO_BP", group_by = "CellType", group_use = "Endocrine", plot_type = "wordcloud", word_type = "feature")
 
 }

@@ -63,11 +63,13 @@ res <- GeneConvert(
   species_to = "Homo_sapiens",
   Ensembl_version = 103
 )
-homologs_counts <- counts[res$geneID_expand[, "from_geneID"], ]
-rownames(homologs_counts) <- res$geneID_expand[, "symbol"]
-homologs_counts <- aggregate(homologs_counts, by = list(row.names(homologs_counts)), FUN = sum)
+homologs_counts <- aggregate(
+  x = counts[res$geneID_expand[, "from_geneID"], ],
+  by = list(res$geneID_expand[, "symbol"]), FUN = sum
+)
 rownames(homologs_counts) <- homologs_counts[, 1]
-homologs_counts <- as(as.matrix(homologs_counts[, -1]), "dgCMatrix")
+homologs_counts <- homologs_counts[, -1]
+homologs_counts <- as(as.matrix(homologs_counts), "dgCMatrix")
 homologs_counts
 
 }

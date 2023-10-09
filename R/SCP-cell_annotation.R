@@ -90,7 +90,7 @@ NULL
 #' @importFrom methods as
 #' @importFrom Matrix t colSums rowSums
 #' @importFrom Seurat DefaultAssay GetAssayData FindVariableFeatures VariableFeatures AverageExpression FindNeighbors as.sparse
-#' @importFrom rlang %||%
+#' @importFrom proxyC simil dist
 #' @export
 #'
 RunKNNPredict <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
@@ -105,7 +105,6 @@ RunKNNPredict <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
                           DE_threshold = "p_val_adj < 0.05",
                           nn_method = NULL, distance_metric = "cosine", k = 30,
                           filter_lowfreq = 0, prefix = "KNNPredict") {
-  check_R(c("RcppParallel", "proxyC"))
   query_assay <- query_assay %||% DefaultAssay(srt_query)
   features_type <- match.arg(features_type, choices = c("HVF", "DE"))
   if (is.null(query_reduction) + is.null(ref_reduction) == 1) {
@@ -391,14 +390,14 @@ RunKNNPredict <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
         }
         distance_metric <- "correlation"
       }
-      d <- 1 - proxyC::simil(
+      d <- 1 - simil(
         x = as.sparse(ref),
         y = as.sparse(query),
         method = distance_metric,
         use_nan = TRUE
       )
     } else if (distance_metric %in% dist_method) {
-      d <- proxyC::dist(
+      d <- dist(
         x = as.sparse(ref),
         y = as.sparse(query),
         method = distance_metric,
@@ -473,12 +472,12 @@ RunKNNPredict <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
   if (!is.null(match_prob)) {
     srt_query[[paste0(prefix, "_prob")]] <- apply(match_prob, 1, max)[query_index]
   } else {
-    dist <- match_k_distance[, 1]
-    # srt_query[[paste0(prefix, "_score")]] <- ((max(dist) - dist) / diff(range(dist)))[query_index]
+    distance <- match_k_distance[, 1]
+    # srt_query[[paste0(prefix, "_score")]] <- ((max(distance) - distance) / diff(range(distance)))[query_index]
     if (distance_metric %in% c(simil_method, "pearson", "spearman")) {
-      srt_query[[paste0(prefix, "_simil")]] <- (1 - dist)[query_index]
+      srt_query[[paste0(prefix, "_simil")]] <- (1 - distance)[query_index]
     } else {
-      srt_query[[paste0(prefix, "_dist")]] <- dist[query_index]
+      srt_query[[paste0(prefix, "_dist")]] <- distance[query_index]
     }
   }
 

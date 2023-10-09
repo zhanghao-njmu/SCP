@@ -150,7 +150,6 @@ RunNMF.Assay <- function(object, assay = NULL, slot = "data", features = NULL, n
 #' @importFrom utils capture.output
 #' @importFrom Matrix t
 #' @importFrom Seurat CreateDimReducObject
-#' @importFrom rlang "%||%"
 #'
 #' @rdname RunNMF
 #' @concept dimensional_reduction
@@ -168,9 +167,9 @@ RunNMF.default <- function(object, assay = NULL, slot = "data", nbes = 50,
   }
   nbes <- min(nbes, nrow(x = object) - 1)
   if (nmf.method == "RcppML") {
-    check_R("RcppML")
-    library("RcppML")
-    library("Matrix")
+    check_R("zdebruine/RcppML@0.5.6")
+    options("RcppML.verbose" = FALSE)
+    options("RcppML.threads" = 0)
     nmf.results <- RcppML::nmf(
       t(object),
       k = nbes, tol = tol, maxit = maxit,
@@ -357,12 +356,11 @@ RunMDS.Assay <- function(object, assay = NULL, slot = "data",
 #' @param mds.method
 #' @param ...
 #'
-#' @importFrom parallelDist parDist
+#' @importFrom proxyC dist
 #' @importFrom utils capture.output
 #' @importFrom Matrix t
-#' @importFrom stats cmdscale
+#' @importFrom stats cmdscale as.dist
 #' @importFrom Seurat CreateDimReducObject
-#' @importFrom rlang "%||%"
 #'
 #' @rdname RunMDS
 #' @concept dimensional_reduction
@@ -388,7 +386,7 @@ RunMDS.default <- function(object, assay = NULL, slot = "data",
     x <- t(apply(x, 1, function(x) x - mean(x)))
     dist.method <- "cosine"
   }
-  cell.dist <- parDist(x = x, method = dist.method)
+  cell.dist <- as.dist(dist(x = x, method = dist.method))
   if (mds.method == "cmdscale") {
     mds.results <- cmdscale(cell.dist, k = nmds, eig = TRUE)
   }
@@ -705,10 +703,8 @@ RunDM.Seurat <- function(object,
 #'
 #' @rdname RunDM
 #' @concept dimensional_reduction
-#' @importFrom parallelDist parDist
 #' @importFrom utils capture.output
 #' @importFrom Seurat CreateDimReducObject
-#' @importFrom rlang "%||%"
 #' @export
 #' @method RunDM matrix
 #'
@@ -735,28 +731,6 @@ RunDM.matrix <- function(object, ndcs = 2, sigma = "local", k = 30, dist.method 
     misc = list(slot = slot, dm.results = dm.results)
   )
   return(reduction)
-  # if (dist.method %in% c("pearson", "spearman")) {
-  #   if (dist.method == "spearman") {
-  #     x <- t(apply(x, 1, rank))
-  #   }
-  #   x <- t(apply(x, 1, function(x) x - mean(x)))
-  #   dist.method <- "cosine"
-  # }
-  # cell.dist <- parDist(x = x, method = dist.method)
-  # reduction <- RunDM(
-  #   object = cell.dist,
-  #   exprs = x,
-  #   ndcs = ndcs,
-  #   sigma = sigma,
-  #   k = k,
-  #   assay = assay,
-  #   slot = slot,
-  #   reduction.key = reduction.key,
-  #   seed.use = seed.use,
-  #   verbose = verbose,
-  #   ...
-  # )
-  # return(reduction)
 }
 
 #' @param ndcs Total Number of DM to compute and store (2 by default).
@@ -776,10 +750,8 @@ RunDM.matrix <- function(object, ndcs = 2, sigma = "local", k = 30, dist.method 
 #'
 #' @rdname RunDM
 #' @concept dimensional_reduction
-#' @importFrom parallelDist parDist
 #' @importFrom utils capture.output
 #' @importFrom Seurat CreateDimReducObject
-#' @importFrom rlang "%||%"
 #' @export
 RunDM.Neighbor <- function(object,
                            ndcs = 2, sigma = "local", k = 30, slot = "data",
@@ -2274,110 +2246,6 @@ RunFR.default <- function(object, ndim = 2, niter = 500,
   return(reduction)
 }
 
-
-# RunIsomap <- function(object, ...) {
-#   UseMethod(generic = "RunIsomap", object = object)
-# }
-#
-# RunIsomap.Seurat <- function(object, reduction = "pca", dims = NULL, features = NULL, distance = NULL,
-#                              assay = DefaultAssay(object = object), slot = "data",
-#                              n_components = 2, epsilon = NULL, k = 30, dist.method = "euclidean",
-#                              reduction.name = "Isomap", reduction.key = "Isomap_",
-#                              verbose = TRUE, seed.use = 11L,
-#                              ...) {
-#   if (sum(c(is.null(x = dims), is.null(x = features), is.null(distance))) == 3) {
-#     stop("Please specify only one of the following arguments: dims, features or distance")
-#   }
-#   if (!is.null(x = features)) {
-#     data.use <- as.matrix(x = t(x = GetAssayData(object = object, slot = slot, assay = assay)[features, , drop = FALSE]))
-#     if (ncol(x = data.use) < n_components) {
-#       stop(
-#         "Please provide as many or more features than n_components: ",
-#         length(x = features),
-#         " features provided, ",
-#         n_components,
-#         " Isomap components requested",
-#         call. = FALSE
-#       )
-#     }
-#   } else if (!is.null(x = dims)) {
-#     data.use <- Embeddings(object[[reduction]])[, dims]
-#     assay <- DefaultAssay(object = object[[reduction]])
-#     if (length(x = dims) < n_components) {
-#       stop(
-#         "Please provide as many or more dims than n_components: ",
-#         length(x = dims),
-#         " dims provided, ",
-#         n_components,
-#         " Isomap components requested",
-#         call. = FALSE
-#       )
-#     }
-#   } else if (!is.null(x = distance)) {
-#     if (!inherits(x = object[[distance]], what = "Graph")) {
-#       stop(
-#         "Please specify a Graph object name(save the distance matrix), ",
-#         "instead of the name of a ",
-#         class(object[[distance]]),
-#         " object",
-#         call. = FALSE
-#       )
-#     }
-#     data.use <- as.dist(as.matrix(object[[distance]]))
-#   } else {
-#     stop("Please specify one of dims, features or distance")
-#   }
-#   object[[reduction.name]] <- RunIsomap(
-#     object = data.use, assay = assay,
-#     n_components = n_components, epsilon = epsilon, k = k, dist.method = dist.method,
-#     reduction.key = reduction.key, verbose = verbose, seed.use = seed.use
-#   )
-#   object <- LogSeuratCommand(object = object)
-#   return(object)
-# }
-#
-# RunIsomap.default <- function(object, assay = NULL,
-#                               n_components = 2, epsilon = NULL, k = 30, dist.method = "euclidean",
-#                               reduction.key = "Isomap_", verbose = TRUE, seed.use = 11L,
-#                               ...) {
-#   if (!is.null(x = seed.use)) {
-#     set.seed(seed = seed.use)
-#   }
-#   check_R("vegan")
-#   if (inherits(x = object, what = "matrix") || inherits(x = object, what = "Matrix")) {
-#     x <- as.matrix(object)
-#     if (dist.method %in% c("pearson", "spearman")) {
-#       if (dist.method == "spearman") {
-#         x <- t(apply(x, 1, rank))
-#       }
-#       x <- t(apply(x, 1, function(x) x - mean(x)))
-#       dist.method <- "cosine"
-#     }
-#     cell.dist <- parDist(x = x, method = dist.method)
-#   } else if (inherits(x = object, what = "dist")) {
-#     cell.dist <- object
-#   } else {
-#     stop("object must be a matrix or dist object")
-#   }
-#
-#   params <- list(
-#     dist = cell.dist,
-#     ndim = n_components
-#   )
-#   for (nm in c("epsilon", "k")) {
-#     params[[nm]] <- get(nm)
-#   }
-#   out <- invoke(.fn = vegan::isomap, .args = params)
-#   embeddings <- out$points
-#   colnames(x = embeddings) <- paste0(reduction.key, seq_len(ncol(x = embeddings)))
-#   rownames(x = embeddings) <- attr(cell.dist, "Labels")
-#   reduction <- CreateDimReducObject(
-#     embeddings = embeddings,
-#     key = reduction.key, assay = assay, global = TRUE
-#   )
-#   return(reduction)
-# }
-
 #' Harmony single cell integration
 #'
 #' Run Harmony algorithm with Seurat pipelines.
@@ -2417,6 +2285,8 @@ RunHarmony2 <- function(object, ...) {
 #' @rdname RunHarmony2
 #' @method RunHarmony2 Seurat
 #' @importFrom Seurat Embeddings RunPCA FetchData CreateDimReducObject ProjectDim LogSeuratCommand
+#' @importFrom methods slot
+#' @importFrom stats sd
 #' @export
 RunHarmony2.Seurat <- function(object,
                                group.by.vars,
@@ -2440,7 +2310,7 @@ RunHarmony2.Seurat <- function(object,
                                project.dim = TRUE,
                                ...) {
   check_R("immunogenomics/harmony")
-  available.dimreduc <- names(methods::slot(object = object, name = "reductions"))
+  available.dimreduc <- names(slot(object = object, name = "reductions"))
   if (!(reduction %in% available.dimreduc)) {
     stop("Requested dimension reduction is not present in the Seurat object")
   }
@@ -2480,7 +2350,7 @@ RunHarmony2.Seurat <- function(object,
   suppressWarnings({
     object[[reduction.save]] <- CreateDimReducObject(
       embeddings = harmonyEmbed,
-      stdev = as.numeric(apply(harmonyEmbed, 2, stats::sd)),
+      stdev = as.numeric(apply(harmonyEmbed, 2, sd)),
       assay = assay.use,
       key = reduction.save,
       misc = list(
