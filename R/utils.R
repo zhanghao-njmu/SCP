@@ -1,8 +1,14 @@
-#' Prepare SCP python environment
+#' This function prepares the SCP Python environment by installing the required dependencies and setting up the environment.
 #'
 #' @param miniconda_repo  Repositories for miniconda. Default is \code{https://repo.anaconda.com/miniconda}
 #' @param force Whether to force a new environment to be created. If \code{TRUE}, the existing environment will be recreated. Default is \code{FALSE}
+#' @param version A character vector specifying the version of the environment (default is "3.8-1").
 #' @inheritParams check_Python
+#' @details This function prepares the SCP Python environment by checking if conda is installed, creating a new conda environment if needed, installing the required packages, and setting up the Python environment for use with SCP.
+#' In order to create the environment, this function requires the path to the conda binary. If \code{conda} is set to \code{"auto"}, it will attempt to automatically find the conda binary.
+#' If a conda environment with the specified name already exists and \code{force} is set to \code{FALSE}, the function will use the existing environment. If \code{force} set to \code{TRUE}, the existing environment will be recreated. Note that recreating the environment will remove any existing data in the environment.
+#' The function also checks if the package versions in the environment meet the requirements specified by the \code{version} parameter. The default is \code{3.8-1}.
+#'
 #'
 #' @export
 PrepareEnv <- function(conda = "auto", miniconda_repo = "https://repo.anaconda.com/miniconda",
@@ -123,6 +129,19 @@ PrepareEnv <- function(conda = "auto", miniconda_repo = "https://repo.anaconda.c
   invisible(run_Python(command = "import scanpy", envir = .GlobalEnv))
 }
 
+#' Env_requirements function
+#'
+#' This function provides the SCP python environment requirements for a specific version.
+#'
+#' @param version A character vector specifying the version of the environment (default is "3.8-1").
+#' @return A list of requirements for the specified version.
+#' @details The function returns a list of requirements including the required Python version
+#'          and a list of packages with their corresponding versions.
+#' @examples
+#' # Get requirements for version "3.8-1"
+#' Env_requirements("3.8-1")
+#'
+#' @export
 Env_requirements <- function(version = c("3.8-1", "3.8-2", "3.9-1", "3.10-1", "3.11-1")) {
   version <- match.arg(version)
   requirements <- switch(version,
