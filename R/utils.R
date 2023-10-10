@@ -103,7 +103,7 @@ PrepareEnv <- function(conda = "auto", miniconda_repo = "https://repo.anaconda.c
     "pandas" = "pandas==1.3.5",
     "python-igraph" = "python-igraph==0.10.2",
     "matplotlib" = "matplotlib==3.6.3",
-    "tables" = "git+https://github.com/PyTables/PyTables", # Fixed: PyTables install fails on macOS M1
+    # "tables" = "git+https://github.com/PyTables/PyTables", # Fixed: PyTables install fails on macOS M1
     "palantir" = "palantir==1.0.1",
     "wot" = "wot==1.0.8.post2",
     "scipy" = "scipy",
