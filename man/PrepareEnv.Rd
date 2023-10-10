@@ -7,8 +7,8 @@
 PrepareEnv(
   conda = "auto",
   miniconda_repo = "https://repo.anaconda.com/miniconda",
-  python_version = "3.8",
   envname = NULL,
+  version = "3.8-1",
   force = FALSE,
   ...
 )
@@ -17,8 +17,6 @@ PrepareEnv(
 \item{conda}{The path to a conda executable. Use \code{"auto"} to allow SCP to automatically find an appropriate conda binary.}
 
 \item{miniconda_repo}{Repositories for miniconda. Default is \code{https://repo.anaconda.com/miniconda}}
-
-\item{python_version}{The version of python to install. Default is \code{3.8}}
 
 \item{envname}{The name of a conda environment.}
 
