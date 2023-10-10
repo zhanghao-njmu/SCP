@@ -922,10 +922,12 @@ slim_data <- function(p) {
 #' @method slim_data ggplot
 slim_data.ggplot <- function(p) {
   vars <- get_vars(p)
-  p$data <- p$data[, intersect(colnames(p$data), vars), drop = FALSE]
-  for (i in seq_along(p$layers)) {
-    if (length(p$layers[[i]]$data) > 0) {
-      p$layers[[i]]$data <- p$layers[[i]]$data[, intersect(colnames(p$layers[[i]]$data), vars), drop = FALSE]
+  if (length(vars) > 0) {
+    p$data <- p$data[, intersect(colnames(p$data), vars), drop = FALSE]
+    for (i in seq_along(p$layers)) {
+      if (length(p$layers[[i]]$data) > 0) {
+        p$layers[[i]]$data <- p$layers[[i]]$data[, intersect(colnames(p$layers[[i]]$data), vars), drop = FALSE]
+      }
     }
   }
   return(p)
@@ -959,6 +961,7 @@ get_vars <- function(p, reverse, verbose = FALSE) {
   mappings <- c(
     as.character(p$mapping),
     unlist(lapply(p$layers, function(x) as.character(x$mapping))),
+    unlist(lapply(p$layers, function(x) names(p$layers[[1]]$aes_params))),
     names(p$facet$params$facets), names(p$facet$params$rows), names(p$facet$params$cols)
   )
   vars <- unique(unlist(strsplit(gsub("[~\\[\\]\\\"\\(\\)]", " ", unique(mappings), perl = TRUE), " ")))

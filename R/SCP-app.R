@@ -575,7 +575,7 @@ RunSCExplorer <- function(base_dir = "SCExplorer",
                           initial_ncol = 3,
                           initial_arrange = "Row",
                           workers = 2,
-                          threads_per_workers = 10,
+                          threads_per_workers = 8,
                           create_script = TRUE,
                           style_script = require("styler", quietly = TRUE),
                           overwrite = FALSE,
@@ -645,7 +645,11 @@ if (is.null(initial_feature)) {
 initial_raster <- ifelse(nrow(data) > 1e5, "Yes", "No")
 
 palette_list <- SCP::palette_list
-
+theme_list <- list(
+  SCP = c("theme_scp", "theme_blank"),
+  ggplot2 = c("theme_classic", "theme_linedraw", "theme_minimal", "theme_void", "theme_grey", "theme_dark", "theme_light")
+)
+themes <- setNames(rep(names(theme_list), sapply(theme_list, length)), unlist(theme_list))
 panel_raster <- FALSE
 
 ui <- fluidPage(
@@ -691,7 +695,7 @@ ui <- fluidPage(
           selectInput(
             inputId = "theme1",
             label = "Select a theme",
-            choices = c("theme_scp", "theme_blank"),
+            choices = names(themes),
             selected = initial_theme
           ),
           fluidRow(
@@ -872,7 +876,7 @@ ui <- fluidPage(
           selectInput(
             inputId = "theme2",
             label = "Select a theme",
-            choices = c("theme_scp", "theme_blank"),
+            choices = names(themes),
             selected = initial_theme
           ),
           fluidRow(
@@ -1081,8 +1085,34 @@ ui <- fluidPage(
           selectInput(
             inputId = "theme3",
             label = "Select a theme",
-            choices = c("theme_scp", "theme_blank"),
+            choices = names(themes),
             selected = initial_theme
+          ),
+          fluidRow(
+            column(
+              width = 6, align = "center",
+              radioButtons(
+                inputId = "aspectratio3",
+                label = "Aspect ratio",
+                choices = c("auto", "custom"),
+                inline = TRUE
+              )
+            ),
+            column(
+              width = 6, align = "center",
+              conditionalPanel(
+                condition = "input.aspectratio3 == \'custom\'",
+                numericInput(
+                  inputId = "aspectratio_value3",
+                  label = NULL,
+                  value = 1,
+                  min = 0,
+                  max = 100,
+                  step = 0.1,
+                  width = "150px"
+                )
+              )
+            )
           ),
           fluidRow(
             column(
@@ -1313,8 +1343,34 @@ ui <- fluidPage(
           selectInput(
             inputId = "theme4",
             label = "Select a theme",
-            choices = c("theme_scp", "theme_blank"),
+            choices = names(themes),
             selected = initial_theme
+          ),
+          fluidRow(
+            column(
+              width = 6, align = "center",
+              radioButtons(
+                inputId = "aspectratio4",
+                label = "Aspect ratio",
+                choices = c("auto", "custom"),
+                inline = TRUE
+              )
+            ),
+            column(
+              width = 6, align = "center",
+              conditionalPanel(
+                condition = "input.aspectratio4 == \'custom\'",
+                numericInput(
+                  inputId = "aspectratio_value4",
+                  label = NULL,
+                  value = 1,
+                  min = 0,
+                  max = 100,
+                  step = 0.1,
+                  width = "150px"
+                )
+              )
+            )
           ),
           fluidRow(
             column(
@@ -1547,6 +1603,8 @@ server <- function(input, output, session) {
         )
         # ))
 
+        theme1 <- get(theme1, envir = asNamespace(themes[theme1]))
+
         # print(">>> plot:")
         # print(system.time(
         p1_dim <- SCP::CellDimPlot(srt_tmp,
@@ -1626,10 +1684,10 @@ server <- function(input, output, session) {
       height <- get_attr(promisedData[["p1_dim"]], "height")
       dpi <- get_attr(promisedData[["p1_dim"]], "dpi")
 
-      temp1 <- tempfile(pattern = "CellDimPlot", fileext = ".png")
+      temp1 <- tempfile(pattern = "CellDimPlot-", fileext = ".png")
       ggplot2::ggsave(filename = temp1, plot = promisedData[["p1_dim"]], width = width, height = height, units = "in", dpi = dpi, limitsize = FALSE)
 
-      temp2 <- tempfile(pattern = "CellDimPlot", fileext = ".pdf")
+      temp2 <- tempfile(pattern = "CellDimPlot-", fileext = ".pdf")
       ggplot2::ggsave(filename = temp2, plot = promisedData[["p1_dim"]], width = width, height = height, units = "in", dpi = dpi, limitsize = FALSE)
 
       if (!is.null(promisedData[["p1_3d"]])) {
@@ -1643,7 +1701,7 @@ server <- function(input, output, session) {
         temp3 <- NULL
       }
 
-      zip(zipfile = file, flags = "-j", files = c(temp1, temp2, temp3))
+      zip(zipfile = file, flags = "-jq", files = c(temp1, temp2, temp3))
     },
     contentType = "application/zip"
   )
@@ -1676,12 +1734,12 @@ server <- function(input, output, session) {
     all_features <- colnames(data)
     meta_features_name <- rhdf5::h5read(MetaFile, name = paste0("/", dataset2, "/metadata.stat/asfeatures"))
 
-    if (is.null(features2)) {
-      features2 <- initial_feature
-    }
     feature_area2 <- gsub(x = unlist(strsplit(feature_area2, "(\\r)|(\\n)", perl = TRUE)), pattern = " ", replacement = "")
     features2 <- c(as.character(features2), as.character(feature_area2))
     features2 <- unique(features2[features2 %in% c(all_features, meta_features_name)])
+    if (length(features2) == 0) {
+      features2 <- meta_features_name[1]
+    }
 
     promisedData[["p2_dim"]] <- NULL
     promisedData[["p2_3d"]] <- NULL
@@ -1696,6 +1754,8 @@ server <- function(input, output, session) {
           metanames = split2, reduction = reduction2
         )
         # ))
+
+        theme2 <- get(theme2, envir = asNamespace(themes[theme2]))
 
         # print(">>> plot:")
         # print(system.time(
@@ -1742,10 +1802,10 @@ server <- function(input, output, session) {
       height <- get_attr(promisedData[["p2_dim"]], "height")
       dpi <- get_attr(promisedData[["p2_dim"]], "dpi")
 
-      temp1 <- tempfile(pattern = "FeatureDimPlot", fileext = ".png")
+      temp1 <- tempfile(pattern = "FeatureDimPlot-", fileext = ".png")
       ggplot2::ggsave(filename = temp1, plot = promisedData[["p2_dim"]], width = width, height = height, units = "in", dpi = dpi, limitsize = FALSE)
 
-      temp2 <- tempfile(pattern = "FeatureDimPlot", fileext = ".pdf")
+      temp2 <- tempfile(pattern = "FeatureDimPlot-", fileext = ".pdf")
       ggplot2::ggsave(filename = temp2, plot = promisedData[["p2_dim"]], width = width, height = height, units = "in", dpi = dpi, limitsize = FALSE)
 
       if (!is.null(promisedData[["p2_3d"]])) {
@@ -1759,7 +1819,7 @@ server <- function(input, output, session) {
         temp3 <- NULL
       }
 
-      zip(zipfile = file, flags = "-j", files = c(temp1, temp2, temp3))
+      zip(zipfile = file, flags = "-jq", files = c(temp1, temp2, temp3))
     },
     contentType = "application/zip"
   )
@@ -1829,6 +1889,11 @@ server <- function(input, output, session) {
     size3 <- input$size3
     ncol3 <- input$ncol3
     byrow3 <- input$arrange3 == "Row"
+    if (input$aspectratio3 == "auto") {
+      aspect.ratio <- NULL
+    } else {
+      aspect.ratio <- input$aspectratio_value3
+    }
 
     # lapply(grep("3$",names(input),value = TRUE), function(x)print(paste0(x,":",input[[x]])))
 
@@ -1844,6 +1909,8 @@ server <- function(input, output, session) {
         )
         # ))
 
+        theme3 <- get(theme3, envir = asNamespace(themes[theme3]))
+
         if (!is.null(group3)) {
           if ("All" %in% groupuse3) {
             groupuse3 <- unique(srt_tmp[[group3, drop = TRUE]])
@@ -1853,14 +1920,17 @@ server <- function(input, output, session) {
           cells <- colnames(srt_tmp)
         }
 
-        aspect.ratio <- ifelse(is.null(group3), 5, 5 / max(length(unique(srt_tmp@meta.data[[group3]])), 1))
+        if (is.null(aspect.ratio)) {
+          aspect.ratio <- ifelse(is.null(group3), 5, 5 / max(length(unique(srt_tmp@meta.data[cells, group3])), 1))
+        }
+
         # print(">>> plot:")
         # print(system.time(
         p3 <- SCP::CellStatPlot(
           srt = srt_tmp, stat.by = stat3, group.by = group3, split.by = split3, cells = cells,
           plot_type = plottype3, stat_type = stattype3, position = position3,
           label = label3, label.size = labelsize3, flip = flip3, palette = palette3, theme_use = theme3,
-          aspect.ratio = aspect.ratio,
+          aspect.ratio = as.numeric(aspect.ratio), # must be class of numeric instead of integer
           ncol = ncol3, byrow = byrow3, force = TRUE
         )
         # ))
@@ -1883,6 +1953,7 @@ server <- function(input, output, session) {
       input$dataset3, input$group3, input$split3, input$stat3,
       input$plottype3, input$stattype3, input$position3,
       input$label3, input$flip3, input$palette3, input$theme3,
+      input$aspectratio3, input$aspectratio_value3,
       input$labelsize3, input$size3, input$ncol3, input$arrange3
     ) %>%
     bindEvent(input$submit3, ignoreNULL = FALSE, ignoreInit = FALSE)
@@ -1926,13 +1997,13 @@ server <- function(input, output, session) {
       height <- get_attr(promisedData[["p3"]], "height")
       dpi <- get_attr(promisedData[["p3"]], "dpi")
 
-      temp1 <- tempfile(pattern = "CellStatPlot", fileext = ".png")
+      temp1 <- tempfile(pattern = "CellStatPlot-", fileext = ".png")
       ggplot2::ggsave(filename = temp1, plot = promisedData[["p3"]], width = width, height = height, units = "in", dpi = dpi, limitsize = FALSE)
 
-      temp2 <- tempfile(pattern = "CellStatPlot", fileext = ".pdf")
+      temp2 <- tempfile(pattern = "CellStatPlot-", fileext = ".pdf")
       ggplot2::ggsave(filename = temp2, plot = promisedData[["p3"]], width = width, height = height, units = "in", dpi = dpi, limitsize = FALSE)
 
-      zip(zipfile = file, flags = "-j", files = c(temp1, temp2))
+      zip(zipfile = file, flags = "-jq", files = c(temp1, temp2))
     },
     contentType = "application/zip"
   )
@@ -1970,6 +2041,11 @@ server <- function(input, output, session) {
     size4 <- input$size4
     ncol4 <- input$ncol4
     byrow4 <- input$arrange4 == "Row"
+    if (input$aspectratio4 == "auto") {
+      aspect.ratio <- NULL
+    } else {
+      aspect.ratio <- input$aspectratio_value4
+    }
 
     # lapply(grep("4$",names(input),value = TRUE), function(x)print(paste0(x,":",input[[x]])))
 
@@ -1977,12 +2053,12 @@ server <- function(input, output, session) {
     all_features <- colnames(data)
     meta_features_name <- rhdf5::h5read(MetaFile, name = paste0("/", dataset4, "/metadata.stat/asfeatures"))
 
-    if (is.null(features4)) {
-      features4 <- initial_feature
-    }
     feature_area4 <- gsub(x = unlist(strsplit(feature_area4, "(\\r)|(\\n)", perl = TRUE)), pattern = " ", replacement = "")
     features4 <- c(as.character(features4), as.character(feature_area4))
     features4 <- unique(features4[features4 %in% c(all_features, meta_features_name)])
+    if (length(features4) == 0) {
+      features4 <- meta_features_name[1]
+    }
 
     promisedData[["p4"]] <- NULL
     promises::future_promise(
@@ -1997,6 +2073,8 @@ server <- function(input, output, session) {
         )
         # ))
 
+        theme4 <- get(theme4, envir = asNamespace(themes[theme4]))
+
         if (!is.null(group4)) {
           if ("All" %in% groupuse4) {
             groupuse4 <- unique(srt_tmp[[group4, drop = TRUE]])
@@ -2006,7 +2084,10 @@ server <- function(input, output, session) {
           cells <- colnames(srt_tmp)
         }
 
-        aspect.ratio <- ifelse(is.null(group4), 5, 5 / max(length(unique(srt_tmp@meta.data[[group4]])), 1))
+        if (is.null(aspect.ratio)) {
+          aspect.ratio <- ifelse(is.null(group4), 5, 5 / max(length(unique(srt_tmp@meta.data[cells, group4])), 1))
+        }
+
         # print(">>> plot:")
         # print(system.time(
         p4 <- SCP::FeatureStatPlot(
@@ -2014,7 +2095,7 @@ server <- function(input, output, session) {
           calculate_coexp = coExp4, stack = stack4, flip = flip4,
           add_box = addbox4, add_point = addpoint4, add_trend = addtrend4,
           fill.by = fillby4, palette = palette4, theme_use = theme4, same.y.lims = sameylims4,
-          aspect.ratio = aspect.ratio,
+          aspect.ratio = as.numeric(aspect.ratio), # must be class of numeric instead of integer
           ncol = ncol4, byrow = byrow4, force = TRUE
         )
         # ))
@@ -2041,6 +2122,7 @@ server <- function(input, output, session) {
       input$coExp4, input$stack4, input$flip4,
       input$addbox4, input$addpoint4, input$addtrend4,
       input$fillby4, input$palette4, input$theme4,
+      input$aspectratio4, input$aspectratio_value4,
       input$sameylims4, input$size4, input$ncol4, input$arrange4
     ) %>%
     bindEvent(input$submit4, ignoreNULL = FALSE, ignoreInit = FALSE)
@@ -2084,13 +2166,13 @@ server <- function(input, output, session) {
       height <- get_attr(promisedData[["p4"]], "height")
       dpi <- get_attr(promisedData[["p4"]], "dpi")
 
-      temp1 <- tempfile(pattern = "FeatureStatPlot", fileext = ".png")
+      temp1 <- tempfile(pattern = "FeatureStatPlot-", fileext = ".png")
       ggplot2::ggsave(filename = temp1, plot = promisedData[["p4"]], width = width, height = height, units = "in", dpi = dpi, limitsize = FALSE)
 
-      temp2 <- tempfile(pattern = "FeatureStatPlot", fileext = ".pdf")
+      temp2 <- tempfile(pattern = "FeatureStatPlot-", fileext = ".pdf")
       ggplot2::ggsave(filename = temp2, plot = promisedData[["p4"]], width = width, height = height, units = "in", dpi = dpi, limitsize = FALSE)
 
-      zip(zipfile = file, flags = "-j", files = c(temp1, temp2))
+      zip(zipfile = file, flags = "-jq", files = c(temp1, temp2))
     },
     contentType = "application/zip"
   )
@@ -2115,12 +2197,13 @@ server <- function(input, output, session) {
     paste0("if (utils::packageVersion('SCP') < app_SCP_version) {
       stop(paste0('SCExplorer requires SCP >= ", as.character(packageVersion("SCP")), "'))
     }"),
-    "SCP::check_R(c('HDF5Array', 'rhdf5', 'shiny@1.6.0', 'ragg', 'bslib', 'future', 'promises', 'BiocParallel'))",
+    "SCP::check_R(c('rhdf5', 'HDF5Array', 'shiny@1.6.0', 'ggplot2', 'ragg', 'htmlwidgets', 'plotly', 'bslib', 'future', 'promises', 'BiocParallel'))",
     "library(shiny)",
     "library(bslib)",
     "library(future)",
     "library(promises)",
     "library(BiocParallel)",
+    "library(ggplot2)",
     args_code,
     "plan(multisession, workers = workers)",
     "if (.Platform$OS.type == 'windows') {

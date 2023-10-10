@@ -23,7 +23,7 @@ RunSCExplorer(
   initial_ncol = 3,
   initial_arrange = "Row",
   workers = 2,
-  threads_per_workers = 10,
+  threads_per_workers = 8,
   create_script = TRUE,
   style_script = require("styler", quietly = TRUE),
   overwrite = FALSE,

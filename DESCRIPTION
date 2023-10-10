@@ -1,7 +1,7 @@
 Package: SCP
 Type: Package
 Title: Single Cell Pipeline
-Version: 0.5.1.9000
+Version: 0.5.1.9001
 Author: Hao Zhang
 Maintainer: Hao Zhang <haozhang@njmu.edu.cn>
 Description: An end-to-end Single-Cell Pipeline designed to facilitate comprehensive analysis and exploration of single-cell data.
@@ -83,7 +83,6 @@ Suggests:
     httr,
     metR,
     monocle,
-    monocle3,
     MatrixGenerics,
     MASS,
     NMF,
