@@ -27,7 +27,43 @@ RunSeuratMap(
 )
 }
 \arguments{
-\item{ref_assay}{}
+\item{srt_query}{An object of class Seurat storing the query cells.}
+
+\item{srt_ref}{An object of class Seurat storing the reference cells.}
+
+\item{query_assay}{A character string specifying the assay name for the query cells. If not provided, the default assay for the query object will be used.}
+
+\item{ref_assay}{A character string specifying the assay name for the reference cells. If not provided, the default assay for the reference object will be used.}
+
+\item{ref_pca}{A character string specifying the name of the PCA reduction in the reference object to use for calculating the distance metric.}
+
+\item{ref_dims}{A numeric vector specifying the dimension indices from the reference reduction to be used for calculating the distance metric.}
+
+\item{ref_umap}{A character string specifying the name of the UMAP reduction in the reference object. If not provided, the first UMAP reduction found in the reference object will be used.}
+
+\item{ref_group}{A character string specifying a metadata column name in the reference object to use for grouping.}
+
+\item{normalization.method}{The normalization method to use. Default is "LogNormalize".}
+
+\item{reduction_project_method}{Dimensional reduction to perform when finding anchors. Default is "pcaproject".}
+
+\item{k.anchor}{How many neighbors (k) to use when finding anchors. Default is 5.}
+
+\item{k.filter}{How many neighbors (k) to use when filtering anchors. Set to NA to turn off filtering. Default is 200.}
+
+\item{k.score}{How many neighbors (k) to use when scoring anchors. Default is 30.}
+
+\item{k.weight}{Number of neighbors to consider when weighting anchors. Default is 100.}
+
+\item{projection_method}{A character string specifying the projection method to use. Options are "model" and "knn". If "model" is selected, the function will try to use a pre-trained UMAP model in the reference object for projection. If "knn" is selected, the function will directly find the nearest neighbors using the distance metric.}
+
+\item{nn_method}{A character string specifying the nearest neighbor search method to use. Options are "raw", "annoy", and "rann". If "raw" is selected, the function will use the brute-force method to find the nearest neighbors. If "annoy" is selected, the function will use the Annoy library for approximate nearest neighbor search. If "rann" is selected, the function will use the RANN library for approximate nearest neighbor search. If not provided, the function will choose the search method based on the size of the query and reference datasets.}
+
+\item{k}{An integer specifying the number of nearest neighbors to find for each cell in the query object.}
+
+\item{distance_metric}{A character string specifying the distance metric to use for calculating the pairwise distances between cells. Options include: "pearson", "spearman", "cosine", "correlation", "jaccard", "ejaccard", "dice", "edice", "hamman", "simple matching", and "faith". Additional distance metrics can also be used, such as "euclidean", "manhattan", "hamming", etc.}
+
+\item{vote_fun}{A character string specifying the function to be used for aggregating the nearest neighbors in the reference object. Options are "mean", "median", "sum", "min", "max", "sd", "var", etc. If not provided, the default is "mean".}
 }
 \description{
 Single-cell reference mapping with Seurat method

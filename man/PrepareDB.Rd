@@ -26,19 +26,57 @@ PrepareDB(
 )
 }
 \arguments{
-\item{species}{species}
+\item{species}{A character vector specifying the species for which the gene annotation databases should be prepared. Default is c("Homo_sapiens", "Mus_musculus").}
 
-\item{db}{Enrichment database name.}
+\item{db}{A character vector specifying the annotation sources to be included in the gene annotation databases.
+Default is c("GO", "GO_BP", "GO_CC", "GO_MF", "KEGG", "WikiPathway", "Reactome",
+"CORUM", "MP", "DO", "HPO", "PFAM", "CSPA", "Surfaceome", "SPRomeDB", "VerSeDa",
+"TFLink", "hTFtarget", "TRRUST", "JASPAR", "ENCODE", "MSigDB",
+"CellChat", "Chromosome", "GeneType", "Enzyme", "TF").}
 
-\item{db_update}{Whether update the database to the latest version.}
+\item{db_IDtypes}{A character vector specifying the desired ID types to be used for gene identifiers in the gene annotation databases. Default is c("symbol", "entrez_id", "ensembl_id").}
 
-\item{custom_version}{}
+\item{db_version}{A character vector specifying the version of the gene annotation databases to be retrieved. Default is "latest".}
+
+\item{db_update}{A logical value indicating whether the gene annotation databases should be forcefully updated. If set to FALSE, the function will attempt to load the cached databases instead. Default is FALSE.}
+
+\item{convert_species}{A logical value indicating whether to use a species-converted database when the annotation is missing for the specified species. The default value is TRUE.}
+
+\item{Ensembl_version}{Ensembl database version. If NULL, use the current release version.}
+
+\item{mirror}{Specify an Ensembl mirror to connect to. The valid options here are 'www', 'uswest', 'useast', 'asia'.}
+
+\item{biomart}{The name of the BioMart database that you want to connect to. Possible options include "ensembl", "protists_mart", "fungi_mart", and "plants_mart".}
+
+\item{max_tries}{The maximum number of attempts to connect with the BioMart service.}
+
+\item{custom_TERM2GENE}{A data frame containing a custom TERM2GENE mapping for the specified species and annotation source. Default is NULL.}
+
+\item{custom_TERM2NAME}{A data frame containing a custom TERM2NAME mapping for the specified species and annotation source. Default is NULL.}
+
+\item{custom_species}{A character vector specifying the species name to be used in a custom database. Default is NULL.}
+
+\item{custom_IDtype}{A character vector specifying the ID type to be used in a custom database. Default is NULL.}
+
+\item{custom_version}{A character vector specifying the version to be used in a custom database. Default is NULL.}
 }
 \value{
-A list containing the database.
+A list containing the prepared gene annotation databases:
+  \itemize{
+    \item{\code{TERM2GENE:}}{ mapping of gene identifiers to terms}
+    \item{\code{TERM2NAME:}}{ mapping of terms to their names}
+    \item{\code{semData:}}{ semantic similarity data for gene sets (only for Gene Ontology terms)}
+    }
 }
 \description{
-Prepare the gene annotation databases
+This function prepares the gene annotation databases for a given species and set of annotation sources.
+It retrieves the necessary information from various annotation packages or external resources and organizes it into a list.
+The list contains the annotation data for each specified annotation source.
+}
+\details{
+The `PrepareDB` function prepares gene annotation databases for a given species and set of annotation sources.
+It retrieves the necessary information from various annotation packages or external resources and organizes it into a list.
+The function also supports creating custom databases based on user-provided gene sets.
 }
 \examples{
 if (interactive()) {
@@ -89,4 +127,7 @@ if (interactive()) {
   db_list <- PrepareDB(species = "Mus_musculus", db = "CellCycle")
   head(db_list[["Mus_musculus"]][["CellCycle"]][["TERM2GENE"]])
 }
+}
+\seealso{
+\code{\link{ListDB}}
 }

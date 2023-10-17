@@ -20,10 +20,35 @@ RunDynamicFeatures(
 )
 }
 \arguments{
-\item{seed}{}
+\item{srt}{A Seurat object.}
+
+\item{lineages}{A character vector specifying the lineage names for which dynamic features should be calculated.}
+
+\item{features}{A character vector specifying the features (genes or metadata variables) for which dynamic features should be calculated. If NULL, n_candidates must be provided.}
+
+\item{suffix}{A character vector specifying the suffix to append to the output slot names for each lineage. Defaults to the lineage names.}
+
+\item{n_candidates}{An integer specifying the number of candidate features to select when features is NULL. Defaults to 1000.}
+
+\item{minfreq}{An integer specifying the minimum frequency threshold for candidate features. Features with a frequency less than minfreq will be excluded. Defaults to 5.}
+
+\item{family}{A character or character vector specifying the family of distributions to use for the generalized additive models (GAMs). If family is set to NULL, the appropriate family will be automatically determined based on the data. If length(family) is 1, the same family will be used for all features. Otherwise, family must have the same length as features.}
+
+\item{slot}{A character vector specifying the slot in the Seurat object to use. Default is "counts".}
+
+\item{assay}{A character vector specifying the assay in the Seurat object to use. Default is NULL.}
+
+\item{libsize}{A numeric or numeric vector specifying the library size correction factors for each cell. If NULL, the library size correction factors will be calculated based on the expression matrix. If length(libsize) is 1, the same value will be used for all cells. Otherwise, libsize must have the same length as the number of cells in srt. Defaults to NULL.}
+
+\item{BPPARAM}{A BiocParallelParam object specifying the parallelization parameters for computing dynamic features. Defaults to BiocParallel::bpparam().}
+
+\item{seed}{An integer specifying the seed for random number generation. Defaults to 11.}
+}
+\value{
+Returns the modified Seurat object with the calculated dynamic features stored in the tools slot.
 }
 \description{
-RunDynamicFeatures
+Calculates dynamic features for lineages in a single-cell RNA-seq dataset.
 }
 \examples{
 data("pancreas_sub")
@@ -47,4 +72,7 @@ DynamicPlot(
   compare_lineages = TRUE,
   compare_features = FALSE
 )
+}
+\seealso{
+\code{\link{DynamicHeatmap}} \code{\link{DynamicPlot}} \code{\link{RunDynamicEnrichment}}
 }

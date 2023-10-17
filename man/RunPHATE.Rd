@@ -4,7 +4,7 @@
 \alias{RunPHATE}
 \alias{RunPHATE.Seurat}
 \alias{RunPHATE.default}
-\title{Run PHATE}
+\title{Run PHATE (Potential of Heat-diffusion for Affinity-based Trajectory Embedding)}
 \usage{
 RunPHATE(object, ...)
 
@@ -13,7 +13,7 @@ RunPHATE(object, ...)
   reduction = "pca",
   dims = NULL,
   features = NULL,
-  assay = DefaultAssay(object = object),
+  assay = NULL,
   slot = "data",
   n_components = 2,
   knn = 5,
@@ -24,10 +24,6 @@ RunPHATE(object, ...)
   n_pca = 100,
   knn_dist = "euclidean",
   knn_max = NULL,
-  n_jobs = 1,
-  mds = "metric",
-  mds_dist = "euclidean",
-  mds_solver = "sgd",
   t_max = 100,
   do_cluster = FALSE,
   n_clusters = "auto",
@@ -51,10 +47,6 @@ RunPHATE(object, ...)
   n_pca = 100,
   knn_dist = "euclidean",
   knn_max = NULL,
-  n_jobs = 1,
-  mds = "metric",
-  mds_dist = "euclidean",
-  mds_solver = "sgd",
   t_max = 100,
   do_cluster = FALSE,
   n_clusters = "auto",
@@ -66,13 +58,60 @@ RunPHATE(object, ...)
 )
 }
 \arguments{
-\item{object}{}
+\item{object}{An object. This can be a Seurat object or a matrix-like object.}
 
-\item{...}{}
+\item{...}{Additional arguments to be passed to the phate.PHATE function.}
 
-\item{max_clusters}{}
+\item{reduction}{A character string specifying the reduction to be used. Default is "pca".}
+
+\item{dims}{An integer vector specifying the dimensions to be used. Default is NULL.}
+
+\item{features}{A character vector specifying the features to be used. Default is NULL.}
+
+\item{assay}{A character string specifying the assay to be used. Default is NULL.}
+
+\item{slot}{A character string specifying the slot name to be used. Default is "data".}
+
+\item{n_components}{An integer specifying the number of PHATE components. Default is 2.}
+
+\item{knn}{An integer specifying the number of nearest neighbors on which to build kernel. Default is 5.}
+
+\item{decay}{An integer specifying the sets decay rate of kernel tails. Default is 40.}
+
+\item{n_landmark}{An integer specifying the number of landmarks to use in fast PHATE. Default is 2000.}
+
+\item{t}{A character string specifying the power to which the diffusion operator is powered. This sets the level of diffusion. If ‘auto’, t is selected according to the knee point in the Von Neumann Entropy of the diffusion operator. Default is "auto".}
+
+\item{gamma}{A numeric value specifying the informational distance constant between -1 and 1. gamma=1 gives the PHATE log potential, gamma=0 gives a square root potential. Default is 1.}
+
+\item{n_pca}{An integer specifying the number of principal components to use for calculating neighborhoods. For extremely large datasets, using n_pca < 20 allows neighborhoods to be calculated in roughly log(n_samples) time. Default is 100.}
+
+\item{knn_dist}{A character string specifying the distance metric for k-nearest neighbors. Recommended values: "euclidean, "cosine, "precomputed". Default is "euclidean".}
+
+\item{knn_max}{An integer specifying the maximum number of neighbors for which alpha decaying kernel is computed for each point. For very large datasets, setting knn_max to a small multiple of knn can speed up computation significantly. Default is NULL.}
+
+\item{t_max}{An integer specifying the maximum \code{t} to test. Default is 100.}
+
+\item{do_cluster}{A logical value indicating whether to perform clustering on the PHATE embeddings. Default is FALSE.}
+
+\item{n_clusters}{An integer specifying the number of clusters to be identified. Default is "auto".}
+
+\item{max_clusters}{An integer specifying the maximum number of clusters to test. Default is 100.}
+
+\item{reduction.name}{A character string specifying the name of the reduction to be stored in the Seurat object. Default is "phate".}
+
+\item{reduction.key}{A character string specifying the prefix for the column names of the PHATE embeddings. Default is "PHATE_".}
+
+\item{verbose}{A logical value indicating whether to print verbose output. Default is TRUE.}
+
+\item{seed.use}{An integer specifying the random seed to be used. Default is 11.}
 }
 \description{
-Run PHATE
+Run PHATE (Potential of Heat-diffusion for Affinity-based Trajectory Embedding)
 }
-\concept{dimensional_reduction}
+\examples{
+pancreas_sub <- Seurat::FindVariableFeatures(pancreas_sub)
+pancreas_sub <- RunPHATE(object = pancreas_sub, features = Seurat::VariableFeatures(pancreas_sub))
+CellDimPlot(pancreas_sub, group.by = "CellType", reduction = "phate")
+
+}

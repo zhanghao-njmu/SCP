@@ -4,7 +4,7 @@
 \alias{RunFR}
 \alias{RunFR.Seurat}
 \alias{RunFR.default}
-\title{Create the force-directed layout developed by Fruchterman and Reingold.}
+\title{Run Force-Directed Layout (Fruchterman-Reingold algorithm)}
 \usage{
 RunFR(object, ...)
 
@@ -13,17 +13,17 @@ RunFR(object, ...)
   reduction = NULL,
   dims = NULL,
   features = NULL,
-  assay = DefaultAssay(object = object),
+  assay = NULL,
   slot = "data",
   graph = NULL,
   neighbor = NULL,
   k.param = 20,
   ndim = 2,
   niter = 500,
-  seed.use = 42L,
-  verbose = TRUE,
   reduction.name = "FR",
   reduction.key = "FR_",
+  verbose = TRUE,
+  seed.use = 11L,
   ...
 )
 
@@ -38,13 +38,44 @@ RunFR(object, ...)
 )
 }
 \arguments{
-\item{object}{}
+\item{object}{An object. This can be a Seurat object, a Neighbor object, or a Graph object.}
 
-\item{...}{}
+\item{...}{Additional arguments to be passed to the \link[igraph]{layout_with_fr} function.}
 
-\item{n_components}{}
+\item{reduction}{A character string specifying the reduction to be used. Default is NULL.}
+
+\item{dims}{An integer vector specifying the dimensions to be used. Default is NULL.}
+
+\item{features}{A character vector specifying the features to be used. Default is NULL.}
+
+\item{assay}{A character string specifying the assay to be used. Default is NULL.}
+
+\item{slot}{A character string specifying the slot name to be used. Default is "data".}
+
+\item{graph}{A character string specifying the name of the Graph object to be used. Default is NULL.}
+
+\item{neighbor}{A character string specifying the name of the Neighbor object to be used. Default is NULL.}
+
+\item{k.param}{An integer specifying the number of nearest neighbors to consider. Default is 20.}
+
+\item{ndim}{An integer specifying the number of dimensions for the force-directed layout. Default is 2.}
+
+\item{niter}{An integer specifying the number of iterations for the force-directed layout. Default is 500.}
+
+\item{reduction.name}{A character string specifying the name of the reduction to be stored in the Seurat object. Default is "fr".}
+
+\item{reduction.key}{A character string specifying the prefix for the column names of the force-directed layout embeddings. Default is "FR_".}
+
+\item{verbose}{A logical value indicating whether to print verbose output. Default is TRUE.}
+
+\item{seed.use}{An integer specifying the random seed to be used. Default is 11.}
 }
 \description{
-Create the force-directed layout developed by Fruchterman and Reingold.
+Run Force-Directed Layout (Fruchterman-Reingold algorithm)
 }
-\concept{dimensional_reduction}
+\examples{
+pancreas_sub <- Seurat::FindVariableFeatures(pancreas_sub)
+pancreas_sub <- RunFR(object = pancreas_sub, features = Seurat::VariableFeatures(pancreas_sub))
+CellDimPlot(pancreas_sub, group.by = "CellType", reduction = "fr")
+
+}

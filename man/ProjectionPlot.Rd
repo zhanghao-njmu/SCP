@@ -9,8 +9,6 @@ ProjectionPlot(
   srt_ref,
   query_group = NULL,
   ref_group = NULL,
-  query_feature = NULL,
-  ref_feature = NULL,
   query_reduction = "ref.embeddings",
   ref_reduction = srt_query[[query_reduction]]@misc[["reduction.model"]] \%||\% NULL,
   query_param = list(palette = "Set1", cells.highlight = TRUE),
@@ -22,10 +20,32 @@ ProjectionPlot(
 )
 }
 \arguments{
-\item{stroke.highlight}{}
+\item{srt_query}{An object of class Seurat storing the query group cells.}
+
+\item{srt_ref}{An object of class Seurat storing the reference group cells.}
+
+\item{query_group}{The grouping variable for the query group cells.}
+
+\item{ref_group}{The grouping variable for the reference group cells.}
+
+\item{query_reduction}{The name of the reduction in the query group cells.}
+
+\item{ref_reduction}{The name of the reduction in the reference group cells.}
+
+\item{query_param}{A list of parameters for customizing the query group plot. Available parameters: palette (color palette for groups) and cells.highlight (whether to highlight cells).}
+
+\item{ref_param}{A list of parameters for customizing the reference group plot. Available parameters: palette (color palette for groups) and cells.highlight (whether to highlight cells).}
+
+\item{xlim}{The x-axis limits for the plot. If not provided, the limits will be calculated based on the data.}
+
+\item{ylim}{The y-axis limits for the plot. If not provided, the limits will be calculated based on the data.}
+
+\item{pt.size}{The size of the points in the plot.}
+
+\item{stroke.highlight}{The size of the stroke highlight for cells.}
 }
 \description{
-Projection Plot
+This function generates a projection plot, which can be used to compare two groups of cells in a dimensionality reduction space.
 }
 \examples{
 data("panc8_sub")

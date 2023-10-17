@@ -1,18 +1,27 @@
 #' Gene ID conversion function using biomart
 #'
-#' This function can convert different gene ID types within one species or bewteen two species using biomart service.
+#' This function can convert different gene ID types within one species or between two species using the biomart service.
 #'
 #' @param geneID A vector of the geneID character.
-#' @param geneID_from_IDtype ID type of the geneID. e.g. "symbol", "ensembl_id", "entrez_id"
-#' @param geneID_to_IDtype ID type to convert to. e.g. "symbol", "ensembl_id", "entrez_id"
-#' @param species_from Latin names for animals of the input geneID.
+#' @param geneID_from_IDtype Gene ID type of the input \code{geneID}. e.g. "symbol", "ensembl_id", "entrez_id"
+#' @param geneID_to_IDtype Gene ID type(s) to convert to. e.g. "symbol", "ensembl_id", "entrez_id"
+#' @param species_from Latin names for animals of the input geneID. e.g. "Homo_sapiens","Mus_musculus"
 #' @param species_to Latin names for animals of the output geneID. e.g. "Homo_sapiens","Mus_musculus"
 #' @param Ensembl_version Ensembl database version. If NULL, use the current release version.
-#' @param biomart BioMart database name you want to connect to. ("ensembl", "protists_mart", "fungi_mart", "plants_mart")
-#' @param max_tries Number of max_tries to connect with the biomart service.
+#' @param biomart The name of the BioMart database that you want to connect to. Possible options include "ensembl", "protists_mart", "fungi_mart", and "plants_mart".
+#' @param max_tries The maximum number of attempts to connect with the BioMart service.
 #' @param mirror Specify an Ensembl mirror to connect to. The valid options here are 'www', 'uswest', 'useast', 'asia'.
 #'
-#' @return A list.
+#' @return A list with the following elements:
+#'   \itemize{
+#'     \item{\code{geneID_res:}}{ A data.frame contains the all gene IDs mapped in the database with columns: 'from_IDtype','from_geneID','to_IDtype','to_geneID'}
+#'     \item{\code{geneID_collapse:}}{ The data.frame contains all the successfully converted gene IDs, and the output gene IDs are collapsed into a list. As a result, the 'from_geneID' column (which is set as the row names) of the data.frame is unique.}
+#'     \item{\code{geneID_expand:}}{ The data.frame contains all the successfully converted gene IDs, and the output gene IDs are expanded.}
+#'     \item{\code{Ensembl_version:}}{ Ensembl database version.}
+#'     \item{\code{Datasets:}}{ Datasets available in the selected BioMart database.}
+#'     \item{\code{Attributes:}}{ Attributes available in the selected BioMart database.}
+#'     \item{\code{geneID_unmapped:}}{ A character vector of gene IDs that are unmapped in the database.}
+#'   }
 #'
 #' @examples
 #' res <- GeneConvert(
@@ -36,13 +45,22 @@
 #'   species_to = "Homo_sapiens",
 #'   Ensembl_version = 103
 #' )
+#' # Check the number of input and converted gene IDs
+#' input_genes <- length(rownames(counts))
+#' db_genes <- length(unique(res$geneID_res$from_geneID))
+#' converted_genes_input <- length(unique(res$geneID_collapse$from_geneID))
+#' converted_genes_output <- length(unique(res$geneID_expand$symbol))
+#' cat("Number of input gene IDs:", input_genes, "\n")
+#' cat("Number of gene IDs mapped in the database:", db_genes, "\n")
+#' cat("Number of input gene IDs that were successfully converted:", converted_genes_input, "\n")
+#' cat("Number of converted gene IDs:", converted_genes_output, "\n")
+#'
 #' homologs_counts <- aggregate(
 #'   x = counts[res$geneID_expand[, "from_geneID"], ],
 #'   by = list(res$geneID_expand[, "symbol"]), FUN = sum
 #' )
 #' rownames(homologs_counts) <- homologs_counts[, 1]
-#' homologs_counts <- homologs_counts[, -1]
-#' homologs_counts <- as(as.matrix(homologs_counts), "dgCMatrix")
+#' homologs_counts <- as(as.matrix(homologs_counts[, -1]), "dgCMatrix")
 #' homologs_counts
 #'
 #' @importFrom R.cache loadCache saveCache
@@ -398,6 +416,8 @@ GeneConvert <- function(geneID, geneID_from_IDtype = "symbol", geneID_to_IDtype 
     paste0(rep("=", 30), collapse = ""), "\n"
   )
   geneID_res <- unique(do.call(rbind, geneID_res_list))
+  rownames(geneID_res) <- NULL
+
   if (is.null(geneID_res) || nrow(geneID_res) == 0 || all(is.na(geneID_res[["to_geneID"]]))) {
     warning(paste0("None of the gene IDs were converted"), immediate. = TRUE)
     return(list(geneID_res = NULL, geneID_collapse = NULL, geneID_expand = NULL, Datasets = Datasets, Attributes = Attributes))
@@ -440,6 +460,8 @@ searchDatasets <- function(datasets, pattern) {
 #' @param use_cached_gene Whether to use previously cached cell cycle gene conversion results for the species.
 #'
 #' @return A list of S-phase and G2M-phase genes.
+#'
+#' \code{\link{GeneConvert}}
 #'
 #' @examples
 #' ccgenes <- CC_GenePrefetch("Homo_sapiens")
@@ -624,34 +646,27 @@ AddModuleScore2 <- function(object, slot = "data", features, pool = NULL, nbin =
   return(object)
 }
 
-
 #' CellScoring
 #'
-#' @param srt
-#' @param features
-#' @param method
-#' @param classification
-#' @param name
-#' @param slot
-#' @param assay
-#' @param new_assay
-#' @param ...
-#' @param split.by
-#' @param IDtype
-#' @param species
-#' @param db
-#' @param termnames
-#' @param db_update
-#' @param db_version
-#' @param convert_species
-#' @param Ensembl_version
-#' @param mirror
-#' @param minGSSize
-#' @param maxGSSize
-#' @param BPPARAM
-#' @param progressbar
-#' @param force
-#' @param seed
+#' This function performs cell scoring on a Seurat object.
+#' It calculates scores for a given set of features and adds the scores as metadata to the Seurat object.
+#'
+#' @inheritParams RunEnrichment
+#' @param srt A Seurat object
+#' @param features A named list of feature lists for scoring. If NULLL, \code{db} will be used to create features sets.
+#' @param slot The slot of the Seurat object to use for scoring. Defaults to "data".
+#' @param assay The assay of the Seurat object to use for scoring. Defaults to NULL, in which case the default assay of the object is used.
+#' @param split.by A cell metadata variable used for splitting the Seurat object into subsets and performing scoring on each subset. Defaults to NULL.
+#' @param termnames A vector of term names to be used from the database. Defaults to NULL, in which case all features from the database are used.
+#' @param method The method to use for scoring. Can be "Seurat", "AUCell", or "UCell". Defaults to "Seurat".
+#' @param classification Whether to perform classification based on the scores. Defaults to TRUE.
+#' @param name The name of the assay to store the scores in. Only used if new_assay is TRUE. Defaults to an empty string.
+#' @param new_assay Whether to create a new assay for storing the scores. Defaults to FALSE.
+#' @param BPPARAM The BiocParallel parameter object. Defaults to BiocParallel::bpparam().
+#' @param seed The random seed for reproducibility. Defaults to 11.
+#' @param ... Additional arguments to be passed to the scoring methods.
+#'
+#' @seealso \code{\link{PrepareDB}} \code{\link{ListDB}}
 #'
 #' @examples
 #' data("pancreas_sub")
@@ -738,11 +753,11 @@ CellScoring <- function(srt, features = NULL, slot = "data", assay = NULL, split
     status <- check_DataType(srt, slot = "data", assay = assay)
     if (status == "raw_counts") {
       message("Data is raw counts. Perform NormalizeData(LogNormalize) on the data ...")
-      srt <- suppressWarnings(NormalizeData(object = srt, assay = assay, normalization.method = "LogNormalize", verbose = FALSE))
+      srt <- NormalizeData(object = srt, assay = assay, normalization.method = "LogNormalize", verbose = FALSE)
     }
     if (status == "raw_normalized_counts") {
       message("Data is normalized without log transformation. Perform NormalizeData(LogNormalize) on the data...")
-      srt <- suppressWarnings(NormalizeData(object = srt, assay = assay, normalization.method = "LogNormalize", verbose = FALSE))
+      srt <- NormalizeData(object = srt, assay = assay, normalization.method = "LogNormalize", verbose = FALSE)
     }
     if (status == "unknown") {
       warning("Can not determine whether data ", i, " is log-normalized...\n", immediate. = TRUE)
@@ -849,7 +864,11 @@ CellScoring <- function(srt, features = NULL, slot = "data", assay = NULL, split
     } else if (method == "AUCell") {
       check_R("AUCell")
       CellRank <- AUCell::AUCell_buildRankings(as.matrix(GetAssayData(srt_sp, slot = slot, assay = assay)), BPPARAM = BPPARAM, plotStats = FALSE)
-      cells_AUC <- AUCell::AUCell_calcAUC(geneSets = features, rankings = CellRank, ...)
+      cells_AUC <- AUCell::AUCell_calcAUC(
+        geneSets = features,
+        rankings = CellRank,
+        ...
+      )
       filtered <- names(features)[!names(features) %in% rownames(AUCell::getAUC(cells_AUC))]
       if (length(filtered) > 0) {
         warning("The following list of features were filtered when scoring:", paste0(filtered, collapse = ", "), immediate. = TRUE)
@@ -1201,43 +1220,31 @@ FindConservedMarkers2 <- function(object, grouping.var, ident.1, ident.2 = NULL,
 
 #' Differential gene test
 #'
-#' @param srt A \code{Seurat} object
-#' @param group_by group_by
-#' @param fc.threshold fc.threshold
-#' @param min.pct min.pct
-#' @param force force
-#' @param test.use
-#' @param only.pos
-#' @param max.cells.per.ident
-#' @param latent.vars
-#' @param slot
-#' @param assay
-#' @param BPPARAM
-#' @param progressbar
-#' @param ...
-#' @param group1
-#' @param group2
-#' @param cells1
-#' @param cells2
-#' @param base
-#' @param min.diff.pct
-#' @param norm.method
-#' @param grouping.var
-#' @param meta.method
-#' @param pseudocount.use
-#' @param mean.fxn
-#' @param min.cells.feature
-#' @param min.cells.group
-#' @param p.adjust.method
-#' @param features
-#' @param seed
-#' @param markers_type
-#' @param verbose
+#' This function utilizes the Seurat package to perform a differential expression (DE) test on gene expression data.
+#' Users have the flexibility to specify custom cell groups, marker types, and various options for DE analysis.
 #'
+#' @inheritParams  Seurat::FindMarkers
+#' @param srt A Seurat object.
+#' @param group_by A grouping variable in the dataset to define the groups or conditions for the differential test. If not provided, the function uses the "active.ident" variable in the Seurat object.
+#' @param group1 A vector of cell IDs or a character vector specifying the cells that belong to the first group. If both group_by and group1 are provided, group1 takes precedence.
+#' @param group2 A vector of cell IDs or a character vector specifying the cells that belong to the second group. This parameter is only used when group_by or group1 is provided.
+#' @param cells1 A vector of cell IDs specifying the cells that belong to group1. If provided, group1 is ignored.
+#' @param cells2 A vector of cell IDs specifying the cells that belong to group2. This parameter is only used when cells1 is provided.
+#' @param features A vector of gene names specifying the features to consider for the differential test. If not provided, all features in the dataset are considered.
+#' @param markers_type A character value specifying the type of markers to find. Possible values are "all", "paired", "conserved", and "disturbed".
+#' @param grouping.var A character value specifying the grouping variable for finding conserved or disturbed markers. This parameter is only used when markers_type is "conserved" or "disturbed".
+#' @param fc.threshold A numeric value used to filter genes for testing based on their average fold change between/among the two groups. By default, it is set to 1.5
+#' @param meta.method A character value specifying the method to use for combining p-values in the conserved markers test. Possible values are "maximump", "minimump", "wilkinsonp", "meanp", "sump", and "votep".
+#' @param norm.method Normalization method for fold change calculation when slot is 'data'. Default is "LogNormalize".
+#' @param p.adjust.method A character value specifying the method to use for adjusting p-values. Default is "bonferroni".
+#' @param BPPARAM A BiocParallelParam object specifying the parallelization parameters for the differential test. Default is BiocParallel::bpparam().
+#' @param seed An integer value specifying the seed. Default is 11.
+#' @param verbose A logical value indicating whether to display progress messages during the differential test. Default is TRUE.
+#' @param ... Additional arguments to pass to the \code{\link[Seurat]{FindMarkers}} function.
+#'
+#' @seealso \code{\link{RunEnrichment}} \code{\link{RunGSEA}} \code{\link{GroupHeatmap}}
 #' @examples
-#' library(dplyr)
 #' data("pancreas_sub")
-#'
 #' pancreas_sub <- RunDEtest(pancreas_sub, group_by = "SubCellType")
 #' AllMarkers <- filter(pancreas_sub@tools$DEtest_SubCellType$AllMarkers_wilcox, p_val_adj < 0.05 & avg_log2FC > 1)
 #' table(AllMarkers$group1)
@@ -1339,11 +1346,11 @@ RunDEtest <- function(srt, group_by = NULL, group1 = NULL, group2 = NULL, cells1
   if (slot == "data" && status != "log_normalized_counts") {
     if (status == "raw_counts") {
       warning("Data in the 'data' slot is raw counts. Perform NormalizeData(LogNormalize) on the data.", immediate. = TRUE)
-      srt <- suppressWarnings(NormalizeData(object = srt, assay = assay, normalization.method = "LogNormalize", verbose = FALSE))
+      srt <- NormalizeData(object = srt, assay = assay, normalization.method = "LogNormalize", verbose = FALSE)
     }
     if (status == "raw_normalized_counts") {
       warning("Data in the 'data' slot is raw_normalized_counts. Perform NormalizeData(LogNormalize) on the data.", immediate. = TRUE)
-      srt <- suppressWarnings(NormalizeData(object = srt, assay = assay, normalization.method = "LogNormalize", verbose = FALSE))
+      srt <- NormalizeData(object = srt, assay = assay, normalization.method = "LogNormalize", verbose = FALSE)
     }
     if (status == "unknown") {
       warning("Data in the 'data' slot is unknown. Please check the data type.")
@@ -1755,17 +1762,22 @@ RunDEtest <- function(srt, group_by = NULL, group1 = NULL, group2 = NULL, cells1
 
 #' ListDB
 #'
-#' @param species
-#' @param db
+#' Retrieves information about databases based on a given species and database name.
+#'
+#' @param species The species for which to retrieve database information. Default is "Homo_sapiens".
+#' @param db The pattern to match against the database names. Default is NULL, which matches all databases.
+#'
+#' @seealso \code{\link{PrepareDB}}
 #'
 #' @importFrom R.cache getCacheRootPath readCacheHeader
 #' @export
 #' @examples
 #' ListDB(species = "Homo_sapiens")
-#' ListDB(species = "Mus_musculus")
+#' ListDB(species = "Mus_musculus", db = "GO_BP")
 #'
 ListDB <- function(species = "Homo_sapiens",
                    db = NULL) {
+  stopifnot(length(species) == 1)
   pathnames <- dir(path = getCacheRootPath(), pattern = "[.]Rcache$", full.names = TRUE)
   if (length(pathnames) == 0) {
     return(NULL)
@@ -1792,21 +1804,40 @@ ListDB <- function(species = "Homo_sapiens",
 
 #' Prepare the gene annotation databases
 #'
-#' @param species species
-#' @param db Enrichment database name.
-#' @param db_update Whether update the database to the latest version.
-#' @param db_IDtypes
-#' @param db_version
-#' @param Ensembl_version
-#' @param mirror
-#' @param convert_species
-#' @param custom_TERM2GENE
-#' @param custom_TERM2NAME
-#' @param custom_species
-#' @param custom_IDtype
-#' @param custom_version
+#' This function prepares the gene annotation databases for a given species and set of annotation sources.
+#' It retrieves the necessary information from various annotation packages or external resources and organizes it into a list.
+#' The list contains the annotation data for each specified annotation source.
 #'
-#' @return A list containing the database.
+#' @inheritParams GeneConvert
+#' @param species A character vector specifying the species for which the gene annotation databases should be prepared. Default is c("Homo_sapiens", "Mus_musculus").
+#' @param db A character vector specifying the annotation sources to be included in the gene annotation databases.
+#' Default is c("GO", "GO_BP", "GO_CC", "GO_MF", "KEGG", "WikiPathway", "Reactome",
+#' "CORUM", "MP", "DO", "HPO", "PFAM", "CSPA", "Surfaceome", "SPRomeDB", "VerSeDa",
+#' "TFLink", "hTFtarget", "TRRUST", "JASPAR", "ENCODE", "MSigDB",
+#' "CellChat", "Chromosome", "GeneType", "Enzyme", "TF").
+#' @param db_IDtypes A character vector specifying the desired ID types to be used for gene identifiers in the gene annotation databases. Default is c("symbol", "entrez_id", "ensembl_id").
+#' @param db_version A character vector specifying the version of the gene annotation databases to be retrieved. Default is "latest".
+#' @param db_update A logical value indicating whether the gene annotation databases should be forcefully updated. If set to FALSE, the function will attempt to load the cached databases instead. Default is FALSE.
+#' @param convert_species A logical value indicating whether to use a species-converted database when the annotation is missing for the specified species. The default value is TRUE.
+#' @param custom_TERM2GENE A data frame containing a custom TERM2GENE mapping for the specified species and annotation source. Default is NULL.
+#' @param custom_TERM2NAME A data frame containing a custom TERM2NAME mapping for the specified species and annotation source. Default is NULL.
+#' @param custom_species A character vector specifying the species name to be used in a custom database. Default is NULL.
+#' @param custom_IDtype A character vector specifying the ID type to be used in a custom database. Default is NULL.
+#' @param custom_version A character vector specifying the version to be used in a custom database. Default is NULL.
+#'
+#' @details
+#' The `PrepareDB` function prepares gene annotation databases for a given species and set of annotation sources.
+#' It retrieves the necessary information from various annotation packages or external resources and organizes it into a list.
+#' The function also supports creating custom databases based on user-provided gene sets.
+#'
+#' @return A list containing the prepared gene annotation databases:
+#'   \itemize{
+#'     \item{\code{TERM2GENE:}}{ mapping of gene identifiers to terms}
+#'     \item{\code{TERM2NAME:}}{ mapping of terms to their names}
+#'     \item{\code{semData:}}{ semantic similarity data for gene sets (only for Gene Ontology terms)}
+#'     }
+#'
+#' @seealso \code{\link{ListDB}}
 #'
 #' @examples
 #' if (interactive()) {
@@ -2085,18 +2116,17 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
           }
           temp <- tempfile()
           download(url = "https://wikipathways-data.wmcloud.org/current/gmt", destfile = temp)
-          lines <- readLines(temp, warn = FALSE)
-          lines <- lines[grep("File</a></td>", lines, fixed = TRUE)]
-          lines <- gsub("(.*<td><a href='./)|('> File</a></td>)", "", lines)
+          lines <- paste0(readLines(temp, warn = FALSE), collapse = " ")
+          gmtfiles <- unlist(regmatches(lines, m = gregexpr("(?<=>)wikipathways-\\S+\\.gmt\\b", lines, perl = TRUE)))
           wiki_sp <- sps
-          gmtfile <- lines[grep(wiki_sp, lines, fixed = TRUE)]
+          gmtfile <- gmtfiles[grep(wiki_sp, gmtfiles, fixed = TRUE)]
           if (length(gmtfile) == 0) {
             warning("Failed to prepare the WikiPathway database for ", db_species["WikiPathway"], immediate. = TRUE)
             if (isTRUE(convert_species) && db_species["WikiPathway"] != "Homo_sapiens") {
               warning("Use the human annotation to create the WikiPathway database for ", sps, immediate. = TRUE)
               db_species["WikiPathway"] <- "Homo_sapiens"
               wiki_sp <- "Homo_sapiens"
-              gmtfile <- lines[grep(wiki_sp, lines, fixed = TRUE)]
+              gmtfile <- gmtfiles[grep(wiki_sp, gmtfile, fixed = TRUE)]
             } else {
               stop("Stop the preparation.")
             }
@@ -3284,35 +3314,53 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
   return(db_list)
 }
 
-#' Perform the enrichment analysis(over-representation) on the genes
+#' Perform the enrichment analysis (over-representation) on the genes
 #'
-#' @param geneID geneID
-#' @param geneID_groups geneID_groups
-#' @param IDtype IDtype
-#' @param result_IDtype result_IDtype
-#' @param species species
-#' @param db enrichment database
-#' @param db_update db_update
-#' @param GO_simplify GO_simplify
-#' @param GO_simplify_padjustCutoff GO_simplify_padjustCutoff
-#' @param simplify_method simplify_method
-#' @param simplify_similarityCutoff simplify_similarityCutoff
-#' @param TERM2GENE TERM2GENE
-#' @param TERM2NAME TERM2NAME
-#' @param minGSSize minGSSize
-#' @param maxGSSize maxGSSize
-#' @param db_version
-#' @param Ensembl_version
-#' @param mirror
-#' @param BPPARAM
-#' @param progressbar
-#' @param universe universe
-#' @param srt
-#' @param group_by
-#' @param test.use
-#' @param DE_threshold
-#' @param geneID_exclude
-#' @param convert_species
+#' @inheritParams GeneConvert
+#' @param srt A Seurat object containing the results of differential expression analysis (RunDEtest).
+#' If specified, the genes and groups will be extracted from the Seurat object automatically.
+#' If not specified, the \code{geneID} and \code{geneID_groups} arguments must be provided.
+#' @param group_by A character vector specifying the grouping variable in the Seurat object. This argument is only used if \code{srt} is specified.
+#' @param test.use A character vector specifying the test to be used in differential expression analysis. This argument is only used if \code{srt} is specified.
+#' @param DE_threshold A character vector specifying the filter condition for differential expression analysis. This argument is only used if \code{srt} is specified.
+#' @param geneID A character vector specifying the gene IDs.
+#' @param geneID_groups A factor vector specifying the group labels for each gene.
+#' @param geneID_exclude A character vector specifying the gene IDs to be excluded from the analysis.
+#' @param IDtype A character vector specifying the type of gene IDs in the \code{srt} object or \code{geneID} argument. This argument is used to convert the gene IDs to a different type if \code{IDtype} is different from \code{result_IDtype}.
+#' @param result_IDtype A character vector specifying the desired type of gene ID to be used in the output. This argument is used to convert the gene IDs from \code{IDtype} to \code{result_IDtype}.
+#' @param species A character vector specifying the species for which the analysis is performed.
+#' @param db A character vector specifying the name of the database to be used for enrichment analysis.
+#' @param db_update A logical value indicating whether the gene annotation databases should be forcefully updated. If set to FALSE, the function will attempt to load the cached databases instead. Default is FALSE.
+#' @param db_version A character vector specifying the version of the database to be used. This argument is ignored if \code{db_update} is \code{TRUE}. Default is "latest".
+#' @param db_combine A logical value indicating whether to combine multiple databases into one. If TRUE, all database specified by \code{db} will be combined as one named "Combined".
+#' @param convert_species A logical value indicating whether to use a species-converted database when the annotation is missing for the specified species. The default value is TRUE.
+#' @param TERM2GENE A data frame specifying the gene-term mapping for a custom database. The first column should contain the term IDs, and the second column should contain the gene IDs.
+#' @param TERM2NAME A data frame specifying the term-name mapping for a custom database. The first column should contain the term IDs, and the second column should contain the corresponding term names.
+#' @param minGSSize A numeric value specifying the minimum size of a gene set to be considered in the enrichment analysis.
+#' @param maxGSSize A numeric value specifying the maximum size of a gene set to be considered in the enrichment analysis.
+#' @param unlimited_db A character vector specifying the names of databases that do not have size restrictions.
+#' @param GO_simplify A logical value indicating whether to simplify the GO terms. If \code{TRUE}, additional results with simplified GO terms will be returned.
+#' @param GO_simplify_cutoff A character vector specifying the filter condition for simplification of GO terms. This argument is only used if \code{GO_simplify} is \code{TRUE}.
+#' @param simplify_method A character vector specifying the method to be used for simplification of GO terms. This argument is only used if \code{GO_simplify} is \code{TRUE}.
+#' @param simplify_similarityCutoff A numeric value specifying the similarity cutoff for simplification of GO terms. This argument is only used if \code{GO_simplify} is \code{TRUE}.
+#' @param BPPARAM A BiocParallelParam object specifying the parallel back-end to be used for parallel computation. Defaults to BiocParallel::bpparam().
+#' @param seed The random seed for reproducibility. Defaults to 11.
+#'
+#' @returns
+#' If input is a Seurat object, returns the modified Seurat object with the enrichment result stored in the tools slot.
+#'
+#' If input is a geneID vector with or without geneID_groups, return the enrichment result directly.
+#'
+#' Enrichment result is a list with the following component:
+#' \itemize{
+#'  \item{\code{enrichment}:}{ A data.frame containing all enrichment results.}
+#'  \item{\code{results}:}{ A list of \code{enrichResult} objects from the DOSE package.}
+#'  \item{\code{geneMap}:}{ A data.frame containing the ID mapping table for input gene IDs.}
+#'  \item{\code{input}:}{ A data.frame containing the input gene IDs and gene ID groups.}
+#'  \item{\code{DE_threshold}:}{ A specific threshold for differential expression analysis (only returned if input is a Seurat object).}
+#' }
+#'
+#' @seealso \code{\link{PrepareDB}} \code{\link{ListDB}} \code{\link{EnrichmentPlot}} \code{\link{RunGSEA}} \code{\link{GSEAPlot}}
 #'
 #' @examples
 #' data("pancreas_sub")
@@ -3563,36 +3611,26 @@ RunEnrichment <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_t
   }
 }
 
-#' Perform the enrichment analysis(GSEA) on the genes
+#' Perform the enrichment analysis (GSEA) on the genes
 #'
-#' @param geneID geneID
-#' @param geneID_groups geneID_groups
-#' @param IDtype IDtype
-#' @param result_IDtype result_IDtype
-#' @param species species
-#' @param db enrichment database
-#' @param db_update db_update
-#' @param GO_simplify GO_simplify
-#' @param GO_simplify_padjustCutoff GO_simplify_padjustCutoff
-#' @param simplify_method simplify_method
-#' @param simplify_similarityCutoff simplify_similarityCutoff
-#' @param TERM2GENE TERM2GENE
-#' @param TERM2NAME TERM2NAME
-#' @param minGSSize minGSSize
-#' @param geneScore
-#' @param db_version
-#' @param Ensembl_version
-#' @param mirror
-#' @param scoreType
-#' @param BPPARAM
-#' @param progressbar
-#' @param maxGSSize maxGSSize
-#' @param srt
-#' @param group_by
-#' @param test.use
-#' @param DE_threshold
-#' @param geneID_exclude
-#' @param convert_species
+#' @inheritParams RunEnrichment
+#' @param geneScore A numeric vector that specifies the gene scores, for example, the log2(fold change) values of gene expression.
+#' @param scoreType This parameter defines the GSEA score type. Possible options are ("std", "pos", "neg"). By default ("std") the enrichment score is computed as in the original GSEA. The "pos" and "neg" score types are intended to be used for one-tailed tests (i.e. when one is interested only in positive ("pos") or negateive ("neg") enrichment).
+#' @returns
+#' If input is a Seurat object, returns the modified Seurat object with the enrichment result stored in the tools slot.
+#'
+#' If input is a geneID vector with or without geneID_groups, return the enrichment result directly.
+#'
+#' Enrichment result is a list with the following component:
+#' \itemize{
+#'  \item{\code{enrichment}:}{ A data.frame containing all enrichment results.}
+#'  \item{\code{results}:}{ A list of \code{gseaResult} objects from the DOSE package.}
+#'  \item{\code{geneMap}:}{ A data.frame containing the ID mapping table for input gene IDs.}
+#'  \item{\code{input}:}{ A data.frame containing the input gene IDs and gene ID groups.}
+#'  \item{\code{DE_threshold}:}{ A specific threshold for differential expression analysis (only returned if input is a Seurat object).}
+#' }
+#'
+#' @seealso \code{\link{PrepareDB}} \code{\link{ListDB}} \code{\link{GSEAPlot}} \code{\link{RunEnrichment}} \code{\link{EnrichmentPlot}}
 #'
 #' @examples
 #' data("pancreas_sub")
@@ -3873,19 +3911,23 @@ RunGSEA <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_thresho
 
 #' RunSlingshot
 #'
-#' @param srt
-#' @param group.by
-#' @param reduction
-#' @param start
-#' @param end
-#' @param prefix
-#' @param reverse
-#' @param align_start
-#' @param show_plot
-#' @param lineage_palette
-#' @param seed
-#' @param ...
-#' @param dims
+#' Runs the Slingshot algorithm on a Seurat object.
+#'
+#' @param srt A Seurat object.
+#' @param group.by The variable to group the cells by.
+#' @param reduction The reduction technique to use for dimensionality reduction. Default is NULL, which uses the default reduction for the Seurat object.
+#' @param dims The dimensions to use for the Slingshot algorithm. Default is NULL, which uses first two dimensions.
+#' @param start The starting group for the Slingshot algorithm. Default is NULL.
+#' @param end The ending group for the Slingshot algorithm. Default is NULL.
+#' @param prefix The prefix to add to the column names of the resulting pseudotime variable. Default is NULL.
+#' @param reverse Logical value indicating whether to reverse the pseudotime variable. Default is FALSE.
+#' @param align_start Logical value indicating whether to align the starting pseudotime values at the maximum pseudotime. Default is FALSE.
+#' @param show_plot Logical value indicating whether to show the dimensionality plot. Default is TRUE.
+#' @param lineage_palette The color palette to use for the lineages in the plot. Default is "Dark2".
+#' @param seed The random seed to use for reproducibility. Default is 11.
+#' @param ... Additional arguments to be passed to the \code{\link[slingshot]{slingshot}} function.
+#'
+#' @seealso \code{\link{CellDimPlot}} \code{\link{RunDynamicFeatures}}
 #'
 #' @examples
 #' data("pancreas_sub")
@@ -3917,7 +3959,7 @@ RunSlingshot <- function(srt, group.by, reduction = NULL, dims = NULL, start = N
   }
   srt_sub <- srt[, !is.na(srt[[group.by, drop = TRUE]])]
   if (is.null(dims)) {
-    dims <- 1:ncol(srt_sub[[reduction]]@cell.embeddings)
+    dims <- 1:2
   }
 
   set.seed(seed)
@@ -3926,27 +3968,6 @@ RunSlingshot <- function(srt, group.by, reduction = NULL, dims = NULL, start = N
     clusterLabels = as.character(srt_sub[[group.by, drop = TRUE]]),
     start.clus = start, end.clus = end, ...
   )
-  # sl <- tryCatch(
-  #   {
-  #     slingshot::slingshot(
-  #       data = as.data.frame(srt_sub[[reduction]]@cell.embeddings),
-  #       clusterLabels = as.character(srt_sub[[group.by, drop = TRUE]]),
-  #       start.clus = start, end.clus = end,
-  #       ...
-  #     )
-  #   },
-  #   error = function(error) {
-  #     sce <- as.SingleCellExperiment(srt_sub)
-  #     sce <- slingshot::slingshot(
-  #       data = sce, reducedDim = reduction,
-  #       clusterLabels = as.character(srt_sub[[group.by, drop = TRUE]]),
-  #       start.clus = start, end.clus = end,
-  #       ...
-  #     )
-  #     sl <- sce@colData$slingshot
-  #     return(sl)
-  #   }
-  # )
 
   srt@tools[[paste("Slingshot", group.by, reduction, sep = "_")]] <- sl
   df <- as.data.frame(slingPseudotime(sl))
@@ -3979,43 +4000,44 @@ RunSlingshot <- function(srt, group.by, reduction = NULL, dims = NULL, start = N
 
 #' Run Monocle2 analysis
 #'
-#' @param srt
-#' @param annotation
-#' @param assay
-#' @param slot
-#' @param expressionFamily
-#' @param features
-#' @param feature_type
-#' @param disp_filter
-#' @param max_components
-#' @param reduction_method
-#' @param norm_method
-#' @param residualModelFormulaStr
-#' @param pseudo_expr
-#' @param root_state
-#' @param seed
+#' Runs the Monocle2 algorithm on a Seurat object.
+#'
+#' @param srt A Seurat object.
+#' @param assay The name of the assay in the Seurat object to use for analysis. Defaults to NULL, in which case the default assay of the object is used.
+#' @param slot The slot in the Seurat object to use for analysis. Default is "counts".
+#' @param expressionFamily The distribution family to use for modeling gene expression. Default is "negbinomial.size".
+#' @param features A vector of gene names or indices specifying the features to use in the analysis. Defaults to NULL, in which case features were determined by \code{feature_type}.
+#' @param feature_type The type of features to use in the analysis. Possible values are "HVF" for highly variable features
+#'   or "Disp" for features selected based on dispersion. Default is "HVF".
+#' @param disp_filter A string specifying the filter to use when \code{feature_type} is "Disp". Default is
+#'   "mean_expression >= 0.1 & dispersion_empirical >= 1 * dispersion_fit".
+#' @param max_components The maximum number of dimensions to use for dimensionality reduction. Default is 2.
+#' @param reduction_method The dimensionality reduction method to use. Possible values are "DDRTree" and "UMAP". Default is "DDRTree".
+#' @param norm_method The normalization method to use. Possible values are "log" and "none". Default is "log".
+#' @param residualModelFormulaStr A model formula specifying the effects to subtract. Default is NULL.
+#' @param pseudo_expr Amount to increase expression values before dimensionality reduction. Default is 1.
+#' @param root_state The state to use as the root of the trajectory. If NULL, will prompt for user input.
+#' @param seed An integer specifying the random seed to use. Default is 11.
 #'
 #' @examples
 #' if (interactive()) {
 #'   data("pancreas_sub")
-#'   pancreas_sub <- RunMonocle2(srt = pancreas_sub, annotation = "CellType")
+#'   pancreas_sub <- RunMonocle2(srt = pancreas_sub)
 #'   names(pancreas_sub@tools$Monocle2)
 #'   trajectory <- pancreas_sub@tools$Monocle2$trajectory
 #'
-#'   p1 <- CellDimPlot(pancreas_sub, group.by = "Monocle2_State", reduction = "DDRTree", label = TRUE, theme_use = "theme_blank") + trajectory
-#'   p2 <- CellDimPlot(pancreas_sub, group.by = "Monocle2_State", reduction = "UMAP", label = TRUE, theme_use = "theme_blank")
-#'   p3 <- FeatureDimPlot(pancreas_sub, features = "Monocle2_Pseudotime", reduction = "UMAP", theme_use = "theme_blank")
-#'   print(p1 + p2 + p3)
+#'   CellDimPlot(pancreas_sub, group.by = "Monocle2_State", reduction = "DDRTree", label = TRUE, theme_use = "theme_blank") + trajectory
+#'   CellDimPlot(pancreas_sub, group.by = "Monocle2_State", reduction = "UMAP", label = TRUE, theme_use = "theme_blank")
+#'   FeatureDimPlot(pancreas_sub, features = "Monocle2_Pseudotime", reduction = "UMAP", theme_use = "theme_blank")
 #'
 #'   pancreas_sub <- RunMonocle2(
-#'     srt = pancreas_sub, annotation = "CellType",
+#'     srt = pancreas_sub,
 #'     feature_type = "Disp", disp_filter = "mean_expression >= 0.01 & dispersion_empirical >= 1 * dispersion_fit"
 #'   )
 #'   trajectory <- pancreas_sub@tools$Monocle2$trajectory
-#'   p1 <- CellDimPlot(pancreas_sub, group.by = "Monocle2_State", reduction = "DDRTree", label = TRUE, theme_use = "theme_blank") + trajectory
-#'   p2 <- CellDimPlot(pancreas_sub, group.by = "Monocle2_State", reduction = "UMAP", label = TRUE, theme_use = "theme_blank")
-#'   p3 <- FeatureDimPlot(pancreas_sub, features = "Monocle2_Pseudotime", reduction = "UMAP", theme_use = "theme_blank")
-#'   print(p1 + p2 + p3)
+#'   CellDimPlot(pancreas_sub, group.by = "Monocle2_State", reduction = "DDRTree", label = TRUE, theme_use = "theme_blank") + trajectory
+#'   CellDimPlot(pancreas_sub, group.by = "Monocle2_State", reduction = "UMAP", label = TRUE, theme_use = "theme_blank")
+#'   FeatureDimPlot(pancreas_sub, features = "Monocle2_Pseudotime", reduction = "UMAP", theme_use = "theme_blank")
 #' }
 #' @importFrom Seurat DefaultAssay CreateDimReducObject GetAssayData VariableFeatures FindVariableFeatures
 #' @importFrom SeuratObject as.sparse
@@ -4023,13 +4045,13 @@ RunSlingshot <- function(srt, group.by, reduction = NULL, dims = NULL, start = N
 #' @importFrom ggplot2 geom_segment
 #' @importFrom utils select.list
 #' @export
-RunMonocle2 <- function(srt, annotation = NULL, assay = NULL, slot = "counts", expressionFamily = "negbinomial.size",
+RunMonocle2 <- function(srt, assay = NULL, slot = "counts", expressionFamily = "negbinomial.size",
                         features = NULL, feature_type = "HVF", disp_filter = "mean_expression >= 0.1 & dispersion_empirical >= 1 * dispersion_fit",
                         max_components = 2, reduction_method = "DDRTree", norm_method = "log", residualModelFormulaStr = NULL, pseudo_expr = 1,
                         root_state = NULL, seed = 11) {
   set.seed(seed)
-  check_R(c("monocle", "DDRTree", "BiocGenerics", "Biobase", "VGAM", "utils"))
-  requireNamespace("DDRTree", quietly = TRUE)
+  check_R(c("monocle", "DDRTree", "BiocGenerics", "Biobase", "VGAM"))
+  library(monocle)
 
   assay <- assay %||% DefaultAssay(srt)
   expr_matrix <- as.sparse(GetAssayData(srt, assay = assay, slot = slot))
@@ -4044,7 +4066,7 @@ RunMonocle2 <- function(srt, annotation = NULL, assay = NULL, slot = "counts", e
   )
   if (any(c("negbinomial", "negbinomial.size") %in% expressionFamily)) {
     cds <- BiocGenerics::estimateSizeFactors(cds)
-    cds <- suppressWarnings(suppressMessages(BiocGenerics::estimateDispersions(cds)))
+    cds <- BiocGenerics::estimateDispersions(cds)
   }
   if (is.null(features)) {
     if (feature_type == "HVF") {
@@ -4087,11 +4109,6 @@ RunMonocle2 <- function(srt, annotation = NULL, assay = NULL, slot = "counts", e
   trajectory <- geom_segment(data = edge_df, aes(x = x, y = y, xend = xend, yend = yend))
   p <- CellDimPlot(srt, group.by = "Monocle2_State", reduction = reduction_method, label = TRUE, force = TRUE) +
     trajectory
-  if (!is.null(annotation)) {
-    p_anno <- CellDimPlot(srt, group.by = annotation, reduction = reduction_method, label = TRUE, force = TRUE) +
-      trajectory
-    p <- p + p_anno
-  }
   print(p)
   if (is.null(root_state)) {
     root_state <- select.list(sort(unique(cds[["State"]])), title = "Select the root state to order cells:")
@@ -4106,8 +4123,9 @@ RunMonocle2 <- function(srt, annotation = NULL, assay = NULL, slot = "counts", e
 
   p1 <- CellDimPlot(srt, group.by = "Monocle2_State", reduction = reduction_method, label = TRUE, force = TRUE) + trajectory
   p2 <- FeatureDimPlot(srt, features = "Monocle2_Pseudotime", reduction = reduction_method) + trajectory
-  p <- p1 + p2
-  print(p)
+  print(p1)
+  Sys.sleep(1)
+  print(p2)
   return(srt)
 }
 
@@ -4291,68 +4309,65 @@ extract_ddrtree_ordering <- function(cds, root_cell, verbose = TRUE) {
 
 #' Run Monocle3 analysis
 #'
-#' @param srt
-#' @param annotation
-#' @param assay
-#' @param slot
-#' @param reduction
-#' @param graph
-#' @param partition_qval
-#' @param k
-#' @param cluster_method
-#' @param num_iter
-#' @param resolution
-#' @param use_partition
-#' @param close_loop
-#' @param learn_graph_control
-#' @param root_pr_nodes
-#' @param root_cells
-#' @param seed
-#' @param clusters
+#' Runs the Monocle3 algorithm on a Seurat object.
+#'
+#' @param srt A Seurat object.
+#' @param assay The name of the assay in the Seurat object to use for analysis. Defaults to NULL, in which case the default assay of the object is used.
+#' @param slot The slot in the Seurat object to use for analysis. Default is "counts".
+#' @param reduction The reduction used. Defaults to NULL, in which case the default reduction of the Seurat object is used.
+#' @param clusters The cluster variable in the Seurat object to use for analysis. Defaults to NULL, in which case use Monocle clusters is used.
+#' @param graph The name of the graph slot in the Seurat object to use for analysis. Defaults to NULL, in which case Monocle graph is used.
+#' @param partition_qval The q-value threshold for partitioning cells. Defaults to 0.05.
+#' @param k The number of nearest neighbors to consider for clustering. Defaults to 50.
+#' @param cluster_method The clustering method to use. Defaults to "louvain".
+#' @param num_iter The number of iterations for clustering. Defaults to 2.
+#' @param resolution The resolution parameter for clustering. Defaults to NULL.
+#' @param use_partition Whether to use partitions to learn disjoint graph in each partition. If not specified, user will be prompted for input. Defaults to NULL.
+#' @param close_loop Whether to close loops in the graph. Defaults to TRUE.
+#' @param root_pr_nodes The root nodes to order cells. If not specified, user will be prompted for input. Defaults to NULL.
+#' @param root_cells The root cells to order cells. If not specified, user will be prompted for input. Defaults to NULL.
+#' @param seed The random seed to use for reproducibility. Defaults to 11.
 #'
 #' @examples
 #' if (interactive()) {
 #'   data("pancreas_sub")
 #'   # Use Monocle clusters to infer the trajectories
-#'   pancreas_sub <- RunMonocle3(srt = pancreas_sub, annotation = "CellType", reduction = "UMAP")
+#'   pancreas_sub <- RunMonocle3(srt = pancreas_sub, reduction = "UMAP")
 #'   names(pancreas_sub@tools$Monocle3)
 #'   trajectory <- pancreas_sub@tools$Monocle3$trajectory
 #'   milestones <- pancreas_sub@tools$Monocle3$milestones
 #'
-#'   p1 <- CellDimPlot(pancreas_sub, group.by = "Monocle3_partitions", reduction = "UMAP", label = TRUE, theme_use = "theme_blank") + trajectory + milestones
-#'   p2 <- CellDimPlot(pancreas_sub, group.by = "Monocle3_clusters", reduction = "UMAP", label = TRUE, theme_use = "theme_blank") + trajectory
-#'   p3 <- FeatureDimPlot(pancreas_sub, features = "Monocle3_Pseudotime", reduction = "UMAP", theme_use = "theme_blank") + trajectory
-#'   print(p1 + p2 + p3)
+#'   CellDimPlot(pancreas_sub, group.by = "Monocle3_partitions", reduction = "UMAP", label = TRUE, theme_use = "theme_blank") + trajectory + milestones
+#'   CellDimPlot(pancreas_sub, group.by = "Monocle3_clusters", reduction = "UMAP", label = TRUE, theme_use = "theme_blank") + trajectory
+#'   FeatureDimPlot(pancreas_sub, features = "Monocle3_Pseudotime", reduction = "UMAP", theme_use = "theme_blank") + trajectory
 #'
-#'   # Select the lineage using monocle3::choose_graph_segments
-#'   cds <- pancreas_sub@tools$Monocle3$cds
-#'   cds_sub <- monocle3::choose_graph_segments(cds, starting_pr_node = NULL, ending_pr_nodes = NULL)
-#'   pancreas_sub$Lineages_1 <- NA
-#'   pancreas_sub$Lineages_1[colnames(cds_sub)] <- pancreas_sub$Monocle3_Pseudotime[colnames(cds_sub)]
-#'   CellDimPlot(pancreas_sub, group.by = "SubCellType", lineages = "Lineages_1", lineages_span = 0.1, theme_use = "theme_blank")
+#'   ## Select the lineage using monocle3::choose_graph_segments
+#'   # cds <- pancreas_sub@tools$Monocle3$cds
+#'   # cds_sub <- monocle3::choose_graph_segments(cds, starting_pr_node = NULL, ending_pr_nodes = NULL)
+#'   # pancreas_sub$Lineages_1 <- NA
+#'   # pancreas_sub$Lineages_1[colnames(cds_sub)] <- pancreas_sub$Monocle3_Pseudotime[colnames(cds_sub)]
+#'   # CellDimPlot(pancreas_sub, group.by = "SubCellType", lineages = "Lineages_1", lineages_span = 0.1, theme_use = "theme_blank")
 #'
 #'   # Use Seurat clusters to infer the trajectories
 #'   pancreas_sub <- Standard_SCP(pancreas_sub)
 #'   CellDimPlot(pancreas_sub, group.by = c("Standardclusters", "CellType"), label = TRUE, theme_use = "theme_blank")
-#'   pancreas_sub <- RunMonocle3(srt = pancreas_sub, annotation = "CellType", clusters = "Standardclusters")
+#'   pancreas_sub <- RunMonocle3(srt = pancreas_sub, clusters = "Standardclusters")
 #'   trajectory <- pancreas_sub@tools$Monocle3$trajectory
-#'   p1 <- CellDimPlot(pancreas_sub, group.by = "Monocle3_partitions", reduction = "StandardUMAP2D", label = TRUE, theme_use = "theme_blank") + trajectory
-#'   p2 <- CellDimPlot(pancreas_sub, group.by = "Monocle3_clusters", reduction = "StandardUMAP2D", label = TRUE, theme_use = "theme_blank") + trajectory
-#'   p3 <- FeatureDimPlot(pancreas_sub, features = "Monocle3_Pseudotime", reduction = "StandardUMAP2D", theme_use = "theme_blank") + trajectory
-#'   print(p1 + p2 + p3)
+#'   CellDimPlot(pancreas_sub, group.by = "Monocle3_partitions", reduction = "StandardUMAP2D", label = TRUE, theme_use = "theme_blank") + trajectory
+#'   CellDimPlot(pancreas_sub, group.by = "Monocle3_clusters", reduction = "StandardUMAP2D", label = TRUE, theme_use = "theme_blank") + trajectory
+#'   FeatureDimPlot(pancreas_sub, features = "Monocle3_Pseudotime", reduction = "StandardUMAP2D", theme_use = "theme_blank") + trajectory
 #'
 #'   # Use custom graphs and cell clusters to infer the partitions and trajectories, respectively
 #'   pancreas_sub <- Standard_SCP(pancreas_sub, cluster_resolution = 5)
 #'   CellDimPlot(pancreas_sub, group.by = c("Standardclusters", "CellType"), label = TRUE)
 #'   pancreas_sub <- RunMonocle3(
-#'     srt = pancreas_sub, annotation = "CellType",
+#'     srt = pancreas_sub,
 #'     clusters = "Standardclusters", graph = "Standardpca_SNN"
 #'   )
 #'   trajectory <- pancreas_sub@tools$Monocle3$trajectory
-#'   p1 <- CellDimPlot(pancreas_sub, group.by = "Monocle3_partitions", reduction = "StandardUMAP2D", label = TRUE, theme_use = "theme_blank") + trajectory
-#'   p2 <- CellDimPlot(pancreas_sub, group.by = "Monocle3_clusters", reduction = "StandardUMAP2D", label = TRUE, theme_use = "theme_blank") + trajectory
-#'   p3 <- FeatureDimPlot(pancreas_sub, features = "Monocle3_Pseudotime", reduction = "StandardUMAP2D", theme_use = "theme_blank") + trajectory
-#'   print(p1 + p2 + p3)
+#'   CellDimPlot(pancreas_sub, group.by = "Monocle3_partitions", reduction = "StandardUMAP2D", label = TRUE, theme_use = "theme_blank") + trajectory
+#'   CellDimPlot(pancreas_sub, group.by = "Monocle3_clusters", reduction = "StandardUMAP2D", label = TRUE, theme_use = "theme_blank") + trajectory
+#'   FeatureDimPlot(pancreas_sub, features = "Monocle3_Pseudotime", reduction = "StandardUMAP2D", theme_use = "theme_blank") + trajectory
 #' }
 #' @importFrom SeuratObject as.sparse Embeddings Loadings Stdev
 #' @importFrom Seurat DefaultAssay GetAssayData
@@ -4362,17 +4377,15 @@ extract_ddrtree_ordering <- function(cds, root_cell, verbose = TRUE) {
 #' @importFrom ggnewscale new_scale_color
 #' @importFrom utils packageVersion select.list
 #' @export
-RunMonocle3 <- function(srt, annotation = NULL, assay = NULL, slot = "counts",
+RunMonocle3 <- function(srt, assay = NULL, slot = "counts",
                         reduction = DefaultReduction(srt), clusters = NULL, graph = NULL, partition_qval = 0.05,
                         k = 50, cluster_method = "louvain", num_iter = 2, resolution = NULL,
-                        use_partition = NULL, close_loop = TRUE, learn_graph_control = NULL,
+                        use_partition = NULL, close_loop = TRUE,
                         root_pr_nodes = NULL, root_cells = NULL, seed = 11) {
   set.seed(seed)
   if (!requireNamespace("monocle3", quietly = TRUE) || packageVersion("monocle3") < package_version("1.2.0")) {
-    check_R(c("cole-trapnell-lab/monocle3"), force = TRUE)
+    check_R("cole-trapnell-lab/monocle3", force = TRUE)
   }
-  requireNamespace("DDRTree", quietly = TRUE)
-
   assay <- assay %||% DefaultAssay(srt)
   expr_matrix <- as.sparse(GetAssayData(srt, assay = assay, slot = slot))
   p_data <- srt@meta.data
@@ -4437,8 +4450,7 @@ RunMonocle3 <- function(srt, annotation = NULL, assay = NULL, slot = "counts",
         reduction_method = "UMAP", partition_qval = partition_qval,
         k = k, cluster_method = cluster_method, num_iter = num_iter, resolution = resolution
       )
-      cds@clusters[["UMAP"]]$clusters <- as.factor(srt[[clusters, drop = TRUE]])
-      cds[["clusters"]] <- cds@clusters[["UMAP"]]$clusters
+      cds[["clusters"]] <- cds@clusters[["UMAP"]]$clusters <- as.factor(srt[[clusters, drop = TRUE]])
     }
   } else {
     cds <- monocle3::cluster_cells(cds,
@@ -4451,15 +4463,16 @@ RunMonocle3 <- function(srt, annotation = NULL, assay = NULL, slot = "counts",
   srt[["Monocle3_partitions"]] <- cds@clusters[["UMAP"]]$partitions
   p1 <- CellDimPlot(srt, "Monocle3_partitions", reduction = reduction, label = FALSE, force = TRUE)
   p2 <- CellDimPlot(srt, "Monocle3_clusters", reduction = reduction, label = FALSE, force = TRUE)
-  p <- p1 + p2
-  print(p)
+  print(p1)
+  Sys.sleep(1)
+  print(p2)
   if (is.null(use_partition)) {
     use_partition <- select.list(c(TRUE, FALSE), title = "Whether to use partitions to learn disjoint graph in each partition?")
     if (use_partition == "" || length(use_partition) == 0) {
       use_partition <- TRUE
     }
   }
-  cds <- suppressWarnings(monocle3::learn_graph(cds = cds, use_partition = use_partition, close_loop = close_loop, learn_graph_control = learn_graph_control))
+  cds <- monocle3::learn_graph(cds = cds, use_partition = use_partition, close_loop = close_loop)
 
   reduced_dim_coords <- t(cds@principal_graph_aux[["UMAP"]]$dp_mst)
   edge_df <- as_data_frame(cds@principal_graph[["UMAP"]])
@@ -4494,11 +4507,6 @@ RunMonocle3 <- function(srt, annotation = NULL, assay = NULL, slot = "counts",
   )
   p <- CellDimPlot(srt, group.by = "Monocle3_partitions", reduction = reduction, label = FALSE, force = TRUE) +
     trajectory + milestones
-  if (!is.null(annotation)) {
-    p_anno <- CellDimPlot(srt, group.by = annotation, reduction = reduction, label = TRUE, force = TRUE) +
-      trajectory + milestones
-    p <- p + p_anno
-  }
   print(p)
 
   if (is.null(root_pr_nodes) && is.null(root_cells)) {
@@ -4515,29 +4523,35 @@ RunMonocle3 <- function(srt, annotation = NULL, assay = NULL, slot = "counts",
 
   p1 <- CellDimPlot(srt, group.by = "Monocle3_partitions", reduction = reduction, label = FALSE, force = TRUE) +
     trajectory
-  p2 <- suppressWarnings(FeatureDimPlot(srt, features = "Monocle3_Pseudotime", reduction = reduction) +
+  p2 <- FeatureDimPlot(srt, features = "Monocle3_Pseudotime", reduction = reduction) +
     theme(legend.position = "none") +
-    trajectory)
-  p <- p1 + p2
-  print(p)
+    trajectory
+  print(p1)
+  Sys.sleep(1)
+  print(p2)
   return(srt)
 }
 
 #' RunDynamicFeatures
 #'
-#' @param srt
-#' @param lineages
-#' @param features
-#' @param suffix
-#' @param n_candidates
-#' @param minfreq
-#' @param family
-#' @param slot
-#' @param assay
-#' @param libsize
-#' @param BPPARAM
-#' @param progressbar
-#' @param seed
+#' Calculates dynamic features for lineages in a single-cell RNA-seq dataset.
+#'
+#' @param srt A Seurat object.
+#' @param lineages A character vector specifying the lineage names for which dynamic features should be calculated.
+#' @param features A character vector specifying the features (genes or metadata variables) for which dynamic features should be calculated. If NULL, n_candidates must be provided.
+#' @param suffix A character vector specifying the suffix to append to the output slot names for each lineage. Defaults to the lineage names.
+#' @param n_candidates An integer specifying the number of candidate features to select when features is NULL. Defaults to 1000.
+#' @param minfreq An integer specifying the minimum frequency threshold for candidate features. Features with a frequency less than minfreq will be excluded. Defaults to 5.
+#' @param family A character or character vector specifying the family of distributions to use for the generalized additive models (GAMs). If family is set to NULL, the appropriate family will be automatically determined based on the data. If length(family) is 1, the same family will be used for all features. Otherwise, family must have the same length as features.
+#' @param slot A character vector specifying the slot in the Seurat object to use. Default is "counts".
+#' @param assay A character vector specifying the assay in the Seurat object to use. Default is NULL.
+#' @param libsize A numeric or numeric vector specifying the library size correction factors for each cell. If NULL, the library size correction factors will be calculated based on the expression matrix. If length(libsize) is 1, the same value will be used for all cells. Otherwise, libsize must have the same length as the number of cells in srt. Defaults to NULL.
+#' @param BPPARAM A BiocParallelParam object specifying the parallelization parameters for computing dynamic features. Defaults to BiocParallel::bpparam().
+#' @param seed An integer specifying the seed for random number generation. Defaults to 11.
+#'
+#' @return Returns the modified Seurat object with the calculated dynamic features stored in the tools slot.
+#'
+#' @seealso \code{\link{DynamicHeatmap}} \code{\link{DynamicPlot}} \code{\link{RunDynamicEnrichment}}
 #'
 #' @examples
 #' data("pancreas_sub")
@@ -4793,31 +4807,15 @@ RunDynamicFeatures <- function(srt, lineages, features = NULL, suffix = lineages
 
 #' RunDynamicEnrichment
 #'
-#' @param srt
-#' @param lineages
-#' @param score_method
-#' @param ncore
-#' @param slot
-#' @param assay
-#' @param min_expcells
-#' @param r.sq
-#' @param dev.expl
-#' @param padjust
-#' @param IDtype
-#' @param species
-#' @param db
-#' @param db_update
-#' @param db_version
-#' @param Ensembl_version
-#' @param mirror
-#' @param TERM2GENE
-#' @param TERM2NAME
-#' @param minGSSize
-#' @param maxGSSize
-#' @param BPPARAM
-#' @param progressbar
-#' @param seed
-#' @param convert_species
+#' This function calculates gene-set scores from the specified database (\code{db}) for each lineage using the specified scoring method (\code{score_method}).
+#' It then treats these scores as expression values and uses them as input to the RunDynamicFeatures function to identify dynamically enriched terms along the lineage.
+#'
+#' @inheritParams RunEnrichment
+#' @inheritParams DynamicHeatmap
+#' @inheritParams CellScoring
+#' @param score_method The method to use for scoring. Can be "Seurat", "AUCell", or "UCell". Defaults to "Seurat".
+#'
+#' @seealso \code{\link{RunDynamicFeatures}} \code{\link{DynamicHeatmap}}
 #'
 #' @examples
 #' data("pancreas_sub")
@@ -4853,7 +4851,7 @@ RunDynamicFeatures <- function(srt, lineages, features = NULL, suffix = lineages
 #' @importFrom ggplot2 ggplot aes geom_point geom_abline labs
 #' @export
 RunDynamicEnrichment <- function(srt, lineages,
-                                 score_method = "AUCell", ncore = 1,
+                                 score_method = "AUCell",
                                  slot = "data", assay = NULL,
                                  min_expcells = 20, r.sq = 0.2, dev.expl = 0.2, padjust = 0.05,
                                  IDtype = "symbol", species = "Homo_sapiens",
@@ -4957,15 +4955,19 @@ py_to_r_auto <- function(x) {
 
 #' Convert a seurat object to an anndata object using reticulate
 #'
-#' @param srt A \code{Seurat} object.
-#' @param assay_X Assays to convert as X(main data matrix) in anndata object.
-#' @param slot_X
-#' @param slot_layers
-#' @param convert_tools
-#' @param convert_misc
-#' @param assay_layers Assays to convert as layers in anndata object.
-#' @param features
-#' @param verbose
+#' This function takes a Seurat object and converts it to an anndata object using the reticulate package.
+#'
+#' @param srt A Seurat object.
+#' @param assay_X Assay to convert as the main data matrix (X) in the anndata object.
+#' @param slot_X Slot name for assay_X in the Seurat object.
+#' @param assay_layers Assays to convert as layers in the anndata object.
+#' @param slot_layers Slot names for the assay_layers in the Seurat object.
+#' @param convert_tools Logical indicating whether to convert the tool-specific data.
+#' @param convert_misc Logical indicating whether to convert the miscellaneous data.
+#' @param features Optional vector of features to include in the anndata object. Defaults to all features in assay_X.
+#' @param verbose Logical indicating whether to print verbose messages during the conversion process.
+#'
+#' @return An anndata object.
 #'
 #' @return A \code{anndata} object.
 #' @examples
@@ -5359,14 +5361,43 @@ check_python_element <- function(x, depth = maxDepth(x)) {
 
 #' Run PAGA analysis
 #'
-#' @inheritParams RunSCVELO
-#' @param use_rna_velocity use_rna_velocity.
-#' @param threshold edge threshold.
-#' @param point_size point_size.
-#' @param vkey Key for velocity. Default is "stochastic".
-#' @param paga_layout Plotting layout that computes positions. See See \href{https://scanpy.readthedocs.io/en/stable/generated/scanpy.pl.paga.html}{layout} param in scanpy.pl.paga function.
+#' PAGA is a graph-based method used to infer cellular trajectories.
+#' This function runs the PAGA analysis on a Seurat object.
 #'
-#' @return A \code{anndata} object.
+#' @param srt A Seurat object.
+#' @param assay_X Assay to convert as the main data matrix (X) in the anndata object.
+#' @param slot_X Slot name for assay_X in the Seurat object.
+#' @param assay_layers Assays to convert as layers in the anndata object.
+#' @param slot_layers Slot names for the assay_layers in the Seurat object.
+#' @param adata An anndata object.
+#' @param group_by Variable to use for grouping cells in the Seurat object.
+#' @param linear_reduction Linear reduction method to use, e.g., "PCA".
+#' @param nonlinear_reduction Non-linear reduction method to use, e.g., "UMAP".
+#' @param basis The basis to use for reduction, e.g., "UMAP".
+#' @param n_pcs Number of principal components to use for linear reduction. Default is 30.
+#' @param n_neighbors Number of neighbors to use for constructing the KNN graph. Default is 30.
+#' @param use_rna_velocity Whether to use RNA velocity for PAGA analysis. Default is FALSE.
+#' @param vkey The name of the RNA velocity data to use if \code{use_rna_velocity} is TRUE. Default is "stochastic".
+#' @param embedded_with_PAGA Whether to embed data using PAGA layout. Default is FALSE.
+#' @param paga_layout The layout for plotting PAGA graph. See See \href{https://scanpy.readthedocs.io/en/stable/generated/scanpy.pl.paga.html}{layout} param in scanpy.pl.paga function.
+#' @param threshold The threshold for plotting PAGA graph. Edges for weights below this threshold will not draw.
+#' @param point_size The point size for plotting.
+#' @param infer_pseudotime Whether to infer pseudotime.
+#' @param root_group The group to use as the root for pseudotime inference.
+#' @param root_cell The cell to use as the root for pseudotime inference.
+#' @param n_dcs TThe number of diffusion components to use for pseudotime inference.
+#' @param n_branchings Number of branchings to detect.
+#' @param min_group_size The minimum size of a group (as a fraction of the total number of cells) to consider it as a potential branching point.
+#' @param palette The palette to use for coloring cells.
+#' @param palcolor A vector of colors to use as the palette.
+#' @param show_plot Whether to show the PAGA plot.
+#' @param dpi The DPI (dots per inch) for saving the PAGA plot.
+#' @param save Whether to save the PAGA plots.
+#' @param dirpath The directory to save the PAGA plots.
+#' @param fileprefix The file prefix to use for the PAGA plots.
+#' @param return_seurat Whether to return a Seurat object instead of an anndata object. Default is TRUE.
+#'
+#' @seealso \code{\link{srt_to_adata}} \code{\link{PAGAPlot}} \code{\link{CellDimPlot}} \code{\link{RunSCVELO}}
 #'
 #' @examples
 #' data("pancreas_sub")
@@ -5394,7 +5425,7 @@ RunPAGA <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_layers
                     embedded_with_PAGA = FALSE, paga_layout = "fr", threshold = 0.1, point_size = 20,
                     infer_pseudotime = FALSE, root_group = NULL, root_cell = NULL, n_dcs = 10, n_branchings = 0, min_group_size = 0.01,
                     palette = "Paired", palcolor = NULL,
-                    show_plot = TRUE, dpi = 300, save = FALSE, dirpath = "./", fileprefix = "",
+                    show_plot = TRUE, save = FALSE, dpi = 300, dirpath = "./", fileprefix = "",
                     return_seurat = !is.null(srt)) {
   check_Python("scanpy")
   if (all(is.null(srt), is.null(adata))) {
@@ -5454,50 +5485,33 @@ RunPAGA <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_layers
   }
 }
 
-#' Run scVelo analysis
+#' Run scVelo workflow
 #'
-#' scVelo is a scalable toolkit for RNA velocity analysis in single cells.
-#' This function performs scVelo workflow in R by reticulate.
+#' scVelo is a scalable toolkit for RNA velocity analysis in single cells. This function runs scVelo workflow on a Seurat object.
 #'
-#' @param srt A \code{Seurat} object.
-#' @param adata An \code{anndata} object. Can be created through \code{\link{srt_to_adata}}
-#' @param h5ad h5ad file path.
-#' @param group_by group_by.
-#' @param linear_reduction linear_reduction.
-#' @param nonlinear_reduction nonlinear_reduction.
-#' @param basis basis.
-#' @param mode mode.
-#' @param fitting_by fitting_by.
-#' @param n_jobs n_jobs.
-#' @param min_shared_counts min_shared_counts.
-#' @param n_pcs n_pcs.
-#' @param n_neighbors n_neighbors.
-#' @param approx approx.
-#' @param stream_smooth stream_smooth.
-#' @param stream_density stream_density.
-#' @param arrow_density arrow_density.
-#' @param arrow_length arrow_length.
-#' @param arrow_size arrow_size.
-#' @param calculate_velocity_genes calculate_velocity_genes.
-#' @param save save.
-#' @param dirpath dirpath.
-#' @param fileprefix fileprefix.
-#' @param dpi dpi.
-#' @param assay_X
-#' @param slot_X
-#' @param assay_layers
-#' @param slot_layers
-#' @param magic_impute
-#' @param knn
-#' @param t
-#' @param denoise
-#' @param denoise_topn
-#' @param kinetics
-#' @param kinetics_topn
-#' @param show_plot
-#' @param return_seurat
+#' @inheritParams RunPAGA
+#' @param mode Velocity estimation model to use, e.g., "stochastic".
+#' @param fitting_by Method used to fit gene velocities, e.g., "stochastic".
+#' @param magic_impute Flag indicating whether to perform magic imputation.
+#' @param knn The number of nearest neighbors for magic.MAGIC.
+#' @param t power to which the diffusion operator is powered for magic.MAGIC.
+#' @param min_shared_counts Minimum number of counts (both unspliced and spliced) required for a gene.
+#' @param n_pcs Number of principal components (PCs) used for velocity estimation.
+#' @param n_neighbors Number of nearest neighbors used for velocity estimation.
+#' @param stream_smooth Multiplication factor for scale in Gaussian kernel around grid point.
+#' @param stream_density Controls the closeness of streamlines. When density = 2 (default), the domain is divided into a 60x60 grid, whereas density linearly scales this grid. Each cell in the grid can have, at most, one traversing streamline.
+#' @param arrow_length Length of arrows.
+#' @param arrow_size Size of arrows.
+#' @param arrow_density Amount of velocities to show.
+#' @param denoise Boolean flag indicating whether to denoise.
+#' @param denoise_topn Number of genes with highest likelihood selected to infer velocity directions.
+#' @param kinetics Boolean flag indicating whether to estimate RNA kinetics.
+#' @param kinetics_topn Number of genes with highest likelihood selected to infer velocity directions.
+#' @param calculate_velocity_genes Boolean flag indicating whether to calculate velocity genes.
+#' @param top_n The number of top features to plot.
+#' @param n_jobs The number of parallel jobs to run.
 #'
-#' @return A \code{anndata} object.
+#' @seealso \code{\link{srt_to_adata}} \code{\link{VelocityPlot}} \code{\link{CellDimPlot}} \code{\link{RunPAGA}}
 #'
 #' @examples
 #' data("pancreas_sub")
@@ -5520,13 +5534,13 @@ RunSCVELO <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_laye
                       linear_reduction = NULL, nonlinear_reduction = NULL, basis = NULL,
                       mode = "stochastic", fitting_by = "stochastic",
                       magic_impute = FALSE, knn = 5, t = 2,
-                      min_shared_counts = 30, n_pcs = 30, n_neighbors = 30, approx = TRUE,
+                      min_shared_counts = 30, n_pcs = 30, n_neighbors = 30,
                       stream_smooth = NULL, stream_density = 2,
                       arrow_length = 5, arrow_size = 5, arrow_density = 0.5,
                       denoise = FALSE, denoise_topn = 3, kinetics = FALSE, kinetics_topn = 100,
                       calculate_velocity_genes = FALSE, top_n = 6, n_jobs = 1,
                       palette = "Paired", palcolor = NULL,
-                      show_plot = TRUE, dpi = 300, save = FALSE, dirpath = "./", fileprefix = "",
+                      show_plot = TRUE, save = FALSE, dpi = 300, dirpath = "./", fileprefix = "",
                       return_seurat = !is.null(srt)) {
   check_Python("scvelo")
   if (isTRUE(magic_impute)) {
@@ -5590,10 +5604,24 @@ RunSCVELO <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_laye
 }
 
 #' Run Palantir analysis
-#' @inheritParams RunSCVELO
-#' @param point_size point_size.
 #'
-#' @return A \code{anndata} object.
+#' @inheritParams RunPAGA
+#' @param dm_n_components The number of diffusion components to calculate.
+#' @param dm_alpha Normalization parameter for the diffusion operator.
+#' @param dm_n_eigs Number of eigen vectors to use.
+#' @param early_group Name of the group to start Palantir analysis from.
+#' @param early_cell Name of the cell to start Palantir analysis from.
+#' @param terminal_groups Character vector specifying terminal groups for Palantir analysis.
+#' @param terminal_cells Character vector specifying terminal cells for Palantir analysis.
+#' @param num_waypoints Number of waypoints to be included.
+#' @param scale_components Should the cell fate probabilities be scaled for each component independently?
+#' @param use_early_cell_as_start Should the starting cell for each terminal group be set as early_cell?
+#' @param adjust_early_cell Whether to adjust the early cell to the cell with the minimum pseudotime value.
+#' @param adjust_terminal_cells hether to adjust the terminal cells to the cells with the maximum pseudotime value for each terminal group.
+#' @param max_iterations Maximum number of iterations for pseudotime convergence.
+#' @param n_jobs The number of parallel jobs to run.
+#'
+#' @seealso \code{\link{srt_to_adata}}
 #'
 #' @examples
 #' data("pancreas_sub")
@@ -5612,12 +5640,12 @@ RunPalantir <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_la
                         adata = NULL, group_by = NULL,
                         linear_reduction = NULL, nonlinear_reduction = NULL, basis = NULL,
                         n_pcs = 30, n_neighbors = 30, dm_n_components = 10, dm_alpha = 0, dm_n_eigs = NULL,
-                        early_group = NULL, terminal_groups = NULL, early_cell = NULL, terminal_cells = NULL,
+                        early_group = NULL, early_cell = NULL, terminal_cells = NULL, terminal_groups = NULL,
                         num_waypoints = 1200, scale_components = TRUE, use_early_cell_as_start = TRUE,
                         adjust_early_cell = FALSE, adjust_terminal_cells = FALSE,
-                        max_iterations = 25, n_jobs = 8, point_size = 20,
-                        palette = "Paired", palcolor = NULL,
-                        show_plot = TRUE, dpi = 300, save = FALSE, dirpath = "./", fileprefix = "",
+                        max_iterations = 25, n_jobs = 8,
+                        point_size = 20, palette = "Paired", palcolor = NULL,
+                        show_plot = TRUE, save = FALSE, dpi = 300, dirpath = "./", fileprefix = "",
                         return_seurat = !is.null(srt)) {
   check_Python("palantir")
   if (all(is.null(srt), is.null(adata))) {
@@ -5681,16 +5709,24 @@ RunPalantir <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_la
 }
 
 #' Run WOT analysis
-#' @inheritParams RunSCVELO
 #'
-#' @examples
+#' @inheritParams RunPAGA
+#' @param time_field A character string specifying the column name in `adata.obs` or `srt@meta.data` that contains the time information.
+#' @param growth_iters An integer specifying the number of growth iterations to perform during the OT Model computation. Default is 3.
+#' @param tmap_out A character string specifying the path to store the computed transport maps.
+#' @param time_from A numeric value specifying the starting time point for trajectory and fate analysis.
+#' @param time_to A numeric value specifying the ending time point for trajectory and fate analysis. If not provided, only trajectory and fate analysis for the specified `time_from` will be performed.
+#' @param get_coupling A logical value indicating whether to compute and store the coupling matrix between the specified `time_from` and `time_to`. Default is FALSE.
+#' @param recalculate A logical value indicating whether to recalculate the transport maps even if they already exist at the specified `tmap_out` location. Default is FALSE.
+#'
+#' @seealso \code{\link{srt_to_adata}}
 #' @export
 RunWOT <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_layers = c("spliced", "unspliced"), slot_layers = "counts",
                    adata = NULL, group_by = NULL,
                    time_field = "Time", growth_iters = 3L, tmap_out = "tmaps/tmap_out",
                    time_from = NULL, time_to = NULL, get_coupling = FALSE, recalculate = FALSE,
                    palette = "Paired", palcolor = NULL,
-                   show_plot = TRUE, dpi = 300, save = FALSE, dirpath = "./", fileprefix = "",
+                   show_plot = TRUE, save = FALSE, dpi = 300, dirpath = "./", fileprefix = "",
                    return_seurat = !is.null(srt)) {
   check_Python("wot")
   if (all(is.null(srt), is.null(adata))) {
@@ -5706,9 +5742,8 @@ RunWOT <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_layers 
     stop("'time_from' must be provided.")
   }
   if (isTRUE(get_coupling) && is.null(time_to)) {
-
+    warning("The 'get_coupling' paramter is only valid when 'time_to' is specified.")
   }
-  warning("The 'get_coupling' paramter is only valid when 'time_to' is specified.")
 
   args <- mget(names(formals()))
   args <- lapply(args, function(x) {
@@ -5768,7 +5803,7 @@ RunCellRank <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_la
                         arrow_size = 5, arrow_length = 5, arrow_density = 0.5,
                         s_genes = NULL, g2m_genes = NULL, calculate_velocity_genes = FALSE,
                         denoise = FALSE, kinetics = FALSE, axis = "equal",
-                        show_plot = TRUE, dpi = 300, save = FALSE, dirpath = "./", fileprefix = "",
+                        show_plot = TRUE, save = FALSE, dpi = 300, dirpath = "./", fileprefix = "",
                         return_seurat = !is.null(srt)) {
   check_Python("cellrank")
   if (isTRUE(magic_impute)) {
@@ -5817,71 +5852,6 @@ RunCellRank <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_la
 
   SCP_analysis <- reticulate::import_from_path("SCP_analysis", path = system.file("python", package = "SCP", mustWork = TRUE), convert = TRUE)
   adata <- do.call(SCP_analysis$CellRank, args)
-
-  if (isTRUE(return_seurat)) {
-    srt_out <- adata_to_srt(adata)
-    if (is.null(srt)) {
-      return(srt_out)
-    } else {
-      return(SrtAppend(srt_raw = srt, srt_append = srt_out))
-    }
-  } else {
-    return(adata)
-  }
-}
-
-RunDynamo <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_layers = c("spliced", "unspliced"), slot_layers = "counts",
-                      adata = NULL, group_by = NULL,
-                      linear_reduction = NULL, nonlinear_reduction = NULL, basis = NULL,
-                      n_pcs = 30, n_neighbors = 30, dm_n_components = 10, dm_alpha = 0, dm_n_eigs = NULL,
-                      early_group = NULL, terminal_groups = NULL, early_cell = NULL, terminal_cells = NULL,
-                      num_waypoints = 1200, scale_components = TRUE, use_early_cell_as_start = FALSE,
-                      max_iterations = 25, n_jobs = 1, point_size = 20,
-                      show_plot = TRUE, dpi = 300, save = FALSE, dirpath = "./", fileprefix = "",
-                      return_seurat = !is.null(srt)) {
-  check_Python("dynamo-release")
-  if (all(is.null(srt), is.null(adata))) {
-    stop("One of 'srt', 'adata' must be provided.")
-  }
-  if (is.null(group_by)) {
-    stop("'group_by' must be provided.")
-  }
-  if (is.null(linear_reduction) && is.null(nonlinear_reduction)) {
-    stop("'linear_reduction' or 'nonlinear_reduction' must be provided at least one.")
-  }
-  args <- mget(names(formals()))
-  args <- lapply(args, function(x) {
-    if (is.numeric(x)) {
-      y <- ifelse(grepl("\\.", as.character(x)), as.double(x), as.integer(x))
-    } else {
-      y <- x
-    }
-    return(y)
-  })
-  call.envir <- parent.frame(1)
-  args <- lapply(args, function(arg) {
-    if (is.symbol(arg)) {
-      eval(arg, envir = call.envir)
-    } else if (is.call(arg)) {
-      eval(arg, envir = call.envir)
-    } else {
-      arg
-    }
-  })
-  args <- args[!names(args) %in% c("srt", "assay_X", "slot_X", "assay_layers", "slot_layers", "return_seurat", "palette", "palcolor")]
-
-  if (!is.null(srt)) {
-    args[["adata"]] <- srt_to_adata(
-      srt = srt,
-      assay_X = assay_X, slot_X = slot_X,
-      assay_layers = assay_layers, slot_layers = slot_layers
-    )
-  }
-  groups <- py_to_r_auto(args[["adata"]]$obs)[[group_by]]
-  args[["palette"]] <- palette_scp(levels(groups) %||% unique(groups), palette = palette, palcolor = palcolor)
-
-  SCP_analysis <- reticulate::import_from_path("SCP_analysis", path = system.file("python", package = "SCP", mustWork = TRUE), convert = TRUE)
-  adata <- do.call(SCP_analysis$Dynamo, args)
 
   if (isTRUE(return_seurat)) {
     srt_out <- adata_to_srt(adata)

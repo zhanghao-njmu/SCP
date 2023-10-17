@@ -9,10 +9,10 @@ blendcolors(colors, mode = c("blend", "average", "screen", "multiply"))
 \arguments{
 \item{colors}{Color vectors.}
 
-\item{mode}{Blend mode.}
+\item{mode}{Blend mode. One of "blend", "average", "screen", or "multiply".}
 }
 \description{
-Blend colors
+This function blends a list of colors using the specified blend mode.
 }
 \examples{
 blend <- c("red", "green", blendcolors(c("red", "green"), mode = "blend"))
@@ -21,4 +21,7 @@ screen <- c("red", "green", blendcolors(c("red", "green"), mode = "screen"))
 multiply <- c("red", "green", blendcolors(c("red", "green"), mode = "multiply"))
 show_palettes(list("blend" = blend, "average" = average, "screen" = screen, "multiply" = multiply))
 
+}
+\seealso{
+\code{\link{FeatureDimPlot}}
 }

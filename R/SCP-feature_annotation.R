@@ -1,22 +1,22 @@
 #' AnnotateFeatures
+#' Annotate features in a Seurat object with additional metadata from databases or a GTF file.
+#' @param srt Seurat object to be annotated.
+#' @param species Name of the species to be used for annotation. Default is "Homo_sapiens".
+#' @param IDtype Type of identifier to use for annotation. Default is "symbol" with options "symbol", "ensembl_id", and "entrez_id".
+#' @param db Vector of database names to be used for annotation. Default is NULL.
+#' @param db_update Logical value indicating whether to update the database. Default is FALSE.
+#' @param db_version Version of the database to use. Default is "latest".
+#' @param convert_species A logical value indicating whether to use a species-converted database when the annotation is missing for the specified species. The default value is TRUE.
+#' @param Ensembl_version Version of the Ensembl database to use. Default is 103.
+#' @param mirror URL of the mirror to use for Ensembl database. Default is NULL.
+#' @param gtf Path to the GTF file to be used for annotation. Default is NULL.
+#' @param merge_gtf_by Column name to merge the GTF file by. Default is "gene_name".
+#' @param columns Vector of column names to be used from the GTF file. Default is
+#'     "seqname", "feature", "start", "end", "strand", "gene_id", "gene_name", "gene_type".
+#' @param assays Character vector of assay names to be annotated. Default is "RNA".
+#' @param overwrite Logical value indicating whether to overwrite existing metadata. Default is FALSE.
 #'
-#' @param srt
-#' @param gtf
-#' @param attribute
-#' @param assays
-#' @param overwrite
-#' @param species
-#' @param merge_gtf_by
-#' @param IDtype
-#' @param db
-#' @param db_update
-#' @param db_version
-#' @param Ensembl_version
-#' @param mirror
-#' @param convert_species
-#'
-#' @return
-#'
+#' @seealso \code{\link{PrepareDB}} \code{\link{ListDB}}
 #' @examples
 #' data("pancreas_sub")
 #' pancreas_sub <- AnnotateFeatures(pancreas_sub,
@@ -31,7 +31,7 @@
 #' @importFrom data.table fread rbindlist
 #' @export
 AnnotateFeatures <- function(srt, species = "Homo_sapiens", IDtype = c("symbol", "ensembl_id", "entrez_id"),
-                             db = NULL, db_update = FALSE, db_version = "latest", convert_species = FALSE, Ensembl_version = 103, mirror = NULL,
+                             db = NULL, db_update = FALSE, db_version = "latest", convert_species = TRUE, Ensembl_version = 103, mirror = NULL,
                              gtf = NULL, merge_gtf_by = "gene_name", columns = c(
                                "seqname", "feature", "start", "end", "strand",
                                "gene_id", "gene_name", "gene_type"

@@ -32,55 +32,81 @@ RunPAGA(
   palette = "Paired",
   palcolor = NULL,
   show_plot = TRUE,
-  dpi = 300,
   save = FALSE,
+  dpi = 300,
   dirpath = "./",
   fileprefix = "",
   return_seurat = !is.null(srt)
 )
 }
 \arguments{
-\item{srt}{A \code{Seurat} object.}
+\item{srt}{A Seurat object.}
 
-\item{adata}{An \code{anndata} object. Can be created through \code{\link{srt_to_adata}}}
+\item{assay_X}{Assay to convert as the main data matrix (X) in the anndata object.}
 
-\item{group_by}{group_by.}
+\item{slot_X}{Slot name for assay_X in the Seurat object.}
 
-\item{linear_reduction}{linear_reduction.}
+\item{assay_layers}{Assays to convert as layers in the anndata object.}
 
-\item{nonlinear_reduction}{nonlinear_reduction.}
+\item{slot_layers}{Slot names for the assay_layers in the Seurat object.}
 
-\item{basis}{basis.}
+\item{adata}{An anndata object.}
 
-\item{n_pcs}{n_pcs.}
+\item{group_by}{Variable to use for grouping cells in the Seurat object.}
 
-\item{n_neighbors}{n_neighbors.}
+\item{linear_reduction}{Linear reduction method to use, e.g., "PCA".}
 
-\item{use_rna_velocity}{use_rna_velocity.}
+\item{nonlinear_reduction}{Non-linear reduction method to use, e.g., "UMAP".}
 
-\item{vkey}{Key for velocity. Default is "stochastic".}
+\item{basis}{The basis to use for reduction, e.g., "UMAP".}
 
-\item{paga_layout}{Plotting layout that computes positions. See See \href{https://scanpy.readthedocs.io/en/stable/generated/scanpy.pl.paga.html}{layout} param in scanpy.pl.paga function.}
+\item{n_pcs}{Number of principal components to use for linear reduction. Default is 30.}
 
-\item{threshold}{edge threshold.}
+\item{n_neighbors}{Number of neighbors to use for constructing the KNN graph. Default is 30.}
 
-\item{point_size}{point_size.}
+\item{use_rna_velocity}{Whether to use RNA velocity for PAGA analysis. Default is FALSE.}
 
-\item{dpi}{dpi.}
+\item{vkey}{The name of the RNA velocity data to use if \code{use_rna_velocity} is TRUE. Default is "stochastic".}
 
-\item{save}{save.}
+\item{embedded_with_PAGA}{Whether to embed data using PAGA layout. Default is FALSE.}
 
-\item{dirpath}{dirpath.}
+\item{paga_layout}{The layout for plotting PAGA graph. See See \href{https://scanpy.readthedocs.io/en/stable/generated/scanpy.pl.paga.html}{layout} param in scanpy.pl.paga function.}
 
-\item{fileprefix}{fileprefix.}
+\item{threshold}{The threshold for plotting PAGA graph. Edges for weights below this threshold will not draw.}
 
-\item{return_seurat}{}
-}
-\value{
-A \code{anndata} object.
+\item{point_size}{The point size for plotting.}
+
+\item{infer_pseudotime}{Whether to infer pseudotime.}
+
+\item{root_group}{The group to use as the root for pseudotime inference.}
+
+\item{root_cell}{The cell to use as the root for pseudotime inference.}
+
+\item{n_dcs}{TThe number of diffusion components to use for pseudotime inference.}
+
+\item{n_branchings}{Number of branchings to detect.}
+
+\item{min_group_size}{The minimum size of a group (as a fraction of the total number of cells) to consider it as a potential branching point.}
+
+\item{palette}{The palette to use for coloring cells.}
+
+\item{palcolor}{A vector of colors to use as the palette.}
+
+\item{show_plot}{Whether to show the PAGA plot.}
+
+\item{save}{Whether to save the PAGA plots.}
+
+\item{dpi}{The DPI (dots per inch) for saving the PAGA plot.}
+
+\item{dirpath}{The directory to save the PAGA plots.}
+
+\item{fileprefix}{The file prefix to use for the PAGA plots.}
+
+\item{return_seurat}{Whether to return a Seurat object instead of an anndata object. Default is TRUE.}
 }
 \description{
-Run PAGA analysis
+PAGA is a graph-based method used to infer cellular trajectories.
+This function runs the PAGA analysis on a Seurat object.
 }
 \examples{
 data("pancreas_sub")
@@ -99,4 +125,7 @@ FeatureDimPlot(pancreas_sub, features = "dpt_pseudotime", reduction = "PAGAUMAP2
 PAGAPlot(pancreas_sub, reduction = "PAGAUMAP2D")
 CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "PAGAUMAP2D", paga = pancreas_sub@misc$paga)
 
+}
+\seealso{
+\code{\link{srt_to_adata}} \code{\link{PAGAPlot}} \code{\link{CellDimPlot}} \code{\link{RunSCVELO}}
 }

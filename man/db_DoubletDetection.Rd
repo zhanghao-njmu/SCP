@@ -7,10 +7,16 @@
 db_DoubletDetection(srt, assay = "RNA", db_rate = ncol(srt)/1000 * 0.01, ...)
 }
 \arguments{
-\item{...}{}
+\item{srt}{A Seurat object.}
+
+\item{assay}{The name of the assay to be used for doublet-calling. Default is "RNA".}
+
+\item{db_rate}{The expected doublet rate. Default is calculated as ncol(srt) / 1000 * 0.01.}
+
+\item{...}{Additional arguments to be passed to doubletdetection.BoostClassifier function.}
 }
 \description{
-Run doublet-calling with DoubletDetection
+This function performs doublet-calling using the doubletdetection(python) package on a Seurat object.
 }
 \examples{
 data("pancreas_sub")

@@ -2,13 +2,15 @@
 % Please edit documentation in R/SCP-cell_annotation.R
 \name{RunSingleR}
 \alias{RunSingleR}
-\title{Annotate single cells using scmap.}
+\title{Annotate single cells using SingleR}
 \usage{
 RunSingleR(
   srt_query,
   srt_ref,
   query_group = NULL,
   ref_group = NULL,
+  query_assay = "RNA",
+  ref_assay = "RNA",
   genes = "de",
   de.method = "wilcox",
   sd.thresh = 1,
@@ -19,16 +21,41 @@ RunSingleR(
   fine.tune = TRUE,
   tune.thresh = 0.05,
   prune = TRUE,
-  BPPARAM = BiocParallel::bpparam(),
-  query_assay = "RNA",
-  ref_assay = "RNA"
+  BPPARAM = BiocParallel::bpparam()
 )
 }
 \arguments{
-\item{force}{}
+\item{srt_query}{An object of class Seurat to be annotated with cell types.}
+
+\item{srt_ref}{An object of class Seurat storing the reference cells.}
+
+\item{query_group}{A character vector specifying the column name in the `srt_query` metadata that represents the cell grouping.}
+
+\item{ref_group}{A character vector specifying the column name in the `srt_ref` metadata that represents the cell grouping.}
+
+\item{query_assay}{A character vector specifying the assay to be used for the query data. Defaults to the default assay of the `srt_query` object.}
+
+\item{ref_assay}{A character vector specifying the assay to be used for the reference data. Defaults to the default assay of the `srt_ref` object.}
+
+\item{genes}{"genes" parameter in \code{\link[SingleR]{SingleR}} function.}
+
+\item{de.method}{"de.method" parameter in \code{\link[SingleR]{SingleR}} function.}
+
+\item{sd.thresh}{Deprecated and ignored.}
+
+\item{de.n}{An integer scalar specifying the number of DE genes to use when \code{genes="de"}.
+If \code{de.method="classic"}, defaults to \code{500 * (2/3) ^ log2(N)} where \code{N} is the number of unique labels.
+Otherwise, defaults to 10.}
+
+\item{aggr.ref, aggr.args}{Arguments controlling the aggregation of the references prior to annotation, see \code{\link[SingleR]{trainSingleR}}.}
+
+\item{quantile, fine.tune, tune.thresh, prune}{Further arguments to pass to \code{\link[SingleR]{classifySingleR}}.}
+
+\item{BPPARAM}{A \linkS4class{BiocParallelParam} object specifying how parallelization should be performed in other steps,
+see \code{?\link[SingleR]{trainSingleR}} and \code{?\link[SingleR]{classifySingleR}} for more details.}
 }
 \description{
-Annotate single cells using scmap.
+Annotate single cells using SingleR
 }
 \examples{
 data("panc8_sub")

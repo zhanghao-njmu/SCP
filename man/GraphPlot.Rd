@@ -66,10 +66,125 @@ GraphPlot(
 )
 }
 \arguments{
-\item{node}{}
+\item{node}{A data frame representing the nodes of the graph.}
 
-\item{theme_args}{}
+\item{edge}{A matrix representing the edges of the graph.}
+
+\item{transition}{A matrix representing the transitions between nodes.}
+
+\item{node_coord}{A character vector specifying the names of the columns in \code{node} that represent the x and y coordinates.}
+
+\item{node_group}{A character vector specifying the name of the column in \code{node} that represents the grouping of the nodes.}
+
+\item{node_palette}{A character vector specifying the name of the color palette for node groups.}
+
+\item{node_palcolor}{A character vector specifying the names of the colors for each node group.}
+
+\item{node_size}{A numeric value or column name of \code{node} specifying the size of the nodes.}
+
+\item{node_alpha}{A numeric value or column name of \code{node} specifying the transparency of the nodes.}
+
+\item{node_highlight}{A character vector specifying the names of nodes to highlight.}
+
+\item{node_highlight_color}{A character vector specifying the color for highlighting nodes.}
+
+\item{label}{A logical value indicating whether to show labels for the nodes.}
+
+\item{label.size}{A numeric value specifying the size of the labels.}
+
+\item{label.fg}{A character vector specifying the foreground color of the labels.}
+
+\item{label.bg}{A character vector specifying the background color of the labels.}
+
+\item{label.bg.r}{A numeric value specifying the background color transparency of the labels.}
+
+\item{label_insitu}{A logical value indicating whether to display the node group labels in situ or as numeric values.}
+
+\item{label_repel}{A logical value indicating whether to use force-directed label repulsion.}
+
+\item{label_repulsion}{A numeric value specifying the repulsion force for labels.}
+
+\item{label_point_size}{A numeric value specifying the size of the label points.}
+
+\item{label_point_color}{A character vector specifying the color of the label points.}
+
+\item{label_segment_color}{A character vector specifying the color for the label segments.}
+
+\item{edge_threshold}{A numeric value specifying the threshold for removing edges.}
+
+\item{use_triangular}{A character vector specifying which part of the edge matrix to use (upper, lower, both).}
+
+\item{edge_line}{A character vector specifying the type of line for edges (straight, curved).}
+
+\item{edge_line_curvature}{A numeric value specifying the curvature of curved edges.}
+
+\item{edge_line_angle}{A numeric value specifying the angle of curved edges.}
+
+\item{edge_color}{A character vector specifying the color of the edges.}
+
+\item{edge_size}{A numeric vector specifying the range of edge sizes.}
+
+\item{edge_alpha}{A numeric value specifying the transparency of the edges.}
+
+\item{edge_shorten}{A numeric value specifying the length of the edge shorten.}
+
+\item{edge_offset}{A numeric value specifying the length of the edge offset.}
+
+\item{edge_highlight}{A character vector specifying the names of edges to highlight.}
+
+\item{edge_highlight_color}{A character vector specifying the color for highlighting edges.}
+
+\item{transition_threshold}{A numeric value specifying the threshold for removing transitions.}
+
+\item{transition_line}{A character vector specifying the type of line for transitions (straight, curved).}
+
+\item{transition_line_curvature}{A numeric value specifying the curvature of curved transitions.}
+
+\item{transition_line_angle}{A numeric value specifying the angle of curved transitions.}
+
+\item{transition_color}{A character vector specifying the color of the transitions.}
+
+\item{transition_size}{A numeric vector specifying the range of transition sizes.}
+
+\item{transition_alpha}{A numeric value specifying the transparency of the transitions.}
+
+\item{transition_arrow_type}{A character vector specifying the type of arrow for transitions (closed, open).}
+
+\item{transition_arrow_angle}{A numeric value specifying the angle of the transition arrow.}
+
+\item{transition_arrow_length}{A numeric value specifying the length of the transition arrow.}
+
+\item{transition_shorten}{A numeric value specifying the length of the transition shorten.}
+
+\item{transition_offset}{A numeric value specifying the length of the transition offset.}
+
+\item{transition_highlight}{A character vector specifying the names of transitions to highlight.}
+
+\item{transition_highlight_color}{A character vector specifying the color for highlighting transitions.}
+
+\item{aspect.ratio}{A numeric value specifying the aspect ratio of the plot.}
+
+\item{title}{A character value specifying the title of the plot.}
+
+\item{subtitle}{A character value specifying the subtitle of the plot.}
+
+\item{xlab}{A character value specifying the label for the x-axis.}
+
+\item{ylab}{A character value specifying the label for the y-axis.}
+
+\item{legend.position}{A character value specifying the position of the legend.}
+
+\item{legend.direction}{A character value specifying the direction of the legend.}
+
+\item{theme_use}{A character value specifying the theme to use.}
+
+\item{theme_args}{A list of arguments to be passed to the theme.}
+
+\item{return_layer}{A logical value indicating whether to return the layers of the plot instead of the plot itself.}
 }
 \description{
-GraphPlot
+A function to plot a graph with nodes and edges.
+}
+\seealso{
+\code{\link{CellDimPlot}}
 }

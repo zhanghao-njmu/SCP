@@ -67,10 +67,126 @@ PAGAPlot(
 )
 }
 \arguments{
-\item{theme_args}{}
+\item{srt}{A Seurat object containing a PAGA result.}
+
+\item{paga}{The PAGA result from the Seurat object. Defaults to \code{srt\$misc\$paga}.}
+
+\item{type}{The type of plot to generate. Possible values are "connectivities" (default) and "connectivities_tree".}
+
+\item{reduction}{The type of reduction to use for the plot. Defaults to the default reduction in the Seurat object.}
+
+\item{dims}{The dimensions of the reduction to use for the plot. Defaults to the first two dimensions.}
+
+\item{cells}{The cells to include in the plot. Defaults to all cells.}
+
+\item{show_transition}{A logical value indicating whether to display transitions between different cell states. Defaults to \code{FALSE}.}
+
+\item{node_palette}{The color palette to use for node coloring. Defaults to "Paired".}
+
+\item{node_palcolor}{A vector of colors to use for node coloring. Defaults to \code{NULL}.}
+
+\item{node_size}{The size of the nodes in the plot. Defaults to 4.}
+
+\item{node_alpha}{The transparency of the nodes in the plot. Defaults to 1.}
+
+\item{node_highlight}{The group(s) to highlight in the plot. Defaults to \code{NULL}.}
+
+\item{node_highlight_color}{The color to use for highlighting the nodes. Defaults to "red".}
+
+\item{label}{A logical value indicating whether to display labels for the nodes. Defaults to \code{FALSE}.}
+
+\item{label.size}{The size of the labels. Defaults to 3.5.}
+
+\item{label.fg}{The color of the label text. Defaults to "white".}
+
+\item{label.bg}{The background color of the labels. Defaults to "black".}
+
+\item{label.bg.r}{The transparency of the label background color. Defaults to 0.1.}
+
+\item{label_insitu}{A logical value indicating whether to use in-situ labeling for the nodes. Defaults to \code{FALSE}.}
+
+\item{label_repel}{A logical value indicating whether to use repel mode for labeling nodes. Defaults to \code{FALSE}.}
+
+\item{label_repulsion}{The repulsion factor for repel mode. Defaults to 20.}
+
+\item{label_point_size}{The size of the points in the labels. Defaults to 1.}
+
+\item{label_point_color}{The color of the points in the labels. Defaults to "black".}
+
+\item{label_segment_color}{The color of the lines connecting the points in the labels. Defaults to "black".}
+
+\item{edge_threshold}{The threshold for including edges in the plot. Defaults to 0.01.}
+
+\item{edge_line}{The type of line to use for the edges. Possible values are "straight" and "curved". Defaults to "straight".}
+
+\item{edge_line_curvature}{The curvature factor for curved edges. Defaults to 0.3.}
+
+\item{edge_line_angle}{The angle for curved edges. Defaults to 90.}
+
+\item{edge_size}{The size range for the edges. Defaults to c(0.2, 1).}
+
+\item{edge_color}{The color of the edges. Defaults to "grey40".}
+
+\item{edge_alpha}{The transparency of the edges. Defaults to 0.5.}
+
+\item{edge_shorten}{The amount to shorten the edges. Defaults to 0.}
+
+\item{edge_offset}{The offset for curved edges. Defaults to 0.}
+
+\item{edge_highlight}{The group(s) to highlight in the plot. Defaults to \code{NULL}.}
+
+\item{edge_highlight_color}{The color to use for highlighting the edges. Defaults to "red".}
+
+\item{transition_threshold}{The threshold for including transitions in the plot. Defaults to 0.01.}
+
+\item{transition_line}{The type of line to use for the transitions. Possible values are "straight" and "curved". Defaults to "straight".}
+
+\item{transition_line_curvature}{The curvature factor for curved transitions. Defaults to 0.3.}
+
+\item{transition_line_angle}{The angle for curved transitions. Defaults to 90.}
+
+\item{transition_size}{The size range for the transitions. Defaults to c(0.2, 1).}
+
+\item{transition_color}{The color of the transitions. Defaults to "black".}
+
+\item{transition_alpha}{The transparency of the transitions. Defaults to 1.}
+
+\item{transition_arrow_type}{The type of arrow to use for the transitions. Possible values are "closed", "open", and "triangle". Defaults to "closed".}
+
+\item{transition_arrow_angle}{The angle of the arrow for transitions. Defaults to 20.}
+
+\item{transition_arrow_length}{The length of the arrow for transitions. Defaults to unit(0.02, "npc").}
+
+\item{transition_shorten}{The amount to shorten the transitions. Defaults to 0.05.}
+
+\item{transition_offset}{The offset for curved transitions. Defaults to 0.}
+
+\item{transition_highlight}{The group(s) to highlight in the plot. Defaults to \code{NULL}.}
+
+\item{transition_highlight_color}{The color to use for highlighting the transitions. Defaults to "red".}
+
+\item{aspect.ratio}{The aspect ratio of the plot. Defaults to 1.}
+
+\item{title}{The title of the plot. Defaults to "PAGA".}
+
+\item{subtitle}{The subtitle of the plot. Defaults to \code{NULL}.}
+
+\item{xlab}{The label for the x-axis. Defaults to \code{NULL}.}
+
+\item{ylab}{The label for the y-axis. Defaults to \code{NULL}.}
+
+\item{legend.position}{The position of the legend. Possible values are "right", "left", "bottom", and "top". Defaults to "right".}
+
+\item{legend.direction}{The direction of the legend. Possible values are "vertical" and "horizontal". Defaults to "vertical".}
+
+\item{theme_use}{The name of the theme to use for the plot. Defaults to "theme_scp".}
+
+\item{theme_args}{A list of arguments to pass to the theme function. Defaults to an empty list.}
+
+\item{return_layer}{A logical value indicating whether to return the plot as a ggplot2 layer. Defaults to \code{FALSE}.}
 }
 \description{
-PAGA plot
+This function generates a PAGA plot based on the given Seurat object and PAGA result.
 }
 \examples{
 data("pancreas_sub")
@@ -79,6 +195,7 @@ PAGAPlot(pancreas_sub)
 PAGAPlot(pancreas_sub, type = "connectivities_tree")
 PAGAPlot(pancreas_sub, reduction = "PCA")
 PAGAPlot(pancreas_sub, reduction = "PAGAUMAP2D")
+PAGAPlot(pancreas_sub, edge_shorten = 0.05)
 PAGAPlot(pancreas_sub, label = TRUE)
 PAGAPlot(pancreas_sub, label = TRUE, label_insitu = TRUE)
 PAGAPlot(pancreas_sub, label = TRUE, label_insitu = TRUE, label_repel = TRUE)
@@ -89,5 +206,9 @@ PAGAPlot(pancreas_sub, edge_highlight = paste("Pre-endocrine", levels(pancreas_s
 
 pancreas_sub <- RunSCVELO(srt = pancreas_sub, group_by = "SubCellType", linear_reduction = "PCA", nonlinear_reduction = "UMAP", return_seurat = TRUE)
 PAGAPlot(pancreas_sub, show_transition = TRUE)
+PAGAPlot(pancreas_sub, show_transition = TRUE, transition_offset = 0.02)
 
+}
+\seealso{
+\code{\link{RunPAGA}} \code{\link{CellDimPlot}}
 }

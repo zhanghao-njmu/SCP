@@ -6,7 +6,7 @@
 \usage{
 check_srtList(
   srtList,
-  batch = NULL,
+  batch,
   assay = NULL,
   do_normalization = NULL,
   normalization_method = "LogNormalize",
@@ -17,33 +17,39 @@ check_srtList(
   HVF_min_intersection = 1,
   HVF = NULL,
   vars_to_regress = NULL,
-  seed = 11,
-  ...
+  seed = 11
 )
 }
 \arguments{
-\item{srtList}{A list of \code{Seurat} object.}
+\item{srtList}{A list of Seurat objects to be checked and preprocessed.}
 
-\item{batch}{Metadata column name containing the batch information.}
+\item{batch}{A character string specifying the batch variable name.}
 
-\item{do_normalization}{Whether to normalize the data. If NULL, will automatically determine.}
+\item{assay}{The name of the assay to be used for downstream analysis.}
 
-\item{normalization_method}{Normalization method.Can be one of "LogNormalize", "SCT".}
+\item{do_normalization}{A logical value indicating whether data normalization should be performed.}
 
-\item{do_HVF_finding}{Whether to find the high variable features(HVF). If NULL, will automatically determine.}
+\item{normalization_method}{The normalization method to be used. Possible values are "LogNormalize", "SCT", and "TFIDF". Default is "LogNormalize".}
 
-\item{HVF_source}{Source of the HVF. Can be one of "separate" and "global".}
+\item{do_HVF_finding}{A logical value indicating whether highly variable feature (HVF) finding should be performed. Default is TRUE.}
 
-\item{nHVF}{HVF number to use.}
+\item{HVF_source}{The source of highly variable features. Possible values are "global" and "separate". Default is "separate".}
 
-\item{HVF}{Custom high variable features.}
+\item{HVF_method}{The method for selecting highly variable features. Default is "vst".}
 
-\item{vars_to_regress}{Variables to regress out.}
+\item{nHVF}{The number of highly variable features to select. Default is 2000.}
 
-\item{seed}{Set a random seed.}
+\item{HVF_min_intersection}{The feature needs to be present in batches for a minimum number of times in order to be considered as highly variable. The default value is 1.}
 
-\item{...}{}
+\item{HVF}{A vector of highly variable features. Default is NULL.}
+
+\item{vars_to_regress}{A vector of variable names to include as additional regression variables. Default is NULL.}
+
+\item{seed}{An integer specifying the random seed for reproducibility. Default is 11.}
+}
+\value{
+A list containing the preprocessed seurat objects, the highly variable features, the assay name, and the type of assay (e.g., "RNA" or "Chromatin").
 }
 \description{
-Check and preprocess a list of seurat objects
+This function checks and preprocesses a list of seurat objects. It performs various checks on the input, including verification of input types, assay type consistency, feature name consistency, and batch column consistency. It also performs data normalization and variable feature finding based on the specified parameters. Finally, it prepares the data for integration analysis based on the highly variable features.
 }

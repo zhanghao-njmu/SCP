@@ -17,19 +17,31 @@ srt_to_adata(
 )
 }
 \arguments{
-\item{srt}{A \code{Seurat} object.}
+\item{srt}{A Seurat object.}
 
-\item{assay_X}{Assays to convert as X(main data matrix) in anndata object.}
+\item{features}{Optional vector of features to include in the anndata object. Defaults to all features in assay_X.}
 
-\item{assay_layers}{Assays to convert as layers in anndata object.}
+\item{assay_X}{Assay to convert as the main data matrix (X) in the anndata object.}
 
-\item{verbose}{}
+\item{slot_X}{Slot name for assay_X in the Seurat object.}
+
+\item{assay_layers}{Assays to convert as layers in the anndata object.}
+
+\item{slot_layers}{Slot names for the assay_layers in the Seurat object.}
+
+\item{convert_tools}{Logical indicating whether to convert the tool-specific data.}
+
+\item{convert_misc}{Logical indicating whether to convert the miscellaneous data.}
+
+\item{verbose}{Logical indicating whether to print verbose messages during the conversion process.}
 }
 \value{
+An anndata object.
+
 A \code{anndata} object.
 }
 \description{
-Convert a seurat object to an anndata object using reticulate
+This function takes a Seurat object and converts it to an anndata object using the reticulate package.
 }
 \examples{
 data("pancreas_sub")

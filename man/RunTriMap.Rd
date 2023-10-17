@@ -4,7 +4,7 @@
 \alias{RunTriMap}
 \alias{RunTriMap.Seurat}
 \alias{RunTriMap.default}
-\title{Run TriMap}
+\title{Run TriMap (Large-scale Dimensionality Reduction Using Triplets)}
 \usage{
 RunTriMap(object, ...)
 
@@ -13,7 +13,7 @@ RunTriMap(object, ...)
   reduction = "pca",
   dims = NULL,
   features = NULL,
-  assay = DefaultAssay(object = object),
+  assay = NULL,
   slot = "data",
   n_components = 2,
   n_inliers = 12,
@@ -22,10 +22,6 @@ RunTriMap(object, ...)
   distance_method = "euclidean",
   lr = 0.1,
   n_iters = 400,
-  triplets = NULL,
-  weights = NULL,
-  use_dist_matrix = FALSE,
-  knn_tuple = NULL,
   apply_pca = TRUE,
   opt_method = "dbd",
   reduction.name = "trimap",
@@ -45,10 +41,6 @@ RunTriMap(object, ...)
   distance_method = "euclidean",
   lr = 0.1,
   n_iters = 400,
-  triplets = NULL,
-  weights = NULL,
-  use_dist_matrix = FALSE,
-  knn_tuple = NULL,
   apply_pca = TRUE,
   opt_method = "dbd",
   reduction.key = "TriMap_",
@@ -58,13 +50,52 @@ RunTriMap(object, ...)
 )
 }
 \arguments{
-\item{object}{}
+\item{object}{An object. This can be a Seurat object or a matrix-like object.}
 
-\item{...}{}
+\item{...}{Additional arguments to be passed to the trimap.TRIMAP function.}
 
-\item{n_components}{}
+\item{reduction}{A character string specifying the reduction to be used. Default is "pca".}
+
+\item{dims}{An integer vector specifying the dimensions to be used. Default is NULL.}
+
+\item{features}{A character vector specifying the features to be used. Default is NULL.}
+
+\item{assay}{A character string specifying the assay to be used. Default is NULL.}
+
+\item{slot}{A character string specifying the slot name to be used. Default is "data".}
+
+\item{n_components}{An integer specifying the number of TriMap components. Default is 2.}
+
+\item{n_inliers}{An integer specifying the number of nearest neighbors for forming the nearest neighbor triplets. Default is 12.}
+
+\item{n_outliers}{An integer specifying the number of outliers for forming the nearest neighbor triplets. Default is 4.}
+
+\item{n_random}{An integer specifying the number of random triplets per point. Default is 3.}
+
+\item{distance_method}{A character string specifying the distance metric for TriMap. Options are: "euclidean", "manhattan", "angular", "cosine", "hamming". Default is "euclidean".}
+
+\item{lr}{A numeric value specifying the learning rate for TriMap. Default is 0.1.}
+
+\item{n_iters}{An integer specifying the number of iterations for TriMap. Default is 400.}
+
+\item{apply_pca}{A logical value indicating whether to apply PCA before the nearest-neighbor calculation. Default is TRUE.}
+
+\item{opt_method}{A character string specifying the optimization method for TriMap. Options are: "dbd", "sd", "momentum". Default is "dbd".}
+
+\item{reduction.name}{A character string specifying the name of the reduction to be stored in the Seurat object. Default is "trimap".}
+
+\item{reduction.key}{A character string specifying the prefix for the column names of the TriMap embeddings. Default is "TriMap_".}
+
+\item{verbose}{A logical value indicating whether to print verbose output. Default is TRUE.}
+
+\item{seed.use}{An integer specifying the random seed to be used. Default is 11.}
 }
 \description{
-Run TriMap
+Run TriMap (Large-scale Dimensionality Reduction Using Triplets)
 }
-\concept{dimensional_reduction}
+\examples{
+pancreas_sub <- Seurat::FindVariableFeatures(pancreas_sub)
+pancreas_sub <- RunTriMap(object = pancreas_sub, features = Seurat::VariableFeatures(pancreas_sub))
+CellDimPlot(pancreas_sub, group.by = "CellType", reduction = "trimap")
+
+}

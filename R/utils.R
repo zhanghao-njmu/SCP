@@ -746,7 +746,7 @@ col2hex <- function(cname) {
 #' Invoke a function with a list of arguments
 #' @param .fn A function, or function name as a string.
 #' @param .args A list of arguments.
-#' @param Other arguments passed to the function.
+#' @param ... Other arguments passed to the function.
 #' @param .env Environment in which to evaluate the call. This will be most useful if .fn is a string, or the function has side-effects.
 #' @importFrom rlang caller_env is_null is_scalar_character is_character is_function set_names env env_get env_bind syms call2
 #' @export

@@ -7,14 +7,17 @@
 check_DataType(srt, data = NULL, slot = "data", assay = NULL)
 }
 \arguments{
-\item{srt}{A Seurat object}
+\item{srt}{An object of class 'Seurat'.}
 
-\item{data}{Use a data instead of getting it from a Seurat object.}
+\item{data}{The input data. If not provided, it will be extracted from the the 'srt' object.}
 
-\item{slot}{Specific slot to get data from.}
+\item{slot}{The slot in the 'srt' object from which to extract the data. Default is "data".}
 
-\item{assay}{Specific assay to get data from.}
+\item{assay}{The assay to extract the data from. If not provided, the default assay will be used.}
+}
+\value{
+A string indicating the type of data. Possible values are: "raw_counts", "log_normalized_counts", "raw_normalized_counts", or "unknown".
 }
 \description{
-Check and report the type of data
+This function checks the type of data and returns a string indicating the type of data. It checks for the presence of infinite values, negative values, and whether the values are floats or integers.
 }

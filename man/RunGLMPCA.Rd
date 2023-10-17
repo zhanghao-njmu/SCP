@@ -5,67 +5,93 @@
 \alias{RunGLMPCA.Seurat}
 \alias{RunGLMPCA.Assay}
 \alias{RunGLMPCA.default}
-\title{Run GLMPCA}
+\title{Run GLMPCA (generalized version of principal components analysis)}
 \usage{
 RunGLMPCA(object, ...)
 
 \method{RunGLMPCA}{Seurat}(
   object,
-  L = 5,
-  fam = c("poi", "nb", "nb2", "binom", "mult", "bern"),
   assay = NULL,
   slot = "counts",
   features = NULL,
+  L = 5,
+  fam = c("poi", "nb", "nb2", "binom", "mult", "bern"),
+  rev.gmlpca = FALSE,
+  ndims.print = 1:5,
+  nfeatures.print = 30,
   reduction.name = "glmpca",
   reduction.key = "GLMPC_",
   verbose = TRUE,
+  seed.use = 11,
   ...
 )
 
 \method{RunGLMPCA}{Assay}(
   object,
-  L = 5,
-  fam = c("poi", "nb", "nb2", "binom", "mult", "bern"),
   assay = NULL,
   slot = "counts",
   features = NULL,
-  reduction.name = "glmpca",
+  L = 5,
+  fam = c("poi", "nb", "nb2", "binom", "mult", "bern"),
+  rev.gmlpca = FALSE,
+  ndims.print = 1:5,
+  nfeatures.print = 30,
   reduction.key = "GLMPC_",
   verbose = TRUE,
+  seed.use = 11,
   ...
 )
 
 \method{RunGLMPCA}{default}(
   object,
-  L = 5,
-  fam = c("poi", "nb", "nb2", "binom", "mult", "bern"),
   assay = NULL,
   slot = "counts",
   features = NULL,
+  L = 5,
+  fam = c("poi", "nb", "nb2", "binom", "mult", "bern"),
+  rev.gmlpca = FALSE,
+  ndims.print = 1:5,
+  nfeatures.print = 30,
   reduction.key = "GLMPC_",
   verbose = TRUE,
+  seed.use = 11,
   ...
 )
 }
 \arguments{
-\item{object}{A Seurat object}
+\item{object}{An object. This can be a Seurat object, an assay object, or a matrix-like object.}
 
-\item{...}{}
+\item{...}{Additional arguments to be passed to the \link[glmpca]{glmpca} function.}
 
-\item{L}{The number of dimensions to return (defaults to 5)}
+\item{assay}{A character string specifying the assay to be used for the analysis. Default is NULL.}
 
-\item{assay}{Assay to use, defaults to the default assay}
+\item{slot}{A character string specifying the slot name to be used for the analysis. Default is "counts".}
 
-\item{features}{A list of features to use when performing GLM-PCA. If null, defaults to variable features.}
+\item{features}{A character vector specifying the features to be used for the analysis. Default is NULL, which uses all variable features.}
 
-\item{reduction.name}{Name to store resulting DimReduc object as. Defaults to glmpca}
+\item{L}{An integer specifying the number of components to be computed. Default is 5.}
 
-\item{reduction.key}{Key for resulting DimReduc. Defaults to GLMPC_}
-}
-\value{
-A Seurat object containing the output of GLMPCA stored as a DimReduc object.
+\item{fam}{A character string specifying the family of the generalized linear model to be used. Currently supported values are "poi", "nb", "nb2", "binom", "mult", and "bern". Default is "poi".}
+
+\item{rev.gmlpca}{A logical value indicating whether to perform reverse GLMPCA (i.e., transpose the input matrix) before running the analysis. Default is FALSE.}
+
+\item{ndims.print}{An integer vector specifying the dimensions (number of components) to print in the output. Default is 1:5.}
+
+\item{nfeatures.print}{An integer specifying the number of features to print in the output. Default is 30.}
+
+\item{reduction.name}{A character string specifying the name of the reduction to be stored in the Seurat object. Default is "glmpca".}
+
+\item{reduction.key}{A character string specifying the prefix for the column names of the basis vectors. Default is "GLMPC_".}
+
+\item{verbose}{A logical value indicating whether to print verbose output. Default is TRUE.}
+
+\item{seed.use}{An integer specifying the random seed to be used. Default is 11.}
 }
 \description{
-Run GLMPCA
+Run GLMPCA (generalized version of principal components analysis)
 }
-\concept{dimensional_reduction}
+\examples{
+pancreas_sub <- RunGLMPCA(object = pancreas_sub)
+CellDimPlot(pancreas_sub, group.by = "CellType", reduction = "glmpca")
+
+}

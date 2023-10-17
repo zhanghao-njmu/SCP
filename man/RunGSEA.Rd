@@ -2,7 +2,7 @@
 % Please edit documentation in R/SCP-analysis.R
 \name{RunGSEA}
 \alias{RunGSEA}
-\title{Perform the enrichment analysis(GSEA) on the genes}
+\title{Perform the enrichment analysis (GSEA) on the genes}
 \usage{
 RunGSEA(
   srt = NULL,
@@ -38,40 +38,84 @@ RunGSEA(
 )
 }
 \arguments{
-\item{geneID}{geneID}
+\item{srt}{A Seurat object containing the results of differential expression analysis (RunDEtest).
+If specified, the genes and groups will be extracted from the Seurat object automatically.
+If not specified, the \code{geneID} and \code{geneID_groups} arguments must be provided.}
 
-\item{geneID_groups}{geneID_groups}
+\item{group_by}{A character vector specifying the grouping variable in the Seurat object. This argument is only used if \code{srt} is specified.}
 
-\item{IDtype}{IDtype}
+\item{test.use}{A character vector specifying the test to be used in differential expression analysis. This argument is only used if \code{srt} is specified.}
 
-\item{result_IDtype}{result_IDtype}
+\item{DE_threshold}{A character vector specifying the filter condition for differential expression analysis. This argument is only used if \code{srt} is specified.}
 
-\item{species}{species}
+\item{scoreType}{This parameter defines the GSEA score type. Possible options are ("std", "pos", "neg"). By default ("std") the enrichment score is computed as in the original GSEA. The "pos" and "neg" score types are intended to be used for one-tailed tests (i.e. when one is interested only in positive ("pos") or negateive ("neg") enrichment).}
 
-\item{db}{enrichment database}
+\item{geneID}{A character vector specifying the gene IDs.}
 
-\item{db_update}{db_update}
+\item{geneScore}{A numeric vector that specifies the gene scores, for example, the log2(fold change) values of gene expression.}
 
-\item{convert_species}{}
+\item{geneID_groups}{A factor vector specifying the group labels for each gene.}
 
-\item{TERM2GENE}{TERM2GENE}
+\item{geneID_exclude}{A character vector specifying the gene IDs to be excluded from the analysis.}
 
-\item{TERM2NAME}{TERM2NAME}
+\item{IDtype}{A character vector specifying the type of gene IDs in the \code{srt} object or \code{geneID} argument. This argument is used to convert the gene IDs to a different type if \code{IDtype} is different from \code{result_IDtype}.}
 
-\item{minGSSize}{minGSSize}
+\item{result_IDtype}{A character vector specifying the desired type of gene ID to be used in the output. This argument is used to convert the gene IDs from \code{IDtype} to \code{result_IDtype}.}
 
-\item{maxGSSize}{maxGSSize}
+\item{species}{A character vector specifying the species for which the analysis is performed.}
 
-\item{GO_simplify}{GO_simplify}
+\item{db}{A character vector specifying the name of the database to be used for enrichment analysis.}
 
-\item{simplify_method}{simplify_method}
+\item{db_update}{A logical value indicating whether the gene annotation databases should be forcefully updated. If set to FALSE, the function will attempt to load the cached databases instead. Default is FALSE.}
 
-\item{simplify_similarityCutoff}{simplify_similarityCutoff}
+\item{db_version}{A character vector specifying the version of the database to be used. This argument is ignored if \code{db_update} is \code{TRUE}. Default is "latest".}
 
-\item{GO_simplify_padjustCutoff}{GO_simplify_padjustCutoff}
+\item{db_combine}{A logical value indicating whether to combine multiple databases into one. If TRUE, all database specified by \code{db} will be combined as one named "Combined".}
+
+\item{convert_species}{A logical value indicating whether to use a species-converted database when the annotation is missing for the specified species. The default value is TRUE.}
+
+\item{Ensembl_version}{Ensembl database version. If NULL, use the current release version.}
+
+\item{mirror}{Specify an Ensembl mirror to connect to. The valid options here are 'www', 'uswest', 'useast', 'asia'.}
+
+\item{TERM2GENE}{A data frame specifying the gene-term mapping for a custom database. The first column should contain the term IDs, and the second column should contain the gene IDs.}
+
+\item{TERM2NAME}{A data frame specifying the term-name mapping for a custom database. The first column should contain the term IDs, and the second column should contain the corresponding term names.}
+
+\item{minGSSize}{A numeric value specifying the minimum size of a gene set to be considered in the enrichment analysis.}
+
+\item{maxGSSize}{A numeric value specifying the maximum size of a gene set to be considered in the enrichment analysis.}
+
+\item{unlimited_db}{A character vector specifying the names of databases that do not have size restrictions.}
+
+\item{GO_simplify}{A logical value indicating whether to simplify the GO terms. If \code{TRUE}, additional results with simplified GO terms will be returned.}
+
+\item{GO_simplify_cutoff}{A character vector specifying the filter condition for simplification of GO terms. This argument is only used if \code{GO_simplify} is \code{TRUE}.}
+
+\item{simplify_method}{A character vector specifying the method to be used for simplification of GO terms. This argument is only used if \code{GO_simplify} is \code{TRUE}.}
+
+\item{simplify_similarityCutoff}{A numeric value specifying the similarity cutoff for simplification of GO terms. This argument is only used if \code{GO_simplify} is \code{TRUE}.}
+
+\item{BPPARAM}{A BiocParallelParam object specifying the parallel back-end to be used for parallel computation. Defaults to BiocParallel::bpparam().}
+
+\item{seed}{The random seed for reproducibility. Defaults to 11.}
+}
+\value{
+If input is a Seurat object, returns the modified Seurat object with the enrichment result stored in the tools slot.
+
+If input is a geneID vector with or without geneID_groups, return the enrichment result directly.
+
+Enrichment result is a list with the following component:
+\itemize{
+ \item{\code{enrichment}:}{ A data.frame containing all enrichment results.}
+ \item{\code{results}:}{ A list of \code{gseaResult} objects from the DOSE package.}
+ \item{\code{geneMap}:}{ A data.frame containing the ID mapping table for input gene IDs.}
+ \item{\code{input}:}{ A data.frame containing the input gene IDs and gene ID groups.}
+ \item{\code{DE_threshold}:}{ A specific threshold for differential expression analysis (only returned if input is a Seurat object).}
+}
 }
 \description{
-Perform the enrichment analysis(GSEA) on the genes
+Perform the enrichment analysis (GSEA) on the genes
 }
 \examples{
 data("pancreas_sub")
@@ -102,4 +146,7 @@ de_df <- dplyr::filter(pancreas_sub@tools$DEtest_CellType$AllMarkers_wilcox, p_v
 gsea_out <- RunGSEA(geneID = de_df[["gene"]], geneScore = de_df[["avg_log2FC"]], geneID_groups = de_df[["group1"]], db = "GO_BP", species = "Mus_musculus")
 GSEAPlot(res = gsea_out, db = "GO_BP", plot_type = "comparison")
 
+}
+\seealso{
+\code{\link{PrepareDB}} \code{\link{ListDB}} \code{\link{GSEAPlot}} \code{\link{RunEnrichment}} \code{\link{EnrichmentPlot}}
 }

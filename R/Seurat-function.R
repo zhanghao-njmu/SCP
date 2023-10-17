@@ -1,50 +1,42 @@
-#' Run Non-negative matrix factorization(NMF)
+#' Run NMF (non-negative matrix factorization)
 #'
-#' Run a NMF dimensionality reduction.
+#' @param object An object. This can be a Seurat object, an Assay object, or a matrix-like object.
+#' @param assay A character string specifying the assay to be used for the analysis. Default is NULL.
+#' @param slot A character string specifying the slot name to be used for the analysis. Default is "data".
+#' @param features A character vector specifying the features to be used for the analysis. Default is NULL, which uses all variable features.
+#' @param nbes An integer specifying the number of basis vectors (components) to be computed. Default is 50.
+#' @param nmf.method A character string specifying the NMF algorithm to be used. Currently supported values are "RcppML" and "NMF". Default is "RcppML".
+#' @param tol A numeric value specifying the tolerance for convergence (only applicable when nmf.method is "RcppML"). Default is 1e-5.
+#' @param maxit An integer specifying the maximum number of iterations for convergence (only applicable when nmf.method is "RcppML"). Default is 100.
+#' @param rev.nmf A logical value indicating whether to perform reverse NMF (i.e., transpose the input matrix) before running the analysis. Default is FALSE.
+#' @param ndims.print An integer vector specifying the dimensions (number of basis vectors) to print in the output. Default is 1:5.
+#' @param nfeatures.print An integer specifying the number of features to print in the output. Default is 30.
+#' @param reduction.name A character string specifying the name of the reduction to be stored in the Seurat object. Default is "nmf".
+#' @param reduction.key A character string specifying the prefix for the column names of the basis vectors. Default is "BE_".
+#' @param verbose A logical value indicating whether to print verbose output. Default is TRUE.
+#' @param seed.use An integer specifying the random seed to be used. Default is 11.
+#' @param ... Additional arguments passed to RcppML::\link[RcppML]{nmf} or NMF::\link[NMF]{nmf} function.
 #'
-#' @param object An object
-#' @param ... Arguments passed to \link[RcppML]{nmf}.
-#'
-#' @return Returns Seurat object with the NMF calculation stored in the reductions slot.
-#'
-#' @export
+#' @examples
+#' pancreas_sub <- RunNMF(object = pancreas_sub)
+#' CellDimPlot(pancreas_sub, group.by = "CellType", reduction = "nmf")
 #'
 #' @rdname RunNMF
-#' @export RunNMF
+#' @export
 #'
 RunNMF <- function(object, ...) {
   UseMethod(generic = "RunNMF", object = object)
 }
 
-#' @param reduction.name dimensional reduction name, 'nmf' by default
-#'
-#' @param object
-#' @param assay
-#' @param slot
-#' @param features
-#' @param nbes
-#' @param nmf.method
-#' @param tol
-#' @param maxit
-#' @param rev.nmf
-#' @param verbose
-#' @param ndims.print
-#' @param nfeatures.print
-#' @param reduction.key
-#' @param seed.use
-#' @param ...
-#'
 #' @rdname RunNMF
-#' @concept dimensional_reduction
+#' @method RunNMF Seurat
 #' @importFrom Seurat LogSeuratCommand VariableFeatures DefaultAssay GetAssay
 #' @export
-#' @method RunNMF Seurat
-#'
 RunNMF.Seurat <- function(object, assay = NULL, slot = "data", features = NULL, nbes = 50,
                           nmf.method = "RcppML", tol = 1e-5, maxit = 100, rev.nmf = FALSE,
-                          ndims.print = 1:5, nfeatures.print = 30, reduction.name = "nmf",
-                          reduction.key = "BE_", verbose = TRUE, seed.use = 42,
-                          ...) {
+                          ndims.print = 1:5, nfeatures.print = 30,
+                          reduction.name = "nmf", reduction.key = "BE_",
+                          verbose = TRUE, seed.use = 11, ...) {
   features <- features %||% VariableFeatures(object = object)
   assay <- assay %||% DefaultAssay(object = object)
   assay.data <- GetAssay(object = object, assay = assay)
@@ -70,35 +62,15 @@ RunNMF.Seurat <- function(object, assay = NULL, slot = "data", features = NULL, 
   return(object)
 }
 
-#' @param features Features to compute nmf on. If features=NULL, nmf will be run
-#' using the variable features for the Assay.
-#'
-#' @param object
-#' @param assay
-#' @param slot
-#' @param nbes
-#' @param nmf.method
-#' @param tol
-#' @param maxit
-#' @param rev.nmf
-#' @param verbose
-#' @param ndims.print
-#' @param nfeatures.print
-#' @param reduction.key
-#' @param seed.use
-#' @param ...
-#'
 #' @rdname RunNMF
-#' @concept dimensional_reduction
+#' @method RunNMF Assay
 #' @importFrom stats var
 #' @importFrom Seurat VariableFeatures GetAssayData
 #' @export
-#' @method RunNMF Assay
-#'
 RunNMF.Assay <- function(object, assay = NULL, slot = "data", features = NULL, nbes = 50,
                          nmf.method = "RcppML", tol = 1e-5, maxit = 100, rev.nmf = FALSE,
                          ndims.print = 1:5, nfeatures.print = 30,
-                         reduction.key = "BE_", verbose = TRUE, seed.use = 42,
+                         reduction.key = "BE_", verbose = TRUE, seed.use = 11,
                          ...) {
   features <- features %||% VariableFeatures(object = object)
   data.use <- GetAssayData(object = object, slot = slot)
@@ -127,38 +99,16 @@ RunNMF.Assay <- function(object, assay = NULL, slot = "data", features = NULL, n
   return(reduction.data)
 }
 
-#' @param assay Name of Assay nmf is being run on.
-#'
-#' @param slot Name of slot nmf is being run on.
-#' @param nbes Total Number of BEs("basis experiment", aka "metagene") to compute and store (50 by default).
-#' @param rev.nmf By default computes the nmf on the cell x gene matrix. Setting
-#' to true will compute it on gene x cell matrix.
-#' @param verbose Print the top genes associated with high/low loadings for
-#' the BEs.
-#' @param ndims.print BEs to print genes for.
-#' @param nfeatures.print Number of genes to print for each BE.
-#' @param reduction.key dimensional reduction key, specifies the string before
-#' the number for the dimension names. "BE_" by default.
-#' @param seed.use Set a random seed. By default, sets the seed to 42. Setting
-#' NULL will not set a seed.
-#' @param object
-#' @param nmf.method
-#' @param tol
-#' @param maxit
-#' @param ...
-#'
+#' @rdname RunNMF
+#' @method RunNMF default
 #' @importFrom utils capture.output
 #' @importFrom Matrix t
 #' @importFrom Seurat CreateDimReducObject
-#'
-#' @rdname RunNMF
-#' @concept dimensional_reduction
 #' @export
-#' @method RunNMF default
 RunNMF.default <- function(object, assay = NULL, slot = "data", nbes = 50,
                            nmf.method = "RcppML", tol = 1e-5, maxit = 100, rev.nmf = FALSE,
-                           ndims.print = 1:5, nfeatures.print = 30, reduction.key = "BE_",
-                           verbose = TRUE, seed.use = 42, ...) {
+                           ndims.print = 1:5, nfeatures.print = 30,
+                           reduction.key = "BE_", verbose = TRUE, seed.use = 11, ...) {
   if (!is.null(x = seed.use)) {
     set.seed(seed = seed.use)
   }
@@ -173,21 +123,17 @@ RunNMF.default <- function(object, assay = NULL, slot = "data", nbes = 50,
     nmf.results <- RcppML::nmf(
       t(object),
       k = nbes, tol = tol, maxit = maxit,
-      seed = seed.use, verbose = verbose, ...
+      verbose = verbose, ...
     )
     cell.embeddings <- nmf.results$w
     feature.loadings <- t(nmf.results$h)
-    d <- nmf.results$d
-    iter <- nmf.results$iter
-    # mse <- mse(t(object), cell.embeddings, nmf.results$d, t(feature.loadings))
   }
   if (nmf.method == "NMF") {
     check_R("NMF")
-    nmf.results <- NMF::nmf(x = as.matrix(t(object)), rank = nbes, seed = seed.use)
+    seed <- NMF::seed
+    nmf.results <- NMF::nmf(x = as.matrix(t(object)), rank = nbes)
     cell.embeddings <- nmf.results@fit@W
     feature.loadings <- t(nmf.results@fit@H)
-    d <- iter <- tol <- NULL
-    # mse <- mse(t(object), cell.embeddings, NULL, t(feature.loadings))
   }
 
   rownames(x = feature.loadings) <- rownames(x = object)
@@ -199,7 +145,7 @@ RunNMF.default <- function(object, assay = NULL, slot = "data", nbes = 50,
     loadings = feature.loadings,
     assay = assay,
     key = reduction.key,
-    misc = list(slot = slot, d = d, tol = tol, iter = iter)
+    misc = list(slot = slot, nmf.results = nmf.results)
   )
   if (verbose) {
     msg <- capture.output(print(
@@ -212,52 +158,42 @@ RunNMF.default <- function(object, assay = NULL, slot = "data", nbes = 50,
   return(reduction.data)
 }
 
-#' Run multi-dimensional scaling(MDS)
+#' Run MDS (multi-dimensional scaling)
 #'
-#' Run a MDS dimensionality reduction.
+#' @param object An object. This can be a Seurat object, an assay object, or a matrix-like object.
+#' @param assay A character string specifying the assay to be used for the analysis. Default is NULL.
+#' @param slot A character string specifying the slot name to be used for the analysis. Default is "data".
+#' @param features A character vector specifying the features to be used for the analysis. Default is NULL, which uses all variable features.
+#' @param nmds An integer specifying the number of dimensions to be computed. Default is 50.
+#' @param dist.method A character string specifying the distance metric to be used. Currently supported values are "euclidean", "chisquared","kullback", "jeffreys", "jensen", "manhattan", "maximum", "canberra", "minkowski", and "hamming". Default is "euclidean".
+#' @param mds.method A character string specifying the MDS algorithm to be used. Currently supported values are "cmdscale", "isoMDS", and "sammon". Default is "cmdscale".
+#' @param rev.mds A logical value indicating whether to perform reverse MDS (i.e., transpose the input matrix) before running the analysis. Default is FALSE.
+#' @param reduction.name A character string specifying the name of the reduction to be stored in the Seurat object. Default is "mds".
+#' @param reduction.key A character string specifying the prefix for the column names of the basis vectors. Default is "MDS_".
+#' @param verbose A logical value indicating whether to print verbose output. Default is TRUE.
+#' @param seed.use An integer specifying the random seed to be used. Default is 11.
+#' @param ... Additional arguments to be passed to the stats::\link[stats]{cmdscale}, MASS::\link[MASS]{isoMDS} or MASS::\link[MASS]{sammon} function.
 #'
-#' @param object An object
-#' @param ...
-#'
-#' @return Returns Seurat object with the MDS calculation stored in the reductions slot.
-#'
-#' @export
+#' @examples
+#' pancreas_sub <- RunMDS(object = pancreas_sub)
+#' CellDimPlot(pancreas_sub, group.by = "CellType", reduction = "mds")
 #'
 #' @rdname RunMDS
-#' @export RunMDS
+#' @export
 #'
 RunMDS <- function(object, ...) {
   UseMethod(generic = "RunMDS", object = object)
 }
 
-#' @param reduction.name dimensional reduction name, 'mds' by default
-#'
-#' @param object
-#' @param assay
-#' @param slot
-#' @param features
-#' @param nmds
-#' @param dist.method
-#' @param mds.method
-#' @param rev.mds
-#' @param verbose
-#' @param ndims.print
-#' @param nfeatures.print
-#' @param reduction.key
-#' @param seed.use
-#' @param ...
-#'
 #' @rdname RunMDS
-#' @concept dimensional_reduction
+#' @method RunMDS Seurat
 #' @importFrom Seurat LogSeuratCommand VariableFeatures DefaultAssay GetAssay
 #' @export
-#' @method RunMDS Seurat
-#'
 RunMDS.Seurat <- function(object, assay = NULL, slot = "data",
                           features = NULL, nmds = 50, dist.method = "euclidean", mds.method = "cmdscale",
-                          rev.mds = FALSE, ndims.print = 1:5, nfeatures.print = 30,
+                          rev.mds = FALSE,
                           reduction.name = "mds", reduction.key = "MDS_",
-                          verbose = TRUE, seed.use = 42, ...) {
+                          verbose = TRUE, seed.use = 11, ...) {
   features <- features %||% VariableFeatures(object = object)
   assay <- assay %||% DefaultAssay(object = object)
   assay.data <- GetAssay(object = object, assay = assay)
@@ -271,8 +207,6 @@ RunMDS.Seurat <- function(object, assay = NULL, slot = "data",
     mds.method = mds.method,
     rev.mds = rev.mds,
     verbose = verbose,
-    ndims.print = ndims.print,
-    nfeatures.print = nfeatures.print,
     reduction.key = reduction.key,
     seed.use = seed.use,
     ...
@@ -282,35 +216,15 @@ RunMDS.Seurat <- function(object, assay = NULL, slot = "data",
   return(object)
 }
 
-#' @param features Features to compute mds on. If features=NULL, mds will be run
-#' using the variable features for the Assay.
-#'
-#' @param object
-#' @param assay
-#' @param slot
-#' @param nmds
-#' @param dist.method
-#' @param mds.method
-#' @param rev.mds
-#' @param verbose
-#' @param ndims.print
-#' @param nfeatures.print
-#' @param reduction.key
-#' @param seed.use
-#' @param ...
-#'
 #' @rdname RunMDS
-#' @concept dimensional_reduction
+#' @method RunMDS Assay
 #' @importFrom stats var
 #' @importFrom Seurat VariableFeatures GetAssayData
 #' @export
-#' @method RunMDS Assay
-#'
 RunMDS.Assay <- function(object, assay = NULL, slot = "data",
-                         features = NULL, nmds = 50, dist.method = "euclidean",
-                         mds.method = "cmdscale", rev.mds = FALSE,
-                         ndims.print = 1:5, nfeatures.print = 30,
-                         reduction.key = "MDS_", verbose = TRUE, seed.use = 42, ...) {
+                         features = NULL, nmds = 50, dist.method = "euclidean", mds.method = "cmdscale",
+                         rev.mds = FALSE,
+                         reduction.key = "MDS_", verbose = TRUE, seed.use = 11, ...) {
   features <- features %||% VariableFeatures(object = object)
   data.use <- GetAssayData(object = object, slot = slot)
   features.var <- apply(
@@ -328,8 +242,6 @@ RunMDS.Assay <- function(object, assay = NULL, slot = "data",
     mds.method = mds.method,
     rev.mds = rev.mds,
     verbose = verbose,
-    ndims.print = ndims.print,
-    nfeatures.print = nfeatures.print,
     reduction.key = reduction.key,
     seed.use = seed.use,
     ...
@@ -337,39 +249,18 @@ RunMDS.Assay <- function(object, assay = NULL, slot = "data",
   return(reduction.data)
 }
 
-#' @param assay Name of Assay mds is being run on.
-#'
-#' @param slot Name of slot mds is being run on.
-#' @param nmds Total Number of MDS to compute and store (50 by default).
-#' @param rev.mds By default computes the mds on the cell x gene matrix. Setting
-#' to true will compute it on gene x cell matrix.
-#' @param verbose Print the top genes associated with high/low loadings for
-#' the MDS.
-#' @param ndims.print MDS to print genes for.
-#' @param nfeatures.print Number of genes to print for each MDS.
-#' @param reduction.key dimensional reduction key, specifies the string before
-#' the number for the dimension names. "MDS_" by default.
-#' @param seed.use Set a random seed. By default, sets the seed to 42. Setting
-#' NULL will not set a seed.
-#' @param object
-#' @param dist.method
-#' @param mds.method
-#' @param ...
-#'
+#' @rdname RunMDS
+#' @method RunMDS default
 #' @importFrom proxyC dist
 #' @importFrom utils capture.output
 #' @importFrom Matrix t
 #' @importFrom stats cmdscale as.dist
 #' @importFrom Seurat CreateDimReducObject
-#'
-#' @rdname RunMDS
-#' @concept dimensional_reduction
 #' @export
-#' @method RunMDS default
 RunMDS.default <- function(object, assay = NULL, slot = "data",
                            nmds = 50, dist.method = "euclidean", mds.method = "cmdscale",
-                           rev.mds = FALSE, ndims.print = 1:5, nfeatures.print = 30,
-                           reduction.key = "MDS_", seed.use = 42, verbose = TRUE, ...) {
+                           rev.mds = FALSE,
+                           reduction.key = "MDS_", verbose = TRUE, seed.use = 11, ...) {
   if (!is.null(x = seed.use)) {
     set.seed(seed = seed.use)
   }
@@ -378,25 +269,17 @@ RunMDS.default <- function(object, assay = NULL, slot = "data",
   }
   nmds <- min(nmds, nrow(x = object) - 1)
   x <- t(as.matrix(object))
-  dist.method.keep <- dist.method
-  if (dist.method %in% c("pearson", "spearman")) {
-    if (dist.method == "spearman") {
-      x <- t(apply(x, 1, rank))
-    }
-    x <- t(apply(x, 1, function(x) x - mean(x)))
-    dist.method <- "cosine"
-  }
   cell.dist <- as.dist(dist(x = x, method = dist.method))
   if (mds.method == "cmdscale") {
-    mds.results <- cmdscale(cell.dist, k = nmds, eig = TRUE)
+    mds.results <- cmdscale(cell.dist, k = nmds, eig = TRUE, ...)
   }
   if (mds.method == "isoMDS") {
     check_R("MASS")
-    mds.results <- MASS::isoMDS(cell.dist, k = nmds)
+    mds.results <- MASS::isoMDS(cell.dist, k = nmds, ...)
   }
   if (mds.method == "sammon") {
     check_R("MASS")
-    mds.results <- MASS::sammon(cell.dist, k = nmds)
+    mds.results <- MASS::sammon(cell.dist, k = nmds, ...)
   }
   cell.embeddings <- mds.results$points
 
@@ -406,60 +289,47 @@ RunMDS.default <- function(object, assay = NULL, slot = "data",
     embeddings = cell.embeddings,
     assay = assay,
     key = reduction.key,
-    misc = list(slot = slot, dist.method = dist.method.keep, mds.method = mds.method)
+    misc = list(slot = slot, mds.results = mds.results)
   )
-  if (verbose) {
-    msg <- capture.output(print(
-      x = reduction.data,
-      dims = ndims.print,
-      nfeatures = nfeatures.print
-    ))
-    message(paste(msg, collapse = "\n"))
-  }
   return(reduction.data)
 }
 
-#' Run GLMPCA
+#' Run GLMPCA (generalized version of principal components analysis)
 #'
-#' @param object An object
-#' @param ... Extra parameters passed to \code{\link[glmpca]{glmpca}}
+#' @param object An object. This can be a Seurat object, an assay object, or a matrix-like object.
+#' @param assay A character string specifying the assay to be used for the analysis. Default is NULL.
+#' @param slot A character string specifying the slot name to be used for the analysis. Default is "counts".
+#' @param features A character vector specifying the features to be used for the analysis. Default is NULL, which uses all variable features.
+#' @param L An integer specifying the number of components to be computed. Default is 5.
+#' @param fam A character string specifying the family of the generalized linear model to be used. Currently supported values are "poi", "nb", "nb2", "binom", "mult", and "bern". Default is "poi".
+#' @param rev.gmlpca A logical value indicating whether to perform reverse GLMPCA (i.e., transpose the input matrix) before running the analysis. Default is FALSE.
+#' @param ndims.print An integer vector specifying the dimensions (number of components) to print in the output. Default is 1:5.
+#' @param nfeatures.print An integer specifying the number of features to print in the output. Default is 30.
+#' @param reduction.name A character string specifying the name of the reduction to be stored in the Seurat object. Default is "glmpca".
+#' @param reduction.key A character string specifying the prefix for the column names of the basis vectors. Default is "GLMPC_".
+#' @param verbose A logical value indicating whether to print verbose output. Default is TRUE.
+#' @param seed.use An integer specifying the random seed to be used. Default is 11.
+#' @param ... Additional arguments to be passed to the \link[glmpca]{glmpca} function.
 #'
-#' @return A Seurat object containing the output of GLMPCA stored as a DimReduc object.
-#'
-#' @export
+#' @examples
+#' pancreas_sub <- RunGLMPCA(object = pancreas_sub)
+#' CellDimPlot(pancreas_sub, group.by = "CellType", reduction = "glmpca")
 #'
 #' @rdname RunGLMPCA
-#' @export RunGLMPCA
-#'
+#' @export
 RunGLMPCA <- function(object, ...) {
   UseMethod(generic = "RunGLMPCA", object = object)
 }
 
-#' @param object A Seurat object
-#' @param L The number of dimensions to return (defaults to 5)
-#' @param assay Assay to use, defaults to the default assay
-#' @param features A list of features to use when performing GLM-PCA. If null, defaults to variable features.
-#' @param reduction.name Name to store resulting DimReduc object as. Defaults to glmpca
-#' @param reduction.key Key for resulting DimReduc. Defaults to GLMPC_
-#' @param ... Extra parameters passed to \code{\link[glmpca]{glmpca}}
-#' @param ...
-#'
 #' @rdname RunGLMPCA
-#' @concept dimensional_reduction
+#' @method RunGLMPCA Seurat
 #' @importFrom Seurat LogSeuratCommand DefaultAssay GetAssayData Embeddings
 #' @export
-#' @method RunGLMPCA Seurat
-#'
-RunGLMPCA.Seurat <- function(object,
-                             L = 5,
-                             fam = c("poi", "nb", "nb2", "binom", "mult", "bern"),
-                             assay = NULL,
-                             slot = "counts",
-                             features = NULL,
-                             reduction.name = "glmpca",
-                             reduction.key = "GLMPC_",
-                             verbose = TRUE,
-                             ...) {
+RunGLMPCA.Seurat <- function(object, assay = NULL, slot = "counts",
+                             features = NULL, L = 5, fam = c("poi", "nb", "nb2", "binom", "mult", "bern"),
+                             rev.gmlpca = FALSE, ndims.print = 1:5, nfeatures.print = 30,
+                             reduction.name = "glmpca", reduction.key = "GLMPC_",
+                             verbose = TRUE, seed.use = 11, ...) {
   features <- features %||% VariableFeatures(object = object)
   assay <- assay %||% DefaultAssay(object = object)
   assay.data <- GetAssay(object = object, assay = assay)
@@ -469,6 +339,9 @@ RunGLMPCA.Seurat <- function(object,
     slot = slot,
     L = L,
     fam = fam,
+    rev.gmlpca = rev.gmlpca,
+    ndims.print = ndims.print,
+    nfeatures.print = nfeatures.print,
     reduction.key = reduction.key,
     verbose = verbose,
     ...
@@ -478,33 +351,15 @@ RunGLMPCA.Seurat <- function(object,
   return(object)
 }
 
-#' @param object
-#' @param L
-#' @param fam
-#' @param assay
-#' @param slot
-#' @param features
-#' @param reduction.name
-#' @param reduction.key
-#' @param verbose
-#' @param ...
-#'
 #' @rdname RunGLMPCA
-#' @concept dimensional_reduction
+#' @method RunGLMPCA Assay
 #' @importFrom stats var
 #' @importFrom Seurat VariableFeatures GetAssayData
 #' @export
-#' @method RunGLMPCA Assay
-RunGLMPCA.Assay <- function(object,
-                            L = 5,
-                            fam = c("poi", "nb", "nb2", "binom", "mult", "bern"),
-                            assay = NULL,
-                            slot = "counts",
-                            features = NULL,
-                            reduction.name = "glmpca",
-                            reduction.key = "GLMPC_",
-                            verbose = TRUE,
-                            ...) {
+RunGLMPCA.Assay <- function(object, assay = NULL, slot = "counts",
+                            features = NULL, L = 5, fam = c("poi", "nb", "nb2", "binom", "mult", "bern"),
+                            rev.gmlpca = FALSE, ndims.print = 1:5, nfeatures.print = 30,
+                            reduction.key = "GLMPC_", verbose = TRUE, seed.use = 11, ...) {
   features <- features %||% VariableFeatures(object = object)
   data.use <- GetAssayData(object = object, slot = slot)
   features.var <- apply(
@@ -519,6 +374,9 @@ RunGLMPCA.Assay <- function(object,
     slot = slot,
     L = L,
     fam = fam,
+    rev.gmlpca = rev.gmlpca,
+    ndims.print = ndims.print,
+    nfeatures.print = nfeatures.print,
     reduction.key = reduction.key,
     verbose = verbose,
     ...
@@ -526,104 +384,88 @@ RunGLMPCA.Assay <- function(object,
   return(reduction.data)
 }
 
-#' @param object
-#' @param L
-#' @param fam
-#' @param assay
-#' @param slot
-#' @param features
-#' @param reduction.name
-#' @param reduction.key
-#' @param verbose
-#' @param ...
-#'
 #' @rdname RunGLMPCA
-#' @concept dimensional_reduction
+#' @method RunGLMPCA default
 #' @importFrom Seurat DefaultAssay DefaultAssay<- CreateDimReducObject Tool<- LogSeuratCommand
 #' @export
-#' @method RunGLMPCA default
-RunGLMPCA.default <- function(object,
-                              L = 5,
-                              fam = c("poi", "nb", "nb2", "binom", "mult", "bern"),
-                              assay = NULL,
-                              slot = "counts",
-                              features = NULL,
-                              reduction.key = "GLMPC_",
-                              verbose = TRUE,
-                              ...) {
+RunGLMPCA.default <- function(object, assay = NULL, slot = "counts",
+                              features = NULL, L = 5, fam = c("poi", "nb", "nb2", "binom", "mult", "bern"),
+                              rev.gmlpca = FALSE, ndims.print = 1:5, nfeatures.print = 30,
+                              reduction.key = "GLMPC_", verbose = TRUE, seed.use = 11, ...) {
   check_R("glmpca")
   if (inherits(object, "dgCMatrix")) {
     object <- as_matrix(object)
   }
+  fam <- match.arg(fam)
   glmpca_results <- glmpca::glmpca(Y = object, L = L, fam = fam, ...)
-  glmpca_dimnames <- paste0(reduction.key, 1:L)
+  glmpca_dimnames <- paste0(reduction.key, seq_len(L))
   factors <- as.matrix(glmpca_results$factors)
   loadings <- as.matrix(glmpca_results$loadings)
   colnames(x = factors) <- glmpca_dimnames
   colnames(x = loadings) <- glmpca_dimnames
   factors_l2_norm <- sqrt(colSums(factors^2))
-  # strip S3 class "glmpca" to enable it to pass validObject()
   class(glmpca_results) <- NULL
-  # save memory by removing factors and loadings since they are stored separately
   glmpca_results$factors <- glmpca_results$loadings <- NULL
-  reduction <- CreateDimReducObject(
+  reduction.data <- CreateDimReducObject(
     embeddings = factors,
     key = reduction.key,
     loadings = loadings,
     stdev = factors_l2_norm,
     assay = assay,
     global = TRUE,
-    misc = list(slot = slot, glmpca_results = glmpca_results)
+    misc = list(slot = slot, glmpca.results = glmpca_results)
   )
-  return(reduction)
+  if (verbose) {
+    msg <- capture.output(print(
+      x = reduction.data,
+      dims = ndims.print,
+      nfeatures = nfeatures.print
+    ))
+    message(paste(msg, collapse = "\n"))
+  }
+  return(reduction.data)
 }
 
-#' Run DiffusionMap(DM)
+#' Run DM (diffusion map)
 #'
-#' Run a DM dimensionality reduction.
+#' @param object An object. This can be a Seurat object or a matrix-like object.
+#' @param reduction A character string specifying the reduction to be used.
+#' @param dims An integer vector specifying the dimensions to be used. Default is 1:30.
+#' @param features A character vector specifying the features to be used. Default is NULL.
+#' @param assay A character string specifying the assay to be used. Default is NULL.
+#' @param slot A character string specifying the slot name to be used. Default is "data".
+#' @param ndcs An integer specifying the number of diffusion components (dimensions) to be computed. Default is 2.
+#' @param sigma A character string specifying the diffusion scale parameter of the Gaussian kernel. Currently supported values are "local" (default) and "global".
+#' @param k An integer specifying the number of nearest neighbors to be used for the construction of the graph. Default is 30.
+#' @param dist.method A character string specifying the distance metric to be used for the construction of the knn graph. Currently supported values are "euclidean" and "cosine". Default is "euclidean".
+#' @param reduction.name A character string specifying the name of the reduction to be stored in the Seurat object. Default is "dm".
+#' @param reduction.key A character string specifying the prefix for the column names of the basis vectors. Default is "DM_".
+#' @param seed.use An integer specifying the random seed to be used. Default is 11.
+#' @param verbose A logical value indicating whether to print verbose output. Default is TRUE.
+#' @param ... Additional arguments to be passed to the \link[destiny]{DiffusionMap} function.
 #'
-#' @param object An object
-#' @param ... Arguments passed to \link[destiny]{DiffusionMap}.
-#'
-#' @return Returns Seurat object with the DM calculation stored in the reductions slot.
-#'
-#' @export
+#' @examples
+#' pancreas_sub <- Seurat::FindVariableFeatures(pancreas_sub)
+#' pancreas_sub <- RunDM(object = pancreas_sub, features = Seurat::VariableFeatures(pancreas_sub))
+#' CellDimPlot(pancreas_sub, group.by = "CellType", reduction = "dm")
 #'
 #' @rdname RunDM
-#' @export RunDM
+#' @export
 #'
 RunDM <- function(object, ...) {
   UseMethod(generic = "RunDM", object = object)
 }
 
-#' @param object
-#'
-#' @param reduction
-#' @param dims
-#' @param assay
-#' @param slot
-#' @param features
-#' @param ndcs
-#' @param sigma
-#' @param k
-#' @param dist.method
-#' @param reduction.key
-#' @param reduction.name dimensional reduction name, 'dm' by default
-#' @param seed.use
-#' @param verbose
-#' @param ...
-#' @param graph
-#'
 #' @rdname RunDM
-#' @concept dimensional_reduction
+#' @method RunDM Seurat
 #' @importFrom Seurat LogSeuratCommand DefaultAssay GetAssayData Embeddings
 #' @export
-#' @method RunDM Seurat
-#'
 RunDM.Seurat <- function(object,
-                         reduction = "pca", dims = 1:30, features = NULL, assay = NULL, slot = "data",
-                         graph = NULL, neighbor = NULL, ndcs = 2, sigma = "local", k = 30, dist.method = "euclidean",
-                         reduction.name = "dm", reduction.key = "DM_", seed.use = 42, verbose = TRUE, ...) {
+                         reduction = "pca", dims = 1:30,
+                         features = NULL, assay = NULL, slot = "data",
+                         ndcs = 2, sigma = "local", k = 30, dist.method = "euclidean",
+                         reduction.name = "dm", reduction.key = "DM_",
+                         verbose = TRUE, seed.use = 11, ...) {
   if (!is.null(x = features)) {
     assay <- assay %||% DefaultAssay(object = object)
     data.use <- as.matrix(x = t(x = GetAssayData(object = object, slot = slot, assay = assay)[features, , drop = FALSE]))
@@ -644,28 +486,6 @@ RunDM.Seurat <- function(object,
         call. = FALSE
       )
     }
-  } else if (!is.null(x = neighbor)) {
-    if (!inherits(x = object[[neighbor]], what = "Neighbor")) {
-      stop(
-        "Please specify a Neighbor object name, ",
-        "instead of the name of a ",
-        class(object[[neighbor]]),
-        " object",
-        call. = FALSE
-      )
-    }
-    data.use <- object[[neighbor]]
-  } else if (!is.null(x = graph)) {
-    if (!inherits(x = object[[graph]], what = "Graph")) {
-      stop(
-        "Please specify a Graph object name, ",
-        "instead of the name of a ",
-        class(object[[graph]]),
-        " object",
-        call. = FALSE
-      )
-    }
-    data.use <- object[[graph]]
   } else {
     stop("Please specify one of dims, features")
   }
@@ -687,40 +507,21 @@ RunDM.Seurat <- function(object,
   return(object)
 }
 
-
-#' @param object
-#'
-#' @param ndcs
-#' @param sigma
-#' @param k
-#' @param dist.method
-#' @param assay
-#' @param slot
-#' @param reduction.key
-#' @param seed.use
-#' @param verbose
-#' @param ...
-#'
 #' @rdname RunDM
-#' @concept dimensional_reduction
+#' @method RunDM default
 #' @importFrom utils capture.output
 #' @importFrom Seurat CreateDimReducObject
 #' @export
-#' @method RunDM matrix
-#'
-RunDM.matrix <- function(object, ndcs = 2, sigma = "local", k = 30, dist.method = "euclidean",
-                         assay = NULL, slot = "data",
-                         reduction.key = "DM_", seed.use = 42, verbose = TRUE, ...) {
+RunDM.default <- function(object, assay = NULL, slot = "data",
+                          ndcs = 2, sigma = "local", k = 30, dist.method = "euclidean",
+                          reduction.key = "DM_", verbose = TRUE, seed.use = 11, ...) {
   check_R("destiny")
   if (!is.null(x = seed.use)) {
     set.seed(seed = seed.use)
   }
-  ndcs <- min(ndcs, nrow(x = object) - 1)
-  x <- as.matrix(object)
-  dm.results <- destiny::DiffusionMap(data = x, n_eigs = ndcs, sigma = sigma, k = k, distance = dist.method, verbose = verbose)
-  # set.seed(11);plot(dm.results)
-  # knn <- get_knn(NULL, dists, k, distance, knn_params,verbose)
-  # gene.relevance <- gene_relevance(coords=dm.results@eigenvectors,verbose=verbose)
+
+  dm.results <- destiny::DiffusionMap(data = as.matrix(object), n_eigs = ndcs, sigma = sigma, k = k, distance = dist.method, verbose = verbose, ...)
+
   cell.embeddings <- dm.results@eigenvectors
   rownames(x = cell.embeddings) <- rownames(object)
   colnames(x = cell.embeddings) <- paste0(reduction.key, 1:ndcs)
@@ -733,116 +534,68 @@ RunDM.matrix <- function(object, ndcs = 2, sigma = "local", k = 30, dist.method 
   return(reduction)
 }
 
-#' @param ndcs Total Number of DM to compute and store (2 by default).
+#' Run UMAP (Uniform Manifold Approximation and Projection)
 #'
-#' @param assay Name of Assay dm is being run on.
-#' @param slot Name of slot dm is being run on.
-#' @param reduction.key dimensional reduction key, specifies the string before
-#' the number for the dimension names. "DM_" by default.
-#' @param seed.use Set a random seed. By default, sets the seed to 42. Setting
-#' NULL will not set a seed.
-#' @param verbose Show a progressbar and other progress information
-#' @param object
-#' @param exprs
-#' @param sigma
-#' @param k
-#' @param ...
+#' @param object An object. This can be a Seurat object, a matrix-like object, a Neighbor object, or a Graph object.
+#' @param reduction A character string specifying the reduction to be used. Default is "pca".
+#' @param dims An integer vector specifying the dimensions to be used. Default is NULL.
+#' @param features A character vector specifying the features to be used. Default is NULL.
+#' @param neighbor A character string specifying the name of the Neighbor object to be used. Default is NULL.
+#' @param graph A character string specifying the name of the Graph object to be used. Default is NULL.
+#' @param assay A character string specifying the assay to be used. Default is NULL.
+#' @param slot A character string specifying the slot name to be used. Default is "data".
+#' @param umap.method A character string specifying the UMAP method to be used. Options are "naive" and uwot". Default is "uwot".
+#' @param reduction.model A DimReduc object containing a pre-trained UMAP model. Default is NULL.
+#' @param return.model A logical value indicating whether to return the UMAP model. Default is FALSE.
+#' @param n.neighbors An integer specifying the number of nearest neighbors to be used. Default is 30.
+#' @param n.components An integer specifying the number of UMAP components. Default is 2.
+#' @param metric A character string specifying the metric or a function to be used for distance calculations. When using a string, available metrics are: euclidean, manhattan. Other available generalized metrics are: cosine, pearson, pearson2. Note the triangle inequality may not be satisfied by some generalized metrics, hence knn search may not be optimal. When using metric.function as a function, the signature must be function(matrix, origin, target) and should compute a distance between the origin column and the target columns.  Default is "cosine".
+#' @param n.epochs An integer specifying the number of iterations performed during layout optimization for UMAP. Default is 200.
+#' @param spread A numeric value specifying the spread parameter for UMAP, used during automatic estimation of a/b parameters. Default is 1.
+#' @param min.dist A numeric value specifying the minimum distance between UMAP embeddings, determines how close points appear in the final layout. Default is 0.3.
+#' @param set.op.mix.ratio Interpolate between (fuzzy) union and intersection as the set operation used to combine local fuzzy simplicial sets to obtain a global fuzzy simplicial sets. Both fuzzy set operations use the product t-norm. The value of this parameter should be between 0.0 and 1.0; a value of 1.0 will use a pure fuzzy union, while 0.0 will use a pure fuzzy intersection.
+#' @param local.connectivity An integer specifying the local connectivity, used during construction of fuzzy simplicial set. Default is 1.
+#' @param negative.sample.rate An integer specifying the negative sample rate for UMAP optimization. Determines how many non-neighbor points are used per point and per iteration during layout optimization. Default is 5.
+#' @param a A numeric value specifying the parameter a for UMAP optimization. Contributes to gradient calculations during layout optimization. When left at NA, a suitable value will be estimated automatically. Default is NULL.
+#' @param b A numeric value specifying the parameter b for UMAP optimization. Contributes to gradient calculations during layout optimization. When left at NA, a suitable value will be estimated automatically. Default is NULL.
+#' @param learning.rate A numeric value specifying the initial value of "learning rate" of layout optimization. Default is 1.
+#' @param repulsion.strength A numeric value determines, together with alpha, the learning rate of layout optimization. Default is 1.
+#' @param reduction.name A character string specifying the name of the reduction to be stored in the Seurat object. Default is "umap".
+#' @param reduction.key A character string specifying the prefix for the column names of the UMAP embeddings. Default is "UMAP_".
+#' @param verbose A logical value indicating whether to print verbose output. Default is TRUE.
+#' @param seed.use An integer specifying the random seed to be used. Default is 11.
+#' @param ... Unused argument.
 #'
-#' @rdname RunDM
-#' @concept dimensional_reduction
-#' @importFrom utils capture.output
-#' @importFrom Seurat CreateDimReducObject
-#' @export
-RunDM.Neighbor <- function(object,
-                           ndcs = 2, sigma = "local", k = 30, slot = "data",
-                           assay = NULL, reduction.key = "DM_", verbose = TRUE, seed.use = 42, ...) {
-  check_R("destiny")
-  if (!is.null(x = seed.use)) {
-    set.seed(seed = seed.use)
-  }
-  # message("Number of nearest neighbors: ", k)
-  dm.results <- destiny::DiffusionMap(distance = object, n_eigs = ndcs, sigma = sigma, k = k, verbose = verbose)
-  set.seed(11)
-  plot(dm.results)
-  # knn <- get_knn(NULL, dists, k, distance, knn_params,verbose)
-  # gene.relevance <- gene_relevance(coords=dm.results@eigenvectors,verbose=verbose)
-  cell.embeddings <- dm.results@eigenvectors
-  rownames(x = cell.embeddings) <- attr(object, "Labels")
-  colnames(x = cell.embeddings) <- paste0(reduction.key, 1:ndcs)
-  reduction <- CreateDimReducObject(
-    embeddings = cell.embeddings,
-    assay = assay,
-    key = reduction.key,
-    misc = list(slot = slot, dm.results = dm.results)
-  )
-  return(reduction)
-}
-
-#' Run UMAP
-#'
-#' @param object
-#' @param ...
-#'
-#' @export
+#' @examples
+#' pancreas_sub <- Seurat::FindVariableFeatures(pancreas_sub)
+#' pancreas_sub <- RunUMAP2(object = pancreas_sub, features = Seurat::VariableFeatures(pancreas_sub))
+#' CellDimPlot(pancreas_sub, group.by = "CellType", reduction = "umap")
 #'
 #' @rdname RunUMAP2
-#' @export RunUMAP2
-#'
+#' @export
 RunUMAP2 <- function(object, ...) {
   UseMethod(generic = "RunUMAP2", object = object)
 }
 
-#' @param object
-#'
-#' @param dims
-#' @param reduction
-#' @param features
-#' @param graph
-#' @param assay
-#' @param neighbor
-#' @param slot
-#' @param umap.method
-#' @param reduction.model
-#' @param return.model
-#' @param n.neighbors
-#' @param n.components
-#' @param metric
-#' @param n.epochs
-#' @param learning.rate
-#' @param min.dist
-#' @param spread
-#' @param set.op.mix.ratio
-#' @param local.connectivity
-#' @param repulsion.strength
-#' @param negative.sample.rate
-#' @param a
-#' @param b
-#' @param seed.use
-#' @param verbose
-#' @param reduction.name
-#' @param reduction.key
-#' @param ...
-#'
 #' @rdname RunUMAP2
 #' @method RunUMAP2 Seurat
-#' @concept dimensional_reduction
 #' @importFrom Seurat LogSeuratCommand
 #' @export
 RunUMAP2.Seurat <- function(object,
                             reduction = "pca", dims = NULL, features = NULL, neighbor = NULL, graph = NULL,
-                            assay = DefaultAssay(object = object), slot = "data",
+                            assay = NULL, slot = "data",
                             umap.method = "uwot", reduction.model = NULL,
                             return.model = FALSE, n.neighbors = 30L, n.components = 2L,
                             metric = "cosine", n.epochs = 200L, spread = 1, min.dist = 0.3,
                             set.op.mix.ratio = 1, local.connectivity = 1L, negative.sample.rate = 5L,
                             a = NULL, b = NULL, learning.rate = 1, repulsion.strength = 1,
-                            seed.use = 42L, verbose = TRUE,
                             reduction.name = "umap", reduction.key = "UMAP_",
-                            ...) {
+                            verbose = TRUE, seed.use = 11L, ...) {
   if (sum(c(is.null(x = dims), is.null(x = features), is.null(neighbor), is.null(x = graph))) == 4) {
     stop("Please specify only one of the following arguments: dims, features, neighbor or graph")
   }
   if (!is.null(x = features)) {
+    assay <- assay %||% DefaultAssay(object = object)
     data.use <- as.matrix(x = t(x = GetAssayData(object = object, slot = slot, assay = assay)[features, , drop = FALSE]))
     if (ncol(x = data.use) < n.components) {
       stop(
@@ -905,36 +658,9 @@ RunUMAP2.Seurat <- function(object,
   return(object)
 }
 
-#' @param object
-#'
-#' @param assay
-#' @param umap.method
-#' @param reduction.model
-#' @param return.model
-#' @param n.neighbors
-#' @param n.components
-#' @param metric
-#' @param n.epochs
-#' @param learning.rate
-#' @param min.dist
-#' @param spread
-#' @param set.op.mix.ratio
-#' @param local.connectivity
-#' @param repulsion.strength
-#' @param negative.sample.rate
-#' @param a
-#' @param b
-#' @param seed.use
-#' @param verbose
-#' @param reduction.key
-#' @param ...
-#'
-#' @importFrom Seurat CreateDimReducObject Misc<- Misc
-#'
 #' @rdname RunUMAP2
 #' @method RunUMAP2 default
-#' @concept dimensional_reduction
-#' @importFrom SeuratObject Indices Distances as.sparse
+#' @importFrom SeuratObject Indices Distances as.sparse CreateDimReducObject Misc<- Misc
 #' @importFrom Matrix sparseMatrix
 #' @export
 RunUMAP2.default <- function(object, assay = NULL,
@@ -943,7 +669,7 @@ RunUMAP2.default <- function(object, assay = NULL,
                              metric = "cosine", n.epochs = 200L, spread = 1, min.dist = 0.3,
                              set.op.mix.ratio = 1, local.connectivity = 1L, negative.sample.rate = 5L,
                              a = NULL, b = NULL, learning.rate = 1, repulsion.strength = 1,
-                             seed.use = 42L, verbose = TRUE, reduction.key = "UMAP_", ...) {
+                             reduction.key = "UMAP_", verbose = TRUE, seed.use = 11L, ...) {
   if (!is.null(x = seed.use)) {
     set.seed(seed = seed.use)
   }
@@ -1389,63 +1115,56 @@ RunUMAP2.default <- function(object, assay = NULL,
   }
 }
 
-
-#' Run PaCMAP
+#' Run PaCMAP (Pairwise Controlled Manifold Approximation)
 #'
-#' @param object
-#' @param ...
+#' @param object An object. This can be a Seurat object or a matrix-like object.
+#' @param reduction A character string specifying the reduction to be used. Default is "pca".
+#' @param dims An integer vector specifying the dimensions to be used. Default is NULL.
+#' @param features A character vector specifying the features to be used. Default is NULL.
+#' @param assay A character string specifying the assay to be used. Default is NULL.
+#' @param slot A character string specifying the slot name to be used. Default is "data".
+#' @param n_components An integer specifying the number of PaCMAP components. Default is 2.
+#' @param n.neighbors An integer specifying the number of neighbors considered in the k-Nearest Neighbor graph. Default to 10 for dataset whose sample size is smaller than 10000. For large dataset whose sample size (n) is larger than 10000, the default value is: 10 + 15 * (log10(n) - 4).
+#' @param MN_ratio A numeric value specifying the ratio of the ratio of the number of mid-near pairs to the number of neighbors. Default is 0.5.
+#' @param FP_ratio A numeric value specifying the ratio of the ratio of the number of further pairs to the number of neighbors. Default is 2.
+#' @param distance_method A character string specifying the distance metric to be used. Default is "euclidean".
+#' @param lr A numeric value specifying the learning rate of the AdaGrad optimizer. Default is 1.
+#' @param num_iters An integer specifying the number of iterations for PaCMAP optimization. Default is 450.
+#' @param apply_pca A logical value indicating whether pacmap should apply PCA to the data before constructing the k-Nearest Neighbor graph. Using PCA to preprocess the data can largely accelerate the DR process without losing too much accuracy. Notice that this option does not affect the initialization of the optimization process. Default is TRUE.
+#' @param init A character string specifying the initialization of the lower dimensional embedding. One of "pca" or "random". Default is "random".
+#' @param reduction.name A character string specifying the name of the reduction to be stored in the Seurat object. Default is "pacmap".
+#' @param reduction.key A character string specifying the prefix for the column names of the PaCMAP embeddings. Default is "PaCMAP_".
+#' @param verbose A logical value indicating whether to print verbose output. Default is TRUE.
+#' @param seed.use An integer specifying the random seed to be used. Default is 11.
+#' @param ... Additional arguments to be passed to the pacmap.PaCMAP function.
 #'
-#' @export
+#' @examples
+#' pancreas_sub <- Seurat::FindVariableFeatures(pancreas_sub)
+#' pancreas_sub <- RunPaCMAP(object = pancreas_sub, features = Seurat::VariableFeatures(pancreas_sub))
+#' CellDimPlot(pancreas_sub, group.by = "CellType", reduction = "pacmap")
 #'
 #' @rdname RunPaCMAP
-#' @export RunPaCMAP
-#'
+#' @export
 RunPaCMAP <- function(object, ...) {
   UseMethod(generic = "RunPaCMAP", object = object)
 }
 
-#' @param object
-#'
-#' @param dims
-#' @param reduction
-#' @param features
-#' @param assay
-#' @param slot
-#' @param n.neighbors
-#' @param seed.use
-#' @param verbose
-#' @param reduction.name
-#' @param reduction.key
-#' @param ...
-#' @param MN_ratio
-#' @param FP_ratio
-#' @param pair_neighbors
-#' @param pair_MN
-#' @param pair_FP
-#' @param distance_method
-#' @param lr
-#' @param num_iters
-#' @param apply_pca
-#' @param init
-#' @param n_components
-#'
 #' @rdname RunPaCMAP
 #' @method RunPaCMAP Seurat
-#' @concept dimensional_reduction
 #' @importFrom Seurat LogSeuratCommand
 #' @export
 RunPaCMAP.Seurat <- function(object, reduction = "pca", dims = NULL, features = NULL,
-                             assay = DefaultAssay(object = object), slot = "data",
+                             assay = NULL, slot = "data",
                              n_components = 2, n.neighbors = NULL, MN_ratio = 0.5, FP_ratio = 2,
-                             pair_neighbors = NULL, pair_MN = NULL, pair_FP = NULL, distance_method = "euclidean",
+                             distance_method = "euclidean",
                              lr = 1, num_iters = 450L, apply_pca = TRUE, init = "random",
                              reduction.name = "pacmap", reduction.key = "PaCMAP_",
-                             verbose = TRUE, seed.use = 11L,
-                             ...) {
+                             verbose = TRUE, seed.use = 11L, ...) {
   if (sum(c(is.null(x = dims), is.null(x = features))) < 1) {
     stop("Please specify only one of the following arguments: dims, features, or graph")
   }
   if (!is.null(x = features)) {
+    assay <- assay %||% DefaultAssay(object = object)
     data.use <- as.matrix(x = t(x = GetAssayData(object = object, slot = slot, assay = assay)[features, , drop = FALSE]))
     if (ncol(x = data.use) < n_components) {
       stop(
@@ -1476,7 +1195,7 @@ RunPaCMAP.Seurat <- function(object, reduction = "pca", dims = NULL, features = 
   object[[reduction.name]] <- RunPaCMAP(
     object = data.use, assay = assay,
     n_components = n_components, n.neighbors = n.neighbors, MN_ratio = MN_ratio, FP_ratio = FP_ratio,
-    pair_neighbors = pair_neighbors, pair_MN = pair_MN, pair_FP = pair_FP, distance_method = distance_method,
+    distance_method = distance_method,
     lr = lr, num_iters = num_iters, apply_pca = apply_pca, init = init,
     reduction.key = reduction.key, verbose = verbose, seed.use = seed.use
   )
@@ -1484,38 +1203,16 @@ RunPaCMAP.Seurat <- function(object, reduction = "pca", dims = NULL, features = 
   return(object)
 }
 
-#' @param object
-#'
-#' @param n.neighbors
-#' @param n_components
-#' @param seed.use
-#' @param verbose
-#' @param reduction.key
-#' @param ...
-#' @param MN_ratio
-#' @param FP_ratio
-#' @param pair_neighbors
-#' @param pair_MN
-#' @param pair_FP
-#' @param distance_method
-#' @param lr
-#' @param num_iters
-#' @param apply_pca
-#' @param init
-#' @param assay
-#'
 #' @rdname RunPaCMAP
-#' @concept dimensional_reduction
+#' @method RunPaCMAP default
 #' @importFrom Seurat CreateDimReducObject
 #' @importFrom reticulate import
 #' @export
-#' @method RunPaCMAP default
 RunPaCMAP.default <- function(object, assay = NULL,
                               n_components = 2, n.neighbors = NULL, MN_ratio = 0.5, FP_ratio = 2,
-                              pair_neighbors = NULL, pair_MN = NULL, pair_FP = NULL, distance_method = "euclidean",
+                              distance_method = "euclidean",
                               lr = 1, num_iters = 450L, apply_pca = TRUE, init = "random",
-                              reduction.key = "PaCMAP_", verbose = TRUE, seed.use = 11L,
-                              ...) {
+                              reduction.key = "PaCMAP_", verbose = TRUE, seed.use = 11L, ...) {
   if (!is.null(x = seed.use)) {
     set.seed(seed = seed.use)
   }
@@ -1525,7 +1222,7 @@ RunPaCMAP.default <- function(object, assay = NULL,
 
   operator <- pacmap$PaCMAP(
     n_components = as.integer(n_components), n_neighbors = n.neighbors, MN_ratio = MN_ratio, FP_ratio = FP_ratio,
-    pair_neighbors = pair_neighbors, pair_MN = pair_MN, pair_FP = pair_FP, distance = distance_method,
+    distance = distance_method,
     lr = lr, num_iters = num_iters, apply_pca = apply_pca,
     verbose = verbose, random_state = as.integer(seed.use)
   )
@@ -1536,71 +1233,67 @@ RunPaCMAP.default <- function(object, assay = NULL,
 
   reduction <- CreateDimReducObject(
     embeddings = embedding,
-    key = reduction.key, assay = assay, global = TRUE
+    key = reduction.key,
+    assay = assay,
+    global = TRUE
   )
   return(reduction)
 }
 
-
-#' Run PHATE
+#' Run PHATE (Potential of Heat-diffusion for Affinity-based Trajectory Embedding)
 #'
-#' @param object
-#' @param ...
+#' @param object An object. This can be a Seurat object or a matrix-like object.
+#' @param reduction A character string specifying the reduction to be used. Default is "pca".
+#' @param dims An integer vector specifying the dimensions to be used. Default is NULL.
+#' @param features A character vector specifying the features to be used. Default is NULL.
+#' @param assay A character string specifying the assay to be used. Default is NULL.
+#' @param slot A character string specifying the slot name to be used. Default is "data".
+#' @param n_components An integer specifying the number of PHATE components. Default is 2.
+#' @param knn An integer specifying the number of nearest neighbors on which to build kernel. Default is 5.
+#' @param decay An integer specifying the sets decay rate of kernel tails. Default is 40.
+#' @param n_landmark An integer specifying the number of landmarks to use in fast PHATE. Default is 2000.
+#' @param t A character string specifying the power to which the diffusion operator is powered. This sets the level of diffusion. If ‘auto’, t is selected according to the knee point in the Von Neumann Entropy of the diffusion operator. Default is "auto".
+#' @param gamma A numeric value specifying the informational distance constant between -1 and 1. gamma=1 gives the PHATE log potential, gamma=0 gives a square root potential. Default is 1.
+#' @param n_pca An integer specifying the number of principal components to use for calculating neighborhoods. For extremely large datasets, using n_pca < 20 allows neighborhoods to be calculated in roughly log(n_samples) time. Default is 100.
+#' @param knn_dist A character string specifying the distance metric for k-nearest neighbors. Recommended values: "euclidean, "cosine, "precomputed". Default is "euclidean".
+#' @param knn_max An integer specifying the maximum number of neighbors for which alpha decaying kernel is computed for each point. For very large datasets, setting knn_max to a small multiple of knn can speed up computation significantly. Default is NULL.
+#' @param t_max An integer specifying the maximum \code{t} to test. Default is 100.
+#' @param do_cluster A logical value indicating whether to perform clustering on the PHATE embeddings. Default is FALSE.
+#' @param n_clusters An integer specifying the number of clusters to be identified. Default is "auto".
+#' @param max_clusters An integer specifying the maximum number of clusters to test. Default is 100.
+#' @param reduction.name A character string specifying the name of the reduction to be stored in the Seurat object. Default is "phate".
+#' @param reduction.key A character string specifying the prefix for the column names of the PHATE embeddings. Default is "PHATE_".
+#' @param verbose A logical value indicating whether to print verbose output. Default is TRUE.
+#' @param seed.use An integer specifying the random seed to be used. Default is 11.
+#' @param ... Additional arguments to be passed to the phate.PHATE function.
 #'
-#' @export
+#' @examples
+#' pancreas_sub <- Seurat::FindVariableFeatures(pancreas_sub)
+#' pancreas_sub <- RunPHATE(object = pancreas_sub, features = Seurat::VariableFeatures(pancreas_sub))
+#' CellDimPlot(pancreas_sub, group.by = "CellType", reduction = "phate")
 #'
 #' @rdname RunPHATE
-#' @export RunPHATE
-#'
+#' @export
 RunPHATE <- function(object, ...) {
   UseMethod(generic = "RunPHATE", object = object)
 }
 
-#' @param object
-#'
-#' @param dims
-#' @param reduction
-#' @param features
-#' @param assay
-#' @param slot
-#' @param seed.use
-#' @param verbose
-#' @param reduction.name
-#' @param reduction.key
-#' @param n_components
-#' @param knn
-#' @param decay
-#' @param n_landmark
-#' @param t
-#' @param gamma
-#' @param n_pca
-#' @param knn_dist
-#' @param knn_max
-#' @param mds
-#' @param mds_dist
-#' @param mds_solver
-#' @param t_max
-#' @param n_jobs
-#' @param ...
-#'
 #' @rdname RunPHATE
-#' @concept dimensional_reduction
-#' @export
-#' @importFrom Seurat LogSeuratCommand
 #' @method RunPHATE Seurat
+#' @importFrom Seurat LogSeuratCommand
+#' @export
 RunPHATE.Seurat <- function(object, reduction = "pca", dims = NULL, features = NULL,
-                            assay = DefaultAssay(object = object), slot = "data",
+                            assay = NULL, slot = "data",
                             n_components = 2, knn = 5, decay = 40, n_landmark = 2000, t = "auto", gamma = 1,
-                            n_pca = 100, knn_dist = "euclidean", knn_max = NULL, n_jobs = 1,
-                            mds = "metric", mds_dist = "euclidean", mds_solver = "sgd", t_max = 100,
+                            n_pca = 100, knn_dist = "euclidean", knn_max = NULL, t_max = 100,
                             do_cluster = FALSE, n_clusters = "auto", max_clusters = 100,
                             reduction.name = "phate", reduction.key = "PHATE_",
-                            verbose = TRUE, seed.use = 11L,
-                            ...) {
+                            verbose = TRUE, seed.use = 11L, ...) {
   if (sum(c(is.null(x = dims), is.null(x = features))) == 2) {
     stop("Please specify only one of the following arguments: dims, features")
   }
   if (!is.null(x = features)) {
+    assay <- assay %||% DefaultAssay(object = object)
     data.use <- as.matrix(x = t(x = GetAssayData(object = object, slot = slot, assay = assay)[features, , drop = FALSE]))
     if (ncol(x = data.use) < n_components) {
       stop(
@@ -1631,8 +1324,7 @@ RunPHATE.Seurat <- function(object, reduction = "pca", dims = NULL, features = N
   object[[reduction.name]] <- RunPHATE(
     object = data.use, assay = assay,
     n_components = n_components, knn = knn, decay = decay, n_landmark = n_landmark, t = t, gamma = gamma,
-    n_pca = n_pca, knn_dist = knn_dist, knn_max = knn_max, n_jobs = n_jobs,
-    mds = mds, mds_dist = mds_dist, mds_solver = mds_solver, t_max = t_max,
+    n_pca = n_pca, knn_dist = knn_dist, knn_max = knn_max, t_max = t_max,
     do_cluster = do_cluster, n_clusters = n_clusters, max_clusters = max_clusters,
     reduction.key = reduction.key, verbose = verbose, seed.use = seed.use
   )
@@ -1640,45 +1332,17 @@ RunPHATE.Seurat <- function(object, reduction = "pca", dims = NULL, features = N
   return(object)
 }
 
-#' @param object
-#'
-#' @param seed.use
-#' @param verbose
-#' @param reduction.key
-#' @param ...
-#' @param n_components
-#' @param knn
-#' @param decay
-#' @param n_landmark
-#' @param t
-#' @param gamma
-#' @param n_pca
-#' @param knn_dist
-#' @param knn_max
-#' @param mds
-#' @param mds_dist
-#' @param mds_solver
-#' @param t_max
-#' @param n_jobs
-#' @param assay
-#' @param n_clusters
-#' @param max_clusters
-#'
+
+#' @rdname RunPHATE
+#' @method RunPHATE default
 #' @importFrom reticulate import
 #' @importFrom Seurat CreateDimReducObject Misc<- Misc
-#'
-#' @rdname RunPHATE
-#' @concept dimensional_reduction
-#' @importFrom reticulate import
 #' @export
-#' @method RunPHATE default
 RunPHATE.default <- function(object, assay = NULL,
                              n_components = 2, knn = 5, decay = 40, n_landmark = 2000, t = "auto", gamma = 1,
-                             n_pca = 100, knn_dist = "euclidean", knn_max = NULL, n_jobs = 1,
-                             mds = "metric", mds_dist = "euclidean", mds_solver = "sgd", t_max = 100,
+                             n_pca = 100, knn_dist = "euclidean", knn_max = NULL, t_max = 100,
                              do_cluster = FALSE, n_clusters = "auto", max_clusters = 100,
-                             reduction.key = "PHATE_", verbose = TRUE, seed.use = 11L,
-                             ...) {
+                             reduction.key = "PHATE_", verbose = TRUE, seed.use = 11L, ...) {
   if (!is.null(x = seed.use)) {
     set.seed(seed = seed.use)
   }
@@ -1701,12 +1365,9 @@ RunPHATE.default <- function(object, assay = NULL,
     n_pca = as.integer(n_pca),
     knn_dist = as.character(knn_dist),
     knn_max = knn_max,
-    mds = as.character(mds),
-    mds_dist = as.character(mds_dist),
-    mds_solver = as.character(mds_solver),
-    n_jobs = as.integer(n_jobs),
     random_state = as.integer(seed.use),
-    verbose = as.integer(verbose)
+    verbose = as.integer(verbose),
+    ...
   )
   embedding <- operator$fit_transform(object, t_max = as.integer(t_max))
   colnames(x = embedding) <- paste0(reduction.key, seq_len(ncol(x = embedding)))
@@ -1714,7 +1375,9 @@ RunPHATE.default <- function(object, assay = NULL,
 
   reduction <- CreateDimReducObject(
     embeddings = embedding,
-    key = reduction.key, assay = assay, global = TRUE
+    key = reduction.key,
+    assay = assay,
+    global = TRUE
   )
   if (isTRUE(do_cluster)) {
     if (is.numeric(n_clusters)) {
@@ -1732,64 +1395,56 @@ RunPHATE.default <- function(object, assay = NULL,
   return(reduction)
 }
 
-
-#' Run TriMap
+#' Run TriMap (Large-scale Dimensionality Reduction Using Triplets)
 #'
-#' @param object
-#' @param ...
+#' @param object An object. This can be a Seurat object or a matrix-like object.
+#' @param reduction A character string specifying the reduction to be used. Default is "pca".
+#' @param dims An integer vector specifying the dimensions to be used. Default is NULL.
+#' @param features A character vector specifying the features to be used. Default is NULL.
+#' @param assay A character string specifying the assay to be used. Default is NULL.
+#' @param slot A character string specifying the slot name to be used. Default is "data".
+#' @param n_components An integer specifying the number of TriMap components. Default is 2.
+#' @param n_inliers An integer specifying the number of nearest neighbors for forming the nearest neighbor triplets. Default is 12.
+#' @param n_outliers An integer specifying the number of outliers for forming the nearest neighbor triplets. Default is 4.
+#' @param n_random An integer specifying the number of random triplets per point. Default is 3.
+#' @param distance_method A character string specifying the distance metric for TriMap. Options are: "euclidean", "manhattan", "angular", "cosine", "hamming". Default is "euclidean".
+#' @param lr A numeric value specifying the learning rate for TriMap. Default is 0.1.
+#' @param n_iters An integer specifying the number of iterations for TriMap. Default is 400.
+#' @param apply_pca A logical value indicating whether to apply PCA before the nearest-neighbor calculation. Default is TRUE.
+#' @param opt_method A character string specifying the optimization method for TriMap. Options are: "dbd", "sd", "momentum". Default is "dbd".
+#' @param reduction.name A character string specifying the name of the reduction to be stored in the Seurat object. Default is "trimap".
+#' @param reduction.key A character string specifying the prefix for the column names of the TriMap embeddings. Default is "TriMap_".
+#' @param verbose A logical value indicating whether to print verbose output. Default is TRUE.
+#' @param seed.use An integer specifying the random seed to be used. Default is 11.
+#' @param ... Additional arguments to be passed to the trimap.TRIMAP function.
 #'
-#' @export
+#' @examples
+#' pancreas_sub <- Seurat::FindVariableFeatures(pancreas_sub)
+#' pancreas_sub <- RunTriMap(object = pancreas_sub, features = Seurat::VariableFeatures(pancreas_sub))
+#' CellDimPlot(pancreas_sub, group.by = "CellType", reduction = "trimap")
 #'
 #' @rdname RunTriMap
-#' @export RunTriMap
-#'
+#' @export
 RunTriMap <- function(object, ...) {
   UseMethod(generic = "RunTriMap", object = object)
 }
 
-#' @param object
-#'
-#' @param dims
-#' @param reduction
-#' @param features
-#' @param assay
-#' @param slot
-#' @param seed.use
-#' @param verbose
-#' @param reduction.name
-#' @param reduction.key
-#' @param ...
-#' @param n_inliers
-#' @param n_outliers
-#' @param n_random
-#' @param distance
-#' @param lr
-#' @param n_iters
-#' @param triplets
-#' @param weights
-#' @param use_dist_matrix
-#' @param knn_tuple
-#' @param apply_pca
-#' @param opt_method
-#' @param n_components
-#'
 #' @rdname RunTriMap
-#' @concept dimensional_reduction
-#' @export
-#' @importFrom Seurat LogSeuratCommand
 #' @method RunTriMap Seurat
+#' @importFrom Seurat LogSeuratCommand
+#' @export
 RunTriMap.Seurat <- function(object, reduction = "pca", dims = NULL, features = NULL,
-                             assay = DefaultAssay(object = object), slot = "data",
+                             assay = NULL, slot = "data",
                              n_components = 2, n_inliers = 12, n_outliers = 4, n_random = 3, distance_method = "euclidean",
-                             lr = 0.1, n_iters = 400, triplets = NULL, weights = NULL, use_dist_matrix = FALSE, knn_tuple = NULL,
+                             lr = 0.1, n_iters = 400,
                              apply_pca = TRUE, opt_method = "dbd",
                              reduction.name = "trimap", reduction.key = "TriMap_",
-                             verbose = TRUE, seed.use = 11L,
-                             ...) {
+                             verbose = TRUE, seed.use = 11L, ...) {
   if (sum(c(is.null(x = dims), is.null(x = features))) == 2) {
     stop("Please specify only one of the following arguments: dims, features")
   }
   if (!is.null(x = features)) {
+    assay <- assay %||% DefaultAssay(object = object)
     data.use <- as.matrix(x = t(x = GetAssayData(object = object, slot = slot, assay = assay)[features, , drop = FALSE]))
     if (ncol(x = data.use) < n_components) {
       stop(
@@ -1820,7 +1475,7 @@ RunTriMap.Seurat <- function(object, reduction = "pca", dims = NULL, features = 
   object[[reduction.name]] <- RunTriMap(
     object = data.use, assay = assay,
     n_components = n_components, n_inliers = n_inliers, n_outliers = n_outliers, n_random = n_random, distance_method = distance_method,
-    lr = lr, n_iters = n_iters, triplets = triplets, weights = weights, use_dist_matrix = use_dist_matrix, knn_tuple = knn_tuple,
+    lr = lr, n_iters = n_iters,
     apply_pca = apply_pca, opt_method = opt_method,
     reduction.key = reduction.key, verbose = verbose, seed.use = seed.use
   )
@@ -1828,41 +1483,16 @@ RunTriMap.Seurat <- function(object, reduction = "pca", dims = NULL, features = 
   return(object)
 }
 
-#' @param object
-#'
-#' @param seed.use
-#' @param verbose
-#' @param reduction.key
-#' @param ...
-#' @param assay
-#' @param n_inliers
-#' @param n_outliers
-#' @param n_random
-#' @param distance
-#' @param lr
-#' @param n_iters
-#' @param triplets
-#' @param weights
-#' @param use_dist_matrix
-#' @param knn_tuple
-#' @param apply_pca
-#' @param opt_method
-#' @param n_components
-#'
+#' @rdname RunTriMap
+#' @method RunTriMap default
 #' @importFrom reticulate import
 #' @importFrom Seurat CreateDimReducObject Misc<- Misc
-#'
-#' @rdname RunTriMap
-#' @concept dimensional_reduction
-#' @importFrom reticulate import
 #' @export
-#' @method RunTriMap default
 RunTriMap.default <- function(object, assay = NULL,
                               n_components = 2, n_inliers = 12, n_outliers = 4, n_random = 3, distance_method = "euclidean",
-                              lr = 0.1, n_iters = 400, triplets = NULL, weights = NULL, use_dist_matrix = FALSE, knn_tuple = NULL,
+                              lr = 0.1, n_iters = 400,
                               apply_pca = TRUE, opt_method = "dbd",
-                              reduction.key = "TriMap_", verbose = TRUE, seed.use = 11L,
-                              ...) {
+                              reduction.key = "TriMap_", verbose = TRUE, seed.use = 11L, ...) {
   if (!is.null(x = seed.use)) {
     set.seed(seed = seed.use)
   }
@@ -1870,14 +1500,10 @@ RunTriMap.default <- function(object, assay = NULL,
   check_Python("trimap")
   trimap <- import("trimap")
 
-  if (inherits(x = object, what = "dist")) {
-    object <- as.matrix(object)
-    use_dist_matrix <- TRUE
-  }
   operator <- trimap$TRIMAP(
     n_dims = as.integer(n_components), n_inliers = as.integer(n_inliers), n_outliers = as.integer(n_outliers), n_random = as.integer(n_random), distance = distance_method,
-    lr = lr, n_iters = as.integer(n_iters), triplets = triplets, weights = weights, use_dist_matrix = use_dist_matrix, knn_tuple = knn_tuple,
-    apply_pca = apply_pca, opt_method = opt_method, verbose = verbose
+    lr = lr, n_iters = as.integer(n_iters),
+    apply_pca = apply_pca, opt_method = opt_method, verbose = verbose, ...
   )
   embedding <- operator$fit_transform(object)
   colnames(x = embedding) <- paste0(reduction.key, seq_len(ncol(x = embedding)))
@@ -1893,65 +1519,41 @@ RunTriMap.default <- function(object, assay = NULL,
   return(reduction)
 }
 
-
-#' Run LargeVis
+#' Run LargeVis (Dimensionality Reduction with a LargeVis-like method)
 #'
-#' @param object
-#' @param ...
+#' @inheritParams uwot::lvish
+#' @param object An object. This can be a Seurat object or a matrix-like object.
+#' @param reduction A character string specifying the reduction to be used. Default is "pca".
+#' @param dims An integer vector specifying the dimensions to be used. Default is NULL.
+#' @param features A character vector specifying the features to be used. Default is NULL.
+#' @param assay A character string specifying the assay to be used. Default is NULL.
+#' @param slot A character string specifying the slot name to be used. Default is "data".
+#' @param n_components An integer specifying the number of LargeVis components. Default is 2.
+#' @param pca_method Method to carry out any PCA dimensionality reduction when the pca parameter is specified. Allowed values are: "irlba", "rsvd", "bigstatsr", "svd", "auto"(the default. Uses "irlba", unless more than 50 case "svd" is used.)
+#' @param reduction.name A character string specifying the name of the reduction to be stored in the Seurat object. Default is "largevis".
+#' @param reduction.key A character string specifying the prefix for the column names of the LargeVis embeddings. Default is "LargeVis_".
+#' @param verbose A logical value indicating whether to print verbose output. Default is TRUE.
+#' @param seed.use An integer specifying the random seed to be used. Default is 11.
+#' @param ... Additional arguments to be passed to the \link[uwot]{lvish} function.
+#'
+#' @examples
+#' pancreas_sub <- Seurat::FindVariableFeatures(pancreas_sub)
+#' pancreas_sub <- RunLargeVis(object = pancreas_sub, features = Seurat::VariableFeatures(pancreas_sub))
+#' CellDimPlot(pancreas_sub, group.by = "CellType", reduction = "largevis")
 #'
 #' @rdname RunLargeVis
-#' @export RunLargeVis
+#' @export
 #'
 RunLargeVis <- function(object, ...) {
   UseMethod(generic = "RunLargeVis", object = object)
 }
 
-#' @param object
-#'
-#' @param dims
-#' @param reduction
-#' @param features
-#' @param assay
-#' @param slot
-#' @param seed.use
-#' @param verbose
-#' @param reduction.name
-#' @param reduction.key
-#' @param ...
-#' @param init
-#' @param perplexity
-#' @param n_neighbors
-#' @param metric
-#' @param n_epochs
-#' @param learning_rate
-#' @param scale
-#' @param init_sdev
-#' @param repulsion_strength
-#' @param negative_sample_rate
-#' @param nn_method
-#' @param n_trees
-#' @param search_k
-#' @param n_threads
-#' @param n_sgd_threads
-#' @param grain_size
-#' @param kernel
-#' @param pca
-#' @param pca_center
-#' @param pcg_rand
-#' @param fast_sgd
-#' @param batch
-#' @param opt_args
-#' @param epoch_callback
-#' @param pca_method
-#' @param n_components
-#'
 #' @rdname RunLargeVis
 #' @method RunLargeVis Seurat
-#' @concept dimensional_reduction
 #' @importFrom Seurat LogSeuratCommand
 #' @export
 RunLargeVis.Seurat <- function(object, reduction = "pca", dims = NULL, features = NULL,
-                               assay = DefaultAssay(object = object), slot = "data",
+                               assay = NULL, slot = "data",
                                perplexity = 50, n_neighbors = perplexity * 3, n_components = 2, metric = "euclidean",
                                n_epochs = -1, learning_rate = 1, scale = "maxabs", init = "lvrandom", init_sdev = NULL,
                                repulsion_strength = 7, negative_sample_rate = 5, nn_method = NULL, n_trees = 50,
@@ -1959,12 +1561,12 @@ RunLargeVis.Seurat <- function(object, reduction = "pca", dims = NULL, features 
                                kernel = "gauss", pca = NULL, pca_center = TRUE, pcg_rand = TRUE, fast_sgd = FALSE,
                                batch = FALSE, opt_args = NULL, epoch_callback = NULL, pca_method = NULL,
                                reduction.name = "largevis", reduction.key = "LargeVis_",
-                               verbose = TRUE, seed.use = 11L,
-                               ...) {
+                               verbose = TRUE, seed.use = 11L, ...) {
   if (sum(c(is.null(x = dims), is.null(x = features))) == 3) {
     stop("Please specify only one of the following arguments: dims, features")
   }
   if (!is.null(x = features)) {
+    assay <- assay %||% DefaultAssay(object = object)
     data.use <- as.matrix(x = t(x = GetAssayData(object = object, slot = slot, assay = assay)[features, , drop = FALSE]))
     if (ncol(x = data.use) < n_components) {
       stop(
@@ -2000,51 +1602,16 @@ RunLargeVis.Seurat <- function(object, reduction = "pca", dims = NULL, features 
     search_k = search_k, n_threads = n_threads, n_sgd_threads = n_sgd_threads, grain_size = grain_size,
     kernel = kernel, pca = pca, pca_center = pca_center, pcg_rand = pcg_rand, fast_sgd = fast_sgd,
     batch = batch, opt_args = opt_args, epoch_callback = epoch_callback, pca_method = pca_method,
-    reduction.key = reduction.key, verbose = verbose, seed.use = seed.use
+    reduction.key = reduction.key, verbose = verbose, seed.use = seed.use, ...
   )
   object <- LogSeuratCommand(object = object)
   return(object)
 }
 
-#' @param object
-#'
-#' @param seed.use
-#' @param verbose
-#' @param reduction.key
-#' @param ...
-#' @param init
-#' @param assay
-#' @param perplexity
-#' @param n_neighbors
-#' @param metric
-#' @param n_epochs
-#' @param learning_rate
-#' @param scale
-#' @param init_sdev
-#' @param repulsion_strength
-#' @param negative_sample_rate
-#' @param nn_method
-#' @param n_trees
-#' @param search_k
-#' @param n_threads
-#' @param n_sgd_threads
-#' @param grain_size
-#' @param kernel
-#' @param pca
-#' @param pca_center
-#' @param pcg_rand
-#' @param fast_sgd
-#' @param batch
-#' @param opt_args
-#' @param epoch_callback
-#' @param pca_method
-#' @param n_components
-#'
 #' @rdname RunLargeVis
-#' @concept dimensional_reduction
+#' @method RunLargeVis default
 #' @importFrom Seurat CreateDimReducObject
 #' @export
-#' @method RunLargeVis default
 RunLargeVis.default <- function(object, assay = NULL,
                                 perplexity = 50, n_neighbors = perplexity * 3, n_components = 2, metric = "euclidean",
                                 n_epochs = -1, learning_rate = 1, scale = "maxabs", init = "lvrandom", init_sdev = NULL,
@@ -2052,8 +1619,7 @@ RunLargeVis.default <- function(object, assay = NULL,
                                 search_k = 2 * n_neighbors * n_trees, n_threads = NULL, n_sgd_threads = 0, grain_size = 1,
                                 kernel = "gauss", pca = NULL, pca_center = TRUE, pcg_rand = TRUE, fast_sgd = FALSE,
                                 batch = FALSE, opt_args = NULL, epoch_callback = NULL, pca_method = NULL,
-                                reduction.key = "LargeVis_", verbose = TRUE, seed.use = 11L,
-                                ...) {
+                                reduction.key = "LargeVis_", verbose = TRUE, seed.use = 11L, ...) {
   if (!is.null(x = seed.use)) {
     set.seed(seed = seed.use)
   }
@@ -2064,7 +1630,8 @@ RunLargeVis.default <- function(object, assay = NULL,
     repulsion_strength = repulsion_strength, negative_sample_rate = negative_sample_rate, nn_method = nn_method, n_trees = n_trees,
     search_k = search_k, n_threads = n_threads, n_sgd_threads = n_sgd_threads, grain_size = grain_size,
     kernel = kernel, pca = pca, pca_center = pca_center, pcg_rand = pcg_rand, fast_sgd = fast_sgd,
-    verbose = verbose, batch = batch, opt_args = opt_args, epoch_callback = epoch_callback, pca_method = pca_method
+    verbose = verbose, batch = batch, opt_args = opt_args, epoch_callback = epoch_callback, pca_method = pca_method,
+    ...
   )
   colnames(x = embedding) <- paste0(reduction.key, seq_len(ncol(x = embedding)))
   if (inherits(x = object, what = "dist")) {
@@ -2079,69 +1646,46 @@ RunLargeVis.default <- function(object, assay = NULL,
   return(reduction)
 }
 
-#' Create the force-directed layout developed by Fruchterman and Reingold.
+#' Run Force-Directed Layout (Fruchterman-Reingold algorithm)
 #'
-#' @param object
-#' @param ...
+#' @param object An object. This can be a Seurat object, a Neighbor object, or a Graph object.
+#' @param reduction A character string specifying the reduction to be used. Default is NULL.
+#' @param dims An integer vector specifying the dimensions to be used. Default is NULL.
+#' @param features A character vector specifying the features to be used. Default is NULL.
+#' @param assay A character string specifying the assay to be used. Default is NULL.
+#' @param slot A character string specifying the slot name to be used. Default is "data".
+#' @param graph A character string specifying the name of the Graph object to be used. Default is NULL.
+#' @param neighbor A character string specifying the name of the Neighbor object to be used. Default is NULL.
+#' @param k.param An integer specifying the number of nearest neighbors to consider. Default is 20.
+#' @param ndim An integer specifying the number of dimensions for the force-directed layout. Default is 2.
+#' @param niter An integer specifying the number of iterations for the force-directed layout. Default is 500.
+#' @param reduction.name A character string specifying the name of the reduction to be stored in the Seurat object. Default is "fr".
+#' @param reduction.key A character string specifying the prefix for the column names of the force-directed layout embeddings. Default is "FR_".
+#' @param verbose A logical value indicating whether to print verbose output. Default is TRUE.
+#' @param seed.use An integer specifying the random seed to be used. Default is 11.
+#' @param ... Additional arguments to be passed to the \link[igraph]{layout_with_fr} function.
+#'
+#' @examples
+#' pancreas_sub <- Seurat::FindVariableFeatures(pancreas_sub)
+#' pancreas_sub <- RunFR(object = pancreas_sub, features = Seurat::VariableFeatures(pancreas_sub))
+#' CellDimPlot(pancreas_sub, group.by = "CellType", reduction = "fr")
 #'
 #' @rdname RunFR
-#' @export RunFR
-#'
+#' @export
 RunFR <- function(object, ...) {
   UseMethod(generic = "RunFR", object = object)
 }
 
-#' @param object
-#'
-#' @param dims
-#' @param reduction
-#' @param features
-#' @param assay
-#' @param slot
-#' @param seed.use
-#' @param verbose
-#' @param reduction.name
-#' @param reduction.key
-#' @param ...
-#' @param init
-#' @param perplexity
-#' @param n_neighbors
-#' @param metric
-#' @param n_epochs
-#' @param learning_rate
-#' @param scale
-#' @param init_sdev
-#' @param repulsion_strength
-#' @param negative_sample_rate
-#' @param nn_method
-#' @param n_trees
-#' @param search_k
-#' @param n_threads
-#' @param n_sgd_threads
-#' @param grain_size
-#' @param kernel
-#' @param pca
-#' @param pca_center
-#' @param pcg_rand
-#' @param fast_sgd
-#' @param batch
-#' @param opt_args
-#' @param epoch_callback
-#' @param pca_method
-#' @param n_components
-#'
 #' @rdname RunFR
 #' @method RunFR Seurat
-#' @concept dimensional_reduction
-#' @importFrom Seurat LogSeuratCommand
+#' @importFrom Seurat LogSeuratCommand DefaultAssay
 #' @export
 RunFR.Seurat <- function(object, reduction = NULL, dims = NULL, features = NULL,
-                         assay = DefaultAssay(object = object), slot = "data",
+                         assay = NULL, slot = "data",
                          graph = NULL, neighbor = NULL,
                          k.param = 20, ndim = 2, niter = 500,
-                         seed.use = 42L, verbose = TRUE,
                          reduction.name = "FR", reduction.key = "FR_",
-                         ...) {
+                         verbose = TRUE, seed.use = 11L, ...) {
   if (sum(c(is.null(x = dims), is.null(x = features), is.null(neighbor), is.null(x = graph))) == 4) {
     stop("Please specify only one of the following arguments: dims, features, neighbor or graph")
   }
@@ -2168,11 +1712,16 @@ RunFR.Seurat <- function(object, reduction = NULL, dims = NULL, features = NULL,
     }
     data.use <- object[[neighbor]]
   } else if (!is.null(x = features)) {
+    assay <- assay %||% DefaultAssay(object = object)
     data.use <- t(GetAssayData(object = object, slot = slot, assay = assay)[features, ])
     data.use <- FindNeighbors(data.use, k.param = k.param)[["snn"]]
   } else if (!is.null(x = dims)) {
-    object <- FindNeighbors(object, reduction = reduction, dims = dims, k.param = k.param, verbose = FALSE)
-    data.use <- object[[paste0(assay, "_snn")]]
+    data.use <- Embeddings(object = object[[reduction]])
+    if (max(dims) > ncol(x = data.use)) {
+      stop("More dimensions specified in dims than have been computed")
+    }
+    data.use <- data.use[, dims]
+    data.use <- FindNeighbors(data.use, k.param = k.param)[["snn"]]
   } else {
     stop("Please specify one of dims, features, neighbor, or graph")
   }
@@ -2185,50 +1734,13 @@ RunFR.Seurat <- function(object, reduction = NULL, dims = NULL, features = NULL,
   return(object)
 }
 
-#' @param object
-#'
-#' @param seed.use
-#' @param verbose
-#' @param reduction.key
-#' @param ...
-#' @param init
-#' @param assay
-#' @param perplexity
-#' @param n_neighbors
-#' @param metric
-#' @param n_epochs
-#' @param learning_rate
-#' @param scale
-#' @param init_sdev
-#' @param repulsion_strength
-#' @param negative_sample_rate
-#' @param nn_method
-#' @param n_trees
-#' @param search_k
-#' @param n_threads
-#' @param n_sgd_threads
-#' @param grain_size
-#' @param kernel
-#' @param pca
-#' @param pca_center
-#' @param pcg_rand
-#' @param fast_sgd
-#' @param batch
-#' @param opt_args
-#' @param epoch_callback
-#' @param pca_method
-#' @param n_components
-#'
 #' @rdname RunFR
 #' @method RunFR default
-#' @concept dimensional_reduction
 #' @importFrom Seurat CreateDimReducObject as.Graph
 #' @importFrom igraph graph_from_adjacency_matrix layout_with_fr
 #' @export
 RunFR.default <- function(object, ndim = 2, niter = 500,
-                          reduction.key = "FR_",
-                          verbose = TRUE, seed.use = 11L,
-                          ...) {
+                          reduction.key = "FR_", verbose = TRUE, seed.use = 11L, ...) {
   if (!is.null(x = seed.use)) {
     set.seed(seed = seed.use)
   }
@@ -2246,125 +1758,93 @@ RunFR.default <- function(object, ndim = 2, niter = 500,
   return(reduction)
 }
 
-#' Harmony single cell integration
+#' Run Harmony algorithm
 #'
-#' Run Harmony algorithm with Seurat pipelines.
+#' This is a modified version of harmony::RunHarmony specifically designed for compatibility with RunSymphonyMap.
 #'
-#' @param object An Seurat object
+#' @param object A Seurat object.
+#' @param group.by.vars A character vector specifying the batch variable name.
+#' @param reduction A character string specifying the reduction to be used. Default is "pca".
+#' @param dims.use An integer vector specifying the dimensions to be used. Default is 1:30.
+#' @param reduction.name A character string specifying the name of the reduction to be stored in the Seurat object. Default is "Harmony".
+#' @param reduction.key A character string specifying the prefix for the column names of the Harmony embeddings. Default is "Harmony_".
+#' @param project.dim A logical value indicating whether to project dimension reduction loadings. Default is TRUE.
+#' @param verbose A logical value indicating whether to print verbose output. Default is TRUE.
+#' @param seed.use An integer specifying the random seed to be used. Default is 11.
+#' @param ... Additional arguments to be passed to the \link[harmony]{RunHarmony} function.
+#'
+#' @examples
+#' panc8_sub <- Standard_SCP(panc8_sub)
+#' panc8_sub <- RunHarmony2(panc8_sub, group.by.vars = "tech", reduction = "Standardpca")
+#' CellDimPlot(panc8_sub, group.by = c("tech", "celltype"), reduction = "Standardpca")
+#' CellDimPlot(panc8_sub, group.by = c("tech", "celltype"), reduction = "Harmony")
 #'
 #' @rdname RunHarmony2
-#' @export RunHarmony2
-#'
+#' @export
 RunHarmony2 <- function(object, ...) {
   UseMethod(generic = "RunHarmony2", object = object)
 }
 
-#' @param object
-#'
-#' @param group.by.vars
-#' @param reduction
-#' @param dims.use
-#' @param theta
-#' @param lambda
-#' @param sigma
-#' @param nclust
-#' @param tau
-#' @param block.size
-#' @param max.iter.harmony
-#' @param max.iter.cluster
-#' @param epsilon.cluster
-#' @param epsilon.harmony
-#' @param plot_convergence
-#' @param verbose
-#' @param reference_values
-#' @param reduction.save
-#' @param assay.use
-#' @param project.dim
-#' @param ...
-#'
 #' @rdname RunHarmony2
 #' @method RunHarmony2 Seurat
 #' @importFrom Seurat Embeddings RunPCA FetchData CreateDimReducObject ProjectDim LogSeuratCommand
 #' @importFrom methods slot
 #' @importFrom stats sd
 #' @export
-RunHarmony2.Seurat <- function(object,
-                               group.by.vars,
-                               reduction = "pca",
-                               dims.use = NULL,
-                               theta = NULL,
-                               lambda = NULL,
-                               sigma = 0.1,
-                               nclust = NULL,
-                               tau = 0,
-                               block.size = 0.05,
-                               max.iter.harmony = 10,
-                               max.iter.cluster = 20,
-                               epsilon.cluster = 1e-5,
-                               epsilon.harmony = 1e-4,
-                               plot_convergence = FALSE,
-                               verbose = TRUE,
-                               reference_values = NULL,
-                               reduction.save = "Harmony",
-                               assay.use = "RNA",
+RunHarmony2.Seurat <- function(object, group.by.vars,
+                               reduction = "pca", dims.use = 1:30,
                                project.dim = TRUE,
-                               ...) {
+                               reduction.name = "Harmony", reduction.key = "Harmony_",
+                               verbose = TRUE, seed.use = 11L, ...) {
   check_R("immunogenomics/harmony")
-  available.dimreduc <- names(slot(object = object, name = "reductions"))
-  if (!(reduction %in% available.dimreduc)) {
-    stop("Requested dimension reduction is not present in the Seurat object")
-  }
-  embedding <- Embeddings(object, reduction = reduction)
-  if (is.null(dims.use)) {
-    dims.use <- seq_len(ncol(embedding))
-  }
-  dims_avail <- seq_len(ncol(embedding))
-  if (!all(dims.use %in% dims_avail)) {
-    stop("trying to use more dimensions than computed. Rereun dimension reduction
-         with more dimensions or run Harmony with fewer dimensions")
+  if (!is.null(x = seed.use)) {
+    set.seed(seed = seed.use)
   }
   if (length(dims.use) == 1) {
     stop("only specified one dimension in dims.use")
   }
-  embedding <- embedding[, dims.use, drop = FALSE]
-  metavars_df <- FetchData(object, group.by.vars)
 
-  harmonyObject <- harmony::HarmonyMatrix(
-    data_mat = embedding, meta_data = metavars_df, vars_use = group.by.vars,
-    do_pca = FALSE, npcs = 0, theta = theta, lambda = lambda, sigma = sigma,
-    nclust = nclust, tau = tau, block.size = block.size,
-    max.iter.harmony = max.iter.harmony, max.iter.cluster = max.iter.cluster,
-    epsilon.cluster = epsilon.cluster, epsilon.harmony = epsilon.harmony,
-    plot_convergence = plot_convergence, return_object = TRUE, verbose = verbose,
-    reference_values = reference_values
+  data.use <- Embeddings(object[[reduction]])
+  if (max(dims.use) > ncol(data.use)) {
+    stop("trying to use more dimensions than computed")
+  }
+
+  assay <- DefaultAssay(object = object[[reduction]])
+  metavars_df <- FetchData(object, group.by.vars, cells = rownames(data.use))
+
+  harmonyObject <- harmony::RunHarmony(
+    data_mat = data.use[, dims.use, drop = FALSE],
+    meta_data = metavars_df,
+    vars_use = group.by.vars,
+    verbose = verbose,
+    return_object = TRUE,
+    ...
   )
 
   harmonyEmbed <- t(as.matrix(harmonyObject$Z_corr))
-  rownames(harmonyEmbed) <- row.names(embedding)
-  colnames(harmonyEmbed) <- paste0(reduction.save, "_", seq_len(ncol(harmonyEmbed)))
+  rownames(harmonyEmbed) <- row.names(data.use)
+  colnames(harmonyEmbed) <- paste0(reduction.name, "_", seq_len(ncol(harmonyEmbed)))
 
   harmonyClusters <- t(harmonyObject$R)
-  rownames(harmonyClusters) <- row.names(embedding)
+  rownames(harmonyClusters) <- row.names(data.use)
   colnames(harmonyClusters) <- paste0("R", seq_len(ncol(harmonyClusters)))
 
-  suppressWarnings({
-    object[[reduction.save]] <- CreateDimReducObject(
-      embeddings = harmonyEmbed,
-      stdev = as.numeric(apply(harmonyEmbed, 2, sd)),
-      assay = assay.use,
-      key = reduction.save,
-      misc = list(
-        R = harmonyClusters,
-        reduction_use = reduction,
-        reduction_dims = dims.use
-      )
+  object[[reduction.name]] <- CreateDimReducObject(
+    embeddings = harmonyEmbed,
+    stdev = as.numeric(apply(harmonyEmbed, 2, sd)),
+    assay = assay,
+    key = reduction.key,
+    misc = list(
+      R = harmonyClusters,
+      reduction_use = reduction,
+      reduction_dims = dims.use
     )
-  })
+  )
 
   if (project.dim) {
     object <- ProjectDim(
       object,
-      reduction = reduction.save,
+      reduction = reduction.name,
       overwrite = TRUE,
       verbose = FALSE
     )

@@ -33,68 +33,84 @@ Integration_SCP(
   force_nonlinear_reduction = TRUE,
   neighbor_metric = "euclidean",
   neighbor_k = 20L,
-  neighbor_ntrees = 50L,
   cluster_algorithm = "louvain",
   cluster_resolution = 0.6,
-  cluster_reorder = TRUE,
   seed = 11,
   ...
 )
 }
 \arguments{
-\item{srtMerge}{A merged \code{Seurat} object with batch information.}
+\item{srtMerge}{A merged Seurat object that includes the batch information.}
 
-\item{batch}{Metadata column name containing the batch information.}
+\item{batch}{A character string specifying the batch variable name.}
 
-\item{append}{Whether append results into the \code{srtMerge}. Only valid when srtMerge is provided.}
+\item{append}{Logical, if TRUE, the integrated data will be appended to the original Seurat object (srtMerge).}
 
-\item{srtList}{A list of \code{Seurat} object.}
+\item{srtList}{A list of Seurat objects to be checked and preprocessed.}
 
-\item{integration_method}{Integration method. Can be one of "Uncorrected", "Seurat", "scVI", "MNN", "fastMNN", "Harmony", "Scanorama", "BBKNN", "CSS", "LIGER", "Conos", "ComBat".}
+\item{assay}{The name of the assay to be used for downstream analysis.}
 
-\item{do_normalization}{Whether to normalize the data. If NULL, will automatically determine.}
+\item{integration_method}{A character string specifying the integration method to use.
+Supported methods are: \code{"Uncorrected"}, \code{"Seurat"}, \code{"scVI"}, \code{"MNN"}, \code{"fastMNN"}, \code{"Harmony"},
+\code{"Scanorama"}, \code{"BBKNN"}, \code{"CSS"}, \code{"LIGER"}, \code{"Conos"}, \code{"ComBat"}. Default is \code{"Uncorrected"}.}
 
-\item{normalization_method}{Normalization method.Can be one of "LogNormalize", "SCT".}
+\item{do_normalization}{A logical value indicating whether data normalization should be performed.}
 
-\item{do_HVF_finding}{Whether to find the high variable features(HVF). If NULL, will automatically determine.}
+\item{normalization_method}{The normalization method to be used. Possible values are "LogNormalize", "SCT", and "TFIDF". Default is "LogNormalize".}
 
-\item{HVF_source}{Source of the HVF. Can be one of "separate" and "global".}
+\item{do_HVF_finding}{A logical value indicating whether highly variable feature (HVF) finding should be performed. Default is TRUE.}
 
-\item{nHVF}{HVF number to use.}
+\item{HVF_source}{The source of highly variable features. Possible values are "global" and "separate". Default is "separate".}
 
-\item{HVF}{Custom high variable features.}
+\item{HVF_method}{The method for selecting highly variable features. Default is "vst".}
 
-\item{do_scaling}{Whether to scale the data. If NULL, will automatically determine.}
+\item{nHVF}{The number of highly variable features to select. Default is 2000.}
 
-\item{vars_to_regress}{Variables to regress out.}
+\item{HVF_min_intersection}{The feature needs to be present in batches for a minimum number of times in order to be considered as highly variable. The default value is 1.}
 
-\item{regression_model}{Use a linear model or generalized linear model (poisson, negative binomial) for the regression. Options are "linear" (default), "poisson", and "negbinom".}
+\item{HVF}{A vector of highly variable features. Default is NULL.}
 
-\item{linear_reduction}{linear reduction method name. Can be one of "pca", "ica", "nmf", "mds", "glmpca".}
+\item{do_scaling}{A logical value indicating whether to perform scaling. If TRUE, the function will force to scale the data using the ScaleData function.}
 
-\item{linear_reduction_dims}{Dimensions to calculate when performing linear reduction.}
+\item{vars_to_regress}{A vector of variable names to include as additional regression variables. Default is NULL.}
 
-\item{linear_reduction_dims_use}{Which dimensions to use when performing the nonlinear reduction.}
+\item{regression_model}{The regression model to use for scaling. Options are "linear", "poisson", or "negativebinomial" (default is "linear").}
 
-\item{nonlinear_reduction}{Non-linear reduction method name. Can be one of "umap", "umap-naive", "tsne", "dm", "phate", "pacmap", "trimap", "largevis".}
+\item{linear_reduction}{The linear dimensionality reduction method to use. Options are "pca", "svd", "ica", "nmf", "mds", or "glmpca" (default is "pca").}
 
-\item{nonlinear_reduction_dims}{Dimensions to calculate when performing non-linear reduction.}
+\item{linear_reduction_dims}{The number of dimensions to keep after linear dimensionality reduction (default is 50).}
 
-\item{cluster_algorithm}{Algorithm for modularity optimization when finding clusters. Can be one of "louvain", "slm", "leiden".}
+\item{linear_reduction_dims_use}{The dimensions to use for downstream analysis. If NULL, all dimensions will be used.}
 
-\item{cluster_resolution}{Cluster resolution parameter.}
+\item{linear_reduction_params}{A list of parameters to pass to the linear dimensionality reduction method.}
 
-\item{cluster_reorder}{Whether to reorder the cluster names using hierarchical clustering.}
+\item{force_linear_reduction}{A logical value indicating whether to force linear dimensionality reduction even if the specified reduction is already present in the Seurat object.}
 
-\item{seed}{Set a random seed.}
+\item{nonlinear_reduction}{The nonlinear dimensionality reduction method to use. Options are "umap","umap-naive", "tsne", "dm", "phate", "pacmap", "trimap", "largevis", or "fr" (default is "umap").}
 
-\item{...}{}
+\item{nonlinear_reduction_dims}{The number of dimensions to keep after nonlinear dimensionality reduction. If a vector is provided, different numbers of dimensions can be specified for each method (default is c(2, 3)).}
+
+\item{nonlinear_reduction_params}{A list of parameters to pass to the nonlinear dimensionality reduction method.}
+
+\item{force_nonlinear_reduction}{A logical value indicating whether to force nonlinear dimensionality reduction even if the specified reduction is already present in the Seurat object.}
+
+\item{neighbor_metric}{The distance metric to use for finding neighbors. Options are "euclidean", "cosine", "manhattan", or "hamming" (default is "euclidean").}
+
+\item{neighbor_k}{The number of nearest neighbors to use for finding neighbors (default is 20).}
+
+\item{cluster_algorithm}{The clustering algorithm to use. Options are "louvain", "slm", or "leiden" (default is "louvain").}
+
+\item{cluster_resolution}{The resolution parameter to use for clustering. Larger values result in fewer clusters (default is 0.6).}
+
+\item{seed}{An integer specifying the random seed for reproducibility. Default is 11.}
+
+\item{...}{Additional arguments to be passed to the integration method function.}
 }
 \value{
 A \code{Seurat} object.
 }
 \description{
-Single cell pipeline for the integration of multiple datasets.
+Integrate single-cell RNA-seq data using various integration methods.
 }
 \examples{
 data("panc8_sub")
@@ -128,4 +144,7 @@ for (nr in nonlinear_reductions) {
 }
 }
 
+}
+\seealso{
+\code{\link{Seurat_integrate}} \code{\link{scVI_integrate}} \code{\link{MNN_integrate}} \code{\link{fastMNN_integrate}} \code{\link{Harmony_integrate}} \code{\link{Scanorama_integrate}} \code{\link{BBKNN_integrate}} \code{\link{CSS_integrate}} \code{\link{LIGER_integrate}} \code{\link{Conos_integrate}} \code{\link{ComBat_integrate}} \code{\link{Standard_SCP}}
 }

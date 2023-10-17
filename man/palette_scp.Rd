@@ -54,5 +54,5 @@ names(all_palettes)
 
 }
 \seealso{
-\code{\link{show_palettes}}
+\code{\link{show_palettes}} \code{\link{palette_list}}
 }

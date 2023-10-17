@@ -572,6 +572,15 @@ GSEAPlot(srt = pancreas_sub, group_by = "CellType", group_use = "Endocrine", id_
 <img src="README/README-RunGSEA-1.png" width="100%" style="display: block; margin: auto;" />
 
 ``` r
+GSEAPlot(
+  srt = pancreas_sub, group_by = "CellType", group_use = "Endocrine", plot_type = "bar",
+  direction = "both", topTerm = 20
+)
+```
+
+<img src="README/README-GSEA_bar-1.png" width="100%" style="display: block; margin: auto;" />
+
+``` r
 GSEAPlot(srt = pancreas_sub, group_by = "CellType", plot_type = "comparison")
 ```
 

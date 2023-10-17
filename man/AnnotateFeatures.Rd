@@ -2,7 +2,8 @@
 % Please edit documentation in R/SCP-feature_annotation.R
 \name{AnnotateFeatures}
 \alias{AnnotateFeatures}
-\title{AnnotateFeatures}
+\title{AnnotateFeatures
+Annotate features in a Seurat object with additional metadata from databases or a GTF file.}
 \usage{
 AnnotateFeatures(
   srt,
@@ -11,7 +12,7 @@ AnnotateFeatures(
   db = NULL,
   db_update = FALSE,
   db_version = "latest",
-  convert_species = FALSE,
+  convert_species = TRUE,
   Ensembl_version = 103,
   mirror = NULL,
   gtf = NULL,
@@ -23,10 +24,38 @@ AnnotateFeatures(
 )
 }
 \arguments{
-\item{convert_species}{}
+\item{srt}{Seurat object to be annotated.}
+
+\item{species}{Name of the species to be used for annotation. Default is "Homo_sapiens".}
+
+\item{IDtype}{Type of identifier to use for annotation. Default is "symbol" with options "symbol", "ensembl_id", and "entrez_id".}
+
+\item{db}{Vector of database names to be used for annotation. Default is NULL.}
+
+\item{db_update}{Logical value indicating whether to update the database. Default is FALSE.}
+
+\item{db_version}{Version of the database to use. Default is "latest".}
+
+\item{convert_species}{A logical value indicating whether to use a species-converted database when the annotation is missing for the specified species. The default value is TRUE.}
+
+\item{Ensembl_version}{Version of the Ensembl database to use. Default is 103.}
+
+\item{mirror}{URL of the mirror to use for Ensembl database. Default is NULL.}
+
+\item{gtf}{Path to the GTF file to be used for annotation. Default is NULL.}
+
+\item{merge_gtf_by}{Column name to merge the GTF file by. Default is "gene_name".}
+
+\item{columns}{Vector of column names to be used from the GTF file. Default is
+"seqname", "feature", "start", "end", "strand", "gene_id", "gene_name", "gene_type".}
+
+\item{assays}{Character vector of assay names to be annotated. Default is "RNA".}
+
+\item{overwrite}{Logical value indicating whether to overwrite existing metadata. Default is FALSE.}
 }
 \description{
 AnnotateFeatures
+Annotate features in a Seurat object with additional metadata from databases or a GTF file.
 }
 \examples{
 data("pancreas_sub")
@@ -39,4 +68,7 @@ head(pancreas_sub[["RNA"]]@meta.features)
 ## Annotate features using a GTF file
 # pancreas_sub <- AnnotateFeatures(pancreas_sub, gtf = "/data/reference/CellRanger/refdata-gex-mm10-2020-A/genes/genes.gtf")
 # head(pancreas_sub[["RNA"]]@meta.features)
+}
+\seealso{
+\code{\link{PrepareDB}} \code{\link{ListDB}}
 }

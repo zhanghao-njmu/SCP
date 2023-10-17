@@ -2,7 +2,7 @@
 % Please edit documentation in R/SCP-workflow.R
 \name{Standard_SCP}
 \alias{Standard_SCP}
-\title{Standard_SCP}
+\title{Standard SCP}
 \usage{
 Standard_SCP(
   srt,
@@ -28,57 +28,69 @@ Standard_SCP(
   force_nonlinear_reduction = TRUE,
   neighbor_metric = "euclidean",
   neighbor_k = 20L,
-  neighbor_ntrees = 50L,
   cluster_algorithm = "louvain",
   cluster_resolution = 0.6,
-  cluster_reorder = TRUE,
   seed = 11
 )
 }
 \arguments{
-\item{srt}{A \code{Seurat} object.}
+\item{srt}{A Seurat object.}
 
-\item{prefix}{The prefix used to name the result.}
+\item{prefix}{A prefix to add to the names of intermediate objects created by the function (default is "Standard").}
 
-\item{do_normalization}{Whether to normalize the data. If NULL, will automatically determine.}
+\item{assay}{The name of the assay to use for the analysis. If NULL, the default assay of the Seurat object will be used.}
 
-\item{normalization_method}{Normalization method.Can be one of "LogNormalize", "SCT".}
+\item{do_normalization}{A logical value indicating whether to perform normalization. If NULL, normalization will be performed if the specified assay does not have scaled data.}
 
-\item{do_HVF_finding}{Whether to find the high variable features(HVF). If NULL, will automatically determine.}
+\item{normalization_method}{The method to use for normalization. Options are "LogNormalize", "SCT", or "TFIDF" (default is "LogNormalize").}
 
-\item{nHVF}{HVF number to use.}
+\item{do_HVF_finding}{A logical value indicating whether to perform high variable feature finding. If TRUE, the function will force to find the highly variable features (HVF) using the specified HVF method.}
 
-\item{HVF}{Custom high variable features.}
+\item{HVF_method}{The method to use for finding highly variable features. Options are "vst", "mvp" or "disp" (default is "vst").}
 
-\item{do_scaling}{Whether to scale the data. If NULL, will automatically determine.}
+\item{nHVF}{The number of highly variable features to select. If NULL, all highly variable features will be used.}
 
-\item{vars_to_regress}{Variables to regress out.}
+\item{HVF}{A vector of feature names to use as highly variable features. If NULL, the function will use the highly variable features identified by the HVF method.}
 
-\item{regression_model}{Use a linear model or generalized linear model (poisson, negative binomial) for the regression. Options are "linear" (default), "poisson", and "negbinom".}
+\item{do_scaling}{A logical value indicating whether to perform scaling. If TRUE, the function will force to scale the data using the ScaleData function.}
 
-\item{linear_reduction}{linear reduction method name. Can be one of "pca", "ica", "nmf", "mds", "glmpca".}
+\item{vars_to_regress}{A vector of feature names to use as regressors in the scaling step. If NULL, no regressors will be used.}
 
-\item{linear_reduction_dims}{Dimensions to calculate when performing linear reduction.}
+\item{regression_model}{The regression model to use for scaling. Options are "linear", "poisson", or "negativebinomial" (default is "linear").}
 
-\item{linear_reduction_dims_use}{Which dimensions to use when performing the nonlinear reduction.}
+\item{linear_reduction}{The linear dimensionality reduction method to use. Options are "pca", "svd", "ica", "nmf", "mds", or "glmpca" (default is "pca").}
 
-\item{nonlinear_reduction}{Non-linear reduction method name. Can be one of "umap", "umap-naive", "tsne", "dm", "phate", "pacmap", "trimap", "largevis".}
+\item{linear_reduction_dims}{The number of dimensions to keep after linear dimensionality reduction (default is 50).}
 
-\item{nonlinear_reduction_dims}{Dimensions to calculate when performing non-linear reduction.}
+\item{linear_reduction_dims_use}{The dimensions to use for downstream analysis. If NULL, all dimensions will be used.}
 
-\item{cluster_algorithm}{Algorithm for modularity optimization when finding clusters. Can be one of "louvain", "slm", "leiden".}
+\item{linear_reduction_params}{A list of parameters to pass to the linear dimensionality reduction method.}
 
-\item{cluster_resolution}{Cluster resolution parameter.}
+\item{force_linear_reduction}{A logical value indicating whether to force linear dimensionality reduction even if the specified reduction is already present in the Seurat object.}
 
-\item{cluster_reorder}{Whether to reorder the cluster names using hierarchical clustering.}
+\item{nonlinear_reduction}{The nonlinear dimensionality reduction method to use. Options are "umap","umap-naive", "tsne", "dm", "phate", "pacmap", "trimap", "largevis", or "fr" (default is "umap").}
 
-\item{seed}{Set a random seed.}
+\item{nonlinear_reduction_dims}{The number of dimensions to keep after nonlinear dimensionality reduction. If a vector is provided, different numbers of dimensions can be specified for each method (default is c(2, 3)).}
+
+\item{nonlinear_reduction_params}{A list of parameters to pass to the nonlinear dimensionality reduction method.}
+
+\item{force_nonlinear_reduction}{A logical value indicating whether to force nonlinear dimensionality reduction even if the specified reduction is already present in the Seurat object.}
+
+\item{neighbor_metric}{The distance metric to use for finding neighbors. Options are "euclidean", "cosine", "manhattan", or "hamming" (default is "euclidean").}
+
+\item{neighbor_k}{The number of nearest neighbors to use for finding neighbors (default is 20).}
+
+\item{cluster_algorithm}{The clustering algorithm to use. Options are "louvain", "slm", or "leiden" (default is "louvain").}
+
+\item{cluster_resolution}{The resolution parameter to use for clustering. Larger values result in fewer clusters (default is 0.6).}
+
+\item{seed}{The random seed to use for reproducibility (default is 11).}
 }
 \value{
 A \code{Seurat} object.
 }
 \description{
-Single cell pipeline for the single dataset.
+This function performs a standard single-cell analysis workflow.
 }
 \examples{
 data("pancreas_sub")
@@ -104,4 +116,7 @@ pancreas_sub <- Standard_SCP(
 plist2 <- lapply(nonlinear_reductions, function(nr) CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = paste0("Standardpca", toupper(nr), "2D"), theme_use = "theme_blank"))
 patchwork::wrap_plots(plotlist = plist2)
 
+}
+\seealso{
+\code{\link{Integration_SCP}}
 }

@@ -11,9 +11,9 @@ invoke(.fn, .args = list(), ..., .env = caller_env())
 
 \item{.args}{A list of arguments.}
 
-\item{.env}{Environment in which to evaluate the call. This will be most useful if .fn is a string, or the function has side-effects.}
+\item{...}{Other arguments passed to the function.}
 
-\item{Other}{arguments passed to the function.}
+\item{.env}{Environment in which to evaluate the call. This will be most useful if .fn is a string, or the function has side-effects.}
 }
 \description{
 Invoke a function with a list of arguments

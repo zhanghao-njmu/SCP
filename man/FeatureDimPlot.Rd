@@ -50,7 +50,6 @@ FeatureDimPlot(
   label_point_color = "black",
   label_segment_color = "black",
   lineages = NULL,
-  lineages_weights = NULL,
   lineages_trim = c(0.01, 0.99),
   lineages_span = 0.75,
   lineages_palette = "Dark2",
@@ -254,14 +253,10 @@ FeatureDimPlot(
 
 \item{seed}{Random seed set for reproducibility}
 }
-\value{
-A single ggplot object if combine = TRUE; otherwise, a list of ggplot objects
-}
 \description{
 Plotting cell points on a reduced 2D plane and coloring according to the values of the features.
 }
 \examples{
-library(dplyr)
 data("pancreas_sub")
 pancreas_sub <- Standard_SCP(pancreas_sub)
 FeatureDimPlot(pancreas_sub, features = "G2M_score", reduction = "UMAP")
@@ -329,4 +324,7 @@ FeatureDimPlot(pancreas_sub,
   label = TRUE, label_insitu = TRUE
 )
 
+}
+\seealso{
+\code{\link{CellDimPlot}}
 }

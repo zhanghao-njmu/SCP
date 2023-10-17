@@ -29,7 +29,7 @@ The tolerance is its difference from the integer. Default is 0.1}
 
 \item{sf}{Set the scaling factor manually.}
 
-\item{verbose}{Show messages.}
+\item{verbose}{Whether to show messages.}
 }
 \description{
 Attempt to recover raw counts from the normalized matrix.

@@ -2,7 +2,7 @@ def SCVELO(adata=None, h5ad=None, group_by=None, palette=None,
           linear_reduction=None, nonlinear_reduction=None,basis=None,
           mode=["deterministic","stochastic","dynamical"],fitting_by="stochastic",
           magic_impute=False,knn=5, t=2,
-          min_shared_counts=30, n_pcs=30, n_neighbors=30, approx=True, 
+          min_shared_counts=30, n_pcs=30, n_neighbors=30, 
           stream_smooth=None, stream_density=2,
           arrow_size=5, arrow_length=5,arrow_density=0.5,
           denoise=False,denoise_topn=3,kinetics=False,kinetics_topn=100,
@@ -164,7 +164,7 @@ def SCVELO(adata=None, h5ad=None, group_by=None, palette=None,
       
         # Velocity graph
         scv.tl.velocity(adata, mode=m, vkey=vkey,diff_kinetics=dk)
-        scv.tl.velocity_graph(adata, vkey=vkey, gene_subset=gene_subset, n_neighbors=n_neighbors, approx=approx, n_jobs=n_jobs)
+        scv.tl.velocity_graph(adata, vkey=vkey, gene_subset=gene_subset, n_neighbors=n_neighbors, n_jobs=n_jobs)
         if m=="dynamical":
           adata.var["velocity_genes"]=adata.var[m+"_genes"]
           adata.layers["velocity"]=adata.layers[m]
@@ -318,7 +318,7 @@ def CellRank(adata=None, h5ad=None, group_by=None,palette=None,
              linear_reduction=None, nonlinear_reduction=None,basis=None,
              mode=["deterministic","stochastic","dynamical"],fitting_by="stochastic",
              magic_impute=False,knn=5, t=2,
-             min_shared_counts=30, n_pcs=30, n_neighbors=30, approx=True, 
+             min_shared_counts=30, n_pcs=30, n_neighbors=30, 
              stream_smooth=None, stream_density=2,
              arrow_size=5, arrow_length=5,arrow_density=0.5,
              s_genes=None, g2m_genes=None,calculate_velocity_genes=False,
@@ -400,7 +400,7 @@ def CellRank(adata=None, h5ad=None, group_by=None,palette=None,
       adata=SCVELO(adata=adata,group_by=group_by, n_jobs=n_jobs,
                    linear_reduction=linear_reduction, nonlinear_reduction=nonlinear_reduction,basis=basis,
                    mode=mode,fitting_by=fitting_by,magic_impute=magic_impute,knn=knn, t=t,
-                   min_shared_counts=min_shared_counts, n_pcs=n_pcs, n_neighbors=n_neighbors, approx=approx, 
+                   min_shared_counts=min_shared_counts, n_pcs=n_pcs, n_neighbors=n_neighbors,
                    stream_smooth=stream_smooth, stream_density=stream_density,
                    arrow_size=arrow_size, arrow_length=arrow_length,arrow_density=arrow_density,
                    denoise=denoise,kinetics=kinetics,
@@ -879,148 +879,6 @@ def WOT(adata=None, h5ad=None, group_by=None,palette=None,
         coupling = tmap_model.get_coupling(time_dict[time_from], time_dict[time_to])
         coupling_df = pd.DataFrame(coupling.X, index=coupling.obs_names, columns=coupling.var_names)
         adata.uns["coupling_"+str(time_from)+"_to_"+str(time_to)]= coupling_df
-
-  finally:
-      os.chdir(prevdir)
-
-  try:
-    adata.__dict__['_raw'].__dict__['_var'] = adata.__dict__[
-        '_raw'].__dict__['_var'].rename(columns={'_index': 'features'})
-  except:
-    pass
-
-  return adata
-
-
-def Dynamo(adata=None, h5ad=None,group_by=None,palette=None,
-           linear_reduction=None,nonlinear_reduction=None,basis=None,
-           n_pcs=30,n_neighbors=30,dm_n_components=10,dm_alpha=0,dm_n_eigs=None,
-           early_group = None, terminal_groups = None,early_cell=None,terminal_cells=None,
-           num_waypoints=1200,scale_components=True,use_early_cell_as_start=False,
-           max_iterations=25,n_jobs=1,
-           point_size=20,
-           show_plot=True, dpi=300,save=False, dirpath="./", fileprefix=""):
-  import matplotlib.pyplot as plt
-  import matplotlib
-  import statistics
-  from math import hypot
-  import scanpy as sc
-  import numpy as np
-  import pandas as pd
-  import palantir
-  
-  import warnings
-  warnings.simplefilter("ignore", category=UserWarning)
-  warnings.simplefilter("ignore", category=FutureWarning)
-  warnings.simplefilter("ignore", category=DeprecationWarning)
-  
-  import os
-  prevdir = os.getcwd()
-  os.chdir(os.path.expanduser(dirpath))
-  
-  import platform
-  if platform.system()=="Windows":
-    import sys, multiprocessing, re
-    if re.match(pattern=".*pythonw.exe$",string=sys.executable):
-      pythonw=sys.executable
-    else:
-      pythonw=sys.executable.replace("python.exe", "pythonw.exe")
-    sys.executable = pythonw
-    sys._base_executable = pythonw
-    multiprocessing.set_executable(pythonw) 
-
-  try:
-    if adata is None and h5ad is None:
-      print("adata or h5ad must be provided.")
-      exit()
-    
-    if adata is None:
-      adata = sc.read(h5ad)
-    # del adata.uns
-    
-    if group_by is None and (early_group is not None or terminal_groups is not None):
-      print("group_by must be provided.")
-      exit()
-    
-    if linear_reduction is None and nonlinear_reduction is None:
-      print("linear_reduction or nonlinear_reduction must be provided at least one.")
-      exit()
-      
-    if linear_reduction is None:
-      sc.pp.pca(adata, n_comps = n_pcs)
-      linear_reduction="X_pca"
-      
-    if basis is None:
-      if nonlinear_reduction is not None:
-        basis=nonlinear_reduction
-      else:
-        basis=linear_reduction
-      
-    if point_size is None:
-      point_size = min(100000 / adata.shape[0],20)  
-    
-    if early_group is not None and early_cell is None:
-      cell = adata.obs[group_by].index.values[adata.obs[group_by]==early_group]
-      early_group_cell=adata.obsm[basis][adata.obs[group_by]==early_group,][:, [0, 1]]
-      x=statistics.median(early_group_cell[:,0])
-      y=statistics.median(early_group_cell[:,1])
-      diff=np.array((x - early_group_cell[:,0], y - early_group_cell[:,1]))
-      dist=[]
-      for i in range(diff.shape[1]):
-        dist.append(hypot(diff[0,i],diff[1,i]))
-      early_cell=cell[dist.index(min(dist))]
-      
-    if early_cell is None:
-      print("early_cell must be provided.")
-      exit()
-    else:  
-      print("early_cell: ",early_cell)
-          
-    if terminal_groups is not None and terminal_cells is None:
-      terminal_cells=[]
-      for n in range(len(terminal_groups)):
-        terminal_group=terminal_groups[n]
-        cell = adata.obs[group_by].index.values[adata.obs[group_by]==terminal_group]
-        terminal_group_cell=adata.obsm[basis][adata.obs[group_by]==terminal_group,][:, [0, 1]]
-        x=statistics.median(terminal_group_cell[:,0])
-        y=statistics.median(terminal_group_cell[:,1])
-        diff=np.array((x - terminal_group_cell[:,0], y - terminal_group_cell[:,1]))
-        dist=[]
-        for i in range(diff.shape[1]):
-          dist.append(hypot(diff[0,i],diff[1,i]))
-        terminal_cells.append(cell[dist.index(min(dist))])
-
-    if terminal_cells is None:
-      print("terminal_cells: None")
-    else:  
-      print("terminal_cells: ",terminal_cells)
-
-    pca_projections = pd.DataFrame(adata.obsm[linear_reduction][:,:n_pcs], index=adata.obs_names)
-    dm_res = palantir.utils.run_diffusion_maps(pca_projections, n_components=dm_n_components, knn=n_neighbors, alpha=dm_alpha)
-    ms_data = palantir.utils.determine_multiscale_space(dm_res,n_eigs=dm_n_eigs)
-    pr_res = palantir.core.run_palantir(ms_data=ms_data,early_cell=early_cell,terminal_states=terminal_cells, knn=n_neighbors,num_waypoints=num_waypoints,
-    scale_components=scale_components,use_early_cell_as_start=use_early_cell_as_start,max_iterations=max_iterations,n_jobs=n_jobs)
-
-    adata.obsm["palantir_dm"]=dm_res["T"].toarray()
-    adata.uns["dm_kernel"]=dm_res["kernel"]
-    for term in np.append(pr_res.branch_probs.columns.values, np.array(["palantir_pseudotime","palantir_diff_potential"])):
-      if term in adata.obs.columns:
-        adata.obs.drop(term, axis=1, inplace=True)
-    adata.obs=adata.obs.join(pr_res.pseudotime.to_frame("palantir_pseudotime"))
-    adata.obs=adata.obs.join(pr_res.entropy.to_frame("palantir_diff_potential"))
-    adata.obs=adata.obs.join(pr_res.branch_probs)
-    
-    sc.pl.embedding(adata,basis=basis,color="palantir_pseudotime",size = point_size)
-    if save:
-      plt.savefig('.'.join(filter(None, [fileprefix, "palantir_pseudotime.png"])), dpi=dpi)
-      
-    sc.pl.embedding(adata,basis=basis,color="palantir_diff_potential",size = point_size)
-    if save:
-      plt.savefig('.'.join(filter(None, [fileprefix, "palantir_diff_potential.png"])), dpi=dpi)
-      
-    sc.pl.embedding(adata,basis=basis,color=pr_res.branch_probs.columns.values,size = point_size)
-    if save:
-      plt.savefig('.'.join(filter(None, [fileprefix, "palantir_probs.png"])), dpi=dpi)
 
   finally:
       os.chdir(prevdir)

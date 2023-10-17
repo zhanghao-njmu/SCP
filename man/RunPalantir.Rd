@@ -21,9 +21,9 @@ RunPalantir(
   dm_alpha = 0,
   dm_n_eigs = NULL,
   early_group = NULL,
-  terminal_groups = NULL,
   early_cell = NULL,
   terminal_cells = NULL,
+  terminal_groups = NULL,
   num_waypoints = 1200,
   scale_components = TRUE,
   use_early_cell_as_start = TRUE,
@@ -35,46 +35,83 @@ RunPalantir(
   palette = "Paired",
   palcolor = NULL,
   show_plot = TRUE,
-  dpi = 300,
   save = FALSE,
+  dpi = 300,
   dirpath = "./",
   fileprefix = "",
   return_seurat = !is.null(srt)
 )
 }
 \arguments{
-\item{srt}{A \code{Seurat} object.}
+\item{srt}{A Seurat object.}
 
-\item{adata}{An \code{anndata} object. Can be created through \code{\link{srt_to_adata}}}
+\item{assay_X}{Assay to convert as the main data matrix (X) in the anndata object.}
 
-\item{group_by}{group_by.}
+\item{slot_X}{Slot name for assay_X in the Seurat object.}
 
-\item{linear_reduction}{linear_reduction.}
+\item{assay_layers}{Assays to convert as layers in the anndata object.}
 
-\item{nonlinear_reduction}{nonlinear_reduction.}
+\item{slot_layers}{Slot names for the assay_layers in the Seurat object.}
 
-\item{basis}{basis.}
+\item{adata}{An anndata object.}
 
-\item{n_pcs}{n_pcs.}
+\item{group_by}{Variable to use for grouping cells in the Seurat object.}
 
-\item{n_neighbors}{n_neighbors.}
+\item{linear_reduction}{Linear reduction method to use, e.g., "PCA".}
 
-\item{n_jobs}{n_jobs.}
+\item{nonlinear_reduction}{Non-linear reduction method to use, e.g., "UMAP".}
 
-\item{point_size}{point_size.}
+\item{basis}{The basis to use for reduction, e.g., "UMAP".}
 
-\item{dpi}{dpi.}
+\item{n_pcs}{Number of principal components to use for linear reduction. Default is 30.}
 
-\item{save}{save.}
+\item{n_neighbors}{Number of neighbors to use for constructing the KNN graph. Default is 30.}
 
-\item{dirpath}{dirpath.}
+\item{dm_n_components}{The number of diffusion components to calculate.}
 
-\item{fileprefix}{fileprefix.}
+\item{dm_alpha}{Normalization parameter for the diffusion operator.}
 
-\item{return_seurat}{}
-}
-\value{
-A \code{anndata} object.
+\item{dm_n_eigs}{Number of eigen vectors to use.}
+
+\item{early_group}{Name of the group to start Palantir analysis from.}
+
+\item{early_cell}{Name of the cell to start Palantir analysis from.}
+
+\item{terminal_cells}{Character vector specifying terminal cells for Palantir analysis.}
+
+\item{terminal_groups}{Character vector specifying terminal groups for Palantir analysis.}
+
+\item{num_waypoints}{Number of waypoints to be included.}
+
+\item{scale_components}{Should the cell fate probabilities be scaled for each component independently?}
+
+\item{use_early_cell_as_start}{Should the starting cell for each terminal group be set as early_cell?}
+
+\item{adjust_early_cell}{Whether to adjust the early cell to the cell with the minimum pseudotime value.}
+
+\item{adjust_terminal_cells}{hether to adjust the terminal cells to the cells with the maximum pseudotime value for each terminal group.}
+
+\item{max_iterations}{Maximum number of iterations for pseudotime convergence.}
+
+\item{n_jobs}{The number of parallel jobs to run.}
+
+\item{point_size}{The point size for plotting.}
+
+\item{palette}{The palette to use for coloring cells.}
+
+\item{palcolor}{A vector of colors to use as the palette.}
+
+\item{show_plot}{Whether to show the PAGA plot.}
+
+\item{save}{Whether to save the PAGA plots.}
+
+\item{dpi}{The DPI (dots per inch) for saving the PAGA plot.}
+
+\item{dirpath}{The directory to save the PAGA plots.}
+
+\item{fileprefix}{The file prefix to use for the PAGA plots.}
+
+\item{return_seurat}{Whether to return a Seurat object instead of an anndata object. Default is TRUE.}
 }
 \description{
 Run Palantir analysis
@@ -90,4 +127,7 @@ head(pancreas_sub[[]])
 FeatureDimPlot(pancreas_sub, c("palantir_pseudotime", "palantir_diff_potential"))
 FeatureDimPlot(pancreas_sub, paste0(c("Alpha", "Beta", "Delta", "Epsilon"), "_diff_potential"))
 
+}
+\seealso{
+\code{\link{srt_to_adata}}
 }

@@ -13,9 +13,9 @@ RunDoubletCalling(
 )
 }
 \arguments{
-\item{srt}{A \code{Seurat} object.}
+\item{srt}{A Seurat object.}
 
-\item{assay}{Assay to use.}
+\item{assay}{The name of the assay to be used for doublet-calling. Default is "RNA".}
 
 \item{db_method}{Doublet-calling methods used. Can be one of \code{scDblFinder}, \code{Scrublet}, \code{DoubletDetection}, \code{scds_cxds}, \code{scds_bcds}, \code{scds_hybrid}}
 

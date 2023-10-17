@@ -1,33 +1,35 @@
 # StemID
 NULL
 
-#' Annotate single cells using similarity.
+#' RunKNNPredict
 #'
-#' @param srt_query A seurat object.
-#' @param bulk_ref A cell atlas matrix, e.g., SCP::ref_scHCL
-#' @param k Number of predictions to return.
-#' @param query_assay \code{assay} used in the srt_query
-#' @param DE_threshold Threshold used to filter the DE features. Default is "p_val < 0.05". If using "roc" test, \code{DE_threshold} should be needs to be reassigned. e.g. "power > 0.5"
-#' @param srt_ref
-#' @param query_group
-#' @param ref_group
-#' @param ref_assay
-#' @param query_reduction
-#' @param ref_reduction
-#' @param query_dims
-#' @param ref_dims
-#' @param query_collapsing
-#' @param ref_collapsing
-#' @param return_full_distance_matrix
-#' @param features
-#' @param features_type
-#' @param feature_source
-#' @param nfeatures
-#' @param DEtest_param
-#' @param nn_method
-#' @param distance_metric
-#' @param filter_lowfreq
-#' @param prefix
+#' This function performs KNN prediction to annotate cell types based on reference scRNA-seq or bulk RNA-seq data.
+#'
+#' @param srt_query An object of class Seurat to be annotated with cell types.
+#' @param srt_ref An object of class Seurat storing the reference cells.
+#' @param bulk_ref A cell atlas matrix, where cell types are represented by columns and genes are represented by rows, for example, SCP::ref_scHCL. Either `srt_ref` or `bulk_ref` must be provided.
+#' @param query_group A character vector specifying the column name in the `srt_query` metadata that represents the cell grouping.
+#' @param ref_group A character vector specifying the column name in the `srt_ref` metadata that represents the cell grouping.
+#' @param query_assay A character vector specifying the assay to be used for the query data. Defaults to the default assay of the `srt_query` object.
+#' @param ref_assay A character vector specifying the assay to be used for the reference data. Defaults to the default assay of the `srt_ref` object.
+#' @param query_reduction A character vector specifying the dimensionality reduction method used for the query data. If NULL, the function will use the default reduction method specified in the `srt_query` object.
+#' @param ref_reduction A character vector specifying the dimensionality reduction method used for the reference data. If NULL, the function will use the default reduction method specified in the `srt_ref` object.
+#' @param query_dims A numeric vector specifying the dimensions to be used for the query data. Defaults to the first 30 dimensions.
+#' @param ref_dims A numeric vector specifying the dimensions to be used for the reference data. Defaults to the first 30 dimensions.
+#' @param query_collapsing A boolean value indicating whether the query data should be collapsed to group-level average expression values. If TRUE, the function will calculate the average expression values for each group in the query data and the annotation will be performed separately for each group. Otherwise it will use the raw expression values for each cell.
+#' @param ref_collapsing A boolean value indicating whether the reference data should be collapsed to group-level average expression values. If TRUE, the function will calculate the average expression values for each group in the reference data and the annotation will be performed separately for each group. Otherwise it will use the raw expression values for each cell.
+#' @param return_full_distance_matrix A boolean value indicating whether the full distance matrix should be returned. If TRUE, the function will return the distance matrix used for the KNN prediction, otherwise it will only return the annotated cell types.
+#' @param features A character vector specifying the features (genes) to be used for the KNN prediction. If NULL, all the features in the query and reference data will be used.
+#' @param features_type A character vector specifying the type of features to be used for the KNN prediction. Must be one of "HVF" (highly variable features) or "DE" (differentially expressed features). Defaults to "HVF".
+#' @param feature_source A character vector specifying the source of the features to be used for the KNN prediction. Must be one of "both", "query", or "ref". Defaults to "both".
+#' @param nfeatures An integer specifying the maximum number of features to be used for the KNN prediction. Defaults to 2000.
+#' @param DEtest_param A list of parameters to be passed to the differential expression test function if `features_type` is set to "DE". Defaults to `list(max.cells.per.ident = 200, test.use = "wilcox")`.
+#' @param DE_threshold Threshold used to filter the DE features. Default is "p_val < 0.05". If using "roc" test, \code{DE_threshold} should be needs to be reassigned. e.g. "power > 0.5".
+#' @param nn_method A character vector specifying the method to be used for finding nearest neighbors. Must be one of "raw", "rann", or "annoy". Defaults to "raw".
+#' @param distance_metric A character vector specifying the distance metric to be used for calculating similarity between cells. Must be one of "cosine", "euclidean", "manhattan", or "hamming". Defaults to "cosine".
+#' @param k An integer specifying the number of nearest neighbors to be considered for the KNN prediction. Defaults to 30.
+#' @param filter_lowfreq An integer specifying the threshold for filtering low-frequency cell types from the predicted results. Cell types with a frequency lower than `filter_lowfreq` will be labelled as "unreliable". Defaults to 0, which means no filtering will be performed.
+#' @param prefix A character vector specifying the prefix to be added to the resulting annotations. Defaults to "KNNPredict".
 #'
 #' @examples
 #' # Annotate cells using bulk RNA-seq data
@@ -492,16 +494,11 @@ RunKNNPredict <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
 
 #' Annotate single cells using scmap.
 #'
-#' @param srt_query
-#' @param srt_ref
-#' @param ref_group
-#' @param method
-#' @param n_features
-#' @param threshold
-#' @param k
-#' @param query_assay
-#' @param ref_assay
-#' @param force
+#' @inheritParams RunKNNPredict
+#' @param method The method to be used for scmap analysis. Can be any of "scmapCluster" or "scmapCell". The default value is "scmapCluster".
+#' @param nfeatures The number of top features to be selected. The default value is 500.
+#' @param threshold The threshold value on similarity to determine if a cell is assigned to a cluster. This should be a value between 0 and 1. The default value is 0.5.
+#' @param k Number of clusters per group for k-means clustering when method is "scmapCell".
 #'
 #' @examples
 #' data("panc8_sub")
@@ -527,9 +524,8 @@ RunKNNPredict <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
 #'
 #' @importFrom Seurat GetAssayData
 #' @export
-RunScmap <- function(srt_query, srt_ref, ref_group = NULL, method = "scmapCluster",
-                     n_features = 500, threshold = 0.5, k = 10,
-                     query_assay = "RNA", ref_assay = "RNA") {
+RunScmap <- function(srt_query, srt_ref, ref_group = NULL, query_assay = "RNA", ref_assay = "RNA",
+                     method = "scmapCluster", nfeatures = 500, threshold = 0.5, k = 10) {
   check_R("scmap")
   if (!is.null(ref_group)) {
     if (length(ref_group) == ncol(srt_ref)) {
@@ -575,7 +571,7 @@ RunScmap <- function(srt_query, srt_ref, ref_group = NULL, method = "scmapCluste
   SummarizedExperiment::colData(x = sce_ref) <- S4Vectors::DataFrame(metadata_ref)
 
   message("Perform selectFeatures on the data...")
-  sce_ref <- scmap::selectFeatures(sce_ref, n_features = n_features, suppress_plot = TRUE)
+  sce_ref <- scmap::selectFeatures(sce_ref, n_features = nfeatures, suppress_plot = TRUE)
   features <- rownames(sce_ref)[SummarizedExperiment::rowData(sce_ref)$scmap_features]
 
   if (method == "scmapCluster") {
@@ -596,7 +592,7 @@ RunScmap <- function(srt_query, srt_ref, ref_group = NULL, method = "scmapCluste
   } else if (method == "scmapCell") {
     message("Perform indexCell on the data...")
     sce_ref <- scmap::indexCell(sce_ref,
-      M = ifelse(n_features <= 1000, n_features / 10, 100),
+      M = ifelse(nfeatures <= 1000, nfeatures / 10, 100),
       k = sqrt(ncol(sce_ref))
     )
     message("Perform scmapCell on the data...")
@@ -624,26 +620,13 @@ RunScmap <- function(srt_query, srt_ref, ref_group = NULL, method = "scmapCluste
   return(srt_query)
 }
 
-#' Annotate single cells using scmap.
+#' Annotate single cells using SingleR
 #'
-#' @param srt_query
-#' @param srt_ref
-#' @param query_group
-#' @param ref_group
-#' @param genes
-#' @param de.method
-#' @param sd.thresh
-#' @param de.n
-#' @param aggr.ref
-#' @param aggr.args
-#' @param quantile
-#' @param fine.tune
-#' @param tune.thresh
-#' @param prune
-#' @param BPPARAM
-#' @param query_assay
-#' @param ref_assay
-#' @param force
+#' @inheritParams RunKNNPredict
+#' @inheritParams SingleR::SingleR
+#' @inheritParams SingleR::trainSingleR
+#' @param genes "genes" parameter in \code{\link[SingleR]{SingleR}} function.
+#' @param de.method "de.method" parameter in \code{\link[SingleR]{SingleR}} function.
 #'
 #' @examples
 #' data("panc8_sub")
@@ -670,11 +653,11 @@ RunScmap <- function(srt_query, srt_ref, ref_group = NULL, method = "scmapCluste
 #' @importFrom Seurat GetAssayData
 #' @export
 RunSingleR <- function(srt_query, srt_ref, query_group = NULL, ref_group = NULL,
+                       query_assay = "RNA", ref_assay = "RNA",
                        genes = "de", de.method = "wilcox", sd.thresh = 1, de.n = NULL,
                        aggr.ref = FALSE, aggr.args = list(),
                        quantile = 0.8, fine.tune = TRUE, tune.thresh = 0.05, prune = TRUE,
-                       BPPARAM = BiocParallel::bpparam(),
-                       query_assay = "RNA", ref_assay = "RNA") {
+                       BPPARAM = BiocParallel::bpparam()) {
   check_R("SingleR")
   if (!is.null(ref_group)) {
     if (length(ref_group) == ncol(srt_ref)) {

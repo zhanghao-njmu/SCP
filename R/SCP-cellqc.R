@@ -1,9 +1,11 @@
 #' Run doublet-calling with scDblFinder
 #'
-#' @param srt
-#' @param assay
-#' @param db_rate
-#' @param ...
+#' This function performs doublet-calling using the scDblFinder package on a Seurat object.
+#'
+#' @param srt A Seurat object.
+#' @param assay The name of the assay to be used for doublet-calling. Default is "RNA".
+#' @param db_rate The expected doublet rate. Default is calculated as ncol(srt) / 1000 * 0.01.
+#' @param ... Additional arguments to be passed to scDblFinder::scDblFinder function.
 #'
 #' @examples
 #' data("pancreas_sub")
@@ -30,11 +32,13 @@ db_scDblFinder <- function(srt, assay = "RNA", db_rate = ncol(srt) / 1000 * 0.01
 
 #' Run doublet-calling with scds
 #'
-#' @param srt
-#' @param assay
-#' @param db_rate
-#' @param method
-#' @param ...
+#' This function performs doublet-calling using the scds package on a Seurat object.
+#'
+#' @param srt A Seurat object.
+#' @param assay The name of the assay to be used for doublet-calling. Default is "RNA".
+#' @param db_rate The expected doublet rate. Default is calculated as ncol(srt) / 1000 * 0.01.
+#' @param method The method to be used for doublet-calling. Options are "hybrid", "cxds", or "bcds".
+#' @param ... Additional arguments to be passed to scds::cxds_bcds_hybrid function.
 #'
 #' @examples
 #' data("pancreas_sub")
@@ -43,7 +47,7 @@ db_scDblFinder <- function(srt, assay = "RNA", db_rate = ncol(srt) / 1000 * 0.01
 #' FeatureDimPlot(pancreas_sub, reduction = "umap", features = "db.scds_hybrid_score")
 #' @importFrom Seurat as.SingleCellExperiment
 #' @export
-db_scds <- function(srt, assay = "RNA", db_rate = ncol(srt) / 1000 * 0.01, method = "hybrid", ...) {
+db_scds <- function(srt, assay = "RNA", db_rate = ncol(srt) / 1000 * 0.01, method = c("hybrid", "cxds", "bcds"), ...) {
   if (!inherits(srt, "Seurat")) {
     stop("'srt' is not a Seurat object.")
   }
@@ -52,6 +56,7 @@ db_scds <- function(srt, assay = "RNA", db_rate = ncol(srt) / 1000 * 0.01, metho
     stop("Data type is not raw counts!")
   }
   check_R("scds")
+  method <- match.arg(method)
   sce <- as.SingleCellExperiment(srt, assay = assay)
   sce <- scds::cxds_bcds_hybrid(sce, ...)
   srt[["db.scds_cxds_score"]] <- sce[["cxds_score"]]
@@ -66,10 +71,12 @@ db_scds <- function(srt, assay = "RNA", db_rate = ncol(srt) / 1000 * 0.01, metho
 
 #' Run doublet-calling with Scrublet
 #'
-#' @param srt
-#' @param assay
-#' @param db_rate
-#' @param ...
+#' This function performs doublet-calling using the scrublet(python) package on a Seurat object.
+#'
+#' @param srt A Seurat object.
+#' @param assay The name of the assay to be used for doublet-calling. Default is "RNA".
+#' @param db_rate The expected doublet rate. Default is calculated as ncol(srt) / 1000 * 0.01.
+#' @param ... Additional arguments to be passed to scrublet.Scrublet function.
 #'
 #' @examples
 #' data("pancreas_sub")
@@ -107,10 +114,12 @@ db_Scrublet <- function(srt, assay = "RNA", db_rate = ncol(srt) / 1000 * 0.01, .
 
 #' Run doublet-calling with DoubletDetection
 #'
-#' @param srt
-#' @param assay
-#' @param db_rate
-#' @param ...
+#' This function performs doublet-calling using the doubletdetection(python) package on a Seurat object.
+#'
+#' @param srt A Seurat object.
+#' @param assay The name of the assay to be used for doublet-calling. Default is "RNA".
+#' @param db_rate The expected doublet rate. Default is calculated as ncol(srt) / 1000 * 0.01.
+#' @param ... Additional arguments to be passed to doubletdetection.BoostClassifier function.
 #'
 #' @examples
 #' data("pancreas_sub")
@@ -153,8 +162,8 @@ db_DoubletDetection <- function(srt, assay = "RNA", db_rate = ncol(srt) / 1000 *
 #'
 #' Identification of heterotypic (or neotypic) doublets in single-cell RNAseq data.
 #'
-#' @param srt A \code{Seurat} object.
-#' @param assay Assay to use.
+#' @param srt A Seurat object.
+#' @param assay The name of the assay to be used for doublet-calling. Default is "RNA".
 #' @param db_method Doublet-calling methods used. Can be one of \code{scDblFinder}, \code{Scrublet}, \code{DoubletDetection}, \code{scds_cxds}, \code{scds_bcds}, \code{scds_hybrid}
 #' @param db_rate The expected doublet rate. By default this is assumed to be 1\% per thousand cells captured (so 4\% among 4000 thousand cells), which is appropriate for 10x datasets.
 #' @param ... Arguments passed to the corresponding doublet-calling method.
@@ -205,14 +214,26 @@ RunDoubletCalling <- function(srt, assay = "RNA", db_method = "scDblFinder", db_
   }
 }
 
-#' Detect outliers using MAD(Median and Median Absolute Deviation) method
+#' Detect outliers using MAD(Median Absolute Deviation) method
 #'
-#' @param x
-#' @param nmads
-#' @param constant
-#' @param type
+#' This function detects outliers in a numeric vector using the MAD (Median Absolute Deviation) method. It calculates the median and the MAD, and determines the boundaries for outliers based on the median and the selected number of MADs.
+#'
+#' @param x a numeric vector.
+#' @param nmads the number of median absolute deviations (MADs) from the median to define the boundaries for outliers. The default value is 2.5.
+#' @param constant a constant factor to convert the MAD to a standard deviation. The default value is 1.4826, which is consistent with the MAD of a normal distribution.
+#' @param type the type of outliers to detect. Available options are "both" (default), "lower", or "higher". If set to "both", it detects both lower and higher outliers. If set to "lower", it detects only lower outliers. If set to "higher", it detects only higher outliers.
 #'
 #' @importFrom stats mad
+#' @return A numeric vector of indices indicating the positions of outliers in \code{x}.
+#' @examples
+#' x <- c(1, 2, 3, 4, 5, 100)
+#' isOutlier(x) # returns 6
+#'
+#' x <- c(3, 4, 5, NA, 6, 7)
+#' isOutlier(x, nmads = 1.5, type = "lower") # returns 4
+#'
+#' x <- c(10, 20, NA, 15, 35)
+#' isOutlier(x, nmads = 2, type = "higher") # returns 3, 5
 #' @export
 isOutlier <- function(x, nmads = 2.5, constant = 1.4826, type = c("both", "lower", "higher")) {
   type <- match.arg(type, c("both", "lower", "higher"))
@@ -239,22 +260,29 @@ isOutlier <- function(x, nmads = 2.5, constant = 1.4826, type = c("both", "lower
 #' and reject cell data for non-species of interest based on the proportion and number of UMIs for the species.
 #'
 #' @inheritParams RunDoubletCalling
-#' @param qc_metrics QC metrics applied.
-#' @param return_filtered Whether to return a cell-filtered \code{Seurat} object.
-#' @param outlier_cutoff MAD outlier metrics. See \link[scuttle]{isOutlier}.
+#' @param batch Name of the batch variable to split the Seurat object. Default is NULL.
+#' @param qc_metrics A character vector specifying the quality control metrics to be applied. Default is
+#'   `c("doublets", "outlier", "umi", "gene", "mito", "ribo", "ribo_mito_ratio", "species")`.
+#' @param return_filtered Logical indicating whether to return a cell-filtered Seurat object. Default is FALSE.
+#' @param outlier_cutoff A character vector specifying the outlier cutoff values. Default is
+#'   `c("log10_nCount:lower:2.5", "log10_nCount:higher:5", "log10_nFeature:lower:2.5", "log10_nFeature:higher:5", "featurecount_dist:lower:2.5")`. See \link[scuttle]{isOutlier}.
+#' @param db_coefficient The coefficient used to calculate the doublet rate. Default is 0.01. Doublet rate is calculated as`ncol(srt) / 1000 * db_coefficient`
 #' @param outlier_n Minimum number of outlier metrics that meet the conditions for determining outlier cells. Default is 1.
 #' @param UMI_threshold UMI number threshold. Cells that exceed this threshold will be considered as kept. Default is 3000.
 #' @param gene_threshold Gene number threshold. Cells that exceed this threshold will be considered as kept. Default is 1000.
 #' @param mito_threshold Percentage of UMI counts of mitochondrial genes. Cells that exceed this threshold will be considered as discarded. Default is 20.
-#' @param mito_pattern Regex patterns to match the mitochondrial genes.
-#' @param mito_gene A defined mitochondrial genes. If features provided, will ignore the \code{mito_pattern} matching.
+#' @param mito_pattern Regex patterns to match the mitochondrial genes. Default is `c("MT-", "Mt-", "mt-")`.
+#' @param mito_gene A defined mitochondrial genes. If features provided, will ignore the \code{mito_pattern} matching. Default is \code{NULL}.
 #' @param ribo_threshold Percentage of UMI counts of ribosomal genes. Cells that exceed this threshold will be considered as discarded. Default is 50.
-#' @param ribo_pattern Regex patterns to match the ribosomal genes.
-#' @param ribo_gene A defined ribosomal genes. If features provided, will ignore the \code{ribo_pattern} matching.
+#' @param ribo_pattern Regex patterns to match the ribosomal genes. Default is `c("RP[SL]\\d+\\w{0,1}\\d*$", "Rp[sl]\\d+\\w{0,1}\\d*$", "rp[sl]\\d+\\w{0,1}\\d*$")`.
+#' @param ribo_gene A defined ribosomal genes. If features provided, will ignore the \code{ribo_pattern} matching. Default is \code{NULL}.
+#' @param ribo_mito_ratio_range A numeric vector specifying the range of ribosomal/mitochondrial gene expression ratios for ribo_mito_ratio outlier cells. Default is c(1, Inf).
 #' @param species Species used as the suffix of the QC metrics. The first is the species of interest. Default is \code{NULL}.
 #' @param species_gene_prefix Species gene prefix used to calculate QC metrics for each species. Default is \code{NULL}.
 #' @param species_percent Percentage of UMI counts of the first species. Cells that exceed this threshold will be considered as kept. Default is 95.
 #' @param seed Set a random seed. Default is 11.
+#'
+#' @return Returns Seurat object with the QC results stored in the meta.data slot.
 #'
 #' @note
 #' General quality control usually uses metrics such as gene count, UMI count, etc.
@@ -264,8 +292,6 @@ isOutlier <- function(x, nmads = 2.5, constant = 1.4826, type = c("both", "lower
 #' ribo content is cell type dependent, with some cell types having even more than 50% ribo content;
 #' however, ribo content in single cell data can also indicate whether the empty droplets,
 #' and the ribo content in empty droplets is usually high and the mito content is low instead.
-#'
-#' @return Returns Seurat object with the QC results stored in the meta.data slot.
 #'
 #' @examples
 #' data("pancreas_sub")

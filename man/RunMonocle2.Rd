@@ -6,7 +6,6 @@
 \usage{
 RunMonocle2(
   srt,
-  annotation = NULL,
   assay = NULL,
   slot = "counts",
   expressionFamily = "negbinomial.size",
@@ -23,31 +22,57 @@ RunMonocle2(
 )
 }
 \arguments{
-\item{seed}{}
+\item{srt}{A Seurat object.}
+
+\item{assay}{The name of the assay in the Seurat object to use for analysis. Defaults to NULL, in which case the default assay of the object is used.}
+
+\item{slot}{The slot in the Seurat object to use for analysis. Default is "counts".}
+
+\item{expressionFamily}{The distribution family to use for modeling gene expression. Default is "negbinomial.size".}
+
+\item{features}{A vector of gene names or indices specifying the features to use in the analysis. Defaults to NULL, in which case features were determined by \code{feature_type}.}
+
+\item{feature_type}{The type of features to use in the analysis. Possible values are "HVF" for highly variable features
+or "Disp" for features selected based on dispersion. Default is "HVF".}
+
+\item{disp_filter}{A string specifying the filter to use when \code{feature_type} is "Disp". Default is
+"mean_expression >= 0.1 & dispersion_empirical >= 1 * dispersion_fit".}
+
+\item{max_components}{The maximum number of dimensions to use for dimensionality reduction. Default is 2.}
+
+\item{reduction_method}{The dimensionality reduction method to use. Possible values are "DDRTree" and "UMAP". Default is "DDRTree".}
+
+\item{norm_method}{The normalization method to use. Possible values are "log" and "none". Default is "log".}
+
+\item{residualModelFormulaStr}{A model formula specifying the effects to subtract. Default is NULL.}
+
+\item{pseudo_expr}{Amount to increase expression values before dimensionality reduction. Default is 1.}
+
+\item{root_state}{The state to use as the root of the trajectory. If NULL, will prompt for user input.}
+
+\item{seed}{An integer specifying the random seed to use. Default is 11.}
 }
 \description{
-Run Monocle2 analysis
+Runs the Monocle2 algorithm on a Seurat object.
 }
 \examples{
 if (interactive()) {
   data("pancreas_sub")
-  pancreas_sub <- RunMonocle2(srt = pancreas_sub, annotation = "CellType")
+  pancreas_sub <- RunMonocle2(srt = pancreas_sub)
   names(pancreas_sub@tools$Monocle2)
   trajectory <- pancreas_sub@tools$Monocle2$trajectory
 
-  p1 <- CellDimPlot(pancreas_sub, group.by = "Monocle2_State", reduction = "DDRTree", label = TRUE, theme_use = "theme_blank") + trajectory
-  p2 <- CellDimPlot(pancreas_sub, group.by = "Monocle2_State", reduction = "UMAP", label = TRUE, theme_use = "theme_blank")
-  p3 <- FeatureDimPlot(pancreas_sub, features = "Monocle2_Pseudotime", reduction = "UMAP", theme_use = "theme_blank")
-  print(p1 + p2 + p3)
+  CellDimPlot(pancreas_sub, group.by = "Monocle2_State", reduction = "DDRTree", label = TRUE, theme_use = "theme_blank") + trajectory
+  CellDimPlot(pancreas_sub, group.by = "Monocle2_State", reduction = "UMAP", label = TRUE, theme_use = "theme_blank")
+  FeatureDimPlot(pancreas_sub, features = "Monocle2_Pseudotime", reduction = "UMAP", theme_use = "theme_blank")
 
   pancreas_sub <- RunMonocle2(
-    srt = pancreas_sub, annotation = "CellType",
+    srt = pancreas_sub,
     feature_type = "Disp", disp_filter = "mean_expression >= 0.01 & dispersion_empirical >= 1 * dispersion_fit"
   )
   trajectory <- pancreas_sub@tools$Monocle2$trajectory
-  p1 <- CellDimPlot(pancreas_sub, group.by = "Monocle2_State", reduction = "DDRTree", label = TRUE, theme_use = "theme_blank") + trajectory
-  p2 <- CellDimPlot(pancreas_sub, group.by = "Monocle2_State", reduction = "UMAP", label = TRUE, theme_use = "theme_blank")
-  p3 <- FeatureDimPlot(pancreas_sub, features = "Monocle2_Pseudotime", reduction = "UMAP", theme_use = "theme_blank")
-  print(p1 + p2 + p3)
+  CellDimPlot(pancreas_sub, group.by = "Monocle2_State", reduction = "DDRTree", label = TRUE, theme_use = "theme_blank") + trajectory
+  CellDimPlot(pancreas_sub, group.by = "Monocle2_State", reduction = "UMAP", label = TRUE, theme_use = "theme_blank")
+  FeatureDimPlot(pancreas_sub, features = "Monocle2_Pseudotime", reduction = "UMAP", theme_use = "theme_blank")
 }
 }

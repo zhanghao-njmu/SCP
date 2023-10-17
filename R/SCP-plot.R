@@ -69,6 +69,7 @@ theme_scp <- function(aspect.ratio = NULL, base_size = 12, ...) {
 #' @param ylab y-axis label.
 #' @param lab_size Label size.
 #' @param ... Arguments passed to the \code{\link[ggplot2]{theme}}.
+#'
 #' @examples
 #' library(ggplot2)
 #' p <- ggplot(mtcars, aes(x = wt, y = mpg, colour = factor(cyl))) +
@@ -142,8 +143,7 @@ theme_blank <- function(add_coord = TRUE, xlen_npc = 0.15, ylen_npc = 0.15, xlab
 #' @param NA_keep Whether to keep the color assignment to NA in \code{x}.
 #' @param NA_color Color assigned to NA if NA_keep is \code{TRUE}.
 #'
-#' @seealso
-#' \code{\link{show_palettes}}
+#' @seealso \code{\link{show_palettes}} \code{\link{palette_list}}
 #'
 #' @examples
 #' x <- c(1:3, NA, 3:5)
@@ -270,12 +270,16 @@ palette_scp <- function(x, n = 100, palette = "Paired", palcolor = NULL, type = 
 
 #' Show the color palettes
 #'
-#' @param palettes A list of custom color palettes to be shown.
-#' @param type Specifies the type of color palettes collected in SCP.
-#' @param index The index of the palette in SCP palette list. If \code{NULL}, show all palettes collected in SCP.
-#' @param palette_names Specifies name of the color palettes collected in SCP.
-#' @param return_names Whether to return the palette names.
-#' @param return_palettes Whether to return the palettes.
+#' This function displays color palettes using ggplot2.
+#'
+#' @param palettes A list of color palettes. If `NULL`, uses default palettes.
+#' @param type A character vector specifying the type of palettes to include. Default is "discrete".
+#' @param index A numeric vector specifying the indices of the palettes to include. Default is `NULL`.
+#' @param palette_names A character vector specifying the names of the SCP palettes to include. Default is `NULL`.
+#' @param return_names A logical value indicating whether to return the names of the selected palettes. Default is `TRUE`.
+#' @param return_palettes A logical value indicating whether to return the colors of selected palettes. Default is `FALSE`.
+#'
+#' @seealso \code{\link{palette_scp}} \code{\link{palette_list}}
 #'
 #' @examples
 #' show_palettes(palettes = list(c("red", "blue", "green"), c("yellow", "purple", "orange")))
@@ -345,9 +349,10 @@ show_palettes <- function(palettes = NULL, type = c("discrete", "continuous"), i
 #' @param x A ggplot object, a grob object, or a combined plot made by patchwork or cowplot package.
 #' @param panel_index Specify the panel to be fixed. If NULL, will fix all panels.
 #' @param respect If a logical, this indicates whether row heights and column widths should respect each other.
-#' @param width The width of the panel.
-#' @param height The height of the panel.
-#' @param margin Margins around the plot.
+#' @param width The desired width of the fixed panels.
+#' @param height The desired height of the fixed panels.
+#' @param margin The margin to add around each panel, in inches. The default is 1 inch.
+#' @param padding The padding to add around each panel, in inches. The default is 0 inches.
 #' @param units The units in which \code{height}, \code{width} and \code{margin} are given. Can be \code{mm}, \code{cm}, \code{in}, etc. See \code{\link[grid]{unit}}.
 #' @param raster Whether to rasterize the panel.
 #' @param dpi Plot resolution.
@@ -356,8 +361,7 @@ show_palettes <- function(palettes = NULL, type = c("discrete", "continuous"), i
 #' @param save NULL or the file name used to save the plot.
 #' @param bg_color Plot background color.
 #' @param verbose Whether to print messages.
-#' @param device
-#' @param ...
+#' @param ... Unused.
 #'
 #' @examples
 #' library(ggplot2)
@@ -572,10 +576,7 @@ panel_fix <- function(x = NULL, panel_index = NULL, respect = NULL,
   }
 }
 
-#' Fix the width/height of panels in a single plot object.
-#'
-#' @inheritParams panel_fix
-#'
+#' @rdname panel_fix
 #' @importFrom ggplot2 ggsave zeroGrob
 #' @importFrom gtable gtable_add_padding
 #' @importFrom grid grob unit unitType convertWidth convertHeight convertUnit viewport grid.draw rasterGrob grobTree addGrob
@@ -977,16 +978,21 @@ get_vars <- function(p, reverse, verbose = FALSE) {
 
 #' Convert a color with arbitrary transparency to a fixed color
 #'
+#' This function takes a vector of colors and an alpha level and converts the colors
+#' to fixed colors with the specified alpha level.
+#'
 #' @param colors Color vectors.
 #' @param alpha Alpha level in [0,1]
 #' @examples
 #' colors <- c("red", "blue", "green")
 #' adjcolors(colors, 0.5)
+#' ggplot2::alpha(colors, 0.5)
 #'
-#' library(scales)
-#' alpha(colors, 0.5)
-#'
-#' show_palettes(list(colors, adjcolors(colors, 0.5), alpha(colors, 0.5)))
+#' show_palettes(list(
+#'   "raw" = colors,
+#'   "adjcolors" = adjcolors(colors, 0.5),
+#'   "ggplot2::alpha" = ggplot2::alpha(colors, 0.5)
+#' ))
 #'
 #' @export
 adjcolors <- function(colors, alpha) {
@@ -1000,8 +1006,13 @@ adjcolors <- function(colors, alpha) {
 
 #' Blend colors
 #'
+#' This function blends a list of colors using the specified blend mode.
+#'
 #' @param colors Color vectors.
-#' @param mode Blend mode.
+#' @param mode Blend mode. One of "blend", "average", "screen", or "multiply".
+#'
+#' @seealso \code{\link{FeatureDimPlot}}
+#'
 #' @examples
 #' blend <- c("red", "green", blendcolors(c("red", "green"), mode = "blend"))
 #' average <- c("red", "green", blendcolors(c("red", "green"), mode = "average"))
@@ -1139,7 +1150,7 @@ BlendRGBList <- function(Clist, mode = "blend", RGB_BackGround = c(1, 1, 1)) {
 #' @param stat_type Set stat types ("percent" or "count").
 #' @param stat_plot_type Set the statistical plot type.
 #' @param stat_plot_size Set the statistical plot size. Defaults to 0.1
-#' @param stat_plot_palette Color palette used in statistical plot
+#' @param stat_plot_palette Color palette used in statistical plot.
 #' @param stat_palcolor Custom colors used in statistical plot
 #' @param stat_plot_position Position adjustment in statistical plot.
 #' @param stat_plot_alpha Transparency of the statistical plot.
@@ -1200,10 +1211,9 @@ BlendRGBList <- function(Clist, mode = "blend", RGB_BackGround = c(1, 1, 1)) {
 #' @param theme_args Other arguments passed to the \code{theme_use}.
 #' @param seed Random seed set for reproducibility
 #'
-#' @return A single ggplot/patchwork object if combine = TRUE; otherwise, a list of ggplot objects
+#' @seealso \code{\link{FeatureDimPlot}}
 #'
 #' @examples
-#' library(dplyr)
 #' data("pancreas_sub")
 #' CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP")
 #' CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", theme_use = "theme_blank", show_stat = FALSE)
@@ -1290,7 +1300,7 @@ CellDimPlot <- function(srt, group.by, reduction = NULL, dims = c(1, 2), split.b
                         label_point_size = 1, label_point_color = "black", label_segment_color = "black",
                         cells.highlight = NULL, cols.highlight = "black", sizes.highlight = 1, alpha.highlight = 1, stroke.highlight = 0.5,
                         add_density = FALSE, density_color = "grey80", density_filled = FALSE, density_filled_palette = "Greys", density_filled_palcolor = NULL,
-                        lineages = NULL, lineages_weights = NULL, lineages_trim = c(0.01, 0.99), lineages_span = 0.75,
+                        lineages = NULL, lineages_trim = c(0.01, 0.99), lineages_span = 0.75,
                         lineages_palette = "Dark2", lineages_palcolor = NULL, lineages_arrow = arrow(length = unit(0.1, "inches")),
                         lineages_linewidth = 1, lineages_line_bg = "white", lineages_line_bg_stroke = 0.5,
                         lineages_whiskers = FALSE, lineages_whiskers_linewidth = 0.5, lineages_whiskers_alpha = 0.5,
@@ -1407,7 +1417,7 @@ CellDimPlot <- function(srt, group.by, reduction = NULL, dims = c(1, 2), split.b
   if (!is.null(lineages)) {
     lineages_layers <- LineagePlot(srt,
       cells = cells,
-      lineages = lineages, weights = lineages_weights, reduction = reduction, dims = dims,
+      lineages = lineages, reduction = reduction, dims = dims,
       trim = lineages_trim, span = lineages_span,
       palette = lineages_palette, palcolor = lineages_palcolor, lineages_arrow = lineages_arrow,
       linewidth = lineages_linewidth, line_bg = lineages_line_bg, line_bg_stroke = lineages_line_bg_stroke,
@@ -1867,10 +1877,9 @@ CellDimPlot <- function(srt, group.by, reduction = NULL, dims = c(1, 2), split.b
 #' @param theme_args Other arguments passed to the \code{theme_use}.
 #' @param seed Random seed set for reproducibility
 #'
-#' @return A single ggplot object if combine = TRUE; otherwise, a list of ggplot objects
+#' @seealso \code{\link{CellDimPlot}}
 #'
 #' @examples
-#' library(dplyr)
 #' data("pancreas_sub")
 #' pancreas_sub <- Standard_SCP(pancreas_sub)
 #' FeatureDimPlot(pancreas_sub, features = "G2M_score", reduction = "UMAP")
@@ -1962,7 +1971,7 @@ FeatureDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), spli
                            label = FALSE, label.size = 4, label.fg = "white", label.bg = "black", label.bg.r = 0.1,
                            label_insitu = FALSE, label_repel = FALSE, label_repulsion = 20,
                            label_point_size = 1, label_point_color = "black", label_segment_color = "black",
-                           lineages = NULL, lineages_weights = NULL, lineages_trim = c(0.01, 0.99), lineages_span = 0.75,
+                           lineages = NULL, lineages_trim = c(0.01, 0.99), lineages_span = 0.75,
                            lineages_palette = "Dark2", lineages_palcolor = NULL, lineages_arrow = arrow(length = unit(0.1, "inches")),
                            lineages_linewidth = 1, lineages_line_bg = "white", lineages_line_bg_stroke = 0.5,
                            lineages_whiskers = FALSE, lineages_whiskers_linewidth = 0.5, lineages_whiskers_alpha = 0.5,
@@ -2120,7 +2129,7 @@ FeatureDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), spli
 
   if (!is.null(lineages)) {
     lineages_layers <- LineagePlot(srt,
-      lineages = lineages, weights = lineages_weights, reduction = reduction, dims = dims,
+      lineages = lineages, reduction = reduction, dims = dims,
       trim = lineages_trim, span = lineages_span,
       palette = lineages_palette, palcolor = lineages_palcolor, lineages_arrow = lineages_arrow,
       linewidth = lineages_linewidth, line_bg = lineages_line_bg, line_bg_stroke = lineages_line_bg_stroke,
@@ -2708,9 +2717,13 @@ FeatureDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), spli
 #' Plotting cell points on a reduced 3D space and coloring according to the groups of the cells.
 #'
 #' @inheritParams CellDimPlot
+#' @param axis_labs A character vector of length 3 indicating the labels for the axes.
+#' @param span A numeric value specifying the span of the loess smoother for lineages line.
 #' @param shape.highlight Shape of the cell to highlight. See \href{https://plotly.com/r/reference/scattergl/#scattergl-marker-symbol}{scattergl-marker-symbol}
 #' @param width Width in pixels, defaults to automatic sizing.
 #' @param height Height in pixels, defaults to automatic sizing.
+#' @param save The name of the file to save the plot to. Must end in .html.
+#' @seealso \code{\link{CellDimPlot}} \code{\link{FeatureDimPlot3D}}
 #'
 #' @examples
 #' data("pancreas_sub")
@@ -2726,7 +2739,7 @@ FeatureDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), spli
 CellDimPlot3D <- function(srt, group.by, reduction = NULL, dims = c(1, 2, 3), axis_labs = NULL,
                           palette = "Paired", palcolor = NULL, bg_color = "grey80", pt.size = 1.5,
                           cells.highlight = NULL, cols.highlight = "black", shape.highlight = "circle-open", sizes.highlight = 2,
-                          lineages = NULL, lineage_palette = "Dark2", span = 0.75, arrow_reverse = FALSE,
+                          lineages = NULL, lineages_palette = "Dark2", span = 0.75,
                           width = NULL, height = NULL, save = NULL, force = FALSE) {
   bg_color <- col2hex(bg_color)
   cols.highlight <- col2hex(cols.highlight)
@@ -2885,7 +2898,7 @@ CellDimPlot3D <- function(srt, group.by, reduction = NULL, dims = c(1, 2, 3), ax
         ),
         type = "scatter3d",
         mode = "lines",
-        line = list(width = 6, color = palette_scp(x = lineages, palette = lineage_palette)[l], reverscale = FALSE),
+        line = list(width = 6, color = palette_scp(x = lineages, palette = lineages_palette)[l], reverscale = FALSE),
         name = l,
         showlegend = TRUE,
         visible = TRUE
@@ -2932,13 +2945,15 @@ CellDimPlot3D <- function(srt, group.by, reduction = NULL, dims = c(1, 2, 3), ax
 #' 3D-Dimensional reduction plot for gene expression visualization.
 #'
 #' Plotting cell points on a reduced 3D space and coloring according to the gene expression in the cells.
+#' @inheritParams FeatureDimPlot
+#' @inheritParams CellDimPlot3D
+#'
+#' @seealso \code{\link{FeatureDimPlot}} \code{\link{CellDimPlot3D}}
 #'
 #' @examples
 #' data("pancreas_sub")
 #' pancreas_sub <- Standard_SCP(pancreas_sub)
 #' FeatureDimPlot3D(pancreas_sub, features = c("Ghrl", "Ins1", "Gcg", "Ins2"), reduction = "StandardpcaUMAP3D")
-#' @inheritParams FeatureDimPlot
-#' @inheritParams CellDimPlot3D
 #'
 #' @importFrom Seurat Reductions Embeddings Key
 #' @importFrom methods slot
@@ -3231,75 +3246,79 @@ FeatureDimPlot3D <- function(srt, features = NULL, reduction = NULL, dims = c(1,
 
 #' Statistical plot of features
 #'
-#' @param srt
-#' @param group.by
-#' @param split.by
-#' @param bg.by
-#' @param cells
-#' @param keep_empty
-#' @param slot
-#' @param assay
-#' @param palette
-#' @param palcolor
-#' @param alpha
-#' @param bg_palette
-#' @param bg_palcolor
-#' @param bg_apha
-#' @param add_box
-#' @param box_width
-#' @param add_point
-#' @param pt.color
-#' @param pt.size
-#' @param pt.alpha
-#' @param jitter.width
-#' @param cells.highlight
-#' @param cols.highlight
-#' @param sizes.highlight
-#' @param alpha.highlight
-#' @param calculate_coexp
-#' @param compare_features
-#' @param y.max
-#' @param same.y.lims
-#' @param y.trans
-#' @param sort
-#' @param stack
-#' @param fill.by
-#' @param flip
-#' @param comparisons
-#' @param ref_group
-#' @param pairwise_method
-#' @param multiplegroup_comparisons
-#' @param multiple_method
-#' @param theme_use
-#' @param aspect.ratio
-#' @param title
-#' @param subtitle
-#' @param xlab
-#' @param ylab
-#' @param legend.position
-#' @param legend.direction
-#' @param combine
-#' @param nrow
-#' @param ncol
-#' @param byrow
-#' @param force
-#' @param individual
-#' @param plot_type
-#' @param y.nbreaks
-#' @param y.min
-#' @param stat.by
-#' @param box_color
-#' @param box_ptsize
-#' @param add_trend
-#' @param trend_color
-#' @param trend_linewidth
-#' @param trend_ptsize
-#' @param sig_label
-#' @param theme_args
-#' @param seed
+#' This function generates a statistical plot for features.
+#'
+#' @param srt A Seurat object.
+#' @param stat.by A character vector specifying the features to plot.
+#' @param group.by A character vector specifying the groups to group by. Default is NULL.
+#' @param split.by A character vector specifying the variable to split the plot by. Default is NULL.
+#' @param bg.by A character vector specifying the variable to use as the background color. Default is NULL.
+#' @param fill.by A string specifying what to fill the plot by. Possible values are "group", "feature", or "expression". Default is "group".
+#' @param cells A character vector specifying the cells to include in the plot. Default is NULL.
+#' @param slot A string specifying which slot of the Seurat object to use. Default is "data".
+#' @param assay A string specifying which assay to use. Default is NULL.
+#' @param keep_empty A logical indicating whether to keep empty levels in the plot. Default is FALSE.
+#' @param individual A logical indicating whether to create individual plots for each group. Default is FALSE.
+#' @param plot_type A string specifying the type of plot to create. Possible values are "violin", "box", "bar", "dot", or "col". Default is "violin".
+#' @param palette A string specifying the color palette to use for filling. Default is "Paired".
+#' @param palcolor A character vector specifying specific colors to use for filling. Default is NULL.
+#' @param alpha A numeric value specifying the transparency of the plot. Default is 1.
+#' @param bg_palette A string specifying the color palette to use for the background. Default is "Paired".
+#' @param bg_palcolor A character vector specifying specific colors to use for the background. Default is NULL.
+#' @param bg_alpha A numeric value specifying the transparency of the background. Default is 0.2.
+#' @param add_box A logical indicating whether to add a box plot to the plot. Default is FALSE.
+#' @param box_color A string specifying the color of the box plot. Default is "black".
+#' @param box_width A numeric value specifying the width of the box plot. Default is 0.1.
+#' @param box_ptsize A numeric value specifying the size of the points of the box plot. Default is 2.
+#' @param add_point A logical indicating whether to add individual data points to the plot. Default is FALSE.
+#' @param pt.color A string specifying the color of the data points. Default is "grey30".
+#' @param pt.size A numeric value specifying the size of the data points. If NULL, the size is automatically determined. Default is NULL.
+#' @param pt.alpha A numeric value specifying the transparency of the data points. Default is 1.
+#' @param jitter.width A numeric value specifying the width of the jitter. Default is 0.5.
+#' @param add_trend A logical indicating whether to add a trend line to the plot. Default is FALSE.
+#' @param trend_color A string specifying the color of the trend line. Default is "black".
+#' @param trend_linewidth A numeric value specifying the width of the trend line. Default is 1.
+#' @param trend_ptsize A numeric value specifying the size of the points of the trend line. Default is 2.
+#' @param add_stat A string specifying which statistical summary to add to the plot. Possible values are "none", "mean", or "median". Default is "none".
+#' @param stat_color A string specifying the color of the statistical summary. Default is "black".
+#' @param stat_size A numeric value specifying the size of the statistical summary. Default is 1.
+#' @param cells.highlight A logical or character vector specifying the cells to highlight in the plot. If TRUE, all cells are highlighted. If FALSE, no cells are highlighted. Default is NULL.
+#' @param cols.highlight A string specifying the color of the highlighted cells. Default is "red".
+#' @param sizes.highlight A numeric value specifying the size of the highlighted cells. Default is 1.
+#' @param alpha.highlight A numeric value specifying the transparency of the highlighted cells. Default is 1.
+#' @param calculate_coexp A logical indicating whether to calculate co-expression values. Default is FALSE.
+#' @param same.y.lims A logical indicating whether to use the same y-axis limits for all plots. Default is FALSE.
+#' @param y.min A numeric or character value specifying the minimum y-axis limit. If a character value is provided, it must be of the form "qN" where N is a number between 0 and 100 (inclusive) representing the quantile to use for the limit. Default is NULL.
+#' @param y.max A numeric or character value specifying the maximum y-axis limit. If a character value is provided, it must be of the form "qN" where N is a number between 0 and 100 (inclusive) representing the quantile to use for the limit. Default is NULL.
+#' @param y.trans A string specifying the transformation to apply to the y-axis. Possible values are "identity" or "log2". Default is "identity".
+#' @param y.nbreaks An integer specifying the number of breaks to use for the y-axis. Default is 5.
+#' @param sort A logical or character value specifying whether to sort the groups on the x-axis. If TRUE, groups are sorted in increasing order. If FALSE, groups are not sorted. If "increasing", groups are sorted in increasing order. If "decreasing", groups are sorted in decreasing order. Default is FALSE.
+#' @param stack A logical specifying whether to stack the plots on top of each other. Default is FALSE.
+#' @param flip A logical specifying whether to flip the plot vertically. Default is FALSE.
+#' @param comparisons A list of length-2 vectors. The entries in the vector are either the names of 2 values on the x-axis or the 2 integers that correspond to the index of the groups of interest, to be compared.
+#' @param ref_group A string specifying the reference group for pairwise comparisons. Default is NULL.
+#' @param pairwise_method A string specifying the method to use for pairwise comparisons. Default is "wilcox.test".
+#' @param multiplegroup_comparisons A logical indicating whether to add multiple group comparisons to the plot. Default is FALSE.
+#' @param multiple_method A string specifying the method to use for multiple group comparisons. Default is "kruskal.test".
+#' @param sig_label A string specifying the label to use for significant comparisons. Possible values are "p.signif" or "p.format". Default is "p.format".
+#' @param sig_labelsize A numeric value specifying the size of the significant comparison labels. Default is 3.5.
+#' @param aspect.ratio A numeric value specifying the aspect ratio of the plot. Default is NULL.
+#' @param title A string specifying the title of the plot. Default is NULL.
+#' @param subtitle A string specifying the subtitle of the plot. Default is NULL.
+#' @param xlab A string specifying the label of the x-axis. Default is NULL.
+#' @param ylab A string specifying the label of the y-axis. Default is "Expression level".
+#' @param legend.position A string specifying the position of the legend. Possible values are "right", "left", "top", "bottom", or "none". Default is "right".
+#' @param legend.direction A string specifying the direction of the legend. Possible values are "vertical" or "horizontal". Default is "vertical".
+#' @param theme_use A string specifying the theme to use for the plot. Default is "theme_scp".
+#' @param theme_args A list of arguments to pass to the theme function. Default is an empty list.
+#' @param combine A logical indicating whether to combine the individual plots into a single plot. Default is TRUE.
+#' @param nrow An integer specifying the number of rows for the combined plot. Default is NULL.
+#' @param ncol An integer specifying the number of columns for the combined plot. Default is NULL.
+#' @param byrow A logical specifying whether to fill the combined plot by row or by column. Default is TRUE.
+#' @param force A logical indicating whether to force the plot creation even if there are more than 100 levels in a variable. Default is FALSE.
+#' @param seed An integer specifying the random seed to use for generating jitter. Default is 11.
 #'
 #' @examples
-#' library(dplyr)
 #' data("pancreas_sub")
 #' FeatureStatPlot(pancreas_sub, stat.by = c("G2M_score", "Fev"), group.by = "SubCellType")
 #' FeatureStatPlot(pancreas_sub, stat.by = c("G2M_score", "Fev"), group.by = "SubCellType") %>% panel_fix(height = 1, width = 2)
@@ -3351,7 +3370,7 @@ FeatureStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.b
                             cells = NULL, slot = c("data", "counts"), assay = NULL, keep_empty = FALSE, individual = FALSE,
                             plot_type = c("violin", "box", "bar", "dot", "col"),
                             palette = "Paired", palcolor = NULL, alpha = 1,
-                            bg_palette = "Paired", bg_palcolor = NULL, bg_apha = 0.2,
+                            bg_palette = "Paired", bg_palcolor = NULL, bg_alpha = 0.2,
                             add_box = FALSE, box_color = "black", box_width = 0.1, box_ptsize = 2,
                             add_point = FALSE, pt.color = "grey30", pt.size = NULL, pt.alpha = 1, jitter.width = 0.5,
                             add_trend = FALSE, trend_color = "black", trend_linewidth = 1, trend_ptsize = 2,
@@ -3723,7 +3742,7 @@ FeatureStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.b
         bg_data[["ymax"]] <- Inf
         bg_data[["fill"]] <- bg_color[bg_map[[g]][as.character(bg_data[["group.by"]])]]
       }
-      bg_layer <- geom_rect(data = bg_data, xmin = bg_data[["xmin"]], xmax = bg_data[["xmax"]], ymin = bg_data[["ymin"]], ymax = bg_data[["ymax"]], fill = bg_data[["fill"]], alpha = bg_apha, inherit.aes = FALSE)
+      bg_layer <- geom_rect(data = bg_data, xmin = bg_data[["xmin"]], xmax = bg_data[["xmax"]], ymin = bg_data[["ymin"]], ymax = bg_data[["ymax"]], fill = bg_data[["fill"]], alpha = bg_alpha, inherit.aes = FALSE)
       p <- p + bg_layer
     }
 
@@ -4092,50 +4111,13 @@ FeatureStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.b
 
 #' Statistical plot of cells
 #'
+#' @inheritParams StatPlot
 #' @param srt A Seurat object.
-#' @param stat.by The name of a metadata column to be counted.
-#' @param group.by
-#' @param split.by
-#' @param cells
-#' @param keep_empty
-#' @param individual
-#' @param plot_type
-#' @param stat_type
-#' @param position
-#' @param palette
-#' @param palcolor
-#' @param alpha
-#' @param label
-#' @param label.size
-#' @param label.fg
-#' @param label.bg
-#' @param label.bg.r
-#' @param theme_use
-#' @param aspect.ratio
-#' @param title
-#' @param subtitle
-#' @param xlab
-#' @param ylab
-#' @param legend.position
-#' @param legend.direction
-#' @param combine
-#' @param nrow
-#' @param ncol
-#' @param byrow
-#' @param force
-#' @param flip
-#' @param NA_color
-#' @param NA_stat
-#' @param stat_level
-#' @param bg.by
-#' @param bg_palette
-#' @param bg_palcolor
-#' @param bg_apha
-#' @param theme_args
-#' @param seed
+#' @param cells A character vector specifying the cells to include in the plot. Default is NULL.
+#'
+#' @seealso \code{\link{StatPlot}}
 #'
 #' @examples
-#' library(dplyr)
 #' data("pancreas_sub")
 #' CellStatPlot(pancreas_sub, stat.by = "Phase", group.by = "SubCellType", label = TRUE)
 #' CellStatPlot(pancreas_sub, stat.by = "Phase", group.by = "SubCellType", label = TRUE) %>% panel_fix(height = 2, width = 3)
@@ -4192,7 +4174,7 @@ CellStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.by =
                          plot_type = c("bar", "rose", "ring", "pie", "trend", "area", "dot", "sankey", "chord", "venn", "upset"),
                          stat_type = c("percent", "count"), position = c("stack", "dodge"),
                          palette = "Paired", palcolor = NULL, alpha = 1,
-                         bg_palette = "Paired", bg_palcolor = NULL, bg_apha = 0.2,
+                         bg_palette = "Paired", bg_palcolor = NULL, bg_alpha = 0.2,
                          label = FALSE, label.size = 3.5, label.fg = "black", label.bg = "white", label.bg.r = 0.1,
                          aspect.ratio = NULL, title = NULL, subtitle = NULL, xlab = NULL, ylab = NULL,
                          legend.position = "right", legend.direction = "vertical",
@@ -4206,7 +4188,7 @@ CellStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.by =
     NA_color = NA_color, NA_stat = NA_stat, keep_empty = keep_empty, individual = individual, stat_level = stat_level,
     plot_type = plot_type, stat_type = stat_type, position = position,
     palette = palette, palcolor = palcolor, alpha = alpha,
-    bg_palette = bg_palette, bg_palcolor = bg_palcolor, bg_apha = bg_apha,
+    bg_palette = bg_palette, bg_palcolor = bg_palcolor, bg_alpha = bg_alpha,
     label = label, label.size = label.size, label.fg = label.fg, label.bg = label.bg, label.bg.r = label.bg.r,
     aspect.ratio = aspect.ratio, title = title, subtitle = subtitle, xlab = xlab, ylab = ylab,
     legend.position = legend.position, legend.direction = legend.direction,
@@ -4218,47 +4200,50 @@ CellStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.by =
 
 #' StatPlot
 #'
-#' @param meta.data
+#' Visualizes data using various plot types such as bar plots, rose plots, ring plots, pie charts, trend plots, area plots, dot plots, sankey plots, chord plots, venn diagrams, and upset plots.
 #'
-#' @param stat.by
-#' @param group.by
-#' @param split.by
-#' @param flip
-#' @param NA_color
-#' @param NA_stat
-#' @param keep_empty
-#' @param individual
-#' @param stat_level
-#' @param plot_type
-#' @param stat_type
-#' @param position
-#' @param palette
-#' @param palcolor
-#' @param alpha
-#' @param label
-#' @param label.size
-#' @param label.fg
-#' @param label.bg
-#' @param label.bg.r
-#' @param theme_use
-#' @param aspect.ratio
-#' @param title
-#' @param subtitle
-#' @param xlab
-#' @param ylab
-#' @param legend.position
-#' @param legend.direction
-#' @param combine
-#' @param nrow
-#' @param ncol
-#' @param byrow
-#' @param force
-#' @param bg.by
-#' @param bg_palette
-#' @param bg_palcolor
-#' @param bg_apha
-#' @param theme_args
-#' @param seed
+#' @param meta.data The data frame containing the data to be plotted.
+#' @param stat.by The column name(s) in \code{meta.data} specifying the variable(s) to be plotted.
+#' @param group.by The column name in \code{meta.data} specifying the grouping variable.
+#' @param split.by The column name in \code{meta.data} specifying the splitting variable.
+#' @param bg.by The column name in \code{meta.data} specifying the background variable for bar plots.
+#' @param flip Logical indicating whether to flip the plot.
+#' @param NA_color The color to use for missing values.
+#' @param NA_stat Logical indicating whether to include missing values in the plot.
+#' @param keep_empty Logical indicating whether to keep empty groups in the plot.
+#' @param individual Logical indicating whether to plot individual groups separately.
+#' @param stat_level The level(s) of the variable(s) specified in \code{stat.by} to include in the plot.
+#' @param plot_type The type of plot to create. Can be one of "bar", "rose", "ring", "pie", "trend", "area", "dot", "sankey", "chord", "venn", or "upset".
+#' @param stat_type The type of statistic to compute for the plot. Can be one of "percent" or "count".
+#' @param position The position adjustment for the plot. Can be one of "stack" or "dodge".
+#' @param palette The name of the color palette to use for the plot.
+#' @param palcolor The color to use in the color palette.
+#' @param alpha The transparency level for the plot.
+#' @param bg_palette The name of the background color palette to use for bar plots.
+#' @param bg_palcolor The color to use in the background color palette.
+#' @param bg_alpha The transparency level for the background color in bar plots.
+#' @param label Logical indicating whether to add labels on the plot.
+#' @param label.size The size of the labels.
+#' @param label.fg The foreground color of the labels.
+#' @param label.bg The background color of the labels.
+#' @param label.bg.r The radius of the rounded corners of the label background.
+#' @param aspect.ratio The aspect ratio of the plot.
+#' @param title The main title of the plot.
+#' @param subtitle The subtitle of the plot.
+#' @param xlab The x-axis label of the plot.
+#' @param ylab The y-axis label of the plot.
+#' @param legend.position The position of the legend in the plot. Can be one of "right", "left", "bottom", "top", or "none".
+#' @param legend.direction The direction of the legend in the plot. Can be one of "vertical" or "horizontal".
+#' @param theme_use The name of the theme to use for the plot. Can be one of the predefined themes or a custom theme.
+#' @param theme_args A list of arguments to be passed to the theme function.
+#' @param combine Logical indicating whether to combine multiple plots into a single plot.
+#' @param nrow The number of rows in the combined plot.
+#' @param ncol The number of columns in the combined plot.
+#' @param byrow Logical indicating whether to fill the plot by row or by column.
+#' @param force Logical indicating whether to force the plot even if some variables have more than 100 levels.
+#' @param seed The random seed to use for reproducible results.
+#'
+#' @seealso \code{\link{CellStatPlot}}
 #'
 #' @examples
 #' data("pancreas_sub")
@@ -4290,7 +4275,7 @@ StatPlot <- function(meta.data, stat.by, group.by = NULL, split.by = NULL, bg.by
                      plot_type = c("bar", "rose", "ring", "pie", "trend", "area", "dot", "sankey", "chord", "venn", "upset"),
                      stat_type = c("percent", "count"), position = c("stack", "dodge"),
                      palette = "Paired", palcolor = NULL, alpha = 1,
-                     bg_palette = "Paired", bg_palcolor = NULL, bg_apha = 0.2,
+                     bg_palette = "Paired", bg_palcolor = NULL, bg_alpha = 0.2,
                      label = FALSE, label.size = 3.5, label.fg = "black", label.bg = "white", label.bg.r = 0.1,
                      aspect.ratio = NULL, title = NULL, subtitle = NULL, xlab = NULL, ylab = NULL,
                      legend.position = "right", legend.direction = "vertical",
@@ -4535,7 +4520,7 @@ StatPlot <- function(meta.data, stat.by, group.by = NULL, split.by = NULL, bg.by
         bg_data[["ymin"]] <- -Inf
         bg_data[["ymax"]] <- Inf
         bg_data[["fill"]] <- bg_color[bg_map[[g]][as.character(bg_data[[g]])]]
-        bg_layer <- geom_rect(data = bg_data, xmin = bg_data[["xmin"]], xmax = bg_data[["xmax"]], ymin = bg_data[["ymin"]], ymax = bg_data[["ymax"]], fill = bg_data[["fill"]], alpha = bg_apha, inherit.aes = FALSE)
+        bg_layer <- geom_rect(data = bg_data, xmin = bg_data[["xmin"]], xmax = bg_data[["xmax"]], ymin = bg_data[["ymin"]], ymax = bg_data[["ymax"]], fill = bg_data[["fill"]], alpha = bg_alpha, inherit.aes = FALSE)
       }
 
       if (plot_type == "bar") {
@@ -4699,7 +4684,7 @@ StatPlot <- function(meta.data, stat.by, group.by = NULL, split.by = NULL, bg.by
     for (sp in levels(dat_all[[split.by]])) {
       dat_use <- dat_split[[ifelse(split.by == "All_cells", 1, sp)]]
       if (plot_type == "venn") {
-        check_R("ggVennDiagram")
+        check_R(c("ggVennDiagram", "sf"))
         dat_list <- as.list(dat_use[, stat.by])
         dat_list <- lapply(setNames(names(dat_list), names(dat_list)), function(x) {
           lg <- dat_list[[x]]
@@ -4879,48 +4864,49 @@ StatPlot <- function(meta.data, stat.by, group.by = NULL, split.by = NULL, bg.by
 }
 
 #' Features correlation plot
+#' This function creates a correlation plot to visualize the pairwise correlations between selected features in a Seurat object.
 #'
-#' @param srt
-#' @param features
-#' @param group.by
-#' @param split.by
-#' @param slot
-#' @param assay
-#' @param cor_method
-#' @param adjust
-#' @param margin
-#' @param reverse
-#' @param add_equation
-#' @param add_r2
-#' @param add_pvalue
-#' @param add_smooth
-#' @param palette
-#' @param palcolor
-#' @param bg_color
-#' @param pt.size
-#' @param pt.alpha
-#' @param cells.highlight
-#' @param cols.highlight
-#' @param sizes.highlight
-#' @param alpha.highlight
-#' @param stroke.highlight
-#' @param calculate_coexp
-#' @param raster
-#' @param raster.dpi
-#' @param theme_use
-#' @param title
-#' @param subtitle
-#' @param legend.position
-#' @param legend.direction
-#' @param combine
-#' @param nrow
-#' @param ncol
-#' @param byrow
-#' @param force
-#' @param cells
-#' @param aspect.ratio
-#' @param theme_args
-#' @param seed
+#' @param srt A Seurat object.
+#' @param features A character vector specifying the features to compare. Should be present in both the assay data and the metadata of the Seurat object.
+#' @param group.by A character string specifying the column in the metadata to group cells by.
+#' @param split.by A character string specifying the column in the metadata to split the plot by.
+#' @param cells A character vector specifying the cells to include in the plot. If NULL (default), all cells will be included.
+#' @param slot A character string specifying the slot in the Seurat object to use. Defaults to "data".
+#' @param assay A character string specifying the assay to use. Defaults to the default assay in the Seurat object.
+#' @param cor_method A character string specifying the correlation method to use. Can be "pearson" (default) or "spearman".
+#' @param adjust A numeric value specifying the adjustment factor for the width of the violin plots. Defaults to 1.
+#' @param margin A numeric value specifying the margin size for the plot. Defaults to 1.
+#' @param reverse A logical value indicating whether to reverse the order of the features in the plot. Defaults to FALSE.
+#' @param add_equation A logical value indicating whether to add the equation of the linear regression line to each scatter plot. Defaults to FALSE.
+#' @param add_r2 A logical value indicating whether to add the R-squared value of the linear regression line to each scatter plot. Defaults to TRUE.
+#' @param add_pvalue A logical value indicating whether to add the p-value of the linear regression line to each scatter plot. Defaults to TRUE.
+#' @param add_smooth A logical value indicating whether to add a smoothed line to each scatter plot. Defaults to TRUE.
+#' @param palette A character string specifying the name of the color palette to use for the groups. Defaults to "Paired".
+#' @param palcolor A character string specifying the color for the groups. Defaults to NULL.
+#' @param bg_color A character string specifying the color for cells not included in the highlight. Defaults to "grey80".
+#' @param pt.size A numeric value specifying the size of the points in the scatter plots. If NULL (default), the size will be automatically determined based on the number of cells.
+#' @param pt.alpha A numeric value between 0 and 1 specifying the transparency of the points in the scatter plots. Defaults to 1.
+#' @param cells.highlight A logical value or a character vector specifying the cells to highlight in the scatter plots. If TRUE, all cells will be highlighted. Defaults to NULL.
+#' @param cols.highlight A character string specifying the color for the highlighted cells. Defaults to "black".
+#' @param sizes.highlight A numeric value specifying the size of the highlighted cells in the scatter plots. Defaults to 1.
+#' @param alpha.highlight A numeric value between 0 and 1 specifying the transparency of the highlighted cells in the scatter plots. Defaults to 1.
+#' @param stroke.highlight A numeric value specifying the stroke size of the highlighted cells in the scatter plots. Defaults to 0.5.
+#' @param calculate_coexp A logical value indicating whether to calculate the co-expression of selected features. Defaults to FALSE.
+#' @param raster A logical value indicating whether to use raster graphics for scatter plots. Defaults to NULL.
+#' @param raster.dpi A numeric vector specifying the dpi (dots per inch) resolution for raster graphics in the scatter plots. Defaults to c(512, 512).
+#' @param aspect.ratio A numeric value specifying the aspect ratio of the scatter plots. Defaults to 1.
+#' @param title A character string specifying the title for the correlation plot. Defaults to NULL.
+#' @param subtitle A character string specifying the subtitle for the correlation plot. Defaults to NULL.
+#' @param legend.position A character string specifying the position of the legend. Can be "right" (default), "left", "top", or "bottom".
+#' @param legend.direction A character string specifying the direction of the legend. Can be "vertical" (default) or "horizontal".
+#' @param theme_use A character string specifying the name of the theme to use for the plot. Defaults to "theme_scp".
+#' @param theme_args A list of arguments to pass to the theme function. Defaults to an empty list.
+#' @param combine A logical value indicating whether to combine the plots into a single plot. Defaults to TRUE.
+#' @param nrow A numeric value specifying the number of rows in the combined plot. If NULL (default), the number of rows will be automatically determined.
+#' @param ncol A numeric value specifying the number of columns in the combined plot. If NULL (default), the number of columns will be automatically determined.
+#' @param byrow A logical value indicating whether to fill the combined plot byrow (top to bottom, left to right). Defaults to TRUE.
+#' @param force A logical value indicating whether to force the creation of the plot, even if it contains more than 50 subplots. Defaults to FALSE.
+#' @param seed A numeric value specifying the random seed for reproducibility. Defaults to 11.
 #'
 #' @examples
 #' data("pancreas_sub")
@@ -5325,38 +5311,43 @@ FeatureCorPlot <- function(srt, features, group.by = NULL, split.by = NULL, cell
 
 #' CellDensityPlot
 #'
-#' @param srt
-#' @param features
-#' @param group.by
-#' @param split.by
-#' @param flip
-#' @param reverse
-#' @param x_order
-#' @param decreasing
-#' @param palette
-#' @param palcolor
-#' @param cells
-#' @param assay
-#' @param slot
-#' @param keep_empty
-#' @param y.nbreaks
-#' @param y.min
-#' @param y.max
-#' @param same.y.lims
-#' @param theme_use
-#' @param aspect.ratio
-#' @param title
-#' @param subtitle
-#' @param legend.position
-#' @param legend.direction
-#' @param combine
-#' @param nrow
-#' @param ncol
-#' @param byrow
-#' @param force
-#' @param theme_args
-#' @param seed
+#' Plots the density of specified features in a single or multiple groups,
+#' grouped by specified variables.
 #'
+#' @param srt A Seurat object.
+#' @param features A character vector specifying the features to plot.
+#' @param group.by A character vector specifying the variables to group the data by.
+#' @param split.by A character vector specifying the variables to split the data by.
+#' Default is NULL, which means no splitting is performed.
+#' @param assay A character specifying the assay to use from the Seurat object.
+#'   Default is NULL, which means the default assay will be used.
+#' @param slot A character specifying the slot to use from the assay. Default is "data".
+#' @param flip A logical indicating whether to flip the x-axis. Default is FALSE.
+#' @param reverse A logical indicating whether to reverse the y-axis. Default is FALSE.
+#' @param x_order A character specifying how to order the x-axis. Can be "value" or "rank". Default is "value".
+#' @param decreasing A logical indicating whether to order the groups in decreasing order. Default is NULL.
+#' @param palette A character specifying the color palette to use for grouping variables. Default is "Paired".
+#' @param palcolor A character specifying the color to use for each group. Default is NULL.
+#' @param cells A character vector specifying the cells to plot. Default is NULL, which means all cells are included.
+#' @param keep_empty A logical indicating whether to keep empty groups. Default is FALSE.
+#' @param y.nbreaks An integer specifying the number of breaks on the y-axis. Default is 4.
+#' @param y.min A numeric specifying the minimum value on the y-axis. Default is NULL, which means the minimum value will be automatically determined.
+#' @param y.max A numeric specifying the maximum value on the y-axis. Default is NULL, which means the maximum value will be automatically determined.
+#' @param same.y.lims A logical indicating whether to use the same y-axis limits for all plots. Default is FALSE.
+#' @param aspect.ratio A numeric specifying the aspect ratio of the plot. Default is NULL, which means the aspect ratio will be automatically determined.
+#' @param title A character specifying the title of the plot. Default is NULL.
+#' @param subtitle A character specifying the subtitle of the plot. Default is NULL.
+#' @param legend.position A character specifying the position of the legend. Default is "right".
+#' @param legend.direction A character specifying the direction of the legend. Default is "vertical".
+#' @param theme_use A character specifying the theme to use. Default is "theme_scp".
+#' @param theme_args A list of arguments to pass to the theme function.
+#' @param combine A logical indicating whether to combine multiple plots into a single plot. Default is TRUE.
+#' @param nrow An integer specifying the number of rows in the combined plot.
+#'   Default is NULL, which means determined automatically based on the number of plots.
+#' @param ncol An integer specifying the number of columns in the combined plot.
+#'   Default is NULL, which means determined automatically based on the number of plots.
+#' @param byrow A logical indicating whether to add plots by row or by column in the combined plot. Default is TRUE.
+#' @param force A logical indicating whether to continue plotting if there are more than 50 features. Default is FALSE.
 #' @examples
 #' data("pancreas_sub")
 #' CellDensityPlot(pancreas_sub, features = "Sox9", group.by = "SubCellType")
@@ -5379,9 +5370,7 @@ CellDensityPlot <- function(srt, features, group.by, split.by = NULL, assay = NU
                             aspect.ratio = NULL, title = NULL, subtitle = NULL,
                             legend.position = "right", legend.direction = "vertical",
                             theme_use = "theme_scp", theme_args = list(),
-                            combine = TRUE, nrow = NULL, ncol = NULL, byrow = TRUE, force = FALSE, seed = 11) {
-  set.seed(seed)
-
+                            combine = TRUE, nrow = NULL, ncol = NULL, byrow = TRUE, force = FALSE) {
   check_R("ggridges")
   assay <- assay %||% DefaultAssay(srt)
   x_order <- match.arg(x_order)
@@ -5560,33 +5549,37 @@ CellDensityPlot <- function(srt, features, group.by, split.by = NULL, assay = NU
 
 #' LineagePlot
 #'
-#' @param srt
-#' @param lineages
-#' @param reduction
-#' @param dims
-#' @param trim
-#' @param span
-#' @param palette
-#' @param palcolor
-#' @param lineages_arrow
-#' @param linewidth
-#' @param line_bg
-#' @param line_bg_stroke
-#' @param whiskers
-#' @param whiskers_linewidth
-#' @param whiskers_alpha
-#' @param theme_use
-#' @param aspect.ratio
-#' @param title
-#' @param subtitle
-#' @param xlab
-#' @param ylab
-#' @param legend.position
-#' @param legend.direction
-#' @param return_layer
-#' @param cells
-#' @param theme_args
-#' @param seed
+#' Generate a lineage plot based on the pseudotime.
+#'
+#' @param srt An object of class Seurat.
+#' @param lineages A character vector that specifies the lineages to be included. Typically, use the pseudotime of cells.
+#' @param reduction An optional string specifying the dimensionality reduction method to use.
+#' @param dims A numeric vector of length 2 specifying the dimensions to plot.
+#' @param cells An optional character vector specifying the cells to include in the plot.
+#' @param trim A numeric vector of length 2 specifying the quantile range of lineages to include in the plot.
+#' @param span A numeric value specifying the span of the loess smoother.
+#' @param palette A character string specifying the color palette to use for the lineages.
+#' @param palcolor An optional string specifying the color for the palette.
+#' @param lineages_arrow An arrow object specifying the arrow for lineages.
+#' @param linewidth A numeric value specifying the linewidth for the lineages.
+#' @param line_bg A character string specifying the color for the background lines.
+#' @param line_bg_stroke A numeric value specifying the stroke width for the background lines.
+#' @param whiskers A logical value indicating whether to include whiskers in the plot.
+#' @param whiskers_linewidth A numeric value specifying the linewidth for the whiskers.
+#' @param whiskers_alpha A numeric value specifying the transparency for the whiskers.
+#' @param aspect.ratio A numeric value specifying the aspect ratio of the plot.
+#' @param title An optional character string specifying the plot title.
+#' @param subtitle An optional character string specifying the plot subtitle.
+#' @param xlab An optional character string specifying the x-axis label.
+#' @param ylab An optional character string specifying the y-axis label.
+#' @param legend.position A character string specifying the position of the legend.
+#' @param legend.direction A character string specifying the direction of the legend.
+#' @param theme_use A character string specifying the theme to use for the plot.
+#' @param theme_args A list of additional arguments to pass to the theme function.
+#' @param return_layer A logical value indicating whether to return the plot as a layer.
+#' @param seed An optional integer specifying the random seed for reproducibility.
+#'
+#' @seealso \code{\link{RunSlingshot}} \code{\link{CellDimPlot}}
 #'
 #' @examples
 #' data("pancreas_sub")
@@ -5597,7 +5590,7 @@ CellDensityPlot <- function(srt, features, group.by, split.by = NULL, assay = NU
 #' @importFrom ggplot2 aes geom_path geom_segment labs
 #' @importFrom stats loess quantile
 #' @export
-LineagePlot <- function(srt, lineages, weights = NULL, reduction = NULL, dims = c(1, 2), cells = NULL,
+LineagePlot <- function(srt, lineages, reduction = NULL, dims = c(1, 2), cells = NULL,
                         trim = c(0.01, 0.99), span = 0.75,
                         palette = "Dark2", palcolor = NULL, lineages_arrow = arrow(length = unit(0.1, "inches")),
                         linewidth = 1, line_bg = "white", line_bg_stroke = 0.5,
@@ -5621,7 +5614,7 @@ LineagePlot <- function(srt, lineages, weights = NULL, reduction = NULL, dims = 
   dat_dim <- srt@reductions[[reduction]]@cell.embeddings
   colnames(dat_dim) <- paste0(reduction_key, seq_len(ncol(dat_dim)))
   rownames(dat_dim) <- rownames(dat_dim) %||% colnames(srt@assays[[1]])
-  dat_lineages <- srt@meta.data[, unique(c(lineages, weights)), drop = FALSE]
+  dat_lineages <- srt@meta.data[, unique(lineages), drop = FALSE]
   dat <- cbind(dat_dim, dat_lineages[row.names(dat_dim), , drop = FALSE])
   dat[, "cell"] <- rownames(dat)
   if (!is.null(cells)) {
@@ -5643,11 +5636,11 @@ LineagePlot <- function(srt, lineages, weights = NULL, reduction = NULL, dims = 
     index <- which(trim_pass & na_pass)
     index <- index[order(dat[index, l])]
     dat_sub <- dat[index, , drop = FALSE]
-    if (is.null(weights)) {
-      weights_used <- rep(1, nrow(dat_sub))
-    } else {
-      weights_used <- dat_sub[[weights]]
-    }
+    # if (is.null(weights)) {
+    weights_used <- rep(1, nrow(dat_sub))
+    # } else {
+    # weights_used <- dat_sub[[weights]]
+    # }
     fitted <- lapply(axes, function(x) {
       loess(formula(paste(x, l, sep = "~")), weights = weights_used, data = dat_sub, span = span, degree = 2)$fitted
     })
@@ -5714,66 +5707,69 @@ LineagePlot <- function(srt, lineages, weights = NULL, reduction = NULL, dims = 
 
 #' PAGA plot
 #'
+#' This function generates a PAGA plot based on the given Seurat object and PAGA result.
 #'
-#' @param srt
-#' @param paga
-#' @param reduction
-#' @param dims
-#' @param show_transition
-#' @param node_palette
-#' @param node_size
-#' @param node_alpha
-#' @param node_highlight
-#' @param node_highlight_color
-#' @param label
-#' @param label.size
-#' @param label.fg
-#' @param label.bg
-#' @param label.bg.r
-#' @param label_insitu
-#' @param label_repel
-#' @param label_repulsion
-#' @param label_point_size
-#' @param label_point_color
-#' @param label_segment_color
-#' @param edge_threshold
-#' @param edge_line
-#' @param edge_line_curvature
-#' @param edge_line_angle
-#' @param edge_size
-#' @param edge_color
-#' @param edge_alpha
-#' @param edge_shorten
-#' @param edge_offset
-#' @param edge_highlight
-#' @param edge_highlight_color
-#' @param transition_threshold
-#' @param transition_line
-#' @param transition_line_curvature
-#' @param transition_line_angle
-#' @param transition_size
-#' @param transition_color
-#' @param transition_alpha
-#' @param transition_arrow_type
-#' @param transition_arrow_angle
-#' @param transition_arrow_length
-#' @param transition_shorten
-#' @param transition_offset
-#' @param transition_highlight
-#' @param transition_highlight_color
-#' @param theme_use
-#' @param aspect.ratio
-#' @param title
-#' @param subtitle
-#' @param xlab
-#' @param ylab
-#' @param legend.position
-#' @param legend.direction
-#' @param return_layer
-#' @param type
-#' @param cells
-#' @param node_palcolor
-#' @param theme_args
+#' @param srt A Seurat object containing a PAGA result.
+#' @param paga The PAGA result from the Seurat object. Defaults to \code{srt\$misc\$paga}.
+#' @param type The type of plot to generate. Possible values are "connectivities" (default) and "connectivities_tree".
+#' @param reduction The type of reduction to use for the plot. Defaults to the default reduction in the Seurat object.
+#' @param dims The dimensions of the reduction to use for the plot. Defaults to the first two dimensions.
+#' @param cells The cells to include in the plot. Defaults to all cells.
+#' @param show_transition A logical value indicating whether to display transitions between different cell states. Defaults to \code{FALSE}.
+#' @param node_palette The color palette to use for node coloring. Defaults to "Paired".
+#' @param node_palcolor A vector of colors to use for node coloring. Defaults to \code{NULL}.
+#' @param node_size The size of the nodes in the plot. Defaults to 4.
+#' @param node_alpha The transparency of the nodes in the plot. Defaults to 1.
+#' @param node_highlight The group(s) to highlight in the plot. Defaults to \code{NULL}.
+#' @param node_highlight_color The color to use for highlighting the nodes. Defaults to "red".
+#' @param label A logical value indicating whether to display labels for the nodes. Defaults to \code{FALSE}.
+#' @param label.size The size of the labels. Defaults to 3.5.
+#' @param label.fg The color of the label text. Defaults to "white".
+#' @param label.bg The background color of the labels. Defaults to "black".
+#' @param label.bg.r The transparency of the label background color. Defaults to 0.1.
+#' @param label_insitu A logical value indicating whether to use in-situ labeling for the nodes. Defaults to \code{FALSE}.
+#' @param label_repel A logical value indicating whether to use repel mode for labeling nodes. Defaults to \code{FALSE}.
+#' @param label_repulsion The repulsion factor for repel mode. Defaults to 20.
+#' @param label_point_size The size of the points in the labels. Defaults to 1.
+#' @param label_point_color The color of the points in the labels. Defaults to "black".
+#' @param label_segment_color The color of the lines connecting the points in the labels. Defaults to "black".
+#' @param edge_threshold The threshold for including edges in the plot. Defaults to 0.01.
+#' @param edge_line The type of line to use for the edges. Possible values are "straight" and "curved". Defaults to "straight".
+#' @param edge_line_curvature The curvature factor for curved edges. Defaults to 0.3.
+#' @param edge_line_angle The angle for curved edges. Defaults to 90.
+#' @param edge_size The size range for the edges. Defaults to c(0.2, 1).
+#' @param edge_color The color of the edges. Defaults to "grey40".
+#' @param edge_alpha The transparency of the edges. Defaults to 0.5.
+#' @param edge_shorten The amount to shorten the edges. Defaults to 0.
+#' @param edge_offset The offset for curved edges. Defaults to 0.
+#' @param edge_highlight The group(s) to highlight in the plot. Defaults to \code{NULL}.
+#' @param edge_highlight_color The color to use for highlighting the edges. Defaults to "red".
+#' @param transition_threshold The threshold for including transitions in the plot. Defaults to 0.01.
+#' @param transition_line The type of line to use for the transitions. Possible values are "straight" and "curved". Defaults to "straight".
+#' @param transition_line_curvature The curvature factor for curved transitions. Defaults to 0.3.
+#' @param transition_line_angle The angle for curved transitions. Defaults to 90.
+#' @param transition_size The size range for the transitions. Defaults to c(0.2, 1).
+#' @param transition_color The color of the transitions. Defaults to "black".
+#' @param transition_alpha The transparency of the transitions. Defaults to 1.
+#' @param transition_arrow_type The type of arrow to use for the transitions. Possible values are "closed", "open", and "triangle". Defaults to "closed".
+#' @param transition_arrow_angle The angle of the arrow for transitions. Defaults to 20.
+#' @param transition_arrow_length The length of the arrow for transitions. Defaults to unit(0.02, "npc").
+#' @param transition_shorten The amount to shorten the transitions. Defaults to 0.05.
+#' @param transition_offset The offset for curved transitions. Defaults to 0.
+#' @param transition_highlight The group(s) to highlight in the plot. Defaults to \code{NULL}.
+#' @param transition_highlight_color The color to use for highlighting the transitions. Defaults to "red".
+#' @param aspect.ratio The aspect ratio of the plot. Defaults to 1.
+#' @param title The title of the plot. Defaults to "PAGA".
+#' @param subtitle The subtitle of the plot. Defaults to \code{NULL}.
+#' @param xlab The label for the x-axis. Defaults to \code{NULL}.
+#' @param ylab The label for the y-axis. Defaults to \code{NULL}.
+#' @param legend.position The position of the legend. Possible values are "right", "left", "bottom", and "top". Defaults to "right".
+#' @param legend.direction The direction of the legend. Possible values are "vertical" and "horizontal". Defaults to "vertical".
+#' @param theme_use The name of the theme to use for the plot. Defaults to "theme_scp".
+#' @param theme_args A list of arguments to pass to the theme function. Defaults to an empty list.
+#' @param return_layer A logical value indicating whether to return the plot as a ggplot2 layer. Defaults to \code{FALSE}.
+#'
+#' @seealso \code{\link{RunPAGA}} \code{\link{CellDimPlot}}
 #'
 #' @examples
 #' data("pancreas_sub")
@@ -5782,6 +5778,7 @@ LineagePlot <- function(srt, lineages, weights = NULL, reduction = NULL, dims = 
 #' PAGAPlot(pancreas_sub, type = "connectivities_tree")
 #' PAGAPlot(pancreas_sub, reduction = "PCA")
 #' PAGAPlot(pancreas_sub, reduction = "PAGAUMAP2D")
+#' PAGAPlot(pancreas_sub, edge_shorten = 0.05)
 #' PAGAPlot(pancreas_sub, label = TRUE)
 #' PAGAPlot(pancreas_sub, label = TRUE, label_insitu = TRUE)
 #' PAGAPlot(pancreas_sub, label = TRUE, label_insitu = TRUE, label_repel = TRUE)
@@ -5792,6 +5789,7 @@ LineagePlot <- function(srt, lineages, weights = NULL, reduction = NULL, dims = 
 #'
 #' pancreas_sub <- RunSCVELO(srt = pancreas_sub, group_by = "SubCellType", linear_reduction = "PCA", nonlinear_reduction = "UMAP", return_seurat = TRUE)
 #' PAGAPlot(pancreas_sub, show_transition = TRUE)
+#' PAGAPlot(pancreas_sub, show_transition = TRUE, transition_offset = 0.02)
 #'
 #' @importFrom Seurat Reductions Key Embeddings
 #' @export
@@ -5892,65 +5890,68 @@ PAGAPlot <- function(srt, paga = srt@misc$paga, type = "connectivities",
 
 #' GraphPlot
 #'
-#' @param node
+#' A function to plot a graph with nodes and edges.
 #'
-#' @param edge
-#' @param transition
-#' @param node_coord
-#' @param node_group
-#' @param node_palette
-#' @param node_size
-#' @param node_alpha
-#' @param node_highlight
-#' @param node_highlight_color
-#' @param label
-#' @param label.size
-#' @param label.fg
-#' @param label.bg
-#' @param label.bg.r
-#' @param label_insitu
-#' @param label_repel
-#' @param label_repulsion
-#' @param label_point_size
-#' @param label_point_color
-#' @param label_segment_color
-#' @param edge_threshold
-#' @param use_triangular
-#' @param edge_line
-#' @param edge_line_curvature
-#' @param edge_line_angle
-#' @param edge_color
-#' @param edge_size
-#' @param edge_alpha
-#' @param edge_shorten
-#' @param edge_offset
-#' @param edge_highlight
-#' @param edge_highlight_color
-#' @param transition_threshold
-#' @param transition_line
-#' @param transition_line_curvature
-#' @param transition_line_angle
-#' @param transition_color
-#' @param transition_size
-#' @param transition_alpha
-#' @param transition_arrow_type
-#' @param transition_arrow_angle
-#' @param transition_arrow_length
-#' @param transition_shorten
-#' @param transition_offset
-#' @param transition_highlight
-#' @param transition_highlight_color
-#' @param theme_use
-#' @param aspect.ratio
-#' @param title
-#' @param subtitle
-#' @param xlab
-#' @param ylab
-#' @param legend.position
-#' @param legend.direction
-#' @param return_layer
-#' @param node_palcolor
-#' @param theme_args
+#' @param node A data frame representing the nodes of the graph.
+#' @param edge A matrix representing the edges of the graph.
+#' @param transition A matrix representing the transitions between nodes.
+#' @param node_coord A character vector specifying the names of the columns in \code{node} that represent the x and y coordinates.
+#' @param node_group A character vector specifying the name of the column in \code{node} that represents the grouping of the nodes.
+#' @param node_palette A character vector specifying the name of the color palette for node groups.
+#' @param node_palcolor A character vector specifying the names of the colors for each node group.
+#' @param node_size A numeric value or column name of \code{node} specifying the size of the nodes.
+#' @param node_alpha A numeric value or column name of \code{node} specifying the transparency of the nodes.
+#' @param node_highlight A character vector specifying the names of nodes to highlight.
+#' @param node_highlight_color A character vector specifying the color for highlighting nodes.
+#' @param label A logical value indicating whether to show labels for the nodes.
+#' @param label.size A numeric value specifying the size of the labels.
+#' @param label.fg A character vector specifying the foreground color of the labels.
+#' @param label.bg A character vector specifying the background color of the labels.
+#' @param label.bg.r A numeric value specifying the background color transparency of the labels.
+#' @param label_insitu A logical value indicating whether to display the node group labels in situ or as numeric values.
+#' @param label_repel A logical value indicating whether to use force-directed label repulsion.
+#' @param label_repulsion A numeric value specifying the repulsion force for labels.
+#' @param label_point_size A numeric value specifying the size of the label points.
+#' @param label_point_color A character vector specifying the color of the label points.
+#' @param label_segment_color A character vector specifying the color for the label segments.
+#' @param edge_threshold A numeric value specifying the threshold for removing edges.
+#' @param use_triangular A character vector specifying which part of the edge matrix to use (upper, lower, both).
+#' @param edge_line A character vector specifying the type of line for edges (straight, curved).
+#' @param edge_line_curvature A numeric value specifying the curvature of curved edges.
+#' @param edge_line_angle A numeric value specifying the angle of curved edges.
+#' @param edge_color A character vector specifying the color of the edges.
+#' @param edge_size A numeric vector specifying the range of edge sizes.
+#' @param edge_alpha A numeric value specifying the transparency of the edges.
+#' @param edge_shorten A numeric value specifying the length of the edge shorten.
+#' @param edge_offset A numeric value specifying the length of the edge offset.
+#' @param edge_highlight A character vector specifying the names of edges to highlight.
+#' @param edge_highlight_color A character vector specifying the color for highlighting edges.
+#' @param transition_threshold A numeric value specifying the threshold for removing transitions.
+#' @param transition_line A character vector specifying the type of line for transitions (straight, curved).
+#' @param transition_line_curvature A numeric value specifying the curvature of curved transitions.
+#' @param transition_line_angle A numeric value specifying the angle of curved transitions.
+#' @param transition_color A character vector specifying the color of the transitions.
+#' @param transition_size A numeric vector specifying the range of transition sizes.
+#' @param transition_alpha A numeric value specifying the transparency of the transitions.
+#' @param transition_arrow_type A character vector specifying the type of arrow for transitions (closed, open).
+#' @param transition_arrow_angle A numeric value specifying the angle of the transition arrow.
+#' @param transition_arrow_length A numeric value specifying the length of the transition arrow.
+#' @param transition_shorten A numeric value specifying the length of the transition shorten.
+#' @param transition_offset A numeric value specifying the length of the transition offset.
+#' @param transition_highlight A character vector specifying the names of transitions to highlight.
+#' @param transition_highlight_color A character vector specifying the color for highlighting transitions.
+#' @param aspect.ratio A numeric value specifying the aspect ratio of the plot.
+#' @param title A character value specifying the title of the plot.
+#' @param subtitle A character value specifying the subtitle of the plot.
+#' @param xlab A character value specifying the label for the x-axis.
+#' @param ylab A character value specifying the label for the y-axis.
+#' @param legend.position A character value specifying the position of the legend.
+#' @param legend.direction A character value specifying the direction of the legend.
+#' @param theme_use A character value specifying the theme to use.
+#' @param theme_args A list of arguments to be passed to the theme.
+#' @param return_layer A logical value indicating whether to return the layers of the plot instead of the plot itself.
+#'
+#' @seealso \code{\link{CellDimPlot}}
 #'
 #' @importFrom ggplot2 scale_size_identity scale_size_continuous scale_size_discrete scale_alpha_identity scale_alpha_continuous scale_alpha_discrete geom_curve geom_segment geom_point scale_color_manual guide_legend guides labs aes scale_linewidth_continuous
 #' @importFrom ggnewscale new_scale
@@ -6306,10 +6307,17 @@ GraphPlot <- function(node, edge, transition = NULL,
 
 #' Shorten and offset the segment
 #'
-#' @param data
-#' @param shorten_start
-#' @param shorten_end
-#' @param offset
+#' This function takes a data frame representing segments in a plot and shortens
+#' and offsets them based on the provided arguments.
+#'
+#' @param data A data frame containing the segments. It should have columns
+#'             'x', 'y', 'xend', and 'yend' representing the start and end points
+#'             of each segment.
+#' @param shorten_start The amount to shorten the start of each segment by.
+#' @param shorten_end The amount to shorten the end of each segment by.
+#' @param offset The amount to offset each segment by.
+#'
+#' @return The modified data frame with the shortened and offset segments.
 #'
 #' @examples
 #' library(ggplot2)
@@ -6351,45 +6359,49 @@ segementsDf <- function(data, shorten_start, shorten_end, offset) {
 
 #' Velocity Plot
 #'
-#' @param srt
-#' @param reduction
-#' @param dims
-#' @param velocity
-#' @param plot_type
-#' @param group_by
-#' @param group_palette
-#' @param n_neighbors
-#' @param density
-#' @param smooth
-#' @param scale
-#' @param min_mass
-#' @param cutoff_perc
-#' @param arrow_angle
-#' @param arrow_color
-#' @param streamline_L
-#' @param streamline_minL
-#' @param streamline_res
-#' @param streamline_n
-#' @param streamline_width
-#' @param streamline_alpha
-#' @param streamline_color
-#' @param streamline_palette
-#' @param streamline_palcolor
-#' @param streamline_bg_color
-#' @param streamline_bg_stroke
-#' @param theme_use
-#' @param aspect.ratio
-#' @param title
-#' @param subtitle
-#' @param xlab
-#' @param ylab
-#' @param legend.position
-#' @param legend.direction
-#' @param return_layer
-#' @param cells
-#' @param group_palcolor
-#' @param seed
-#' @param theme_args
+#' This function creates a velocity plot for a given Seurat object. The plot shows the velocity vectors of the cells in a specified reduction space.
+#'
+#' @param srt A Seurat object.
+#' @param reduction Name of the reduction in the Seurat object to use for plotting.
+#' @param dims Indices of the dimensions to use for plotting.
+#' @param cells Cells to include in the plot. If NULL, all cells will be included.
+#' @param velocity Name of the velocity to use for plotting.
+#' @param plot_type Type of plot to create. Can be "raw", "grid", or "stream".
+#' @param group_by Name of the column in the Seurat object metadata to group the cells by. Defaults to NULL.
+#' @param group_palette Name of the palette to use for coloring the groups. Defaults to "Paired".
+#' @param group_palcolor Colors to use for coloring the groups. Defaults to NULL.
+#' @param n_neighbors Number of neighbors to include for the density estimation. Defaults to ceiling(ncol(srt@assays[[1]]) / 50).
+#' @param density Propotion of cells to plot. Defaults to 1 (plot all cells).
+#' @param smooth Smoothing parameter for density estimation. Defaults to 0.5.
+#' @param scale Scaling factor for the velocity vectors. Defaults to 1.
+#' @param min_mass Minimum mass value for the density-based cutoff. Defaults to 1.
+#' @param cutoff_perc Percentile value for the density-based cutoff. Defaults to 5.
+#' @param arrow_angle Angle of the arrowheads. Defaults to 20.
+#' @param arrow_color Color of the arrowheads. Defaults to "black".
+#' @param streamline_L Length of the streamlines. Defaults to 5.
+#' @param streamline_minL Minimum length of the streamlines. Defaults to 1.
+#' @param streamline_res Resolution of the streamlines. Defaults to 1.
+#' @param streamline_n Number of streamlines to plot. Defaults to 15.
+#' @param streamline_width Width of the streamlines. Defaults to c(0, 0.8).
+#' @param streamline_alpha Alpha transparency of the streamlines. Defaults to 1.
+#' @param streamline_color Color of the streamlines. Defaults to NULL.
+#' @param streamline_palette Name of the palette to use for coloring the streamlines. Defaults to "RdYlBu".
+#' @param streamline_palcolor Colors to use for coloring the streamlines. Defaults to NULL.
+#' @param streamline_bg_color Background color of the streamlines. Defaults to "white".
+#' @param streamline_bg_stroke Stroke width of the streamlines background. Defaults to 0.5.
+#' @param aspect.ratio Aspect ratio of the plot. Defaults to 1.
+#' @param title Title of the plot. Defaults to "Cell velocity".
+#' @param subtitle Subtitle of the plot. Defaults to NULL.
+#' @param xlab x-axis label. Defaults to NULL.
+#' @param ylab y-axis label. Defaults to NULL.
+#' @param legend.position Position of the legend. Defaults to "right".
+#' @param legend.direction Direction of the legend. Defaults to "vertical".
+#' @param theme_use Name of the theme to use for plotting. Defaults to "theme_scp".
+#' @param theme_args List of theme arguments for customization. Defaults to list().
+#' @param return_layer Whether to return the plot layers as a list. Defaults to FALSE.
+#' @param seed Random seed for reproducibility. Defaults to 11.
+#'
+#' @seealso \code{\link{RunSCVELO}} \code{\link{CellDimPlot}}
 #'
 #' @examples
 #' data("pancreas_sub")
@@ -6614,15 +6626,15 @@ VelocityPlot <- function(srt, reduction, dims = c(1, 2), cells = NULL, velocity 
 #' Compute velocity on grid
 #' The original python code is on https://github.com/theislab/scvelo/blob/master/scvelo/plotting/velocity_embedding_grid.py
 #'
-#' @param X_emb
-#' @param V_emb
-#' @param density
-#' @param smooth
-#' @param n_neighbors
-#' @param min_mass
-#' @param scale
-#' @param adjust_for_stream
-#' @param cutoff_perc
+#' @param X_emb A matrix of dimension n_obs x n_dim specifying the embedding coordinates of the cells.
+#' @param V_emb A matrix of dimension n_obs x n_dim specifying the velocity vectors of the cells.
+#' @param density An optional numeric value specifying the density of the grid points along each dimension. Default is 1.
+#' @param smooth An optional numeric value specifying the smoothing factor for the velocity vectors. Default is 0.5.
+#' @param n_neighbors An optional numeric value specifying the number of nearest neighbors for each grid point. Default is ceiling(n_obs / 50).
+#' @param min_mass An optional numeric value specifying the minimum mass required for a grid point to be considered. Default is 1.
+#' @param scale An optional numeric value specifying the scaling factor for the velocity vectors. Default is 1.
+#' @param adjust_for_stream A logical value indicating whether to adjust the velocity vectors for streamlines. Default is FALSE.
+#' @param cutoff_perc An optional numeric value specifying the percentile cutoff for removing low-density grid points. Default is 5.
 #'
 #' @importFrom SeuratObject as.sparse
 #' @importFrom proxyC dist
@@ -6707,34 +6719,38 @@ compute_velocity_on_grid <- function(X_emb, V_emb,
 
 #' VolcanoPlot
 #'
-#' @param srt
-#' @param group_by
-#' @param test.use
-#' @param DE_threshold
-#' @param x_metric
-#' @param palette
-#' @param palcolor
-#' @param pt.size
-#' @param pt.alpha
-#' @param cols.highlight
-#' @param sizes.highlight
-#' @param alpha.highlight
-#' @param stroke.highlight
-#' @param nlabel
-#' @param features_label
-#' @param label.fg
-#' @param label.bg
-#' @param label.bg.r
-#' @param label.size
-#' @param aspect.ratio
-#' @param xlab
-#' @param ylab
-#' @param combine
-#' @param nrow
-#' @param ncol
-#' @param theme_use
-#' @param theme_args
-#' @param byrow
+#' Generate a volcano plot based on differential expression analysis results.
+#'
+#' @param srt An object of class `SummarizedExperiment` containing the results of differential expression analysis.
+#' @param group_by A character vector specifying the column in `srt` to group the samples by. Default is `NULL`.
+#' @param test.use A character string specifying the type of statistical test to use. Default is "wilcox".
+#' @param DE_threshold A character string specifying the threshold for differential expression. Default is "avg_log2FC > 0 & p_val_adj < 0.05".
+#' @param x_metric A character string specifying the metric to use for the x-axis. Default is "diff_pct".
+#' @param palette A character string specifying the color palette to use for the plot. Default is "RdBu".
+#' @param palcolor A character string specifying the color for the palette. Default is `NULL`.
+#' @param pt.size A numeric value specifying the size of the points. Default is 1.
+#' @param pt.alpha A numeric value specifying the transparency of the points. Default is 1.
+#' @param cols.highlight A character string specifying the color for highlighted points. Default is "black".
+#' @param sizes.highlight A numeric value specifying the size of the highlighted points. Default is 1.
+#' @param alpha.highlight A numeric value specifying the transparency of the highlighted points. Default is 1.
+#' @param stroke.highlight A numeric value specifying the stroke width for the highlighted points. Default is 0.5.
+#' @param nlabel An integer value specifying the number of labeled points per group. Default is 5.
+#' @param features_label A character vector specifying the feature labels to plot. Default is `NULL`.
+#' @param label.fg A character string specifying the color for the labels' foreground. Default is "black".
+#' @param label.bg A character string specifying the color for the labels' background. Default is "white".
+#' @param label.bg.r A numeric value specifying the radius of the rounding of the labels' background. Default is 0.1.
+#' @param label.size A numeric value specifying the size of the labels. Default is 4.
+#' @param aspect.ratio A numeric value specifying the aspect ratio of the plot. Default is `NULL`.
+#' @param xlab A character string specifying the x-axis label. Default is the value of `x_metric`.
+#' @param ylab A character string specifying the y-axis label. Default is "-log10(p-adjust)".
+#' @param theme_use A character string specifying the theme to use for the plot. Default is "theme_scp".
+#' @param theme_args A list of theme arguments to pass to the `theme_use` function. Default is an empty list.
+#' @param combine A logical value indicating whether to combine the plots for each group into a single plot. Default is `TRUE`.
+#' @param nrow An integer value specifying the number of rows in the combined plot. Default is `NULL`.
+#' @param ncol An integer value specifying the number of columns in the combined plot. Default is `NULL`.
+#' @param byrow A logical value indicating whether to arrange the plots by row in the combined plot. Default is `TRUE`.
+#'
+#' @seealso \code{\link{RunDEtest}}
 #'
 #' @examples
 #' data("pancreas_sub")
@@ -7268,10 +7284,7 @@ heatmap_rendersize <- function(width, height, units, ha_top_list, ha_left, ha_ri
 #' @importFrom grid convertWidth convertHeight convertUnit unit grid.grabExpr
 #' @importFrom ComplexHeatmap draw
 #' @importFrom methods slotNames
-heatmap_fixsize <- function(width, width_sum, height, height_sum, units, ht_list, legend_list, verbose = TRUE) {
-  if (verbose) {
-    message("The size of the heatmap will be fixed as some elements are not scalable.")
-  }
+heatmap_fixsize <- function(width, width_sum, height, height_sum, units, ht_list, legend_list) {
   gTree <- grid.grabExpr(
     {
       ht <- draw(ht_list, annotation_legend_list = legend_list)
@@ -7351,122 +7364,135 @@ mestimate <- function(data) {
   return(m.sj)
 }
 
-
-
 #' GroupHeatmap
 #'
-#' @param srt A \code{Seurat} object.
-#' @param features A vector of gene names to plot.
-#' @param feature_split A vector of group names for features.
-#' @param group.by Columns used to calculate cell expression. One heatmap per column name.
-#' @param exp_method Method used to calculate cell expression.
-#' @param assay Assay used to calculate the expression.
-#' @param heatmap_palette Heatmap expression palette.
-#' @param feature_annotation_palette Feature groups palette.
-#' @param cell_annotation_palette Column palette.
-#' @param aggregate_fun
-#' @param slot
-#' @param lib_normalize
-#' @param libsize
-#' @param add_reticle
-#' @param cluster_rows
-#' @param cluster_columns
-#' @param split.by
-#' @param cells
-#' @param exp_cutoff
-#' @param border
-#' @param flip
-#' @param feature_split_by
-#' @param n_split
-#' @param split_method
-#' @param decreasing
-#' @param cluster_features_by
-#' @param cluster_row_slices
-#' @param cluster_column_slices
-#' @param show_row_names
-#' @param show_column_names
-#' @param row_names_side
-#' @param column_names_side
-#' @param row_names_rot
-#' @param column_names_rot
-#' @param row_title_side
-#' @param column_title_side
-#' @param row_title_rot
-#' @param column_title_rot
-#' @param anno_terms
-#' @param anno_keys
-#' @param anno_features
-#' @param terms_width
-#' @param terms_fontsize
-#' @param keys_width
-#' @param keys_fontsize
-#' @param features_width
-#' @param features_fontsize
-#' @param IDtype
-#' @param species
-#' @param db_update
-#' @param db_version
-#' @param convert_species
-#' @param Ensembl_version
-#' @param mirror
-#' @param db
-#' @param TERM2GENE
-#' @param TERM2NAME
-#' @param minGSSize
-#' @param maxGSSize
-#' @param GO_simplify
-#' @param GO_simplify_cutoff
-#' @param simplify_method
-#' @param simplify_similarityCutoff
-#' @param pvalueCutoff
-#' @param padjustCutoff
-#' @param topTerm
-#' @param show_termid
-#' @param topWord
-#' @param words_excluded
-#' @param nlabel
-#' @param features_label
-#' @param label_size
-#' @param label_color
-#' @param add_bg
-#' @param bg_alpha
-#' @param add_dot
-#' @param dot_size
-#' @param reticle_color
-#' @param add_violin
-#' @param fill.by
-#' @param fill_palette
-#' @param fill_palcolor
-#' @param heatmap_palcolor
-#' @param group_palette
-#' @param group_palcolor
-#' @param cell_split_palette
-#' @param cell_split_palcolor
-#' @param feature_split_palette
-#' @param feature_split_palcolor
-#' @param cell_annotation
-#' @param cell_annotation_palcolor
-#' @param cell_annotation_params
-#' @param feature_annotation
-#' @param feature_annotation_palcolor
-#' @param feature_annotation_params
-#' @param use_raster
-#' @param raster_device
-#' @param height
-#' @param width
-#' @param units
-#' @param seed
-#' @param ht_params
-#' @param grouping.var
-#' @param numerator
-#' @param limits
-#' @param raster_by_magick
-#' @param fuzzification
-#' @param show_fuzzification
-#' @param db_combine
+#' @param srt A Seurat object.
+#' @param features The features to include in the heatmap.
+#' @param group.by A character vector specifying the groups to group by. Default is NULL.
+#' @param split.by A character vector specifying the variable to split the heatmap by. Default is NULL.
+#' @param within_groups A logical value indicating whether to create separate heatmap scales for each group or within each group. Default is FALSE.
+#' @param grouping.var A character vector that specifies another variable for grouping, such as certain conditions. The default value is NULL.
+#' @param numerator A character vector specifying the value to use as the numerator in the grouping.var grouping. Default is NULL.
+#' @param cells A character vector specifying the cells to include in the heatmap. Default is NULL.
+#' @param aggregate_fun A function to use for aggregating data within groups. Default is base::mean.
+#' @param exp_cutoff A numeric value specifying the threshold for cell counting if \code{add_dot} is TRUE. Default is 0.
+#' @param border A logical value indicating whether to add a border to the heatmap. Default is TRUE.
+#' @param flip A logical value indicating whether to flip the heatmap. Default is FALSE.
+#' @param slot A character vector specifying the slot in the Seurat object to use. Default is "counts".
+#' @param assay A character vector specifying the assay in the Seurat object to use. Default is NULL.
+#' @param exp_method A character vector specifying the method for calculating expression values. Default is "zscore" with options "zscore", "raw", "fc", "log2fc", "log1p".
+#' @param exp_legend_title A character vector specifying the title for the legend of expression value. Default is NULL.
+#' @param limits A two-length numeric vector specifying the limits for the color scale. Default is NULL.
+#' @param lib_normalize A logical value indicating whether to normalize the data by library size.
+#' @param libsize A numeric vector specifying the library size for each cell. Default is NULL.
+#' @param feature_split A factor specifying how to split the features. Default is NULL.
+#' @param feature_split_by A character vector specifying which group.by to use when splitting features (into n_split feature clusters). Default is NULL.
+#' @param n_split An integer specifying the number of feature splits (feature clusters) to create. Default is NULL.
+#' @param split_order A numeric vector specifying the order of splits. Default is NULL.
+#' @param split_method A character vector specifying the method for splitting features. Default is "kmeans" with options "kmeans", "hclust", "mfuzz").
+#' @param decreasing A logical value indicating whether to sort feature splits in decreasing order. Default is FALSE.
+#' @param fuzzification A numeric value specifying the fuzzification coefficient. Default is NULL.
+#' @param cluster_features_by A character vector specifying which group.by to use when clustering features. Default is NULL. By default, this parameter is set to NULL, which means that all groups will be used.
+#' @param cluster_rows A logical value indicating whether to cluster rows in the heatmap. Default is FALSE.
+#' @param cluster_columns A logical value indicating whether to cluster columns in the heatmap. Default is FALSE.
+#' @param cluster_row_slices A logical value indicating whether to cluster row slices in the heatmap. Default is FALSE.
+#' @param cluster_column_slices A logical value indicating whether to cluster column slices in the heatmap. Default is FALSE.
+#' @param show_row_names A logical value indicating whether to show row names in the heatmap. Default is FALSE.
+#' @param show_column_names A logical value indicating whether to show column names in the heatmap. Default is FALSE.
+#' @param row_names_side A character vector specifying the side to place row names.
+#' @param column_names_side A character vector specifying the side to place column names.
+#' @param row_names_rot A numeric value specifying the rotation angle for row names. Default is 0.
+#' @param column_names_rot A numeric value specifying the rotation angle for column names. Default is 90.
+#' @param row_title A character vector specifying the title for rows. Default is NULL.
+#' @param column_title A character vector specifying the title for columns. Default is NULL.
+#' @param row_title_side A character vector specifying the side to place row title. Default is "left".
+#' @param column_title_side A character vector specifying the side to place column title. Default is "top".
+#' @param row_title_rot A numeric value specifying the rotation angle for row title. Default is 0.
+#' @param column_title_rot A numeric value specifying the rotation angle for column title.
+#' @param anno_terms A logical value indicating whether to include term annotations. Default is FALSE.
+#' @param anno_keys A logical value indicating whether to include key annotations. Default is FALSE.
+#' @param anno_features A logical value indicating whether to include feature annotations. Default is FALSE.
+#' @param terms_width A unit specifying the width of term annotations. Default is unit(4, "in").
+#' @param terms_fontsize A numeric vector specifying the font size(s) for term annotations. Default is 8.
+#' @param keys_width A unit specifying the width of key annotations. Default is unit(2, "in").
+#' @param keys_fontsize A two-length numeric vector specifying the minimum and maximum font size(s) for key annotations. Default is c(6, 10).
+#' @param features_width A unit specifying the width of feature annotations. Default is unit(2, "in").
+#' @param features_fontsize A two-length numeric vector specifying the minimum and maximum font size(s) for feature annotations. Default is c(6, 10).
+#' @param IDtype A character vector specifying the type of IDs for features. Default is "symbol".
+#' @param species A character vector specifying the species for features. Default is "Homo_sapiens".
+#' @param db_update A logical value indicating whether to update the database. Default is FALSE.
+#' @param db_version A character vector specifying the version of the database. Default is "latest".
+#' @param db_combine A logical value indicating whether to use a combined database. Default is FALSE.
+#' @param convert_species A logical value indicating whether to use a species-converted database if annotation is missing for \code{species}. Default is FALSE.
+#' @param Ensembl_version An integer specifying the Ensembl version. Default is 103.
+#' @param mirror A character vector specifying the mirror for the Ensembl database. Default is NULL.
+#' @param db A character vector specifying the database to use. Default is "GO_BP".
+#' @param TERM2GENE A data.frame specifying the TERM2GENE mapping for the database. Default is NULL.
+#' @param TERM2NAME A data.frame specifying the TERM2NAME mapping for the database. Default is NULL.
+#' @param minGSSize An integer specifying the minimum gene set size for the database. Default is 10.
+#' @param maxGSSize An integer specifying the maximum gene set size for the database. Default is 500.
+#' @param GO_simplify A logical value indicating whether to simplify gene ontology terms. Default is FALSE.
+#' @param GO_simplify_cutoff A character vector specifying the cutoff for GO simplification. Default is "p.adjust < 0.05".
+#' @param simplify_method A character vector specifying the method for GO simplification. Default is "Wang".
+#' @param simplify_similarityCutoff A numeric value specifying the similarity cutoff for GO simplification. Default is 0.7.
+#' @param pvalueCutoff A numeric vector specifying the p-value cutoff(s) for significance. Default is NULL.
+#' @param padjustCutoff A numeric value specifying the adjusted p-value cutoff for significance. Default is 0.05.
+#' @param topTerm An integer specifying the number of top terms to include. Default is 5.
+#' @param show_termid A logical value indicating whether to show term IDs. Default is FALSE.
+#' @param topWord An integer specifying the number of top words to include. Default is 20.
+#' @param words_excluded A character vector specifying the words to exclude. Default is NULL.
+#' @param nlabel An integer specifying the number of labels to include. Default is 0.
+#' @param features_label A character vector specifying the features to label. Default is NULL.
+#' @param label_size A numeric value specifying the size of labels. Default is 10.
+#' @param label_color A character vector specifying the color of labels. Default is "black".
+#' @param add_bg A logical value indicating whether to add a background to the heatmap. Default is FALSE.
+#' @param bg_alpha A numeric value specifying the alpha value for the background color. Default is 0.5.
+#' @param add_dot A logical value indicating whether to add dots to the heatmap. The size of dot represents percentage of expressed cells based on the specified \code{exp_cutoff}. Default is FALSE.
+#' @param dot_size A unit specifying the base size of the dots. Default is unit(8, "mm").
+#' @param add_reticle A logical value indicating whether to add reticles to the heatmap. Default is FALSE.
+#' @param reticle_color A character vector specifying the color of the reticles. Default is "grey".
+#' @param add_violin A logical value indicating whether to add violins to the heatmap. Default is FALSE.
+#' @param fill.by A character vector specifying what to fill the violin. Possible values are "group", "feature", or "expression". Default is "feature".
+#' @param fill_palette A character vector specifying the palette to use for fill. Default is "Dark2".
+#' @param fill_palcolor A character vector specifying the fill color to use. Default is NULL.
+#' @param heatmap_palette A character vector specifying the palette to use for the heatmap. Default is "RdBu".
+#' @param heatmap_palcolor A character vector specifying the heatmap color to use. Default is NULL.
+#' @param group_palette A character vector specifying the palette to use for groups. Default is "Paired".
+#' @param group_palcolor A character vector specifying the group color to use. Default is NULL.
+#' @param cell_split_palette A character vector specifying the palette to use for cell splits. Default is "simspec".
+#' @param cell_split_palcolor A character vector specifying the cell split color to use. Default is NULL.
+#' @param feature_split_palette A character vector specifying the palette to use for feature splits. Default is "simspec".
+#' @param feature_split_palcolor A character vector specifying the feature split color to use. Default is NULL.
+#' @param cell_annotation A character vector specifying the cell annotation(s) to include. Default is NULL.
+#' @param cell_annotation_palette A character vector specifying the palette to use for cell annotations. The length of the vector should match the number of cell_annotation. Default is "Paired".
+#' @param cell_annotation_palcolor A list of character vector specifying the cell annotation color(s) to use. The length of the list should match the number of cell_annotation. Default is NULL.
+#' @param cell_annotation_params A list specifying additional parameters for cell annotations. Default is a list with width = grid::unit(1, "cm") if flip is TRUE, else a list with height = grid::unit(1, "cm").
+#' @param feature_annotation A character vector specifying the feature annotation(s) to include. Default is NULL.
+#' @param feature_annotation_palette A character vector specifying the palette to use for feature annotations. The length of the vector should match the number of feature_annotation. Default is "Dark2".
+#' @param feature_annotation_palcolor A list of character vector specifying the feature annotation color to use. The length of the list should match the number of feature_annotation. Default is NULL.
+#' @param feature_annotation_params A list specifying additional parameters for feature annotations. Default is an empty list.
+#' @param use_raster A logical value indicating whether to use a raster device for plotting. Default is NULL.
+#' @param raster_device A character vector specifying the raster device to use. Default is "png".
+#' @param raster_by_magick A logical value indicating whether to use the 'magick' package for raster. Default is FALSE.
+#' @param height A numeric vector specifying the height(s) of the heatmap body. Default is NULL.
+#' @param width A numeric vector specifying the width(s) of the heatmap body. Default is NULL.
+#' @param units A character vector specifying the units for the height and width. Default is "inch".
+#' @param seed An integer specifying the random seed. Default is 11.
+#' @param ht_params A list specifying additional parameters passed to the ComplexHeatmap::Heatmap function. Default is an empty list.
+#'
+#' @seealso \code{\link{RunDEtest}}
+#'
+#' @return A list with the following elements:
+#'   \itemize{
+#'     \item{\code{plot}}{The heatmap plot.}
+#'     \item{\code{matrix_list}}{A list of matrix for each \code{group.by} used in the heatmap.}
+#'     \item{\code{feature_split}}{NULL or a factor if splitting is performed in the heatmap.}
+#'     \item{\code{cell_metadata}}{Meta data of cells used to generate the heatmap.}
+#'     \item{\code{cell_metadata}}{Meta data of features used to generate the heatmap.}
+#'     \item{\code{enrichment}}{NULL or a enrichment result generated by RunEnrichment when any of the parameters \code{anno_terms}, \code{anno_keys}, or \code{anno_features} is set to TRUE.}
+#'   }
 #'
 #' @examples
-#' library(dplyr)
 #' data("pancreas_sub")
 #' ht1 <- GroupHeatmap(pancreas_sub,
 #'   features = c(
@@ -7488,6 +7514,7 @@ mestimate <- function(data) {
 #' ht2 <- GroupHeatmap(
 #'   srt = pancreas_sub, features = de_filter$gene, group.by = "CellType",
 #'   split.by = "Phase", cell_split_palette = "Dark2",
+#'   cluster_rows = TRUE, cluster_columns = TRUE,
 #'   nlabel = 10, show_row_names = FALSE
 #' )
 #' ht2$plot
@@ -7563,9 +7590,9 @@ mestimate <- function(data) {
 #' @export
 GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL, within_groups = FALSE, grouping.var = NULL, numerator = NULL, cells = NULL,
                          aggregate_fun = base::mean, exp_cutoff = 0, border = TRUE, flip = FALSE,
-                         slot = "counts", assay = NULL, exp_method = c("zscore", "raw", "fc", "log2fc", "log1p"), legend_title = NULL, limits = NULL, lib_normalize = identical(slot, "counts"), libsize = NULL,
+                         slot = "counts", assay = NULL, exp_method = c("zscore", "raw", "fc", "log2fc", "log1p"), exp_legend_title = NULL, limits = NULL, lib_normalize = identical(slot, "counts"), libsize = NULL,
                          feature_split = NULL, feature_split_by = NULL, n_split = NULL, split_order = NULL,
-                         split_method = c("kmeans", "hclust", "mfuzz"), decreasing = FALSE, fuzzification = NULL, show_fuzzification = FALSE,
+                         split_method = c("kmeans", "hclust", "mfuzz"), decreasing = FALSE, fuzzification = NULL,
                          cluster_features_by = NULL, cluster_rows = FALSE, cluster_columns = FALSE, cluster_row_slices = FALSE, cluster_column_slices = FALSE,
                          show_row_names = FALSE, show_column_names = FALSE, row_names_side = ifelse(flip, "left", "right"), column_names_side = ifelse(flip, "bottom", "top"), row_names_rot = 0, column_names_rot = 90,
                          row_title = NULL, column_title = NULL, row_title_side = "left", column_title_side = "top", row_title_rot = 0, column_title_rot = ifelse(flip, 90, 0),
@@ -7610,7 +7637,7 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
     warning("When 'grouping.var' is specified, 'exp_method' can only be 'log2fc'", immediate. = TRUE)
     exp_method <- "log2fc"
   }
-  exp_name <- legend_title %||% exp_name
+  exp_name <- exp_legend_title %||% exp_name
 
   if (!is.null(grouping.var)) {
     if (identical(split.by, grouping.var)) {
@@ -8168,9 +8195,6 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
             if (length(cl$cluster) == 0) {
               stop("Clustering with mfuzz failed (fuzzification=", round(fuzzification, 2), "). Please set a larger fuzzification parameter manually.")
             }
-            if (isTRUE(show_fuzzification)) {
-              message("fuzzification: ", fuzzification)
-            }
             # mfuzz.plot(eset, cl,new.window = FALSE)
             row_split <- feature_split <- cl$cluster
           }
@@ -8602,6 +8626,11 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
 
   if ((!is.null(row_split) && length(index) > 0) || any(c(anno_terms, anno_keys, anno_features)) || !is.null(width) || !is.null(height)) {
     fix <- TRUE
+    if (is.null(width) || is.null(height)) {
+      message("The size of the heatmap is fixed because certain elements are not scalable.\n
+              The width and height of the heatmap are determined by the size of the current viewport.\n
+              If you want to have more control over the size, you can manually set the parameters 'width' and 'height'.")
+    }
   } else {
     fix <- FALSE
   }
@@ -8690,106 +8719,13 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
 
 #' FeatureHeatmap
 #'
-#' @param srt
-#' @param features
-#' @param feature_split
-#' @param cluster_rows
-#' @param group.by
-#' @param cluster_columns
-#' @param max_cells
-#' @param slot
-#' @param assay
-#' @param exp_method
-#' @param n_split
-#' @param feature_split_by
-#' @param split_method
-#' @param decreasing
-#' @param lib_normalize
-#' @param libsize
-#' @param anno_keys
-#' @param anno_features
-#' @param IDtype
-#' @param species
-#' @param db_update
-#' @param db_version
-#' @param Ensembl_version
-#' @param mirror
-#' @param db
-#' @param TERM2GENE
-#' @param TERM2NAME
-#' @param minGSSize
-#' @param maxGSSize
-#' @param GO_simplify
-#' @param GO_simplify_cutoff
-#' @param simplify_method
-#' @param simplify_similarityCutoff
-#' @param pvalueCutoff
-#' @param padjustCutoff
-#' @param topWord
-#' @param words_excluded
-#' @param nlabel
-#' @param features_label
-#' @param label_size
-#' @param label_color
-#' @param heatmap_palette
-#' @param group_palette
-#' @param feature_split_palette
-#' @param cell_annotation
-#' @param cell_annotation_palette
-#' @param cell_annotation_palcolor
-#' @param feature_annotation
-#' @param feature_annotation_palette
-#' @param feature_annotation_palcolor
-#' @param use_raster
-#' @param height
-#' @param width
-#' @param units
-#' @param seed
-#' @param cells
-#' @param split.by
-#' @param cell_order
-#' @param border
-#' @param flip
-#' @param cluster_features_by
-#' @param cluster_row_slices
-#' @param cluster_column_slices
-#' @param show_row_names
-#' @param show_column_names
-#' @param row_names_side
-#' @param column_names_side
-#' @param row_names_rot
-#' @param column_names_rot
-#' @param row_title_side
-#' @param column_title_side
-#' @param row_title_rot
-#' @param column_title_rot
-#' @param anno_terms
-#' @param terms_width
-#' @param terms_fontsize
-#' @param keys_width
-#' @param keys_fontsize
-#' @param features_width
-#' @param features_fontsize
-#' @param convert_species
-#' @param topTerm
-#' @param show_termid
-#' @param heatmap_palcolor
-#' @param group_palcolor
-#' @param cell_split_palette
-#' @param cell_split_palcolor
-#' @param feature_split_palcolor
-#' @param cell_annotation_params
-#' @param feature_annotation_params
-#' @param raster_device
-#' @param ht_params
-#' @param limits
-#' @param raster_by_magick
-#' @param fuzzification
-#' @param show_fuzzification
-#' @param db_combine
+#' @inheritParams GroupHeatmap
+#' @param max_cells An integer, maximum number of cells to sample per group, default is 100.
+#' @param cell_order A vector of cell names defining the order of cells, default is NULL.
+#'
+#' @seealso \code{\link{RunDEtest}}
 #'
 #' @examples
-#' library(dplyr)
 #' data("pancreas_sub")
 #' pancreas_sub <- RunDEtest(pancreas_sub, group_by = "CellType")
 #' de_filter <- filter(pancreas_sub@tools$DEtest_CellType$AllMarkers_wilcox, p_val_adj < 0.05 & avg_log2FC > 1)
@@ -8857,10 +8793,10 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
 #' @importFrom proxyC dist
 #' @export
 FeatureHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, split.by = NULL, within_groups = FALSE, max_cells = 100, cell_order = NULL, border = TRUE, flip = FALSE,
-                           slot = "counts", assay = NULL, exp_method = c("zscore", "raw", "fc", "log2fc", "log1p"), legend_title = NULL, limits = NULL,
+                           slot = "counts", assay = NULL, exp_method = c("zscore", "raw", "fc", "log2fc", "log1p"), exp_legend_title = NULL, limits = NULL,
                            lib_normalize = identical(slot, "counts"), libsize = NULL,
                            feature_split = NULL, feature_split_by = NULL, n_split = NULL, split_order = NULL,
-                           split_method = c("kmeans", "hclust", "mfuzz"), decreasing = FALSE, fuzzification = NULL, show_fuzzification = FALSE,
+                           split_method = c("kmeans", "hclust", "mfuzz"), decreasing = FALSE, fuzzification = NULL,
                            cluster_features_by = NULL, cluster_rows = FALSE, cluster_columns = FALSE, cluster_row_slices = FALSE, cluster_column_slices = FALSE,
                            show_row_names = FALSE, show_column_names = FALSE, row_names_side = ifelse(flip, "left", "right"), column_names_side = ifelse(flip, "bottom", "top"), row_names_rot = 0, column_names_rot = 90,
                            row_title = NULL, column_title = NULL, row_title_side = "left", column_title_side = "top", row_title_rot = 0, column_title_rot = ifelse(flip, 90, 0),
@@ -8893,7 +8829,7 @@ FeatureHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, 
     exp_method <- match.arg(exp_method)
     exp_name <- paste0(exp_method, "(", data_nm, ")")
   }
-  exp_name <- legend_title %||% exp_name
+  exp_name <- exp_legend_title %||% exp_name
 
   assay <- assay %||% DefaultAssay(srt)
   if (length(feature_split) != 0 && length(feature_split) != length(features)) {
@@ -9330,9 +9266,6 @@ FeatureHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, 
             if (length(cl$cluster) == 0) {
               stop("Clustering with mfuzz failed (fuzzification=", round(fuzzification, 2), "). Please set a larger fuzzification parameter manually.")
             }
-            if (isTRUE(show_fuzzification)) {
-              message("fuzzification: ", fuzzification)
-            }
             # mfuzz.plot(eset, cl,new.window = FALSE)
             row_split <- feature_split <- cl$cluster
           }
@@ -9636,6 +9569,11 @@ FeatureHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, 
 
   if ((!is.null(row_split) && length(index) > 0) || any(c(anno_terms, anno_keys, anno_features)) || !is.null(width) || !is.null(height)) {
     fix <- TRUE
+    if (is.null(width) || is.null(height)) {
+      message("The size of the heatmap is fixed because certain elements are not scalable.\n
+              The width and height of the heatmap are determined by the size of the current viewport.\n
+              If you want to have more control over the size, you can manually set the parameters 'width' and 'height'.")
+    }
   } else {
     fix <- FALSE
   }
@@ -9728,70 +9666,86 @@ FeatureCorHeatmap <- function(srt, features, cells) {
 
 #' CellCorHeatmap
 #'
-#' @param srt_query
-#' @param srt_ref
-#' @param bulk_ref
-#' @param query_group
-#' @param ref_group
-#' @param query_assay
-#' @param ref_assay
-#' @param query_reduction
-#' @param ref_reduction
-#' @param query_dims
-#' @param ref_dims
-#' @param query_collapsing
-#' @param ref_collapsing
-#' @param features
-#' @param features_type
-#' @param feature_source
-#' @param nfeatures
-#' @param DEtest_param
-#' @param DE_threshold
-#' @param distance_metric
-#' @param k
-#' @param filter_lowfreq
-#' @param prefix
-#' @param cluster_columns
-#' @param cluster_rows
-#' @param nlabel
-#' @param label_cutoff
-#' @param label_by
-#' @param border
-#' @param flip
-#' @param limits
-#' @param show_row_names
-#' @param show_column_names
-#' @param row_names_side
-#' @param column_names_side
-#' @param row_names_rot
-#' @param column_names_rot
-#' @param row_title_side
-#' @param column_title_side
-#' @param row_title_rot
-#' @param column_title_rot
-#' @param heatmap_palette
-#' @param heatmap_palcolor
-#' @param query_group_palette
-#' @param query_group_palcolor
-#' @param ref_group_palette
-#' @param ref_group_palcolor
-#' @param query_cell_annotation
-#' @param query_cell_annotation_palette
-#' @param query_cell_annotation_palcolor
-#' @param query_cell_annotation_params
-#' @param ref_cell_annotation
-#' @param ref_cell_annotation_palette
-#' @param ref_cell_annotation_palcolor
-#' @param ref_cell_annotation_params
-#' @param use_raster
-#' @param raster_device
-#' @param height
-#' @param width
-#' @param units
-#' @param seed
-#' @param ht_params
-#' @param label_size
-#' @param raster_by_magick
+#' This function generates a heatmap to visualize the similarity between different cell types or conditions. It takes in Seurat objects or expression matrices as input and calculates pairwise similarities or distance.
+#'
+#' @param srt_query A Seurat object or count matrix representing the query dataset. This dataset will be used to calculate the similarities between cells.
+#' @param srt_ref A Seurat object or count matrix representing the reference dataset. If provided, the similarities will be calculated between cells from the query and reference datasets. If not provided, the similarities will be calculated within the query dataset.
+#' @param bulk_ref A count matrix representing bulk data. If provided, the similarities will be calculated between cells from the query dataset and bulk data.
+#' @param query_group The grouping variable in the query dataset. This variable will be used to group cells in the heatmap rows. If not provided, all cells will be treated as one group.
+#' @param ref_group The grouping variable in the reference dataset. This variable will be used to group cells in the heatmap columns. If not provided, all cells will be treated as one group.
+#' @param query_assay The assay to use for the query dataset. If not provided, the default assay of the query dataset will be used.
+#' @param ref_assay The assay to use for the reference dataset. If not provided, the default assay of the reference dataset will be used.
+#' @param query_reduction The dimensionality reduction method to use for the query dataset. If not provided, no dimensionality reduction will be applied to the query dataset.
+#' @param ref_reduction The dimensionality reduction method to use for the reference dataset. If not provided, no dimensionality reduction will be applied to the reference dataset.
+#' @param query_dims The dimensions to use for the query dataset. If not provided, the first 30 dimensions will be used.
+#' @param ref_dims The dimensions to use for the reference dataset. If not provided, the first 30 dimensions will be used.
+#' @param query_collapsing Whether to collapse cells within each query group before calculating similarities. If set to TRUE, the similarities will be calculated between query groups rather than individual cells.
+#' @param ref_collapsing Whether to collapse cells within each reference group before calculating similarities. If set to TRUE, the similarities will be calculated between reference groups rather than individual cells.
+#' @param features A vector of feature names to include in the heatmap. If not provided, a default set of highly variable features (HVF) will be used.
+#' @param features_type The type of features to use. Options are "HVF" for highly variable features, "DE" for differentially expressed features between query and reference groups.
+#' @param feature_source The source of features to use. Options are "query" to use only features from the query dataset, "ref" to use only features from the reference dataset, or "both" to use features from both datasets. If not provided or set to "both", features will be selected from both datasets.
+#' @param nfeatures The maximum number of features to include in the heatmap. If not provided, the default is 2000.
+#' @param DEtest_param The parameters to use for differential expression testing. This should be a list with two elements: "max.cells.per.ident" specifying the maximum number of cells per group for differential expression testing, and "test.use" specifying the statistical test to use for differential expression testing. If not provided, the default parameters will be used.
+#' @param DE_threshold The threshold for differential expression. Only features with adjusted p-values below this threshold will be considered differentially expressed.
+#' @param distance_metric The distance metric to use for calculating similarities between cells. This can be any of the following: "cosine", "pearson", "spearman", "correlation", "jaccard", "ejaccard", "dice", "edice", "hamman", "simple matching", or "faith". If not provided, the default is "cosine".
+#' @param k The number of nearest neighbors to use for calculating similarities. If not provided, the default is 30.
+#' @param filter_lowfreq The minimum frequency threshold for selecting query dataset features. Features with a frequency below this threshold will be excluded from the heatmap. If not provided, the default is 0.
+#' @param prefix The prefix to use for the KNNPredict tool slot in the query dataset. This can be used to avoid conflicts with other tools in the Seurat object. If not provided, the default is "KNNPredict".
+#' @param exp_legend_title The title for the color legend in the heatmap. If not provided, a default title based on the similarity metric will be used.
+#' @param border Whether to add a border around each heatmap cell. If not provided, the default is TRUE.
+#' @param flip Whether to flip the orientation of the heatmap. If set to TRUE, the rows and columns of the heatmap will be swapped. This can be useful for visualizing large datasets in a more compact form. If not provided, the default is FALSE.
+#' @param limits The limits for the color scale in the heatmap. If not provided, the default is to use the range of similarity values.
+#' @param cluster_rows Whether to cluster the rows of the heatmap. If set to TRUE, the rows will be rearranged based on hierarchical clustering. If not provided, the default is FALSE.
+#' @param cluster_columns Whether to cluster the columns of the heatmap. If set to TRUE, the columns will be rearranged based on hierarchical clustering. If not provided, the default is FALSE.
+#' @param show_row_names Whether to show the row names in the heatmap. If not provided, the default is FALSE.
+#' @param show_column_names Whether to show the column names in the heatmap. If not provided, the default is FALSE.
+#' @param row_names_side The side of the heatmap to show the row names. Options are "left" or "right". If not provided, the default is "left".
+#' @param column_names_side The side of the heatmap to show the column names. Options are "top" or "bottom". If not provided, the default is "top".
+#' @param row_names_rot The rotation angle of the row names. If not provided, the default is 0 degrees.
+#' @param column_names_rot The rotation angle of the column names. If not provided, the default is 90 degrees.
+#' @param row_title The title for the row names in the heatmap. If not provided, the default is to use the query grouping variable.
+#' @param column_title The title for the column names in the heatmap. If not provided, the default is to use the reference grouping variable.
+#' @param row_title_side The side of the heatmap to show the row title. Options are "top" or "bottom". If not provided, the default is "left".
+#' @param column_title_side The side of the heatmap to show the column title. Options are "left" or "right". If not provided, the default is "top".
+#' @param row_title_rot The rotation angle of the row title. If not provided, the default is 90 degrees.
+#' @param column_title_rot The rotation angle of the column title. If not provided, the default is 0 degrees.
+#' @param nlabel The maximum number of labels to show on each side of the heatmap. If set to 0, no labels will be shown. This can be useful for reducing clutter in large heatmaps. If not provided, the default is 0.
+#' @param label_cutoff The similarity cutoff for showing labels. Only cells with similarity values above this cutoff will have labels. If not provided, the default is 0.
+#' @param label_by The dimension to use for labeling cells. Options are "row" to label cells by row, "column" to label cells by column, or "both" to label cells by both row and column. If not provided, the default is "row".
+#' @param label_size The size of the labels in points. If not provided, the default is 10.
+#' @param heatmap_palette The color palette to use for the heatmap. This can be any of the palettes available in the circlize package. If not provided, the default is "RdBu".
+#' @param heatmap_palcolor The specific colors to use for the heatmap palette. This should be a vector of color names or RGB values. If not provided, the default is NULL.
+#' @param query_group_palette The color palette to use for the query group legend. This can be any of the palettes available in the circlize package. If not provided, the default is "Paired".
+#' @param query_group_palcolor The specific colors to use for the query group palette. This should be a vector of color names or RGB values. If not provided, the default is NULL.
+#' @param ref_group_palette The color palette to use for the reference group legend. This can be any of the palettes available in the circlize package. If not provided, the default is "simspec".
+#' @param ref_group_palcolor The specific colors to use for the reference group palette. This should be a vector of color names or RGB values. If not provided, the default is NULL.
+#' @param query_cell_annotation A vector of cell metadata column names or assay feature names to use for highlighting specific cells in the heatmap. Each element of the vector will create a separate cell annotation track in the heatmap. If not provided, no cell annotations will be shown.
+#' @param query_cell_annotation_palette The color palette to use for the query cell annotation tracks. This can be any of the palettes available in the circlize package. If a single color palette is provided, it will be used for all cell annotation tracks. If multiple color palettes are provided, each track will be assigned a separate palette. If not provided, the default is "Paired".
+#' @param query_cell_annotation_palcolor The specific colors to use for the query cell annotation palettes. This should be a list of vectors, where each vector contains the colors for a specific cell annotation track. If a single color vector is provided, it will be used for all cell annotation tracks. If multiple color vectors are provided, each track will be assigned a separate color vector. If not provided, the default is NULL.
+#' @param query_cell_annotation_params Additional parameters for customizing the appearance of the query cell annotation tracks. This should be a list with named elements, where the names correspond to parameter names in the heatmaps_annotation() function from the ComplexHeatmap package. If not provided, the default parameters will be used.
+#' @param ref_cell_annotation A vector of cell metadata column names or assay feature names to use for highlighting specific cells in the heatmap. Each element of the vector will create a separate cell annotation track in the heatmap. If not provided, no cell annotations will be shown.
+#' @param ref_cell_annotation_palette The color palette to use for the reference cell annotation tracks. This can be any of the palettes available in the circlize package. If a single color palette is provided, it will be used for all cell annotation tracks. If multiple color palettes are provided, each track will be assigned a separate palette. If not provided, the default is "Paired".
+#' @param ref_cell_annotation_palcolor The specific colors to use for the reference cell annotation palettes. This should be a list of vectors, where each vector contains the colors for a specific cell annotation track. If a single color vector is provided, it will be used for all cell annotation tracks. If multiple color vectors are provided, each track will be assigned a separate color vector. If not provided, the default is NULL.
+#' @param ref_cell_annotation_params Additional parameters for customizing the appearance of the reference cell annotation tracks. This should be a list with named elements, where the names correspond to parameter names in the heatmaps_annotation() function from the ComplexHeatmap package. If not provided, the default parameters will be used.
+#' @param use_raster Whether to use raster images for rendering the heatmap. If set to TRUE, the heatmap will be rendered as a raster image using the raster_device argument. If not provided, the default is determined based on the number of rows and columns in the heatmap.
+#' @param raster_device The raster device to use for rendering the heatmap. This should be a character string specifying the device name, such as "png", "jpeg", or "pdf". If not provided, the default is "png".
+#' @param raster_by_magick Whether to use the magick package for rendering rasters. If set to TRUE, the magick package will be used instead of the raster package. This can be useful for rendering large heatmaps more efficiently. If the magick package is not installed, this argument will be ignored.
+#' @param width The width of the heatmap in the specified units. If not provided, the width will be automatically determined based on the number of columns in the heatmap and the default unit.
+#' @param height The height of the heatmap in the specified units. If not provided, the height will be automatically determined based on the number of rows in the heatmap and the default unit.
+#' @param units The units to use for the width and height of the heatmap. Options are "mm", "cm", or "inch". If not provided, the default is "inch".
+#' @param seed The random seed to use for reproducible results. If not provided, the default is 11.
+#' @param ht_params Additional parameters to customize the appearance of the heatmap. This should be a list with named elements, where the names correspond to parameter names in the Heatmap() function from the ComplexHeatmap package. Any conflicting parameters will override the defaults set by this function.
+#'
+#' @return A list with the following elements:
+#'   \itemize{
+#'     \item{\code{plot}}{The heatmap plot as a ggplot object.}
+#'     \item{\code{features}}{The features used in the heatmap.}
+#'     \item{\code{simil_matrix}}{The similarity matrix used to generate the heatmap.}
+#'     \item{\code{simil_name}}{The name of the similarity metric used to generate the heatmap.}
+#'     \item{\code{cell_metadata}}{The cell metadata used to generate the heatmap.}
+#'   }
+#'
+#' @seealso \code{\link{RunKNNMap}} \code{\link{RunKNNPredict}}
 #'
 #' @examples
 #' data("pancreas_sub")
@@ -9849,7 +9803,7 @@ CellCorHeatmap <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
                            DEtest_param = list(max.cells.per.ident = 200, test.use = "wilcox"),
                            DE_threshold = "p_val_adj < 0.05",
                            distance_metric = "cosine", k = 30,
-                           filter_lowfreq = 0, prefix = "KNNPredict", legend_title = NULL,
+                           filter_lowfreq = 0, prefix = "KNNPredict", exp_legend_title = NULL,
                            border = TRUE, flip = FALSE, limits = NULL,
                            cluster_rows = FALSE, cluster_columns = FALSE,
                            show_row_names = FALSE, show_column_names = FALSE, row_names_side = "left", column_names_side = "top", row_names_rot = 0, column_names_rot = 90,
@@ -9929,7 +9883,7 @@ CellCorHeatmap <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
   }
   simil_matrix[is.infinite(simil_matrix)] <- max(abs(simil_matrix[!is.infinite(simil_matrix)]), na.rm = TRUE) * ifelse(simil_matrix[is.infinite(simil_matrix)] > 0, 1, -1)
   simil_matrix[is.na(simil_matrix)] <- 0
-  exp_name <- legend_title %||% simil_name
+  exp_name <- exp_legend_title %||% simil_name
 
   cell_groups <- list()
   if (is.null(query_group)) {
@@ -10609,114 +10563,36 @@ CellCorHeatmap <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
 
 #' Heatmap plot for dynamic features along lineages
 #'
-#' @param srt
-#' @param lineages
-#' @param exp_method
-#' @param slot
-#' @param assay
-#' @param use_fitted
-#' @param lib_normalize
-#' @param libsize
-#' @param min_expcells
-#' @param r.sq
-#' @param dev.expl
-#' @param padjust
-#' @param cell_density
-#' @param order_by
-#' @param decreasing
-#' @param feature_split
-#' @param n_split
-#' @param feature_split_by
-#' @param split_method
-#' @param fuzzification
-#' @param show_fuzzification
-#' @param nlabel
-#' @param features_label
-#' @param label_size
-#' @param label_color
-#' @param pseudotime_label
-#' @param pseudotime_label_color
-#' @param pseudotime_label_linetype
-#' @param pseudotime_label_linewidth
-#' @param heatmap_palette
-#' @param pseudotime_palette
-#' @param cell_annotation
-#' @param cell_annotation_palette
-#' @param cell_annotation_palcolor
-#' @param feature_annotation
-#' @param feature_annotation_palette
-#' @param feature_annotation_palcolor
-#' @param reverse_ht
-#' @param use_raster
-#' @param height
-#' @param width
-#' @param units
-#' @param seed
-#' @param features
-#' @param border
-#' @param flip
-#' @param family
-#' @param cluster_features_by
-#' @param cluster_rows
-#' @param cluster_row_slices
-#' @param cluster_columns
-#' @param cluster_column_slices
-#' @param show_row_names
-#' @param show_column_names
-#' @param row_names_side
-#' @param column_names_side
-#' @param row_names_rot
-#' @param column_names_rot
-#' @param row_title_side
-#' @param column_title_side
-#' @param row_title_rot
-#' @param column_title_rot
-#' @param anno_terms
-#' @param anno_keys
-#' @param anno_features
-#' @param terms_width
-#' @param terms_fontsize
-#' @param keys_width
-#' @param keys_fontsize
-#' @param features_width
-#' @param features_fontsize
-#' @param IDtype
-#' @param species
-#' @param db_update
-#' @param db_version
-#' @param convert_species
-#' @param Ensembl_version
-#' @param mirror
-#' @param db
-#' @param TERM2GENE
-#' @param TERM2NAME
-#' @param minGSSize
-#' @param maxGSSize
-#' @param GO_simplify
-#' @param GO_simplify_cutoff
-#' @param simplify_method
-#' @param simplify_similarityCutoff
-#' @param pvalueCutoff
-#' @param padjustCutoff
-#' @param topTerm
-#' @param show_termid
-#' @param topWord
-#' @param words_excluded
-#' @param heatmap_palcolor
-#' @param pseudotime_palcolor
-#' @param feature_split_palette
-#' @param feature_split_palcolor
-#' @param cell_annotation_params
-#' @param feature_annotation_params
-#' @param separate_annotation
-#' @param separate_annotation_palette
-#' @param separate_annotation_palcolor
-#' @param separate_annotation_params
-#' @param raster_device
-#' @param ht_params
-#' @param limits
-#' @param raster_by_magick
-#' @param db_combine
+#' @inheritParams GroupHeatmap
+#' @param srt A Seurat object.
+#' @param lineages A character vector specifying the lineages to plot.
+#' @param features A character vector specifying the features to plot. By default, this parameter is set to NULL, and the dynamic features will be determined by the parameters  \code{min_expcells}, \code{r.sq}, \code{dev.expl}, \code{padjust} and \code{num_intersections}.
+#' @param use_fitted A logical indicating whether to use fitted values. Default is FALSE.
+#' @param border A logical indicating whether to add a border to the heatmap. Default is TRUE.
+#' @param flip A logical indicating whether to flip the heatmap. Default is FALSE.
+#' @param min_expcells A numeric value specifying the minimum number of expected cells. Default is 20.
+#' @param r.sq A numeric value specifying the R-squared threshold. Default is 0.2.
+#' @param dev.expl A numeric value specifying the deviance explained threshold. Default is 0.2.
+#' @param padjust A numeric value specifying the p-value adjustment threshold. Default is 0.05.
+#' @param num_intersections This parameter is a numeric vector used to determine the number of intersections among lineages. It helps in selecting which dynamic features will be used. By default, when this parameter is set to NULL, all dynamic features that pass the specified threshold will be used for each lineage.
+#' @param cell_density A numeric value is used to define the cell density within each cell bin. By default, this parameter is set to 1, which means that all cells will be included within each cell bin.
+#' @param cell_bins A numeric value specifying the number of cell bins. Default is 100.
+#' @param order_by A character vector specifying the order of the heatmap. Default is "peaktime".
+#' @param family A character specifying the model used to calculate the dynamic features if needed. By default, this parameter is set to NULL, and the appropriate family will be automatically determined.
+#' @param cluster_features_by A character vector specifying which lineage to use when clustering features. By default, this parameter is set to NULL, which means that all lineages will be used.
+#' @param pseudotime_label A numeric vector specifying the pseudotime label. Default is NULL.
+#' @param pseudotime_label_color A character string specifying the pseudotime label color. Default is "black".
+#' @param pseudotime_label_linetype A numeric value specifying the pseudotime label line type. Default is 2.
+#' @param pseudotime_label_linewidth A numeric value specifying the pseudotime label line width. Default is 3.
+#' @param pseudotime_palette A character vector specifying the color palette to use for pseudotime.
+#' @param pseudotime_palcolor A list specifying the colors to use for the pseudotime in the heatmap.
+#' @param separate_annotation A character vector of names of annotations to be displayed in separate annotation blocks. Each name should match a column name in the metadata of the Seurat object.
+#' @param separate_annotation_palette A character vector specifying the color palette to use for separate annotations.
+#' @param separate_annotation_palcolor A list specifying the colors to use for each level of the separate annotations.
+#' @param separate_annotation_params A list of other parameters to be passed to the HeatmapAnnotation function when creating the separate annotation blocks.
+#' @param reverse_ht A logical indicating whether to reverse the heatmap. Default is NULL.
+#'
+#' @seealso \code{\link{RunDynamicFeatures}} \code{\link{RunDynamicEnrichment}}
 #'
 #' @examples
 #' data("pancreas_sub")
@@ -10815,16 +10691,17 @@ CellCorHeatmap <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
 #' @importFrom dplyr %>% filter group_by arrange desc across mutate reframe distinct n .data
 #' @importFrom proxyC dist
 #' @export
-DynamicHeatmap <- function(srt, lineages, features = NULL, num_intersections = NULL, use_fitted = FALSE, border = TRUE, flip = FALSE,
-                           min_expcells = 20, r.sq = 0.2, dev.expl = 0.2, padjust = 0.05, cell_density = 1, cell_bins = 100, order_by = c("peaktime", "valleytime"),
-                           slot = "counts", assay = NULL, exp_method = c("zscore", "raw", "fc", "log2fc", "log1p"), legend_title = NULL, limits = NULL,
+DynamicHeatmap <- function(srt, lineages, features = NULL, use_fitted = FALSE, border = TRUE, flip = FALSE,
+                           min_expcells = 20, r.sq = 0.2, dev.expl = 0.2, padjust = 0.05, num_intersections = NULL,
+                           cell_density = 1, cell_bins = 100, order_by = c("peaktime", "valleytime"),
+                           slot = "counts", assay = NULL, exp_method = c("zscore", "raw", "fc", "log2fc", "log1p"), exp_legend_title = NULL, limits = NULL,
                            lib_normalize = identical(slot, "counts"), libsize = NULL, family = NULL,
                            cluster_features_by = NULL, cluster_rows = FALSE, cluster_row_slices = FALSE, cluster_columns = FALSE, cluster_column_slices = FALSE,
                            show_row_names = FALSE, show_column_names = FALSE, row_names_side = ifelse(flip, "left", "right"), column_names_side = ifelse(flip, "bottom", "top"), row_names_rot = 0, column_names_rot = 90,
                            row_title = NULL, column_title = NULL, row_title_side = "left", column_title_side = "top", row_title_rot = 0, column_title_rot = ifelse(flip, 90, 0),
                            feature_split = NULL, feature_split_by = NULL, n_split = NULL, split_order = NULL,
                            split_method = c("mfuzz", "kmeans", "kmeans-peaktime", "hclust", "hclust-peaktime"), decreasing = FALSE,
-                           fuzzification = NULL, show_fuzzification = FALSE,
+                           fuzzification = NULL,
                            anno_terms = FALSE, anno_keys = FALSE, anno_features = FALSE,
                            terms_width = unit(4, "in"), terms_fontsize = 8,
                            keys_width = unit(2, "in"), keys_fontsize = c(6, 10),
@@ -10858,7 +10735,7 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, num_intersections = N
     exp_method <- match.arg(exp_method)
     exp_name <- paste0(exp_method, "(", data_nm, ")")
   }
-  exp_name <- legend_title %||% exp_name
+  exp_name <- exp_legend_title %||% exp_name
 
   assay <- assay %||% DefaultAssay(srt)
   if (any(!lineages %in% colnames(srt@meta.data))) {
@@ -11356,9 +11233,6 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, num_intersections = N
             if (length(cl$cluster) == 0) {
               stop("Clustering with mfuzz failed (fuzzification=", round(fuzzification, 2), "). Please set a larger fuzzification parameter manually.")
             }
-            if (isTRUE(show_fuzzification)) {
-              message("fuzzification: ", fuzzification)
-            }
             # mfuzz.plot(eset, cl,new.window = FALSE)
             row_split <- feature_split <- cl$cluster
           }
@@ -11675,6 +11549,11 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, num_intersections = N
 
   if ((!is.null(row_split) && length(index) > 0) || any(c(anno_terms, anno_keys, anno_features)) || !is.null(width) || !is.null(height)) {
     fix <- TRUE
+    if (is.null(width) || is.null(height)) {
+      message("The size of the heatmap is fixed because certain elements are not scalable.\n
+              The width and height of the heatmap are determined by the size of the current viewport.\n
+              If you want to have more control over the size, you can manually set the parameters 'width' and 'height'.")
+    }
   } else {
     fix <- FALSE
   }
@@ -11818,44 +11697,48 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, num_intersections = N
   ))
 }
 
-#' Plot for dynamic features along lineages.
+#' DynamicPlot
 #'
-#' @param srt
-#' @param features
-#' @param lineages
-#' @param slot
-#' @param assay
-#' @param family
-#' @param libsize
-#' @param exp_method
-#' @param lib_normalize
-#' @param group.by
-#' @param compare_lineages
-#' @param compare_features
-#' @param add_line
-#' @param add_interval
-#' @param line.size
-#' @param line_palette
-#' @param line_palcolor
-#' @param add_point
-#' @param pt.size
-#' @param point_palette
-#' @param point_palcolor
-#' @param add_rug
-#' @param aspect.ratio
-#' @param legend.position
-#' @param legend.direction
-#' @param combine
-#' @param nrow
-#' @param ncol
-#' @param byrow
-#' @param cells
-#' @param flip
-#' @param reverse
-#' @param x_order
-#' @param theme_use
-#' @param theme_args
-#' @param seed
+#' Plot dynamic features across pseudotime.
+#'
+#' @param srt A Seurat object.
+#' @param features A character vector specifying the features to plot.
+#' @param lineages A character vector specifying the lineages to plot.
+#' @param group.by A character specifying a metadata column to group the cells by. Default is NULL.
+#' @param cells A character vector specifying the cells to include in the plot. Default is NULL.
+#' @param slot A character string specifying the slot to use for the analysis. Default is "counts".
+#' @param assay A character string specifying the assay to use for the analysis. Default is NULL.
+#' @param family A character specifying the model used to calculate the dynamic features if needed. By default, this parameter is set to NULL, and the appropriate family will be automatically determined.
+#' @param exp_method A character specifying the method to transform the expression values. Default is "log1p" with options "log1p", "raw", "zscore", "fc", "log2fc".
+#' @param lib_normalize A boolean specifying whether to normalize the expression values using library size. By default, if the \code{slot} is counts, this parameter is set to TRUE. Otherwise, it is set to FALSE.
+#' @param libsize A numeric vector specifying the library size for each cell. Default is NULL.
+#' @param compare_lineages A boolean specifying whether to compare the lineages in the plot. Default is TRUE.
+#' @param compare_features A boolean specifying whether to compare the features in the plot. Default is FALSE.
+#' @param add_line A boolean specifying whether to add lines to the plot. Default is TRUE.
+#' @param add_interval A boolean specifying whether to add confidence intervals to the plot. Default is TRUE.
+#' @param line.size A numeric specifying the size of the lines. Default is 1.
+#' @param line_palette A character string specifying the name of the palette to use for the line colors. Default is "Dark2".
+#' @param line_palcolor A vector specifying the colors to use for the line palette. Default is NULL.
+#' @param add_point A boolean specifying whether to add points to the plot. Default is TRUE.
+#' @param pt.size A numeric specifying the size of the points. Default is 1.
+#' @param point_palette A character string specifying the name of the palette to use for the point colors. Default is "Paired".
+#' @param point_palcolor A vector specifying the colors to use for the point palette. Default is NULL.
+#' @param add_rug A boolean specifying whether to add rugs to the plot. Default is TRUE.
+#' @param flip A boolean specifying whether to flip the x-axis. Default is FALSE.
+#' @param reverse A boolean specifying whether to reverse the x-axis. Default is FALSE.
+#' @param x_order A character specifying the order of the x-axis values. Default is c("value", "rank").
+#' @param aspect.ratio A numeric specifying the aspect ratio of the plot. Default is NULL.
+#' @param legend.position A character string specifying the position of the legend in the plot. Default is "right".
+#' @param legend.direction A character string specifying the direction of the legend in the plot. Default is "vertical".
+#' @param theme_use A character string specifying the name of the theme to use for the plot. Default is "theme_scp".
+#' @param theme_args A list specifying the arguments to pass to the theme function. Default is list().
+#' @param combine A boolean specifying whether to combine multiple plots into a single plot. Default is TRUE.
+#' @param nrow A numeric specifying the number of rows in the combined plot. Default is NULL.
+#' @param ncol A numeric specifying the number of columns in the combined plot. Default is NULL.
+#' @param byrow A boolean specifying whether to fill plots by row in the combined plot. Default is TRUE.
+#' @param seed A numeric specifying the random seed. Default is 11.
+#'
+#' @seealso \code{\link{RunDynamicFeatures}}
 #'
 #' @examples
 #' data("pancreas_sub")
@@ -11892,7 +11775,7 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, num_intersections = N
 #' @importFrom stats runif
 #' @importFrom reshape2 melt
 #' @export
-DynamicPlot <- function(srt, features, lineages, group.by = NULL, cells = NULL, slot = "counts", assay = NULL, family = NULL,
+DynamicPlot <- function(srt, lineages, features, group.by = NULL, cells = NULL, slot = "counts", assay = NULL, family = NULL,
                         exp_method = c("log1p", "raw", "zscore", "fc", "log2fc"), lib_normalize = identical(slot, "counts"), libsize = NULL,
                         compare_lineages = TRUE, compare_features = FALSE,
                         add_line = TRUE, add_interval = TRUE, line.size = 1, line_palette = "Dark2", line_palcolor = NULL,
@@ -12264,18 +12147,20 @@ DynamicPlot <- function(srt, features, lineages, group.by = NULL, cells = NULL, 
 
 #' Projection Plot
 #'
-#' @param srt_query
-#' @param srt_ref
-#' @param query_group
-#' @param ref_group
-#' @param query_reduction
-#' @param ref_reduction
-#' @param query_param
-#' @param ref_param
-#' @param xlim
-#' @param ylim
-#' @param pt.size
-#' @param stroke.highlight
+#' This function generates a projection plot, which can be used to compare two groups of cells in a dimensionality reduction space.
+#'
+#' @param srt_query An object of class Seurat storing the query group cells.
+#' @param srt_ref An object of class Seurat storing the reference group cells.
+#' @param query_group The grouping variable for the query group cells.
+#' @param ref_group The grouping variable for the reference group cells.
+#' @param query_reduction The name of the reduction in the query group cells.
+#' @param ref_reduction The name of the reduction in the reference group cells.
+#' @param query_param A list of parameters for customizing the query group plot. Available parameters: palette (color palette for groups) and cells.highlight (whether to highlight cells).
+#' @param ref_param A list of parameters for customizing the reference group plot. Available parameters: palette (color palette for groups) and cells.highlight (whether to highlight cells).
+#' @param xlim The x-axis limits for the plot. If not provided, the limits will be calculated based on the data.
+#' @param ylim The y-axis limits for the plot. If not provided, the limits will be calculated based on the data.
+#' @param pt.size The size of the points in the plot.
+#' @param stroke.highlight The size of the stroke highlight for cells.
 #'
 #' @examples
 #' data("panc8_sub")
@@ -12296,7 +12181,7 @@ DynamicPlot <- function(srt, features, lineages, group.by = NULL, cells = NULL, 
 #' @importFrom patchwork wrap_plots
 #' @export
 ProjectionPlot <- function(srt_query, srt_ref,
-                           query_group = NULL, ref_group = NULL, query_feature = NULL, ref_feature = NULL,
+                           query_group = NULL, ref_group = NULL,
                            query_reduction = "ref.embeddings", ref_reduction = srt_query[[query_reduction]]@misc[["reduction.model"]] %||% NULL,
                            query_param = list(palette = "Set1", cells.highlight = TRUE), ref_param = list(palette = "Paired"),
                            xlim = NULL, ylim = NULL, pt.size = 0.8, stroke.highlight = 0.5) {
@@ -12371,38 +12256,60 @@ ProjectionPlot <- function(srt_query, srt_ref,
 
 #' EnrichmentPlot
 #'
-#' @param plot_type Type of plot to be visualized.
-#' @param topTerm Number of terms to plot if \code{plot_type="bar"} or \code{plot_type="lollipop"}.
-#' @param topWord Number of features to plot if \code{plot_type="wordcloud"}.
-#' @param pvalueCutoff pvalueCutoff
-#' @param padjustCutoff padjustCutoff
-#' @param palette palette
-#' @param combine combine
-#' @param nrow nrow
-#' @param ncol ncol
-#' @param byrow byrow
-#' @param db
-#' @param character_width
-#' @param lineheight
-#' @param srt
-#' @param group_by
-#' @param test.use
-#' @param res
-#' @param group_use
-#' @param word_type
-#' @param word_size
-#' @param words_excluded
-#' @param aspect.ratio
-#' @param legend.position
-#' @param legend.direction
-#' @param palcolor
-#' @param compare_only_sig
-#' @param theme_use
-#' @param theme_args
-#' @param seed
+#' This function generates various types of plots for enrichment (over-representation) analysis.
+#'
+#' @param srt A Seurat object containing the results of RunDEtest and RunEnrichment.
+#' If specified, enrichment results will be extracted from the Seurat object automatically.
+#' If not specified, the \code{res} arguments must be provided.
+#' @param group_by A character vector specifying the grouping variable in the Seurat object. This argument is only used if \code{srt} is specified.
+#' @param test.use A character vector specifying the test to be used in differential expression analysis. This argument is only used if \code{srt} is specified.
+#' @param res Enrichment results generated by RunEnrichment function. If provided, 'srt', 'test.use' and 'group_by' are ignored.
+#' @param db The database to use for enrichment plot. Default is "GO_BP".
+#' @param plot_type The type of plot to generate. Options are: "bar", "dot", "lollipop", "network", "enrichmap", "wordcloud", "comparison". Default is "bar".
+#' @param split_by The splitting variable(s) for the plot. Can be "Database", "Groups", or both. Default is c("Database", "Groups") for plots.
+#' @param color_by The variable used for coloring. Default is "Database".
+#' @param group_use The group(s) to be used for enrichment plot. Default is NULL.
+#' @param id_use List of IDs to be used to display specific terms in the enrichment plot. Default value is NULL.
+#' @param pvalueCutoff The p-value cutoff. Default is NULL. Only work when \code{padjustCutoff} is NULL.
+#' @param padjustCutoff The p-adjusted cutoff. Default is 0.05.
+#' @param topTerm The number of top terms to display. Default is 6, or 100 if 'plot_type' is "enrichmap".
+#' @param compare_only_sig Whether to compare only significant terms. Default is FALSE.
+#' @param topWord The number of top words to display for wordcloud. Default is 100.
+#' @param word_type The type of words to display in wordcloud. Options are "term" and "feature". Default is "term".
+#' @param word_size The size range for words in wordcloud. Default is c(2, 8).
+#' @param words_excluded Words to be excluded from the wordcloud. The default value is NULL, which means that the built-in words (SCP::words_excluded) will be used.
+#' @param network_layout The layout algorithm to use for network plot. Options are "fr", "kk","random", "circle", "tree", "grid", or other algorithm from 'igraph' package. Default is "fr".
+#' @param network_labelsize The label size for network plot. Default is 5.
+#' @param network_blendmode The blend mode for network plot. Default is "blend".
+#' @param network_layoutadjust Whether to adjust the layout of the network plot to avoid overlapping words. Default is TRUE.
+#' @param network_adjscale The scale for adjusting network plot layout. Default is 60.
+#' @param network_adjiter The number of iterations for adjusting network plot layout. Default is 100.
+#' @param enrichmap_layout The layout algorithm to use for enrichmap plot. Options are "fr", "kk","random", "circle", "tree", "grid", or other algorithm from 'igraph' package. Default is "fr".
+#' @param enrichmap_cluster The clustering algorithm to use for enrichmap plot. Options are "walktrap", "fast_greedy", or other algorithm from 'igraph' package. Default is "fast_greedy".
+#' @param enrichmap_label  The label type for enrichmap plot. Options are "term" and "feature". Default is "term".
+#' @param enrichmap_labelsize The label size for enrichmap plot. Default is 5.
+#' @param enrlichmap_nlabel The number of labels to display for each cluster in enrichmap plot. Default is 4.
+#' @param enrichmap_show_keyword Whether to show the keyword of terms or features in enrichmap plot. Default is FALSE.
+#' @param enrichmap_mark The mark shape for enrichmap plot. Options are "ellipse" and "hull". Default is "ellipse".
+#' @param enrichmap_expand The expansion factor for enrichmap plot. Default is c(0.5, 0.5).
+#' @param character_width  The maximum width of character of descriptions. Default is 50.
+#' @param lineheight The line height for y-axis labels. Default is 0.5.
+#' @param palette The color palette to use. Default is "Spectral".
+#' @param palcolor Custom colors for palette. Default is NULL.
+#' @param aspect.ratio The aspect ratio of the plot. Default is 1.
+#' @param legend.position The position of the legend. Default is "right".
+#' @param legend.direction The direction of the legend. Default is "vertical".
+#' @param theme_use The theme to use for the plot. Default is "theme_scp".
+#' @param theme_args The arguments to pass to the theme. Default is an empty list.
+#' @param combine Whether to combine multiple plots into a single plot. Default is TRUE.
+#' @param nrow The number of rows in the combined plot. Default is NULL, calculated based on the number of plots.
+#' @param ncol The number of columns in the combined plot. Default is NULL, calculated based on the number of plots.
+#' @param byrow  Whether to fill the combined plot by row. Default is TRUE.
+#' @param seed The random seed to use. Default is 11.
+#'
+#' @seealso \code{\link{RunEnrichment}}
 #'
 #' @examples
-#' library(dplyr)
 #' data("pancreas_sub")
 #' pancreas_sub <- RunDEtest(pancreas_sub, group_by = "CellType")
 #' pancreas_sub <- RunEnrichment(srt = pancreas_sub, db = c("GO_BP", "GO_CC"), group_by = "CellType", species = "Mus_musculus")
@@ -12490,7 +12397,7 @@ ProjectionPlot <- function(srt_query, srt_ref,
 #' @export
 #'
 EnrichmentPlot <- function(srt, db = "GO_BP", group_by = NULL, test.use = "wilcox", res = NULL,
-                           plot_type = c("comparison", "bar", "dot", "lollipop", "network", "enrichmap", "wordcloud"),
+                           plot_type = c("bar", "dot", "lollipop", "network", "enrichmap", "wordcloud", "comparison"),
                            split_by = c("Database", "Groups"), color_by = "Database",
                            group_use = NULL, id_use = NULL, pvalueCutoff = NULL, padjustCutoff = 0.05,
                            topTerm = ifelse(plot_type == "enrichmap", 100, 6), compare_only_sig = FALSE,
@@ -12499,7 +12406,7 @@ EnrichmentPlot <- function(srt, db = "GO_BP", group_by = NULL, test.use = "wilco
                            network_layoutadjust = TRUE, network_adjscale = 60, network_adjiter = 100,
                            enrichmap_layout = "fr", enrichmap_cluster = "fast_greedy", enrichmap_label = c("term", "feature"), enrichmap_labelsize = 5,
                            enrlichmap_nlabel = 4, enrichmap_show_keyword = FALSE, enrichmap_mark = c("ellipse", "hull"), enrichmap_expand = c(0.5, 0.5),
-                           character_width = 50, lineheight = 0.7,
+                           character_width = 50, lineheight = 0.5,
                            palette = "Spectral", palcolor = NULL,
                            aspect.ratio = 1, legend.position = "right", legend.direction = "vertical",
                            theme_use = "theme_scp", theme_args = list(),
@@ -13268,46 +13175,29 @@ adjustlayout <- function(graph, layout, width, height = 2, scale = 100, iter = 1
 
 #' GSEA Plot
 #'
-#' @param res
-#' @param id_use
-#' @param base_size
-#' @param rel_heights
-#' @param subplots
-#' @param n_coregene
-#' @param sample_coregene
-#' @param features_label
-#' @param label.fg
-#' @param label.bg
-#' @param label.bg.r
-#' @param label.size
-#' @param srt
-#' @param group_by
-#' @param test.use
-#' @param db
-#' @param pvalueCutoff
-#' @param padjustCutoff
-#' @param topTerm
-#' @param rel_width
-#' @param palette
-#' @param combine
-#' @param nrow
-#' @param ncol
-#' @param byrow
-#' @param group_use
-#' @param plot_type
-#' @param palcolor
-#' @param only_pos
-#' @param compare_only_sig
-#' @param linewidth
-#' @param line_alpha
-#' @param line_color
-#' @param aspect.ratio
-#' @param character_width
-#' @param lineheight
-#' @param seed
+#' This function generates various types of plots for Gene Set Enrichment Analysis (GSEA) results.
+#'
+#' @inheritParams EnrichmentPlot
+#' @param srt A Seurat object containing the results of RunDEtest and RunGSEA.
+#' If specified, GSEA results will be extracted from the Seurat object automatically.
+#' If not specified, the \code{res} arguments must be provided.
+#' @param res Enrichment results generated by RunGSEA function. If provided, 'srt', 'test.use' and 'group_by' are ignored.
+#' @param plot_type The type of plot to generate. Options are: "line", "comparison", "bar", "network", "enrichmap", "wordcloud". Default is "line".
+#' @param direction The direction of enrichment to include in the plot. Must be one of "pos", "neg", or "both". The default value is "both".
+#' @param line_width The linewidth for the line plot.
+#' @param line_alpha The alpha value for the line plot.
+#' @param line_color The color for the line plot.
+#' @param n_coregene The number of core genes to label in the line plot.
+#' @param sample_coregene Whether to randomly sample core genes for labeling in the line plot.
+#' @param features_label A character vector of feature names to include as labels in the line plot.
+#' @param label.fg The color of the labels.
+#' @param label.bg The background color of the labels.
+#' @param label.bg.r The radius of the rounding of the label's background.
+#' @param label.size The size of the labels.
+#'
+#' @seealso \code{\link{RunGSEA}}
 #'
 #' @examples
-#' library(dplyr)
 #' data("pancreas_sub")
 #' pancreas_sub <- RunDEtest(pancreas_sub, group_by = "CellType", only.pos = FALSE, fc.threshold = 1)
 #' pancreas_sub <- RunGSEA(pancreas_sub, group_by = "CellType", db = "GO_BP", species = "Mus_musculus")
@@ -13343,19 +13233,18 @@ adjustlayout <- function(graph, layout, width, height = 2, scale = 100, iter = 1
 #' @importFrom grid textGrob
 #' @export
 GSEAPlot <- function(srt, db = "GO_BP", group_by = NULL, test.use = "wilcox", res = NULL,
-                     plot_type = c("line", "comparison", "bar", "network", "enrichmap", "wordcloud"),
+                     plot_type = c("line", "bar", "network", "enrichmap", "wordcloud", "comparison"),
                      group_use = NULL, id_use = NULL, pvalueCutoff = NULL, padjustCutoff = 0.05,
                      topTerm = ifelse(plot_type == "enrichmap", 100, 6), direction = c("pos", "neg", "both"), compare_only_sig = FALSE,
                      topWord = 100, word_type = c("term", "feature"), word_size = c(2, 8), words_excluded = NULL,
-                     subplots = 1:3, rel_heights = c(1.5, 0.5, 1), rel_width = 3,
-                     linewidth = 1.5, line_alpha = 1, line_color = "#6BB82D",
+                     line_width = 1.5, line_alpha = 1, line_color = "#6BB82D",
                      n_coregene = 10, sample_coregene = FALSE, features_label = NULL,
                      label.fg = "black", label.bg = "white", label.bg.r = 0.1, label.size = 4,
                      network_layout = "fr", network_labelsize = 5, network_blendmode = "blend",
                      network_layoutadjust = TRUE, network_adjscale = 60, network_adjiter = 100,
                      enrichmap_layout = "fr", enrichmap_cluster = "fast_greedy", enrichmap_label = c("term", "feature"), enrichmap_labelsize = 5,
                      enrlichmap_nlabel = 4, enrichmap_show_keyword = FALSE, enrichmap_mark = c("ellipse", "hull"), enrichmap_expand = c(0.5, 0.5),
-                     character_width = 50, lineheight = 0.7,
+                     character_width = 50, lineheight = 0.5,
                      palette = "Spectral", palcolor = NULL,
                      aspect.ratio = NULL, legend.position = "right", legend.direction = "vertical",
                      theme_use = "theme_scp", theme_args = list(),
@@ -13367,6 +13256,10 @@ GSEAPlot <- function(srt, db = "GO_BP", group_by = NULL, test.use = "wilcox", re
   enrichmap_label <- match.arg(enrichmap_label)
   enrichmap_mark <- match.arg(enrichmap_mark)
   words_excluded <- words_excluded %||% SCP::words_excluded
+
+  subplots <- 1:3
+  rel_heights <- c(1.5, 0.5, 1)
+  rel_width <- 3
 
   if (is.null(res)) {
     if (is.null(group_by)) {
@@ -13577,7 +13470,7 @@ GSEAPlot <- function(srt, db = "GO_BP", group_by = NULL, test.use = "wilcox", re
         ) +
         scale_x_continuous(expand = c(0.01, 0))
       es_layer <- geom_line(aes(y = runningScore, color = DescriptionP),
-        linewidth = linewidth, alpha = line_alpha
+        linewidth = line_width, alpha = line_alpha
       )
       bg_dat <- data.frame(xmin = -Inf, xmax = Inf, ymin = c(0, -Inf), ymax = c(Inf, 0), fill = c(alpha("#C40003", 0.2), alpha("#1D008F", 0.2)))
       p1 <- p +
@@ -13836,7 +13729,9 @@ GSEAPlot <- function(srt, db = "GO_BP", group_by = NULL, test.use = "wilcox", re
             x = 0, y = .data[["Description"]], label = .data[["Description"]],
             hjust = ifelse(.data[["NES"]] > 0, 1, 0),
           ),
-          nudge_x = ifelse(stat[["NES"]] > 0, -0.05, 0.05)
+          nudge_x = ifelse(stat[["NES"]] > 0, -0.05, 0.05),
+          lineheight = lineheight,
+          fontface = ifelse(grepl("\n", levels(stat[["Description"]])), "italic", "plain")
         ) +
         scale_fill_manual(
           values = palette_scp(x = rev(levels(stat[["Direction"]])), palette = palette, palcolor = rev(palcolor)),

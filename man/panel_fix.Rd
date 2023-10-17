@@ -2,6 +2,7 @@
 % Please edit documentation in R/SCP-plot.R
 \name{panel_fix}
 \alias{panel_fix}
+\alias{panel_fix_single}
 \title{Set the panel width/height of a plot object to a fixed value.}
 \usage{
 panel_fix(
@@ -22,6 +23,23 @@ panel_fix(
   verbose = FALSE,
   ...
 )
+
+panel_fix_single(
+  x,
+  panel_index = NULL,
+  respect = NULL,
+  width = NULL,
+  height = NULL,
+  margin = 1,
+  units = "in",
+  raster = FALSE,
+  dpi = 300,
+  BPPARAM = BiocParallel::SerialParam(),
+  return_grob = FALSE,
+  bg_color = "white",
+  save = NULL,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{x}{A ggplot object, a grob object, or a combined plot made by patchwork or cowplot package.}
@@ -30,11 +48,13 @@ panel_fix(
 
 \item{respect}{If a logical, this indicates whether row heights and column widths should respect each other.}
 
-\item{width}{The width of the panel.}
+\item{width}{The desired width of the fixed panels.}
 
-\item{height}{The height of the panel.}
+\item{height}{The desired height of the fixed panels.}
 
-\item{margin}{Margins around the plot.}
+\item{margin}{The margin to add around each panel, in inches. The default is 1 inch.}
+
+\item{padding}{The padding to add around each panel, in inches. The default is 0 inches.}
 
 \item{units}{The units in which \code{height}, \code{width} and \code{margin} are given. Can be \code{mm}, \code{cm}, \code{in}, etc. See \code{\link[grid]{unit}}.}
 
@@ -52,7 +72,7 @@ panel_fix(
 
 \item{verbose}{Whether to print messages.}
 
-\item{...}{}
+\item{...}{Unused.}
 }
 \description{
 The ggplot object, when stored, can only specify the height and width of the entire plot, not the panel.

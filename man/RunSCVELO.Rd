@@ -2,7 +2,7 @@
 % Please edit documentation in R/SCP-analysis.R
 \name{RunSCVELO}
 \alias{RunSCVELO}
-\title{Run scVelo analysis}
+\title{Run scVelo workflow}
 \usage{
 RunSCVELO(
   srt = NULL,
@@ -23,7 +23,6 @@ RunSCVELO(
   min_shared_counts = 30,
   n_pcs = 30,
   n_neighbors = 30,
-  approx = TRUE,
   stream_smooth = NULL,
   stream_density = 2,
   arrow_length = 5,
@@ -39,70 +38,92 @@ RunSCVELO(
   palette = "Paired",
   palcolor = NULL,
   show_plot = TRUE,
-  dpi = 300,
   save = FALSE,
+  dpi = 300,
   dirpath = "./",
   fileprefix = "",
   return_seurat = !is.null(srt)
 )
 }
 \arguments{
-\item{srt}{A \code{Seurat} object.}
+\item{srt}{A Seurat object.}
 
-\item{adata}{An \code{anndata} object. Can be created through \code{\link{srt_to_adata}}}
+\item{assay_X}{Assay to convert as the main data matrix (X) in the anndata object.}
 
-\item{group_by}{group_by.}
+\item{slot_X}{Slot name for assay_X in the Seurat object.}
 
-\item{linear_reduction}{linear_reduction.}
+\item{assay_layers}{Assays to convert as layers in the anndata object.}
 
-\item{nonlinear_reduction}{nonlinear_reduction.}
+\item{slot_layers}{Slot names for the assay_layers in the Seurat object.}
 
-\item{basis}{basis.}
+\item{adata}{An anndata object.}
 
-\item{mode}{mode.}
+\item{group_by}{Variable to use for grouping cells in the Seurat object.}
 
-\item{fitting_by}{fitting_by.}
+\item{linear_reduction}{Linear reduction method to use, e.g., "PCA".}
 
-\item{min_shared_counts}{min_shared_counts.}
+\item{nonlinear_reduction}{Non-linear reduction method to use, e.g., "UMAP".}
 
-\item{n_pcs}{n_pcs.}
+\item{basis}{The basis to use for reduction, e.g., "UMAP".}
 
-\item{n_neighbors}{n_neighbors.}
+\item{mode}{Velocity estimation model to use, e.g., "stochastic".}
 
-\item{approx}{approx.}
+\item{fitting_by}{Method used to fit gene velocities, e.g., "stochastic".}
 
-\item{stream_smooth}{stream_smooth.}
+\item{magic_impute}{Flag indicating whether to perform magic imputation.}
 
-\item{stream_density}{stream_density.}
+\item{knn}{The number of nearest neighbors for magic.MAGIC.}
 
-\item{arrow_length}{arrow_length.}
+\item{t}{power to which the diffusion operator is powered for magic.MAGIC.}
 
-\item{arrow_size}{arrow_size.}
+\item{min_shared_counts}{Minimum number of counts (both unspliced and spliced) required for a gene.}
 
-\item{arrow_density}{arrow_density.}
+\item{n_pcs}{Number of principal components (PCs) used for velocity estimation.}
 
-\item{calculate_velocity_genes}{calculate_velocity_genes.}
+\item{n_neighbors}{Number of nearest neighbors used for velocity estimation.}
 
-\item{n_jobs}{n_jobs.}
+\item{stream_smooth}{Multiplication factor for scale in Gaussian kernel around grid point.}
 
-\item{dpi}{dpi.}
+\item{stream_density}{Controls the closeness of streamlines. When density = 2 (default), the domain is divided into a 60x60 grid, whereas density linearly scales this grid. Each cell in the grid can have, at most, one traversing streamline.}
 
-\item{save}{save.}
+\item{arrow_length}{Length of arrows.}
 
-\item{dirpath}{dirpath.}
+\item{arrow_size}{Size of arrows.}
 
-\item{fileprefix}{fileprefix.}
+\item{arrow_density}{Amount of velocities to show.}
 
-\item{return_seurat}{}
+\item{denoise}{Boolean flag indicating whether to denoise.}
 
-\item{h5ad}{h5ad file path.}
-}
-\value{
-A \code{anndata} object.
+\item{denoise_topn}{Number of genes with highest likelihood selected to infer velocity directions.}
+
+\item{kinetics}{Boolean flag indicating whether to estimate RNA kinetics.}
+
+\item{kinetics_topn}{Number of genes with highest likelihood selected to infer velocity directions.}
+
+\item{calculate_velocity_genes}{Boolean flag indicating whether to calculate velocity genes.}
+
+\item{top_n}{The number of top features to plot.}
+
+\item{n_jobs}{The number of parallel jobs to run.}
+
+\item{palette}{The palette to use for coloring cells.}
+
+\item{palcolor}{A vector of colors to use as the palette.}
+
+\item{show_plot}{Whether to show the PAGA plot.}
+
+\item{save}{Whether to save the PAGA plots.}
+
+\item{dpi}{The DPI (dots per inch) for saving the PAGA plot.}
+
+\item{dirpath}{The directory to save the PAGA plots.}
+
+\item{fileprefix}{The file prefix to use for the PAGA plots.}
+
+\item{return_seurat}{Whether to return a Seurat object instead of an anndata object. Default is TRUE.}
 }
 \description{
-scVelo is a scalable toolkit for RNA velocity analysis in single cells.
-This function performs scVelo workflow in R by reticulate.
+scVelo is a scalable toolkit for RNA velocity analysis in single cells. This function runs scVelo workflow on a Seurat object.
 }
 \examples{
 data("pancreas_sub")
@@ -118,4 +139,7 @@ CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", pt.size 
 pancreas_sub <- Standard_SCP(pancreas_sub, normalization_method = "SCT", nonlinear_reduction = "tsne")
 pancreas_sub <- RunSCVELO(srt = pancreas_sub, assay_X = "SCT", group_by = "SubCellType", linear_reduction = "Standardpca", nonlinear_reduction = "StandardTSNE2D")
 
+}
+\seealso{
+\code{\link{srt_to_adata}} \code{\link{VelocityPlot}} \code{\link{CellDimPlot}} \code{\link{RunPAGA}}
 }

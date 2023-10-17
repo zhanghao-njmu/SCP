@@ -38,25 +38,120 @@ RunDEtest(
 )
 }
 \arguments{
-\item{srt}{A \code{Seurat} object}
+\item{srt}{A Seurat object.}
 
-\item{group_by}{group_by}
+\item{group_by}{A grouping variable in the dataset to define the groups or conditions for the differential test. If not provided, the function uses the "active.ident" variable in the Seurat object.}
 
-\item{fc.threshold}{fc.threshold}
+\item{group1}{A vector of cell IDs or a character vector specifying the cells that belong to the first group. If both group_by and group1 are provided, group1 takes precedence.}
 
-\item{min.pct}{min.pct}
+\item{group2}{A vector of cell IDs or a character vector specifying the cells that belong to the second group. This parameter is only used when group_by or group1 is provided.}
 
-\item{verbose}{}
+\item{cells1}{A vector of cell IDs specifying the cells that belong to group1. If provided, group1 is ignored.}
 
-\item{force}{force}
+\item{cells2}{A vector of cell IDs specifying the cells that belong to group2. This parameter is only used when cells1 is provided.}
+
+\item{features}{A vector of gene names specifying the features to consider for the differential test. If not provided, all features in the dataset are considered.}
+
+\item{markers_type}{A character value specifying the type of markers to find. Possible values are "all", "paired", "conserved", and "disturbed".}
+
+\item{grouping.var}{A character value specifying the grouping variable for finding conserved or disturbed markers. This parameter is only used when markers_type is "conserved" or "disturbed".}
+
+\item{meta.method}{A character value specifying the method to use for combining p-values in the conserved markers test. Possible values are "maximump", "minimump", "wilkinsonp", "meanp", "sump", and "votep".}
+
+\item{test.use}{Denotes which test to use. Available options are:
+\itemize{
+ \item{"wilcox"} : Identifies differentially expressed genes between two
+ groups of cells using a Wilcoxon Rank Sum test (default)
+ \item{"bimod"} : Likelihood-ratio test for single cell gene expression,
+ (McDavid et al., Bioinformatics, 2013)
+ \item{"roc"} : Identifies 'markers' of gene expression using ROC analysis.
+ For each gene, evaluates (using AUC) a classifier built on that gene alone,
+ to classify between two groups of cells. An AUC value of 1 means that
+ expression values for this gene alone can perfectly classify the two
+ groupings (i.e. Each of the cells in cells.1 exhibit a higher level than
+ each of the cells in cells.2). An AUC value of 0 also means there is perfect
+ classification, but in the other direction. A value of 0.5 implies that
+ the gene has no predictive power to classify the two groups. Returns a
+ 'predictive power' (abs(AUC-0.5) * 2) ranked matrix of putative differentially
+ expressed genes.
+ \item{"t"} : Identify differentially expressed genes between two groups of
+ cells using the Student's t-test.
+ \item{"negbinom"} : Identifies differentially expressed genes between two
+  groups of cells using a negative binomial generalized linear model.
+  Use only for UMI-based datasets
+ \item{"poisson"} : Identifies differentially expressed genes between two
+  groups of cells using a poisson generalized linear model.
+  Use only for UMI-based datasets
+ \item{"LR"} : Uses a logistic regression framework to determine differentially
+ expressed genes. Constructs a logistic regression model predicting group
+ membership based on each feature individually and compares this to a null
+ model with a likelihood ratio test.
+ \item{"MAST"} : Identifies differentially expressed genes between two groups
+ of cells using a hurdle model tailored to scRNA-seq data. Utilizes the MAST
+ package to run the DE testing.
+ \item{"DESeq2"} : Identifies differentially expressed genes between two groups
+ of cells based on a model using DESeq2 which uses a negative binomial
+ distribution (Love et al, Genome Biology, 2014).This test does not support
+ pre-filtering of genes based on average difference (or percent detection rate)
+ between cell groups. However, genes may be pre-filtered based on their
+ minimum detection rate (min.pct) across both cell groups. To use this method,
+ please install DESeq2, using the instructions at
+ https://bioconductor.org/packages/release/bioc/html/DESeq2.html
+}}
+
+\item{only.pos}{Only return positive markers (FALSE by default)}
+
+\item{fc.threshold}{A numeric value used to filter genes for testing based on their average fold change between/among the two groups. By default, it is set to 1.5}
+
+\item{base}{The base with respect to which logarithms are computed.}
+
+\item{pseudocount.use}{Pseudocount to add to averaged expression values when
+calculating logFC. 1 by default.}
+
+\item{mean.fxn}{Function to use for fold change or average difference calculation.
+If NULL, the appropriate function will be chose according to the slot used}
+
+\item{min.pct}{only test genes that are detected in a minimum fraction of
+min.pct cells in either of the two populations. Meant to speed up the function
+by not testing genes that are very infrequently expressed. Default is 0.1}
+
+\item{min.diff.pct}{only test genes that show a minimum difference in the
+fraction of detection between the two groups. Set to -Inf by default}
+
+\item{max.cells.per.ident}{Down sample each identity class to a max number.
+Default is no downsampling. Not activated by default (set to Inf)}
+
+\item{latent.vars}{Variables to test, used only when \code{test.use} is one of
+'LR', 'negbinom', 'poisson', or 'MAST'}
+
+\item{min.cells.feature}{Minimum number of cells expressing the feature in at least one
+of the two groups, currently only used for poisson and negative binomial tests}
+
+\item{min.cells.group}{Minimum number of cells in one of the groups}
+
+\item{norm.method}{Normalization method for fold change calculation when slot is 'data'. Default is "LogNormalize".}
+
+\item{p.adjust.method}{A character value specifying the method to use for adjusting p-values. Default is "bonferroni".}
+
+\item{slot}{Slot to pull data from; note that if \code{test.use} is "negbinom", "poisson", or "DESeq2",
+\code{slot} will be set to "counts"}
+
+\item{assay}{Assay to use in differential expression testing}
+
+\item{BPPARAM}{A BiocParallelParam object specifying the parallelization parameters for the differential test. Default is BiocParallel::bpparam().}
+
+\item{seed}{An integer value specifying the seed. Default is 11.}
+
+\item{verbose}{A logical value indicating whether to display progress messages during the differential test. Default is TRUE.}
+
+\item{...}{Additional arguments to pass to the \code{\link[Seurat]{FindMarkers}} function.}
 }
 \description{
-Differential gene test
+This function utilizes the Seurat package to perform a differential expression (DE) test on gene expression data.
+Users have the flexibility to specify custom cell groups, marker types, and various options for DE analysis.
 }
 \examples{
-library(dplyr)
 data("pancreas_sub")
-
 pancreas_sub <- RunDEtest(pancreas_sub, group_by = "SubCellType")
 AllMarkers <- filter(pancreas_sub@tools$DEtest_SubCellType$AllMarkers_wilcox, p_val_adj < 0.05 & avg_log2FC > 1)
 table(AllMarkers$group1)
@@ -128,4 +223,7 @@ ht7 <- GroupHeatmap(panc8_sub,
 )
 ht7$plot
 
+}
+\seealso{
+\code{\link{RunEnrichment}} \code{\link{RunGSEA}} \code{\link{GroupHeatmap}}
 }

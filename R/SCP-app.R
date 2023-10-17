@@ -1,13 +1,16 @@
 #' CreateDataFile
 #'
-#' @param srt
+#' Creates a data file in HDF5 format from a Seurat object.
 #'
-#' @param DataFile
-#' @param name
-#' @param assays
-#' @param slots
-#' @param compression_level
-#' @param overwrite
+#' @param srt The Seurat object.
+#' @param DataFile Path to the output data file. If not provided, the file will be named "Data.hdf5" in the current directory.
+#' @param name Name of the dataset. If not provided, the name will default to the Seurat object's project name.
+#' @param assays Character vector specifying the assays to include in the data file. Default is "RNA".
+#' @param slots Character vector specifying the slots to include in the data file. Default is "data".
+#' @param compression_level Compression level for the HDF5 dataset. Default is 6.
+#' @param overwrite Logical value indicating whether to overwrite existing data in the data file. Default is FALSE.
+#'
+#' @seealso \code{\link{CreateMetaFile}} \code{\link{PrepareSCExplorer}} \code{\link{FetchH5}} \code{\link{RunSCExplorer}}
 #'
 #' @importFrom Seurat GetAssayData
 #' @importFrom SeuratObject as.sparse
@@ -81,15 +84,18 @@ CreateDataFile <- function(srt, DataFile, name = NULL, assays = "RNA", slots = "
 
 #' CreateMetaFile
 #'
-#' @param srt
+#' Creates a meta file in HDF5 format from a Seurat object.
 #'
-#' @param MetaFile
-#' @param name
-#' @param write_tools
-#' @param write_misc
-#' @param ignore_nlevel
-#' @param compression_level
-#' @param overwrite
+#' @param srt The Seurat object.
+#' @param MetaFile Path to the output meta file. If not provided, the file will be named "Meta.hdf5" in the current directory.
+#' @param name Name of the dataset. If not provided, the name will default to the Seurat object's project name.
+#' @param write_tools A logical value indicating whether to write the tools information to the meta file. Default is FALSE.
+#' @param write_misc A logical value indicating whether to write the miscellaneous information to the meta file. Default is FALSE.
+#' @param ignore_nlevel The number of levels above which a metadata field will be ignored. Default is 100.
+#' @param compression_level The level of compression for the meta file. Default is 6.
+#' @param overwrite A logical value indicating whether to overwrite existing metadata and reductions in the meta file. Default is FALSE.
+#'
+#'  @seealso \code{\link{CreateDataFile}} \code{\link{PrepareSCExplorer}} \code{\link{FetchH5}} \code{\link{RunSCExplorer}}
 #'
 #' @importFrom Seurat Key Reductions Embeddings
 #' @importFrom Matrix sparseMatrix
@@ -219,19 +225,16 @@ CreateMetaFile <- function(srt, MetaFile, name = NULL, write_tools = FALSE, writ
   return(invisible(NULL))
 }
 
-#' Prepare Seurat object data for the SCExplorer into hdf5 file
+#' Prepare Seurat objects for the SCExplorer
 #'
-#' @param object
-#' @param base_dir
-#' @param DataFile
-#' @param MetaFile
-#' @param assays
-#' @param slots
-#' @param ignore_nlevel
-#' @param write_tools
-#' @param write_misc
-#' @param compression_level
-#' @param overwrite
+#' This function prepares one or multiple Seurat objects for the SCExplorer app. It takes a Seurat object or a list of Seurat objects as input and outputs two hdf5 files: one for the data and one for the metadata.
+#'
+#' @inheritParams CreateDataFile
+#' @inheritParams CreateMetaFile
+#' @param object A Seurat object or a list of Seurat objects.
+#' @param base_dir The base directory where the SCExplorer hdf5 files will be written. Default is "SCExplorer".
+#'
+#' @seealso \code{\link{CreateDataFile}} \code{\link{CreateMetaFile}} \code{\link{FetchH5}} \code{\link{RunSCExplorer}}
 #'
 #' @examples
 #' \dontrun{
@@ -301,14 +304,20 @@ PrepareSCExplorer <- function(object,
 
 #' Fetch data from the hdf5 file
 #'
-#' @param DataFile
-#' @param MetaFile
-#' @param name
-#' @param features
-#' @param slot
-#' @param assay
-#' @param metanames
-#' @param reduction
+#' This function fetches data from an hdf5 file. It can fetch gene expression data, metadata, and reduction data from the specified file and returns a Seurat object.
+#'
+#' @param DataFile The path to the hdf5 file containing the data.
+#' @param MetaFile The path to the hdf5 file containing the metadata.
+#' @param name The name of the dataset in the hdf5 file. If not specified, the function will attempt to find the shared group name in both files.
+#' @param features The names of the genes or features to fetch. If specified, only these features will be fetched.
+#' @param slot The slot for the counts in the hdf5 file. If not specified, the first slot will be used.
+#' @param assay The name of the assay to use. If not specified, the default assay in the hdf5 file will be used.
+#' @param metanames The names of the metadata columns to fetch.
+#' @param reduction The name of the reduction to fetch.
+#'
+#' @return A Seurat object with the fetched data.
+#'
+#' @seealso \code{\link{CreateDataFile}} \code{\link{CreateMetaFile}} \code{\link{PrepareSCExplorer}} \code{\link{RunSCExplorer}}
 #'
 #' @examples
 #' \dontrun{
@@ -488,30 +497,31 @@ CreateSeuratObject2 <- function(counts, project = "SeuratProject", assay = "RNA"
 
 #' RunSCExplorer
 #'
-#' @param base_dir
-#' @param DataFile
-#' @param MetaFile
-#' @param title
-#' @param initial_dataset
-#' @param initial_reduction
-#' @param initial_group
-#' @param initial_feature
-#' @param initial_assay
-#' @param initial_slot
-#' @param initial_label
-#' @param initial_cell_palette
-#' @param initial_feature_palette
-#' @param initial_theme
-#' @param initial_theme
-#' @param initial_size
-#' @param initial_ncol
-#' @param initial_arrange
-#' @param initial_dpi
-#' @param create_script
-#' @param style_script
-#' @param overwrite
-#' @param return_app
-#' @param workers
+#' @param base_dir A string. The base directory of the SCExplorer app. Default is "SCExplorer".
+#' @param DataFile A string. The name of the HDF5 file that stores data matrices for each dataset. Default is "Data.hdf5".
+#' @param MetaFile A string. The name of the HDF5 file that stores metadata for each dataset. Default is "Meta.hdf5".
+#' @param title A string. The title of the SCExplorer app. Default is "SCExplorer".
+#' @param initial_dataset A string. The initial dataset to be loaded into the app. Default is NULL.
+#' @param initial_reduction A string. The initial dimensional reduction method to be loaded into the app. Default is NULL.
+#' @param initial_group A string. The initial variable to group cells in the app. Default is NULL.
+#' @param initial_feature A string. The initial feature to be loaded into the app. Default is NULL.
+#' @param initial_assay A string. The initial assay to be loaded into the app. Default is NULL.
+#' @param initial_slot A string. The initial slot to be loaded into the app. Default is NULL.
+#' @param initial_label A string. Whether to add labels in the initial plot. Default is "No".
+#' @param initial_cell_palette A string. The initial color palette for cells. Default is "Paired".
+#' @param initial_feature_palette A string. The initial color palette for features. Default is "Spectral".
+#' @param initial_theme A string. The initial theme for plots. Default is "theme_scp".
+#' @param initial_size A numeric. The initial size of plots. Default is 4.
+#' @param initial_ncol A numeric. The initial number of columns for arranging plots. Default is 3.
+#' @param initial_arrange A string. The initial arrangement of plots. Default is "Row".
+#' @param session_workers A numeric. The number of workers for concurrent execution in an asynchronous programming session. Default is 2.
+#' @param plotting_workers A numeric. The number of threads per worker for parallel plotting. Default is 8.
+#' @param create_script A logical. Whether to create the SCExplorer app script. Default is TRUE.
+#' @param style_script A logical. Whether to style the SCExplorer app script. Default is TRUE.
+#' @param overwrite A logical. Whether to overwrite existing files. Default is FALSE.
+#' @param return_app A logical. Whether to return the SCExplorer app. Default is TRUE.
+#'
+#' @seealso \code{\link{CreateDataFile}} \code{\link{CreateMetaFile}} \code{\link{PrepareSCExplorer}} \code{\link{FetchH5}}
 #'
 #' @examples
 #' \dontrun{
@@ -574,8 +584,8 @@ RunSCExplorer <- function(base_dir = "SCExplorer",
                           initial_size = 4,
                           initial_ncol = 3,
                           initial_arrange = "Row",
-                          workers = 2,
-                          threads_per_workers = 8,
+                          session_workers = 2,
+                          plotting_workers = 8,
                           create_script = TRUE,
                           style_script = require("styler", quietly = TRUE),
                           overwrite = FALSE,
@@ -2205,11 +2215,11 @@ server <- function(input, output, session) {
     "library(BiocParallel)",
     "library(ggplot2)",
     args_code,
-    "plan(multisession, workers = workers)",
+    "plan(multisession, workers = session_workers)",
     "if (.Platform$OS.type == 'windows') {
       BPPARAM = SerialParam()
     } else {
-      BPPARAM = MulticoreParam(workers = threads_per_workers)
+      BPPARAM = MulticoreParam(workers = plotting_workers)
     }",
     "page_theme <- bs_theme(bootswatch = 'zephyr')",
     main_code,

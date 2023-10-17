@@ -22,8 +22,8 @@ RunSCExplorer(
   initial_size = 4,
   initial_ncol = 3,
   initial_arrange = "Row",
-  workers = 2,
-  threads_per_workers = 8,
+  session_workers = 2,
+  plotting_workers = 8,
   create_script = TRUE,
   style_script = require("styler", quietly = TRUE),
   overwrite = FALSE,
@@ -31,7 +31,51 @@ RunSCExplorer(
 )
 }
 \arguments{
-\item{workers}{}
+\item{base_dir}{A string. The base directory of the SCExplorer app. Default is "SCExplorer".}
+
+\item{DataFile}{A string. The name of the HDF5 file that stores data matrices for each dataset. Default is "Data.hdf5".}
+
+\item{MetaFile}{A string. The name of the HDF5 file that stores metadata for each dataset. Default is "Meta.hdf5".}
+
+\item{title}{A string. The title of the SCExplorer app. Default is "SCExplorer".}
+
+\item{initial_dataset}{A string. The initial dataset to be loaded into the app. Default is NULL.}
+
+\item{initial_reduction}{A string. The initial dimensional reduction method to be loaded into the app. Default is NULL.}
+
+\item{initial_group}{A string. The initial variable to group cells in the app. Default is NULL.}
+
+\item{initial_feature}{A string. The initial feature to be loaded into the app. Default is NULL.}
+
+\item{initial_assay}{A string. The initial assay to be loaded into the app. Default is NULL.}
+
+\item{initial_slot}{A string. The initial slot to be loaded into the app. Default is NULL.}
+
+\item{initial_label}{A string. Whether to add labels in the initial plot. Default is "No".}
+
+\item{initial_cell_palette}{A string. The initial color palette for cells. Default is "Paired".}
+
+\item{initial_feature_palette}{A string. The initial color palette for features. Default is "Spectral".}
+
+\item{initial_theme}{A string. The initial theme for plots. Default is "theme_scp".}
+
+\item{initial_size}{A numeric. The initial size of plots. Default is 4.}
+
+\item{initial_ncol}{A numeric. The initial number of columns for arranging plots. Default is 3.}
+
+\item{initial_arrange}{A string. The initial arrangement of plots. Default is "Row".}
+
+\item{session_workers}{A numeric. The number of workers for concurrent execution in an asynchronous programming session. Default is 2.}
+
+\item{plotting_workers}{A numeric. The number of threads per worker for parallel plotting. Default is 8.}
+
+\item{create_script}{A logical. Whether to create the SCExplorer app script. Default is TRUE.}
+
+\item{style_script}{A logical. Whether to style the SCExplorer app script. Default is TRUE.}
+
+\item{overwrite}{A logical. Whether to overwrite existing files. Default is FALSE.}
+
+\item{return_app}{A logical. Whether to return the SCExplorer app. Default is TRUE.}
 }
 \description{
 RunSCExplorer
@@ -78,4 +122,7 @@ if (interactive()) {
 # deployApp("./SCExplorer")
 }
 
+}
+\seealso{
+\code{\link{CreateDataFile}} \code{\link{CreateMetaFile}} \code{\link{PrepareSCExplorer}} \code{\link{FetchH5}}
 }
