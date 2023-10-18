@@ -10,6 +10,7 @@ FeatureStatPlot(
   group.by = NULL,
   split.by = NULL,
   bg.by = NULL,
+  plot.by = c("group", "feature"),
   fill.by = c("group", "feature", "expression"),
   cells = NULL,
   slot = c("data", "counts"),
@@ -86,6 +87,8 @@ FeatureStatPlot(
 \item{split.by}{A character vector specifying the variable to split the plot by. Default is NULL.}
 
 \item{bg.by}{A character vector specifying the variable to use as the background color. Default is NULL.}
+
+\item{plot.by}{A character vector specifying how to plot the data, by group or feature. Possible values are "group", "feature". Default is "group".}
 
 \item{fill.by}{A string specifying what to fill the plot by. Possible values are "group", "feature", or "expression". Default is "group".}
 
@@ -258,5 +261,15 @@ FeatureStatPlot(pancreas_sub,
   ),
   fill.by = "feature", plot_type = "box",
   group.by = "SubCellType", bg.by = "CellType", stack = TRUE, flip = TRUE
-) \%>\% panel_fix_single(width = 8, height = 5) # Because the plot is made by combining, we want to adjust the overall height and width
+) \%>\% panel_fix_overall(width = 8, height = 5) # As the plot is created by combining, we can adjust the overall height and width directly.
+
+FeatureStatPlot(pancreas_sub, stat.by = c("G2M_score", "Fev"), group.by = "CellType", plot.by = "feature")
+FeatureStatPlot(pancreas_sub, stat.by = c(
+  "Sox9", "Anxa2", "Bicc1", # Ductal
+  "Neurog3", "Hes6", # EPs
+  "Fev", "Neurod1", # Pre-endocrine
+  "Rbp4", "Pyy", # Endocrine
+  "Ins1", "Gcg", "Sst", "Ghrl" # Beta, Alpha, Delta, Epsilon
+), group.by = "SubCellType", plot.by = "feature", stack = TRUE)
+
 }

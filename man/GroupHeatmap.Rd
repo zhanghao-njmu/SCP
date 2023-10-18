@@ -363,6 +363,7 @@ A list with the following elements:
 GroupHeatmap
 }
 \examples{
+library(dplyr)
 data("pancreas_sub")
 ht1 <- GroupHeatmap(pancreas_sub,
   features = c(

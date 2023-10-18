@@ -95,7 +95,8 @@ app <- RunSCExplorer(
   initial_dataset = "mouse_pancreas",
   initial_group = "CellType",
   initial_feature = "Neurog3",
-  workers = 2, overwrite = TRUE
+  session_workers = 2,
+  overwrite = TRUE
 )
 list.files("./SCExplorer") # This directory can be used as site directory for Shiny Server.
 

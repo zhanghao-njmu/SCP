@@ -529,7 +529,7 @@ RunCSSMap <- function(srt_query, srt_ref, query_assay = NULL, ref_assay = srt_re
   CSSmodel <- srt_ref[[ref_css]]@misc$model
   raw_assay <- DefaultAssay(srt_query)
   DefaultAssay(srt_query) <- query_assay
-  srt_query <- simspec::css_project(object = srt_query, model = CSSmodel)
+  srt_query <- invoke(.fn = get("css_project", envir = getNamespace("simspec")), .args = list(object = srt_query, model = CSSmodel))
   DefaultAssay(srt_query) <- raw_assay
 
   message("Run UMAP projection")

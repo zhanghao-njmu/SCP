@@ -5,9 +5,6 @@
 \alias{reexports}
 \alias{\%||\%}
 \alias{\%>\%}
-\alias{filter}
-\alias{group_by}
-\alias{top_n}
 \title{Objects exported from other packages}
 \keyword{internal}
 \description{
@@ -15,7 +12,7 @@ These objects are imported from other packages. Follow the links
 below to see their documentation.
 
 \describe{
-  \item{dplyr}{\code{\link[dplyr:reexports]{\%>\%}}, \code{\link[dplyr]{filter}}, \code{\link[dplyr]{group_by}}, \code{\link[dplyr]{top_n}}}
+  \item{dplyr}{\code{\link[dplyr:reexports]{\%>\%}}}
 
   \item{rlang}{\code{\link[rlang:op-null-default]{\%||\%}}}
 }}

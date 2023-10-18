@@ -151,6 +151,7 @@ This function utilizes the Seurat package to perform a differential expression (
 Users have the flexibility to specify custom cell groups, marker types, and various options for DE analysis.
 }
 \examples{
+library(dplyr)
 data("pancreas_sub")
 pancreas_sub <- RunDEtest(pancreas_sub, group_by = "SubCellType")
 AllMarkers <- filter(pancreas_sub@tools$DEtest_SubCellType$AllMarkers_wilcox, p_val_adj < 0.05 & avg_log2FC > 1)

@@ -1244,6 +1244,7 @@ FindConservedMarkers2 <- function(object, grouping.var, ident.1, ident.2 = NULL,
 #'
 #' @seealso \code{\link{RunEnrichment}} \code{\link{RunGSEA}} \code{\link{GroupHeatmap}}
 #' @examples
+#' library(dplyr)
 #' data("pancreas_sub")
 #' pancreas_sub <- RunDEtest(pancreas_sub, group_by = "SubCellType")
 #' AllMarkers <- filter(pancreas_sub@tools$DEtest_SubCellType$AllMarkers_wilcox, p_val_adj < 0.05 & avg_log2FC > 1)
@@ -4051,7 +4052,7 @@ RunMonocle2 <- function(srt, assay = NULL, slot = "counts", expressionFamily = "
                         root_state = NULL, seed = 11) {
   set.seed(seed)
   check_R(c("monocle", "DDRTree", "BiocGenerics", "Biobase", "VGAM"))
-  library(monocle)
+  attachNamespace("DDRTree")
 
   assay <- assay %||% DefaultAssay(srt)
   expr_matrix <- as.sparse(GetAssayData(srt, assay = assay, slot = slot))

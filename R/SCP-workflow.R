@@ -187,11 +187,11 @@ check_srtList <- function(srtList, batch, assay = NULL,
     if (isTRUE(do_normalization)) {
       if (normalization_method == "LogNormalize") {
         cat("Perform NormalizeData(LogNormalize) on the data ", i, "/", length(srtList), " of the srtList...\n", sep = "")
-        srtList[[i]] <- suppressWarnings(NormalizeData(object = srtList[[i]], assay = assay, normalization.method = "LogNormalize", verbose = FALSE))
+        srtList[[i]] <- NormalizeData(object = srtList[[i]], assay = assay, normalization.method = "LogNormalize", verbose = FALSE)
       }
       if (normalization_method == "TFIDF") {
         cat("Perform RunTFIDF on the data ", i, "/", length(srtList), " of the srtList...\n", sep = "")
-        srtList[[i]] <- suppressWarnings(RunTFIDF(object = srtList[[i]], assay = assay, verbose = FALSE))
+        srtList[[i]] <- RunTFIDF(object = srtList[[i]], assay = assay, verbose = FALSE)
       }
     } else if (is.null(do_normalization)) {
       status <- check_DataType(srtList[[i]], slot = "data", assay = assay)
@@ -201,11 +201,11 @@ check_srtList <- function(srtList, batch, assay = NULL,
       if (status %in% c("raw_counts", "raw_normalized_counts")) {
         if (normalization_method == "LogNormalize") {
           cat("Data ", i, "/", length(srtList), " of the srtList is ", status, ". Perform NormalizeData(LogNormalize) on the data ...\n", sep = "")
-          srtList[[i]] <- suppressWarnings(NormalizeData(object = srtList[[i]], assay = assay, normalization.method = "LogNormalize", verbose = FALSE))
+          srtList[[i]] <- NormalizeData(object = srtList[[i]], assay = assay, normalization.method = "LogNormalize", verbose = FALSE)
         }
         if (normalization_method == "TFIDF") {
           cat("Data ", i, "/", length(srtList), " of the srtList is ", status, ". Perform RunTFIDF on the data ...\n", sep = "")
-          srtList[[i]] <- suppressWarnings(RunTFIDF(object = srtList[[i]], assay = assay, verbose = FALSE))
+          srtList[[i]] <- RunTFIDF(object = srtList[[i]], assay = assay, verbose = FALSE)
         }
       }
       if (status == "unknown") {
@@ -216,11 +216,11 @@ check_srtList <- function(srtList, batch, assay = NULL,
       if (isTRUE(do_HVF_finding) || is.null(do_HVF_finding) || length(VariableFeatures(srtList[[i]], assay = assay)) == 0) {
         # if (type == "RNA") {
         cat("Perform FindVariableFeatures on the data ", i, "/", length(srtList), " of the srtList...\n", sep = "")
-        srtList[[i]] <- suppressWarnings(FindVariableFeatures(srtList[[i]], assay = assay, nfeatures = nHVF, selection.method = HVF_method, verbose = FALSE))
+        srtList[[i]] <- FindVariableFeatures(srtList[[i]], assay = assay, nfeatures = nHVF, selection.method = HVF_method, verbose = FALSE)
         # }
         # if (type == "Chromatin") {
         #   cat("Perform FindTopFeatures on the data ", i, "/", length(srtList), " of the srtList...\n", sep = "")
-        #   srtList[[i]] <- suppressWarnings(FindTopFeatures(srtList[[i]], assay = assay, min.cutoff = HVF_min_cutoff, verbose = FALSE))
+        #   srtList[[i]] <- FindTopFeatures(srtList[[i]], assay = assay, min.cutoff = HVF_min_cutoff, verbose = FALSE)
         # }
       }
     }
@@ -1313,7 +1313,7 @@ Seurat_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtLi
     if (is.null(FindIntegrationAnchors_params[["dims"]])) {
       FindIntegrationAnchors_params[["dims"]] <- 2:min(linear_reduction_dims, 30)
     }
-    srtMerge <- suppressWarnings(RunTFIDF(object = srtMerge, assay = DefaultAssay(srtMerge), verbose = FALSE))
+    srtMerge <- RunTFIDF(object = srtMerge, assay = DefaultAssay(srtMerge), verbose = FALSE)
     srtMerge <- RunDimReduction(
       srt = srtMerge, prefix = "", features = HVF, assay = DefaultAssay(srtMerge),
       linear_reduction = "svd", linear_reduction_dims = linear_reduction_dims, linear_reduction_params = linear_reduction_params, force_linear_reduction = force_linear_reduction,
@@ -1410,9 +1410,7 @@ Seurat_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtLi
     for (nm in names(FindIntegrationAnchors_params)) {
       params1[[nm]] <- FindIntegrationAnchors_params[[nm]]
     }
-    suppressWarnings({
-      srt_anchors <- invoke(.fn = FindIntegrationAnchors, .args = params1)
-    })
+    srt_anchors <- invoke(.fn = FindIntegrationAnchors, .args = params1)
 
     cat(paste0("[", Sys.time(), "]", " Perform integration(Seurat) on the data...\n"))
     params2 <- list(
@@ -2820,7 +2818,7 @@ CSS_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtList 
   for (nm in names(CSS_params)) {
     params[[nm]] <- CSS_params[[nm]]
   }
-  srtIntegrated <- invoke(.fn = simspec::cluster_sim_spectrum, .args = params)
+  srtIntegrated <- invoke(.fn = get("cluster_sim_spectrum", envir = getNamespace("simspec")), .args = params)
 
   if (any(is.na(srtIntegrated@reductions[["CSS"]]@cell.embeddings))) {
     stop("NA detected in the CSS embeddings. You can try to use a lower resolution value in the CSS_param.")

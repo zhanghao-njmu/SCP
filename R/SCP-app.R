@@ -538,7 +538,8 @@ CreateSeuratObject2 <- function(counts, project = "SeuratProject", assay = "RNA"
 #'   initial_dataset = "mouse_pancreas",
 #'   initial_group = "CellType",
 #'   initial_feature = "Neurog3",
-#'   workers = 2, overwrite = TRUE
+#'   session_workers = 2,
+#'   overwrite = TRUE
 #' )
 #' list.files("./SCExplorer") # This directory can be used as site directory for Shiny Server.
 #'
@@ -1276,6 +1277,28 @@ ui <- fluidPage(
           ),
           fluidRow(
             column(
+              width = 6, align = "center",
+              radioButtons(
+                inputId = "plotby4",
+                label = "Plot by",
+                choices = c("group", "feature"),
+                selected = "group",
+                inline = TRUE
+              )
+            ),
+            column(
+              width = 6, align = "center",
+              radioButtons(
+                inputId = "fillby4",
+                label = "Fill by",
+                choices = c("group", "feature", "expression"),
+                selected = "group",
+                inline = TRUE
+              )
+            )
+          ),
+          fluidRow(
+            column(
               width = 4, align = "center",
               radioButtons(
                 inputId = "coExp4",
@@ -1337,12 +1360,6 @@ ui <- fluidPage(
                 inline = TRUE
               )
             )
-          ),
-          selectInput(
-            inputId = "fillby4",
-            label = "Fill by",
-            choices = c("group", "feature", "expression"),
-            selected = "group"
           ),
           selectInput(
             inputId = "palette4",
@@ -2038,13 +2055,14 @@ server <- function(input, output, session) {
     plottype4 <- input$plottype4
     features4 <- input$features4
     feature_area4 <- input$feature_area4
+    plotby4 <- input$plotby4
+    fillby4 <- input$fillby4
     coExp4 <- input$coExp4 == "Yes"
     stack4 <- input$stack4 == "Yes"
     flip4 <- input$flip4 == "Yes"
     addbox4 <- input$addbox4 == "Yes"
     addpoint4 <- input$addpoint4 == "Yes"
     addtrend4 <- input$addtrend4 == "Yes"
-    fillby4 <- input$fillby4
     palette4 <- input$palette4
     theme4 <- input$theme4
     sameylims4 <- input$sameylims4 == "Yes"
@@ -2104,7 +2122,7 @@ server <- function(input, output, session) {
           srt = srt_tmp, stat.by = features4, group.by = group4, split.by = split4, cells = cells, slot = "data", plot_type = plottype4,
           calculate_coexp = coExp4, stack = stack4, flip = flip4,
           add_box = addbox4, add_point = addpoint4, add_trend = addtrend4,
-          fill.by = fillby4, palette = palette4, theme_use = theme4, same.y.lims = sameylims4,
+          plot.by = plotby4, fill.by = fillby4, palette = palette4, theme_use = theme4, same.y.lims = sameylims4,
           aspect.ratio = as.numeric(aspect.ratio), # must be class of numeric instead of integer
           ncol = ncol4, byrow = byrow4, force = TRUE
         )

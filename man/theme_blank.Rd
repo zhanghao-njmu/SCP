@@ -30,7 +30,8 @@ theme_blank(
 \item{...}{Arguments passed to the \code{\link[ggplot2]{theme}}.}
 }
 \description{
-Blank theme
+This function creates a theme with all elements blank except for axis lines and labels.
+It can optionally add coordinate axes in the plot.
 }
 \examples{
 library(ggplot2)

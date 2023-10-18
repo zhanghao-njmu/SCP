@@ -2,7 +2,7 @@
 % Please edit documentation in R/SCP-plot.R
 \name{panel_fix}
 \alias{panel_fix}
-\alias{panel_fix_single}
+\alias{panel_fix_overall}
 \title{Set the panel width/height of a plot object to a fixed value.}
 \usage{
 panel_fix(
@@ -24,7 +24,7 @@ panel_fix(
   ...
 )
 
-panel_fix_single(
+panel_fix_overall(
   x,
   panel_index = NULL,
   respect = NULL,
