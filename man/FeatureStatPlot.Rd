@@ -263,7 +263,16 @@ FeatureStatPlot(pancreas_sub,
   group.by = "SubCellType", bg.by = "CellType", stack = TRUE, flip = TRUE
 ) \%>\% panel_fix_overall(width = 8, height = 5) # As the plot is created by combining, we can adjust the overall height and width directly.
 
-FeatureStatPlot(pancreas_sub, stat.by = c("G2M_score", "Fev"), group.by = "CellType", plot.by = "feature")
+FeatureStatPlot(pancreas_sub, stat.by = c("Rbp4", "Pyy", "Ins1"), group.by = "CellType", plot.by = "feature")
+FeatureStatPlot(pancreas_sub,
+  stat.by = c("Rbp4", "Pyy", "Ins1"), group.by = "CellType", plot.by = "feature",
+  multiplegroup_comparisons = TRUE, sig_label = "p.format", sig_labelsize = 4
+)
+FeatureStatPlot(pancreas_sub,
+  stat.by = c("Rbp4", "Pyy", "Ins1"), group.by = "CellType", plot.by = "feature",
+  comparisons = list(c("Rbp4", "Pyy"), c("Pyy", "Ins1")),
+  stack = TRUE
+)
 FeatureStatPlot(pancreas_sub, stat.by = c(
   "Sox9", "Anxa2", "Bicc1", # Ductal
   "Neurog3", "Hes6", # EPs

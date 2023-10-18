@@ -3363,7 +3363,16 @@ FeatureDimPlot3D <- function(srt, features = NULL, reduction = NULL, dims = c(1,
 #'   group.by = "SubCellType", bg.by = "CellType", stack = TRUE, flip = TRUE
 #' ) %>% panel_fix_overall(width = 8, height = 5) # As the plot is created by combining, we can adjust the overall height and width directly.
 #'
-#' FeatureStatPlot(pancreas_sub, stat.by = c("G2M_score", "Fev"), group.by = "CellType", plot.by = "feature")
+#' FeatureStatPlot(pancreas_sub, stat.by = c("Rbp4", "Pyy", "Ins1"), group.by = "CellType", plot.by = "feature")
+#' FeatureStatPlot(pancreas_sub,
+#'   stat.by = c("Rbp4", "Pyy", "Ins1"), group.by = "CellType", plot.by = "feature",
+#'   multiplegroup_comparisons = TRUE, sig_label = "p.format", sig_labelsize = 4
+#' )
+#' FeatureStatPlot(pancreas_sub,
+#'   stat.by = c("Rbp4", "Pyy", "Ins1"), group.by = "CellType", plot.by = "feature",
+#'   comparisons = list(c("Rbp4", "Pyy"), c("Pyy", "Ins1")),
+#'   stack = TRUE
+#' )
 #' FeatureStatPlot(pancreas_sub, stat.by = c(
 #'   "Sox9", "Anxa2", "Bicc1", # Ductal
 #'   "Neurog3", "Hes6", # EPs
@@ -3409,9 +3418,12 @@ FeatureStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.b
     if (length(group.by) > 1) {
       stop("The 'group.by' must have a length of 1 when 'plot.by' is set to 'feature'")
     }
+    if (!is.null(bg.by)) {
+      message("'bg.by' is invalid when plot.by is set to 'feature'")
+    }
     message("Setting 'group.by' to 'Features' as 'plot.by' is set to 'feature'")
     srt@assays[setdiff(names(srt@assays), assay)] <- NULL
-    meta.reshape <- FetchData(srt, vars = c(stat.by, group.by, split.by, bg.by), cells = cells %||% rownames(meta.data), slot = slot)
+    meta.reshape <- FetchData(srt, vars = c(stat.by, group.by, split.by), cells = cells %||% rownames(meta.data), slot = slot)
     meta.reshape[["cells"]] <- rownames(meta.reshape)
     meta.reshape <- melt(meta.reshape, measure.vars = stat.by, variable.name = "Features", value.name = "Stat.by")
     rownames(meta.reshape) <- paste0(meta.reshape[["cells"]], "-", meta.reshape[["Features"]])
@@ -3421,7 +3433,7 @@ FeatureStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.b
       if (length(rownames(meta.reshape)[meta.reshape[[group.by]] == g]) > 0) {
         meta.reshape[[g]] <- meta.reshape[["Stat.by"]]
         p <- ExpressionStatPlot(
-          exp.data = exp.data, meta.data = meta.reshape, stat.by = g, group.by = "Features", split.by = split.by, bg.by = bg.by, plot.by = "group", fill.by = fill.by,
+          exp.data = exp.data, meta.data = meta.reshape, stat.by = g, group.by = "Features", split.by = split.by, bg.by = NULL, plot.by = "group", fill.by = fill.by,
           cells = rownames(meta.reshape)[meta.reshape[[group.by]] == g], keep_empty = keep_empty, individual = individual,
           plot_type = plot_type,
           palette = palette, palcolor = palcolor, alpha = alpha,
