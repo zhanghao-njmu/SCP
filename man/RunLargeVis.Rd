@@ -4,7 +4,7 @@
 \alias{RunLargeVis}
 \alias{RunLargeVis.Seurat}
 \alias{RunLargeVis.default}
-\title{Run LargeVis}
+\title{Run LargeVis (Dimensionality Reduction with a LargeVis-like method)}
 \usage{
 RunLargeVis(object, ...)
 
@@ -13,7 +13,7 @@ RunLargeVis(object, ...)
   reduction = "pca",
   dims = NULL,
   features = NULL,
-  assay = DefaultAssay(object = object),
+  assay = NULL,
   slot = "data",
   perplexity = 50,
   n_neighbors = perplexity * 3,
@@ -84,13 +84,310 @@ RunLargeVis(object, ...)
 )
 }
 \arguments{
-\item{object}{}
+\item{object}{An object. This can be a Seurat object or a matrix-like object.}
 
-\item{...}{}
+\item{...}{Additional arguments to be passed to the \link[uwot]{lvish} function.}
 
-\item{n_components}{}
+\item{reduction}{A character string specifying the reduction to be used. Default is "pca".}
+
+\item{dims}{An integer vector specifying the dimensions to be used. Default is NULL.}
+
+\item{features}{A character vector specifying the features to be used. Default is NULL.}
+
+\item{assay}{A character string specifying the assay to be used. Default is NULL.}
+
+\item{slot}{A character string specifying the slot name to be used. Default is "data".}
+
+\item{perplexity}{Controls the size of the local neighborhood used for
+manifold approximation. This is the analogous to \code{n_neighbors} in
+\code{\link[uwot]{umap}}. Change this, rather than \code{n_neighbors}.}
+
+\item{n_neighbors}{The number of neighbors to use when calculating the
+\code{perplexity}. Usually set to three times the value of the
+\code{perplexity}. Must be at least as large as \code{perplexity}.}
+
+\item{n_components}{An integer specifying the number of LargeVis components. Default is 2.}
+
+\item{metric}{Type of distance metric to use to find nearest neighbors. One
+  of:
+\itemize{
+  \item \code{"euclidean"} (the default)
+  \item \code{"cosine"}
+  \item \code{"manhattan"}
+  \item \code{"hamming"}
+  \item \code{"correlation"} (a distance based on the Pearson correlation)
+  \item \code{"categorical"} (see below)
+}
+Only applies if \code{nn_method = "annoy"} (for \code{nn_method = "fnn"}, the
+distance metric is always "euclidean").
+
+If \code{X} is a data frame or matrix, then multiple metrics can be
+specified, by passing a list to this argument, where the name of each item in
+the list is one of the metric names above. The value of each list item should
+be a vector giving the names or integer ids of the columns to be included in
+a calculation, e.g. \code{metric = list(euclidean = 1:4, manhattan = 5:10)}.
+
+Each metric calculation results in a separate fuzzy simplicial set, which are
+intersected together to produce the final set. Metric names can be repeated.
+Because non-numeric columns are removed from the data frame, it is safer to
+use column names than integer ids.
+
+Factor columns can also be used by specifying the metric name
+\code{"categorical"}. Factor columns are treated different from numeric
+columns and although multiple factor columns can be specified in a vector,
+each factor column specified is processed individually. If you specify
+a non-factor column, it will be coerced to a factor.
+
+For a given data block, you may override the \code{pca} and \code{pca_center}
+arguments for that block, by providing a list with one unnamed item
+containing the column names or ids, and then any of the \code{pca} or
+\code{pca_center} overrides as named items, e.g. \code{metric =
+list(euclidean = 1:4, manhattan = list(5:10, pca_center = FALSE))}. This
+exists to allow mixed binary and real-valued data to be included and to have
+PCA applied to both, but with centering applied only to the real-valued data
+(it is typical not to apply centering to binary data before PCA is applied).}
+
+\item{n_epochs}{Number of epochs to use during the optimization of the
+embedded coordinates. The default is calculate the number of epochs
+dynamically based on dataset size, to give the same number of edge samples
+as the LargeVis defaults. This is usually substantially larger than the
+UMAP defaults. If \code{n_epochs = 0}, then coordinates determined by
+\code{"init"} will be returned.}
+
+\item{learning_rate}{Initial learning rate used in optimization of the
+coordinates.}
+
+\item{scale}{Scaling to apply to \code{X} if it is a data frame or matrix:
+\itemize{
+  \item{\code{"none"} or \code{FALSE} or \code{NULL}} No scaling.
+  \item{\code{"Z"} or \code{"scale"} or \code{TRUE}} Scale each column to
+  zero mean and variance 1.
+  \item{\code{"maxabs"}} Center each column to mean 0, then divide each
+  element by the maximum absolute value over the entire matrix.
+  \item{\code{"range"}} Range scale the entire matrix, so the smallest
+  element is 0 and the largest is 1.
+  \item{\code{"colrange"}} Scale each column in the range (0,1).
+}
+For lvish, the default is \code{"maxabs"}, for consistency with LargeVis.}
+
+\item{init}{Type of initialization for the coordinates. Options are:
+ \itemize{
+   \item \code{"spectral"} Spectral embedding using the normalized Laplacian
+   of the fuzzy 1-skeleton, with Gaussian noise added.
+   \item \code{"normlaplacian"}. Spectral embedding using the normalized
+   Laplacian of the fuzzy 1-skeleton, without noise.
+   \item \code{"random"}. Coordinates assigned using a uniform random
+   distribution between -10 and 10.
+   \item \code{"lvrandom"}. Coordinates assigned using a Gaussian
+   distribution with standard deviation 1e-4, as used in LargeVis
+   (Tang et al., 2016) and t-SNE.
+   \item \code{"laplacian"}. Spectral embedding using the Laplacian Eigenmap
+   (Belkin and Niyogi, 2002).
+   \item \code{"pca"}. The first two principal components from PCA of
+   \code{X} if \code{X} is a data frame, and from a 2-dimensional classical
+   MDS if \code{X} is of class \code{"dist"}.
+   \item \code{"spca"}. Like \code{"pca"}, but each dimension is then scaled
+   so the standard deviation is 1e-4, to give a distribution similar to that
+   used in t-SNE and LargeVis. This is an alias for \code{init = "pca",
+   init_sdev = 1e-4}.
+   \item \code{"agspectral"} An "approximate global" modification of
+   \code{"spectral"} which all edges in the graph to a value of 1, and then
+   sets a random number of edges (\code{negative_sample_rate} edges per
+   vertex) to 0.1, to approximate the effect of non-local affinities.
+   \item A matrix of initial coordinates.
+ }
+For spectral initializations, (\code{"spectral"}, \code{"normlaplacian"},
+\code{"laplacian"}, \code{"agspectral"}), if more than one connected
+component is identified, no spectral initialization is attempted. Instead
+a PCA-based initialization is attempted. If \code{verbose = TRUE} the
+number of connected components are logged to the console. The existence of
+multiple connected components implies that a global view of the data cannot
+be attained with this initialization. Increasing the value of
+\code{n_neighbors} may help.}
+
+\item{init_sdev}{If non-\code{NULL}, scales each dimension of the initialized
+coordinates (including any user-supplied matrix) to this standard
+deviation. By default no scaling is carried out, except when \code{init =
+"spca"}, in which case the value is \code{0.0001}. Scaling the input may
+help if the unscaled versions result in initial coordinates with large
+inter-point distances or outliers. This usually results in small gradients
+during optimization and very little progress being made to the layout.
+Shrinking the initial embedding by rescaling can help under these
+circumstances. Scaling the result of \code{init = "pca"} is usually
+recommended and \code{init = "spca"} as an alias for \code{init = "pca",
+init_sdev = 1e-4} but for the spectral initializations the scaled versions
+usually aren't necessary unless you are using a large value of
+\code{n_neighbors} (e.g. \code{n_neighbors = 150} or higher). For
+compatibility with recent versions of the Python UMAP package, if you are
+using \code{init = "spectral"}, then you should also set
+\code{init_sdev = "range"}, which will range scale each of the columns
+containing the initial data between 0-10. This is not set by default to
+maintain backwards compatibility with previous versions of uwot.}
+
+\item{repulsion_strength}{Weighting applied to negative samples in low
+dimensional embedding optimization. Values higher than one will result in
+greater weight being given to negative samples.}
+
+\item{negative_sample_rate}{The number of negative edge/1-simplex samples to
+use per positive edge/1-simplex sample in optimizing the low dimensional
+embedding.}
+
+\item{nn_method}{Method for finding nearest neighbors. Options are:
+\itemize{
+  \item \code{"fnn"}. Use exact nearest neighbors via the
+    \href{https://cran.r-project.org/package=FNN}{FNN} package.
+  \item \code{"annoy"} Use approximate nearest neighbors via the
+    \href{https://cran.r-project.org/package=RcppAnnoy}{RcppAnnoy} package.
+ }
+By default, if \code{X} has less than 4,096 vertices, the exact nearest
+neighbors are found. Otherwise, approximate nearest neighbors are used.
+You may also pass precalculated nearest neighbor data to this argument. It
+must be a list consisting of two elements:
+\itemize{
+  \item \code{"idx"}. A \code{n_vertices x n_neighbors} matrix
+  containing the integer indexes of the nearest neighbors in \code{X}. Each
+  vertex is considered to be its own nearest neighbor, i.e.
+  \code{idx[, 1] == 1:n_vertices}.
+  \item \code{"dist"}. A \code{n_vertices x n_neighbors} matrix
+  containing the distances of the nearest neighbors.
+}
+Multiple nearest neighbor data (e.g. from two different precomputed
+metrics) can be passed by passing a list containing the nearest neighbor
+data lists as items.
+The \code{n_neighbors} parameter is ignored when using precomputed
+nearest neighbor data.}
+
+\item{n_trees}{Number of trees to build when constructing the nearest
+neighbor index. The more trees specified, the larger the index, but the
+better the results. With \code{search_k}, determines the accuracy of the
+Annoy nearest neighbor search. Only used if the \code{nn_method} is
+\code{"annoy"}. Sensible values are between \code{10} to \code{100}.}
+
+\item{search_k}{Number of nodes to search during the neighbor retrieval. The
+larger k, the more the accurate results, but the longer the search takes.
+With \code{n_trees}, determines the accuracy of the Annoy nearest neighbor
+search. Only used if the \code{nn_method} is \code{"annoy"}.}
+
+\item{n_threads}{Number of threads to use (except during stochastic gradient
+descent). Default is half the number of concurrent threads supported by the
+system. For nearest neighbor search, only applies if
+\code{nn_method = "annoy"}. If \code{n_threads > 1}, then the Annoy index
+will be temporarily written to disk in the location determined by
+\code{\link[base]{tempfile}}.}
+
+\item{n_sgd_threads}{Number of threads to use during stochastic gradient
+descent. If set to > 1, then be aware that if \code{batch = FALSE}, results
+will \emph{not} be reproducible, even if \code{set.seed} is called with a
+fixed seed before running. Set to \code{"auto"} to use the same value as
+\code{n_threads}.}
+
+\item{grain_size}{The minimum amount of work to do on each thread. If this
+value is set high enough, then less than \code{n_threads} or
+\code{n_sgd_threads} will be used for processing, which might give a
+performance improvement if the overhead of thread management and context
+switching was outweighing the improvement due to concurrent processing.
+This should be left at default (\code{1}) and work will be spread evenly
+over all the threads specified.}
+
+\item{kernel}{Type of kernel function to create input probabilities. Can be
+one of \code{"gauss"} (the default) or \code{"knn"}. \code{"gauss"} uses
+the usual Gaussian weighted similarities. \code{"knn"} assigns equal
+probabilities to every edge in the nearest neighbor graph, and zero
+otherwise, using \code{perplexity} nearest neighbors. The \code{n_neighbors}
+parameter is ignored in this case.}
+
+\item{pca}{If set to a positive integer value, reduce data to this number of
+columns using PCA. Doesn't applied if the distance \code{metric} is
+\code{"hamming"}, or the dimensions of the data is larger than the
+number specified (i.e. number of rows and columns must be larger than the
+value of this parameter). If you have > 100 columns in a data frame or
+matrix, reducing the number of columns in this way may substantially
+increase the performance of the nearest neighbor search at the cost of a
+potential decrease in accuracy. In many t-SNE applications, a value of 50
+is recommended, although there's no guarantee that this is appropriate for
+all settings.}
+
+\item{pca_center}{If \code{TRUE}, center the columns of \code{X} before
+carrying out PCA. For binary data, it's recommended to set this to
+\code{FALSE}.}
+
+\item{pcg_rand}{If \code{TRUE}, use the PCG random number generator (O'Neill,
+2014) during optimization. Otherwise, use the faster (but probably less
+statistically good) Tausworthe "taus88" generator. The default is
+\code{TRUE}.}
+
+\item{fast_sgd}{If \code{TRUE}, then the following combination of parameters
+is set: \code{pcg_rand = TRUE} and \code{n_sgd_threads = "auto"}. The
+default is \code{FALSE}. Setting this to \code{TRUE} will speed up the
+stochastic optimization phase, but give a potentially less accurate
+embedding, and which will not be exactly reproducible even with a fixed
+seed. For visualization, \code{fast_sgd = TRUE} will give perfectly good
+results. For more generic dimensionality reduction, it's safer to leave
+\code{fast_sgd = FALSE}. If \code{fast_sgd = TRUE}, then user-supplied
+values of \code{pcg_rand} and \code{n_sgd_threads}, are ignored.}
+
+\item{batch}{If \code{TRUE}, then embedding coordinates are updated at the
+end of each epoch rather than during the epoch. In batch mode, results are
+reproducible with a fixed random seed even with \code{n_sgd_threads > 1},
+at the cost of a slightly higher memory use. You may also have to modify
+\code{learning_rate} and increase \code{n_epochs}, so whether this provides
+a speed increase over the single-threaded optimization is likely to be
+dataset and hardware-dependent.}
+
+\item{opt_args}{A list of optimizer parameters, used when
+\code{batch = TRUE}. The default optimization method used is Adam (Kingma
+and Ba, 2014).
+\itemize{
+  \item \code{method} The optimization method to use. Either \code{"adam"}
+  or \code{"sgd"} (stochastic gradient descent). Default: \code{"adam"}.
+  \item \code{beta1} (Adam only). The weighting parameter for the
+  exponential moving average of the first moment estimator. Effectively the
+  momentum parameter. Should be a floating point value between 0 and 1.
+  Higher values can smooth oscillatory updates in poorly-conditioned
+  situations and may allow for a larger \code{learning_rate} to be
+  specified, but too high can cause divergence. Default: \code{0.5}.
+  \item \code{beta2} (Adam only). The weighting parameter for the
+  exponential moving average of the uncentered second moment estimator.
+  Should be a floating point value between 0 and 1. Controls the degree of
+  adaptivity in the step-size. Higher values put more weight on previous
+  time steps. Default: \code{0.9}.
+  \item \code{eps} (Adam only). Intended to be a small value to prevent
+  division by zero, but in practice can also affect convergence due to its
+  interaction with \code{beta2}. Higher values reduce the effect of the
+  step-size adaptivity and bring the behavior closer to stochastic gradient
+  descent with momentum. Typical values are between 1e-8 and 1e-3. Default:
+  \code{1e-7}.
+  \item \code{alpha} The initial learning rate. Default: the value of the
+  \code{learning_rate} parameter.
+}}
+
+\item{epoch_callback}{A function which will be invoked at the end of every
+epoch. Its signature should be: \code{(epoch, n_epochs, coords)}, where:
+\itemize{
+  \item \code{epoch} The current epoch number (between \code{1} and
+  \code{n_epochs}).
+  \item \code{n_epochs} Number of epochs to use during the optimization of
+  the embedded coordinates.
+  \item \code{coords} The embedded coordinates as of the end of the current
+  epoch, as a matrix with dimensions (N, \code{n_components}).
+}}
+
+\item{pca_method}{Method to carry out any PCA dimensionality reduction when the pca parameter is specified. Allowed values are: "irlba", "rsvd", "bigstatsr", "svd", "auto"(the default. Uses "irlba", unless more than 50 case "svd" is used.)}
+
+\item{reduction.name}{A character string specifying the name of the reduction to be stored in the Seurat object. Default is "largevis".}
+
+\item{reduction.key}{A character string specifying the prefix for the column names of the LargeVis embeddings. Default is "LargeVis_".}
+
+\item{verbose}{A logical value indicating whether to print verbose output. Default is TRUE.}
+
+\item{seed.use}{An integer specifying the random seed to be used. Default is 11.}
 }
 \description{
-Run LargeVis
+Run LargeVis (Dimensionality Reduction with a LargeVis-like method)
 }
-\concept{dimensional_reduction}
+\examples{
+pancreas_sub <- Seurat::FindVariableFeatures(pancreas_sub)
+pancreas_sub <- RunLargeVis(object = pancreas_sub, features = Seurat::VariableFeatures(pancreas_sub))
+CellDimPlot(pancreas_sub, group.by = "CellType", reduction = "largevis")
+
+}

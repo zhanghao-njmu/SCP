@@ -34,15 +34,77 @@ CellDensityPlot(
   nrow = NULL,
   ncol = NULL,
   byrow = TRUE,
-  force = FALSE,
-  seed = 11
+  force = FALSE
 )
 }
 \arguments{
-\item{seed}{}
+\item{srt}{A Seurat object.}
+
+\item{features}{A character vector specifying the features to plot.}
+
+\item{group.by}{A character vector specifying the variables to group the data by.}
+
+\item{split.by}{A character vector specifying the variables to split the data by.
+Default is NULL, which means no splitting is performed.}
+
+\item{assay}{A character specifying the assay to use from the Seurat object.
+Default is NULL, which means the default assay will be used.}
+
+\item{slot}{A character specifying the slot to use from the assay. Default is "data".}
+
+\item{flip}{A logical indicating whether to flip the x-axis. Default is FALSE.}
+
+\item{reverse}{A logical indicating whether to reverse the y-axis. Default is FALSE.}
+
+\item{x_order}{A character specifying how to order the x-axis. Can be "value" or "rank". Default is "value".}
+
+\item{decreasing}{A logical indicating whether to order the groups in decreasing order. Default is NULL.}
+
+\item{palette}{A character specifying the color palette to use for grouping variables. Default is "Paired".}
+
+\item{palcolor}{A character specifying the color to use for each group. Default is NULL.}
+
+\item{cells}{A character vector specifying the cells to plot. Default is NULL, which means all cells are included.}
+
+\item{keep_empty}{A logical indicating whether to keep empty groups. Default is FALSE.}
+
+\item{y.nbreaks}{An integer specifying the number of breaks on the y-axis. Default is 4.}
+
+\item{y.min}{A numeric specifying the minimum value on the y-axis. Default is NULL, which means the minimum value will be automatically determined.}
+
+\item{y.max}{A numeric specifying the maximum value on the y-axis. Default is NULL, which means the maximum value will be automatically determined.}
+
+\item{same.y.lims}{A logical indicating whether to use the same y-axis limits for all plots. Default is FALSE.}
+
+\item{aspect.ratio}{A numeric specifying the aspect ratio of the plot. Default is NULL, which means the aspect ratio will be automatically determined.}
+
+\item{title}{A character specifying the title of the plot. Default is NULL.}
+
+\item{subtitle}{A character specifying the subtitle of the plot. Default is NULL.}
+
+\item{legend.position}{A character specifying the position of the legend. Default is "right".}
+
+\item{legend.direction}{A character specifying the direction of the legend. Default is "vertical".}
+
+\item{theme_use}{A character specifying the theme to use. Default is "theme_scp".}
+
+\item{theme_args}{A list of arguments to pass to the theme function.}
+
+\item{combine}{A logical indicating whether to combine multiple plots into a single plot. Default is TRUE.}
+
+\item{nrow}{An integer specifying the number of rows in the combined plot.
+Default is NULL, which means determined automatically based on the number of plots.}
+
+\item{ncol}{An integer specifying the number of columns in the combined plot.
+Default is NULL, which means determined automatically based on the number of plots.}
+
+\item{byrow}{A logical indicating whether to add plots by row or by column in the combined plot. Default is TRUE.}
+
+\item{force}{A logical indicating whether to continue plotting if there are more than 50 features. Default is FALSE.}
 }
 \description{
-CellDensityPlot
+Plots the density of specified features in a single or multiple groups,
+grouped by specified variables.
 }
 \examples{
 data("pancreas_sub")

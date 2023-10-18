@@ -19,27 +19,36 @@ GeneConvert(
 \arguments{
 \item{geneID}{A vector of the geneID character.}
 
-\item{geneID_from_IDtype}{ID type of the geneID. e.g. "symbol", "ensembl_id", "entrez_id"}
+\item{geneID_from_IDtype}{Gene ID type of the input \code{geneID}. e.g. "symbol", "ensembl_id", "entrez_id"}
 
-\item{geneID_to_IDtype}{ID type to convert to. e.g. "symbol", "ensembl_id", "entrez_id"}
+\item{geneID_to_IDtype}{Gene ID type(s) to convert to. e.g. "symbol", "ensembl_id", "entrez_id"}
 
-\item{species_from}{Latin names for animals of the input geneID.}
+\item{species_from}{Latin names for animals of the input geneID. e.g. "Homo_sapiens","Mus_musculus"}
 
 \item{species_to}{Latin names for animals of the output geneID. e.g. "Homo_sapiens","Mus_musculus"}
 
 \item{Ensembl_version}{Ensembl database version. If NULL, use the current release version.}
 
-\item{biomart}{BioMart database name you want to connect to. ("ensembl", "protists_mart", "fungi_mart", "plants_mart")}
+\item{biomart}{The name of the BioMart database that you want to connect to. Possible options include "ensembl", "protists_mart", "fungi_mart", and "plants_mart".}
 
 \item{mirror}{Specify an Ensembl mirror to connect to. The valid options here are 'www', 'uswest', 'useast', 'asia'.}
 
-\item{max_tries}{Number of max_tries to connect with the biomart service.}
+\item{max_tries}{The maximum number of attempts to connect with the BioMart service.}
 }
 \value{
-A list.
+A list with the following elements:
+  \itemize{
+    \item{\code{geneID_res:}}{ A data.frame contains the all gene IDs mapped in the database with columns: 'from_IDtype','from_geneID','to_IDtype','to_geneID'}
+    \item{\code{geneID_collapse:}}{ The data.frame contains all the successfully converted gene IDs, and the output gene IDs are collapsed into a list. As a result, the 'from_geneID' column (which is set as the row names) of the data.frame is unique.}
+    \item{\code{geneID_expand:}}{ The data.frame contains all the successfully converted gene IDs, and the output gene IDs are expanded.}
+    \item{\code{Ensembl_version:}}{ Ensembl database version.}
+    \item{\code{Datasets:}}{ Datasets available in the selected BioMart database.}
+    \item{\code{Attributes:}}{ Attributes available in the selected BioMart database.}
+    \item{\code{geneID_unmapped:}}{ A character vector of gene IDs that are unmapped in the database.}
+  }
 }
 \description{
-This function can convert different gene ID types within one species or bewteen two species using biomart service.
+This function can convert different gene ID types within one species or between two species using the biomart service.
 }
 \examples{
 res <- GeneConvert(
@@ -63,9 +72,20 @@ res <- GeneConvert(
   species_to = "Homo_sapiens",
   Ensembl_version = 103
 )
-homologs_counts <- counts[res$geneID_expand[, "from_geneID"], ]
-rownames(homologs_counts) <- res$geneID_expand[, "symbol"]
-homologs_counts <- aggregate(homologs_counts, by = list(row.names(homologs_counts)), FUN = sum)
+# Check the number of input and converted gene IDs
+input_genes <- length(rownames(counts))
+db_genes <- length(unique(res$geneID_res$from_geneID))
+converted_genes_input <- length(unique(res$geneID_collapse$from_geneID))
+converted_genes_output <- length(unique(res$geneID_expand$symbol))
+cat("Number of input gene IDs:", input_genes, "\n")
+cat("Number of gene IDs mapped in the database:", db_genes, "\n")
+cat("Number of input gene IDs that were successfully converted:", converted_genes_input, "\n")
+cat("Number of converted gene IDs:", converted_genes_output, "\n")
+
+homologs_counts <- aggregate(
+  x = counts[res$geneID_expand[, "from_geneID"], ],
+  by = list(res$geneID_expand[, "symbol"]), FUN = sum
+)
 rownames(homologs_counts) <- homologs_counts[, 1]
 homologs_counts <- as(as.matrix(homologs_counts[, -1]), "dgCMatrix")
 homologs_counts

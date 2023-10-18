@@ -3,9 +3,8 @@
 \name{RunDM}
 \alias{RunDM}
 \alias{RunDM.Seurat}
-\alias{RunDM.matrix}
-\alias{RunDM.Neighbor}
-\title{Run DiffusionMap(DM)}
+\alias{RunDM.default}
+\title{Run DM (diffusion map)}
 \usage{
 RunDM(object, ...)
 
@@ -16,73 +15,68 @@ RunDM(object, ...)
   features = NULL,
   assay = NULL,
   slot = "data",
-  graph = NULL,
-  neighbor = NULL,
   ndcs = 2,
   sigma = "local",
   k = 30,
   dist.method = "euclidean",
   reduction.name = "dm",
   reduction.key = "DM_",
-  seed.use = 42,
   verbose = TRUE,
+  seed.use = 11,
   ...
 )
 
-\method{RunDM}{matrix}(
+\method{RunDM}{default}(
   object,
+  assay = NULL,
+  slot = "data",
   ndcs = 2,
   sigma = "local",
   k = 30,
   dist.method = "euclidean",
-  assay = NULL,
-  slot = "data",
-  reduction.key = "DM_",
-  seed.use = 42,
-  verbose = TRUE,
-  ...
-)
-
-\method{RunDM}{Neighbor}(
-  object,
-  ndcs = 2,
-  sigma = "local",
-  k = 30,
-  slot = "data",
-  assay = NULL,
   reduction.key = "DM_",
   verbose = TRUE,
-  seed.use = 42,
+  seed.use = 11,
   ...
 )
 }
 \arguments{
-\item{object}{}
+\item{object}{An object. This can be a Seurat object or a matrix-like object.}
 
-\item{...}{}
+\item{...}{Additional arguments to be passed to the \link[destiny]{DiffusionMap} function.}
 
-\item{assay}{Name of Assay dm is being run on.}
+\item{reduction}{A character string specifying the reduction to be used.}
 
-\item{slot}{Name of slot dm is being run on.}
+\item{dims}{An integer vector specifying the dimensions to be used. Default is 1:30.}
 
-\item{graph}{}
+\item{features}{A character vector specifying the features to be used. Default is NULL.}
 
-\item{ndcs}{Total Number of DM to compute and store (2 by default).}
+\item{assay}{A character string specifying the assay to be used. Default is NULL.}
 
-\item{reduction.name}{dimensional reduction name, 'dm' by default}
+\item{slot}{A character string specifying the slot name to be used. Default is "data".}
 
-\item{reduction.key}{dimensional reduction key, specifies the string before
-the number for the dimension names. "DM_" by default.}
+\item{ndcs}{An integer specifying the number of diffusion components (dimensions) to be computed. Default is 2.}
 
-\item{seed.use}{Set a random seed. By default, sets the seed to 42. Setting
-NULL will not set a seed.}
+\item{sigma}{A character string specifying the diffusion scale parameter of the Gaussian kernel. Currently supported values are "local" (default) and "global".}
 
-\item{verbose}{Show a progressbar and other progress information}
-}
-\value{
-Returns Seurat object with the DM calculation stored in the reductions slot.
+\item{k}{An integer specifying the number of nearest neighbors to be used for the construction of the graph. Default is 30.}
+
+\item{dist.method}{A character string specifying the distance metric to be used for the construction of the knn graph. Currently supported values are "euclidean" and "cosine". Default is "euclidean".}
+
+\item{reduction.name}{A character string specifying the name of the reduction to be stored in the Seurat object. Default is "dm".}
+
+\item{reduction.key}{A character string specifying the prefix for the column names of the basis vectors. Default is "DM_".}
+
+\item{verbose}{A logical value indicating whether to print verbose output. Default is TRUE.}
+
+\item{seed.use}{An integer specifying the random seed to be used. Default is 11.}
 }
 \description{
-Run a DM dimensionality reduction.
+Run DM (diffusion map)
 }
-\concept{dimensional_reduction}
+\examples{
+pancreas_sub <- Seurat::FindVariableFeatures(pancreas_sub)
+pancreas_sub <- RunDM(object = pancreas_sub, features = Seurat::VariableFeatures(pancreas_sub))
+CellDimPlot(pancreas_sub, group.by = "CellType", reduction = "dm")
+
+}

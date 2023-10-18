@@ -3,23 +3,25 @@ NULL
 
 #' Single-cell reference mapping with KNN method
 #'
-#' @param srt_query
-#' @param srt_ref
-#' @param ref_umap
-#' @param ref_group
-#' @param features
-#' @param nfeatures
-#' @param query_reduction
-#' @param ref_reduction
-#' @param query_dims
-#' @param ref_dims
-#' @param projection_method
-#' @param nn_method
-#' @param k
-#' @param distance_metric
-#' @param vote_fun
-#' @param query_assay
-#' @param ref_assay
+#' This function performs single-cell reference mapping using the K-nearest neighbor (KNN) method. It takes two single-cell datasets as input: srt_query and srt_ref. The function maps cells from the srt_query dataset to the srt_ref dataset based on their similarity or distance.
+#'
+#' @param srt_query An object of class Seurat storing the query cells.
+#' @param srt_ref An object of class Seurat storing the reference cells.
+#' @param query_assay A character string specifying the assay name for the query cells. If not provided, the default assay for the query object will be used.
+#' @param ref_assay A character string specifying the assay name for the reference cells. If not provided, the default assay for the reference object will be used.
+#' @param ref_umap A character string specifying the name of the UMAP reduction in the reference object. If not provided, the first UMAP reduction found in the reference object will be used.
+#' @param ref_group A character string specifying a metadata column name in the reference object to use for grouping.
+#' @param features A character vector specifying the features to be used for calculating the distance metric. If not provided, the function will use the variable features calculated by the Seurat package.
+#' @param nfeatures A integer specifying the number of highly variable features to be calculated if \code{features} is not provided.
+#' @param query_reduction A character string specifying the name of a dimensionality reduction in the query object to use for calculating the distance metric.
+#' @param ref_reduction A character string specifying the name of a dimensionality reduction in the reference object to use for calculating the distance metric.
+#' @param query_dims A numeric vector specifying the dimension indices from the query reduction to be used for calculating the distance metric.
+#' @param ref_dims A numeric vector specifying the dimension indices from the reference reduction to be used for calculating the distance metric.
+#' @param projection_method A character string specifying the projection method to use. Options are "model" and "knn". If "model" is selected, the function will try to use a pre-trained UMAP model in the reference object for projection. If "knn" is selected, the function will directly find the nearest neighbors using the distance metric.
+#' @param nn_method A character string specifying the nearest neighbor search method to use. Options are "raw", "annoy", and "rann". If "raw" is selected, the function will use the brute-force method to find the nearest neighbors. If "annoy" is selected, the function will use the Annoy library for approximate nearest neighbor search. If "rann" is selected, the function will use the RANN library for approximate nearest neighbor search. If not provided, the function will choose the search method based on the size of the query and reference datasets.
+#' @param k An integer specifying the number of nearest neighbors to find for each cell in the query object.
+#' @param distance_metric A character string specifying the distance metric to use for calculating the pairwise distances between cells. Options include: "pearson", "spearman", "cosine", "correlation", "jaccard", "ejaccard", "dice", "edice", "hamman", "simple matching", and "faith". Additional distance metrics can also be used, such as "euclidean", "manhattan", "hamming", etc.
+#' @param vote_fun A character string specifying the function to be used for aggregating the nearest neighbors in the reference object. Options are "mean", "median", "sum", "min", "max", "sd", "var", etc. If not provided, the default is "mean".
 #'
 #' @examples
 #' data("panc8_sub")
@@ -36,6 +38,7 @@ NULL
 #' @importFrom SeuratObject as.sparse
 #' @importFrom Matrix t
 #' @importFrom dplyr bind_rows
+#' @importFrom proxyC simil dist
 #' @export
 RunKNNMap <- function(srt_query, srt_ref, query_assay = NULL, ref_assay = NULL, ref_umap = NULL, ref_group = NULL,
                       features = NULL, nfeatures = 2000,
@@ -167,8 +170,8 @@ RunKNNMap <- function(srt_query, srt_ref, query_assay = NULL, ref_assay = NULL, 
     refumap_all <- srt_ref[[ref_umap]]@cell.embeddings[knn_cells, ]
     group <- rep(query.neighbor@cell.names, ncol(query.neighbor@nn.idx))
   } else {
-    if (require("RcppParallel", quietly = TRUE)) {
-      setThreadOptions()
+    if (requireNamespace("RcppParallel", quietly = TRUE)) {
+      RcppParallel::setThreadOptions()
     }
     if (distance_metric %in% c(simil_method, "pearson", "spearman")) {
       if (distance_metric %in% c("pearson", "spearman")) {
@@ -178,14 +181,14 @@ RunKNNMap <- function(srt_query, srt_ref, query_assay = NULL, ref_assay = NULL, 
         }
         distance_metric <- "correlation"
       }
-      d <- 1 - proxyC::simil(
+      d <- 1 - simil(
         x = as.sparse(ref),
         y = as.sparse(query),
         method = distance_metric,
         use_nan = TRUE
       )
     } else if (distance_metric %in% dist_method) {
-      d <- proxyC::dist(
+      d <- dist(
         x = as.sparse(ref),
         y = as.sparse(query),
         method = distance_metric,
@@ -246,7 +249,7 @@ RunKNNMap <- function(srt_query, srt_ref, query_assay = NULL, ref_assay = NULL, 
         x <- x / sum(x)
         return(x)
       }) %>%
-        dplyr::bind_rows()
+        bind_rows()
       match_prob <- as.matrix(match_prob)
       rownames(match_prob) <- names(match_freq)
       match_best <- apply(match_prob, 1, function(x) names(x)[order(x, decreasing = TRUE)][1])
@@ -259,19 +262,8 @@ RunKNNMap <- function(srt_query, srt_ref, query_assay = NULL, ref_assay = NULL, 
 
 #' Single-cell reference mapping with PCA method
 #'
-#' @param srt_query
-#' @param srt_ref
-#' @param ref_pca
-#' @param ref_dims
-#' @param ref_umap
-#' @param ref_group
-#' @param projection_method
-#' @param nn_method
-#' @param k
-#' @param distance_metric
-#' @param vote_fun
-#' @param query_assay
-#' @param ref_assay
+#' @inheritParams RunKNNMap
+#' @param ref_pca  A character string specifying the name of a PCA reduction in the reference object to use for calculating the distance metric. If NULL (default), it will be automatically detected as the first PCA reduction.
 #'
 #' @examples
 #' data("panc8_sub")
@@ -365,25 +357,14 @@ RunPCAMap <- function(srt_query, srt_ref, query_assay = NULL, ref_assay = srt_re
 
 #' Single-cell reference mapping with Seurat method
 #'
-#' @param srt_query
-#' @param srt_ref
-#' @param ref_pca
-#' @param ref_dims
-#' @param ref_umap
-#' @param ref_group
-#' @param normalization.method
-#' @param reduction_project_method
-#' @param k.anchor
-#' @param k.filter
-#' @param k.score
-#' @param k.weight
-#' @param projection_method
-#' @param nn_method
-#' @param k
-#' @param distance_metric
-#' @param vote_fun
-#' @param query_assay
-#' @param ref_assay
+#' @inheritParams RunKNNMap
+#' @param ref_pca A character string specifying the name of the PCA reduction in the reference object to use for calculating the distance metric.
+#' @param normalization.method The normalization method to use. Default is "LogNormalize".
+#' @param reduction_project_method Dimensional reduction to perform when finding anchors. Default is "pcaproject".
+#' @param k.anchor How many neighbors (k) to use when finding anchors. Default is 5.
+#' @param k.filter How many neighbors (k) to use when filtering anchors. Set to NA to turn off filtering. Default is 200.
+#' @param k.score How many neighbors (k) to use when scoring anchors. Default is 30.
+#' @param k.weight Number of neighbors to consider when weighting anchors. Default is 100.
 #'
 #' @examples
 #' data("panc8_sub")
@@ -471,19 +452,8 @@ RunSeuratMap <- function(srt_query, srt_ref, query_assay = NULL, ref_assay = srt
 }
 
 #' Single-cell reference mapping with CSS method
-#'
-#' @param srt_query
-#' @param srt_ref
-#' @param ref_css
-#' @param ref_umap
-#' @param ref_group
-#' @param projection_method
-#' @param nn_method
-#' @param k
-#' @param distance_metric
-#' @param vote_fun
-#' @param query_assay
-#' @param ref_assay
+#' @inheritParams RunKNNMap
+#' @param ref_css A character string specifying the name of the CSS reduction in the reference object to use for calculating the distance metric.
 #'
 #' @examples
 #' data("panc8_sub")
@@ -559,7 +529,7 @@ RunCSSMap <- function(srt_query, srt_ref, query_assay = NULL, ref_assay = srt_re
   CSSmodel <- srt_ref[[ref_css]]@misc$model
   raw_assay <- DefaultAssay(srt_query)
   DefaultAssay(srt_query) <- query_assay
-  srt_query <- simspec::css_project(object = srt_query, model = CSSmodel)
+  srt_query <- invoke(.fn = get("css_project", envir = getNamespace("simspec")), .args = list(object = srt_query, model = CSSmodel))
   DefaultAssay(srt_query) <- raw_assay
 
   message("Run UMAP projection")
@@ -574,18 +544,9 @@ RunCSSMap <- function(srt_query, srt_ref, query_assay = NULL, ref_assay = srt_re
 
 #' Single-cell reference mapping with Symphony method
 #'
-#' @param srt_query
-#' @param srt_ref
-#' @param ref_pca
-#' @param ref_harmony
-#' @param ref_umap
-#' @param force
-#' @param ref_group
-#' @param projection_method
-#' @param nn_method
-#' @param k
-#' @param distance_metric
-#' @param vote_fun
+#' @inheritParams RunKNNMap
+#' @param ref_pca A character string specifying the name of the PCA reduction in the reference object to use for calculating the distance metric.
+#' @param ref_harmony A character string specifying the name of the Harmony reduction in the reference object to use for calculating the distance metric.
 #'
 #' @examples
 #' data("panc8_sub")
@@ -599,6 +560,7 @@ RunCSSMap <- function(srt_query, srt_ref, query_assay = NULL, ref_assay = srt_re
 #' ProjectionPlot(srt_query = srt_query, srt_ref = srt_ref, query_group = "celltype", ref_group = "celltype")
 #'
 #' @importFrom Seurat Reductions GetAssayData DefaultAssay ProjectUMAP
+#' @importFrom stats sd
 #' @export
 RunSymphonyMap <- function(srt_query, srt_ref, query_assay = NULL, ref_assay = srt_ref[[ref_pca]]@assay.used,
                            ref_pca = NULL, ref_harmony = NULL, ref_umap = NULL, ref_group = NULL,
@@ -688,13 +650,13 @@ RunSymphonyMap <- function(srt_query, srt_ref, query_assay = NULL, ref_assay = s
   srt_query[["ref.pca"]] <- CreateDimReducObject(
     embeddings = t(Z_pca_query),
     loadings = ref$loadings,
-    stdev = as.numeric(apply(Z_pca_query, 1, stats::sd)),
+    stdev = as.numeric(apply(Z_pca_query, 1, sd)),
     assay = query_assay,
     key = "refpca_"
   )
   srt_query[["ref.harmony"]] <- CreateDimReducObject(
     embeddings = t(Zq_corr),
-    stdev = as.numeric(apply(Zq_corr, 1, stats::sd)),
+    stdev = as.numeric(apply(Zq_corr, 1, sd)),
     assay = query_assay,
     key = "refharmony_",
     misc = list(R = R_query)
@@ -781,6 +743,8 @@ buildReferenceFromSeurat <- function(obj, assay = "RNA", pca = "pca", pca_dims =
 
 
 #' @importFrom Seurat Embeddings CreateSeuratObject CreateDimReducObject ProjectDim
+#' @importFrom Matrix Matrix
+#' @importFrom stats model.matrix
 mapQuery <- function(exp_query, metadata_query, ref_obj, vars = NULL,
                      sigma = 0.1, verbose = TRUE) {
   if (verbose) {
@@ -821,13 +785,13 @@ mapQuery <- function(exp_query, metadata_query, ref_obj, vars = NULL,
         if (length(unique(.x)) == 1) {
           rep(1, length(.x))
         } else {
-          stats::model.matrix(~ 0 + .x)
+          model.matrix(~ 0 + .x)
         }
       }) %>%
       purrr::reduce(cbind)
     Xq <- cbind(1, intercept = onehot) %>% t()
   } else {
-    Xq <- Matrix::Matrix(rbind(rep(1, ncol(Z_pca_query)), rep(1, ncol(Z_pca_query))),
+    Xq <- Matrix(rbind(rep(1, ncol(Z_pca_query)), rep(1, ncol(Z_pca_query))),
       sparse = TRUE
     )
   }

@@ -19,12 +19,14 @@ CC_GenePrefetch(
 
 \item{mirror}{Specify an Ensembl mirror to connect to. The valid options here are 'www', 'uswest', 'useast', 'asia'.}
 
-\item{max_tries}{Number of max_tries to connect with the biomart service.}
+\item{max_tries}{The maximum number of attempts to connect with the BioMart service.}
 
 \item{use_cached_gene}{Whether to use previously cached cell cycle gene conversion results for the species.}
 }
 \value{
 A list of S-phase and G2M-phase genes.
+
+\code{\link{GeneConvert}}
 }
 \description{
 Based on the human cell cycle genes, the cell cycle genes of the corresponding species were captured by homologous gene conversion.

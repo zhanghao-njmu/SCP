@@ -22,30 +22,61 @@ RunWOT(
   palette = "Paired",
   palcolor = NULL,
   show_plot = TRUE,
-  dpi = 300,
   save = FALSE,
+  dpi = 300,
   dirpath = "./",
   fileprefix = "",
   return_seurat = !is.null(srt)
 )
 }
 \arguments{
-\item{srt}{A \code{Seurat} object.}
+\item{srt}{A Seurat object.}
 
-\item{adata}{An \code{anndata} object. Can be created through \code{\link{srt_to_adata}}}
+\item{assay_X}{Assay to convert as the main data matrix (X) in the anndata object.}
 
-\item{group_by}{group_by.}
+\item{slot_X}{Slot name for assay_X in the Seurat object.}
 
-\item{dpi}{dpi.}
+\item{assay_layers}{Assays to convert as layers in the anndata object.}
 
-\item{save}{save.}
+\item{slot_layers}{Slot names for the assay_layers in the Seurat object.}
 
-\item{dirpath}{dirpath.}
+\item{adata}{An anndata object.}
 
-\item{fileprefix}{fileprefix.}
+\item{group_by}{Variable to use for grouping cells in the Seurat object.}
 
-\item{return_seurat}{}
+\item{time_field}{A character string specifying the column name in `adata.obs` or `srt@meta.data` that contains the time information.}
+
+\item{growth_iters}{An integer specifying the number of growth iterations to perform during the OT Model computation. Default is 3.}
+
+\item{tmap_out}{A character string specifying the path to store the computed transport maps.}
+
+\item{time_from}{A numeric value specifying the starting time point for trajectory and fate analysis.}
+
+\item{time_to}{A numeric value specifying the ending time point for trajectory and fate analysis. If not provided, only trajectory and fate analysis for the specified `time_from` will be performed.}
+
+\item{get_coupling}{A logical value indicating whether to compute and store the coupling matrix between the specified `time_from` and `time_to`. Default is FALSE.}
+
+\item{recalculate}{A logical value indicating whether to recalculate the transport maps even if they already exist at the specified `tmap_out` location. Default is FALSE.}
+
+\item{palette}{The palette to use for coloring cells.}
+
+\item{palcolor}{A vector of colors to use as the palette.}
+
+\item{show_plot}{Whether to show the PAGA plot.}
+
+\item{save}{Whether to save the PAGA plots.}
+
+\item{dpi}{The DPI (dots per inch) for saving the PAGA plot.}
+
+\item{dirpath}{The directory to save the PAGA plots.}
+
+\item{fileprefix}{The file prefix to use for the PAGA plots.}
+
+\item{return_seurat}{Whether to return a Seurat object instead of an anndata object. Default is TRUE.}
 }
 \description{
 Run WOT analysis
+}
+\seealso{
+\code{\link{srt_to_adata}}
 }

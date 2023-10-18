@@ -34,6 +34,8 @@ FeatureDimPlot3D(
 
 \item{dims}{Dimensions to plot, must be a two-length numeric vector specifying x- and y-dimensions.}
 
+\item{axis_labs}{A character vector of length 3 indicating the labels for the axes.}
+
 \item{split.by}{Name of a column in meta.data to split plot by.}
 
 \item{slot}{Which slot to pull expression data from? Default is \code{data}.}
@@ -56,6 +58,8 @@ FeatureDimPlot3D(
 
 \item{height}{Height in pixels, defaults to automatic sizing.}
 
+\item{save}{The name of the file to save the plot to. Must end in .html.}
+
 \item{force}{Whether to force drawing regardless of the number of features greater than 100.}
 }
 \description{
@@ -65,4 +69,8 @@ Plotting cell points on a reduced 3D space and coloring according to the gene ex
 data("pancreas_sub")
 pancreas_sub <- Standard_SCP(pancreas_sub)
 FeatureDimPlot3D(pancreas_sub, features = c("Ghrl", "Ins1", "Gcg", "Ins2"), reduction = "StandardpcaUMAP3D")
+
+}
+\seealso{
+\code{\link{FeatureDimPlot}} \code{\link{CellDimPlot3D}}
 }

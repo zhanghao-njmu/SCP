@@ -8,4 +8,6 @@ docs
 renv
 renv.lock
 tmaps
-src/*.!(cpp)
+src/*.so
+src/*.o
+test.R

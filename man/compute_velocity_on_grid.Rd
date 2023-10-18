@@ -18,7 +18,23 @@ compute_velocity_on_grid(
 )
 }
 \arguments{
-\item{cutoff_perc}{}
+\item{X_emb}{A matrix of dimension n_obs x n_dim specifying the embedding coordinates of the cells.}
+
+\item{V_emb}{A matrix of dimension n_obs x n_dim specifying the velocity vectors of the cells.}
+
+\item{density}{An optional numeric value specifying the density of the grid points along each dimension. Default is 1.}
+
+\item{smooth}{An optional numeric value specifying the smoothing factor for the velocity vectors. Default is 0.5.}
+
+\item{n_neighbors}{An optional numeric value specifying the number of nearest neighbors for each grid point. Default is ceiling(n_obs / 50).}
+
+\item{min_mass}{An optional numeric value specifying the minimum mass required for a grid point to be considered. Default is 1.}
+
+\item{scale}{An optional numeric value specifying the scaling factor for the velocity vectors. Default is 1.}
+
+\item{adjust_for_stream}{A logical value indicating whether to adjust the velocity vectors for streamlines. Default is FALSE.}
+
+\item{cutoff_perc}{An optional numeric value specifying the percentile cutoff for removing low-density grid points. Default is 5.}
 }
 \description{
 Compute velocity on grid

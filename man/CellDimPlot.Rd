@@ -40,7 +40,6 @@ CellDimPlot(
   density_filled_palette = "Greys",
   density_filled_palcolor = NULL,
   lineages = NULL,
-  lineages_weights = NULL,
   lineages_trim = c(0.01, 0.99),
   lineages_span = 0.75,
   lineages_palette = "Dark2",
@@ -226,7 +225,7 @@ CellDimPlot(
 
 \item{stat_plot_size}{Set the statistical plot size. Defaults to 0.1}
 
-\item{stat_plot_palette}{Color palette used in statistical plot}
+\item{stat_plot_palette}{Color palette used in statistical plot.}
 
 \item{stat_palcolor}{Custom colors used in statistical plot}
 
@@ -354,14 +353,10 @@ CellDimPlot(
 
 \item{seed}{Random seed set for reproducibility}
 }
-\value{
-A single ggplot/patchwork object if combine = TRUE; otherwise, a list of ggplot objects
-}
 \description{
 Plotting cell points on a reduced 2D plane and coloring according to the groups.
 }
 \examples{
-library(dplyr)
 data("pancreas_sub")
 CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP")
 CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", theme_use = "theme_blank", show_stat = FALSE)
@@ -429,4 +424,7 @@ CellDimPlot(pancreas_sub,
   velocity_density = 2, velocity_smooth = 1, streamline_n = 20, streamline_color = "black",
   show_stat = FALSE, legend.position = "none", theme_use = "theme_blank"
 )
+}
+\seealso{
+\code{\link{FeatureDimPlot}}
 }

@@ -7,13 +7,18 @@
 ListDB(species = "Homo_sapiens", db = NULL)
 }
 \arguments{
-\item{db}{}
+\item{species}{The species for which to retrieve database information. Default is "Homo_sapiens".}
+
+\item{db}{The pattern to match against the database names. Default is NULL, which matches all databases.}
 }
 \description{
-ListDB
+Retrieves information about databases based on a given species and database name.
 }
 \examples{
 ListDB(species = "Homo_sapiens")
-ListDB(species = "Mus_musculus")
+ListDB(species = "Mus_musculus", db = "GO_BP")
 
+}
+\seealso{
+\code{\link{PrepareDB}}
 }

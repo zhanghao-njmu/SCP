@@ -18,7 +18,7 @@ FeatureHeatmap(
   slot = "counts",
   assay = NULL,
   exp_method = c("zscore", "raw", "fc", "log2fc", "log1p"),
-  legend_title = NULL,
+  exp_legend_title = NULL,
   limits = NULL,
   lib_normalize = identical(slot, "counts"),
   libsize = NULL,
@@ -29,7 +29,6 @@ FeatureHeatmap(
   split_method = c("kmeans", "hclust", "mfuzz"),
   decreasing = FALSE,
   fuzzification = NULL,
-  show_fuzzification = FALSE,
   cluster_features_by = NULL,
   cluster_rows = FALSE,
   cluster_columns = FALSE,
@@ -78,10 +77,7 @@ FeatureHeatmap(
   topTerm = 5,
   show_termid = FALSE,
   topWord = 20,
-  min_word_length = 3,
-  exclude_words = c("cell", "cellular", "dna", "rna", "protein", "development",
-    "involved", "organization", "system", "regulation", "positive", "negative",
-    "response", "process"),
+  words_excluded = NULL,
   nlabel = 20,
   features_label = NULL,
   label_size = 10,
@@ -113,7 +109,207 @@ FeatureHeatmap(
 )
 }
 \arguments{
-\item{db_combine}{}
+\item{srt}{A Seurat object.}
+
+\item{features}{The features to include in the heatmap.}
+
+\item{cells}{A character vector specifying the cells to include in the heatmap. Default is NULL.}
+
+\item{group.by}{A character vector specifying the groups to group by. Default is NULL.}
+
+\item{split.by}{A character vector specifying the variable to split the heatmap by. Default is NULL.}
+
+\item{within_groups}{A logical value indicating whether to create separate heatmap scales for each group or within each group. Default is FALSE.}
+
+\item{max_cells}{An integer, maximum number of cells to sample per group, default is 100.}
+
+\item{cell_order}{A vector of cell names defining the order of cells, default is NULL.}
+
+\item{border}{A logical value indicating whether to add a border to the heatmap. Default is TRUE.}
+
+\item{flip}{A logical value indicating whether to flip the heatmap. Default is FALSE.}
+
+\item{slot}{A character vector specifying the slot in the Seurat object to use. Default is "counts".}
+
+\item{assay}{A character vector specifying the assay in the Seurat object to use. Default is NULL.}
+
+\item{exp_method}{A character vector specifying the method for calculating expression values. Default is "zscore" with options "zscore", "raw", "fc", "log2fc", "log1p".}
+
+\item{exp_legend_title}{A character vector specifying the title for the legend of expression value. Default is NULL.}
+
+\item{limits}{A two-length numeric vector specifying the limits for the color scale. Default is NULL.}
+
+\item{lib_normalize}{A logical value indicating whether to normalize the data by library size.}
+
+\item{libsize}{A numeric vector specifying the library size for each cell. Default is NULL.}
+
+\item{feature_split}{A factor specifying how to split the features. Default is NULL.}
+
+\item{feature_split_by}{A character vector specifying which group.by to use when splitting features (into n_split feature clusters). Default is NULL.}
+
+\item{n_split}{An integer specifying the number of feature splits (feature clusters) to create. Default is NULL.}
+
+\item{split_order}{A numeric vector specifying the order of splits. Default is NULL.}
+
+\item{split_method}{A character vector specifying the method for splitting features. Default is "kmeans" with options "kmeans", "hclust", "mfuzz").}
+
+\item{decreasing}{A logical value indicating whether to sort feature splits in decreasing order. Default is FALSE.}
+
+\item{fuzzification}{A numeric value specifying the fuzzification coefficient. Default is NULL.}
+
+\item{cluster_features_by}{A character vector specifying which group.by to use when clustering features. Default is NULL. By default, this parameter is set to NULL, which means that all groups will be used.}
+
+\item{cluster_rows}{A logical value indicating whether to cluster rows in the heatmap. Default is FALSE.}
+
+\item{cluster_columns}{A logical value indicating whether to cluster columns in the heatmap. Default is FALSE.}
+
+\item{cluster_row_slices}{A logical value indicating whether to cluster row slices in the heatmap. Default is FALSE.}
+
+\item{cluster_column_slices}{A logical value indicating whether to cluster column slices in the heatmap. Default is FALSE.}
+
+\item{show_row_names}{A logical value indicating whether to show row names in the heatmap. Default is FALSE.}
+
+\item{show_column_names}{A logical value indicating whether to show column names in the heatmap. Default is FALSE.}
+
+\item{row_names_side}{A character vector specifying the side to place row names.}
+
+\item{column_names_side}{A character vector specifying the side to place column names.}
+
+\item{row_names_rot}{A numeric value specifying the rotation angle for row names. Default is 0.}
+
+\item{column_names_rot}{A numeric value specifying the rotation angle for column names. Default is 90.}
+
+\item{row_title}{A character vector specifying the title for rows. Default is NULL.}
+
+\item{column_title}{A character vector specifying the title for columns. Default is NULL.}
+
+\item{row_title_side}{A character vector specifying the side to place row title. Default is "left".}
+
+\item{column_title_side}{A character vector specifying the side to place column title. Default is "top".}
+
+\item{row_title_rot}{A numeric value specifying the rotation angle for row title. Default is 0.}
+
+\item{column_title_rot}{A numeric value specifying the rotation angle for column title.}
+
+\item{anno_terms}{A logical value indicating whether to include term annotations. Default is FALSE.}
+
+\item{anno_keys}{A logical value indicating whether to include key annotations. Default is FALSE.}
+
+\item{anno_features}{A logical value indicating whether to include feature annotations. Default is FALSE.}
+
+\item{terms_width}{A unit specifying the width of term annotations. Default is unit(4, "in").}
+
+\item{terms_fontsize}{A numeric vector specifying the font size(s) for term annotations. Default is 8.}
+
+\item{keys_width}{A unit specifying the width of key annotations. Default is unit(2, "in").}
+
+\item{keys_fontsize}{A two-length numeric vector specifying the minimum and maximum font size(s) for key annotations. Default is c(6, 10).}
+
+\item{features_width}{A unit specifying the width of feature annotations. Default is unit(2, "in").}
+
+\item{features_fontsize}{A two-length numeric vector specifying the minimum and maximum font size(s) for feature annotations. Default is c(6, 10).}
+
+\item{IDtype}{A character vector specifying the type of IDs for features. Default is "symbol".}
+
+\item{species}{A character vector specifying the species for features. Default is "Homo_sapiens".}
+
+\item{db_update}{A logical value indicating whether to update the database. Default is FALSE.}
+
+\item{db_version}{A character vector specifying the version of the database. Default is "latest".}
+
+\item{db_combine}{A logical value indicating whether to use a combined database. Default is FALSE.}
+
+\item{convert_species}{A logical value indicating whether to use a species-converted database if annotation is missing for \code{species}. Default is FALSE.}
+
+\item{Ensembl_version}{An integer specifying the Ensembl version. Default is 103.}
+
+\item{mirror}{A character vector specifying the mirror for the Ensembl database. Default is NULL.}
+
+\item{db}{A character vector specifying the database to use. Default is "GO_BP".}
+
+\item{TERM2GENE}{A data.frame specifying the TERM2GENE mapping for the database. Default is NULL.}
+
+\item{TERM2NAME}{A data.frame specifying the TERM2NAME mapping for the database. Default is NULL.}
+
+\item{minGSSize}{An integer specifying the minimum gene set size for the database. Default is 10.}
+
+\item{maxGSSize}{An integer specifying the maximum gene set size for the database. Default is 500.}
+
+\item{GO_simplify}{A logical value indicating whether to simplify gene ontology terms. Default is FALSE.}
+
+\item{GO_simplify_cutoff}{A character vector specifying the cutoff for GO simplification. Default is "p.adjust < 0.05".}
+
+\item{simplify_method}{A character vector specifying the method for GO simplification. Default is "Wang".}
+
+\item{simplify_similarityCutoff}{A numeric value specifying the similarity cutoff for GO simplification. Default is 0.7.}
+
+\item{pvalueCutoff}{A numeric vector specifying the p-value cutoff(s) for significance. Default is NULL.}
+
+\item{padjustCutoff}{A numeric value specifying the adjusted p-value cutoff for significance. Default is 0.05.}
+
+\item{topTerm}{An integer specifying the number of top terms to include. Default is 5.}
+
+\item{show_termid}{A logical value indicating whether to show term IDs. Default is FALSE.}
+
+\item{topWord}{An integer specifying the number of top words to include. Default is 20.}
+
+\item{words_excluded}{A character vector specifying the words to exclude. Default is NULL.}
+
+\item{nlabel}{An integer specifying the number of labels to include. Default is 0.}
+
+\item{features_label}{A character vector specifying the features to label. Default is NULL.}
+
+\item{label_size}{A numeric value specifying the size of labels. Default is 10.}
+
+\item{label_color}{A character vector specifying the color of labels. Default is "black".}
+
+\item{heatmap_palette}{A character vector specifying the palette to use for the heatmap. Default is "RdBu".}
+
+\item{heatmap_palcolor}{A character vector specifying the heatmap color to use. Default is NULL.}
+
+\item{group_palette}{A character vector specifying the palette to use for groups. Default is "Paired".}
+
+\item{group_palcolor}{A character vector specifying the group color to use. Default is NULL.}
+
+\item{cell_split_palette}{A character vector specifying the palette to use for cell splits. Default is "simspec".}
+
+\item{cell_split_palcolor}{A character vector specifying the cell split color to use. Default is NULL.}
+
+\item{feature_split_palette}{A character vector specifying the palette to use for feature splits. Default is "simspec".}
+
+\item{feature_split_palcolor}{A character vector specifying the feature split color to use. Default is NULL.}
+
+\item{cell_annotation}{A character vector specifying the cell annotation(s) to include. Default is NULL.}
+
+\item{cell_annotation_palette}{A character vector specifying the palette to use for cell annotations. The length of the vector should match the number of cell_annotation. Default is "Paired".}
+
+\item{cell_annotation_palcolor}{A list of character vector specifying the cell annotation color(s) to use. The length of the list should match the number of cell_annotation. Default is NULL.}
+
+\item{cell_annotation_params}{A list specifying additional parameters for cell annotations. Default is a list with width = grid::unit(1, "cm") if flip is TRUE, else a list with height = grid::unit(1, "cm").}
+
+\item{feature_annotation}{A character vector specifying the feature annotation(s) to include. Default is NULL.}
+
+\item{feature_annotation_palette}{A character vector specifying the palette to use for feature annotations. The length of the vector should match the number of feature_annotation. Default is "Dark2".}
+
+\item{feature_annotation_palcolor}{A list of character vector specifying the feature annotation color to use. The length of the list should match the number of feature_annotation. Default is NULL.}
+
+\item{feature_annotation_params}{A list specifying additional parameters for feature annotations. Default is an empty list.}
+
+\item{use_raster}{A logical value indicating whether to use a raster device for plotting. Default is NULL.}
+
+\item{raster_device}{A character vector specifying the raster device to use. Default is "png".}
+
+\item{raster_by_magick}{A logical value indicating whether to use the 'magick' package for raster. Default is FALSE.}
+
+\item{height}{A numeric vector specifying the height(s) of the heatmap body. Default is NULL.}
+
+\item{width}{A numeric vector specifying the width(s) of the heatmap body. Default is NULL.}
+
+\item{units}{A character vector specifying the units for the height and width. Default is "inch".}
+
+\item{seed}{An integer specifying the random seed. Default is 11.}
+
+\item{ht_params}{A list specifying additional parameters passed to the ComplexHeatmap::Heatmap function. Default is an empty list.}
 }
 \description{
 FeatureHeatmap
@@ -175,4 +371,7 @@ ht6 <- FeatureHeatmap(
 )
 ht6$plot
 
+}
+\seealso{
+\code{\link{RunDEtest}}
 }

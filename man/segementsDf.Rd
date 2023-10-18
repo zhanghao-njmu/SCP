@@ -7,10 +7,22 @@
 segementsDf(data, shorten_start, shorten_end, offset)
 }
 \arguments{
-\item{offset}{}
+\item{data}{A data frame containing the segments. It should have columns
+'x', 'y', 'xend', and 'yend' representing the start and end points
+of each segment.}
+
+\item{shorten_start}{The amount to shorten the start of each segment by.}
+
+\item{shorten_end}{The amount to shorten the end of each segment by.}
+
+\item{offset}{The amount to offset each segment by.}
+}
+\value{
+The modified data frame with the shortened and offset segments.
 }
 \description{
-Shorten and offset the segment
+This function takes a data frame representing segments in a plot and shortens
+and offsets them based on the provided arguments.
 }
 \examples{
 library(ggplot2)

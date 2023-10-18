@@ -21,10 +21,34 @@ RunSlingshot(
 )
 }
 \arguments{
-\item{dims}{}
+\item{srt}{A Seurat object.}
+
+\item{group.by}{The variable to group the cells by.}
+
+\item{reduction}{The reduction technique to use for dimensionality reduction. Default is NULL, which uses the default reduction for the Seurat object.}
+
+\item{dims}{The dimensions to use for the Slingshot algorithm. Default is NULL, which uses first two dimensions.}
+
+\item{start}{The starting group for the Slingshot algorithm. Default is NULL.}
+
+\item{end}{The ending group for the Slingshot algorithm. Default is NULL.}
+
+\item{prefix}{The prefix to add to the column names of the resulting pseudotime variable. Default is NULL.}
+
+\item{reverse}{Logical value indicating whether to reverse the pseudotime variable. Default is FALSE.}
+
+\item{align_start}{Logical value indicating whether to align the starting pseudotime values at the maximum pseudotime. Default is FALSE.}
+
+\item{show_plot}{Logical value indicating whether to show the dimensionality plot. Default is TRUE.}
+
+\item{lineage_palette}{The color palette to use for the lineages in the plot. Default is "Dark2".}
+
+\item{seed}{The random seed to use for reproducibility. Default is 11.}
+
+\item{...}{Additional arguments to be passed to the \code{\link[slingshot]{slingshot}} function.}
 }
 \description{
-RunSlingshot
+Runs the Slingshot algorithm on a Seurat object.
 }
 \examples{
 data("pancreas_sub")
@@ -36,4 +60,7 @@ CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", lineages
 pancreas_sub <- Standard_SCP(pancreas_sub)
 pancreas_sub <- RunSlingshot(pancreas_sub, group.by = "SubCellType", reduction = "StandardpcaUMAP3D")
 CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", lineages = paste0("Lineage", 1:3), lineages_span = 0.1, lineages_trim = c(0.05, 0.95))
+}
+\seealso{
+\code{\link{CellDimPlot}} \code{\link{RunDynamicFeatures}}
 }

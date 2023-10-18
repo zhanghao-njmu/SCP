@@ -31,10 +31,55 @@ CellScoring(
 )
 }
 \arguments{
-\item{seed}{}
+\item{srt}{A Seurat object}
+
+\item{features}{A named list of feature lists for scoring. If NULLL, \code{db} will be used to create features sets.}
+
+\item{slot}{The slot of the Seurat object to use for scoring. Defaults to "data".}
+
+\item{assay}{The assay of the Seurat object to use for scoring. Defaults to NULL, in which case the default assay of the object is used.}
+
+\item{split.by}{A cell metadata variable used for splitting the Seurat object into subsets and performing scoring on each subset. Defaults to NULL.}
+
+\item{IDtype}{A character vector specifying the type of gene IDs in the \code{srt} object or \code{geneID} argument. This argument is used to convert the gene IDs to a different type if \code{IDtype} is different from \code{result_IDtype}.}
+
+\item{species}{A character vector specifying the species for which the analysis is performed.}
+
+\item{db}{A character vector specifying the name of the database to be used for enrichment analysis.}
+
+\item{termnames}{A vector of term names to be used from the database. Defaults to NULL, in which case all features from the database are used.}
+
+\item{db_update}{A logical value indicating whether the gene annotation databases should be forcefully updated. If set to FALSE, the function will attempt to load the cached databases instead. Default is FALSE.}
+
+\item{db_version}{A character vector specifying the version of the database to be used. This argument is ignored if \code{db_update} is \code{TRUE}. Default is "latest".}
+
+\item{convert_species}{A logical value indicating whether to use a species-converted database when the annotation is missing for the specified species. The default value is TRUE.}
+
+\item{Ensembl_version}{Ensembl database version. If NULL, use the current release version.}
+
+\item{mirror}{Specify an Ensembl mirror to connect to. The valid options here are 'www', 'uswest', 'useast', 'asia'.}
+
+\item{minGSSize}{A numeric value specifying the minimum size of a gene set to be considered in the enrichment analysis.}
+
+\item{maxGSSize}{A numeric value specifying the maximum size of a gene set to be considered in the enrichment analysis.}
+
+\item{method}{The method to use for scoring. Can be "Seurat", "AUCell", or "UCell". Defaults to "Seurat".}
+
+\item{classification}{Whether to perform classification based on the scores. Defaults to TRUE.}
+
+\item{name}{The name of the assay to store the scores in. Only used if new_assay is TRUE. Defaults to an empty string.}
+
+\item{new_assay}{Whether to create a new assay for storing the scores. Defaults to FALSE.}
+
+\item{BPPARAM}{The BiocParallel parameter object. Defaults to BiocParallel::bpparam().}
+
+\item{seed}{The random seed for reproducibility. Defaults to 11.}
+
+\item{...}{Additional arguments to be passed to the scoring methods.}
 }
 \description{
-CellScoring
+This function performs cell scoring on a Seurat object.
+It calculates scores for a given set of features and adds the scores as metadata to the Seurat object.
 }
 \examples{
 data("pancreas_sub")
@@ -94,4 +139,7 @@ panc_merge <- Integration_SCP(
 CellDimPlot(panc_merge, group.by = c("tech", "celltype", "SubCellType", "Phase"))
 }
 
+}
+\seealso{
+\code{\link{PrepareDB}} \code{\link{ListDB}}
 }

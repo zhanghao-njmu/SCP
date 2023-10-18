@@ -14,20 +14,20 @@ show_palettes(
 )
 }
 \arguments{
-\item{palettes}{A list of custom color palettes to be shown.}
+\item{palettes}{A list of color palettes. If `NULL`, uses default palettes.}
 
-\item{type}{Specifies the type of color palettes collected in SCP.}
+\item{type}{A character vector specifying the type of palettes to include. Default is "discrete".}
 
-\item{index}{The index of the palette in SCP palette list. If \code{NULL}, show all palettes collected in SCP.}
+\item{index}{A numeric vector specifying the indices of the palettes to include. Default is `NULL`.}
 
-\item{palette_names}{Specifies name of the color palettes collected in SCP.}
+\item{palette_names}{A character vector specifying the names of the SCP palettes to include. Default is `NULL`.}
 
-\item{return_names}{Whether to return the palette names.}
+\item{return_names}{A logical value indicating whether to return the names of the selected palettes. Default is `TRUE`.}
 
-\item{return_palettes}{Whether to return the palettes.}
+\item{return_palettes}{A logical value indicating whether to return the colors of selected palettes. Default is `FALSE`.}
 }
 \description{
-Show the color palettes
+This function displays color palettes using ggplot2.
 }
 \examples{
 show_palettes(palettes = list(c("red", "blue", "green"), c("yellow", "purple", "orange")))
@@ -39,4 +39,7 @@ show_palettes(type = "discrete", index = 1:10)
 show_palettes(type = "continuous", index = 1:10)
 show_palettes(palette_names = c("Paired", "nejm", "simspec", "Spectral", "jet"), return_palettes = TRUE)
 
+}
+\seealso{
+\code{\link{palette_scp}} \code{\link{palette_list}}
 }

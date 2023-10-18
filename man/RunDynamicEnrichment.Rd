@@ -8,7 +8,6 @@ RunDynamicEnrichment(
   srt,
   lineages,
   score_method = "AUCell",
-  ncore = 1,
   slot = "data",
   assay = NULL,
   min_expcells = 20,
@@ -32,10 +31,57 @@ RunDynamicEnrichment(
 )
 }
 \arguments{
-\item{convert_species}{}
+\item{srt}{A Seurat object containing the results of differential expression analysis (RunDEtest).
+If specified, the genes and groups will be extracted from the Seurat object automatically.
+If not specified, the \code{geneID} and \code{geneID_groups} arguments must be provided.}
+
+\item{lineages}{A character vector specifying the lineages to plot.}
+
+\item{score_method}{The method to use for scoring. Can be "Seurat", "AUCell", or "UCell". Defaults to "Seurat".}
+
+\item{slot}{A character vector specifying the slot in the Seurat object to use. Default is "counts".}
+
+\item{assay}{A character vector specifying the assay in the Seurat object to use. Default is NULL.}
+
+\item{min_expcells}{A numeric value specifying the minimum number of expected cells. Default is 20.}
+
+\item{r.sq}{A numeric value specifying the R-squared threshold. Default is 0.2.}
+
+\item{dev.expl}{A numeric value specifying the deviance explained threshold. Default is 0.2.}
+
+\item{padjust}{A numeric value specifying the p-value adjustment threshold. Default is 0.05.}
+
+\item{IDtype}{A character vector specifying the type of gene IDs in the \code{srt} object or \code{geneID} argument. This argument is used to convert the gene IDs to a different type if \code{IDtype} is different from \code{result_IDtype}.}
+
+\item{species}{A character vector specifying the species for which the analysis is performed.}
+
+\item{db}{A character vector specifying the name of the database to be used for enrichment analysis.}
+
+\item{db_update}{A logical value indicating whether the gene annotation databases should be forcefully updated. If set to FALSE, the function will attempt to load the cached databases instead. Default is FALSE.}
+
+\item{db_version}{A character vector specifying the version of the database to be used. This argument is ignored if \code{db_update} is \code{TRUE}. Default is "latest".}
+
+\item{convert_species}{A logical value indicating whether to use a species-converted database when the annotation is missing for the specified species. The default value is TRUE.}
+
+\item{Ensembl_version}{Ensembl database version. If NULL, use the current release version.}
+
+\item{mirror}{Specify an Ensembl mirror to connect to. The valid options here are 'www', 'uswest', 'useast', 'asia'.}
+
+\item{TERM2GENE}{A data frame specifying the gene-term mapping for a custom database. The first column should contain the term IDs, and the second column should contain the gene IDs.}
+
+\item{TERM2NAME}{A data frame specifying the term-name mapping for a custom database. The first column should contain the term IDs, and the second column should contain the corresponding term names.}
+
+\item{minGSSize}{A numeric value specifying the minimum size of a gene set to be considered in the enrichment analysis.}
+
+\item{maxGSSize}{A numeric value specifying the maximum size of a gene set to be considered in the enrichment analysis.}
+
+\item{BPPARAM}{A BiocParallelParam object specifying the parallel back-end to be used for parallel computation. Defaults to BiocParallel::bpparam().}
+
+\item{seed}{The random seed for reproducibility. Defaults to 11.}
 }
 \description{
-RunDynamicEnrichment
+This function calculates gene-set scores from the specified database (\code{db}) for each lineage using the specified scoring method (\code{score_method}).
+It then treats these scores as expression values and uses them as input to the RunDynamicFeatures function to identify dynamically enriched terms along the lineage.
 }
 \examples{
 data("pancreas_sub")
@@ -65,4 +111,7 @@ ht2 <- DynamicHeatmap(
   split_method = "kmeans-peaktime"
 )
 ht2$plot
+}
+\seealso{
+\code{\link{RunDynamicFeatures}} \code{\link{DynamicHeatmap}}
 }

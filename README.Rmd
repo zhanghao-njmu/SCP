@@ -468,6 +468,13 @@ pancreas_sub <- RunGSEA(
 GSEAPlot(srt = pancreas_sub, group_by = "CellType", group_use = "Endocrine", id_use = "GO:0007186")
 ```
 
+```{r GSEA_bar}
+GSEAPlot(
+  srt = pancreas_sub, group_by = "CellType", group_use = "Endocrine", plot_type = "bar",
+  direction = "both", topTerm = 20
+)
+```
+
 ```{r GSEA_comparison, fig.height=6}
 GSEAPlot(srt = pancreas_sub, group_by = "CellType", plot_type = "comparison")
 ```

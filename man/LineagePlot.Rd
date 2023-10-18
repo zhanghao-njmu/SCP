@@ -7,7 +7,6 @@
 LineagePlot(
   srt,
   lineages,
-  weights = NULL,
   reduction = NULL,
   dims = c(1, 2),
   cells = NULL,
@@ -36,14 +35,69 @@ LineagePlot(
 )
 }
 \arguments{
-\item{seed}{}
+\item{srt}{An object of class Seurat.}
+
+\item{lineages}{A character vector that specifies the lineages to be included. Typically, use the pseudotime of cells.}
+
+\item{reduction}{An optional string specifying the dimensionality reduction method to use.}
+
+\item{dims}{A numeric vector of length 2 specifying the dimensions to plot.}
+
+\item{cells}{An optional character vector specifying the cells to include in the plot.}
+
+\item{trim}{A numeric vector of length 2 specifying the quantile range of lineages to include in the plot.}
+
+\item{span}{A numeric value specifying the span of the loess smoother.}
+
+\item{palette}{A character string specifying the color palette to use for the lineages.}
+
+\item{palcolor}{An optional string specifying the color for the palette.}
+
+\item{lineages_arrow}{An arrow object specifying the arrow for lineages.}
+
+\item{linewidth}{A numeric value specifying the linewidth for the lineages.}
+
+\item{line_bg}{A character string specifying the color for the background lines.}
+
+\item{line_bg_stroke}{A numeric value specifying the stroke width for the background lines.}
+
+\item{whiskers}{A logical value indicating whether to include whiskers in the plot.}
+
+\item{whiskers_linewidth}{A numeric value specifying the linewidth for the whiskers.}
+
+\item{whiskers_alpha}{A numeric value specifying the transparency for the whiskers.}
+
+\item{aspect.ratio}{A numeric value specifying the aspect ratio of the plot.}
+
+\item{title}{An optional character string specifying the plot title.}
+
+\item{subtitle}{An optional character string specifying the plot subtitle.}
+
+\item{xlab}{An optional character string specifying the x-axis label.}
+
+\item{ylab}{An optional character string specifying the y-axis label.}
+
+\item{legend.position}{A character string specifying the position of the legend.}
+
+\item{legend.direction}{A character string specifying the direction of the legend.}
+
+\item{theme_use}{A character string specifying the theme to use for the plot.}
+
+\item{theme_args}{A list of additional arguments to pass to the theme function.}
+
+\item{return_layer}{A logical value indicating whether to return the plot as a layer.}
+
+\item{seed}{An optional integer specifying the random seed for reproducibility.}
 }
 \description{
-LineagePlot
+Generate a lineage plot based on the pseudotime.
 }
 \examples{
 data("pancreas_sub")
 pancreas_sub <- RunSlingshot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", show_plot = FALSE)
 LineagePlot(pancreas_sub, lineages = paste0("Lineage", 1:3))
 LineagePlot(pancreas_sub, lineages = paste0("Lineage", 1:3), whiskers = TRUE)
+}
+\seealso{
+\code{\link{RunSlingshot}} \code{\link{CellDimPlot}}
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/SCP-cellqc.R
 \name{isOutlier}
 \alias{isOutlier}
-\title{Detect outliers using MAD(Median and Median Absolute Deviation) method}
+\title{Detect outliers using MAD(Median Absolute Deviation) method}
 \usage{
 isOutlier(
   x,
@@ -12,8 +12,27 @@ isOutlier(
 )
 }
 \arguments{
-\item{type}{}
+\item{x}{a numeric vector.}
+
+\item{nmads}{the number of median absolute deviations (MADs) from the median to define the boundaries for outliers. The default value is 2.5.}
+
+\item{constant}{a constant factor to convert the MAD to a standard deviation. The default value is 1.4826, which is consistent with the MAD of a normal distribution.}
+
+\item{type}{the type of outliers to detect. Available options are "both" (default), "lower", or "higher". If set to "both", it detects both lower and higher outliers. If set to "lower", it detects only lower outliers. If set to "higher", it detects only higher outliers.}
+}
+\value{
+A numeric vector of indices indicating the positions of outliers in \code{x}.
 }
 \description{
-Detect outliers using MAD(Median and Median Absolute Deviation) method
+This function detects outliers in a numeric vector using the MAD (Median Absolute Deviation) method. It calculates the median and the MAD, and determines the boundaries for outliers based on the median and the selected number of MADs.
+}
+\examples{
+x <- c(1, 2, 3, 4, 5, 100)
+isOutlier(x) # returns 6
+
+x <- c(3, 4, 5, NA, 6, 7)
+isOutlier(x, nmads = 1.5, type = "lower") # returns 4
+
+x <- c(10, 20, NA, 15, 35)
+isOutlier(x, nmads = 2, type = "higher") # returns 3, 5
 }

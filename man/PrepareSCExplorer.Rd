@@ -2,7 +2,7 @@
 % Please edit documentation in R/SCP-app.R
 \name{PrepareSCExplorer}
 \alias{PrepareSCExplorer}
-\title{Prepare Seurat object data for the SCExplorer into hdf5 file}
+\title{Prepare Seurat objects for the SCExplorer}
 \usage{
 PrepareSCExplorer(
   object,
@@ -19,10 +19,30 @@ PrepareSCExplorer(
 )
 }
 \arguments{
-\item{overwrite}{}
+\item{object}{A Seurat object or a list of Seurat objects.}
+
+\item{base_dir}{The base directory where the SCExplorer hdf5 files will be written. Default is "SCExplorer".}
+
+\item{DataFile}{Path to the output data file. If not provided, the file will be named "Data.hdf5" in the current directory.}
+
+\item{MetaFile}{Path to the output meta file. If not provided, the file will be named "Meta.hdf5" in the current directory.}
+
+\item{assays}{Character vector specifying the assays to include in the data file. Default is "RNA".}
+
+\item{slots}{Character vector specifying the slots to include in the data file. Default is "data".}
+
+\item{ignore_nlevel}{The number of levels above which a metadata field will be ignored. Default is 100.}
+
+\item{write_tools}{A logical value indicating whether to write the tools information to the meta file. Default is FALSE.}
+
+\item{write_misc}{A logical value indicating whether to write the miscellaneous information to the meta file. Default is FALSE.}
+
+\item{compression_level}{Compression level for the HDF5 dataset. Default is 6.}
+
+\item{overwrite}{Logical value indicating whether to overwrite existing data in the data file. Default is FALSE.}
 }
 \description{
-Prepare Seurat object data for the SCExplorer into hdf5 file
+This function prepares one or multiple Seurat objects for the SCExplorer app. It takes a Seurat object or a list of Seurat objects as input and outputs two hdf5 files: one for the data and one for the metadata.
 }
 \examples{
 \dontrun{
@@ -30,4 +50,7 @@ data("pancreas_sub")
 pancreas_sub <- Standard_SCP(pancreas_sub)
 PrepareSCExplorer(pancreas_sub, base_dir = "./SCExplorer")
 }
+}
+\seealso{
+\code{\link{CreateDataFile}} \code{\link{CreateMetaFile}} \code{\link{FetchH5}} \code{\link{RunSCExplorer}}
 }

@@ -5,7 +5,7 @@
 \alias{RunMDS.Seurat}
 \alias{RunMDS.Assay}
 \alias{RunMDS.default}
-\title{Run multi-dimensional scaling(MDS)}
+\title{Run MDS (multi-dimensional scaling)}
 \usage{
 RunMDS(object, ...)
 
@@ -18,12 +18,10 @@ RunMDS(object, ...)
   dist.method = "euclidean",
   mds.method = "cmdscale",
   rev.mds = FALSE,
-  ndims.print = 1:5,
-  nfeatures.print = 30,
   reduction.name = "mds",
   reduction.key = "MDS_",
   verbose = TRUE,
-  seed.use = 42,
+  seed.use = 11,
   ...
 )
 
@@ -36,11 +34,9 @@ RunMDS(object, ...)
   dist.method = "euclidean",
   mds.method = "cmdscale",
   rev.mds = FALSE,
-  ndims.print = 1:5,
-  nfeatures.print = 30,
   reduction.key = "MDS_",
   verbose = TRUE,
-  seed.use = 42,
+  seed.use = 11,
   ...
 )
 
@@ -52,50 +48,44 @@ RunMDS(object, ...)
   dist.method = "euclidean",
   mds.method = "cmdscale",
   rev.mds = FALSE,
-  ndims.print = 1:5,
-  nfeatures.print = 30,
   reduction.key = "MDS_",
-  seed.use = 42,
   verbose = TRUE,
+  seed.use = 11,
   ...
 )
 }
 \arguments{
-\item{object}{An object}
+\item{object}{An object. This can be a Seurat object, an assay object, or a matrix-like object.}
 
-\item{...}{}
+\item{...}{Additional arguments to be passed to the stats::\link[stats]{cmdscale}, MASS::\link[MASS]{isoMDS} or MASS::\link[MASS]{sammon} function.}
 
-\item{assay}{Name of Assay mds is being run on.}
+\item{assay}{A character string specifying the assay to be used for the analysis. Default is NULL.}
 
-\item{slot}{Name of slot mds is being run on.}
+\item{slot}{A character string specifying the slot name to be used for the analysis. Default is "data".}
 
-\item{features}{Features to compute mds on. If features=NULL, mds will be run
-using the variable features for the Assay.}
+\item{features}{A character vector specifying the features to be used for the analysis. Default is NULL, which uses all variable features.}
 
-\item{nmds}{Total Number of MDS to compute and store (50 by default).}
+\item{nmds}{An integer specifying the number of dimensions to be computed. Default is 50.}
 
-\item{rev.mds}{By default computes the mds on the cell x gene matrix. Setting
-to true will compute it on gene x cell matrix.}
+\item{dist.method}{A character string specifying the distance metric to be used. Currently supported values are "euclidean", "chisquared","kullback", "jeffreys", "jensen", "manhattan", "maximum", "canberra", "minkowski", and "hamming". Default is "euclidean".}
 
-\item{ndims.print}{MDS to print genes for.}
+\item{mds.method}{A character string specifying the MDS algorithm to be used. Currently supported values are "cmdscale", "isoMDS", and "sammon". Default is "cmdscale".}
 
-\item{nfeatures.print}{Number of genes to print for each MDS.}
+\item{rev.mds}{A logical value indicating whether to perform reverse MDS (i.e., transpose the input matrix) before running the analysis. Default is FALSE.}
 
-\item{reduction.name}{dimensional reduction name, 'mds' by default}
+\item{reduction.name}{A character string specifying the name of the reduction to be stored in the Seurat object. Default is "mds".}
 
-\item{reduction.key}{dimensional reduction key, specifies the string before
-the number for the dimension names. "MDS_" by default.}
+\item{reduction.key}{A character string specifying the prefix for the column names of the basis vectors. Default is "MDS_".}
 
-\item{verbose}{Print the top genes associated with high/low loadings for
-the MDS.}
+\item{verbose}{A logical value indicating whether to print verbose output. Default is TRUE.}
 
-\item{seed.use}{Set a random seed. By default, sets the seed to 42. Setting
-NULL will not set a seed.}
-}
-\value{
-Returns Seurat object with the MDS calculation stored in the reductions slot.
+\item{seed.use}{An integer specifying the random seed to be used. Default is 11.}
 }
 \description{
-Run a MDS dimensionality reduction.
+Run MDS (multi-dimensional scaling)
 }
-\concept{dimensional_reduction}
+\examples{
+pancreas_sub <- RunMDS(object = pancreas_sub)
+CellDimPlot(pancreas_sub, group.by = "CellType", reduction = "mds")
+
+}

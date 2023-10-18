@@ -36,10 +36,64 @@ VolcanoPlot(
 )
 }
 \arguments{
-\item{byrow}{}
+\item{srt}{An object of class `SummarizedExperiment` containing the results of differential expression analysis.}
+
+\item{group_by}{A character vector specifying the column in `srt` to group the samples by. Default is `NULL`.}
+
+\item{test.use}{A character string specifying the type of statistical test to use. Default is "wilcox".}
+
+\item{DE_threshold}{A character string specifying the threshold for differential expression. Default is "avg_log2FC > 0 & p_val_adj < 0.05".}
+
+\item{x_metric}{A character string specifying the metric to use for the x-axis. Default is "diff_pct".}
+
+\item{palette}{A character string specifying the color palette to use for the plot. Default is "RdBu".}
+
+\item{palcolor}{A character string specifying the color for the palette. Default is `NULL`.}
+
+\item{pt.size}{A numeric value specifying the size of the points. Default is 1.}
+
+\item{pt.alpha}{A numeric value specifying the transparency of the points. Default is 1.}
+
+\item{cols.highlight}{A character string specifying the color for highlighted points. Default is "black".}
+
+\item{sizes.highlight}{A numeric value specifying the size of the highlighted points. Default is 1.}
+
+\item{alpha.highlight}{A numeric value specifying the transparency of the highlighted points. Default is 1.}
+
+\item{stroke.highlight}{A numeric value specifying the stroke width for the highlighted points. Default is 0.5.}
+
+\item{nlabel}{An integer value specifying the number of labeled points per group. Default is 5.}
+
+\item{features_label}{A character vector specifying the feature labels to plot. Default is `NULL`.}
+
+\item{label.fg}{A character string specifying the color for the labels' foreground. Default is "black".}
+
+\item{label.bg}{A character string specifying the color for the labels' background. Default is "white".}
+
+\item{label.bg.r}{A numeric value specifying the radius of the rounding of the labels' background. Default is 0.1.}
+
+\item{label.size}{A numeric value specifying the size of the labels. Default is 4.}
+
+\item{aspect.ratio}{A numeric value specifying the aspect ratio of the plot. Default is `NULL`.}
+
+\item{xlab}{A character string specifying the x-axis label. Default is the value of `x_metric`.}
+
+\item{ylab}{A character string specifying the y-axis label. Default is "-log10(p-adjust)".}
+
+\item{theme_use}{A character string specifying the theme to use for the plot. Default is "theme_scp".}
+
+\item{theme_args}{A list of theme arguments to pass to the `theme_use` function. Default is an empty list.}
+
+\item{combine}{A logical value indicating whether to combine the plots for each group into a single plot. Default is `TRUE`.}
+
+\item{nrow}{An integer value specifying the number of rows in the combined plot. Default is `NULL`.}
+
+\item{ncol}{An integer value specifying the number of columns in the combined plot. Default is `NULL`.}
+
+\item{byrow}{A logical value indicating whether to arrange the plots by row in the combined plot. Default is `TRUE`.}
 }
 \description{
-VolcanoPlot
+Generate a volcano plot based on differential expression analysis results.
 }
 \examples{
 data("pancreas_sub")
@@ -48,4 +102,7 @@ VolcanoPlot(pancreas_sub, group_by = "CellType")
 VolcanoPlot(pancreas_sub, group_by = "CellType", DE_threshold = "abs(diff_pct) > 0.3 & p_val_adj < 0.05")
 VolcanoPlot(pancreas_sub, group_by = "CellType", x_metric = "avg_log2FC")
 
+}
+\seealso{
+\code{\link{RunDEtest}}
 }

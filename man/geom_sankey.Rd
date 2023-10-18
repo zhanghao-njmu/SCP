@@ -2,10 +2,7 @@
 % Please edit documentation in R/ggsankey.R
 \name{geom_sankey}
 \alias{geom_sankey}
-\title{geom_sankey
-
-Creates a sankey plot which visualize flows between nodes. Each observation needs to have a `x` aesthetic as well as a `next_x` column which declares where that observation should flow.
-Also each observation should have a `node` and a `next_node` aesthetic which provide information about which group in the y-direction. By default each row of the data frame is counted to calculate the size of flows. A manual flow value can be added with the `value` aesthetic.}
+\title{geom_sankey}
 \usage{
 geom_sankey(
   mapping = NULL,
@@ -48,8 +45,6 @@ geom_sankey(
 ggplot layer
 }
 \description{
-geom_sankey
-
 Creates a sankey plot which visualize flows between nodes. Each observation needs to have a `x` aesthetic as well as a `next_x` column which declares where that observation should flow.
 Also each observation should have a `node` and a `next_node` aesthetic which provide information about which group in the y-direction. By default each row of the data frame is counted to calculate the size of flows. A manual flow value can be added with the `value` aesthetic.
 }

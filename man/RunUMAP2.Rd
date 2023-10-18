@@ -4,7 +4,7 @@
 \alias{RunUMAP2}
 \alias{RunUMAP2.Seurat}
 \alias{RunUMAP2.default}
-\title{Run UMAP}
+\title{Run UMAP (Uniform Manifold Approximation and Projection)}
 \usage{
 RunUMAP2(object, ...)
 
@@ -15,7 +15,7 @@ RunUMAP2(object, ...)
   features = NULL,
   neighbor = NULL,
   graph = NULL,
-  assay = DefaultAssay(object = object),
+  assay = NULL,
   slot = "data",
   umap.method = "uwot",
   reduction.model = NULL,
@@ -33,10 +33,10 @@ RunUMAP2(object, ...)
   b = NULL,
   learning.rate = 1,
   repulsion.strength = 1,
-  seed.use = 42L,
-  verbose = TRUE,
   reduction.name = "umap",
   reduction.key = "UMAP_",
+  verbose = TRUE,
+  seed.use = 11L,
   ...
 )
 
@@ -59,18 +59,77 @@ RunUMAP2(object, ...)
   b = NULL,
   learning.rate = 1,
   repulsion.strength = 1,
-  seed.use = 42L,
-  verbose = TRUE,
   reduction.key = "UMAP_",
+  verbose = TRUE,
+  seed.use = 11L,
   ...
 )
 }
 \arguments{
-\item{object}{}
+\item{object}{An object. This can be a Seurat object, a matrix-like object, a Neighbor object, or a Graph object.}
 
-\item{...}{}
+\item{...}{Unused argument.}
+
+\item{reduction}{A character string specifying the reduction to be used. Default is "pca".}
+
+\item{dims}{An integer vector specifying the dimensions to be used. Default is NULL.}
+
+\item{features}{A character vector specifying the features to be used. Default is NULL.}
+
+\item{neighbor}{A character string specifying the name of the Neighbor object to be used. Default is NULL.}
+
+\item{graph}{A character string specifying the name of the Graph object to be used. Default is NULL.}
+
+\item{assay}{A character string specifying the assay to be used. Default is NULL.}
+
+\item{slot}{A character string specifying the slot name to be used. Default is "data".}
+
+\item{umap.method}{A character string specifying the UMAP method to be used. Options are "naive" and uwot". Default is "uwot".}
+
+\item{reduction.model}{A DimReduc object containing a pre-trained UMAP model. Default is NULL.}
+
+\item{return.model}{A logical value indicating whether to return the UMAP model. Default is FALSE.}
+
+\item{n.neighbors}{An integer specifying the number of nearest neighbors to be used. Default is 30.}
+
+\item{n.components}{An integer specifying the number of UMAP components. Default is 2.}
+
+\item{metric}{A character string specifying the metric or a function to be used for distance calculations. When using a string, available metrics are: euclidean, manhattan. Other available generalized metrics are: cosine, pearson, pearson2. Note the triangle inequality may not be satisfied by some generalized metrics, hence knn search may not be optimal. When using metric.function as a function, the signature must be function(matrix, origin, target) and should compute a distance between the origin column and the target columns.  Default is "cosine".}
+
+\item{n.epochs}{An integer specifying the number of iterations performed during layout optimization for UMAP. Default is 200.}
+
+\item{spread}{A numeric value specifying the spread parameter for UMAP, used during automatic estimation of a/b parameters. Default is 1.}
+
+\item{min.dist}{A numeric value specifying the minimum distance between UMAP embeddings, determines how close points appear in the final layout. Default is 0.3.}
+
+\item{set.op.mix.ratio}{Interpolate between (fuzzy) union and intersection as the set operation used to combine local fuzzy simplicial sets to obtain a global fuzzy simplicial sets. Both fuzzy set operations use the product t-norm. The value of this parameter should be between 0.0 and 1.0; a value of 1.0 will use a pure fuzzy union, while 0.0 will use a pure fuzzy intersection.}
+
+\item{local.connectivity}{An integer specifying the local connectivity, used during construction of fuzzy simplicial set. Default is 1.}
+
+\item{negative.sample.rate}{An integer specifying the negative sample rate for UMAP optimization. Determines how many non-neighbor points are used per point and per iteration during layout optimization. Default is 5.}
+
+\item{a}{A numeric value specifying the parameter a for UMAP optimization. Contributes to gradient calculations during layout optimization. When left at NA, a suitable value will be estimated automatically. Default is NULL.}
+
+\item{b}{A numeric value specifying the parameter b for UMAP optimization. Contributes to gradient calculations during layout optimization. When left at NA, a suitable value will be estimated automatically. Default is NULL.}
+
+\item{learning.rate}{A numeric value specifying the initial value of "learning rate" of layout optimization. Default is 1.}
+
+\item{repulsion.strength}{A numeric value determines, together with alpha, the learning rate of layout optimization. Default is 1.}
+
+\item{reduction.name}{A character string specifying the name of the reduction to be stored in the Seurat object. Default is "umap".}
+
+\item{reduction.key}{A character string specifying the prefix for the column names of the UMAP embeddings. Default is "UMAP_".}
+
+\item{verbose}{A logical value indicating whether to print verbose output. Default is TRUE.}
+
+\item{seed.use}{An integer specifying the random seed to be used. Default is 11.}
 }
 \description{
-Run UMAP
+Run UMAP (Uniform Manifold Approximation and Projection)
 }
-\concept{dimensional_reduction}
+\examples{
+pancreas_sub <- Seurat::FindVariableFeatures(pancreas_sub)
+pancreas_sub <- RunUMAP2(object = pancreas_sub, features = Seurat::VariableFeatures(pancreas_sub))
+CellDimPlot(pancreas_sub, group.by = "CellType", reduction = "umap")
+
+}

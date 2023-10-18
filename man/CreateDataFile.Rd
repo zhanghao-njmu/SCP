@@ -15,10 +15,23 @@ CreateDataFile(
 )
 }
 \arguments{
-\item{srt}{}
+\item{srt}{The Seurat object.}
 
-\item{overwrite}{}
+\item{DataFile}{Path to the output data file. If not provided, the file will be named "Data.hdf5" in the current directory.}
+
+\item{name}{Name of the dataset. If not provided, the name will default to the Seurat object's project name.}
+
+\item{assays}{Character vector specifying the assays to include in the data file. Default is "RNA".}
+
+\item{slots}{Character vector specifying the slots to include in the data file. Default is "data".}
+
+\item{compression_level}{Compression level for the HDF5 dataset. Default is 6.}
+
+\item{overwrite}{Logical value indicating whether to overwrite existing data in the data file. Default is FALSE.}
 }
 \description{
-CreateDataFile
+Creates a data file in HDF5 format from a Seurat object.
+}
+\seealso{
+\code{\link{CreateMetaFile}} \code{\link{PrepareSCExplorer}} \code{\link{FetchH5}} \code{\link{RunSCExplorer}}
 }

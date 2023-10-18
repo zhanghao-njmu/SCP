@@ -19,9 +19,8 @@ CellDimPlot3D(
   shape.highlight = "circle-open",
   sizes.highlight = 2,
   lineages = NULL,
-  lineage_palette = "Dark2",
+  lineages_palette = "Dark2",
   span = 0.75,
-  arrow_reverse = FALSE,
   width = NULL,
   height = NULL,
   save = NULL,
@@ -36,6 +35,8 @@ CellDimPlot3D(
 \item{reduction}{Which dimensionality reduction to use. If not specified, will use the reduction returned by \code{\link{DefaultReduction}}.}
 
 \item{dims}{Dimensions to plot, must be a two-length numeric vector specifying x- and y-dimensions}
+
+\item{axis_labs}{A character vector of length 3 indicating the labels for the axes.}
 
 \item{palette}{Name of a color palette name collected in SCP. Default is "Paired".}
 
@@ -55,9 +56,15 @@ CellDimPlot3D(
 
 \item{lineages}{Lineages/pseudotime to add to the plot. If specified, curves will be fitted using \code{\link[stats]{loess}} method.}
 
+\item{lineages_palette}{Color palette used for lineages.}
+
+\item{span}{A numeric value specifying the span of the loess smoother for lineages line.}
+
 \item{width}{Width in pixels, defaults to automatic sizing.}
 
 \item{height}{Height in pixels, defaults to automatic sizing.}
+
+\item{save}{The name of the file to save the plot to. Must end in .html.}
 
 \item{force}{Whether to force drawing regardless of maximum levels in any cell group is greater than 100.}
 }
@@ -71,4 +78,7 @@ CellDimPlot3D(pancreas_sub, group.by = "SubCellType", reduction = "StandardpcaUM
 
 pancreas_sub <- RunSlingshot(pancreas_sub, group.by = "SubCellType", reduction = "StandardpcaUMAP3D")
 CellDimPlot3D(pancreas_sub, group.by = "SubCellType", reduction = "StandardpcaUMAP3D", lineages = "Lineage1")
+}
+\seealso{
+\code{\link{CellDimPlot}} \code{\link{FeatureDimPlot3D}}
 }
