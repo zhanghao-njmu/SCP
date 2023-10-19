@@ -67,7 +67,6 @@
 #' @importFrom reshape2 dcast melt
 #' @importFrom biomaRt listEnsemblArchives useMart listDatasets useDataset getBM listAttributes useEnsembl
 #' @export
-#'
 GeneConvert <- function(geneID, geneID_from_IDtype = "symbol", geneID_to_IDtype = "entrez_id",
                         species_from = "Homo_sapiens", species_to = NULL,
                         Ensembl_version = 103, biomart = NULL, mirror = NULL, max_tries = 5) {
@@ -3400,7 +3399,6 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
 #' @importFrom BiocParallel bplapply bpprogressbar<- bpRNGseed<- bpworkers ipcid ipclock ipcunlock
 #' @importFrom clusterProfiler enricher simplify
 #' @export
-#'
 RunEnrichment <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_threshold = "avg_log2FC > 0 & p_val_adj < 0.05",
                           geneID = NULL, geneID_groups = NULL, geneID_exclude = NULL, IDtype = "symbol", result_IDtype = "symbol", species = "Homo_sapiens",
                           db = "GO_BP", db_update = FALSE, db_version = "latest", db_combine = FALSE, convert_species = TRUE, Ensembl_version = 103, mirror = NULL,
@@ -3665,7 +3663,6 @@ RunEnrichment <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_t
 #' @importFrom BiocParallel bplapply bpprogressbar<- bpRNGseed<- bpworkers ipcid ipclock ipcunlock
 #' @importFrom clusterProfiler GSEA simplify
 #' @export
-#'
 RunGSEA <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_threshold = "p_val_adj < 0.05", scoreType = "std",
                     geneID = NULL, geneScore = NULL, geneID_groups = NULL, geneID_exclude = NULL, IDtype = "symbol", result_IDtype = "symbol", species = "Homo_sapiens",
                     db = "GO_BP", db_update = FALSE, db_version = "latest", db_combine = FALSE, convert_species = TRUE, Ensembl_version = 103, mirror = NULL,
@@ -4984,7 +4981,6 @@ py_to_r_auto <- function(x) {
 #' @importFrom Seurat GetAssayData
 #' @importFrom Matrix t
 #' @export
-#'
 srt_to_adata <- function(srt, features = NULL,
                          assay_X = "RNA", slot_X = "counts",
                          assay_layers = c("spliced", "unspliced"), slot_layers = "counts",
@@ -5418,7 +5414,6 @@ check_python_element <- function(x, depth = maxDepth(x)) {
 #' CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "PAGAUMAP2D", paga = pancreas_sub@misc$paga)
 #'
 #' @export
-#'
 RunPAGA <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_layers = c("spliced", "unspliced"), slot_layers = "counts",
                     adata = NULL, group_by = NULL,
                     linear_reduction = NULL, nonlinear_reduction = NULL, basis = NULL,
@@ -5529,7 +5524,6 @@ RunPAGA <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_layers
 #' pancreas_sub <- RunSCVELO(srt = pancreas_sub, assay_X = "SCT", group_by = "SubCellType", linear_reduction = "Standardpca", nonlinear_reduction = "StandardTSNE2D")
 #'
 #' @export
-#'
 RunSCVELO <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_layers = c("spliced", "unspliced"), slot_layers = "counts",
                       adata = NULL, group_by = NULL,
                       linear_reduction = NULL, nonlinear_reduction = NULL, basis = NULL,
@@ -5636,7 +5630,6 @@ RunSCVELO <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_laye
 #' FeatureDimPlot(pancreas_sub, paste0(c("Alpha", "Beta", "Delta", "Epsilon"), "_diff_potential"))
 #'
 #' @export
-#'
 RunPalantir <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_layers = c("spliced", "unspliced"), slot_layers = "counts",
                         adata = NULL, group_by = NULL,
                         linear_reduction = NULL, nonlinear_reduction = NULL, basis = NULL,

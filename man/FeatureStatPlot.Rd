@@ -13,7 +13,7 @@ FeatureStatPlot(
   plot.by = c("group", "feature"),
   fill.by = c("group", "feature", "expression"),
   cells = NULL,
-  slot = c("data", "counts"),
+  slot = "data",
   assay = NULL,
   keep_empty = FALSE,
   individual = FALSE,
@@ -263,14 +263,14 @@ FeatureStatPlot(pancreas_sub,
   group.by = "SubCellType", bg.by = "CellType", stack = TRUE, flip = TRUE
 ) \%>\% panel_fix_overall(width = 8, height = 5) # As the plot is created by combining, we can adjust the overall height and width directly.
 
-FeatureStatPlot(pancreas_sub, stat.by = c("Rbp4", "Pyy", "Ins1"), group.by = "CellType", plot.by = "feature")
+FeatureStatPlot(pancreas_sub, stat.by = c("Neurog3", "Rbp4", "Ins1"), group.by = "CellType", plot.by = "feature")
 FeatureStatPlot(pancreas_sub,
-  stat.by = c("Rbp4", "Pyy", "Ins1"), group.by = "CellType", plot.by = "feature",
+  stat.by = c("Neurog3", "Rbp4", "Ins1"), group.by = "CellType", plot.by = "feature",
   multiplegroup_comparisons = TRUE, sig_label = "p.format", sig_labelsize = 4
 )
 FeatureStatPlot(pancreas_sub,
-  stat.by = c("Rbp4", "Pyy", "Ins1"), group.by = "CellType", plot.by = "feature",
-  comparisons = list(c("Rbp4", "Pyy"), c("Pyy", "Ins1")),
+  stat.by = c("Neurog3", "Rbp4", "Ins1"), group.by = "CellType", plot.by = "feature",
+  comparisons = list(c("Neurog3", "Rbp4"), c("Rbp4", "Ins1")),
   stack = TRUE
 )
 FeatureStatPlot(pancreas_sub, stat.by = c(
@@ -280,5 +280,12 @@ FeatureStatPlot(pancreas_sub, stat.by = c(
   "Rbp4", "Pyy", # Endocrine
   "Ins1", "Gcg", "Sst", "Ghrl" # Beta, Alpha, Delta, Epsilon
 ), group.by = "SubCellType", plot.by = "feature", stack = TRUE)
+
+data <- pancreas_sub@assays$RNA@data
+pancreas_sub@assays$RNA@scale.data <- as.matrix(data / rowMeans(data))
+FeatureStatPlot(pancreas_sub,
+  stat.by = c("Neurog3", "Rbp4", "Ins1"), group.by = "CellType",
+  slot = "scale.data", ylab = "FoldChange", same.y.lims = TRUE, y.max = 4
+)
 
 }

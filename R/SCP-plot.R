@@ -3363,14 +3363,14 @@ FeatureDimPlot3D <- function(srt, features = NULL, reduction = NULL, dims = c(1,
 #'   group.by = "SubCellType", bg.by = "CellType", stack = TRUE, flip = TRUE
 #' ) %>% panel_fix_overall(width = 8, height = 5) # As the plot is created by combining, we can adjust the overall height and width directly.
 #'
-#' FeatureStatPlot(pancreas_sub, stat.by = c("Rbp4", "Pyy", "Ins1"), group.by = "CellType", plot.by = "feature")
+#' FeatureStatPlot(pancreas_sub, stat.by = c("Neurog3", "Rbp4", "Ins1"), group.by = "CellType", plot.by = "feature")
 #' FeatureStatPlot(pancreas_sub,
-#'   stat.by = c("Rbp4", "Pyy", "Ins1"), group.by = "CellType", plot.by = "feature",
+#'   stat.by = c("Neurog3", "Rbp4", "Ins1"), group.by = "CellType", plot.by = "feature",
 #'   multiplegroup_comparisons = TRUE, sig_label = "p.format", sig_labelsize = 4
 #' )
 #' FeatureStatPlot(pancreas_sub,
-#'   stat.by = c("Rbp4", "Pyy", "Ins1"), group.by = "CellType", plot.by = "feature",
-#'   comparisons = list(c("Rbp4", "Pyy"), c("Pyy", "Ins1")),
+#'   stat.by = c("Neurog3", "Rbp4", "Ins1"), group.by = "CellType", plot.by = "feature",
+#'   comparisons = list(c("Neurog3", "Rbp4"), c("Rbp4", "Ins1")),
 #'   stack = TRUE
 #' )
 #' FeatureStatPlot(pancreas_sub, stat.by = c(
@@ -3381,6 +3381,13 @@ FeatureDimPlot3D <- function(srt, features = NULL, reduction = NULL, dims = c(1,
 #'   "Ins1", "Gcg", "Sst", "Ghrl" # Beta, Alpha, Delta, Epsilon
 #' ), group.by = "SubCellType", plot.by = "feature", stack = TRUE)
 #'
+#' data <- pancreas_sub@assays$RNA@data
+#' pancreas_sub@assays$RNA@scale.data <- as.matrix(data / rowMeans(data))
+#' FeatureStatPlot(pancreas_sub,
+#'   stat.by = c("Neurog3", "Rbp4", "Ins1"), group.by = "CellType",
+#'   slot = "scale.data", ylab = "FoldChange", same.y.lims = TRUE, y.max = 4
+#' )
+#'
 #' @importFrom Seurat FetchData
 #' @importFrom reshape2 melt
 #' @importFrom gtable gtable_add_cols gtable_add_rows gtable_add_grob gtable_add_padding
@@ -3388,7 +3395,7 @@ FeatureDimPlot3D <- function(srt, features = NULL, reduction = NULL, dims = c(1,
 #' @importFrom patchwork wrap_plots
 #' @export
 FeatureStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.by = NULL, plot.by = c("group", "feature"), fill.by = c("group", "feature", "expression"),
-                            cells = NULL, slot = c("data", "counts"), assay = NULL, keep_empty = FALSE, individual = FALSE,
+                            cells = NULL, slot = "data", assay = NULL, keep_empty = FALSE, individual = FALSE,
                             plot_type = c("violin", "box", "bar", "dot", "col"),
                             palette = "Paired", palcolor = NULL, alpha = 1,
                             bg_palette = "Paired", bg_palcolor = NULL, bg_alpha = 0.2,
@@ -3410,7 +3417,6 @@ FeatureStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.b
   meta.data <- srt@meta.data
   meta.data[["cells"]] <- rownames(meta.data)
   assay <- assay %||% DefaultAssay(srt)
-  slot <- match.arg(slot)
   exp.data <- slot(srt@assays[[assay]], slot)
   plot.by <- match.arg(plot.by)
 
