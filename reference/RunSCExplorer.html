@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">SCP</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.2</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -66,9 +66,8 @@
 <span>  initial_size <span class="op">=</span> <span class="fl">4</span>,</span>
 <span>  initial_ncol <span class="op">=</span> <span class="fl">3</span>,</span>
 <span>  initial_arrange <span class="op">=</span> <span class="st">"Row"</span>,</span>
-<span>  initial_dpi <span class="op">=</span> <span class="fl">100</span>,</span>
-<span>  workers <span class="op">=</span> <span class="fl">2</span>,</span>
-<span>  threads_per_workers <span class="op">=</span> <span class="fl">10</span>,</span>
+<span>  session_workers <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>  plotting_workers <span class="op">=</span> <span class="fl">8</span>,</span>
 <span>  create_script <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  style_script <span class="op">=</span> <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">require</a></span><span class="op">(</span><span class="st"><a href="https://github.com/r-lib/styler" class="external-link">"styler"</a></span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
 <span>  overwrite <span class="op">=</span> <span class="cn">FALSE</span>,</span>
@@ -78,10 +77,102 @@
 
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
-    <dl><dt>workers</dt>
-<dd></dd>
+    <dl><dt>base_dir</dt>
+<dd><p>A string. The base directory of the SCExplorer app. Default is "SCExplorer".</p></dd>
+
+
+<dt>DataFile</dt>
+<dd><p>A string. The name of the HDF5 file that stores data matrices for each dataset. Default is "Data.hdf5".</p></dd>
+
+
+<dt>MetaFile</dt>
+<dd><p>A string. The name of the HDF5 file that stores metadata for each dataset. Default is "Meta.hdf5".</p></dd>
+
+
+<dt>title</dt>
+<dd><p>A string. The title of the SCExplorer app. Default is "SCExplorer".</p></dd>
+
+
+<dt>initial_dataset</dt>
+<dd><p>A string. The initial dataset to be loaded into the app. Default is NULL.</p></dd>
+
+
+<dt>initial_reduction</dt>
+<dd><p>A string. The initial dimensional reduction method to be loaded into the app. Default is NULL.</p></dd>
+
+
+<dt>initial_group</dt>
+<dd><p>A string. The initial variable to group cells in the app. Default is NULL.</p></dd>
+
+
+<dt>initial_feature</dt>
+<dd><p>A string. The initial feature to be loaded into the app. Default is NULL.</p></dd>
+
+
+<dt>initial_assay</dt>
+<dd><p>A string. The initial assay to be loaded into the app. Default is NULL.</p></dd>
+
+
+<dt>initial_slot</dt>
+<dd><p>A string. The initial slot to be loaded into the app. Default is NULL.</p></dd>
+
+
+<dt>initial_label</dt>
+<dd><p>A string. Whether to add labels in the initial plot. Default is "No".</p></dd>
+
+
+<dt>initial_cell_palette</dt>
+<dd><p>A string. The initial color palette for cells. Default is "Paired".</p></dd>
+
+
+<dt>initial_feature_palette</dt>
+<dd><p>A string. The initial color palette for features. Default is "Spectral".</p></dd>
+
+
+<dt>initial_theme</dt>
+<dd><p>A string. The initial theme for plots. Default is "theme_scp".</p></dd>
+
+
+<dt>initial_size</dt>
+<dd><p>A numeric. The initial size of plots. Default is 4.</p></dd>
+
+
+<dt>initial_ncol</dt>
+<dd><p>A numeric. The initial number of columns for arranging plots. Default is 3.</p></dd>
+
+
+<dt>initial_arrange</dt>
+<dd><p>A string. The initial arrangement of plots. Default is "Row".</p></dd>
+
+
+<dt>session_workers</dt>
+<dd><p>A numeric. The number of workers for concurrent execution in an asynchronous programming session. Default is 2.</p></dd>
+
+
+<dt>plotting_workers</dt>
+<dd><p>A numeric. The number of threads per worker for parallel plotting. Default is 8.</p></dd>
+
+
+<dt>create_script</dt>
+<dd><p>A logical. Whether to create the SCExplorer app script. Default is TRUE.</p></dd>
+
+
+<dt>style_script</dt>
+<dd><p>A logical. Whether to style the SCExplorer app script. Default is TRUE.</p></dd>
+
+
+<dt>overwrite</dt>
+<dd><p>A logical. Whether to overwrite existing files. Default is FALSE.</p></dd>
+
+
+<dt>return_app</dt>
+<dd><p>A logical. Whether to return the SCExplorer app. Default is TRUE.</p></dd>
 
 </dl></div>
+    <div class="section level2">
+    <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
+    <div class="dont-index"><p><code><a href="CreateDataFile.html">CreateDataFile</a></code> <code><a href="CreateMetaFile.html">CreateMetaFile</a></code> <code><a href="PrepareSCExplorer.html">PrepareSCExplorer</a></code> <code><a href="FetchH5.html">FetchH5</a></code></p></div>
+    </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
@@ -94,7 +185,14 @@
 <span class="r-in"><span><span class="fu"><a href="PrepareSCExplorer.html">PrepareSCExplorer</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>mouse_pancreas <span class="op">=</span> <span class="va">pancreas_sub</span>, human_pancreas <span class="op">=</span> <span class="va">panc8_sub</span><span class="op">)</span>, base_dir <span class="op">=</span> <span class="st">"./SCExplorer"</span>, overwrite <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Create the app.R script</span></span></span>
-<span class="r-in"><span><span class="va">app</span> <span class="op">&lt;-</span> <span class="fu">RunSCExplorer</span><span class="op">(</span>base_dir <span class="op">=</span> <span class="st">"./SCExplorer"</span>, workers <span class="op">=</span> <span class="fl">2</span>, overwrite <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">app</span> <span class="op">&lt;-</span> <span class="fu">RunSCExplorer</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  base_dir <span class="op">=</span> <span class="st">"./SCExplorer"</span>,</span></span>
+<span class="r-in"><span>  initial_dataset <span class="op">=</span> <span class="st">"mouse_pancreas"</span>,</span></span>
+<span class="r-in"><span>  initial_group <span class="op">=</span> <span class="st">"CellType"</span>,</span></span>
+<span class="r-in"><span>  initial_feature <span class="op">=</span> <span class="st">"Neurog3"</span>,</span></span>
+<span class="r-in"><span>  session_workers <span class="op">=</span> <span class="fl">2</span>,</span></span>
+<span class="r-in"><span>  overwrite <span class="op">=</span> <span class="cn">TRUE</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="st">"./SCExplorer"</span><span class="op">)</span> <span class="co"># This directory can be used as site directory for Shiny Server.</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Run shiny app</span></span></span>

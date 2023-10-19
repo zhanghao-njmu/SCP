@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">SCP</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.2</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -67,8 +67,56 @@
 
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
-    <dl><dt>vote_fun</dt>
-<dd></dd>
+    <dl><dt>srt_query</dt>
+<dd><p>An object of class Seurat storing the query cells.</p></dd>
+
+
+<dt>srt_ref</dt>
+<dd><p>An object of class Seurat storing the reference cells.</p></dd>
+
+
+<dt>query_assay</dt>
+<dd><p>A character string specifying the assay name for the query cells. If not provided, the default assay for the query object will be used.</p></dd>
+
+
+<dt>ref_assay</dt>
+<dd><p>A character string specifying the assay name for the reference cells. If not provided, the default assay for the reference object will be used.</p></dd>
+
+
+<dt>ref_pca</dt>
+<dd><p>A character string specifying the name of the PCA reduction in the reference object to use for calculating the distance metric.</p></dd>
+
+
+<dt>ref_harmony</dt>
+<dd><p>A character string specifying the name of the Harmony reduction in the reference object to use for calculating the distance metric.</p></dd>
+
+
+<dt>ref_umap</dt>
+<dd><p>A character string specifying the name of the UMAP reduction in the reference object. If not provided, the first UMAP reduction found in the reference object will be used.</p></dd>
+
+
+<dt>ref_group</dt>
+<dd><p>A character string specifying a metadata column name in the reference object to use for grouping.</p></dd>
+
+
+<dt>projection_method</dt>
+<dd><p>A character string specifying the projection method to use. Options are "model" and "knn". If "model" is selected, the function will try to use a pre-trained UMAP model in the reference object for projection. If "knn" is selected, the function will directly find the nearest neighbors using the distance metric.</p></dd>
+
+
+<dt>nn_method</dt>
+<dd><p>A character string specifying the nearest neighbor search method to use. Options are "raw", "annoy", and "rann". If "raw" is selected, the function will use the brute-force method to find the nearest neighbors. If "annoy" is selected, the function will use the Annoy library for approximate nearest neighbor search. If "rann" is selected, the function will use the RANN library for approximate nearest neighbor search. If not provided, the function will choose the search method based on the size of the query and reference datasets.</p></dd>
+
+
+<dt>k</dt>
+<dd><p>An integer specifying the number of nearest neighbors to find for each cell in the query object.</p></dd>
+
+
+<dt>distance_metric</dt>
+<dd><p>A character string specifying the distance metric to use for calculating the pairwise distances between cells. Options include: "pearson", "spearman", "cosine", "correlation", "jaccard", "ejaccard", "dice", "edice", "hamman", "simple matching", and "faith". Additional distance metrics can also be used, such as "euclidean", "manhattan", "hamming", etc.</p></dd>
+
+
+<dt>vote_fun</dt>
+<dd><p>A character string specifying the function to be used for aggregating the nearest neighbors in the reference object. Options are "mean", "median", "sum", "min", "max", "sd", "var", etc. If not provided, the default is "mean".</p></dd>
 
 </dl></div>
 
@@ -78,7 +126,7 @@
 <span class="r-in"><span><span class="va">srt_ref</span> <span class="op">&lt;-</span> <span class="va">panc8_sub</span><span class="op">[</span>, <span class="va">panc8_sub</span><span class="op">$</span><span class="va">tech</span> <span class="op">!=</span> <span class="st">"fluidigmc1"</span><span class="op">]</span></span></span>
 <span class="r-in"><span><span class="va">srt_query</span> <span class="op">&lt;-</span> <span class="va">panc8_sub</span><span class="op">[</span>, <span class="va">panc8_sub</span><span class="op">$</span><span class="va">tech</span> <span class="op">==</span> <span class="st">"fluidigmc1"</span><span class="op">]</span></span></span>
 <span class="r-in"><span><span class="va">srt_ref</span> <span class="op">&lt;-</span> <span class="fu"><a href="Integration_SCP.html">Integration_SCP</a></span><span class="op">(</span><span class="va">srt_ref</span>, batch <span class="op">=</span> <span class="st">"tech"</span>, integration_method <span class="op">=</span> <span class="st">"Harmony"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-09-11 17:56:24.44671] Start Harmony_integrate</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-19 04:19:29.310395] Start Harmony_integrate</span>
 <span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in Integration_SCP(srt_ref, batch = "tech", integration_method = "Harmony"):</span> object 'srt_ref' not found</span>
 <span class="r-in"><span><span class="fu"><a href="CellDimPlot.html">CellDimPlot</a></span><span class="op">(</span><span class="va">srt_ref</span>, group.by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"celltype"</span>, <span class="st">"tech"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in DefaultReduction(srt):</span> Unable to find any reductions.</span>

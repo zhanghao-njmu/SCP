@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">SCP</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.2</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -65,9 +65,9 @@
 <span>  dm_alpha <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>  dm_n_eigs <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  early_group <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  terminal_groups <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  early_cell <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  terminal_cells <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  terminal_groups <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  num_waypoints <span class="op">=</span> <span class="fl">1200</span>,</span>
 <span>  scale_components <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  use_early_cell_as_start <span class="op">=</span> <span class="cn">TRUE</span>,</span>
@@ -79,8 +79,8 @@
 <span>  palette <span class="op">=</span> <span class="st">"Paired"</span>,</span>
 <span>  palcolor <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  show_plot <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  dpi <span class="op">=</span> <span class="fl">300</span>,</span>
 <span>  save <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  dpi <span class="op">=</span> <span class="fl">300</span>,</span>
 <span>  dirpath <span class="op">=</span> <span class="st">"./"</span>,</span>
 <span>  fileprefix <span class="op">=</span> <span class="st">""</span>,</span>
 <span>  return_seurat <span class="op">=</span> <span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NULL.html" class="external-link">is.null</a></span><span class="op">(</span><span class="va">srt</span><span class="op">)</span></span>
@@ -90,70 +90,148 @@
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
     <dl><dt>srt</dt>
-<dd><p>A <code>Seurat</code> object.</p></dd>
+<dd><p>A Seurat object.</p></dd>
+
+
+<dt>assay_X</dt>
+<dd><p>Assay to convert as the main data matrix (X) in the anndata object.</p></dd>
+
+
+<dt>slot_X</dt>
+<dd><p>Slot name for assay_X in the Seurat object.</p></dd>
+
+
+<dt>assay_layers</dt>
+<dd><p>Assays to convert as layers in the anndata object.</p></dd>
+
+
+<dt>slot_layers</dt>
+<dd><p>Slot names for the assay_layers in the Seurat object.</p></dd>
 
 
 <dt>adata</dt>
-<dd><p>An <code>anndata</code> object. Can be created through <code><a href="srt_to_adata.html">srt_to_adata</a></code></p></dd>
+<dd><p>An anndata object.</p></dd>
 
 
 <dt>group_by</dt>
-<dd><p>group_by.</p></dd>
+<dd><p>Variable to use for grouping cells in the Seurat object.</p></dd>
 
 
 <dt>linear_reduction</dt>
-<dd><p>linear_reduction.</p></dd>
+<dd><p>Linear reduction method to use, e.g., "PCA".</p></dd>
 
 
 <dt>nonlinear_reduction</dt>
-<dd><p>nonlinear_reduction.</p></dd>
+<dd><p>Non-linear reduction method to use, e.g., "UMAP".</p></dd>
 
 
 <dt>basis</dt>
-<dd><p>basis.</p></dd>
+<dd><p>The basis to use for reduction, e.g., "UMAP".</p></dd>
 
 
 <dt>n_pcs</dt>
-<dd><p>n_pcs.</p></dd>
+<dd><p>Number of principal components to use for linear reduction. Default is 30.</p></dd>
 
 
 <dt>n_neighbors</dt>
-<dd><p>n_neighbors.</p></dd>
+<dd><p>Number of neighbors to use for constructing the KNN graph. Default is 30.</p></dd>
+
+
+<dt>dm_n_components</dt>
+<dd><p>The number of diffusion components to calculate.</p></dd>
+
+
+<dt>dm_alpha</dt>
+<dd><p>Normalization parameter for the diffusion operator.</p></dd>
+
+
+<dt>dm_n_eigs</dt>
+<dd><p>Number of eigen vectors to use.</p></dd>
+
+
+<dt>early_group</dt>
+<dd><p>Name of the group to start Palantir analysis from.</p></dd>
+
+
+<dt>early_cell</dt>
+<dd><p>Name of the cell to start Palantir analysis from.</p></dd>
+
+
+<dt>terminal_cells</dt>
+<dd><p>Character vector specifying terminal cells for Palantir analysis.</p></dd>
+
+
+<dt>terminal_groups</dt>
+<dd><p>Character vector specifying terminal groups for Palantir analysis.</p></dd>
+
+
+<dt>num_waypoints</dt>
+<dd><p>Number of waypoints to be included.</p></dd>
+
+
+<dt>scale_components</dt>
+<dd><p>Should the cell fate probabilities be scaled for each component independently?</p></dd>
+
+
+<dt>use_early_cell_as_start</dt>
+<dd><p>Should the starting cell for each terminal group be set as early_cell?</p></dd>
+
+
+<dt>adjust_early_cell</dt>
+<dd><p>Whether to adjust the early cell to the cell with the minimum pseudotime value.</p></dd>
+
+
+<dt>adjust_terminal_cells</dt>
+<dd><p>hether to adjust the terminal cells to the cells with the maximum pseudotime value for each terminal group.</p></dd>
+
+
+<dt>max_iterations</dt>
+<dd><p>Maximum number of iterations for pseudotime convergence.</p></dd>
 
 
 <dt>n_jobs</dt>
-<dd><p>n_jobs.</p></dd>
+<dd><p>The number of parallel jobs to run.</p></dd>
 
 
 <dt>point_size</dt>
-<dd><p>point_size.</p></dd>
+<dd><p>The point size for plotting.</p></dd>
 
 
-<dt>dpi</dt>
-<dd><p>dpi.</p></dd>
+<dt>palette</dt>
+<dd><p>The palette to use for coloring cells.</p></dd>
+
+
+<dt>palcolor</dt>
+<dd><p>A vector of colors to use as the palette.</p></dd>
+
+
+<dt>show_plot</dt>
+<dd><p>Whether to show the PAGA plot.</p></dd>
 
 
 <dt>save</dt>
-<dd><p>save.</p></dd>
+<dd><p>Whether to save the PAGA plots.</p></dd>
+
+
+<dt>dpi</dt>
+<dd><p>The DPI (dots per inch) for saving the PAGA plot.</p></dd>
 
 
 <dt>dirpath</dt>
-<dd><p>dirpath.</p></dd>
+<dd><p>The directory to save the PAGA plots.</p></dd>
 
 
 <dt>fileprefix</dt>
-<dd><p>fileprefix.</p></dd>
+<dd><p>The file prefix to use for the PAGA plots.</p></dd>
 
 
 <dt>return_seurat</dt>
-<dd></dd>
+<dd><p>Whether to return a Seurat object instead of an anndata object. Default is TRUE.</p></dd>
 
 </dl></div>
     <div class="section level2">
-    <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    
-
-<p>A <code>anndata</code> object.</p>
+    <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
+    <div class="dont-index"><p><code><a href="srt_to_adata.html">srt_to_adata</a></code></p></div>
     </div>
 
     <div class="section level2">

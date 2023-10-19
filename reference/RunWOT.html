@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">SCP</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.2</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -66,8 +66,8 @@
 <span>  palette <span class="op">=</span> <span class="st">"Paired"</span>,</span>
 <span>  palcolor <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  show_plot <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  dpi <span class="op">=</span> <span class="fl">300</span>,</span>
 <span>  save <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  dpi <span class="op">=</span> <span class="fl">300</span>,</span>
 <span>  dirpath <span class="op">=</span> <span class="st">"./"</span>,</span>
 <span>  fileprefix <span class="op">=</span> <span class="st">""</span>,</span>
 <span>  return_seurat <span class="op">=</span> <span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NULL.html" class="external-link">is.null</a></span><span class="op">(</span><span class="va">srt</span><span class="op">)</span></span>
@@ -77,37 +77,97 @@
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
     <dl><dt>srt</dt>
-<dd><p>A <code>Seurat</code> object.</p></dd>
+<dd><p>A Seurat object.</p></dd>
+
+
+<dt>assay_X</dt>
+<dd><p>Assay to convert as the main data matrix (X) in the anndata object.</p></dd>
+
+
+<dt>slot_X</dt>
+<dd><p>Slot name for assay_X in the Seurat object.</p></dd>
+
+
+<dt>assay_layers</dt>
+<dd><p>Assays to convert as layers in the anndata object.</p></dd>
+
+
+<dt>slot_layers</dt>
+<dd><p>Slot names for the assay_layers in the Seurat object.</p></dd>
 
 
 <dt>adata</dt>
-<dd><p>An <code>anndata</code> object. Can be created through <code><a href="srt_to_adata.html">srt_to_adata</a></code></p></dd>
+<dd><p>An anndata object.</p></dd>
 
 
 <dt>group_by</dt>
-<dd><p>group_by.</p></dd>
+<dd><p>Variable to use for grouping cells in the Seurat object.</p></dd>
 
 
-<dt>dpi</dt>
-<dd><p>dpi.</p></dd>
+<dt>time_field</dt>
+<dd><p>A character string specifying the column name in `adata.obs` or `srt@meta.data` that contains the time information.</p></dd>
+
+
+<dt>growth_iters</dt>
+<dd><p>An integer specifying the number of growth iterations to perform during the OT Model computation. Default is 3.</p></dd>
+
+
+<dt>tmap_out</dt>
+<dd><p>A character string specifying the path to store the computed transport maps.</p></dd>
+
+
+<dt>time_from</dt>
+<dd><p>A numeric value specifying the starting time point for trajectory and fate analysis.</p></dd>
+
+
+<dt>time_to</dt>
+<dd><p>A numeric value specifying the ending time point for trajectory and fate analysis. If not provided, only trajectory and fate analysis for the specified `time_from` will be performed.</p></dd>
+
+
+<dt>get_coupling</dt>
+<dd><p>A logical value indicating whether to compute and store the coupling matrix between the specified `time_from` and `time_to`. Default is FALSE.</p></dd>
+
+
+<dt>recalculate</dt>
+<dd><p>A logical value indicating whether to recalculate the transport maps even if they already exist at the specified `tmap_out` location. Default is FALSE.</p></dd>
+
+
+<dt>palette</dt>
+<dd><p>The palette to use for coloring cells.</p></dd>
+
+
+<dt>palcolor</dt>
+<dd><p>A vector of colors to use as the palette.</p></dd>
+
+
+<dt>show_plot</dt>
+<dd><p>Whether to show the PAGA plot.</p></dd>
 
 
 <dt>save</dt>
-<dd><p>save.</p></dd>
+<dd><p>Whether to save the PAGA plots.</p></dd>
+
+
+<dt>dpi</dt>
+<dd><p>The DPI (dots per inch) for saving the PAGA plot.</p></dd>
 
 
 <dt>dirpath</dt>
-<dd><p>dirpath.</p></dd>
+<dd><p>The directory to save the PAGA plots.</p></dd>
 
 
 <dt>fileprefix</dt>
-<dd><p>fileprefix.</p></dd>
+<dd><p>The file prefix to use for the PAGA plots.</p></dd>
 
 
 <dt>return_seurat</dt>
-<dd></dd>
+<dd><p>Whether to return a Seurat object instead of an anndata object. Default is TRUE.</p></dd>
 
 </dl></div>
+    <div class="section level2">
+    <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
+    <div class="dont-index"><p><code><a href="srt_to_adata.html">srt_to_adata</a></code></p></div>
+    </div>
 
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside></div>

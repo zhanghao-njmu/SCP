@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">SCP</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.2</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -76,10 +76,8 @@
 <span>  force_nonlinear_reduction <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  neighbor_metric <span class="op">=</span> <span class="st">"euclidean"</span>,</span>
 <span>  neighbor_k <span class="op">=</span> <span class="fl">20L</span>,</span>
-<span>  neighbor_ntrees <span class="op">=</span> <span class="fl">50L</span>,</span>
 <span>  cluster_algorithm <span class="op">=</span> <span class="st">"louvain"</span>,</span>
 <span>  cluster_resolution <span class="op">=</span> <span class="fl">0.6</span>,</span>
-<span>  cluster_reorder <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  mnnCorrect_params <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  seed <span class="op">=</span> <span class="fl">11</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -88,91 +86,127 @@
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
     <dl><dt>srtMerge</dt>
-<dd><p>A merged <code>Seurat</code> object with batch information.</p></dd>
+<dd><p>A merged Seurat object that includes the batch information.</p></dd>
 
 
 <dt>batch</dt>
-<dd><p>Metadata column name containing the batch information.</p></dd>
+<dd><p>A character string specifying the batch variable name.</p></dd>
 
 
 <dt>append</dt>
-<dd><p>Whether append results into the <code>srtMerge</code>. Only valid when srtMerge is provided.</p></dd>
+<dd><p>Logical, if TRUE, the integrated data will be appended to the original Seurat object (srtMerge).</p></dd>
 
 
 <dt>srtList</dt>
-<dd><p>A list of <code>Seurat</code> object.</p></dd>
+<dd><p>A list of Seurat objects to be checked and preprocessed.</p></dd>
+
+
+<dt>assay</dt>
+<dd><p>The name of the assay to be used for downstream analysis.</p></dd>
 
 
 <dt>do_normalization</dt>
-<dd><p>Whether to normalize the data. If NULL, will automatically determine.</p></dd>
+<dd><p>A logical value indicating whether data normalization should be performed.</p></dd>
 
 
 <dt>normalization_method</dt>
-<dd><p>Normalization method.Can be one of "LogNormalize", "SCT".</p></dd>
+<dd><p>The normalization method to be used. Possible values are "LogNormalize", "SCT", and "TFIDF". Default is "LogNormalize".</p></dd>
 
 
 <dt>do_HVF_finding</dt>
-<dd><p>Whether to find the high variable features(HVF). If NULL, will automatically determine.</p></dd>
+<dd><p>A logical value indicating whether highly variable feature (HVF) finding should be performed. Default is TRUE.</p></dd>
 
 
 <dt>HVF_source</dt>
-<dd><p>Source of the HVF. Can be one of "separate" and "global".</p></dd>
+<dd><p>The source of highly variable features. Possible values are "global" and "separate". Default is "separate".</p></dd>
+
+
+<dt>HVF_method</dt>
+<dd><p>The method for selecting highly variable features. Default is "vst".</p></dd>
 
 
 <dt>nHVF</dt>
-<dd><p>HVF number to use.</p></dd>
+<dd><p>The number of highly variable features to select. Default is 2000.</p></dd>
+
+
+<dt>HVF_min_intersection</dt>
+<dd><p>The feature needs to be present in batches for a minimum number of times in order to be considered as highly variable. The default value is 1.</p></dd>
 
 
 <dt>HVF</dt>
-<dd><p>Custom high variable features.</p></dd>
+<dd><p>A vector of highly variable features. Default is NULL.</p></dd>
 
 
 <dt>do_scaling</dt>
-<dd><p>Whether to scale the data. If NULL, will automatically determine.</p></dd>
+<dd><p>A logical value indicating whether to perform scaling. If TRUE, the function will force to scale the data using the ScaleData function.</p></dd>
 
 
 <dt>vars_to_regress</dt>
-<dd><p>Variables to regress out.</p></dd>
+<dd><p>A vector of variable names to include as additional regression variables. Default is NULL.</p></dd>
 
 
 <dt>regression_model</dt>
-<dd><p>Use a linear model or generalized linear model (poisson, negative binomial) for the regression. Options are "linear" (default), "poisson", and "negbinom".</p></dd>
+<dd><p>The regression model to use for scaling. Options are "linear", "poisson", or "negativebinomial" (default is "linear").</p></dd>
 
 
 <dt>linear_reduction</dt>
-<dd><p>linear reduction method name. Can be one of "pca", "ica", "nmf", "mds", "glmpca".</p></dd>
+<dd><p>The linear dimensionality reduction method to use. Options are "pca", "svd", "ica", "nmf", "mds", or "glmpca" (default is "pca").</p></dd>
 
 
 <dt>linear_reduction_dims</dt>
-<dd><p>Dimensions to calculate when performing linear reduction.</p></dd>
+<dd><p>The number of dimensions to keep after linear dimensionality reduction (default is 50).</p></dd>
 
 
 <dt>linear_reduction_dims_use</dt>
-<dd><p>Which dimensions to use when performing the nonlinear reduction.</p></dd>
+<dd><p>The dimensions to use for downstream analysis. If NULL, all dimensions will be used.</p></dd>
+
+
+<dt>linear_reduction_params</dt>
+<dd><p>A list of parameters to pass to the linear dimensionality reduction method.</p></dd>
+
+
+<dt>force_linear_reduction</dt>
+<dd><p>A logical value indicating whether to force linear dimensionality reduction even if the specified reduction is already present in the Seurat object.</p></dd>
 
 
 <dt>nonlinear_reduction</dt>
-<dd><p>Non-linear reduction method name. Can be one of "umap", "umap-naive", "tsne", "dm", "phate", "pacmap", "trimap", "largevis".</p></dd>
+<dd><p>The nonlinear dimensionality reduction method to use. Options are "umap","umap-naive", "tsne", "dm", "phate", "pacmap", "trimap", "largevis", or "fr" (default is "umap").</p></dd>
 
 
 <dt>nonlinear_reduction_dims</dt>
-<dd><p>Dimensions to calculate when performing non-linear reduction.</p></dd>
+<dd><p>The number of dimensions to keep after nonlinear dimensionality reduction. If a vector is provided, different numbers of dimensions can be specified for each method (default is c(2, 3)).</p></dd>
+
+
+<dt>nonlinear_reduction_params</dt>
+<dd><p>A list of parameters to pass to the nonlinear dimensionality reduction method.</p></dd>
+
+
+<dt>force_nonlinear_reduction</dt>
+<dd><p>A logical value indicating whether to force nonlinear dimensionality reduction even if the specified reduction is already present in the Seurat object.</p></dd>
+
+
+<dt>neighbor_metric</dt>
+<dd><p>The distance metric to use for finding neighbors. Options are "euclidean", "cosine", "manhattan", or "hamming" (default is "euclidean").</p></dd>
+
+
+<dt>neighbor_k</dt>
+<dd><p>The number of nearest neighbors to use for finding neighbors (default is 20).</p></dd>
 
 
 <dt>cluster_algorithm</dt>
-<dd><p>Algorithm for modularity optimization when finding clusters. Can be one of "louvain", "slm", "leiden".</p></dd>
+<dd><p>The clustering algorithm to use. Options are "louvain", "slm", or "leiden" (default is "louvain").</p></dd>
 
 
 <dt>cluster_resolution</dt>
-<dd><p>Cluster resolution parameter.</p></dd>
+<dd><p>The resolution parameter to use for clustering. Larger values result in fewer clusters (default is 0.6).</p></dd>
 
 
-<dt>cluster_reorder</dt>
-<dd><p>Whether to reorder the cluster names using hierarchical clustering.</p></dd>
+<dt>mnnCorrect_params</dt>
+<dd><p>A list of parameters for the batchelor::mnnCorrect function, default is an empty list.</p></dd>
 
 
 <dt>seed</dt>
-<dd><p>Set a random seed.</p></dd>
+<dd><p>An integer specifying the random seed for reproducibility. Default is 11.</p></dd>
 
 </dl></div>
 

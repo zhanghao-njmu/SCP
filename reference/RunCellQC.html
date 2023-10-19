@@ -14,7 +14,7 @@ and reject cell data for non-species of interest based on the proportion and num
     
     <a class="navbar-brand me-2" href="../index.html">SCP</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.2</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -87,19 +87,24 @@ and reject cell data for non-species of interest based on the proportion and num
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
     <dl><dt>srt</dt>
-<dd><p>A <code>Seurat</code> object.</p></dd>
+<dd><p>A Seurat object.</p></dd>
 
 
 <dt>assay</dt>
-<dd><p>Assay to use.</p></dd>
+<dd><p>The name of the assay to be used for doublet-calling. Default is "RNA".</p></dd>
+
+
+<dt>batch</dt>
+<dd><p>Name of the batch variable to split the Seurat object. Default is NULL.</p></dd>
 
 
 <dt>qc_metrics</dt>
-<dd><p>QC metrics applied.</p></dd>
+<dd><p>A character vector specifying the quality control metrics to be applied. Default is
+`c("doublets", "outlier", "umi", "gene", "mito", "ribo", "ribo_mito_ratio", "species")`.</p></dd>
 
 
 <dt>return_filtered</dt>
-<dd><p>Whether to return a cell-filtered <code>Seurat</code> object.</p></dd>
+<dd><p>Logical indicating whether to return a cell-filtered Seurat object. Default is FALSE.</p></dd>
 
 
 <dt>db_method</dt>
@@ -110,8 +115,13 @@ and reject cell data for non-species of interest based on the proportion and num
 <dd><p>The expected doublet rate. By default this is assumed to be 1% per thousand cells captured (so 4% among 4000 thousand cells), which is appropriate for 10x datasets.</p></dd>
 
 
+<dt>db_coefficient</dt>
+<dd><p>The coefficient used to calculate the doublet rate. Default is 0.01. Doublet rate is calculated as`ncol(srt) / 1000 * db_coefficient`</p></dd>
+
+
 <dt>outlier_cutoff</dt>
-<dd><p>MAD outlier metrics. See <a href="https://rdrr.io/pkg/scuttle/man/isOutlier.html" class="external-link">isOutlier</a>.</p></dd>
+<dd><p>A character vector specifying the outlier cutoff values. Default is
+`c("log10_nCount:lower:2.5", "log10_nCount:higher:5", "log10_nFeature:lower:2.5", "log10_nFeature:higher:5", "featurecount_dist:lower:2.5")`. See <a href="https://rdrr.io/pkg/scuttle/man/isOutlier.html" class="external-link">isOutlier</a>.</p></dd>
 
 
 <dt>outlier_n</dt>
@@ -131,11 +141,11 @@ and reject cell data for non-species of interest based on the proportion and num
 
 
 <dt>mito_pattern</dt>
-<dd><p>Regex patterns to match the mitochondrial genes.</p></dd>
+<dd><p>Regex patterns to match the mitochondrial genes. Default is `c("MT-", "Mt-", "mt-")`.</p></dd>
 
 
 <dt>mito_gene</dt>
-<dd><p>A defined mitochondrial genes. If features provided, will ignore the <code>mito_pattern</code> matching.</p></dd>
+<dd><p>A defined mitochondrial genes. If features provided, will ignore the <code>mito_pattern</code> matching. Default is <code>NULL</code>.</p></dd>
 
 
 <dt>ribo_threshold</dt>
@@ -143,11 +153,15 @@ and reject cell data for non-species of interest based on the proportion and num
 
 
 <dt>ribo_pattern</dt>
-<dd><p>Regex patterns to match the ribosomal genes.</p></dd>
+<dd><p>Regex patterns to match the ribosomal genes. Default is `c("RP[SL]\d+\w0,1\d*$", "Rp[sl]\d+\w0,1\d*$", "rp[sl]\d+\w0,1\d*$")`.</p></dd>
 
 
 <dt>ribo_gene</dt>
-<dd><p>A defined ribosomal genes. If features provided, will ignore the <code>ribo_pattern</code> matching.</p></dd>
+<dd><p>A defined ribosomal genes. If features provided, will ignore the <code>ribo_pattern</code> matching. Default is <code>NULL</code>.</p></dd>
+
+
+<dt>ribo_mito_ratio_range</dt>
+<dd><p>A numeric vector specifying the range of ribosomal/mitochondrial gene expression ratios for ribo_mito_ratio outlier cells. Default is c(1, Inf).</p></dd>
 
 
 <dt>species</dt>

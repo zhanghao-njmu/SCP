@@ -14,7 +14,7 @@ This function can set the panel width/height of plot to a fixed value and raster
     
     <a class="navbar-brand me-2" href="../index.html">SCP</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.2</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -71,6 +71,23 @@ This function can set the panel width/height of plot to a fixed value and raster
 <span>  save <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">panel_fix_overall</span><span class="op">(</span></span>
+<span>  <span class="va">x</span>,</span>
+<span>  panel_index <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  respect <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  width <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  height <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  margin <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  units <span class="op">=</span> <span class="st">"in"</span>,</span>
+<span>  raster <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  dpi <span class="op">=</span> <span class="fl">300</span>,</span>
+<span>  BPPARAM <span class="op">=</span> <span class="fu">BiocParallel</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/BiocParallel/man/SerialParam-class.html" class="external-link">SerialParam</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  return_grob <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  bg_color <span class="op">=</span> <span class="st">"white"</span>,</span>
+<span>  save <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  verbose <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -89,15 +106,19 @@ This function can set the panel width/height of plot to a fixed value and raster
 
 
 <dt>width</dt>
-<dd><p>The width of the panel.</p></dd>
+<dd><p>The desired width of the fixed panels.</p></dd>
 
 
 <dt>height</dt>
-<dd><p>The height of the panel.</p></dd>
+<dd><p>The desired height of the fixed panels.</p></dd>
 
 
 <dt>margin</dt>
-<dd><p>Margins around the plot.</p></dd>
+<dd><p>The margin to add around each panel, in inches. The default is 1 inch.</p></dd>
+
+
+<dt>padding</dt>
+<dd><p>The padding to add around each panel, in inches. The default is 0 inches.</p></dd>
 
 
 <dt>units</dt>
@@ -133,7 +154,7 @@ This function can set the panel width/height of plot to a fixed value and raster
 
 
 <dt>...</dt>
-<dd></dd>
+<dd><p>Unused.</p></dd>
 
 </dl></div>
 
@@ -177,21 +198,16 @@ This function can set the panel width/height of plot to a fixed value and raster
 <span class="r-plt img"><img src="panel_fix-3.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># fix the panel of the plot combined by plot_grid</span></span></span>
-<span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://wilkelab.org/cowplot/" class="external-link">cowplot</a></span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Attaching package: ‘cowplot’</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> The following object is masked from ‘package:ggpubr’:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>     get_legend</span>
-<span class="r-in"><span><span class="va">p1</span> <span class="op">&lt;-</span> <span class="fu"><a href="CellDimPlot.html">CellDimPlot</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Phase"</span>, <span class="st">"SubCellType"</span><span class="op">)</span>, label <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="co"># plot is combined by patchwork</span></span></span>
-<span class="r-in"><span><span class="va">p2</span> <span class="op">&lt;-</span> <span class="fu"><a href="FeatureDimPlot.html">FeatureDimPlot</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Ins1"</span>, <span class="st">"Gcg"</span><span class="op">)</span>, label <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="co"># plot is combined by patchwork</span></span></span>
-<span class="r-in"><span><span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wilkelab.org/cowplot/reference/plot_grid.html" class="external-link">plot_grid</a></span><span class="op">(</span><span class="va">p1</span>, <span class="va">p2</span>, nrow <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="co"># plot is combined by plot_grid</span></span></span>
-<span class="r-in"><span><span class="co"># fix the size of panel for each plot</span></span></span>
-<span class="r-in"><span><span class="fu">panel_fix</span><span class="op">(</span><span class="va">p</span>, height <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"cowplot"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>  <span class="va">p1</span> <span class="op">&lt;-</span> <span class="fu"><a href="CellDimPlot.html">CellDimPlot</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Phase"</span>, <span class="st">"SubCellType"</span><span class="op">)</span>, label <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="co"># plot is combined by patchwork</span></span></span>
+<span class="r-in"><span>  <span class="va">p2</span> <span class="op">&lt;-</span> <span class="fu"><a href="FeatureDimPlot.html">FeatureDimPlot</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Ins1"</span>, <span class="st">"Gcg"</span><span class="op">)</span>, label <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="co"># plot is combined by patchwork</span></span></span>
+<span class="r-in"><span>  <span class="va">p</span> <span class="op">&lt;-</span> <span class="fu">cowplot</span><span class="fu">::</span><span class="fu"><a href="https://wilkelab.org/cowplot/reference/plot_grid.html" class="external-link">plot_grid</a></span><span class="op">(</span><span class="va">p1</span>, <span class="va">p2</span>, nrow <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="co"># plot is combined by plot_grid</span></span></span>
+<span class="r-in"><span>  <span class="co"># fix the size of panel for each plot</span></span></span>
+<span class="r-in"><span>  <span class="fu">panel_fix</span><span class="op">(</span><span class="va">p</span>, height <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="co"># rasterize the panel while keeping all labels and text in vector format</span></span></span>
+<span class="r-in"><span>  <span class="fu">panel_fix</span><span class="op">(</span><span class="va">p</span>, height <span class="op">=</span> <span class="fl">1</span>, raster <span class="op">=</span> <span class="cn">TRUE</span>, dpi <span class="op">=</span> <span class="fl">30</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
 <span class="r-plt img"><img src="panel_fix-4.png" alt="" width="700" height="433"></span>
-<span class="r-in"><span><span class="co"># rasterize the panel while keeping all labels and text in vector format</span></span></span>
-<span class="r-in"><span><span class="fu">panel_fix</span><span class="op">(</span><span class="va">p</span>, height <span class="op">=</span> <span class="fl">1</span>, raster <span class="op">=</span> <span class="cn">TRUE</span>, dpi <span class="op">=</span> <span class="fl">30</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="panel_fix-5.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># fix the panel of the heatmap</span></span></span>
 <span class="r-in"><span><span class="va">ht1</span> <span class="op">&lt;-</span> <span class="fu"><a href="GroupHeatmap.html">GroupHeatmap</a></span><span class="op">(</span><span class="va">pancreas_sub</span>,</span></span>
@@ -210,16 +226,16 @@ This function can set the panel width/height of plot to a fixed value and raster
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Set `ht_opt$message = FALSE` to turn off this message.</span>
 <span class="r-in"><span><span class="co"># the size of the heatmap is not fixed and can be resized by zooming the viewport.</span></span></span>
 <span class="r-in"><span><span class="va">ht1</span><span class="op">$</span><span class="va">plot</span></span></span>
-<span class="r-plt img"><img src="panel_fix-6.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="panel_fix-5.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="co"># fix the size of the heatmap according the current viewport</span></span></span>
 <span class="r-in"><span><span class="fu">panel_fix</span><span class="op">(</span><span class="va">ht1</span><span class="op">$</span><span class="va">plot</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="panel_fix-7.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="panel_fix-6.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="co"># rasterize the heatmap body</span></span></span>
 <span class="r-in"><span><span class="fu">panel_fix</span><span class="op">(</span><span class="va">ht1</span><span class="op">$</span><span class="va">plot</span>, raster <span class="op">=</span> <span class="cn">TRUE</span>, dpi <span class="op">=</span> <span class="fl">30</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="panel_fix-8.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="panel_fix-7.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="co"># fix the size of overall heatmap including annotation and legend</span></span></span>
 <span class="r-in"><span><span class="fu">panel_fix</span><span class="op">(</span><span class="va">ht1</span><span class="op">$</span><span class="va">plot</span>, height <span class="op">=</span> <span class="fl">4</span>, width <span class="op">=</span> <span class="fl">6</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="panel_fix-9.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="panel_fix-8.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">ht2</span> <span class="op">&lt;-</span> <span class="fu"><a href="GroupHeatmap.html">GroupHeatmap</a></span><span class="op">(</span><span class="va">pancreas_sub</span>,</span></span>
 <span class="r-in"><span>  features <span class="op">=</span> <span class="va">pancreas_sub</span><span class="op">[[</span><span class="st">"RNA"</span><span class="op">]</span><span class="op">]</span><span class="op">@</span><span class="va">var.features</span>,</span></span>
@@ -231,28 +247,27 @@ This function can set the panel width/height of plot to a fixed value and raster
 <span class="r-msg co"><span class="r-pr">#&gt;</span> 'magick' package is suggested to install to give better rasterization.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Set `ht_opt$message = FALSE` to turn off this message.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-09-11 18:11:57.463319] Start Enrichment</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-10-19 04:26:58.688146] Start Enrichment</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Workers: 1</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Species: Mus_musculus</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db: GO_BP version:3.17.0 nterm:16027 created:2023-09-11 16:45:33.006794</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db: GO_BP version:3.17.0 nterm:16027 created:2023-10-19 02:40:29.055067</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Permform enrichment...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |==============================================================================================================| 100%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-09-11 18:13:04.050553] Enrichment done</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:1.11 mins</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> The size of the heatmap will be fixed as some elements are not scalable.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-10-19 04:28:28.715214] Enrichment done</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:1.5 mins</span>
 <span class="r-in"><span><span class="co"># the size of the heatmap is already fixed</span></span></span>
 <span class="r-in"><span><span class="va">ht2</span><span class="op">$</span><span class="va">plot</span></span></span>
-<span class="r-plt img"><img src="panel_fix-10.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="panel_fix-9.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="co"># when no height/width is specified, panel_fix does not change the size of the heatmap.</span></span></span>
 <span class="r-in"><span><span class="fu">panel_fix</span><span class="op">(</span><span class="va">ht2</span><span class="op">$</span><span class="va">plot</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="panel_fix-11.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="panel_fix-10.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="co"># rasterize the heatmap body</span></span></span>
 <span class="r-in"><span><span class="fu">panel_fix</span><span class="op">(</span><span class="va">ht2</span><span class="op">$</span><span class="va">plot</span>, raster <span class="op">=</span> <span class="cn">TRUE</span>, dpi <span class="op">=</span> <span class="fl">30</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="panel_fix-12.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="panel_fix-11.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="co"># however, gene labels on the left and enrichment annotations on the right cannot be adjusted</span></span></span>
 <span class="r-in"><span><span class="fu">panel_fix</span><span class="op">(</span><span class="va">ht2</span><span class="op">$</span><span class="va">plot</span>, height <span class="op">=</span> <span class="fl">5</span>, width <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="panel_fix-13.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="panel_fix-12.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

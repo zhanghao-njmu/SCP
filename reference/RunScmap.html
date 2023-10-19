@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">SCP</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.2</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -52,19 +52,51 @@
 <span>  <span class="va">srt_query</span>,</span>
 <span>  <span class="va">srt_ref</span>,</span>
 <span>  ref_group <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  method <span class="op">=</span> <span class="st">"scmapCluster"</span>,</span>
-<span>  n_features <span class="op">=</span> <span class="fl">500</span>,</span>
-<span>  threshold <span class="op">=</span> <span class="fl">0.5</span>,</span>
-<span>  k <span class="op">=</span> <span class="fl">10</span>,</span>
 <span>  query_assay <span class="op">=</span> <span class="st">"RNA"</span>,</span>
-<span>  ref_assay <span class="op">=</span> <span class="st">"RNA"</span></span>
+<span>  ref_assay <span class="op">=</span> <span class="st">"RNA"</span>,</span>
+<span>  method <span class="op">=</span> <span class="st">"scmapCluster"</span>,</span>
+<span>  nfeatures <span class="op">=</span> <span class="fl">500</span>,</span>
+<span>  threshold <span class="op">=</span> <span class="fl">0.5</span>,</span>
+<span>  k <span class="op">=</span> <span class="fl">10</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
-    <dl><dt>force</dt>
-<dd></dd>
+    <dl><dt>srt_query</dt>
+<dd><p>An object of class Seurat to be annotated with cell types.</p></dd>
+
+
+<dt>srt_ref</dt>
+<dd><p>An object of class Seurat storing the reference cells.</p></dd>
+
+
+<dt>ref_group</dt>
+<dd><p>A character vector specifying the column name in the `srt_ref` metadata that represents the cell grouping.</p></dd>
+
+
+<dt>query_assay</dt>
+<dd><p>A character vector specifying the assay to be used for the query data. Defaults to the default assay of the `srt_query` object.</p></dd>
+
+
+<dt>ref_assay</dt>
+<dd><p>A character vector specifying the assay to be used for the reference data. Defaults to the default assay of the `srt_ref` object.</p></dd>
+
+
+<dt>method</dt>
+<dd><p>The method to be used for scmap analysis. Can be any of "scmapCluster" or "scmapCell". The default value is "scmapCluster".</p></dd>
+
+
+<dt>nfeatures</dt>
+<dd><p>The number of top features to be selected. The default value is 500.</p></dd>
+
+
+<dt>threshold</dt>
+<dd><p>The threshold value on similarity to determine if a cell is assigned to a cluster. This should be a value between 0 and 1. The default value is 0.5.</p></dd>
+
+
+<dt>k</dt>
+<dd><p>Number of clusters per group for k-means clustering when method is "scmapCell".</p></dd>
 
 </dl></div>
 
@@ -76,8 +108,8 @@
 <span class="r-in"><span><span class="va">panc8_sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="RenameFeatures.html">RenameFeatures</a></span><span class="op">(</span><span class="va">panc8_sub</span>, newnames <span class="op">=</span> <span class="va">genenames</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Rename features for the assay: RNA</span>
 <span class="r-in"><span><span class="va">panc8_sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="check_srtMerge.html">check_srtMerge</a></span><span class="op">(</span><span class="va">panc8_sub</span>, batch <span class="op">=</span> <span class="st">"tech"</span><span class="op">)</span><span class="op">[[</span><span class="st">"srtMerge"</span><span class="op">]</span><span class="op">]</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-09-11 17:54:48.701046] Spliting srtMerge into srtList by column tech... ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-09-11 17:54:49.335953] Checking srtList... ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-19 04:17:09.953816] Spliting srtMerge into srtList by column tech... ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-19 04:17:10.598844] Checking srtList... ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Data 1/5 of the srtList is raw_normalized_counts. Perform NormalizeData(LogNormalize) on the data ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform FindVariableFeatures on the data 1/5 of the srtList...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Data 2/5 of the srtList is raw_normalized_counts. Perform NormalizeData(LogNormalize) on the data ...</span>
@@ -90,27 +122,27 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform FindVariableFeatures on the data 5/5 of the srtList...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Use the separate HVF from srtList...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Number of available HVF: 2000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-09-11 17:54:52.462585] Finished checking.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-19 04:17:14.607287] Finished checking.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Annotation</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"pancreas_sub"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="Standard_SCP.html">Standard_SCP</a></span><span class="op">(</span><span class="va">pancreas_sub</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-09-11 17:54:57.42348] Start Standard_SCP</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-09-11 17:54:57.423737] Checking srtList... ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-19 04:17:19.687779] Start Standard_SCP</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-19 04:17:19.688222] Checking srtList... ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Data 1/1 of the srtList is raw_counts. Perform NormalizeData(LogNormalize) on the data ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform FindVariableFeatures on the data 1/1 of the srtList...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Use the separate HVF from srtList...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Number of available HVF: 2000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-09-11 17:54:58.608734] Finished checking.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-09-11 17:54:58.608964] Perform ScaleData on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-09-11 17:54:58.836983] Perform linear dimension reduction (pca) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-09-11 17:54:59.653802] Perform FindClusters (louvain) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-09-11 17:54:59.782686] Reorder clusters...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-09-11 17:55:00.075968] Perform nonlinear dimension reduction (umap) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-19 04:17:21.254873] Finished checking.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-19 04:17:21.255142] Perform ScaleData on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-19 04:17:21.489879] Perform linear dimension reduction (pca) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-19 04:17:22.567423] Perform FindClusters (louvain) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-19 04:17:22.710829] Reorder clusters...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-19 04:17:23.007292] Perform nonlinear dimension reduction (umap) on the data...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Non-linear dimensionality reduction(umap) using Reduction(Standardpca, dims:1-13) as input</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Non-linear dimensionality reduction(umap) using Reduction(Standardpca, dims:1-13) as input</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-09-11 17:55:09.489989] Standard_SCP done</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 12.07 secs </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-19 04:17:35.04561] Standard_SCP done</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 15.36 secs </span>
 <span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu">RunScmap</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  srt_query <span class="op">=</span> <span class="va">pancreas_sub</span>, srt_ref <span class="op">=</span> <span class="va">panc8_sub</span>,</span></span>
 <span class="r-in"><span>  ref_group <span class="op">=</span> <span class="st">"celltype"</span>, method <span class="op">=</span> <span class="st">"scmapCluster"</span></span></span>

@@ -14,7 +14,7 @@ The original python code is on https://github.com/theislab/scvelo/blob/master/sc
     
     <a class="navbar-brand me-2" href="../index.html">SCP</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.2</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -69,8 +69,40 @@ The original python code is on https://github.com/theislab/scvelo/blob/master/sc
 
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
-    <dl><dt>cutoff_perc</dt>
-<dd></dd>
+    <dl><dt>X_emb</dt>
+<dd><p>A matrix of dimension n_obs x n_dim specifying the embedding coordinates of the cells.</p></dd>
+
+
+<dt>V_emb</dt>
+<dd><p>A matrix of dimension n_obs x n_dim specifying the velocity vectors of the cells.</p></dd>
+
+
+<dt>density</dt>
+<dd><p>An optional numeric value specifying the density of the grid points along each dimension. Default is 1.</p></dd>
+
+
+<dt>smooth</dt>
+<dd><p>An optional numeric value specifying the smoothing factor for the velocity vectors. Default is 0.5.</p></dd>
+
+
+<dt>n_neighbors</dt>
+<dd><p>An optional numeric value specifying the number of nearest neighbors for each grid point. Default is ceiling(n_obs / 50).</p></dd>
+
+
+<dt>min_mass</dt>
+<dd><p>An optional numeric value specifying the minimum mass required for a grid point to be considered. Default is 1.</p></dd>
+
+
+<dt>scale</dt>
+<dd><p>An optional numeric value specifying the scaling factor for the velocity vectors. Default is 1.</p></dd>
+
+
+<dt>adjust_for_stream</dt>
+<dd><p>A logical value indicating whether to adjust the velocity vectors for streamlines. Default is FALSE.</p></dd>
+
+
+<dt>cutoff_perc</dt>
+<dd><p>An optional numeric value specifying the percentile cutoff for removing low-density grid points. Default is 5.</p></dd>
 
 </dl></div>
 

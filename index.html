@@ -26,7 +26,7 @@
     
     <a class="navbar-brand me-2" href="index.html">SCP</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.2</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -472,26 +472,32 @@
 <span><span class="fu"><a href="reference/GSEAPlot.html">GSEAPlot</a></span><span class="op">(</span>srt <span class="op">=</span> <span class="va">pancreas_sub</span>, group_by <span class="op">=</span> <span class="st">"CellType"</span>, group_use <span class="op">=</span> <span class="st">"Endocrine"</span>, id_use <span class="op">=</span> <span class="st">"GO:0007186"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="README/README-RunGSEA-1.png" width="100%" style="display: block; margin: auto;"></p>
 <div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="reference/GSEAPlot.html">GSEAPlot</a></span><span class="op">(</span></span>
+<span>  srt <span class="op">=</span> <span class="va">pancreas_sub</span>, group_by <span class="op">=</span> <span class="st">"CellType"</span>, group_use <span class="op">=</span> <span class="st">"Endocrine"</span>, plot_type <span class="op">=</span> <span class="st">"bar"</span>,</span>
+<span>  direction <span class="op">=</span> <span class="st">"both"</span>, topTerm <span class="op">=</span> <span class="fl">20</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p><img src="README/README-GSEA_bar-1.png" width="100%" style="display: block; margin: auto;"></p>
+<div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/GSEAPlot.html">GSEAPlot</a></span><span class="op">(</span>srt <span class="op">=</span> <span class="va">pancreas_sub</span>, group_by <span class="op">=</span> <span class="st">"CellType"</span>, plot_type <span class="op">=</span> <span class="st">"comparison"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="README/README-GSEA_comparison-1.png" width="100%" style="display: block; margin: auto;"></p>
 </div>
 <div class="section level3">
 <h3 id="trajectory-inference">Trajectory inference<a class="anchor" aria-label="anchor" href="#trajectory-inference"></a>
 </h3>
-<div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb42"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/RunSlingshot.html">RunSlingshot</a></span><span class="op">(</span>srt <span class="op">=</span> <span class="va">pancreas_sub</span>, group.by <span class="op">=</span> <span class="st">"SubCellType"</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="README/README-RunSlingshot-1.png" width="100%" style="display: block; margin: auto;"></p>
-<div class="sourceCode" id="cb42"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/FeatureDimPlot.html">FeatureDimPlot</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, features <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"Lineage"</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">)</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span>, theme_use <span class="op">=</span> <span class="st">"theme_blank"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="README/README-RunSlingshot-2.png" width="100%" style="display: block; margin: auto;"></p>
-<div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/CellDimPlot.html">CellDimPlot</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, group.by <span class="op">=</span> <span class="st">"SubCellType"</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span>, lineages <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"Lineage"</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">)</span>, lineages_span <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span></span></code></pre></div>
 <p><img src="README/README-RunSlingshot-3.png" width="100%" style="display: block; margin: auto;"></p>
 </div>
 <div class="section level3">
 <h3 id="dynamic-features">Dynamic features<a class="anchor" aria-label="anchor" href="#dynamic-features"></a>
 </h3>
-<div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/RunDynamicFeatures.html">RunDynamicFeatures</a></span><span class="op">(</span>srt <span class="op">=</span> <span class="va">pancreas_sub</span>, lineages <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Lineage1"</span>, <span class="st">"Lineage2"</span><span class="op">)</span>, n_candidates <span class="op">=</span> <span class="fl">200</span><span class="op">)</span></span>
 <span><span class="va">ht</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/DynamicHeatmap.html">DynamicHeatmap</a></span><span class="op">(</span></span>
 <span>  srt <span class="op">=</span> <span class="va">pancreas_sub</span>, lineages <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Lineage1"</span>, <span class="st">"Lineage2"</span><span class="op">)</span>,</span>
@@ -505,14 +511,14 @@
 <span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">ht</span><span class="op">$</span><span class="va">plot</span><span class="op">)</span></span></code></pre></div>
 <p><img src="README/README-DynamicHeatmap-1.png" width="100%" style="display: block; margin: auto;"></p>
-<div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb46"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/DynamicPlot.html">DynamicPlot</a></span><span class="op">(</span></span>
 <span>  srt <span class="op">=</span> <span class="va">pancreas_sub</span>, lineages <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Lineage1"</span>, <span class="st">"Lineage2"</span><span class="op">)</span>, group.by <span class="op">=</span> <span class="st">"SubCellType"</span>,</span>
 <span>  features <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Plk1"</span>, <span class="st">"Hes1"</span>, <span class="st">"Neurod2"</span>, <span class="st">"Ghrl"</span>, <span class="st">"Gcg"</span>, <span class="st">"Ins2"</span><span class="op">)</span>,</span>
 <span>  compare_lineages <span class="op">=</span> <span class="cn">TRUE</span>, compare_features <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p><img src="README/README-DynamicPlot-1.png" width="100%" style="display: block; margin: auto;"></p>
-<div class="sourceCode" id="cb46"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb47"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/FeatureStatPlot.html">FeatureStatPlot</a></span><span class="op">(</span></span>
 <span>  srt <span class="op">=</span> <span class="va">pancreas_sub</span>, group.by <span class="op">=</span> <span class="st">"SubCellType"</span>, bg.by <span class="op">=</span> <span class="st">"CellType"</span>,</span>
 <span>  stat.by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Sox9"</span>, <span class="st">"Neurod2"</span>, <span class="st">"Isl1"</span>, <span class="st">"Rbp4"</span><span class="op">)</span>, add_box <span class="op">=</span> <span class="cn">TRUE</span>,</span>
@@ -527,7 +533,7 @@
 <div class="section level3">
 <h3 id="interactive-data-visualization-with-scexplorer">Interactive data visualization with SCExplorer<a class="anchor" aria-label="anchor" href="#interactive-data-visualization-with-scexplorer"></a>
 </h3>
-<div class="sourceCode" id="cb47"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb48"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/PrepareSCExplorer.html">PrepareSCExplorer</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>mouse_pancreas <span class="op">=</span> <span class="va">pancreas_sub</span>, human_pancreas <span class="op">=</span> <span class="va">panc8_sub</span><span class="op">)</span>, base_dir <span class="op">=</span> <span class="st">"./SCExplorer"</span><span class="op">)</span></span>
 <span><span class="va">app</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/RunSCExplorer.html">RunSCExplorer</a></span><span class="op">(</span>base_dir <span class="op">=</span> <span class="st">"./SCExplorer"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="st">"./SCExplorer"</span><span class="op">)</span> <span class="co"># This directory can be used as site directory for Shiny Server.</span></span>

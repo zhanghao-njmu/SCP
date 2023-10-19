@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">SCP</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.2</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -70,7 +70,7 @@
 <span>  alpha <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  bg_palette <span class="op">=</span> <span class="st">"Paired"</span>,</span>
 <span>  bg_palcolor <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  bg_apha <span class="op">=</span> <span class="fl">0.2</span>,</span>
+<span>  bg_alpha <span class="op">=</span> <span class="fl">0.2</span>,</span>
 <span>  label <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  label.size <span class="op">=</span> <span class="fl">3.5</span>,</span>
 <span>  label.fg <span class="op">=</span> <span class="st">"black"</span>,</span>
@@ -101,18 +101,173 @@
 
 
 <dt>stat.by</dt>
-<dd><p>The name of a metadata column to be counted.</p></dd>
+<dd><p>The column name(s) in <code>meta.data</code> specifying the variable(s) to be plotted.</p></dd>
+
+
+<dt>group.by</dt>
+<dd><p>The column name in <code>meta.data</code> specifying the grouping variable.</p></dd>
+
+
+<dt>split.by</dt>
+<dd><p>The column name in <code>meta.data</code> specifying the splitting variable.</p></dd>
+
+
+<dt>bg.by</dt>
+<dd><p>The column name in <code>meta.data</code> specifying the background variable for bar plots.</p></dd>
+
+
+<dt>cells</dt>
+<dd><p>A character vector specifying the cells to include in the plot. Default is NULL.</p></dd>
+
+
+<dt>flip</dt>
+<dd><p>Logical indicating whether to flip the plot.</p></dd>
+
+
+<dt>NA_color</dt>
+<dd><p>The color to use for missing values.</p></dd>
+
+
+<dt>NA_stat</dt>
+<dd><p>Logical indicating whether to include missing values in the plot.</p></dd>
+
+
+<dt>keep_empty</dt>
+<dd><p>Logical indicating whether to keep empty groups in the plot.</p></dd>
+
+
+<dt>individual</dt>
+<dd><p>Logical indicating whether to plot individual groups separately.</p></dd>
+
+
+<dt>stat_level</dt>
+<dd><p>The level(s) of the variable(s) specified in <code>stat.by</code> to include in the plot.</p></dd>
+
+
+<dt>plot_type</dt>
+<dd><p>The type of plot to create. Can be one of "bar", "rose", "ring", "pie", "trend", "area", "dot", "sankey", "chord", "venn", or "upset".</p></dd>
+
+
+<dt>stat_type</dt>
+<dd><p>The type of statistic to compute for the plot. Can be one of "percent" or "count".</p></dd>
+
+
+<dt>position</dt>
+<dd><p>The position adjustment for the plot. Can be one of "stack" or "dodge".</p></dd>
+
+
+<dt>palette</dt>
+<dd><p>The name of the color palette to use for the plot.</p></dd>
+
+
+<dt>palcolor</dt>
+<dd><p>The color to use in the color palette.</p></dd>
+
+
+<dt>alpha</dt>
+<dd><p>The transparency level for the plot.</p></dd>
+
+
+<dt>bg_palette</dt>
+<dd><p>The name of the background color palette to use for bar plots.</p></dd>
+
+
+<dt>bg_palcolor</dt>
+<dd><p>The color to use in the background color palette.</p></dd>
+
+
+<dt>bg_alpha</dt>
+<dd><p>The transparency level for the background color in bar plots.</p></dd>
+
+
+<dt>label</dt>
+<dd><p>Logical indicating whether to add labels on the plot.</p></dd>
+
+
+<dt>label.size</dt>
+<dd><p>The size of the labels.</p></dd>
+
+
+<dt>label.fg</dt>
+<dd><p>The foreground color of the labels.</p></dd>
+
+
+<dt>label.bg</dt>
+<dd><p>The background color of the labels.</p></dd>
+
+
+<dt>label.bg.r</dt>
+<dd><p>The radius of the rounded corners of the label background.</p></dd>
+
+
+<dt>aspect.ratio</dt>
+<dd><p>The aspect ratio of the plot.</p></dd>
+
+
+<dt>title</dt>
+<dd><p>The main title of the plot.</p></dd>
+
+
+<dt>subtitle</dt>
+<dd><p>The subtitle of the plot.</p></dd>
+
+
+<dt>xlab</dt>
+<dd><p>The x-axis label of the plot.</p></dd>
+
+
+<dt>ylab</dt>
+<dd><p>The y-axis label of the plot.</p></dd>
+
+
+<dt>legend.position</dt>
+<dd><p>The position of the legend in the plot. Can be one of "right", "left", "bottom", "top", or "none".</p></dd>
+
+
+<dt>legend.direction</dt>
+<dd><p>The direction of the legend in the plot. Can be one of "vertical" or "horizontal".</p></dd>
+
+
+<dt>theme_use</dt>
+<dd><p>The name of the theme to use for the plot. Can be one of the predefined themes or a custom theme.</p></dd>
+
+
+<dt>theme_args</dt>
+<dd><p>A list of arguments to be passed to the theme function.</p></dd>
+
+
+<dt>combine</dt>
+<dd><p>Logical indicating whether to combine multiple plots into a single plot.</p></dd>
+
+
+<dt>nrow</dt>
+<dd><p>The number of rows in the combined plot.</p></dd>
+
+
+<dt>ncol</dt>
+<dd><p>The number of columns in the combined plot.</p></dd>
+
+
+<dt>byrow</dt>
+<dd><p>Logical indicating whether to fill the plot by row or by column.</p></dd>
+
+
+<dt>force</dt>
+<dd><p>Logical indicating whether to force the plot even if some variables have more than 100 levels.</p></dd>
 
 
 <dt>seed</dt>
-<dd></dd>
+<dd><p>The random seed to use for reproducible results.</p></dd>
 
 </dl></div>
+    <div class="section level2">
+    <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
+    <div class="dont-index"><p><code><a href="StatPlot.html">StatPlot</a></code></p></div>
+    </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"pancreas_sub"</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"pancreas_sub"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">CellStatPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, stat.by <span class="op">=</span> <span class="st">"Phase"</span>, group.by <span class="op">=</span> <span class="st">"SubCellType"</span>, label <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="CellStatPlot-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="fu">CellStatPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, stat.by <span class="op">=</span> <span class="st">"Phase"</span>, group.by <span class="op">=</span> <span class="st">"SubCellType"</span>, label <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="panel_fix.html">panel_fix</a></span><span class="op">(</span>height <span class="op">=</span> <span class="fl">2</span>, width <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></span>
