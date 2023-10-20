@@ -23,7 +23,9 @@ FeatureCorPlot(
   add_smooth = TRUE,
   palette = "Paired",
   palcolor = NULL,
-  bg_color = "grey80",
+  cor_palette = "RdBu",
+  cor_palcolor = NULL,
+  cor_range = c(-1, 1),
   pt.size = NULL,
   pt.alpha = 1,
   cells.highlight = NULL,
@@ -84,7 +86,11 @@ FeatureCorPlot(
 
 \item{palcolor}{A character string specifying the color for the groups. Defaults to NULL.}
 
-\item{bg_color}{A character string specifying the color for cells not included in the highlight. Defaults to "grey80".}
+\item{cor_palette}{A character string specifying the name of the color palette to use for the correlation. Defaults to "RuBu".}
+
+\item{cor_palcolor}{A character string specifying the color for the correlation. Defaults to "RuBu".}
+
+\item{cor_range}{A two-length numeric vector specifying the range for the correlation.}
 
 \item{pt.size}{A numeric value specifying the size of the points in the scatter plots. If NULL (default), the size will be automatically determined based on the number of cells.}
 
@@ -138,5 +144,14 @@ This function creates a correlation plot to visualize the pairwise correlations 
 }
 \examples{
 data("pancreas_sub")
-FeatureCorPlot(pancreas_sub, features = c("Ghrl", "Gcg", "Ins1", "Ins2"), group.by = "SubCellType")
+pancreas_sub <- Seurat::NormalizeData(pancreas_sub)
+FeatureCorPlot(pancreas_sub, features = c("Neurog3", "Hes6", "Fev", "Neurod1", "Rbp4", "Pyy"), group.by = "SubCellType")
+FeatureCorPlot(pancreas_sub,
+  features = c("nFeature_RNA", "nCount_RNA", "nFeature_spliced", "nCount_spliced", "nFeature_unspliced", "nCount_unspliced"),
+  group.by = "SubCellType", cor_palette = "Greys", cor_range = c(0, 1)
+)
+FeatureCorPlot(pancreas_sub,
+  features = c("nFeature_RNA", "nCount_RNA"),
+  group.by = "SubCellType", add_equation = TRUE
+)
 }
