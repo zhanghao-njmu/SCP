@@ -5018,7 +5018,9 @@ StatPlot <- function(meta.data, stat.by, group.by = NULL, split.by = NULL, bg.by
 #' @param add_smooth A logical value indicating whether to add a smoothed line to each scatter plot. Defaults to TRUE.
 #' @param palette A character string specifying the name of the color palette to use for the groups. Defaults to "Paired".
 #' @param palcolor A character string specifying the color for the groups. Defaults to NULL.
-#' @param bg_color A character string specifying the color for cells not included in the highlight. Defaults to "grey80".
+#' @param cor_palette A character string specifying the name of the color palette to use for the correlation. Defaults to "RuBu".
+#' @param cor_palcolor A character string specifying the color for the correlation. Defaults to "RuBu".
+#' @param cor_range A two-length numeric vector specifying the range for the correlation.
 #' @param pt.size A numeric value specifying the size of the points in the scatter plots. If NULL (default), the size will be automatically determined based on the number of cells.
 #' @param pt.alpha A numeric value between 0 and 1 specifying the transparency of the points in the scatter plots. Defaults to 1.
 #' @param cells.highlight A logical value or a character vector specifying the cells to highlight in the scatter plots. If TRUE, all cells will be highlighted. Defaults to NULL.
@@ -5045,7 +5047,16 @@ StatPlot <- function(meta.data, stat.by, group.by = NULL, split.by = NULL, bg.by
 #'
 #' @examples
 #' data("pancreas_sub")
-#' FeatureCorPlot(pancreas_sub, features = c("Ghrl", "Gcg", "Ins1", "Ins2"), group.by = "SubCellType")
+#' pancreas_sub <- Seurat::NormalizeData(pancreas_sub)
+#' FeatureCorPlot(pancreas_sub, features = c("Neurog3", "Hes6", "Fev", "Neurod1", "Rbp4", "Pyy"), group.by = "SubCellType")
+#' FeatureCorPlot(pancreas_sub,
+#'   features = c("nFeature_RNA", "nCount_RNA", "nFeature_spliced", "nCount_spliced", "nFeature_unspliced", "nCount_unspliced"),
+#'   group.by = "SubCellType", cor_palette = "Greys", cor_range = c(0, 1)
+#' )
+#' FeatureCorPlot(pancreas_sub,
+#'   features = c("nFeature_RNA", "nCount_RNA"),
+#'   group.by = "SubCellType", add_equation = TRUE
+#' )
 #' @importFrom Seurat Reductions Embeddings Key
 #' @importFrom SeuratObject as.sparse
 #' @importFrom dplyr group_by "%>%" .data
@@ -5061,7 +5072,8 @@ StatPlot <- function(meta.data, stat.by, group.by = NULL, split.by = NULL, bg.by
 FeatureCorPlot <- function(srt, features, group.by = NULL, split.by = NULL, cells = NULL, slot = "data", assay = NULL,
                            cor_method = "pearson", adjust = 1, margin = 1, reverse = FALSE,
                            add_equation = FALSE, add_r2 = TRUE, add_pvalue = TRUE, add_smooth = TRUE,
-                           palette = "Paired", palcolor = NULL, bg_color = "grey80", pt.size = NULL, pt.alpha = 1,
+                           palette = "Paired", palcolor = NULL, cor_palette = "RdBu", cor_palcolor = NULL, cor_range = c(-1, 1),
+                           pt.size = NULL, pt.alpha = 1,
                            cells.highlight = NULL, cols.highlight = "black", sizes.highlight = 1, alpha.highlight = 1, stroke.highlight = 0.5,
                            calculate_coexp = FALSE,
                            raster = NULL, raster.dpi = c(512, 512),
@@ -5115,24 +5127,6 @@ FeatureCorPlot <- function(srt, features, group.by = NULL, split.by = NULL, cell
 
   features_gene <- features[features %in% rownames(srt@assays[[assay]])]
   features_meta <- features[features %in% colnames(srt@meta.data)]
-
-  status <- check_DataType(srt, slot = slot, assay = assay)
-  if (slot == "counts" && status != "raw_counts") {
-    stop("Data in the 'counts' slot is not raw counts.")
-  }
-  if (slot == "data" && status != "log_normalized_counts") {
-    if (status == "raw_counts") {
-      warning("Data in the 'data' slot is raw counts. Perform NormalizeData(LogNormalize) on the data.", immediate. = TRUE)
-      srt <- NormalizeData(object = srt, assay = assay, normalization.method = "LogNormalize", verbose = FALSE)
-    }
-    if (status == "raw_normalized_counts") {
-      warning("Data in the 'data' slot is raw_normalized_counts. Perform NormalizeData(LogNormalize) on the data.", immediate. = TRUE)
-      srt <- NormalizeData(object = srt, assay = assay, normalization.method = "LogNormalize", verbose = FALSE)
-    }
-    if (status == "unknown") {
-      stop("Data in the 'data' slot is unknown. Please check the data type.")
-    }
-  }
 
   if (isTRUE(calculate_coexp) && length(features_gene) > 0) {
     if (length(features_meta) > 0) {
@@ -5198,11 +5192,11 @@ FeatureCorPlot <- function(srt, features, group.by = NULL, split.by = NULL, cell
 
   plist <- list()
   colors <- palette_scp(levels(dat_use[[group.by]]), palette = palette, palcolor = palcolor)
-  cor_palette <- palette_scp(x = seq(-1, 1, length.out = 200), palette = "RdBu")
-  bound <- strsplit(gsub("\\(|\\)|\\[|\\]", "", names(cor_palette)), ",")
+  cor_colors <- palette_scp(x = seq(cor_range[1], cor_range[2], length.out = 200), palette = cor_palette, palcolor = cor_palcolor)
+  bound <- strsplit(gsub("\\(|\\)|\\[|\\]", "", names(cor_colors)), ",")
   bound <- lapply(bound, as.numeric)
   df_bound <- do.call(rbind, bound)
-  rownames(df_bound) <- cor_palette
+  rownames(df_bound) <- cor_colors
   df_bound[1, 1] <- df_bound[1, 1] - 0.01
 
   pair <- as.data.frame(t(combn(features, m = 2)))
@@ -5256,12 +5250,10 @@ FeatureCorPlot <- function(srt, features, group.by = NULL, split.by = NULL, cell
       } else {
         p <- p + scale_x_continuous(
           n.breaks = 3, labels = scales::number_format(),
-          limits = c(min(dat_exp[rownames(dat), ], na.rm = TRUE), max(dat_exp[rownames(dat), ], na.rm = TRUE)),
           position = ifelse(isTRUE(reverse), "top", "bottom")
         ) +
           scale_y_continuous(
             n.breaks = 3, labels = scales::number_format(),
-            limits = c(min(dat_exp[rownames(dat), ], na.rm = TRUE), max(dat_exp[rownames(dat), ], na.rm = TRUE)),
             position = ifelse(isTRUE(reverse), "right", "left")
           )
       }
@@ -5319,12 +5311,14 @@ FeatureCorPlot <- function(srt, features, group.by = NULL, split.by = NULL, cell
           vjusts <- c(1.3, 1.3 * 2, 1.3 * 2^2)
           i <- c(isTRUE(add_equation), isTRUE(add_r2), isTRUE(add_pvalue))
           p <- p + annotate(
-            geom = "text", x = -Inf, y = Inf, label = eqs[i], size = 3.5,
+            geom = GeomTextRepel, x = -Inf, y = Inf, label = eqs[i],
+            color = "black", bg.color = "white", bg.r = 0.1, size = 3.5, point.size = NA,
+            max.overlaps = 100, force = 0, min.segment.length = Inf,
             hjust = -0.05, vjust = vjusts[1:sum(i)], parse = TRUE
           )
         }
         if (!is.null(cells.highlight)) {
-          cell_df <- subset(p$data, rownames(p$data) %in% cells.highlight_use)
+          cell_df <- subset(p$data, rownames(p$data) %in% cells.highlight)
           if (nrow(cell_df) > 0) {
             # point_size <- p$layers[[1]]$aes_params$size
             if (isTRUE(raster)) {
@@ -5352,7 +5346,7 @@ FeatureCorPlot <- function(srt, features, group.by = NULL, split.by = NULL, cell
       }
       if (f1_index > f2_index) {
         label <- paste0(f1, "\n", f2, "\nCor: ", round(pair_sim[f1, f2], 3)) # "\n","f1_index:",f1_index," ","f2_index:",f2_index
-        label_pos <- (max(dat_exp[rownames(dat), ], na.rm = TRUE) - min(dat_exp[rownames(dat), ], na.rm = TRUE)) / 2
+        label_pos <- (max(dat_exp[rownames(dat), ], na.rm = TRUE) + min(dat_exp[rownames(dat), ], na.rm = TRUE)) / 2
         fill <- rownames(df_bound)[df_bound[, 1] < pair_sim[f1, f2] & df_bound[, 2] >= pair_sim[f1, f2]]
         p <- p + annotate(geom = "rect", xmin = -Inf, xmax = Inf, ymin = -Inf, ymax = Inf, fill = fill) +
           annotate(
@@ -5382,18 +5376,35 @@ FeatureCorPlot <- function(srt, features, group.by = NULL, split.by = NULL, cell
       p <- p + scale_color_manual(
         name = paste0(group.by, ":"),
         values = colors,
-        labels = names(colors),
-        na.value = bg_color
+        labels = names(colors)
       ) + scale_fill_manual(
         name = paste0(group.by, ":"),
         values = colors,
-        labels = names(colors),
-        na.value = bg_color
+        labels = names(colors)
       )
       return(p)
     }, x = order1, y = order2, SIMPLIFY = FALSE)
+
+    legend_list <- NULL
+    if (length(features) > 1) {
+      legend_list[["correlation"]] <- get_legend(ggplot(data.frame(range = cor_range, x = 1, y = 1), aes(x = x, y = y, fill = range)) +
+        geom_point() +
+        scale_fill_gradientn(
+          name = paste0("Correlation"),
+          limits = cor_range,
+          n.breaks = 3,
+          colors = cor_colors,
+          guide = guide_colorbar(frame.colour = "black", ticks.colour = "black")
+        ) +
+        do.call(theme_use, theme_args) +
+        theme(
+          aspect.ratio = aspect.ratio,
+          legend.position = legend.position,
+          legend.direction = legend.direction
+        ))
+    }
     if (nlevels(dat[[group.by]]) > 1) {
-      legend <- suppressWarnings(get_legend(plotlist[[1]] +
+      legend_list[["group.by"]] <- suppressWarnings(get_legend(plotlist[[1]] +
         guides(fill = guide_legend(
           title.hjust = 0,
           order = 1,
@@ -5405,16 +5416,21 @@ FeatureCorPlot <- function(srt, features, group.by = NULL, split.by = NULL, cell
           legend.position = legend.position,
           legend.direction = legend.direction
         )))
-    } else {
-      legend <- NULL
     }
+
     grob_row <- list()
     plotlist <- suppressWarnings(lapply(plotlist, as_grob))
     for (i in seq(1, length(plotlist), length(features))) {
       grob_row[[paste0(i:(i + length(features) - 1), collapse = "-")]] <- do.call(cbind, plotlist[i:(i + length(features) - 1)])
     }
     gtable <- do.call(rbind, grob_row)
-    if (!is.null(legend)) {
+    if (length(legend_list) > 0) {
+      legend_list <- legend_list[!sapply(legend_list, is.null)]
+      if (legend.direction == "vertical") {
+        legend <- do.call(cbind, legend_list)
+      } else {
+        legend <- do.call(rbind, legend_list)
+      }
       gtable <- add_grob(gtable, legend, legend.position)
     }
     if (nlevels(dat_use[[split.by]]) > 1) {
