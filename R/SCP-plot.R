@@ -1327,7 +1327,7 @@ CellDimPlot <- function(srt, group.by, reduction = NULL, dims = c(1, 2), split.b
   set.seed(seed)
 
   if (is.null(split.by)) {
-    split.by <- "All_cells"
+    split.by <- "All.groups"
     srt@meta.data[[split.by]] <- factor("")
   }
   for (i in unique(c(group.by, split.by))) {
@@ -1432,7 +1432,7 @@ CellDimPlot <- function(srt, group.by, reduction = NULL, dims = c(1, 2), split.b
     lineages_layers <- lineages_layers[!names(lineages_layers) %in% c("lab_layer", "theme_layer")]
   }
   if (!is.null(paga)) {
-    if (split.by != "All_cells") {
+    if (split.by != "All.groups") {
       stop("paga can only plot on the non-split data")
     }
     paga_layers <- PAGAPlot(srt,
@@ -1449,7 +1449,7 @@ CellDimPlot <- function(srt, group.by, reduction = NULL, dims = c(1, 2), split.b
     paga_layers <- paga_layers[!names(paga_layers) %in% c("lab_layer", "theme_layer")]
   }
   if (!is.null(velocity)) {
-    if (split.by != "All_cells") {
+    if (split.by != "All.groups") {
       stop("velocity can only plot on the non-split data")
     }
     velocity_layers <- VelocityPlot(srt,
@@ -1582,7 +1582,7 @@ CellDimPlot <- function(srt, group.by, reduction = NULL, dims = c(1, 2), split.b
         legend.position = legend.position,
         legend.direction = legend.direction
       )
-    if (split.by != "All_cells") {
+    if (split.by != "All.groups") {
       p <- p + facet_grid(. ~ split.by)
     }
 
@@ -2001,7 +2001,7 @@ FeatureDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), spli
 
   assay <- assay %||% DefaultAssay(srt)
   if (is.null(split.by)) {
-    split.by <- "All_cells"
+    split.by <- "All.groups"
     srt@meta.data[[split.by]] <- factor("")
   }
   for (i in c(split.by)) {
@@ -2054,7 +2054,7 @@ FeatureDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), spli
   features_meta <- features[features %in% colnames(srt@meta.data)]
   features_embedding <- features[features %in% names(embeddings)]
   if (length(intersect(features_gene, features_meta)) > 0) {
-    warning("Features appear in both gene names and metadata names:", paste0(intersect(features_gene, features_meta), collapse = ","))
+    warning("Features appear in both gene names and metadata names: ", paste0(intersect(features_gene, features_meta), collapse = ","))
   }
 
   if (isTRUE(calculate_coexp) && length(features_gene) > 0) {
@@ -2156,7 +2156,7 @@ FeatureDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), spli
     dat_all <- cbind(dat_use, dat_exp[row.names(dat_use), features, drop = FALSE])
     dat_split <- split.data.frame(dat_all, dat_all[[split.by]])
     plist <- lapply(levels(dat_sp[[split.by]]), function(s) {
-      dat <- dat_split[[ifelse(split.by == "All_cells", 1, s)]][, , drop = FALSE]
+      dat <- dat_split[[ifelse(split.by == "All.groups", 1, s)]][, , drop = FALSE]
       for (f in features) {
         dat[, f][dat[, f] <= bg_cutoff] <- NA
         if (any(is.infinite(dat[, f]))) {
@@ -2259,7 +2259,7 @@ FeatureDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), spli
         labs(title = title, subtitle = s, x = xlab, y = ylab) +
         scale_x_continuous(limits = c(min(dat_use[, paste0(reduction_key, dims[1])], na.rm = TRUE), max(dat_use[, paste0(reduction_key, dims[1])], na.rm = TRUE))) +
         scale_y_continuous(limits = c(min(dat_use[, paste0(reduction_key, dims[2])], na.rm = TRUE), max(dat_use[, paste0(reduction_key, dims[2])], na.rm = TRUE)))
-      if (split.by == "All_cells") {
+      if (split.by == "All.groups") {
         p <- p + facet_grid(. ~ features)
       } else {
         p <- p + facet_grid(split.by ~ features)
@@ -2451,7 +2451,7 @@ FeatureDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), spli
     plist <- lapply(setNames(rownames(comb), rownames(comb)), function(i) {
       f <- comb[i, "feature"]
       s <- comb[i, "split"]
-      dat <- dat_split[[ifelse(split.by == "All_cells", 1, s)]][, c(colnames(dat_use), f), drop = FALSE]
+      dat <- dat_split[[ifelse(split.by == "All.groups", 1, s)]][, c(colnames(dat_use), f), drop = FALSE]
       dat[, f][dat[, f] <= bg_cutoff] <- NA
       if (any(is.infinite(dat[, f]))) {
         dat[, f][dat[, f] == max(dat[, f], na.rm = TRUE)] <- max(dat[, f][is.finite(dat[, f])], na.rm = TRUE)
@@ -2623,7 +2623,7 @@ FeatureDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), spli
         }
       }
       if (nrow(dat) > 0) {
-        if (split.by == "All_cells") {
+        if (split.by == "All.groups") {
           p <- p + facet_grid(. ~ features)
         } else {
           p <- p + facet_grid(formula(paste0(split.by, "~features")))
@@ -2974,8 +2974,8 @@ FeatureDimPlot3D <- function(srt, features = NULL, reduction = NULL, dims = c(1,
   }
   assay <- assay %||% DefaultAssay(srt)
   if (is.null(split.by)) {
-    split.by <- "All_cells"
-    srt@meta.data[[split.by]] <- factor("All_cells")
+    split.by <- "All.cells"
+    srt@meta.data[[split.by]] <- factor("All.cells")
   }
   for (i in split.by) {
     if (!i %in% colnames(srt@meta.data)) {
@@ -3034,6 +3034,9 @@ FeatureDimPlot3D <- function(srt, features = NULL, reduction = NULL, dims = c(1,
 
   features_gene <- features[features %in% rownames(srt@assays[[assay]])]
   features_meta <- features[features %in% colnames(srt@meta.data)]
+  if (length(intersect(features_gene, features_meta)) > 0) {
+    warning("Features appear in both gene names and metadata names: ", paste0(intersect(features_gene, features_meta), collapse = ","))
+  }
 
   if (isTRUE(calculate_coexp) && length(features_gene) > 0) {
     if (length(features_meta) > 0) {
@@ -3146,9 +3149,9 @@ FeatureDimPlot3D <- function(srt, features = NULL, reduction = NULL, dims = c(1,
   split_option <- list()
   genes_option <- list()
   for (i in 0:nlevels(dat_use[[split.by]])) {
-    sp <- ifelse(i == 0, "All_cells", levels(dat_use[[split.by]])[i])
+    sp <- ifelse(i == 0, "All.cells", levels(dat_use[[split.by]])[i])
     ncells <- ifelse(i == 0, nrow(dat_use), table(dat_use[[split.by]])[sp])
-    if (i != 0 && sp == "All_cells") {
+    if (i != 0 && sp == "All.cells") {
       next
     }
     x <- list(dat_use[[paste0(reduction_key, dims[1], sp)]])
@@ -3381,6 +3384,7 @@ FeatureDimPlot3D <- function(srt, features = NULL, reduction = NULL, dims = c(1,
 #'   "Ins1", "Gcg", "Sst", "Ghrl" # Beta, Alpha, Delta, Epsilon
 #' ), group.by = "SubCellType", plot.by = "feature", stack = TRUE)
 #'
+#' library(Matrix)
 #' data <- pancreas_sub@assays$RNA@data
 #' pancreas_sub@assays$RNA@scale.data <- as.matrix(data / rowMeans(data))
 #' FeatureStatPlot(pancreas_sub,
@@ -3414,6 +3418,12 @@ FeatureStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.b
                             legend.position = "right", legend.direction = "vertical",
                             theme_use = "theme_scp", theme_args = list(),
                             combine = TRUE, nrow = NULL, ncol = NULL, byrow = TRUE, force = FALSE, seed = 11) {
+  if (is.null(group.by)) {
+    group.by <- "All.groups" # avoid having the same name with split.by. split.by will be All.groups by default
+    xlab <- ""
+    srt[[group.by]] <- factor("All_groups")
+  }
+
   meta.data <- srt@meta.data
   meta.data[["cells"]] <- rownames(meta.data)
   assay <- assay %||% DefaultAssay(srt)
@@ -3437,9 +3447,11 @@ FeatureStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.b
     plist <- list()
     for (g in unique(meta.reshape[[group.by]])) {
       if (length(rownames(meta.reshape)[meta.reshape[[group.by]] == g]) > 0) {
-        meta.reshape[[g]] <- meta.reshape[["Stat.by"]]
+        meta.use <- meta.reshape
+        meta.use[[group.by]] <- NULL
+        colnames(meta.use)[colnames(meta.use) == "Stat.by"] <- g
         p <- ExpressionStatPlot(
-          exp.data = exp.data, meta.data = meta.reshape, stat.by = g, group.by = "Features", split.by = split.by, bg.by = NULL, plot.by = "group", fill.by = fill.by,
+          exp.data = exp.data, meta.data = meta.use, stat.by = g, group.by = "Features", split.by = split.by, bg.by = NULL, plot.by = "group", fill.by = fill.by,
           cells = rownames(meta.reshape)[meta.reshape[[group.by]] == g], keep_empty = keep_empty, individual = individual,
           plot_type = plot_type,
           palette = palette, palcolor = palcolor, alpha = alpha,
@@ -3460,7 +3472,6 @@ FeatureStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.b
           theme_use = theme_use, theme_args = theme_args,
           force = force, seed = seed
         )
-        meta.reshape[[g]] <- NULL
         plist <- append(plist, p)
       }
     }
@@ -3637,13 +3648,16 @@ ExpressionStatPlot <- function(exp.data, meta.data, stat.by, group.by = NULL, sp
     stop("meta.data is empty.")
   }
   if (is.null(group.by)) {
-    group.by <- "No.group.by"
+    group.by <- "All.groups"
     xlab <- ""
-    meta.data[[group.by]] <- factor("All")
+    meta.data[[group.by]] <- factor("")
   }
   if (is.null(split.by)) {
-    split.by <- "All_cells"
+    split.by <- "All.groups"
     meta.data[[split.by]] <- factor("")
+  }
+  if (group.by == split.by && group.by == "All.groups") {
+    legend.position <- "none"
   }
   for (i in unique(c(group.by, split.by, bg.by))) {
     if (!i %in% colnames(meta.data)) {
@@ -3704,6 +3718,9 @@ ExpressionStatPlot <- function(exp.data, meta.data, stat.by, group.by = NULL, sp
 
   features_gene <- stat.by[stat.by %in% rownames(exp.data)]
   features_meta <- stat.by[stat.by %in% colnames(meta.data)]
+  if (length(intersect(features_gene, features_meta)) > 0) {
+    warning("Features appear in both gene names and metadata names: ", paste0(intersect(features_gene, features_meta), collapse = ","))
+  }
 
   if (isTRUE(calculate_coexp) && length(features_gene) > 1) {
     if (length(features_meta) > 0) {
@@ -3826,7 +3843,7 @@ ExpressionStatPlot <- function(exp.data, meta.data, stat.by, group.by = NULL, sp
       colors <- palette_scp(stat.by, palette = palette, palcolor = palcolor)
     }
     if (fill.by == "group") {
-      if (split.by != "All_cells") {
+      if (split.by != "All.groups") {
         colors <- palette_scp(levels(dat_use[[split.by]]), palette = palette, palcolor = palcolor)
       } else {
         colors <- palette_scp(levels(dat_use[[g]]), palette = palette, palcolor = palcolor)
@@ -3878,14 +3895,14 @@ ExpressionStatPlot <- function(exp.data, meta.data, stat.by, group.by = NULL, sp
       keynm <- "Features"
     }
     if (fill.by == "group") {
-      dat[, "fill.by"] <- if (split.by == "All_cells") dat[, "group.by"] else dat[, "split.by"]
-      keynm <- ifelse(split.by == "All_cells", g, split.by)
+      dat[, "fill.by"] <- if (split.by == "All.groups") dat[, "group.by"] else dat[, "split.by"]
+      keynm <- ifelse(split.by == "All.groups", g, split.by)
     }
     if (fill.by == "expression") {
       dat[, "fill.by"] <- median_values[paste0(dat[["group.by"]], "-", dat[["split.by"]]), f]
       keynm <- "Median expression"
     }
-    if (split.by != "All_cells") {
+    if (split.by != "All.groups") {
       levels_order <- levels(dat[["split.by"]])
     } else {
       levels_order <- levels(dat[["group.by"]])
@@ -4244,6 +4261,7 @@ ExpressionStatPlot <- function(exp.data, meta.data, stat.by, group.by = NULL, sp
 
   return(plist)
 }
+
 #' Statistical plot of cells
 #'
 #' @inheritParams StatPlot
@@ -4426,12 +4444,12 @@ StatPlot <- function(meta.data, stat.by, group.by = NULL, split.by = NULL, bg.by
     stop("meta.data is empty.")
   }
   if (is.null(group.by)) {
-    group.by <- "No.group.by"
+    group.by <- "All.groups"
     xlab <- ""
-    meta.data[[group.by]] <- factor("All")
+    meta.data[[group.by]] <- factor("")
   }
   if (is.null(split.by)) {
-    split.by <- "All_cells"
+    split.by <- "All.groups"
     meta.data[[split.by]] <- factor("")
   }
 
@@ -4517,8 +4535,12 @@ StatPlot <- function(meta.data, stat.by, group.by = NULL, split.by = NULL, bg.by
     aspect.ratio <- 1
   }
 
-  if (any(group.by != "No.group.by") && plot_type %in% c("sankey", "chord", "venn", "upset")) {
+  if (any(group.by != "All.groups") && plot_type %in% c("sankey", "chord", "venn", "upset")) {
     warning("group.by is not used when plot sankey, chord, venn or upset", immediate. = TRUE)
+  }
+  if (stat_type == "percent" && plot_type %in% c("sankey", "chord", "venn", "upset")) {
+    warning("stat_type is forcibly set to 'count' when plot sankey, chord, venn or upset", immediate. = TRUE)
+    stat_type <- "count"
   }
   dat_all <- meta.data[, unique(c(stat.by, group.by, split.by, bg.by)), drop = FALSE]
   nlev <- sapply(dat_all, nlevels)
@@ -4578,12 +4600,12 @@ StatPlot <- function(meta.data, stat.by, group.by = NULL, split.by = NULL, bg.by
       sp <- comb[i, "split_name"]
       g <- comb[i, "group_name"]
       single_group <- comb[[i, "group_element"]]
-      colors_use <- colors[names(colors) %in% dat_split[[ifelse(split.by == "All_cells", 1, sp)]][[stat.by]]]
-      if (any(is.na(dat_split[[ifelse(split.by == "All_cells", 1, sp)]][[stat.by]])) && isTRUE(NA_stat)) {
+      colors_use <- colors[names(colors) %in% dat_split[[ifelse(split.by == "All.groups", 1, sp)]][[stat.by]]]
+      if (any(is.na(dat_split[[ifelse(split.by == "All.groups", 1, sp)]][[stat.by]])) && isTRUE(NA_stat)) {
         colors_use <- c(colors_use, colors["NA"])
       }
       if (stat_type == "percent") {
-        dat_use <- dat_split[[ifelse(split.by == "All_cells", 1, sp)]] %>%
+        dat_use <- dat_split[[ifelse(split.by == "All.groups", 1, sp)]] %>%
           xtabs(formula = paste0("~", stat.by, "+", g), addNA = NA_stat) %>%
           as.data.frame() %>%
           group_by(across(all_of(g)), .drop = FALSE) %>%
@@ -4592,7 +4614,7 @@ StatPlot <- function(meta.data, stat.by, group.by = NULL, split.by = NULL, bg.by
           mutate(value = Freq / groupn) %>%
           as.data.frame()
       } else {
-        dat_use <- dat_split[[ifelse(split.by == "All_cells", 1, sp)]] %>%
+        dat_use <- dat_split[[ifelse(split.by == "All.groups", 1, sp)]] %>%
           xtabs(formula = paste0("~", stat.by, "+", g), addNA = NA_stat) %>%
           as.data.frame() %>%
           mutate(value = Freq)
@@ -4817,7 +4839,7 @@ StatPlot <- function(meta.data, stat.by, group.by = NULL, split.by = NULL, bg.by
       par(mfrow = c(nrow, ncol))
     }
     for (sp in levels(dat_all[[split.by]])) {
-      dat_use <- dat_split[[ifelse(split.by == "All_cells", 1, sp)]]
+      dat_use <- dat_split[[ifelse(split.by == "All.groups", 1, sp)]]
       if (plot_type == "venn") {
         check_R(c("ggVennDiagram", "sf"))
         dat_list <- as.list(dat_use[, stat.by])
@@ -5091,12 +5113,12 @@ FeatureCorPlot <- function(srt, features, group.by = NULL, split.by = NULL, cell
   }
   assay <- assay %||% DefaultAssay(srt)
   if (is.null(split.by)) {
-    split.by <- "All_cells"
+    split.by <- "All.groups"
     srt@meta.data[[split.by]] <- factor("")
   }
   if (is.null(group.by)) {
-    group.by <- "All_cells"
-    srt@meta.data[[group.by]] <- factor("All_cells")
+    group.by <- "All.groups"
+    srt@meta.data[[group.by]] <- factor("")
   }
   for (i in c(split.by, group.by)) {
     if (!i %in% colnames(srt@meta.data)) {
@@ -5127,6 +5149,9 @@ FeatureCorPlot <- function(srt, features, group.by = NULL, split.by = NULL, cell
 
   features_gene <- features[features %in% rownames(srt@assays[[assay]])]
   features_meta <- features[features %in% colnames(srt@meta.data)]
+  if (length(intersect(features_gene, features_meta)) > 0) {
+    warning("Features appear in both gene names and metadata names: ", paste0(intersect(features_gene, features_meta), collapse = ","))
+  }
 
   if (isTRUE(calculate_coexp) && length(features_gene) > 0) {
     if (length(features_meta) > 0) {
@@ -5513,7 +5538,7 @@ FeatureCorPlot <- function(srt, features, group.by = NULL, split.by = NULL, cell
 #' @importFrom patchwork wrap_plots
 #' @importFrom methods slot
 #' @export
-CellDensityPlot <- function(srt, features, group.by, split.by = NULL, assay = NULL, slot = "data",
+CellDensityPlot <- function(srt, features, group.by = NULL, split.by = NULL, assay = NULL, slot = "data",
                             flip = FALSE, reverse = FALSE, x_order = c("value", "rank"),
                             decreasing = NULL, palette = "Paired", palcolor = NULL,
                             cells = NULL, keep_empty = FALSE,
@@ -5531,9 +5556,16 @@ CellDensityPlot <- function(srt, features, group.by, split.by = NULL, assay = NU
   if (!inherits(features, "character")) {
     stop("'features' is not a character vectors")
   }
+  if (is.null(group.by)) {
+    group.by <- "All.groups"
+    srt@meta.data[[group.by]] <- factor("")
+  }
   if (is.null(split.by)) {
-    split.by <- "All_cells"
+    split.by <- "All.groups"
     srt@meta.data[[split.by]] <- factor("")
+  }
+  if (group.by == split.by & group.by == "All.groups") {
+    legend.position <- "none"
   }
   for (i in c(group.by, split.by)) {
     if (!i %in% colnames(srt@meta.data)) {
@@ -5554,6 +5586,9 @@ CellDensityPlot <- function(srt, features, group.by, split.by = NULL, assay = NU
 
   features_gene <- features[features %in% rownames(srt@assays[[assay]])]
   features_meta <- features[features %in% colnames(srt@meta.data)]
+  if (length(intersect(features_gene, features_meta)) > 0) {
+    warning("Features appear in both gene names and metadata names: ", paste0(intersect(features_gene, features_meta), collapse = ","))
+  }
 
   if (length(features_gene) > 0) {
     dat_gene <- t(slot(srt@assays[[assay]], slot)[features_gene, , drop = FALSE])
@@ -5652,7 +5687,7 @@ CellDensityPlot <- function(srt, features, group.by, split.by = NULL, assay = NU
             limits = limits, trans = y.trans, n.breaks = y.nbreaks,
             expand = c(0, 0)
           )
-        if (split.by != "All_cells") {
+        if (split.by != "All.groups") {
           p <- p + facet_grid(. ~ split.by)
         }
         p <- p + labs(title = title, subtitle = subtitle, x = f, y = g)
@@ -7813,8 +7848,8 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
 
   assay <- assay %||% DefaultAssay(srt)
   if (is.null(group.by)) {
-    srt@meta.data[["No.group.by"]] <- factor("")
-    group.by <- "No.group.by"
+    srt@meta.data[["All.groups"]] <- factor("")
+    group.by <- "All.groups"
   }
   if (any(!group.by %in% colnames(srt@meta.data))) {
     stop(group.by[!group.by %in% colnames(srt@meta.data)], " is not in the meta data of the Seurat object.")
@@ -8126,7 +8161,7 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
         column_split_list[[cell_group]] <- length(unique(column_split_list[[cell_group]]))
       }
     }
-    if (cell_group != "No.group.by") {
+    if (cell_group != "All.groups") {
       funbody <- paste0(
         "
         grid.rect(gp = gpar(fill = palette_scp(", paste0("c('", paste0(levels(srt@meta.data[[cell_group]]), collapse = "','"), "')"), ",palette = '", group_palette[i], "',palcolor=c(", paste0("'", paste0(group_palcolor[[i]], collapse = "','"), "'"), "))[nm]))
@@ -8177,7 +8212,7 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
 
   for (i in seq_along(raw.group.by)) {
     cell_group <- raw.group.by[i]
-    if (cell_group != "No.group.by") {
+    if (cell_group != "All.groups") {
       lgd[[cell_group]] <- Legend(
         title = cell_group, labels = levels(srt@meta.data[[cell_group]]),
         legend_gp = gpar(fill = palette_scp(levels(srt@meta.data[[cell_group]]), palette = raw.group_palette[i], palcolor = group_palcolor[[i]])), border = TRUE
@@ -8731,9 +8766,9 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
       matrix = if (flip) t(mat_list[[cell_group]]) else mat_list[[cell_group]],
       col = colors,
       layer_fun = getFunction("layer_fun", where = environment()),
-      row_title = row_title %||% if (flip) ifelse(cell_group != "No.group.by", cell_group, "") else character(0),
+      row_title = row_title %||% if (flip) ifelse(cell_group != "All.groups", cell_group, "") else character(0),
       row_title_side = row_title_side,
-      column_title = column_title %||% if (flip) character(0) else ifelse(cell_group != "No.group.by", cell_group, ""),
+      column_title = column_title %||% if (flip) character(0) else ifelse(cell_group != "All.groups", cell_group, ""),
       column_title_side = column_title_side,
       row_title_rot = row_title_rot,
       column_title_rot = column_title_rot,
@@ -8989,8 +9024,8 @@ FeatureHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, 
     stop("feature_split must be the same length as features")
   }
   if (is.null(group.by)) {
-    srt@meta.data[["No.group.by"]] <- factor("")
-    group.by <- "No.group.by"
+    srt@meta.data[["All.groups"]] <- factor("")
+    group.by <- "All.groups"
   }
   if (any(!group.by %in% colnames(srt@meta.data))) {
     stop(group.by[!group.by %in% colnames(srt@meta.data)], " is not in the meta data of the Seurat object.")
@@ -9254,7 +9289,7 @@ FeatureHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, 
         column_split_list[[cell_group]] <- length(unique(column_split_list[[cell_group]]))
       }
     }
-    if (cell_group != "No.group.by") {
+    if (cell_group != "All.groups") {
       funbody <- paste0(
         "
         grid.rect(gp = gpar(fill = palette_scp(", paste0("c('", paste0(levels(srt@meta.data[[cell_group]]), collapse = "','"), "')"), ",palette = '", group_palette[i], "',palcolor=c(", paste0("'", paste0(group_palcolor[[i]], collapse = "','"), "'"), "))[nm]))
@@ -9304,7 +9339,7 @@ FeatureHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, 
   }
   for (i in seq_along(raw.group.by)) {
     cell_group <- raw.group.by[i]
-    if (cell_group != "No.group.by") {
+    if (cell_group != "All.groups") {
       lgd[[cell_group]] <- Legend(
         title = cell_group, labels = levels(srt@meta.data[[cell_group]]),
         legend_gp = gpar(fill = palette_scp(levels(srt@meta.data[[cell_group]]), palette = raw.group_palette[i], palcolor = group_palcolor[[i]])), border = TRUE
@@ -9664,9 +9699,9 @@ FeatureHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, 
       name = cell_group,
       matrix = if (flip) t(mat_list[[cell_group]]) else mat_list[[cell_group]],
       col = colors,
-      row_title = row_title %||% if (flip) ifelse(cell_group != "No.group.by", cell_group, "") else character(0),
+      row_title = row_title %||% if (flip) ifelse(cell_group != "All.groups", cell_group, "") else character(0),
       row_title_side = row_title_side,
-      column_title = column_title %||% if (flip) character(0) else ifelse(cell_group != "No.group.by", cell_group, ""),
+      column_title = column_title %||% if (flip) character(0) else ifelse(cell_group != "All.groups", cell_group, ""),
       column_title_side = column_title_side,
       row_title_rot = row_title_rot,
       column_title_rot = column_title_rot,
@@ -10040,12 +10075,12 @@ CellCorHeatmap <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
 
   cell_groups <- list()
   if (is.null(query_group)) {
-    srt_query@meta.data[["No.group.by"]] <- factor("")
-    query_group <- "No.group.by"
+    srt_query@meta.data[["All.groups"]] <- factor("")
+    query_group <- "All.groups"
   }
   if (is.null(ref_group)) {
-    srt_ref@meta.data[["No.group.by"]] <- factor("")
-    ref_group <- "No.group.by"
+    srt_ref@meta.data[["All.groups"]] <- factor("")
+    ref_group <- "All.groups"
   }
   if (!is.factor(srt_query[[query_group, drop = TRUE]])) {
     srt_query@meta.data[[query_group]] <- factor(srt_query[[query_group, drop = TRUE]], levels = unique(srt_query[[query_group, drop = TRUE]]))
@@ -10144,7 +10179,7 @@ CellCorHeatmap <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
   lgd[["ht"]] <- Legend(title = exp_name, col_fun = colors, border = TRUE)
 
   ha_query_list <- NULL
-  if (query_group != "No.group.by") {
+  if (query_group != "All.groups") {
     if (isFALSE(query_collapsing) && ((isFALSE(flip) & isTRUE(cluster_rows)) || (isTRUE(flip) & isTRUE(cluster_columns)))) {
       query_cell_annotation <- c(query_group, query_cell_annotation)
     } else {
@@ -10182,7 +10217,7 @@ CellCorHeatmap <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
   }
 
   ha_ref_list <- NULL
-  if (ref_group != "No.group.by") {
+  if (ref_group != "All.groups") {
     if (isFALSE(ref_collapsing) && ((isFALSE(flip) & isTRUE(cluster_columns)) || (isTRUE(flip) & isTRUE(cluster_rows)))) {
       ref_cell_annotation <- c(ref_group, ref_cell_annotation)
     } else {

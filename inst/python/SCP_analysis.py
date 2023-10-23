@@ -265,24 +265,29 @@ def SCVELO(adata=None, h5ad=None, group_by=None, palette=None,
           if m != "dynamical":
             scv.tl.rank_velocity_genes(adata, vkey=vkey, groupby=group_by)
             adata.var[vkey+"_score"]=adata.var["spearmans_score"]
-            df = scv.get_df(adata.uns["rank_velocity_genes"]["names"])
-            adata.uns["rank_"+vkey+"_genes"]=df
+            df1 = scv.get_df(adata.uns["rank_velocity_genes"]["names"])
+            adata.uns["rank_"+vkey+"_genenames"]=df1
+            df2 = scv.get_df(adata.uns["rank_velocity_genes"]["scores"])
+            adata.uns["rank_"+vkey+"_genescores"]=df2
+            del adata.uns["rank_velocity_genes"]
           else:
             scv.tl.rank_dynamical_genes(adata, groupby=group_by)
-            df = scv.get_df(adata.uns['rank_dynamical_genes']['names'])
-            adata.uns["rank_"+vkey+"_genes"]=df
-            
+            df1 = scv.get_df(adata.uns['rank_dynamical_genes']['names'])
+            adata.uns["rank_"+vkey+"_genenames"]=df1
+            df2 = scv.get_df(adata.uns['rank_dynamical_genes']['scores'])
+            adata.uns["rank_"+vkey+"_genescores"]=df2
+            del adata.uns["rank_dynamical_genes"]
 
-          for cluster in df.columns:
-            #df[0:1].values.ravel()[:12] ### by row
-            scv.pl.scatter(adata, color=group_by,palette=palette, basis=df[cluster].values[:top_n],vkey=vkey, size=10, linewidth=2, alpha=1, ylabel="cluster: "+cluster+"\nunspliced",
+          for cluster in df1.columns:
+            #df1[0:1].values.ravel()[:12] ### by row
+            scv.pl.scatter(adata, color=group_by,palette=palette, basis=df1[cluster].values[:top_n],vkey=vkey, size=10, linewidth=2, alpha=1, ylabel="cluster: "+cluster+"\nunspliced",
                               add_linfit=True, add_rug=True, add_outline=True, ncols=3, frameon=True, save=False, show=False)
             if show_plot is True:
               plt.show()
             if save:
               plt.savefig('.'.join(filter(None, [fileprefix, cluster, vkey+"_genes1.png"])), dpi=dpi)
               
-            scv.pl.velocity(adata, color=group_by, var_names=df[cluster].values[:top_n],vkey=vkey, size=10, linewidth=2, alpha=1, ylabel="cluster: "+cluster+"\nunspliced", 
+            scv.pl.velocity(adata, color=group_by, var_names=df1[cluster].values[:top_n],vkey=vkey, size=10, linewidth=2, alpha=1, ylabel="cluster: "+cluster+"\nunspliced", 
                              add_outline=True,basis=basis, color_map=["Blues", "YlOrRd"], ncols=2, save=False, show=False)
             if show_plot is True:
               plt.show()
