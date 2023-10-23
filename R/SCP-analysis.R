@@ -1814,7 +1814,7 @@ ListDB <- function(species = "Homo_sapiens",
 #' Default is c("GO", "GO_BP", "GO_CC", "GO_MF", "KEGG", "WikiPathway", "Reactome",
 #' "CORUM", "MP", "DO", "HPO", "PFAM", "CSPA", "Surfaceome", "SPRomeDB", "VerSeDa",
 #' "TFLink", "hTFtarget", "TRRUST", "JASPAR", "ENCODE", "MSigDB",
-#' "CellChat", "Chromosome", "GeneType", "Enzyme", "TF").
+#' "CellTalk", "CellChat", "Chromosome", "GeneType", "Enzyme", "TF").
 #' @param db_IDtypes A character vector specifying the desired ID types to be used for gene identifiers in the gene annotation databases. Default is c("symbol", "entrez_id", "ensembl_id").
 #' @param db_version A character vector specifying the version of the gene annotation databases to be retrieved. Default is "latest".
 #' @param db_update A logical value indicating whether the gene annotation databases should be forcefully updated. If set to FALSE, the function will attempt to load the cached databases instead. Default is FALSE.
@@ -1901,7 +1901,7 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
                         "CORUM", "MP", "DO", "HPO", "PFAM",
                         "CSPA", "Surfaceome", "SPRomeDB", "VerSeDa",
                         "TFLink", "hTFtarget", "TRRUST", "JASPAR", "ENCODE",
-                        "MSigDB", "CellChat",
+                        "MSigDB", "CellTalk", "CellChat",
                         "Chromosome", "GeneType", "Enzyme", "TF"
                       ),
                       db_IDtypes = c("symbol", "entrez_id", "ensembl_id"),
@@ -1913,15 +1913,14 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
   db_list <- list()
   for (sps in species) {
     message("Species: ", sps)
-    default_IDtypes <- c(
+    default_IDtypes <- list(
       "GO" = "entrez_id", "GO_BP" = "entrez_id", "GO_CC" = "entrez_id", "GO_MF" = "entrez_id", "KEGG" = "entrez_id",
       "WikiPathway" = "entrez_id", "Reactome" = "entrez_id", "CORUM" = "symbol",
       "MP" = "symbol", "DO" = "symbol", "HPO" = "symbol", "PFAM" = "entrez_id", "Chromosome" = "entrez_id",
       "GeneType" = "entrez_id", "Enzyme" = "entrez_id", "TF" = "symbol",
       "CSPA" = "symbol", "Surfaceome" = "symbol", "SPRomeDB" = "entrez_id", "VerSeDa" = "symbol",
       "TFLink" = "symbol", "hTFtarget" = "symbol", "TRRUST" = "symbol", "JASPAR" = "symbol", "ENCODE" = "symbol",
-      "MSigDB" = "symbol", "CellChat" = "symbol"
-      # "CellTalk" = "symbol", "DGI" = "entrez_id"
+      "MSigDB" = c("symbol", "ensembl_id"), "CellTalk" = "symbol", "CellChat" = "symbol"
     )
     if (!is.null(custom_TERM2GENE)) {
       if (length(db) > 1) {
@@ -1931,7 +1930,7 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
         stop("When building a custom database, 'custom_IDtype', 'custom_species' and 'custom_version' must be provided.")
       }
       custom_IDtype <- match.arg(custom_IDtype, choices = c("symbol", "entrez_id", "ensembl_id"))
-      default_IDtypes[db] <- custom_IDtype
+      default_IDtypes[[db]] <- custom_IDtype
     }
     if (isFALSE(db_update) && is.null(custom_TERM2GENE)) {
       for (term in db) {
@@ -2022,7 +2021,7 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
             if (subterm == "GO") {
               TERM2GENE <- bg[, c("GOALL", org_key)]
               TERM2NAME <- bg[, c("GOALL", "TERM")]
-              colnames(TERM2GENE) <- c("Term", default_IDtypes[subterm])
+              colnames(TERM2GENE) <- c("Term", default_IDtypes[[subterm]])
               colnames(TERM2NAME) <- c("Term", "Name")
               TERM2NAME[["ONTOLOGY"]] <- bg[["ONTOLOGYALL"]]
               semData <- NULL
@@ -2030,7 +2029,7 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
               simpleterm <- unlist(strsplit(subterm, split = "_"))[2]
               TERM2GENE <- bg[which(bg[["ONTOLOGYALL"]] %in% simpleterm), c("GOALL", org_key)]
               TERM2NAME <- bg[which(bg[["ONTOLOGYALL"]] %in% simpleterm), c("GOALL", "TERM")]
-              colnames(TERM2GENE) <- c("Term", default_IDtypes[subterm])
+              colnames(TERM2GENE) <- c("Term", default_IDtypes[[subterm]])
               colnames(TERM2NAME) <- c("Term", "Name")
               TERM2NAME[["ONTOLOGY"]] <- simpleterm
               semData <- suppressMessages(GOSemSim::godata(orgdb, ont = simpleterm))
@@ -2088,7 +2087,7 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
           TERM2NAME[, "Name"] <- gsub(pattern = paste0(" - ", paste0(unlist(strsplit(db_species["KEGG"], split = "_")), collapse = " "), ".*$"), replacement = "", x = TERM2NAME[, "Name"])
           TERM2NAME <- TERM2NAME[TERM2NAME[, "Pathway"] %in% TERM2GENE[, "Pathway"], , drop = FALSE]
 
-          colnames(TERM2GENE) <- c("Term", default_IDtypes["KEGG"])
+          colnames(TERM2GENE) <- c("Term", default_IDtypes[["KEGG"]])
           colnames(TERM2NAME) <- c("Term", "Name")
           TERM2GENE <- na.omit(unique(TERM2GENE))
           TERM2NAME <- na.omit(unique(TERM2NAME))
@@ -2126,7 +2125,7 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
               warning("Use the human annotation to create the WikiPathway database for ", sps, immediate. = TRUE)
               db_species["WikiPathway"] <- "Homo_sapiens"
               wiki_sp <- "Homo_sapiens"
-              gmtfile <- gmtfiles[grep(wiki_sp, gmtfile, fixed = TRUE)]
+              gmtfile <- gmtfiles[grep(wiki_sp, gmtfiles, fixed = TRUE)]
             } else {
               stop("Stop the preparation.")
             }
@@ -2144,7 +2143,7 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
           bg <- do.call(rbind.data.frame, wiki_gmt)
           TERM2GENE <- bg[, c(1, 2)]
           TERM2NAME <- bg[, c(1, 3)]
-          colnames(TERM2GENE) <- c("Term", default_IDtypes["WikiPathway"])
+          colnames(TERM2GENE) <- c("Term", default_IDtypes[["WikiPathway"]])
           colnames(TERM2NAME) <- c("Term", "Name")
           TERM2GENE <- na.omit(unique(TERM2GENE))
           TERM2NAME <- na.omit(unique(TERM2NAME))
@@ -2182,7 +2181,7 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
           df$PATHNAME <- gsub(x = df$PATHNAME, pattern = paste0("^", reactome_sp, ": "), replacement = "", perl = TRUE)
           TERM2GENE <- df[, c(2, 1)]
           TERM2NAME <- df[, c(2, 3)]
-          colnames(TERM2GENE) <- c("Term", default_IDtypes["Reactome"])
+          colnames(TERM2GENE) <- c("Term", default_IDtypes[["Reactome"]])
           colnames(TERM2NAME) <- c("Term", "Name")
           TERM2GENE <- na.omit(unique(TERM2GENE))
           TERM2NAME <- na.omit(unique(TERM2NAME))
@@ -2217,7 +2216,7 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
           TERM2GENE <- read.gmt(gsub(".gz", "", temp))
           version <- "Harmonizome 3.0"
           TERM2NAME <- TERM2GENE[, c(1, 1)]
-          colnames(TERM2GENE) <- c("Term", default_IDtypes["CORUM"])
+          colnames(TERM2GENE) <- c("Term", default_IDtypes[["CORUM"]])
           colnames(TERM2NAME) <- c("Term", "Name")
           TERM2GENE <- na.omit(unique(TERM2GENE))
           TERM2NAME <- na.omit(unique(TERM2NAME))
@@ -2314,7 +2313,7 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
           TERM2GENE <- mp_gene[, c("V5", "symbol")]
           TERM2NAME <- mp_gene[, c("V5", "MP")]
 
-          colnames(TERM2GENE) <- c("Term", default_IDtypes["MP"])
+          colnames(TERM2GENE) <- c("Term", default_IDtypes[["MP"]])
           colnames(TERM2NAME) <- c("Term", "Name")
           TERM2GENE <- na.omit(unique(TERM2GENE))
           TERM2NAME <- na.omit(unique(TERM2NAME))
@@ -2352,7 +2351,7 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
           }
           TERM2GENE <- do_df[, c("DOID", "DBObjectSymbol")]
           TERM2NAME <- do_df[, c("DOID", "DOtermName")]
-          colnames(TERM2GENE) <- c("Term", default_IDtypes["DO"])
+          colnames(TERM2GENE) <- c("Term", default_IDtypes[["DO"]])
           colnames(TERM2NAME) <- c("Term", "Name")
           TERM2GENE <- na.omit(unique(TERM2GENE))
           TERM2NAME <- na.omit(unique(TERM2NAME))
@@ -2390,7 +2389,7 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
 
           TERM2GENE <- hpo[, c("hpo_id", "gene_symbol")]
           TERM2NAME <- hpo[, c("hpo_id", "hpo_name")]
-          colnames(TERM2GENE) <- c("Term", default_IDtypes["HPO"])
+          colnames(TERM2GENE) <- c("Term", default_IDtypes[["HPO"]])
           colnames(TERM2NAME) <- c("Term", "Name")
           TERM2GENE <- na.omit(unique(TERM2GENE))
           TERM2NAME <- na.omit(unique(TERM2NAME))
@@ -2419,7 +2418,7 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
             bg[is.na(bg[["PFAM_name"]]), "PFAM_name"] <- bg[is.na(bg[["PFAM_name"]]), "PFAM"]
             TERM2GENE <- bg[, c("PFAM", org_key)]
             TERM2NAME <- bg[, c("PFAM", "PFAM_name")]
-            colnames(TERM2GENE) <- c("Term", default_IDtypes["PFAM"])
+            colnames(TERM2GENE) <- c("Term", default_IDtypes[["PFAM"]])
             colnames(TERM2NAME) <- c("Term", "Name")
             TERM2GENE <- na.omit(unique(TERM2GENE))
             TERM2NAME <- na.omit(unique(TERM2NAME))
@@ -2444,7 +2443,7 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
           chr[, 2] <- paste0("chr", chr[, 2])
           TERM2GENE <- chr[, c(2, 1)]
           TERM2NAME <- chr[, c(2, 2)]
-          colnames(TERM2GENE) <- c("Term", default_IDtypes["Chromosome"])
+          colnames(TERM2GENE) <- c("Term", default_IDtypes[["Chromosome"]])
           colnames(TERM2NAME) <- c("Term", "Name")
           TERM2GENE <- na.omit(unique(TERM2GENE))
           TERM2NAME <- na.omit(unique(TERM2NAME))
@@ -2469,7 +2468,7 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
             bg <- suppressMessages(select(orgdb, keys = keys(orgdb), columns = c("GENETYPE", org_key)))
             TERM2GENE <- bg[, c("GENETYPE", org_key)]
             TERM2NAME <- bg[, c("GENETYPE", "GENETYPE")]
-            colnames(TERM2GENE) <- c("Term", default_IDtypes["GeneType"])
+            colnames(TERM2GENE) <- c("Term", default_IDtypes[["GeneType"]])
             colnames(TERM2NAME) <- c("Term", "Name")
             TERM2GENE <- na.omit(unique(TERM2GENE))
             TERM2NAME <- na.omit(unique(TERM2NAME))
@@ -2516,7 +2515,7 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
             bg[, "Name"] <- enzyme[bg[, "ENZYME"], 2]
             TERM2GENE <- bg[, c("ENZYME", org_key)]
             TERM2NAME <- bg[, c("ENZYME", "Name")]
-            colnames(TERM2GENE) <- c("Term", default_IDtypes["Enzyme"])
+            colnames(TERM2GENE) <- c("Term", default_IDtypes[["Enzyme"]])
             colnames(TERM2NAME) <- c("Term", "Name")
             TERM2GENE <- na.omit(unique(TERM2GENE))
             TERM2NAME <- na.omit(unique(TERM2NAME))
@@ -2596,7 +2595,7 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
 
           TERM2GENE <- rbind(data.frame("Term" = "TF", "symbol" = tf[["Symbol"]]), data.frame("Term" = "TF cofactor", "symbol" = tfco[["Symbol"]]))
           TERM2NAME <- data.frame("Term" = c("TF", "TF cofactor"), "Name" = c("TF", "TF cofactor"))
-          colnames(TERM2GENE) <- c("Term", default_IDtypes["TF"])
+          colnames(TERM2GENE) <- c("Term", default_IDtypes[["TF"]])
           colnames(TERM2NAME) <- c("Term", "Name")
           TERM2GENE <- na.omit(unique(TERM2GENE))
           TERM2NAME <- na.omit(unique(TERM2NAME))
@@ -2635,7 +2634,7 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
           ), , drop = FALSE]
           TERM2GENE <- data.frame("Term" = "SurfaceProtein", "symbol" = surfacepro[["ENTREZ.gene.symbol"]])
           TERM2NAME <- data.frame("Term" = "SurfaceProtein", "Name" = "SurfaceProtein")
-          colnames(TERM2GENE) <- c("Term", default_IDtypes["CSPA"])
+          colnames(TERM2GENE) <- c("Term", default_IDtypes[["CSPA"]])
           colnames(TERM2NAME) <- c("Term", "Name")
           TERM2GENE <- na.omit(unique(TERM2GENE))
           TERM2NAME <- na.omit(unique(TERM2NAME))
@@ -2671,7 +2670,7 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
           unlink(temp)
           TERM2GENE <- data.frame("Term" = "SurfaceProtein", "symbol" = surfaceome[["UniProt.gene"]])
           TERM2NAME <- data.frame("Term" = "SurfaceProtein", "Name" = "SurfaceProtein")
-          colnames(TERM2GENE) <- c("Term", default_IDtypes["Surfaceome"])
+          colnames(TERM2GENE) <- c("Term", default_IDtypes[["Surfaceome"]])
           colnames(TERM2NAME) <- c("Term", "Name")
           TERM2GENE <- na.omit(unique(TERM2GENE))
           TERM2NAME <- na.omit(unique(TERM2NAME))
@@ -2706,7 +2705,7 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
           unlink(temp)
           TERM2GENE <- data.frame("Term" = "SecretoryProtein", "entrez_id" = unlist(strsplit(spromedb$Gene_ID, ";")))
           TERM2NAME <- data.frame("Term" = "SecretoryProtein", "Name" = "SecretoryProtein")
-          colnames(TERM2GENE) <- c("Term", default_IDtypes["SPRomeDB"])
+          colnames(TERM2GENE) <- c("Term", default_IDtypes[["SPRomeDB"]])
           colnames(TERM2NAME) <- c("Term", "Name")
           TERM2GENE <- na.omit(unique(TERM2GENE))
           TERM2NAME <- na.omit(unique(TERM2NAME))
@@ -2747,11 +2746,11 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
           close(con)
           unlink(temp)
           verseda <- verseda[grep("^>", verseda)]
-          verseda <- gsub("^>", "", verseda)
-          verseda_id <- GeneConvert(geneID = verseda, geneID_from_IDtype = "ensembl_peptide_id", geneID_to_IDtype = "symbol", species_from = db_species["VerSeDa"])
+          verseda <- gsub("^>|\\.\\d+", "", verseda)
+          verseda_id <- GeneConvert(geneID = verseda, geneID_from_IDtype = c("ensembl_peptide_id", "refseq_peptide", "refseq_peptide_predicted", "uniprot_isoform", "uniprotswissprot", "uniprotsptrembl"), geneID_to_IDtype = "symbol", species_from = db_species["VerSeDa"])
           TERM2GENE <- data.frame("Term" = "SecretoryProtein", "symbol" = unique(verseda_id$geneID_expand$symbol))
           TERM2NAME <- data.frame("Term" = "SecretoryProtein", "Name" = "SecretoryProtein")
-          colnames(TERM2GENE) <- c("Term", default_IDtypes["VerSeDa"])
+          colnames(TERM2GENE) <- c("Term", default_IDtypes[["VerSeDa"]])
           colnames(TERM2NAME) <- c("Term", "Name")
           TERM2GENE <- na.omit(unique(TERM2GENE))
           TERM2NAME <- na.omit(unique(TERM2NAME))
@@ -2786,7 +2785,7 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
           TERM2GENE <- read.gmt(temp)
           version <- "v1.0"
           TERM2NAME <- TERM2GENE[, c(1, 1)]
-          colnames(TERM2GENE) <- c("Term", default_IDtypes["TFLink"])
+          colnames(TERM2GENE) <- c("Term", default_IDtypes[["TFLink"]])
           colnames(TERM2NAME) <- c("Term", "Name")
           TERM2GENE <- na.omit(unique(TERM2GENE))
           TERM2NAME <- na.omit(unique(TERM2NAME))
@@ -2819,7 +2818,7 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
           TERM2GENE <- read.table(temp, header = TRUE, fill = T, sep = "\t")
           version <- "v1.0"
           TERM2NAME <- TERM2GENE[, c(1, 1)]
-          colnames(TERM2GENE) <- c("Term", default_IDtypes["hTFtarget"])
+          colnames(TERM2GENE) <- c("Term", default_IDtypes[["hTFtarget"]])
           colnames(TERM2NAME) <- c("Term", "Name")
           TERM2GENE <- na.omit(unique(TERM2GENE))
           TERM2NAME <- na.omit(unique(TERM2NAME))
@@ -2838,8 +2837,8 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
         if (any(db == "TRRUST") && (!"TRRUST" %in% names(db_list[[sps]]))) {
           if (!sps %in% c("Homo_sapiens", "Mus_musculus")) {
             if (isTRUE(convert_species)) {
-              warning("Use the human annotation to create the hTFtarget database for ", sps, immediate. = TRUE)
-              db_species["hTFtarget"] <- "Homo_sapiens"
+              warning("Use the human annotation to create the TRRUST database for ", sps, immediate. = TRUE)
+              db_species["TRRUST"] <- "Homo_sapiens"
             } else {
               warning("hTFtarget database only support Homo_sapiens and Mus_musculus. Consider using convert_species=TRUE", immediate. = TRUE)
               stop("Stop the preparation.")
@@ -2855,7 +2854,7 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
           TERM2GENE <- read.table(temp, header = FALSE, fill = T, sep = "\t")[, 1:2]
           version <- "v2.0"
           TERM2NAME <- TERM2GENE[, c(1, 1)]
-          colnames(TERM2GENE) <- c("Term", default_IDtypes["TRRUST"])
+          colnames(TERM2GENE) <- c("Term", default_IDtypes[["TRRUST"]])
           colnames(TERM2NAME) <- c("Term", "Name")
           TERM2GENE <- na.omit(unique(TERM2GENE))
           TERM2NAME <- na.omit(unique(TERM2NAME))
@@ -2889,7 +2888,7 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
           TERM2GENE <- read.gmt(gsub(".gz", "", temp))
           version <- "Harmonizome 3.0"
           TERM2NAME <- TERM2GENE[, c(1, 1)]
-          colnames(TERM2GENE) <- c("Term", default_IDtypes["JASPAR"])
+          colnames(TERM2GENE) <- c("Term", default_IDtypes[["JASPAR"]])
           colnames(TERM2NAME) <- c("Term", "Name")
           TERM2GENE <- na.omit(unique(TERM2GENE))
           TERM2NAME <- na.omit(unique(TERM2NAME))
@@ -2923,7 +2922,7 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
           TERM2GENE <- read.gmt(gsub(".gz", "", temp))
           version <- "Harmonizome 3.0"
           TERM2NAME <- TERM2GENE[, c(1, 1)]
-          colnames(TERM2GENE) <- c("Term", default_IDtypes["ENCODE"])
+          colnames(TERM2GENE) <- c("Term", default_IDtypes[["ENCODE"]])
           colnames(TERM2NAME) <- c("Term", "Name")
           TERM2GENE <- na.omit(unique(TERM2GENE))
           TERM2NAME <- na.omit(unique(TERM2NAME))
@@ -2961,22 +2960,21 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
           ), version)]
           version <- version[length(version)]
           version <- regmatches(version, m = regexpr("(?<=href\\=\")\\S+(?=/\"\\>)", version, perl = TRUE))
+          # version="2023.1.Hs" "2023.2.Hs"
 
           url <- paste0("https://data.broadinstitute.org/gsea-msigdb/msigdb/release/", version, "/msigdb.v", version, ".json")
           download(url = url, destfile = temp)
-          lines <- readLines(temp, warn = FALSE)
+          lines <- paste0(readLines(temp, warn = FALSE), collapse = "")
           lines <- gsub("\"", "", lines)
-          genesets <- strsplit(lines, "\\{|\\}")
+          lines <- gsub("^\\{|\\}$", "", lines)
+          terms <- strsplit(lines, "\\},")[[1]]
           term_list <- list()
-          for (idx in seq_along(genesets)) {
-            term_content <- genesets[[idx]]
-            if (length(term_content) == 1) {
-              next
-            }
-            term_name <- trimws(gsub(":|_", " ", term_content[[1]]))
-            term_id <- trimws(regmatches(term_content[[2]], m = regexpr("(?<=systematicName:)\\S+(?=,pmid)", term_content[[2]], perl = TRUE)))
-            term_gene <- trimws(regmatches(term_content[[2]], m = regexpr(pattern = "(?<=geneSymbols:\\[)\\S+(?=\\],msigdbURL)", term_content[[2]], perl = TRUE)))
-            term_collection <- trimws(gsub(".*collection:", "", term_content[[2]]))
+          for (idx in seq_along(terms)) {
+            term_content <- terms[[idx]]
+            term_name <- trimws(gsub(":|_|\\{.*", " ", term_content))
+            term_id <- trimws(regmatches(term_content, m = regexpr("(?<=systematicName:)\\S+?(?=,)", term_content, perl = TRUE)))
+            term_gene <- trimws(regmatches(term_content, m = regexpr(pattern = "(?<=geneSymbols:\\[)\\S+?(?=\\],)", term_content, perl = TRUE)))
+            term_collection <- trimws(regmatches(term_content, m = regexpr(pattern = "(?<=collection:)\\S+?(?=\\,)", term_content, perl = TRUE)))
             term_collection <- gsub(":.*", "", term_collection)
             term_list[[idx]] <- c(id = term_id, "name" = term_name, "gene" = term_gene, "collection" = term_collection)
           }
@@ -2987,7 +2985,7 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
           TERM2NAME <- df[, c(1, 2, 4)]
           TERM2GENE <- df[, c(1, 3)]
           colnames(TERM2NAME) <- c("Term", "Name", "Collection")
-          colnames(TERM2GENE) <- c("Term", default_IDtypes["MSigDB"])
+          colnames(TERM2GENE) <- c("Term", paste0(default_IDtypes[["MSigDB"]], collapse = "."))
           TERM2NAME <- na.omit(unique(TERM2NAME))
           TERM2GENE <- na.omit(unique(TERM2GENE))
 
@@ -3003,6 +3001,7 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
 
           for (collection in unique(TERM2NAME[["Collection"]])) {
             db_species[paste0("MSigDB_", collection)] <- db_species["MSigDB"]
+            default_IDtypes[[paste0("MSigDB_", collection)]] <- default_IDtypes[["MSigDB"]]
             TERM2NAME_sub <- TERM2NAME[TERM2NAME[["Collection"]] == collection, , drop = FALSE]
             TERM2GENE_sub <- TERM2GENE[TERM2GENE[["Term"]] %in% TERM2NAME_sub[["Term"]], , drop = FALSE]
             db_list[[db_species["MSigDB"]]][[paste0("MSigDB_", collection)]][["TERM2GENE"]] <- TERM2GENE_sub
@@ -3018,48 +3017,48 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
         }
 
         ## CellTalk ---------------------------------------------------------------------------
-        # if (any(db == "CellTalk") && (!"CellTalk" %in% names(db_list[[sps]]))) {
-        #   if (!sps %in% c("Homo_sapiens", "Mus_musculus")) {
-        #     if (isTRUE(convert_species)) {
-        #       warning("Use the human annotation to create the CellTalk database for ", sps, immediate. = TRUE)
-        #       db_species["CellTalk"] <- "Homo_sapiens"
-        #     } else {
-        #       warning("CellTalk database only support Homo_sapiens and Mus_musculus. Consider using convert_species=TRUE", immediate. = TRUE)
-        #       stop("Stop the preparation.")
-        #     }
-        #   }
-        #   message("Preparing database: CellTalk")
-        #   url <- switch(db_species["CellTalk"],
-        #     "Homo_sapiens" = "https://raw.githubusercontent.com/ZJUFanLab/CellTalkDB/master/database/human_lr_pair.rds",
-        #     "Mus_musculus" = "https://raw.githubusercontent.com/ZJUFanLab/CellTalkDB/master/database/mouse_lr_pair.rds"
-        #   )
-        #
-        #   temp <- tempfile()
-        #   download(url = url, destfile = temp)
-        #   lr <- readRDS(temp)
-        #   version <- "v1.0"
-        #
-        #   lr[["ligand_gene_symbol2"]] <- paste0("ligand_", lr[["ligand_gene_symbol"]])
-        #   lr[["receptor_gene_symbol2"]] <- paste0("receptor_", lr[["receptor_gene_symbol"]])
-        #   TERM2GENE <- rbind(
-        #     data.frame("Term" = lr[["ligand_gene_symbol2"]], "symbol" = lr[["receptor_gene_symbol"]]),
-        #     data.frame("Term" = lr[["receptor_gene_symbol2"]], "symbol" = lr[["ligand_gene_symbol"]])
-        #   )
-        #   TERM2NAME <- TERM2GENE[, c(1, 1)]
-        #   colnames(TERM2GENE) <- c("Term", default_IDtypes["CellTalk"])
-        #   colnames(TERM2NAME) <- c("Term", "Name")
-        #   TERM2GENE <- na.omit(unique(TERM2GENE))
-        #   TERM2NAME <- na.omit(unique(TERM2NAME))
-        #   db_list[[db_species["CellTalk"]]][["CellTalk"]][["TERM2GENE"]] <- TERM2GENE
-        #   db_list[[db_species["CellTalk"]]][["CellTalk"]][["TERM2NAME"]] <- TERM2NAME
-        #   db_list[[db_species["CellTalk"]]][["CellTalk"]][["version"]] <- version
-        #   if (sps == db_species["CellTalk"]) {
-        #     saveCache(db_list[[db_species["CellTalk"]]][["CellTalk"]],
-        #       key = list(version, as.character(db_species["CellTalk"]), "CellTalk"),
-        #       comment = paste0(version, " nterm:", length(TERM2NAME[[1]]), "|", db_species["CellTalk"], "-CellTalk")
-        #     )
-        #   }
-        # }
+        if (any(db == "CellTalk") && (!"CellTalk" %in% names(db_list[[sps]]))) {
+          if (!sps %in% c("Homo_sapiens", "Mus_musculus")) {
+            if (isTRUE(convert_species)) {
+              warning("Use the human annotation to create the CellTalk database for ", sps, immediate. = TRUE)
+              db_species["CellTalk"] <- "Homo_sapiens"
+            } else {
+              warning("CellTalk database only support Homo_sapiens and Mus_musculus. Consider using convert_species=TRUE", immediate. = TRUE)
+              stop("Stop the preparation.")
+            }
+          }
+          message("Preparing database: CellTalk")
+          url <- switch(db_species["CellTalk"],
+            "Homo_sapiens" = "https://raw.githubusercontent.com/ZJUFanLab/CellTalkDB/master/database/human_lr_pair.rds",
+            "Mus_musculus" = "https://raw.githubusercontent.com/ZJUFanLab/CellTalkDB/master/database/mouse_lr_pair.rds"
+          )
+
+          temp <- tempfile()
+          download(url = url, destfile = temp)
+          lr <- readRDS(temp)
+          version <- "v1.0"
+
+          lr[["ligand_gene_symbol2"]] <- paste0("ligand_", lr[["ligand_gene_symbol"]])
+          lr[["receptor_gene_symbol2"]] <- paste0("receptor_", lr[["receptor_gene_symbol"]])
+          TERM2GENE <- rbind(
+            data.frame("Term" = lr[["ligand_gene_symbol2"]], "symbol" = lr[["receptor_gene_symbol"]]),
+            data.frame("Term" = lr[["receptor_gene_symbol2"]], "symbol" = lr[["ligand_gene_symbol"]])
+          )
+          TERM2NAME <- TERM2GENE[, c(1, 1)]
+          colnames(TERM2GENE) <- c("Term", default_IDtypes[["CellTalk"]])
+          colnames(TERM2NAME) <- c("Term", "Name")
+          TERM2GENE <- na.omit(unique(TERM2GENE))
+          TERM2NAME <- na.omit(unique(TERM2NAME))
+          db_list[[db_species["CellTalk"]]][["CellTalk"]][["TERM2GENE"]] <- TERM2GENE
+          db_list[[db_species["CellTalk"]]][["CellTalk"]][["TERM2NAME"]] <- TERM2NAME
+          db_list[[db_species["CellTalk"]]][["CellTalk"]][["version"]] <- version
+          if (sps == db_species["CellTalk"]) {
+            saveCache(db_list[[db_species["CellTalk"]]][["CellTalk"]],
+              key = list(version, as.character(db_species["CellTalk"]), "CellTalk"),
+              comment = paste0(version, " nterm:", length(TERM2NAME[[1]]), "|", db_species["CellTalk"], "-CellTalk")
+            )
+          }
+        }
 
         ## CellChat ---------------------------------------------------------------------------
         if (any(db == "CellChat") && (!"CellChat" %in% names(db_list[[sps]]))) {
@@ -3111,7 +3110,7 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
             TERM2GENE[["symbol"]] <- tolower(TERM2GENE[["symbol"]])
           }
           TERM2NAME <- TERM2GENE[, c(1, 1)]
-          colnames(TERM2GENE) <- c("Term", default_IDtypes["CellChat"])
+          colnames(TERM2GENE) <- c("Term", default_IDtypes[["CellChat"]])
           colnames(TERM2NAME) <- c("Term", "Name")
           TERM2GENE <- na.omit(unique(TERM2GENE))
           TERM2NAME <- na.omit(unique(TERM2NAME))
@@ -3158,7 +3157,7 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
         }
       }
 
-      # ## MeSH ---------------------------------------------------------------------------
+      ## MeSH ---------------------------------------------------------------------------
       # if (any(db == "MeSH") && (!"MeSH" %in% names(db_list[[sps]]))) {
       #   message("Preparing database: MeSH")
       #   # dir.create("~/.cache/R/AnnotationHub",recursive = TRUE,showWarnings = FALSE)
@@ -3232,35 +3231,42 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
         if (is.na(default_IDtypes[term])) {
           IDtype <- colnames(TERM2GENE)[2]
         } else {
-          IDtype <- default_IDtypes[term]
+          IDtype <- default_IDtypes[[term]]
         }
-        res <- GeneConvert(
-          geneID = as.character(unique(TERM2GENE[, IDtype])),
-          geneID_from_IDtype = IDtype,
-          geneID_to_IDtype = "ensembl_id",
-          species_from = sp_from,
-          species_to = sps,
-          Ensembl_version = Ensembl_version,
-          mirror = mirror,
-          biomart = biomart,
-          max_tries = max_tries
-        )
-        if (is.null(res$geneID_res)) {
-          warning("Failed to convert species for the database: ", term, immediate. = TRUE)
-          next
+        if (grepl("MSigDB_", term)) {
+          TERM2GENE_map <- db_list[[sps]][["MSigDB"]][["TERM2GENE"]]
+          TERM2GENE <- TERM2GENE_map[TERM2GENE_map[["Term"]] %in% TERM2GENE[["Term"]], , drop = FALSE]
+          TERM2NAME <- TERM2NAME[TERM2NAME[["Term"]] %in% TERM2GENE[["Term"]], , drop = FALSE]
+        } else {
+          res <- GeneConvert(
+            geneID = as.character(unique(TERM2GENE[, 2])),
+            geneID_from_IDtype = IDtype,
+            geneID_to_IDtype = "ensembl_id",
+            species_from = sp_from,
+            species_to = sps,
+            Ensembl_version = Ensembl_version,
+            mirror = mirror,
+            biomart = biomart,
+            max_tries = max_tries
+          )
+          if (is.null(res$geneID_res)) {
+            warning("Failed to convert species for the database: ", term, immediate. = TRUE)
+            next
+          }
+          map <- res$geneID_collapse
+          TERM2GENE[["ensembl_id-converted"]] <- map[as.character(TERM2GENE[, 2]), "ensembl_id"]
+          TERM2GENE <- unnest(TERM2GENE, cols = "ensembl_id-converted", keep_empty = FALSE)
+          TERM2GENE <- TERM2GENE[, c("Term", "ensembl_id-converted")]
+          colnames(TERM2GENE) <- c("Term", "ensembl_id")
+          TERM2NAME <- TERM2NAME[TERM2NAME[["Term"]] %in% TERM2GENE[["Term"]], , drop = FALSE]
         }
-        map <- res$geneID_collapse
-        TERM2GENE[["ensembl_id-converted"]] <- map[as.character(TERM2GENE[, IDtype]), "ensembl_id"]
-        TERM2GENE <- unnest(TERM2GENE, cols = "ensembl_id-converted", keep_empty = FALSE)
-        TERM2GENE <- TERM2GENE[, c("Term", "ensembl_id-converted")]
-        colnames(TERM2GENE) <- c("Term", "ensembl_id")
-        TERM2NAME <- TERM2NAME[TERM2NAME[["Term"]] %in% TERM2GENE[["Term"]], , drop = FALSE]
+
         db_info[["TERM2GENE"]] <- unique(TERM2GENE)
         db_info[["TERM2NAME"]] <- unique(TERM2NAME)
         version <- paste0(db_info[["version"]], "(converted from ", sp_from, ")")
         db_info[["version"]] <- version
         db_list[[sps]][[term]] <- db_info
-        default_IDtypes[term] <- "ensembl_id"
+        default_IDtypes[[term]] <- "ensembl_id"
         ### save cache
         saveCache(db_list[[sps]][[term]],
           key = list(version, sps, term),
@@ -3279,26 +3285,32 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
         if (is.na(default_IDtypes[term])) {
           IDtype <- colnames(TERM2GENE)[2]
         } else {
-          IDtype <- default_IDtypes[term]
+          IDtype <- default_IDtypes[[term]]
         }
-        res <- GeneConvert(
-          geneID = as.character(unique(TERM2GENE[, IDtype])),
-          geneID_from_IDtype = IDtype,
-          geneID_to_IDtype = IDtypes,
-          species_from = sps,
-          species_to = sps,
-          Ensembl_version = Ensembl_version,
-          mirror = mirror,
-          biomart = biomart,
-          max_tries = max_tries
-        )
-        if (is.null(res$geneID_res)) {
-          warning("Failed to convert species for the database: ", term, immediate. = TRUE)
-          next
+        if (grepl("MSigDB_", term)) {
+          map <- db_list[[sps]][["MSigDB"]][["TERM2GENE"]][, -1, drop = FALSE]
+          map <- aggregate(map, by = list(map[[1]]), FUN = function(x) list(unique(x)))
+          rownames(map) <- map[, 1]
+        } else {
+          res <- GeneConvert(
+            geneID = as.character(unique(TERM2GENE[, 2])),
+            geneID_from_IDtype = IDtype,
+            geneID_to_IDtype = IDtypes,
+            species_from = sps,
+            species_to = sps,
+            Ensembl_version = Ensembl_version,
+            mirror = mirror,
+            biomart = biomart,
+            max_tries = max_tries
+          )
+          if (is.null(res$geneID_res)) {
+            warning("Failed to convert species for the database: ", term, immediate. = TRUE)
+            next
+          }
+          map <- res$geneID_collapse
         }
-        map <- res$geneID_collapse
         for (type in IDtypes) {
-          TERM2GENE[[type]] <- map[as.character(TERM2GENE[, IDtype]), type]
+          TERM2GENE[[type]] <- map[as.character(TERM2GENE[, 2]), type]
           TERM2GENE <- unnest(TERM2GENE, cols = type, keep_empty = TRUE)
         }
         db_list[[sps]][[term]][["TERM2GENE"]] <- TERM2GENE
@@ -3614,7 +3626,7 @@ RunEnrichment <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_t
 #'
 #' @inheritParams RunEnrichment
 #' @param geneScore A numeric vector that specifies the gene scores, for example, the log2(fold change) values of gene expression.
-#' @param scoreType This parameter defines the GSEA score type. Possible options are ("std", "pos", "neg"). By default ("std") the enrichment score is computed as in the original GSEA. The "pos" and "neg" score types are intended to be used for one-tailed tests (i.e. when one is interested only in positive ("pos") or negateive ("neg") enrichment).
+#' @param scoreType This parameter defines the GSEA score type. Possible options are "std", "pos", "neg". By default ("std") the enrichment score is computed as in the original GSEA. The "pos" and "neg" score types are intended to be used for one-tailed tests (i.e. when one is interested only in positive ("pos") or negateive ("neg") enrichment).
 #' @returns
 #' If input is a Seurat object, returns the modified Seurat object with the enrichment result stored in the tools slot.
 #'

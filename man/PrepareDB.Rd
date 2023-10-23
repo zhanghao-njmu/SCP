@@ -8,8 +8,8 @@ PrepareDB(
   species = c("Homo_sapiens", "Mus_musculus"),
   db = c("GO", "GO_BP", "GO_CC", "GO_MF", "KEGG", "WikiPathway", "Reactome", "CORUM",
     "MP", "DO", "HPO", "PFAM", "CSPA", "Surfaceome", "SPRomeDB", "VerSeDa", "TFLink",
-    "hTFtarget", "TRRUST", "JASPAR", "ENCODE", "MSigDB", "CellChat", "Chromosome",
-    "GeneType", "Enzyme", "TF"),
+    "hTFtarget", "TRRUST", "JASPAR", "ENCODE", "MSigDB", "CellTalk", "CellChat",
+    "Chromosome", "GeneType", "Enzyme", "TF"),
   db_IDtypes = c("symbol", "entrez_id", "ensembl_id"),
   db_version = "latest",
   db_update = FALSE,
@@ -32,7 +32,7 @@ PrepareDB(
 Default is c("GO", "GO_BP", "GO_CC", "GO_MF", "KEGG", "WikiPathway", "Reactome",
 "CORUM", "MP", "DO", "HPO", "PFAM", "CSPA", "Surfaceome", "SPRomeDB", "VerSeDa",
 "TFLink", "hTFtarget", "TRRUST", "JASPAR", "ENCODE", "MSigDB",
-"CellChat", "Chromosome", "GeneType", "Enzyme", "TF").}
+"CellTalk", "CellChat", "Chromosome", "GeneType", "Enzyme", "TF").}
 
 \item{db_IDtypes}{A character vector specifying the desired ID types to be used for gene identifiers in the gene annotation databases. Default is c("symbol", "entrez_id", "ensembl_id").}
 

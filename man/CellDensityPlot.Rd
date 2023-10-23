@@ -7,7 +7,7 @@
 CellDensityPlot(
   srt,
   features,
-  group.by,
+  group.by = NULL,
   split.by = NULL,
   assay = NULL,
   slot = "data",

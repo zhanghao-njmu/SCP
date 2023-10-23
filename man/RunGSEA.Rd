@@ -48,7 +48,7 @@ If not specified, the \code{geneID} and \code{geneID_groups} arguments must be p
 
 \item{DE_threshold}{A character vector specifying the filter condition for differential expression analysis. This argument is only used if \code{srt} is specified.}
 
-\item{scoreType}{This parameter defines the GSEA score type. Possible options are ("std", "pos", "neg"). By default ("std") the enrichment score is computed as in the original GSEA. The "pos" and "neg" score types are intended to be used for one-tailed tests (i.e. when one is interested only in positive ("pos") or negateive ("neg") enrichment).}
+\item{scoreType}{This parameter defines the GSEA score type. Possible options are "std", "pos", "neg". By default ("std") the enrichment score is computed as in the original GSEA. The "pos" and "neg" score types are intended to be used for one-tailed tests (i.e. when one is interested only in positive ("pos") or negateive ("neg") enrichment).}
 
 \item{geneID}{A character vector specifying the gene IDs.}
 
