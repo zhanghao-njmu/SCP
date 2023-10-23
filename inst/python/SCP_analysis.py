@@ -280,7 +280,7 @@ def SCVELO(adata=None, h5ad=None, group_by=None, palette=None,
 
           for cluster in df1.columns:
             #df1[0:1].values.ravel()[:12] ### by row
-            scv.pl.scatter(adata, color=group_by,palette=palette, basis=df[cluster].values[:top_n],vkey=vkey, size=10, linewidth=2, alpha=1, ylabel="cluster: "+cluster+"\nunspliced",
+            scv.pl.scatter(adata, color=group_by,palette=palette, basis=df1[cluster].values[:top_n],vkey=vkey, size=10, linewidth=2, alpha=1, ylabel="cluster: "+cluster+"\nunspliced",
                             add_linfit=True, add_rug=True, add_outline=True, ncols=3, frameon=True, save=False, show=False)
             if show_plot is True:
               plt.show()
