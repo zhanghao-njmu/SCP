@@ -281,6 +281,7 @@ FeatureStatPlot(pancreas_sub, stat.by = c(
   "Ins1", "Gcg", "Sst", "Ghrl" # Beta, Alpha, Delta, Epsilon
 ), group.by = "SubCellType", plot.by = "feature", stack = TRUE)
 
+library(Matrix)
 data <- pancreas_sub@assays$RNA@data
 pancreas_sub@assays$RNA@scale.data <- as.matrix(data / rowMeans(data))
 FeatureStatPlot(pancreas_sub,
