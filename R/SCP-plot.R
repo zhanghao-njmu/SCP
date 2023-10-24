@@ -3420,8 +3420,8 @@ FeatureStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.b
                             combine = TRUE, nrow = NULL, ncol = NULL, byrow = TRUE, force = FALSE, seed = 11) {
   if (is.null(group.by)) {
     group.by <- "All.groups" # avoid having the same name with split.by. split.by will be All.groups by default
-    xlab <- ""
-    srt[[group.by]] <- factor("All_groups")
+    xlab <- "All groups"
+    srt[[group.by]] <- factor("All groups")
   }
 
   meta.data <- srt@meta.data
@@ -3866,11 +3866,15 @@ ExpressionStatPlot <- function(exp.data, meta.data, stat.by, group.by = NULL, sp
       bg_color <- palette_scp(levels(dat[[bg]]), palcolor = bg_palcolor %||% rep(c("transparent", "grey85"), nlevels(dat[[bg]])))
     }
     dat[["bg.by"]] <- dat[[bg]]
+
     var_nm <- setNames(
       object = c("value", "group.by", "split.by"),
       nm = c(f, g, split.by)
     )
     colnames(dat)[colnames(dat) %in% names(var_nm)] <- var_nm[colnames(dat)[colnames(dat) %in% names(var_nm)]]
+    if (split.by == g) {
+      dat[["split.by"]] <- dat[["group.by"]]
+    }
     # stat <- table(dat[, "group.by"], dat[, "split.by"])
     # stat_drop <- which(stat == 1, arr.ind = TRUE)
     # if (nrow(stat_drop) > 0) {
@@ -3879,6 +3883,7 @@ ExpressionStatPlot <- function(exp.data, meta.data, stat.by, group.by = NULL, sp
     #     rownames(stat)[stat_drop[j, 1]]
     #   }
     # }
+
     dat[, "features"] <- rep(f, nrow(dat))
     if (nrow(dat) > 0 && ((is.character(x = sort) && nchar(x = sort) > 0) || sort)) {
       df_sort <- aggregate(dat[, "value", drop = FALSE], by = list(dat[["group.by"]]), median)
