@@ -14,7 +14,7 @@ This function creates a correlation plot to visualize the pairwise correlations 
     
     <a class="navbar-brand me-2" href="../index.html">SCP</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.3</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -72,7 +72,9 @@ This function creates a correlation plot to visualize the pairwise correlations 
 <span>  add_smooth <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  palette <span class="op">=</span> <span class="st">"Paired"</span>,</span>
 <span>  palcolor <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  bg_color <span class="op">=</span> <span class="st">"grey80"</span>,</span>
+<span>  cor_palette <span class="op">=</span> <span class="st">"RdBu"</span>,</span>
+<span>  cor_palcolor <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  cor_range <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span>,</span>
 <span>  pt.size <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  pt.alpha <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  cells.highlight <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -169,8 +171,16 @@ This function creates a correlation plot to visualize the pairwise correlations 
 <dd><p>A character string specifying the color for the groups. Defaults to NULL.</p></dd>
 
 
-<dt>bg_color</dt>
-<dd><p>A character string specifying the color for cells not included in the highlight. Defaults to "grey80".</p></dd>
+<dt>cor_palette</dt>
+<dd><p>A character string specifying the name of the color palette to use for the correlation. Defaults to "RuBu".</p></dd>
+
+
+<dt>cor_palcolor</dt>
+<dd><p>A character string specifying the color for the correlation. Defaults to "RuBu".</p></dd>
+
+
+<dt>cor_range</dt>
+<dd><p>A two-length numeric vector specifying the range for the correlation.</p></dd>
 
 
 <dt>pt.size</dt>
@@ -269,9 +279,23 @@ This function creates a correlation plot to visualize the pairwise correlations 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"pancreas_sub"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu">FeatureCorPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, features <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Ghrl"</span>, <span class="st">"Gcg"</span>, <span class="st">"Ins1"</span>, <span class="st">"Ins2"</span><span class="op">)</span>, group.by <span class="op">=</span> <span class="st">"SubCellType"</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Data in the 'data' slot is raw counts. Perform NormalizeData(LogNormalize) on the data.</span>
+<span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu">Seurat</span><span class="fu">::</span><span class="fu"><a href="https://satijalab.org/seurat/reference/NormalizeData.html" class="external-link">NormalizeData</a></span><span class="op">(</span><span class="va">pancreas_sub</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">FeatureCorPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, features <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Neurog3"</span>, <span class="st">"Hes6"</span>, <span class="st">"Fev"</span>, <span class="st">"Neurod1"</span>, <span class="st">"Rbp4"</span>, <span class="st">"Pyy"</span><span class="op">)</span>, group.by <span class="op">=</span> <span class="st">"SubCellType"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="FeatureCorPlot-1.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span><span class="fu">FeatureCorPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>,</span></span>
+<span class="r-in"><span>  features <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"nFeature_RNA"</span>, <span class="st">"nCount_RNA"</span>, <span class="st">"nFeature_spliced"</span>, <span class="st">"nCount_spliced"</span>, <span class="st">"nFeature_unspliced"</span>, <span class="st">"nCount_unspliced"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  group.by <span class="op">=</span> <span class="st">"SubCellType"</span>, cor_palette <span class="op">=</span> <span class="st">"Greys"</span>, cor_range <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>essentially perfect fit: summary may be unreliable</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>essentially perfect fit: summary may be unreliable</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>essentially perfect fit: summary may be unreliable</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>essentially perfect fit: summary may be unreliable</span>
+<span class="r-plt img"><img src="FeatureCorPlot-2.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span><span class="fu">FeatureCorPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>,</span></span>
+<span class="r-in"><span>  features <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"nFeature_RNA"</span>, <span class="st">"nCount_RNA"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  group.by <span class="op">=</span> <span class="st">"SubCellType"</span>, add_equation <span class="op">=</span> <span class="cn">TRUE</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="FeatureCorPlot-3.png" alt="" width="700" height="433"></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>

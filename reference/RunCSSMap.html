@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">SCP</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.3</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -121,39 +121,13 @@
 <span class="r-in"><span><span class="va">srt_ref</span> <span class="op">&lt;-</span> <span class="va">panc8_sub</span><span class="op">[</span>, <span class="va">panc8_sub</span><span class="op">$</span><span class="va">tech</span> <span class="op">!=</span> <span class="st">"fluidigmc1"</span><span class="op">]</span></span></span>
 <span class="r-in"><span><span class="va">srt_query</span> <span class="op">&lt;-</span> <span class="va">panc8_sub</span><span class="op">[</span>, <span class="va">panc8_sub</span><span class="op">$</span><span class="va">tech</span> <span class="op">==</span> <span class="st">"fluidigmc1"</span><span class="op">]</span></span></span>
 <span class="r-in"><span><span class="va">srt_ref</span> <span class="op">&lt;-</span> <span class="fu"><a href="Integration_SCP.html">Integration_SCP</a></span><span class="op">(</span><span class="va">srt_ref</span>, batch <span class="op">=</span> <span class="st">"tech"</span>, integration_method <span class="op">=</span> <span class="st">"CSS"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-19 03:12:16.463267] Start CSS_integrate</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-25 03:10:33.895697] Start CSS_integrate</span>
 <span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in Integration_SCP(srt_ref, batch = "tech", integration_method = "CSS"):</span> object 'srt_ref' not found</span>
 <span class="r-in"><span><span class="fu"><a href="CellDimPlot.html">CellDimPlot</a></span><span class="op">(</span><span class="va">srt_ref</span>, group.by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"celltype"</span>, <span class="st">"tech"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in DefaultReduction(srt):</span> Unable to find any reductions.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Projection</span></span></span>
 <span class="r-in"><span><span class="va">srt_query</span> <span class="op">&lt;-</span> <span class="fu">RunCSSMap</span><span class="op">(</span>srt_query <span class="op">=</span> <span class="va">srt_query</span>, srt_ref <span class="op">=</span> <span class="va">srt_ref</span>, ref_css <span class="op">=</span> <span class="st">"CSS"</span>, ref_umap <span class="op">=</span> <span class="st">"CSSUMAP2D"</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Install package: "simspec" ...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 'getOption("repos")' replaces Bioconductor standard repositories, see 'help("repositories", package = "BiocManager")'</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> for details.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Replacement repositories:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>     CRAN: https://cloud.r-project.org</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Bioconductor version 3.17 (BiocManager 1.30.22), R 4.3.1 (2023-06-16)</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Installing package(s) 'BiocVersion'</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Installing github package(s) 'quadbiolab/simspec'</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>package ‘quadbiolab/simspec’ is not available for this version of R</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> A version of this package for your version of R might be available elsewhere,</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> see the ideas at</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> https://cran.r-project.org/doc/manuals/r-patched/R-admin.html#Installing-packages</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Using github PAT from envvar GITHUB_PAT</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Downloading GitHub repo quadbiolab/simspec@HEAD</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="color: #00BBBB;">R CMD build</span> <span style="color: #00BBBB;">─────────────────────────────────────────────────────────────────────────────────────────────────────────</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> * checking for file ‘/tmp/RtmpuE0lvP/remotes1fa4344f7a42/quadbio-simspec-680488c/DESCRIPTION’ ... OK</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> * preparing ‘simspec’:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> * checking DESCRIPTION meta-information ... OK</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> * checking for LF line-endings in source and make files and shell scripts</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> * checking for empty or unneeded directories</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Omitted ‘LazyData’ from DESCRIPTION</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> * building ‘simspec_0.0.0.9000.tar.gz’</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Installing package into ‘/home/runner/work/_temp/Library’</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> (as ‘lib’ is unspecified)</span>
 <span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> Cannot find 'CSS' in this Seurat object</span>
 <span class="r-in"><span><span class="fu"><a href="ProjectionPlot.html">ProjectionPlot</a></span><span class="op">(</span>srt_query <span class="op">=</span> <span class="va">srt_query</span>, srt_ref <span class="op">=</span> <span class="va">srt_ref</span>, query_group <span class="op">=</span> <span class="st">"celltype"</span>, ref_group <span class="op">=</span> <span class="st">"celltype"</span><span class="op">)</span></span></span>
 <span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> Cannot find 'ref.embeddings' in this Seurat object</span>

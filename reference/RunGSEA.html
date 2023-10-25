@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">SCP</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.3</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -103,7 +103,7 @@ If not specified, the <code>geneID</code> and <code>geneID_groups</code> argumen
 
 
 <dt>scoreType</dt>
-<dd><p>This parameter defines the GSEA score type. Possible options are ("std", "pos", "neg"). By default ("std") the enrichment score is computed as in the original GSEA. The "pos" and "neg" score types are intended to be used for one-tailed tests (i.e. when one is interested only in positive ("pos") or negateive ("neg") enrichment).</p></dd>
+<dd><p>This parameter defines the GSEA score type. Possible options are "std", "pos", "neg". By default ("std") the enrichment score is computed as in the original GSEA. The "pos" and "neg" score types are intended to be used for one-tailed tests (i.e. when one is interested only in positive ("pos") or negateive ("neg") enrichment).</p></dd>
 
 
 <dt>geneID</dt>
@@ -232,21 +232,21 @@ If not specified, the <code>geneID</code> and <code>geneID_groups</code> argumen
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"pancreas_sub"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="RunDEtest.html">RunDEtest</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, group_by <span class="op">=</span> <span class="st">"CellType"</span>, only.pos <span class="op">=</span> <span class="cn">FALSE</span>, fc.threshold <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Data in the 'data' slot is raw counts. Perform NormalizeData(LogNormalize) on the data.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-10-19 03:34:17.427353] Start DEtest</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-10-25 03:33:44.88481] Start DEtest</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Workers: 1</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Find all markers(wilcox) among 5 groups...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |==============================================================================================================| 100%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-10-19 03:41:23.344046] DEtest done</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:7.1 mins</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-10-25 03:41:24.042712] DEtest done</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:7.65 mins</span>
 <span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu">RunGSEA</span><span class="op">(</span><span class="va">pancreas_sub</span>,</span></span>
 <span class="r-in"><span>  group_by <span class="op">=</span> <span class="st">"CellType"</span>, DE_threshold <span class="op">=</span> <span class="st">"p_val_adj &lt; 0.05"</span>,</span></span>
 <span class="r-in"><span>  scoreType <span class="op">=</span> <span class="st">"std"</span>, db <span class="op">=</span> <span class="st">"GO_BP"</span>, species <span class="op">=</span> <span class="st">"Mus_musculus"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-10-19 03:41:23.348793] Start GSEA</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-10-25 03:41:24.051758] Start GSEA</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Workers: 1</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Species: Mus_musculus</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db: GO_BP version:3.17.0 nterm:16027 created:2023-10-19 02:40:29.055067</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db: GO_BP version:3.17.0 nterm:16027 created:2023-10-25 02:37:40.087261</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Permform GSEA...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |==============================================================================================================| 100%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -260,8 +260,8 @@ If not specified, the <code>geneID</code> and <code>geneID_groups</code> argumen
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |==============================================================================================================| 100%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-10-19 03:48:27.554902] GSEA done</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:7.07 mins</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-10-25 03:48:21.238824] GSEA done</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:6.95 mins</span>
 <span class="r-in"><span><span class="fu"><a href="GSEAPlot.html">GSEAPlot</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, db <span class="op">=</span> <span class="st">"GO_BP"</span>, group_by <span class="op">=</span> <span class="st">"CellType"</span>, plot_type <span class="op">=</span> <span class="st">"comparison"</span><span class="op">)</span></span></span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Vectorized input to `element_text()` is not officially supported.</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Results may be unexpected or may change in future versions of ggplot2.</span>
@@ -273,10 +273,10 @@ If not specified, the <code>geneID</code> and <code>geneID_groups</code> argumen
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Remove redundant GO terms</span></span></span>
 <span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu">RunGSEA</span><span class="op">(</span>srt <span class="op">=</span> <span class="va">pancreas_sub</span>, group_by <span class="op">=</span> <span class="st">"CellType"</span>, db <span class="op">=</span> <span class="st">"GO_BP"</span>, GO_simplify <span class="op">=</span> <span class="cn">TRUE</span>, species <span class="op">=</span> <span class="st">"Mus_musculus"</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-10-19 03:48:30.385572] Start GSEA</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-10-25 03:48:24.015651] Start GSEA</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Workers: 1</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Species: Mus_musculus</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db: GO_BP version:3.17.0 nterm:16027 created:2023-10-19 02:40:29.055067</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db: GO_BP version:3.17.0 nterm:16027 created:2023-10-25 02:37:40.087261</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Permform GSEA...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |==============================================================================================================| 100%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -290,8 +290,8 @@ If not specified, the <code>geneID</code> and <code>geneID_groups</code> argumen
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |==============================================================================================================| 100%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-10-19 03:56:05.856977] GSEA done</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:7.59 mins</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-10-25 03:55:54.328633] GSEA done</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:7.51 mins</span>
 <span class="r-in"><span><span class="fu"><a href="GSEAPlot.html">GSEAPlot</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, db <span class="op">=</span> <span class="st">"GO_BP_sim"</span>, group_by <span class="op">=</span> <span class="st">"CellType"</span>, plot_type <span class="op">=</span> <span class="st">"comparison"</span><span class="op">)</span></span></span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Vectorized input to `element_text()` is not officially supported.</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Results may be unexpected or may change in future versions of ggplot2.</span>
@@ -304,14 +304,14 @@ If not specified, the <code>geneID</code> and <code>geneID_groups</code> argumen
 <span class="r-in"><span>  db_combine <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
 <span class="r-in"><span>  species <span class="op">=</span> <span class="st">"Mus_musculus"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-10-19 03:56:06.243979] Start GSEA</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-10-25 03:55:54.711858] Start GSEA</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Workers: 1</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Species: Mus_musculus</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db: KEGG version:Release 108.0+/10-13, Oct 23 nterm:352 created:2023-10-19 03:30:51.230127</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db: WikiPathway version:20231010 nterm:202 created:2023-10-19 03:31:06.648334</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db: Reactome version:1.84.0 nterm:1715 created:2023-10-19 03:31:29.03614</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db: PFAM version:3.17.0 nterm:6565 created:2023-10-19 03:32:01.079297</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db: MP version:2023-10-16 08:09 nterm:10297 created:2023-10-19 02:43:34.606718</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db: KEGG version:Release 108.0+/10-21, Oct 23 nterm:352 created:2023-10-25 03:30:29.406418</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db: WikiPathway version:20231010 nterm:202 created:2023-10-25 03:30:38.409002</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db: Reactome version:1.84.0 nterm:1715 created:2023-10-25 03:30:52.686766</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db: PFAM version:3.17.0 nterm:6565 created:2023-10-25 03:31:18.430549</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db: MP version:2023-10-23 08:08 nterm:10298 created:2023-10-25 02:40:18.346292</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Create 'Combined' database ...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Permform GSEA...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |==============================================================================================================| 100%</span>
@@ -326,8 +326,8 @@ If not specified, the <code>geneID</code> and <code>geneID_groups</code> argumen
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |==============================================================================================================| 100%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-10-19 03:58:26.024658] GSEA done</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:2.33 mins</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-10-25 03:58:11.577006] GSEA done</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:2.28 mins</span>
 <span class="r-in"><span><span class="fu"><a href="GSEAPlot.html">GSEAPlot</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, db <span class="op">=</span> <span class="st">"Combined"</span>, group_by <span class="op">=</span> <span class="st">"CellType"</span>, plot_type <span class="op">=</span> <span class="st">"comparison"</span><span class="op">)</span></span></span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Vectorized input to `element_text()` is not officially supported.</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Results may be unexpected or may change in future versions of ggplot2.</span>
@@ -336,10 +336,10 @@ If not specified, the <code>geneID</code> and <code>geneID_groups</code> argumen
 <span class="r-in"><span><span class="co"># Or use "geneID", "geneScore" and "geneID_groups" as input to run GSEA</span></span></span>
 <span class="r-in"><span><span class="va">de_df</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">pancreas_sub</span><span class="op">@</span><span class="va">tools</span><span class="op">$</span><span class="va">DEtest_CellType</span><span class="op">$</span><span class="va">AllMarkers_wilcox</span>, <span class="va">p_val_adj</span> <span class="op">&lt;</span> <span class="fl">0.05</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">gsea_out</span> <span class="op">&lt;-</span> <span class="fu">RunGSEA</span><span class="op">(</span>geneID <span class="op">=</span> <span class="va">de_df</span><span class="op">[[</span><span class="st">"gene"</span><span class="op">]</span><span class="op">]</span>, geneScore <span class="op">=</span> <span class="va">de_df</span><span class="op">[[</span><span class="st">"avg_log2FC"</span><span class="op">]</span><span class="op">]</span>, geneID_groups <span class="op">=</span> <span class="va">de_df</span><span class="op">[[</span><span class="st">"group1"</span><span class="op">]</span><span class="op">]</span>, db <span class="op">=</span> <span class="st">"GO_BP"</span>, species <span class="op">=</span> <span class="st">"Mus_musculus"</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-10-19 03:58:26.407451] Start GSEA</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-10-25 03:58:11.970208] Start GSEA</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Workers: 1</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Species: Mus_musculus</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db: GO_BP version:3.17.0 nterm:16027 created:2023-10-19 02:40:29.055067</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db: GO_BP version:3.17.0 nterm:16027 created:2023-10-25 02:37:40.087261</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Permform GSEA...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |==============================================================================================================| 100%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -353,8 +353,8 @@ If not specified, the <code>geneID</code> and <code>geneID_groups</code> argumen
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |==============================================================================================================| 100%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-10-19 04:05:27.499984] GSEA done</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:7.02 mins</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-10-25 04:05:11.527543] GSEA done</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:6.99 mins</span>
 <span class="r-in"><span><span class="fu"><a href="GSEAPlot.html">GSEAPlot</a></span><span class="op">(</span>res <span class="op">=</span> <span class="va">gsea_out</span>, db <span class="op">=</span> <span class="st">"GO_BP"</span>, plot_type <span class="op">=</span> <span class="st">"comparison"</span><span class="op">)</span></span></span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Vectorized input to `element_text()` is not officially supported.</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Results may be unexpected or may change in future versions of ggplot2.</span>

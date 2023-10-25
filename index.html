@@ -26,7 +26,7 @@
     
     <a class="navbar-brand me-2" href="index.html">SCP</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.3</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -321,7 +321,11 @@
 <h3 id="cell-projection-between-single-cell-datasets">Cell projection between single-cell datasets<a class="anchor" aria-label="anchor" href="#cell-projection-between-single-cell-datasets"></a>
 </h3>
 <div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">panc8_rename</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/RenameFeatures.html">RenameFeatures</a></span><span class="op">(</span>srt <span class="op">=</span> <span class="va">panc8_sub</span>, newnames <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/make.unique.html" class="external-link">make.unique</a></span><span class="op">(</span><span class="fu"><a href="reference/capitalize.html">capitalize</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">panc8_sub</span><span class="op">)</span>, force_tolower <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span>, assays <span class="op">=</span> <span class="st">"RNA"</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">panc8_rename</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/RenameFeatures.html">RenameFeatures</a></span><span class="op">(</span></span>
+<span>  srt <span class="op">=</span> <span class="va">panc8_sub</span>,</span>
+<span>  newnames <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/make.unique.html" class="external-link">make.unique</a></span><span class="op">(</span><span class="fu"><a href="reference/capitalize.html">capitalize</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">panc8_sub</span><span class="op">[[</span><span class="st">"RNA"</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>, force_tolower <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  assays <span class="op">=</span> <span class="st">"RNA"</span></span>
+<span><span class="op">)</span></span>
 <span><span class="va">srt_query</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/RunKNNMap.html">RunKNNMap</a></span><span class="op">(</span>srt_query <span class="op">=</span> <span class="va">pancreas_sub</span>, srt_ref <span class="op">=</span> <span class="va">panc8_rename</span>, ref_umap <span class="op">=</span> <span class="st">"SeuratUMAP2D"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="reference/ProjectionPlot.html">ProjectionPlot</a></span><span class="op">(</span></span>
 <span>  srt_query <span class="op">=</span> <span class="va">srt_query</span>, srt_ref <span class="op">=</span> <span class="va">panc8_rename</span>,</span>

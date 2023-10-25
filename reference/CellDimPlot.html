@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">SCP</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.3</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -56,7 +56,7 @@
 <span>  split.by <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  cells <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  show_na <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  show_stat <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  show_stat <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/identical.html" class="external-link">identical</a></span><span class="op">(</span><span class="va">theme_use</span>, <span class="st">"theme_blank"</span><span class="op">)</span>, <span class="cn">FALSE</span>, <span class="cn">TRUE</span><span class="op">)</span>,</span>
 <span>  pt.size <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  pt.alpha <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  palette <span class="op">=</span> <span class="st">"Paired"</span>,</span>
@@ -639,7 +639,7 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"pancreas_sub"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">CellDimPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, group.by <span class="op">=</span> <span class="st">"SubCellType"</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="CellDimPlot-1.png" alt="" width="700" height="433"></span>
-<span class="r-in"><span><span class="fu">CellDimPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, group.by <span class="op">=</span> <span class="st">"SubCellType"</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span>, theme_use <span class="op">=</span> <span class="st">"theme_blank"</span>, show_stat <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">CellDimPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, group.by <span class="op">=</span> <span class="st">"SubCellType"</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span>, theme_use <span class="op">=</span> <span class="st">"theme_blank"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="CellDimPlot-2.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="fu">CellDimPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, group.by <span class="op">=</span> <span class="st">"SubCellType"</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span>, theme_use <span class="op">=</span> <span class="fu">ggplot2</span><span class="fu">::</span><span class="va"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_classic</a></span>, theme_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">16</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="CellDimPlot-3.png" alt="" width="700" height="433"></span>
@@ -653,7 +653,7 @@
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="CellDimPlot-5.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="fu">CellDimPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>,</span></span>
-<span class="r-in"><span>  group.by <span class="op">=</span> <span class="st">"SubCellType"</span>, split.by <span class="op">=</span> <span class="st">"Phase"</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span>, show_stat <span class="op">=</span> <span class="cn">FALSE</span>,</span></span>
+<span class="r-in"><span>  group.by <span class="op">=</span> <span class="st">"SubCellType"</span>, split.by <span class="op">=</span> <span class="st">"Phase"</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span>,</span></span>
 <span class="r-in"><span>  cells.highlight <span class="op">=</span> <span class="cn">TRUE</span>, theme_use <span class="op">=</span> <span class="st">"theme_blank"</span>, legend.position <span class="op">=</span> <span class="st">"none"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="CellDimPlot-6.png" alt="" width="700" height="433"></span>
@@ -698,22 +698,22 @@
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Show neighbors graphs on the plot</span></span></span>
 <span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="Standard_SCP.html">Standard_SCP</a></span><span class="op">(</span><span class="va">pancreas_sub</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-19 02:28:03.330105] Start Standard_SCP</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-19 02:28:03.330295] Checking srtList... ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-25 02:24:57.952442] Start Standard_SCP</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-25 02:24:57.952653] Checking srtList... ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Data 1/1 of the srtList is raw_counts. Perform NormalizeData(LogNormalize) on the data ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform FindVariableFeatures on the data 1/1 of the srtList...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Use the separate HVF from srtList...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Number of available HVF: 2000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-19 02:28:04.322057] Finished checking.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-19 02:28:04.322273] Perform ScaleData on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-19 02:28:04.44898] Perform linear dimension reduction (pca) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-19 02:28:05.253977] Perform FindClusters (louvain) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-19 02:28:05.378107] Reorder clusters...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-19 02:28:05.632904] Perform nonlinear dimension reduction (umap) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-25 02:24:59.117771] Finished checking.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-25 02:24:59.117991] Perform ScaleData on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-25 02:24:59.258496] Perform linear dimension reduction (pca) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-25 02:25:00.145522] Perform FindClusters (louvain) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-25 02:25:00.280443] Reorder clusters...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-25 02:25:00.525836] Perform nonlinear dimension reduction (umap) on the data...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Non-linear dimensionality reduction(umap) using Reduction(Standardpca, dims:1-13) as input</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Non-linear dimensionality reduction(umap) using Reduction(Standardpca, dims:1-13) as input</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-19 02:28:14.355658] Standard_SCP done</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 11.03 secs </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-25 02:25:09.68879] Standard_SCP done</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 11.74 secs </span>
 <span class="r-in"><span><span class="fu">CellDimPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, group.by <span class="op">=</span> <span class="st">"CellType"</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span>, graph <span class="op">=</span> <span class="st">"Standardpca_SNN"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="CellDimPlot-15.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="fu">CellDimPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, group.by <span class="op">=</span> <span class="st">"CellType"</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span>, graph <span class="op">=</span> <span class="st">"Standardpca_SNN"</span>, edge_color <span class="op">=</span> <span class="st">"grey80"</span><span class="op">)</span></span></span>
@@ -763,7 +763,7 @@
 <span class="r-in"><span>  group.by <span class="op">=</span> <span class="st">"SubCellType"</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span>, pt.size <span class="op">=</span> <span class="fl">5</span>, pt.alpha <span class="op">=</span> <span class="fl">0.2</span>,</span></span>
 <span class="r-in"><span>  label <span class="op">=</span> <span class="cn">TRUE</span>, label_repel <span class="op">=</span> <span class="cn">TRUE</span>, label_insitu <span class="op">=</span> <span class="cn">TRUE</span>, label_segment_color <span class="op">=</span> <span class="st">"transparent"</span>,</span></span>
 <span class="r-in"><span>  paga <span class="op">=</span> <span class="va">pancreas_sub</span><span class="op">@</span><span class="va">misc</span><span class="op">$</span><span class="va">paga</span>, paga_edge_threshold <span class="op">=</span> <span class="fl">0.1</span>, paga_edge_color <span class="op">=</span> <span class="st">"black"</span>, paga_edge_alpha <span class="op">=</span> <span class="fl">1</span>,</span></span>
-<span class="r-in"><span>  show_stat <span class="op">=</span> <span class="cn">FALSE</span>, legend.position <span class="op">=</span> <span class="st">"none"</span>, theme_use <span class="op">=</span> <span class="st">"theme_blank"</span></span></span>
+<span class="r-in"><span>  legend.position <span class="op">=</span> <span class="st">"none"</span>, theme_use <span class="op">=</span> <span class="st">"theme_blank"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="CellDimPlot-23.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
@@ -793,7 +793,7 @@
 <span class="r-in"><span>  label <span class="op">=</span> <span class="cn">TRUE</span>, label_insitu <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
 <span class="r-in"><span>  velocity <span class="op">=</span> <span class="st">"stochastic"</span>, velocity_plot_type <span class="op">=</span> <span class="st">"stream"</span>, velocity_arrow_color <span class="op">=</span> <span class="st">"yellow"</span>,</span></span>
 <span class="r-in"><span>  velocity_density <span class="op">=</span> <span class="fl">2</span>, velocity_smooth <span class="op">=</span> <span class="fl">1</span>, streamline_n <span class="op">=</span> <span class="fl">20</span>, streamline_color <span class="op">=</span> <span class="st">"black"</span>,</span></span>
-<span class="r-in"><span>  show_stat <span class="op">=</span> <span class="cn">FALSE</span>, legend.position <span class="op">=</span> <span class="st">"none"</span>, theme_use <span class="op">=</span> <span class="st">"theme_blank"</span></span></span>
+<span class="r-in"><span>  legend.position <span class="op">=</span> <span class="st">"none"</span>, theme_use <span class="op">=</span> <span class="st">"theme_blank"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="CellDimPlot-29.png" alt="" width="700" height="433"></span>
 </code></pre></div>

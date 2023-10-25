@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">SCP</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.3</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -517,15 +517,19 @@
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Setting 'group.by' to 'Features' as 'plot.by' is set to 'feature'</span>
 <span class="r-plt img"><img src="FeatureStatPlot-23.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://Matrix.R-forge.R-project.org" class="external-link">Matrix</a></span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Attaching package: ‘Matrix’</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> The following object is masked from ‘package:S4Vectors’:</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>     expand</span>
 <span class="r-in"><span><span class="va">data</span> <span class="op">&lt;-</span> <span class="va">pancreas_sub</span><span class="op">@</span><span class="va">assays</span><span class="op">$</span><span class="va">RNA</span><span class="op">@</span><span class="va">data</span></span></span>
-<span class="r-in"><span><span class="va">pancreas_sub</span><span class="op">@</span><span class="va">assays</span><span class="op">$</span><span class="va">RNA</span><span class="op">@</span><span class="va">scale.data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="va">data</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowMeans</a></span><span class="op">(</span><span class="va">data</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in h(simpleError(msg, call)):</span> error in evaluating the argument 'x' in selecting a method for function 'as.matrix': 'x' must be an array of at least two dimensions</span>
+<span class="r-in"><span><span class="va">pancreas_sub</span><span class="op">@</span><span class="va">assays</span><span class="op">$</span><span class="va">RNA</span><span class="op">@</span><span class="va">scale.data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="va">data</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/pkg/Matrix/man/colSums.html" class="external-link">rowMeans</a></span><span class="op">(</span><span class="va">data</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">FeatureStatPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>,</span></span>
 <span class="r-in"><span>  stat.by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Neurog3"</span>, <span class="st">"Rbp4"</span>, <span class="st">"Ins1"</span><span class="op">)</span>, group.by <span class="op">=</span> <span class="st">"CellType"</span>,</span></span>
 <span class="r-in"><span>  slot <span class="op">=</span> <span class="st">"scale.data"</span>, ylab <span class="op">=</span> <span class="st">"FoldChange"</span>, same.y.lims <span class="op">=</span> <span class="cn">TRUE</span>, y.max <span class="op">=</span> <span class="fl">4</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Neurog3,Rbp4,Ins1 are not found.</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in ExpressionStatPlot(exp.data = exp.data, meta.data = meta.data,     stat.by = stat.by, group.by = group.by, split.by = split.by,     bg.by = bg.by, plot.by = "group", fill.by = fill.by, cells = cells,     keep_empty = keep_empty, individual = individual, plot_type = plot_type,     palette = palette, palcolor = palcolor, alpha = alpha, bg_palette = bg_palette,     bg_palcolor = bg_palcolor, bg_alpha = bg_alpha, add_box = add_box,     box_color = box_color, box_width = box_width, box_ptsize = box_ptsize,     add_point = add_point, pt.color = pt.color, pt.size = pt.size,     pt.alpha = pt.alpha, jitter.width = jitter.width, add_trend = add_trend,     trend_color = trend_color, trend_linewidth = trend_linewidth,     trend_ptsize = trend_ptsize, add_stat = add_stat, stat_color = stat_color,     stat_size = stat_size, cells.highlight = cells.highlight,     cols.highlight = cols.highlight, sizes.highlight = sizes.highlight,     alpha.highlight = alpha.highlight, calculate_coexp = calculate_coexp,     same.y.lims = same.y.lims, y.min = y.min, y.max = y.max,     y.trans = y.trans, y.nbreaks = y.nbreaks, sort = sort, stack = stack,     flip = flip, comparisons = comparisons, ref_group = ref_group,     pairwise_method = pairwise_method, multiplegroup_comparisons = multiplegroup_comparisons,     multiple_method = multiple_method, sig_label = sig_label,     sig_labelsize = sig_labelsize, aspect.ratio = aspect.ratio,     title = title, subtitle = subtitle, xlab = xlab, ylab = ylab,     legend.position = legend.position, legend.direction = legend.direction,     theme_use = theme_use, theme_args = theme_args, force = force,     seed = seed):</span> 'stat.by' must be type of numeric variable.</span>
+<span class="r-plt img"><img src="FeatureStatPlot-24.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
