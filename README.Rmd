@@ -11,7 +11,7 @@ knitr::opts_chunk$set(
   results = "hide",
   message = FALSE,
   warning = FALSE,
-  fig.path = "README/README-",
+  fig.path = "man/figures/",
   fig.height = 5,
   fig.width = 10,
   fig.align = "center",
@@ -57,7 +57,7 @@ if (!require("devtools", quietly = TRUE)) {
 devtools::install_github("zhanghao-njmu/SCP")
 ```
 
-#### Create SCP python environment
+#### Create a python environment for SCP
 
 To run functions such as `RunPAGA` or `RunSCVELO`, SCP requires [conda](https://docs.conda.io/en/latest/miniconda.html) to create a separate python environment. The default environment name is `"SCP_env"`. You can specify the environment name for SCP by setting `options(SCP_env_name="new_name")`
 
@@ -282,13 +282,13 @@ CellDimPlot(
 CellDimPlot3D(srt = pancreas_sub, group.by = "SubCellType")
 ```
 
-![CellDimPlot3D](README/README-CellDimPlot3D-1.png)
+![CellDimPlot3D](man/figures/CellDimPlot3D-1.png)
 
 ```{r FeatureDimPlot3D,eval=FALSE}
 FeatureDimPlot3D(srt = pancreas_sub, features = c("Sox9", "Neurog3", "Fev", "Rbp4"))
 ```
 
-![FeatureDimPlot3D](README/README-FeatureDimPlot3D-1.png)
+![FeatureDimPlot3D](man/figures/FeatureDimPlot3D-1.png)
 
 ### Integration pipeline
 
@@ -330,7 +330,7 @@ grob <- gtable_add_grob(grob, legend, t = 1, l = min(grob$layout[grepl(pattern =
 panel_fix(grob, height = 2)
 ```
 
-![Integration-all](README/README-Integration-all.png)
+![Integration-all](man/figures/Integration-all.png)
 
 ### Cell projection between single-cell datasets
 
@@ -540,10 +540,10 @@ if (interactive()) {
 }
 ```
 
-![SCExplorer1](README/README-SCExplorer-1.png) ![SCExplorer2](README/README-SCExplorer-2.png)
+![SCExplorer1](man/figures/SCExplorer-1.png) ![SCExplorer2](man/figures/SCExplorer-2.png)
 
 ### Other visualization examples
 
-[**CellDimPlot**](https://zhanghao-njmu.github.io/SCP/reference/CellDimPlot.html)![Example1](README/README-Example-1.jpg) [**CellStatPlot**](https://zhanghao-njmu.github.io/SCP/reference/CellStatPlot.html)![Example2](README/README-Example-2.jpg) [**FeatureStatPlot**](https://zhanghao-njmu.github.io/SCP/reference/FeatureStatPlot.html)![Example3](README/README-Example-3.jpg) [**GroupHeatmap**](https://zhanghao-njmu.github.io/SCP/reference/GroupHeatmap.html)![Example3](README/README-Example-4.jpg)
+[**CellDimPlot**](https://zhanghao-njmu.github.io/SCP/reference/CellDimPlot.html)![Example1](man/figures/Example-1.jpg) [**CellStatPlot**](https://zhanghao-njmu.github.io/SCP/reference/CellStatPlot.html)![Example2](man/figures/Example-2.jpg) [**FeatureStatPlot**](https://zhanghao-njmu.github.io/SCP/reference/FeatureStatPlot.html)![Example3](man/figures/Example-3.jpg) [**GroupHeatmap**](https://zhanghao-njmu.github.io/SCP/reference/GroupHeatmap.html)![Example3](man/figures/Example-4.jpg)
 
 You can also find more examples in the documentation of the function: [Integration_SCP](https://zhanghao-njmu.github.io/SCP/reference/Integration_SCP.html), [RunKNNMap](https://zhanghao-njmu.github.io/SCP/reference/RunKNNMap.html), [RunMonocle3](https://zhanghao-njmu.github.io/SCP/reference/RunMonocle3.html), [RunPalantir](https://zhanghao-njmu.github.io/SCP/reference/RunPalantir.html), etc.
