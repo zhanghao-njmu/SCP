@@ -7,7 +7,7 @@
 RunCellQC(
   srt,
   assay = "RNA",
-  batch = NULL,
+  split.by = NULL,
   qc_metrics = c("doublets", "outlier", "umi", "gene", "mito", "ribo", "ribo_mito_ratio",
     "species"),
   return_filtered = FALSE,
@@ -37,8 +37,6 @@ RunCellQC(
 \item{srt}{A Seurat object.}
 
 \item{assay}{The name of the assay to be used for doublet-calling. Default is "RNA".}
-
-\item{batch}{Name of the batch variable to split the Seurat object. Default is NULL.}
 
 \item{qc_metrics}{A character vector specifying the quality control metrics to be applied. Default is
 `c("doublets", "outlier", "umi", "gene", "mito", "ribo", "ribo_mito_ratio", "species")`.}
@@ -81,23 +79,14 @@ RunCellQC(
 \item{species_percent}{Percentage of UMI counts of the first species. Cells that exceed this threshold will be considered as kept. Default is 95.}
 
 \item{seed}{Set a random seed. Default is 11.}
+
+\item{batch}{Name of the batch variable to split the Seurat object. Default is NULL.}
 }
 \value{
 Returns Seurat object with the QC results stored in the meta.data slot.
 }
 \description{
-In CellQC, doublet-calling will be run first and then reject abnormal cell data based on median absolute deviation (MAD) outliers.
-After doublet-calling and outlier filtering, CellQC will perform general QC (gene count, UMI count, etc.)
-and reject cell data for non-species of interest based on the proportion and number of UMIs for the species.
-}
-\note{
-General quality control usually uses metrics such as gene count, UMI count, etc.
-In addition, ribo content and mito content can be used as QC indicators:
-mito content can be used as an indication of apoptosis,
-with a general threshold of 20% and less than 10% mito content in high quality cells;
-ribo content is cell type dependent, with some cell types having even more than 50% ribo content;
-however, ribo content in single cell data can also indicate whether the empty droplets,
-and the ribo content in empty droplets is usually high and the mito content is low instead.
+This function handles multiple quality control methods for single-cell RNA-seq data.
 }
 \examples{
 data("pancreas_sub")
@@ -113,7 +102,7 @@ CellStatPlot(
 table(pancreas_sub$CellQC)
 
 data("ifnb_sub")
-ifnb_sub <- RunCellQC(ifnb_sub, batch = "stim", UMI_threshold = 1000, gene_threshold = 550)
+ifnb_sub <- RunCellQC(ifnb_sub, split.by = "stim", UMI_threshold = 1000, gene_threshold = 550)
 CellStatPlot(
   srt = ifnb_sub,
   stat.by = c(

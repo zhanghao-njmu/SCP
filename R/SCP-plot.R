@@ -1218,7 +1218,7 @@ BlendRGBList <- function(Clist, mode = "blend", RGB_BackGround = c(1, 1, 1)) {
 #' @examples
 #' data("pancreas_sub")
 #' CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP")
-#' CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", theme_use = "theme_blank", show_stat = FALSE)
+#' CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", theme_use = "theme_blank")
 #' CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", theme_use = ggplot2::theme_classic, theme_args = list(base_size = 16))
 #' CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP") %>% panel_fix(height = 2, raster = TRUE, dpi = 30)
 #'
@@ -1228,7 +1228,7 @@ BlendRGBList <- function(Clist, mode = "blend", RGB_BackGround = c(1, 1, 1)) {
 #'   cells.highlight = colnames(pancreas_sub)[pancreas_sub$SubCellType == "Epsilon"]
 #' )
 #' CellDimPlot(pancreas_sub,
-#'   group.by = "SubCellType", split.by = "Phase", reduction = "UMAP", show_stat = FALSE,
+#'   group.by = "SubCellType", split.by = "Phase", reduction = "UMAP",
 #'   cells.highlight = TRUE, theme_use = "theme_blank", legend.position = "none"
 #' )
 #'
@@ -1266,7 +1266,7 @@ BlendRGBList <- function(Clist, mode = "blend", RGB_BackGround = c(1, 1, 1)) {
 #'   group.by = "SubCellType", reduction = "UMAP", pt.size = 5, pt.alpha = 0.2,
 #'   label = TRUE, label_repel = TRUE, label_insitu = TRUE, label_segment_color = "transparent",
 #'   paga = pancreas_sub@misc$paga, paga_edge_threshold = 0.1, paga_edge_color = "black", paga_edge_alpha = 1,
-#'   show_stat = FALSE, legend.position = "none", theme_use = "theme_blank"
+#'   legend.position = "none", theme_use = "theme_blank"
 #' )
 #'
 #' # Show RNA velocity results on the plot
@@ -1281,7 +1281,7 @@ BlendRGBList <- function(Clist, mode = "blend", RGB_BackGround = c(1, 1, 1)) {
 #'   label = TRUE, label_insitu = TRUE,
 #'   velocity = "stochastic", velocity_plot_type = "stream", velocity_arrow_color = "yellow",
 #'   velocity_density = 2, velocity_smooth = 1, streamline_n = 20, streamline_color = "black",
-#'   show_stat = FALSE, legend.position = "none", theme_use = "theme_blank"
+#'   legend.position = "none", theme_use = "theme_blank"
 #' )
 #' @importFrom Seurat Reductions Embeddings Key
 #' @importFrom dplyr group_by "%>%" .data
@@ -1295,7 +1295,7 @@ BlendRGBList <- function(Clist, mode = "blend", RGB_BackGround = c(1, 1, 1)) {
 #' @export
 #'
 CellDimPlot <- function(srt, group.by, reduction = NULL, dims = c(1, 2), split.by = NULL, cells = NULL,
-                        show_na = FALSE, show_stat = TRUE,
+                        show_na = FALSE, show_stat = ifelse(identical(theme_use, "theme_blank"), FALSE, TRUE),
                         pt.size = NULL, pt.alpha = 1, palette = "Paired", palcolor = NULL, bg_color = "grey80",
                         label = FALSE, label.size = 4, label.fg = "white", label.bg = "black", label.bg.r = 0.1,
                         label_insitu = FALSE, label_repel = FALSE, label_repulsion = 20,
@@ -1412,7 +1412,7 @@ CellDimPlot <- function(srt, group.by, reduction = NULL, dims = c(1, 2), split.b
       palette = stat_plot_palette, palcolor = stat_palcolor, alpha = stat_plot_alpha,
       label = stat_plot_label, label.size = stat_plot_label_size,
       legend.position = "bottom", legend.direction = legend.direction,
-      theme_use = theme_void, theme_args = theme_args,
+      theme_use = theme_use, theme_args = theme_args,
       individual = TRUE, combine = FALSE
     )
   }
@@ -1426,7 +1426,7 @@ CellDimPlot <- function(srt, group.by, reduction = NULL, dims = c(1, 2), split.b
       whiskers = lineages_whiskers, whiskers_linewidth = lineages_whiskers_linewidth, whiskers_alpha = lineages_whiskers_alpha,
       aspect.ratio = aspect.ratio, title = title, subtitle = subtitle, xlab = xlab, ylab = ylab,
       legend.position = "bottom", legend.direction = legend.direction,
-      theme_use = theme_void, theme_args = theme_args,
+      theme_use = theme_use, theme_args = theme_args,
       return_layer = TRUE
     )
     lineages_layers <- lineages_layers[!names(lineages_layers) %in% c("lab_layer", "theme_layer")]
@@ -1443,7 +1443,7 @@ CellDimPlot <- function(srt, group.by, reduction = NULL, dims = c(1, 2), split.b
       transition_threshold = paga_transition_threshold, transition_size = paga_transition_size, transition_color = paga_transition_color, transition_alpha = paga_transition_alpha, show_transition = paga_show_transition,
       aspect.ratio = aspect.ratio, title = title, subtitle = subtitle, xlab = xlab, ylab = ylab,
       legend.position = "bottom", legend.direction = legend.direction,
-      theme_use = theme_void, theme_args = theme_args,
+      theme_use = theme_use, theme_args = theme_args,
       return_layer = TRUE
     )
     paga_layers <- paga_layers[!names(paga_layers) %in% c("lab_layer", "theme_layer")]
@@ -1795,7 +1795,7 @@ CellDimPlot <- function(srt, group.by, reduction = NULL, dims = c(1, 2), split.b
 #' Plotting cell points on a reduced 2D plane and coloring according to the values of the features.
 #'
 #' @param srt A Seurat object.
-#' @param features Vector of features to plot. Features can be gene names in Assay or names of numeric columns in meta.data.
+#' @param features A character vector or a named list of features to plot. Features can be gene names in Assay or names of numeric columns in meta.data.
 #' @param reduction Which dimensionality reduction to use. If not specified, will use the reduction returned by \code{\link{DefaultReduction}}.
 #' @param split.by Name of a column in meta.data to split plot by.
 #' @param palette Name of a color palette name collected in SCP.
@@ -1883,13 +1883,13 @@ CellDimPlot <- function(srt, group.by, reduction = NULL, dims = c(1, 2), split.b
 #'
 #' @examples
 #' data("pancreas_sub")
-#' pancreas_sub <- Standard_SCP(pancreas_sub)
 #' FeatureDimPlot(pancreas_sub, features = "G2M_score", reduction = "UMAP")
 #' FeatureDimPlot(pancreas_sub, features = "G2M_score", reduction = "UMAP", bg_cutoff = -Inf)
-#' FeatureDimPlot(pancreas_sub, features = "G2M_score", reduction = "UMAP", theme_use = "theme_blank", show_stat = FALSE)
+#' FeatureDimPlot(pancreas_sub, features = "G2M_score", reduction = "UMAP", theme_use = "theme_blank")
 #' FeatureDimPlot(pancreas_sub, features = "G2M_score", reduction = "UMAP", theme_use = ggplot2::theme_classic, theme_args = list(base_size = 16))
 #' FeatureDimPlot(pancreas_sub, features = "G2M_score", reduction = "UMAP") %>% panel_fix(height = 2, raster = TRUE, dpi = 30)
 #'
+#' pancreas_sub <- Standard_SCP(pancreas_sub)
 #' FeatureDimPlot(pancreas_sub, features = c("StandardPC_1", "StandardPC_2"), reduction = "UMAP", bg_cutoff = -Inf)
 #'
 #' # Label and highlight cell points
@@ -1898,8 +1898,8 @@ CellDimPlot <- function(srt, group.by, reduction = NULL, dims = c(1, 2), split.b
 #'   cells.highlight = colnames(pancreas_sub)[pancreas_sub$SubCellType == "Delta"]
 #' )
 #' FeatureDimPlot(pancreas_sub,
-#'   features = "Rbp4", split.by = "Phase", reduction = "UMAP", show_stat = FALSE,
-#'   cells.highlight = TRUE, theme_use = "theme_blank", legend.position = "none"
+#'   features = "Rbp4", split.by = "Phase", reduction = "UMAP",
+#'   cells.highlight = TRUE, theme_use = "theme_blank"
 #' )
 #'
 #' # Add a density layer
@@ -1916,15 +1916,32 @@ CellDimPlot <- function(srt, group.by, reduction = NULL, dims = c(1, 2), split.b
 #' FeatureDimPlot(pancreas_sub, features = "Lineage3", reduction = "UMAP", lineages = "Lineage3", lineages_whiskers = TRUE)
 #' FeatureDimPlot(pancreas_sub, features = "Lineage3", reduction = "UMAP", lineages = "Lineage3", lineages_span = 0.1)
 #'
-#' FeatureDimPlot(pancreas_sub, c("Ins1", "Gcg", "Sst", "Ghrl"), reduction = "UMAP")
-#' FeatureDimPlot(pancreas_sub, c("Ins1", "Gcg", "Sst", "Ghrl"), reduction = "UMAP", lower_quantile = 0, upper_quantile = 0.8)
-#' FeatureDimPlot(pancreas_sub, c("Ins1", "Gcg", "Sst", "Ghrl"), reduction = "UMAP", lower_cutoff = 1, upper_cutoff = 4)
-#' FeatureDimPlot(pancreas_sub, c("Ins1", "Gcg", "Sst", "Ghrl"), reduction = "UMAP", bg_cutoff = 2, lower_cutoff = 2, upper_cutoff = 4)
-#' FeatureDimPlot(pancreas_sub, c("Ins1", "Gcg", "Sst", "Ghrl"), reduction = "UMAP", keep_scale = "all")
-#' FeatureDimPlot(pancreas_sub, c("Sst", "Ghrl"), split.by = "Phase", reduction = "UMAP", keep_scale = "feature")
-#'
+#' # Input a named feature list
+#' markers <- list(
+#'   "Ductal" = c("Sox9", "Anxa2", "Bicc1"),
+#'   "EPs" = c("Neurog3", "Hes6"),
+#'   "Pre-endocrine" = c("Fev", "Neurod1"),
+#'   "Endocrine" = c("Rbp4", "Pyy"),
+#'   "Beta" = "Ins1", "Alpha" = "Gcg", "Delta" = "Sst", "Epsilon" = "Ghrl"
+#' )
 #' FeatureDimPlot(pancreas_sub,
-#'   features = c("Ins1", "Gcg", "Sst", "Ghrl"), pt.size = 1,
+#'   features = markers, reduction = "UMAP",
+#'   theme_use = "theme_blank",
+#'   theme_args = list(plot.subtitle = ggplot2::element_text(size = 10), strip.text = ggplot2::element_text(size = 8))
+#' )
+#'
+#' # Plot multiple features with different scales
+#' endocrine_markers <- c("Beta" = "Ins1", "Alpha" = "Gcg", "Delta" = "Sst", "Epsilon" = "Ghrl")
+#' FeatureDimPlot(pancreas_sub, endocrine_markers, reduction = "UMAP")
+#' FeatureDimPlot(pancreas_sub, endocrine_markers, reduction = "UMAP", lower_quantile = 0, upper_quantile = 0.8)
+#' FeatureDimPlot(pancreas_sub, endocrine_markers, reduction = "UMAP", lower_cutoff = 1, upper_cutoff = 4)
+#' FeatureDimPlot(pancreas_sub, endocrine_markers, reduction = "UMAP", bg_cutoff = 2, lower_cutoff = 2, upper_cutoff = 4)
+#' FeatureDimPlot(pancreas_sub, endocrine_markers, reduction = "UMAP", keep_scale = "all")
+#' FeatureDimPlot(pancreas_sub, c("Delta" = "Sst", "Epsilon" = "Ghrl"), split.by = "Phase", reduction = "UMAP", keep_scale = "feature")
+#'
+#' # Plot multiple features on one picture
+#' FeatureDimPlot(pancreas_sub,
+#'   features = endocrine_markers, pt.size = 1,
 #'   compare_features = TRUE, color_blend_mode = "blend",
 #'   label = TRUE, label_insitu = TRUE
 #' )
@@ -1952,7 +1969,7 @@ CellDimPlot <- function(srt, group.by, reduction = NULL, dims = c(1, 2), split.b
 #' @importFrom Seurat Reductions Embeddings Key
 #' @importFrom dplyr group_by "%>%" .data
 #' @importFrom stats quantile
-#' @importFrom ggplot2 ggplot aes geom_point geom_density_2d stat_density_2d geom_segment labs scale_x_continuous scale_y_continuous scale_size_continuous facet_grid scale_color_gradientn scale_fill_gradientn scale_colour_gradient scale_fill_gradient guide_colorbar scale_color_identity scale_fill_identity guide_colourbar geom_hex stat_summary_hex geom_path scale_linewidth_continuous after_stat
+#' @importFrom ggplot2 ggplot aes geom_point geom_density_2d stat_density_2d geom_segment labs scale_x_continuous scale_y_continuous scale_size_continuous facet_grid scale_color_gradientn scale_fill_gradientn scale_colour_gradient scale_fill_gradient guide_colorbar scale_color_identity scale_fill_identity guide_colorbar geom_hex stat_summary_hex geom_path scale_linewidth_continuous after_stat
 #' @importFrom ggnewscale new_scale_color new_scale_fill
 #' @importFrom gtable gtable_add_cols
 #' @importFrom ggrepel geom_text_repel GeomTextRepel
@@ -1961,9 +1978,8 @@ CellDimPlot <- function(srt, group.by, reduction = NULL, dims = c(1, 2), split.b
 #' @importFrom methods slot
 #' @importFrom reshape2 melt
 #' @export
-#'
 FeatureDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), split.by = NULL, cells = NULL, slot = "data", assay = NULL,
-                           show_stat = TRUE,
+                           show_stat = ifelse(identical(theme_use, "theme_blank"), FALSE, TRUE),
                            palette = ifelse(isTRUE(compare_features), "Set1", "Spectral"), palcolor = NULL,
                            pt.size = NULL, pt.alpha = 1, bg_cutoff = 0, bg_color = "grey80",
                            keep_scale = NULL, lower_quantile = 0, upper_quantile = 0.99, lower_cutoff = NULL, upper_cutoff = NULL,
@@ -1985,15 +2001,17 @@ FeatureDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), spli
                            theme_use = "theme_scp", theme_args = list(),
                            combine = TRUE, nrow = NULL, ncol = NULL, byrow = TRUE, force = FALSE, seed = 11) {
   set.seed(seed)
-
+  color_blend_mode <- match.arg(color_blend_mode)
   if (!is.null(keep_scale)) {
     keep_scale <- match.arg(keep_scale, choices = c("feature", "all"))
   }
 
-  color_blend_mode <- match.arg(color_blend_mode)
-
-  if (is.null(features)) {
-    stop("'features' must be provided.")
+  if (is.list(features)) {
+    if (is.null(names(features))) {
+      features <- unlist(features)
+    } else {
+      features <- setNames(unlist(features), nm = rep(names(features), sapply(features, length)))
+    }
   }
   if (!inherits(features, "character")) {
     stop("'features' is not a character vectors")
@@ -2041,6 +2059,7 @@ FeatureDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), spli
     cells.highlight <- intersect(cells.highlight, colnames(srt@assays[[1]]))
   }
 
+  feature_input <- features
   features <- unique(features)
   embeddings <- lapply(srt@reductions, function(x) colnames(x@cell.embeddings))
   embeddings <- setNames(rep(names(embeddings), sapply(embeddings, length)), nm = unlist(embeddings))
@@ -2055,6 +2074,9 @@ FeatureDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), spli
   features_embedding <- features[features %in% names(embeddings)]
   if (length(intersect(features_gene, features_meta)) > 0) {
     warning("Features appear in both gene names and metadata names: ", paste0(intersect(features_gene, features_meta), collapse = ","))
+  }
+  if (length(c(features_gene, features_meta, features_embedding)) == 0) {
+    stop("There are no valid features present.")
   }
 
   if (isTRUE(calculate_coexp) && length(features_gene) > 0) {
@@ -2073,6 +2095,7 @@ FeatureDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), spli
     features <- c(features, "CoExp")
     features_meta <- c(features_meta, "CoExp")
   }
+
   if (length(features_gene) > 0) {
     if (all(rownames(srt@assays[[assay]]) %in% features_gene)) {
       dat_gene <- t(slot(srt@assays[[assay]], slot))
@@ -2106,6 +2129,20 @@ FeatureDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), spli
     }
   }
 
+  if (is.null(subtitle)) {
+    if (!is.null(names(feature_input))) {
+      subtitle <- setNames(names(feature_input), nm = feature_input)
+    }
+  } else {
+    if (length(subtitle) == 1) {
+      subtitle <- setNames(rep(subtitle, length(features)), nm = features)
+    } else if (length(subtitle) == length(features)) {
+      subtitle <- setNames(subtitle, nm = features)
+    } else {
+      stop(paste0("Subtitle length must be 1 or length of features(", length(features), ")"))
+    }
+  }
+
   reduction_key <- srt@reductions[[reduction]]@key
   dat_dim <- srt@reductions[[reduction]]@cell.embeddings
   colnames(dat_dim) <- paste0(reduction_key, seq_len(ncol(dat_dim)))
@@ -2136,9 +2173,9 @@ FeatureDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), spli
       palette = lineages_palette, palcolor = lineages_palcolor, lineages_arrow = lineages_arrow,
       linewidth = lineages_linewidth, line_bg = lineages_line_bg, line_bg_stroke = lineages_line_bg_stroke,
       whiskers = lineages_whiskers, whiskers_linewidth = lineages_whiskers_linewidth, whiskers_alpha = lineages_whiskers_alpha,
-      aspect.ratio = aspect.ratio, title = title, subtitle = subtitle, xlab = xlab, ylab = ylab,
+      aspect.ratio = aspect.ratio, xlab = xlab, ylab = ylab,
       legend.position = legend.position, legend.direction = legend.direction,
-      theme_use = theme_void, theme_args = theme_args,
+      theme_use = theme_use, theme_args = theme_args,
       return_layer = TRUE
     )
     lineages_layers <- lineages_layers[!names(lineages_layers) %in% c("lab_layer", "theme_layer")]
@@ -2171,7 +2208,7 @@ FeatureDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), spli
       colnames(dat)[colnames(dat) %in% names(var_nm)] <- var_nm[colnames(dat)[colnames(dat) %in% names(var_nm)]]
       dat[, "split.by"] <- s
       dat[, "features"] <- paste(features, collapse = "|")
-      subtitle_use <- subtitle %||% s
+      subtitle_use <- paste0(subtitle, collapse = "|") %||% s
       colors <- palette_scp(features, type = "discrete", palette = palette, palcolor = palcolor)
       colors_list <- list()
       value_list <- list()
@@ -2183,22 +2220,35 @@ FeatureDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), spli
         pal_list[[i]] <- palette_scp(dat[, names(colors)[i]], type = "continuous", NA_color = NA, NA_keep = FALSE, matched = FALSE, palcolor = c(adjcolors(colors[i], 0.1), colors[i]))
         value_list[[i]] <- seq(min(dat[, names(colors)[i]], na.rm = TRUE), max(dat[, names(colors)[i]], na.rm = TRUE), length.out = 100)
         temp_geom[[i]] <- list(
-          geom_point(data = dat, mapping = aes(x = .data[["x"]], y = .data[["y"]], color = .data[[names(colors)[i]]])),
-          scale_color_gradientn(
+          geom_point(data = dat, mapping = aes(x = .data[["x"]], y = .data[["y"]], color = .data[[names(colors)[i]]]))
+        )
+        if (all(is.na(colors_list[[i]]))) {
+          temp_geom[[i]] <- append(temp_geom[[i]], scale_colour_gradient(
+            na.value = bg_color,
+            guide = guide_colorbar(frame.colour = "black", ticks.colour = "black", title.hjust = 0)
+          ))
+        } else if (length(colors_list[[i]]) == 1) {
+          temp_geom[[i]] <- append(temp_geom[[i]], scale_colour_gradient(
+            low = colors_list[[i]], na.value = bg_color,
+            guide = guide_colorbar(frame.colour = "black", ticks.colour = "black", title.hjust = 0)
+          ))
+        } else {
+          temp_geom[[i]] <- append(temp_geom[[i]], scale_color_gradientn(
             colours = pal_list[[i]],
             values = rescale(value_list[[i]]), na.value = bg_color,
-            guide = guide_colorbar(frame.colour = "black", ticks.colour = "black", barheight = 4, barwidth = 1, title.hjust = 0)
-          ),
-          new_scale_color()
-        )
-        legend_list[[i]] <- get_legend(ggplot(dat, aes(x = .data[["x"]], y = .data[["y"]])) +
-          temp_geom[[i]] +
-          do.call(theme_use, theme_args) +
-          theme(
-            aspect.ratio = aspect.ratio,
-            legend.position = legend.position,
-            legend.direction = legend.direction
+            guide = guide_colorbar(frame.colour = "black", ticks.colour = "black", title.hjust = 0)
           ))
+        }
+        legend_list[[i]] <- get_legend(
+          ggplot(dat, aes(x = .data[["x"]], y = .data[["y"]])) +
+            temp_geom[[i]] +
+            do.call(theme_use, theme_args) +
+            theme(
+              aspect.ratio = aspect.ratio,
+              legend.position = legend.position,
+              legend.direction = legend.direction
+            )
+        )
       }
       for (j in seq_len(nrow(dat))) {
         dat[j, "color_blend"] <- blendcolors(sapply(colors_list, function(x) x[j]), mode = color_blend_mode)
@@ -2256,7 +2306,7 @@ FeatureDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), spli
       p <- ggplot(dat) +
         net +
         density +
-        labs(title = title, subtitle = s, x = xlab, y = ylab) +
+        labs(title = title, subtitle = subtitle_use, x = xlab, y = ylab) +
         scale_x_continuous(limits = c(min(dat_use[, paste0(reduction_key, dims[1])], na.rm = TRUE), max(dat_use[, paste0(reduction_key, dims[1])], na.rm = TRUE))) +
         scale_y_continuous(limits = c(min(dat_use[, paste0(reduction_key, dims[2])], na.rm = TRUE), max(dat_use[, paste0(reduction_key, dims[2])], na.rm = TRUE)))
       if (split.by == "All.groups") {
@@ -2470,9 +2520,9 @@ FeatureDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), spli
       }
       legend_list <- list()
       if (isTRUE(show_stat)) {
-        subtitle_use <- subtitle %||% paste0(s, " nPos:", sum(dat[["value"]] > 0, na.rm = TRUE), ", ", round(sum(dat[["value"]] > 0, na.rm = TRUE) / nrow(dat) * 100, 2), "%")
+        subtitle_use <- subtitle[f] %||% paste0(s, " nPos:", sum(dat[["value"]] > 0, na.rm = TRUE), ", ", round(sum(dat[["value"]] > 0, na.rm = TRUE) / nrow(dat) * 100, 2), "%")
       } else {
-        subtitle_use <- subtitle
+        subtitle_use <- subtitle[f]
       }
       if (all(is.na(dat[["value"]]))) {
         colors_value <- rep(0, 100)
@@ -2539,12 +2589,6 @@ FeatureDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), spli
         labs(title = title, subtitle = subtitle_use, x = xlab, y = ylab) +
         scale_x_continuous(limits = c(min(dat_use[, paste0(reduction_key, dims[1])], na.rm = TRUE), max(dat_use[, paste0(reduction_key, dims[1])], na.rm = TRUE))) +
         scale_y_continuous(limits = c(min(dat_use[, paste0(reduction_key, dims[2])], na.rm = TRUE), max(dat_use[, paste0(reduction_key, dims[2])], na.rm = TRUE))) +
-        guides(color = guide_colourbar(
-          barwidth = 0.9,
-          barheight = 4,
-          frame.colour = "black",
-          ticks.colour = "black"
-        )) +
         do.call(theme_use, theme_args) +
         theme(
           aspect.ratio = aspect.ratio,
@@ -2639,7 +2683,7 @@ FeatureDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), spli
         )
       }
       p <- p + guides(
-        color = guide_colorbar(frame.colour = "black", ticks.colour = "black", barheight = 4, barwidth = 1, title.hjust = 0, order = 1)
+        color = guide_colorbar(frame.colour = "black", ticks.colour = "black", title.hjust = 0, order = 1)
       )
       p_base <- p
 
@@ -2956,22 +3000,27 @@ CellDimPlot3D <- function(srt, group.by, reduction = NULL, dims = c(1, 2, 3), ax
 #' data("pancreas_sub")
 #' pancreas_sub <- Standard_SCP(pancreas_sub)
 #' FeatureDimPlot3D(pancreas_sub, features = c("Ghrl", "Ins1", "Gcg", "Ins2"), reduction = "StandardpcaUMAP3D")
+#' FeatureDimPlot3D(pancreas_sub, features = c("StandardPC_1", "StandardPC_2"), reduction = "StandardpcaUMAP3D")
 #'
-#' @importFrom Seurat Reductions Embeddings Key
+#' @importFrom Seurat Reductions Embeddings Key FetchData
 #' @importFrom methods slot
 #' @importFrom utils askYesNo
 #' @importFrom plotly plot_ly add_trace layout as_widget
 #' @export
-FeatureDimPlot3D <- function(srt, features = NULL, reduction = NULL, dims = c(1, 2, 3), axis_labs = NULL,
+FeatureDimPlot3D <- function(srt, features, reduction = NULL, dims = c(1, 2, 3), axis_labs = NULL,
                              split.by = NULL, slot = "data", assay = NULL,
                              calculate_coexp = FALSE,
                              pt.size = 1.5, cells.highlight = NULL, cols.highlight = "black", shape.highlight = "circle-open", sizes.highlight = 2,
                              width = NULL, height = NULL, save = NULL, force = FALSE) {
   cols.highlight <- col2hex(cols.highlight)
 
-  if (is.null(features)) {
-    stop("'features' must be provided.")
+  if (is.list(features)) {
+    features <- unlist(features)
   }
+  if (!inherits(features, "character")) {
+    stop("'features' is not a character vectors")
+  }
+
   assay <- assay %||% DefaultAssay(srt)
   if (is.null(split.by)) {
     split.by <- "All.cells"
@@ -3026,7 +3075,9 @@ FeatureDimPlot3D <- function(srt, features = NULL, reduction = NULL, dims = c(1,
   }
 
   features <- unique(features)
-  features_drop <- features[!features %in% c(rownames(srt@assays[[assay]]), colnames(srt@meta.data))]
+  embeddings <- lapply(srt@reductions, function(x) colnames(x@cell.embeddings))
+  embeddings <- setNames(rep(names(embeddings), sapply(embeddings, length)), nm = unlist(embeddings))
+  features_drop <- features[!features %in% c(rownames(srt@assays[[assay]]), colnames(srt@meta.data), names(embeddings))]
   if (length(features_drop) > 0) {
     warning(paste0(features_drop, collapse = ","), " are not in the features of srt.", immediate. = TRUE)
     features <- features[!features %in% features_drop]
@@ -3034,8 +3085,12 @@ FeatureDimPlot3D <- function(srt, features = NULL, reduction = NULL, dims = c(1,
 
   features_gene <- features[features %in% rownames(srt@assays[[assay]])]
   features_meta <- features[features %in% colnames(srt@meta.data)]
+  features_embedding <- features[features %in% names(embeddings)]
   if (length(intersect(features_gene, features_meta)) > 0) {
     warning("Features appear in both gene names and metadata names: ", paste0(intersect(features_gene, features_meta), collapse = ","))
+  }
+  if (length(c(features_gene, features_meta, features_embedding)) == 0) {
+    stop("There are no valid features present.")
   }
 
   if (isTRUE(calculate_coexp) && length(features_gene) > 0) {
@@ -3054,18 +3109,28 @@ FeatureDimPlot3D <- function(srt, features = NULL, reduction = NULL, dims = c(1,
     features <- c(features, "CoExp")
     features_meta <- c(features_meta, "CoExp")
   }
-  if (length(features_gene > 0)) {
-    dat_gene <- t(slot(srt@assays[[assay]], slot)[features_gene, , drop = FALSE])
+
+  if (length(features_gene) > 0) {
+    if (all(rownames(srt@assays[[assay]]) %in% features_gene)) {
+      dat_gene <- t(slot(srt@assays[[assay]], slot))
+    } else {
+      dat_gene <- t(slot(srt@assays[[assay]], slot)[features_gene, , drop = FALSE])
+    }
   } else {
     dat_gene <- matrix(nrow = ncol(srt@assays[[1]]), ncol = 0)
   }
-  if (length(features_meta > 0)) {
+  if (length(features_meta) > 0) {
     dat_meta <- as.matrix(srt@meta.data[, features_meta, drop = FALSE])
   } else {
     dat_meta <- matrix(nrow = ncol(srt@assays[[1]]), ncol = 0)
   }
-  dat_exp <- cbind(dat_gene, dat_meta)
-  features <- unique(features[features %in% c(features_gene, features_meta)])
+  if (length(features_embedding) > 0) {
+    dat_embedding <- as.matrix(FetchData(srt, vars = features_embedding))
+  } else {
+    dat_embedding <- matrix(nrow = ncol(srt@assays[[1]]), ncol = 0)
+  }
+  dat_exp <- do.call(cbind, list(dat_gene, dat_meta, dat_embedding))
+  features <- unique(features[features %in% c(features_gene, features_meta, features_embedding)])
 
   if (!is.numeric(dat_exp) && !inherits(dat_exp, "Matrix")) {
     stop("'features' must be type of numeric variable.")
@@ -3111,8 +3176,7 @@ FeatureDimPlot3D <- function(srt, features = NULL, reduction = NULL, dims = c(1,
     z = dat_use[[paste0(reduction_key, dims[3], "All_cells")]],
     text = paste0(
       "Cell:", rownames(dat_use),
-      "\nExp:", round(dat_use[[features[1]]], 3),
-      "\nsplit.by:", dat_use[[split.by]]
+      "\nExp:", round(dat_use[[features[1]]], 3)
     ),
     type = "scatter3d",
     mode = "markers",
@@ -3126,6 +3190,7 @@ FeatureDimPlot3D <- function(srt, features = NULL, reduction = NULL, dims = c(1,
     showlegend = TRUE,
     visible = TRUE
   )
+
   if (!is.null(cells.highlight)) {
     p <- add_trace(
       p = p,
@@ -3134,8 +3199,7 @@ FeatureDimPlot3D <- function(srt, features = NULL, reduction = NULL, dims = c(1,
       z = dat_use_highlight[[paste0(reduction_key, dims[3], "All_cells")]],
       text = paste0(
         "Cell:", rownames(dat_use_highlight),
-        "\nExp:", round(dat_use_highlight[[features[1]]], 3),
-        "\nsplit.by:", dat_use_highlight[[split.by]]
+        "\nExp:", round(dat_use_highlight[[features[1]]], 3)
       ),
       type = "scatter3d",
       mode = "markers",
@@ -3196,8 +3260,7 @@ FeatureDimPlot3D <- function(srt, features = NULL, reduction = NULL, dims = c(1,
       args = list(list(
         text = list(paste0(
           "Cell:", rownames(dat_use),
-          "\nExp:", round(dat_use[[features[j]]], 3),
-          "\nsplit.by:", dat_use[[split.by]]
+          "\nExp:", round(dat_use[[features[j]]], 3)
         )),
         marker = marker
       )),
@@ -4258,7 +4321,7 @@ ExpressionStatPlot <- function(exp.data, meta.data, stat.by, group.by = NULL, sp
       p <- p + scale_fill_gradientn(
         name = paste0(keynm, ":"), colours = colors, limits = colors_limits
       ) + guides(
-        fill = guide_colorbar(frame.colour = "black", ticks.colour = "black", barheight = 4, barwidth = 1, title.hjust = 0, order = 1)
+        fill = guide_colorbar(frame.colour = "black", ticks.colour = "black", title.hjust = 0, order = 1)
       )
     }
     # plist[[paste0(f, ":", g, ":", paste0(single_group, collapse = ","), ":", paste0(sp, collapse = ","))]] <- p
@@ -5088,7 +5151,7 @@ StatPlot <- function(meta.data, stat.by, group.by = NULL, split.by = NULL, bg.by
 #' @importFrom SeuratObject as.sparse
 #' @importFrom dplyr group_by "%>%" .data
 #' @importFrom stats quantile
-#' @importFrom ggplot2 ggplot aes geom_point geom_smooth geom_density_2d stat_density_2d labs scale_x_continuous scale_y_continuous facet_grid scale_color_gradientn scale_fill_gradientn scale_colour_gradient scale_fill_gradient guide_colorbar scale_color_identity scale_fill_identity guide_colourbar geom_hex stat_summary_hex
+#' @importFrom ggplot2 ggplot aes geom_point geom_smooth geom_density_2d stat_density_2d labs scale_x_continuous scale_y_continuous facet_grid scale_color_gradientn scale_fill_gradientn scale_colour_gradient scale_fill_gradient guide_colorbar scale_color_identity scale_fill_identity guide_colorbar geom_hex stat_summary_hex
 #' @importFrom ggnewscale new_scale_color new_scale_fill
 #' @importFrom ggrepel geom_text_repel GeomTextRepel
 #' @importFrom gtable gtable_add_cols
@@ -5424,7 +5487,7 @@ FeatureCorPlot <- function(srt, features, group.by = NULL, split.by = NULL, cell
           limits = cor_range,
           n.breaks = 3,
           colors = cor_colors,
-          guide = guide_colorbar(frame.colour = "black", ticks.colour = "black")
+          guide = guide_colorbar(frame.colour = "black", ticks.colour = "black", title.hjust = 0)
         ) +
         do.call(theme_use, theme_args) +
         theme(
@@ -6672,11 +6735,7 @@ VelocityPlot <- function(srt, reduction, dims = c(1, 2), cells = NULL, velocity 
         ),
         scale_color_manual(
           name = group_by, values = palette_scp(df_field[["group_by"]], palette = group_palette, palcolor = group_palcolor),
-          guide = guide_legend(
-            title.hjust = 0,
-            order = 1,
-            override.aes = list(size = 4, alpha = 1)
-          )
+          guide = guide_legend(title.hjust = 0, order = 1, override.aes = list(linewidth = 2, alpha = 1))
         )
       )
     } else {
@@ -6785,7 +6844,7 @@ VelocityPlot <- function(srt, reduction, dims = c(1, 2), cells = NULL, velocity 
         ),
         scale_color_gradientn(
           name = "Velocity", colors = palette_scp(palette = streamline_palette, palcolor = streamline_palcolor),
-          guide = guide_colorbar(frame.colour = "black", ticks.colour = "black", barheight = 4, barwidth = 1, title.hjust = 0, order = 1)
+          guide = guide_colorbar(frame.colour = "black", ticks.colour = "black", title.hjust = 0, order = 1)
         ),
         scale_size(range = range(streamline_width), guide = "none")
       )
@@ -7043,7 +7102,7 @@ VolcanoPlot <- function(srt, group_by = NULL, test.use = "wilcox", DE_threshold 
       scale_color_gradientn(
         name = ifelse(x_metric == "diff_pct", "log2FC", "diff_pct"), colors = palette_scp(palette = palette, palcolor = palcolor),
         values = rescale(unique(c(min(c(df[, color_by], 0), na.rm = TRUE), 0, max(df[, color_by], na.rm = TRUE)))),
-        guide = guide_colorbar(frame.colour = "black", ticks.colour = "black", barheight = 4, barwidth = 1, title.hjust = 0, order = 1)
+        guide = guide_colorbar(frame.colour = "black", ticks.colour = "black", title.hjust = 0, order = 1)
       ) +
       scale_y_continuous(labels = abs) +
       facet_wrap(~group1) +
@@ -12742,7 +12801,7 @@ EnrichmentPlot <- function(srt, db = "GO_BP", group_by = NULL, test.use = "wilco
         n.breaks = 3,
         colors = palette_scp(palette = palette, palcolor = palcolor, reverse = TRUE),
         na.value = "grey80",
-        guide = guide_colorbar(frame.colour = "black", ticks.colour = "black", barheight = 4, barwidth = 1, order = 2)
+        guide = guide_colorbar(frame.colour = "black", ticks.colour = "black", title.hjust = 0, order = 2)
       ) +
       scale_color_manual(values = NA, na.value = "black") +
       guides(colour = if (isTRUE(compare_only_sig)) guide_none() else guide_legend("Non-sig", override.aes = list(colour = "black", fill = "grey80", size = 3))) +
@@ -12836,7 +12895,7 @@ EnrichmentPlot <- function(srt, db = "GO_BP", group_by = NULL, test.use = "wilco
           n.breaks = 3,
           colors = palette_scp(palette = palette, palcolor = palcolor),
           na.value = "grey80",
-          guide = guide_colorbar(frame.colour = "black", ticks.colour = "black", barheight = 4, barwidth = 1)
+          guide = guide_colorbar(frame.colour = "black", ticks.colour = "black", title.hjust = 0)
         ) +
         scale_y_continuous(limits = c(0, 1.3 * max(df[["GeneRatio"]], na.rm = TRUE)), expand = expansion(0, 0)) +
         facet_grid(facet, scales = "free") +
@@ -12903,7 +12962,7 @@ EnrichmentPlot <- function(srt, db = "GO_BP", group_by = NULL, test.use = "wilco
           n.breaks = 3,
           colors = palette_scp(palette = palette, palcolor = palcolor),
           na.value = "grey80",
-          guide = guide_colorbar(frame.colour = "black", ticks.colour = "black", barheight = 4, barwidth = 1),
+          guide = guide_colorbar(frame.colour = "black", ticks.colour = "black", title.hjust = 0),
           aesthetics = c("color", "fill")
         ) +
         facet_grid(facet, scales = "free") +
@@ -13274,7 +13333,7 @@ EnrichmentPlot <- function(srt, db = "GO_BP", group_by = NULL, test.use = "wilco
         ggwordcloud::geom_text_wordcloud(rm_outside = TRUE, eccentricity = 1, shape = "square", show.legend = TRUE, grid_margin = 3) +
         scale_color_gradientn(
           name = "Score:", colours = colors, values = rescale(colors_value),
-          guide = guide_colorbar(frame.colour = "black", ticks.colour = "black", barheight = 4, barwidth = 1, title.hjust = 0)
+          guide = guide_colorbar(frame.colour = "black", ticks.colour = "black", title.hjust = 0)
         ) +
         scale_size(name = "Count", range = word_size, breaks = ceiling(seq(min(df[["count"]], na.rm = TRUE), max(df[["count"]], na.rm = TRUE), length.out = 3))) +
         guides(size = guide_legend(override.aes = list(colour = "black", label = "G"), order = 1)) +
@@ -13580,7 +13639,7 @@ GSEAPlot <- function(srt, db = "GO_BP", group_by = NULL, test.use = "wilcox", re
         n.breaks = 4,
         limits = c(-max(abs(enrichment_sub[["NES"]])), max(abs(enrichment_sub[["NES"]]))),
         colors = palette_scp(palette = palette, palcolor = palcolor),
-        guide = guide_colorbar(frame.colour = "black", ticks.colour = "black", barheight = 4, barwidth = 1, order = 1)
+        guide = guide_colorbar(frame.colour = "black", ticks.colour = "black", title.hjust = 0, order = 1)
       ) +
       scale_color_manual(
         name = paste0("Significant\n(", metric, "<", metric_value, ")", collapse = ""), values = c("TRUE" = "black", "FALSE" = "grey90"),
@@ -14379,7 +14438,7 @@ GSEAPlot <- function(srt, db = "GO_BP", group_by = NULL, test.use = "wilcox", re
         ggwordcloud::geom_text_wordcloud(rm_outside = TRUE, eccentricity = 1, shape = "square", show.legend = TRUE, grid_margin = 3) +
         scale_color_gradientn(
           name = "Score:", colours = colors, values = rescale(colors_value),
-          guide = guide_colorbar(frame.colour = "black", ticks.colour = "black", barheight = 4, barwidth = 1, title.hjust = 0)
+          guide = guide_colorbar(frame.colour = "black", ticks.colour = "black", title.hjust = 0)
         ) +
         scale_size(name = "Count", range = word_size, breaks = ceiling(seq(min(df[["count"]], na.rm = TRUE), max(df[["count"]], na.rm = TRUE), length.out = 3))) +
         guides(size = guide_legend(override.aes = list(colour = "black", label = "G"), order = 1)) +

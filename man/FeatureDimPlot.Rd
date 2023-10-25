@@ -13,7 +13,7 @@ FeatureDimPlot(
   cells = NULL,
   slot = "data",
   assay = NULL,
-  show_stat = TRUE,
+  show_stat = ifelse(identical(theme_use, "theme_blank"), FALSE, TRUE),
   palette = ifelse(isTRUE(compare_features), "Set1", "Spectral"),
   palcolor = NULL,
   pt.size = NULL,
@@ -92,7 +92,7 @@ FeatureDimPlot(
 \arguments{
 \item{srt}{A Seurat object.}
 
-\item{features}{Vector of features to plot. Features can be gene names in Assay or names of numeric columns in meta.data.}
+\item{features}{A character vector or a named list of features to plot. Features can be gene names in Assay or names of numeric columns in meta.data.}
 
 \item{reduction}{Which dimensionality reduction to use. If not specified, will use the reduction returned by \code{\link{DefaultReduction}}.}
 
@@ -258,13 +258,13 @@ Plotting cell points on a reduced 2D plane and coloring according to the values 
 }
 \examples{
 data("pancreas_sub")
-pancreas_sub <- Standard_SCP(pancreas_sub)
 FeatureDimPlot(pancreas_sub, features = "G2M_score", reduction = "UMAP")
 FeatureDimPlot(pancreas_sub, features = "G2M_score", reduction = "UMAP", bg_cutoff = -Inf)
-FeatureDimPlot(pancreas_sub, features = "G2M_score", reduction = "UMAP", theme_use = "theme_blank", show_stat = FALSE)
+FeatureDimPlot(pancreas_sub, features = "G2M_score", reduction = "UMAP", theme_use = "theme_blank")
 FeatureDimPlot(pancreas_sub, features = "G2M_score", reduction = "UMAP", theme_use = ggplot2::theme_classic, theme_args = list(base_size = 16))
 FeatureDimPlot(pancreas_sub, features = "G2M_score", reduction = "UMAP") \%>\% panel_fix(height = 2, raster = TRUE, dpi = 30)
 
+pancreas_sub <- Standard_SCP(pancreas_sub)
 FeatureDimPlot(pancreas_sub, features = c("StandardPC_1", "StandardPC_2"), reduction = "UMAP", bg_cutoff = -Inf)
 
 # Label and highlight cell points
@@ -273,8 +273,8 @@ FeatureDimPlot(pancreas_sub,
   cells.highlight = colnames(pancreas_sub)[pancreas_sub$SubCellType == "Delta"]
 )
 FeatureDimPlot(pancreas_sub,
-  features = "Rbp4", split.by = "Phase", reduction = "UMAP", show_stat = FALSE,
-  cells.highlight = TRUE, theme_use = "theme_blank", legend.position = "none"
+  features = "Rbp4", split.by = "Phase", reduction = "UMAP",
+  cells.highlight = TRUE, theme_use = "theme_blank"
 )
 
 # Add a density layer
@@ -291,15 +291,32 @@ FeatureDimPlot(pancreas_sub, features = "Lineage3", reduction = "UMAP", lineages
 FeatureDimPlot(pancreas_sub, features = "Lineage3", reduction = "UMAP", lineages = "Lineage3", lineages_whiskers = TRUE)
 FeatureDimPlot(pancreas_sub, features = "Lineage3", reduction = "UMAP", lineages = "Lineage3", lineages_span = 0.1)
 
-FeatureDimPlot(pancreas_sub, c("Ins1", "Gcg", "Sst", "Ghrl"), reduction = "UMAP")
-FeatureDimPlot(pancreas_sub, c("Ins1", "Gcg", "Sst", "Ghrl"), reduction = "UMAP", lower_quantile = 0, upper_quantile = 0.8)
-FeatureDimPlot(pancreas_sub, c("Ins1", "Gcg", "Sst", "Ghrl"), reduction = "UMAP", lower_cutoff = 1, upper_cutoff = 4)
-FeatureDimPlot(pancreas_sub, c("Ins1", "Gcg", "Sst", "Ghrl"), reduction = "UMAP", bg_cutoff = 2, lower_cutoff = 2, upper_cutoff = 4)
-FeatureDimPlot(pancreas_sub, c("Ins1", "Gcg", "Sst", "Ghrl"), reduction = "UMAP", keep_scale = "all")
-FeatureDimPlot(pancreas_sub, c("Sst", "Ghrl"), split.by = "Phase", reduction = "UMAP", keep_scale = "feature")
-
+# Input a named feature list
+markers <- list(
+  "Ductal" = c("Sox9", "Anxa2", "Bicc1"),
+  "EPs" = c("Neurog3", "Hes6"),
+  "Pre-endocrine" = c("Fev", "Neurod1"),
+  "Endocrine" = c("Rbp4", "Pyy"),
+  "Beta" = "Ins1", "Alpha" = "Gcg", "Delta" = "Sst", "Epsilon" = "Ghrl"
+)
 FeatureDimPlot(pancreas_sub,
-  features = c("Ins1", "Gcg", "Sst", "Ghrl"), pt.size = 1,
+  features = markers, reduction = "UMAP",
+  theme_use = "theme_blank",
+  theme_args = list(plot.subtitle = ggplot2::element_text(size = 10), strip.text = ggplot2::element_text(size = 8))
+)
+
+# Plot multiple features with different scales
+endocrine_markers <- c("Beta" = "Ins1", "Alpha" = "Gcg", "Delta" = "Sst", "Epsilon" = "Ghrl")
+FeatureDimPlot(pancreas_sub, endocrine_markers, reduction = "UMAP")
+FeatureDimPlot(pancreas_sub, endocrine_markers, reduction = "UMAP", lower_quantile = 0, upper_quantile = 0.8)
+FeatureDimPlot(pancreas_sub, endocrine_markers, reduction = "UMAP", lower_cutoff = 1, upper_cutoff = 4)
+FeatureDimPlot(pancreas_sub, endocrine_markers, reduction = "UMAP", bg_cutoff = 2, lower_cutoff = 2, upper_cutoff = 4)
+FeatureDimPlot(pancreas_sub, endocrine_markers, reduction = "UMAP", keep_scale = "all")
+FeatureDimPlot(pancreas_sub, c("Delta" = "Sst", "Epsilon" = "Ghrl"), split.by = "Phase", reduction = "UMAP", keep_scale = "feature")
+
+# Plot multiple features on one picture
+FeatureDimPlot(pancreas_sub,
+  features = endocrine_markers, pt.size = 1,
   compare_features = TRUE, color_blend_mode = "blend",
   label = TRUE, label_insitu = TRUE
 )

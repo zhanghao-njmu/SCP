@@ -6,7 +6,7 @@
 \usage{
 FeatureDimPlot3D(
   srt,
-  features = NULL,
+  features,
   reduction = NULL,
   dims = c(1, 2, 3),
   axis_labs = NULL,
@@ -28,7 +28,7 @@ FeatureDimPlot3D(
 \arguments{
 \item{srt}{A Seurat object.}
 
-\item{features}{Vector of features to plot. Features can be gene names in Assay or names of numeric columns in meta.data.}
+\item{features}{A character vector or a named list of features to plot. Features can be gene names in Assay or names of numeric columns in meta.data.}
 
 \item{reduction}{Which dimensionality reduction to use. If not specified, will use the reduction returned by \code{\link{DefaultReduction}}.}
 
@@ -69,6 +69,7 @@ Plotting cell points on a reduced 3D space and coloring according to the gene ex
 data("pancreas_sub")
 pancreas_sub <- Standard_SCP(pancreas_sub)
 FeatureDimPlot3D(pancreas_sub, features = c("Ghrl", "Ins1", "Gcg", "Ins2"), reduction = "StandardpcaUMAP3D")
+FeatureDimPlot3D(pancreas_sub, features = c("StandardPC_1", "StandardPC_2"), reduction = "StandardpcaUMAP3D")
 
 }
 \seealso{

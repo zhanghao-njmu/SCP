@@ -380,7 +380,11 @@ UMAP embeddings based on different integration methods in SCP:
 ### Cell projection between single-cell datasets
 
 ``` r
-panc8_rename <- RenameFeatures(srt = panc8_sub, newnames = make.unique(capitalize(rownames(panc8_sub), force_tolower = TRUE)), assays = "RNA")
+panc8_rename <- RenameFeatures(
+  srt = panc8_sub,
+  newnames = make.unique(capitalize(rownames(panc8_sub[["RNA"]]), force_tolower = TRUE)),
+  assays = "RNA"
+)
 srt_query <- RunKNNMap(srt_query = pancreas_sub, srt_ref = panc8_rename, ref_umap = "SeuratUMAP2D")
 ProjectionPlot(
   srt_query = srt_query, srt_ref = panc8_rename,
