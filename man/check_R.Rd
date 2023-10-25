@@ -6,7 +6,6 @@
 \usage{
 check_R(
   packages,
-  package_names = NULL,
   install_methods = c("BiocManager::install", "install.packages",
     "devtools::install_github"),
   lib = .libPaths()[1],
@@ -14,9 +13,7 @@ check_R(
 )
 }
 \arguments{
-\item{packages}{Package to be installed. Package source can be CRAN, Bioconductor or Github, e.g. scmap, davidsjoberg/ggsankey.}
-
-\item{package_names}{The name of the package that corresponds to the \code{packages} parameter, used to check if the package is already installed.
+\item{packages}{Package to be installed. Package source can be CRAN, Bioconductor or Github, e.g. scmap, quadbiolab/simspec.
 By default, the package name is extracted according to the \code{packages} parameter.}
 
 \item{install_methods}{Functions used to install R packages.}

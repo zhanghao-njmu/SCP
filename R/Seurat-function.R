@@ -117,7 +117,7 @@ RunNMF.default <- function(object, assay = NULL, slot = "data", nbes = 50,
   }
   nbes <- min(nbes, nrow(x = object) - 1)
   if (nmf.method == "RcppML") {
-    check_R("zdebruine/RcppML@0.5.6")
+    check_R("zdebruine/RcppML")
     options("RcppML.verbose" = FALSE)
     options("RcppML.threads" = 0)
     nmf.results <- RcppML::nmf(
@@ -1602,7 +1602,7 @@ RunLargeVis.Seurat <- function(object, reduction = "pca", dims = NULL, features 
     search_k = search_k, n_threads = n_threads, n_sgd_threads = n_sgd_threads, grain_size = grain_size,
     kernel = kernel, pca = pca, pca_center = pca_center, pcg_rand = pcg_rand, fast_sgd = fast_sgd,
     batch = batch, opt_args = opt_args, epoch_callback = epoch_callback, pca_method = pca_method,
-    reduction.key = reduction.key, verbose = verbose, seed.use = seed.use, ...
+    reduction.key = reduction.key, verbose = verbose, seed.use = seed.use
   )
   object <- LogSeuratCommand(object = object)
   return(object)

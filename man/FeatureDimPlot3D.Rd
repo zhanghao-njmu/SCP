@@ -58,7 +58,7 @@ FeatureDimPlot3D(
 
 \item{height}{Height in pixels, defaults to automatic sizing.}
 
-\item{save}{The name of the file to save the plot to. Must end in .html.}
+\item{save}{The name of the file to save the plot to. Must end in ".html".}
 
 \item{force}{Whether to force drawing regardless of the number of features greater than 100.}
 }

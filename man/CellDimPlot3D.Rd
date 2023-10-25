@@ -34,7 +34,7 @@ CellDimPlot3D(
 
 \item{reduction}{Which dimensionality reduction to use. If not specified, will use the reduction returned by \code{\link{DefaultReduction}}.}
 
-\item{dims}{Dimensions to plot, must be a two-length numeric vector specifying x- and y-dimensions}
+\item{dims}{Dimensions to plot, must be a three-length numeric vector specifying x-, y- and z-dimensions}
 
 \item{axis_labs}{A character vector of length 3 indicating the labels for the axes.}
 
@@ -64,7 +64,7 @@ CellDimPlot3D(
 
 \item{height}{Height in pixels, defaults to automatic sizing.}
 
-\item{save}{The name of the file to save the plot to. Must end in .html.}
+\item{save}{The name of the file to save the plot to. Must end in ".html".}
 
 \item{force}{Whether to force drawing regardless of maximum levels in any cell group is greater than 100.}
 }
@@ -78,6 +78,7 @@ CellDimPlot3D(pancreas_sub, group.by = "SubCellType", reduction = "StandardpcaUM
 
 pancreas_sub <- RunSlingshot(pancreas_sub, group.by = "SubCellType", reduction = "StandardpcaUMAP3D")
 CellDimPlot3D(pancreas_sub, group.by = "SubCellType", reduction = "StandardpcaUMAP3D", lineages = "Lineage1")
+
 }
 \seealso{
 \code{\link{CellDimPlot}} \code{\link{FeatureDimPlot3D}}

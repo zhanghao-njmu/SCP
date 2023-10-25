@@ -129,14 +129,18 @@ integration_methods <- c("Uncorrected", "Seurat", "scVI", "MNN", "fastMNN", "Har
 for (method in integration_methods) {
   panc8_sub <- Integration_SCP(
     srtMerge = panc8_sub, batch = "tech",
-    integration_method = method, linear_reduction_dims_use = 1:50, nonlinear_reduction = "umap"
+    integration_method = method,
+    linear_reduction_dims_use = 1:50,
+    nonlinear_reduction = "umap"
   )
   print(CellDimPlot(panc8_sub, group.by = c("tech", "celltype"), reduction = paste0(method, "UMAP2D"), theme_use = "theme_blank"))
 }
 
 nonlinear_reductions <- c("umap", "tsne", "dm", "phate", "pacmap", "trimap", "largevis", "fr")
 panc8_sub <- Integration_SCP(
-  srtMerge = panc8_sub, batch = "tech", integration_method = "Seurat",
+  srtMerge = panc8_sub, batch = "tech",
+  integration_method = "Seurat",
+  linear_reduction_dims_use = 1:50,
   nonlinear_reduction = nonlinear_reductions
 )
 for (nr in nonlinear_reductions) {
