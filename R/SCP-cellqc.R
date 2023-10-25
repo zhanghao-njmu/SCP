@@ -255,9 +255,7 @@ isOutlier <- function(x, nmads = 2.5, constant = 1.4826, type = c("both", "lower
 
 #' Run cell-level quality control for single cell RNA-seq data.
 #'
-#' In CellQC, doublet-calling will be run first and then reject abnormal cell data based on median absolute deviation (MAD) outliers.
-#' After doublet-calling and outlier filtering, CellQC will perform general QC (gene count, UMI count, etc.)
-#' and reject cell data for non-species of interest based on the proportion and number of UMIs for the species.
+#' This function handles multiple quality control methods for single-cell RNA-seq data.
 #'
 #' @inheritParams RunDoubletCalling
 #' @param batch Name of the batch variable to split the Seurat object. Default is NULL.
@@ -284,15 +282,6 @@ isOutlier <- function(x, nmads = 2.5, constant = 1.4826, type = c("both", "lower
 #'
 #' @return Returns Seurat object with the QC results stored in the meta.data slot.
 #'
-#' @note
-#' General quality control usually uses metrics such as gene count, UMI count, etc.
-#' In addition, ribo content and mito content can be used as QC indicators:
-#' mito content can be used as an indication of apoptosis,
-#' with a general threshold of 20% and less than 10% mito content in high quality cells;
-#' ribo content is cell type dependent, with some cell types having even more than 50% ribo content;
-#' however, ribo content in single cell data can also indicate whether the empty droplets,
-#' and the ribo content in empty droplets is usually high and the mito content is low instead.
-#'
 #' @examples
 #' data("pancreas_sub")
 #' pancreas_sub <- RunCellQC(pancreas_sub)
@@ -307,7 +296,7 @@ isOutlier <- function(x, nmads = 2.5, constant = 1.4826, type = c("both", "lower
 #' table(pancreas_sub$CellQC)
 #'
 #' data("ifnb_sub")
-#' ifnb_sub <- RunCellQC(ifnb_sub, batch = "stim", UMI_threshold = 1000, gene_threshold = 550)
+#' ifnb_sub <- RunCellQC(ifnb_sub, split.by = "stim", UMI_threshold = 1000, gene_threshold = 550)
 #' CellStatPlot(
 #'   srt = ifnb_sub,
 #'   stat.by = c(
@@ -322,7 +311,7 @@ isOutlier <- function(x, nmads = 2.5, constant = 1.4826, type = c("both", "lower
 #' @importFrom Matrix colSums t
 #' @export
 #'
-RunCellQC <- function(srt, assay = "RNA", batch = NULL,
+RunCellQC <- function(srt, assay = "RNA", split.by = NULL,
                       qc_metrics = c("doublets", "outlier", "umi", "gene", "mito", "ribo", "ribo_mito_ratio", "species"),
                       return_filtered = FALSE,
                       db_method = "scDblFinder", db_rate = NULL, db_coefficient = 0.01,
@@ -364,16 +353,16 @@ RunCellQC <- function(srt, assay = "RNA", batch = NULL,
     srt@meta.data[[paste0("nFeature_", assay)]] <- colSums(srt[[assay]]@counts > 0)
   }
   srt_raw <- srt
-  if (!is.null(batch)) {
-    srtList <- SplitObject(srt, split.by = batch)
+  if (!is.null(split.by)) {
+    srtList <- SplitObject(srt, split.by = split.by)
   } else {
     srtList <- list(srt)
   }
 
   for (i in seq_along(srtList)) {
     srt <- srtList[[i]]
-    if (!is.null(batch)) {
-      cat("===", srt@meta.data[[batch]][1], "===\n")
+    if (!is.null(split.by)) {
+      cat("===", srt@meta.data[[split.by]][1], "===\n")
     }
     ntotal <- ncol(srt)
 

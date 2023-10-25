@@ -12,7 +12,7 @@ CellDimPlot(
   split.by = NULL,
   cells = NULL,
   show_na = FALSE,
-  show_stat = TRUE,
+  show_stat = ifelse(identical(theme_use, "theme_blank"), FALSE, TRUE),
   pt.size = NULL,
   pt.alpha = 1,
   palette = "Paired",
@@ -359,7 +359,7 @@ Plotting cell points on a reduced 2D plane and coloring according to the groups.
 \examples{
 data("pancreas_sub")
 CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP")
-CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", theme_use = "theme_blank", show_stat = FALSE)
+CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", theme_use = "theme_blank")
 CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", theme_use = ggplot2::theme_classic, theme_args = list(base_size = 16))
 CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP") \%>\% panel_fix(height = 2, raster = TRUE, dpi = 30)
 
@@ -369,7 +369,7 @@ CellDimPlot(pancreas_sub,
   cells.highlight = colnames(pancreas_sub)[pancreas_sub$SubCellType == "Epsilon"]
 )
 CellDimPlot(pancreas_sub,
-  group.by = "SubCellType", split.by = "Phase", reduction = "UMAP", show_stat = FALSE,
+  group.by = "SubCellType", split.by = "Phase", reduction = "UMAP",
   cells.highlight = TRUE, theme_use = "theme_blank", legend.position = "none"
 )
 
@@ -407,7 +407,7 @@ CellDimPlot(pancreas_sub,
   group.by = "SubCellType", reduction = "UMAP", pt.size = 5, pt.alpha = 0.2,
   label = TRUE, label_repel = TRUE, label_insitu = TRUE, label_segment_color = "transparent",
   paga = pancreas_sub@misc$paga, paga_edge_threshold = 0.1, paga_edge_color = "black", paga_edge_alpha = 1,
-  show_stat = FALSE, legend.position = "none", theme_use = "theme_blank"
+  legend.position = "none", theme_use = "theme_blank"
 )
 
 # Show RNA velocity results on the plot
@@ -422,7 +422,7 @@ CellDimPlot(pancreas_sub,
   label = TRUE, label_insitu = TRUE,
   velocity = "stochastic", velocity_plot_type = "stream", velocity_arrow_color = "yellow",
   velocity_density = 2, velocity_smooth = 1, streamline_n = 20, streamline_color = "black",
-  show_stat = FALSE, legend.position = "none", theme_use = "theme_blank"
+  legend.position = "none", theme_use = "theme_blank"
 )
 }
 \seealso{

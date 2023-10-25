@@ -314,12 +314,12 @@ plist <- list()
 
 for (method in integration_methods) {
   panc8_sub <- Integration_SCP(
-    srtMerge = panc8_sub, batch = "tech",
+    srtMerge = panc8_sub, batch = "tech", linear_reduction_dims_use = 1:50,
     integration_method = method, nonlinear_reduction = "umap"
   )
   plist[[method]] <- CellDimPlot(panc8_sub,
     title = method, group.by = c("celltype"), reduction = paste0(method, "UMAP2D"), theme_use = "theme_blank",
-    show_stat = F, xlab = "UMAP_1", ylab = "UMAP_2", legend.position = "none"
+    xlab = "UMAP_1", ylab = "UMAP_2", legend.position = "none"
   )
 }
 p <- plot_grid(plotlist = plist, ncol = 3)
@@ -335,7 +335,11 @@ panel_fix(grob, height = 2)
 ### Cell projection between single-cell datasets
 
 ```{r RunKNNMap}
-panc8_rename <- RenameFeatures(srt = panc8_sub, newnames = make.unique(capitalize(rownames(panc8_sub), force_tolower = TRUE)), assays = "RNA")
+panc8_rename <- RenameFeatures(
+  srt = panc8_sub,
+  newnames = make.unique(capitalize(rownames(panc8_sub[["RNA"]]), force_tolower = TRUE)),
+  assays = "RNA"
+)
 srt_query <- RunKNNMap(srt_query = pancreas_sub, srt_ref = panc8_rename, ref_umap = "SeuratUMAP2D")
 ProjectionPlot(
   srt_query = srt_query, srt_ref = panc8_rename,
@@ -447,7 +451,7 @@ EnrichmentPlot(
 
 > To ensure that labels are visible, you can adjust the size of the viewer panel on Rstudio IDE.
 
-```{r Enrichment_enrichmap, fig.height=9.5,fig.width=15}
+```{r Enrichment_enrichmap, fig.height=9.5, fig.width=15}
 EnrichmentPlot(
   srt = pancreas_sub, group_by = "CellType", group_use = "Ductal",
   plot_type = "enrichmap"
