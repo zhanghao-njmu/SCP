@@ -95,7 +95,6 @@ Suggests:
     ragg,
     reactome.db,
     renv,
-    rliger,
     RcppParallel,
     RcppML,
     scattermore,

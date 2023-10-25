@@ -38,6 +38,8 @@ RunCellQC(
 
 \item{assay}{The name of the assay to be used for doublet-calling. Default is "RNA".}
 
+\item{split.by}{Name of the sample variable to split the Seurat object. Default is NULL.}
+
 \item{qc_metrics}{A character vector specifying the quality control metrics to be applied. Default is
 `c("doublets", "outlier", "umi", "gene", "mito", "ribo", "ribo_mito_ratio", "species")`.}
 
@@ -79,8 +81,6 @@ RunCellQC(
 \item{species_percent}{Percentage of UMI counts of the first species. Cells that exceed this threshold will be considered as kept. Default is 95.}
 
 \item{seed}{Set a random seed. Default is 11.}
-
-\item{batch}{Name of the batch variable to split the Seurat object. Default is NULL.}
 }
 \value{
 Returns Seurat object with the QC results stored in the meta.data slot.

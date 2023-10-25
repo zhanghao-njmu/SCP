@@ -258,7 +258,7 @@ isOutlier <- function(x, nmads = 2.5, constant = 1.4826, type = c("both", "lower
 #' This function handles multiple quality control methods for single-cell RNA-seq data.
 #'
 #' @inheritParams RunDoubletCalling
-#' @param batch Name of the batch variable to split the Seurat object. Default is NULL.
+#' @param split.by Name of the sample variable to split the Seurat object. Default is NULL.
 #' @param qc_metrics A character vector specifying the quality control metrics to be applied. Default is
 #'   `c("doublets", "outlier", "umi", "gene", "mito", "ribo", "ribo_mito_ratio", "species")`.
 #' @param return_filtered Logical indicating whether to return a cell-filtered Seurat object. Default is FALSE.
