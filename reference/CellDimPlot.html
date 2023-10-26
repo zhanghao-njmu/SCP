@@ -698,22 +698,22 @@
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Show neighbors graphs on the plot</span></span></span>
 <span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="Standard_SCP.html">Standard_SCP</a></span><span class="op">(</span><span class="va">pancreas_sub</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-25 06:58:38.586166] Start Standard_SCP</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-25 06:58:38.586346] Checking srtList... ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-26 13:45:28.349703] Start Standard_SCP</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-26 13:45:28.34987] Checking srtList... ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Data 1/1 of the srtList is raw_counts. Perform NormalizeData(LogNormalize) on the data ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform FindVariableFeatures on the data 1/1 of the srtList...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Use the separate HVF from srtList...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Number of available HVF: 2000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-25 06:58:39.464706] Finished checking.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-25 06:58:39.464901] Perform ScaleData on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-25 06:58:39.583048] Perform linear dimension reduction (pca) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-25 06:58:40.319842] Perform FindClusters (louvain) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-25 06:58:40.435042] Reorder clusters...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-25 06:58:40.669398] Perform nonlinear dimension reduction (umap) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-26 13:45:29.317994] Finished checking.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-26 13:45:29.318161] Perform ScaleData on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-26 13:45:29.427345] Perform linear dimension reduction (pca) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-26 13:45:30.184494] Perform FindClusters (louvain) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-26 13:45:30.294831] Reorder clusters...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-26 13:45:30.502954] Perform nonlinear dimension reduction (umap) on the data...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Non-linear dimensionality reduction(umap) using Reduction(Standardpca, dims:1-13) as input</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Non-linear dimensionality reduction(umap) using Reduction(Standardpca, dims:1-13) as input</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-25 06:58:48.632932] Standard_SCP done</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 10.05 secs </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-26 13:45:37.819871] Standard_SCP done</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 9.47 secs </span>
 <span class="r-in"><span><span class="fu">CellDimPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, group.by <span class="op">=</span> <span class="st">"CellType"</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span>, graph <span class="op">=</span> <span class="st">"Standardpca_SNN"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="CellDimPlot-15.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="fu">CellDimPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, group.by <span class="op">=</span> <span class="st">"CellType"</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span>, graph <span class="op">=</span> <span class="st">"Standardpca_SNN"</span>, edge_color <span class="op">=</span> <span class="st">"grey80"</span><span class="op">)</span></span></span>
@@ -739,7 +739,7 @@
 <span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="RunPAGA.html">RunPAGA</a></span><span class="op">(</span>srt <span class="op">=</span> <span class="va">pancreas_sub</span>, group_by <span class="op">=</span> <span class="st">"SubCellType"</span>, linear_reduction <span class="op">=</span> <span class="st">"PCA"</span>, nonlinear_reduction <span class="op">=</span> <span class="st">"UMAP"</span>, return_seurat <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>SCP_env python environment does not exist. Create it with the PrepareEnv function...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> + /usr/share/miniconda/bin/conda 'create' '--yes' '--name' 'SCP_env' 'python=3.8' 'pytables' '--quiet' '-c' 'conda-forge'</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Try to install leidenalg==0.10.1,matplotlib==3.6.3,numba==0.55.2,numpy==1.21.6,palantir==1.0.1,pandas==1.3.5,python-igraph==0.10.2,scanpy==1.9.5,scikit-learn==1.1.2,scipy==1.10.1,scvelo==0.2.5,wot==1.0.8.post2 ...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Try to install leidenalg==0.10.1,matplotlib==3.6.3,numba==0.55.2,numpy==1.21.6,palantir==1.0.1,pandas==1.3.5,python-igraph==0.10.2,scanpy==1.9.5,scikit-learn==1.1.2,scipy==1.10.1,scvelo==0.2.5,wot==1.0.8.post2,trimap==1.1.4,pacmap==0.7.0,phate==1.0.11 ...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ====================== SCP conda environment ======================</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> conda: /usr/share/miniconda/bin/conda</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> environment: /usr/share/miniconda/envs/SCP_env</span>
