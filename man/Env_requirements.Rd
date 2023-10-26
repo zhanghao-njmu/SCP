@@ -4,7 +4,7 @@
 \alias{Env_requirements}
 \title{Env_requirements function}
 \usage{
-Env_requirements(version = c("3.8-1", "3.8-2", "3.9-1", "3.10-1", "3.11-1"))
+Env_requirements(version = "3.8-1")
 }
 \arguments{
 \item{version}{A character vector specifying the version of the environment (default is "3.8-1").}

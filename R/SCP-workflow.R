@@ -838,7 +838,8 @@ RunDimReduction <- function(srt, prefix = "", features = NULL, assay = NULL, slo
           srt@misc[["Default_reduction"]] <- paste0(prefix, linear_reduction)
           return(srt)
         } else {
-          message("assay.used is ", srt[[linear_reduction]]@assay.used, ", which is not the same as the ", assay, " specified. Recalculate the linear reduction")
+          message("assay.used is ", srt[[linear_reduction]]@assay.used, ", which is not the same as the ", assay, " specified. Recalculate the linear reduction(pca)")
+          linear_reduction <- "pca"
         }
       }
     }
@@ -933,7 +934,8 @@ RunDimReduction <- function(srt, prefix = "", features = NULL, assay = NULL, slo
           srt@misc[["Default_reduction"]] <- paste0(prefix, nonlinear_reduction)
           return(srt)
         } else {
-          message("assay.used is ", srt[[nonlinear_reduction]]@assay.used, ", which is not the same as the ", assay, " specified. Recalculate the linear reduction")
+          message("assay.used is ", srt[[nonlinear_reduction]]@assay.used, ", which is not the same as the ", assay, " specified. Recalculate the nonlinear reduction(umap)")
+          nonlinear_reduction <- "umap"
         }
       }
     }
@@ -1031,7 +1033,7 @@ DefaultReduction <- function(srt, pattern = NULL, min_dim = 2, max_distance = 0.
   if (length(srt@reductions) == 0) {
     stop("Unable to find any reductions.")
   }
-  pattern_default <- c("umap", "tsne", "dm", "phate", "pacmap", "trimap", "largevis", "pca", "svd", "ica", "nmf", "mds", "glmpca")
+  pattern_default <- c("umap", "tsne", "dm", "phate", "pacmap", "trimap", "largevis", "fr", "pca", "svd", "ica", "nmf", "mds", "glmpca")
   pattern_dim <- c("2D", "3D")
   reduc_all <- names(srt@reductions)
   reduc_all <- reduc_all[unlist(lapply(reduc_all, function(x) {
@@ -3204,11 +3206,11 @@ Conos_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtLis
     }
     cat(paste0("[", Sys.time(), "]", " Perform linear dimension reduction (", linear_reduction, ") on the data ", i, " ...\n"))
     srt <- RunDimReduction(
-      srt = srt, prefix = "", features = HVF, assay = DefaultAssay(srt),
+      srt = srt, prefix = "Conos", features = HVF, assay = DefaultAssay(srt),
       linear_reduction = linear_reduction, linear_reduction_dims = linear_reduction_dims, linear_reduction_params = linear_reduction_params, force_linear_reduction = force_linear_reduction,
       verbose = FALSE, seed = seed
     )
-    srt[["pca"]] <- srt[[linear_reduction]]
+    srt[["pca"]] <- srt[[paste0("Conos", linear_reduction)]]
     srtList[[i]] <- srt
   }
   if (is.null(names(srtList))) {
@@ -3216,13 +3218,13 @@ Conos_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtLis
   }
 
   if (is.null(linear_reduction_dims_use)) {
-    maxdims <- max(unlist(sapply(srtList, function(srt) max(srt@reductions[[paste0("", linear_reduction)]]@misc[["dims_estimate"]]))))
+    maxdims <- max(unlist(sapply(srtList, function(srt) max(srt@reductions[[paste0("Conos", linear_reduction)]]@misc[["dims_estimate"]]))))
   } else {
     maxdims <- max(linear_reduction_dims_use)
   }
 
   cat(paste0("[", Sys.time(), "]", " Perform integration(Conos) on the data...\n"))
-  message("Conos using ", linear_reduction, "(dims_max:", maxdims, ") as input")
+  message("Conos integration using Reduction(", linear_reduction, ", dims_max:", maxdims, ") as input")
   srtList_con <- conos::Conos$new(srtList, n.cores = num_threads)
   params <- list(
     ncomps = maxdims,
@@ -3739,14 +3741,18 @@ Standard_SCP <- function(srt, prefix = "Standard", assay = NULL,
 #' for (method in integration_methods) {
 #'   panc8_sub <- Integration_SCP(
 #'     srtMerge = panc8_sub, batch = "tech",
-#'     integration_method = method, linear_reduction_dims_use = 1:50, nonlinear_reduction = "umap"
+#'     integration_method = method,
+#'     linear_reduction_dims_use = 1:50,
+#'     nonlinear_reduction = "umap"
 #'   )
 #'   print(CellDimPlot(panc8_sub, group.by = c("tech", "celltype"), reduction = paste0(method, "UMAP2D"), theme_use = "theme_blank"))
 #' }
 #'
 #' nonlinear_reductions <- c("umap", "tsne", "dm", "phate", "pacmap", "trimap", "largevis", "fr")
 #' panc8_sub <- Integration_SCP(
-#'   srtMerge = panc8_sub, batch = "tech", integration_method = "Seurat",
+#'   srtMerge = panc8_sub, batch = "tech",
+#'   integration_method = "Seurat",
+#'   linear_reduction_dims_use = 1:50,
 #'   nonlinear_reduction = nonlinear_reductions
 #' )
 #' for (nr in nonlinear_reductions) {

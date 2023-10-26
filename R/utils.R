@@ -9,7 +9,6 @@
 #' If a conda environment with the specified name already exists and \code{force} is set to \code{FALSE}, the function will use the existing environment. If \code{force} set to \code{TRUE}, the existing environment will be recreated. Note that recreating the environment will remove any existing data in the environment.
 #' The function also checks if the package versions in the environment meet the requirements specified by the \code{version} parameter. The default is \code{3.8-1}.
 #'
-#'
 #' @export
 PrepareEnv <- function(conda = "auto", miniconda_repo = "https://repo.anaconda.com/miniconda",
                        envname = NULL, version = "3.8-1", force = FALSE, ...) {
@@ -142,8 +141,8 @@ PrepareEnv <- function(conda = "auto", miniconda_repo = "https://repo.anaconda.c
 #' Env_requirements("3.8-1")
 #'
 #' @export
-Env_requirements <- function(version = c("3.8-1", "3.8-2", "3.9-1", "3.10-1", "3.11-1")) {
-  version <- match.arg(version)
+Env_requirements <- function(version = "3.8-1") {
+  version <- match.arg(version, choices = c("3.8-1", "3.8-2", "3.9-1", "3.10-1", "3.11-1"))
   requirements <- switch(version,
     "3.8-1" = list(
       python = "3.8",
@@ -159,7 +158,10 @@ Env_requirements <- function(version = c("3.8-1", "3.8-2", "3.9-1", "3.10-1", "3
         "scikit-learn" = "scikit-learn==1.1.2",
         "scipy" = "scipy==1.10.1",
         "scvelo" = "scvelo==0.2.5",
-        "wot" = "wot==1.0.8.post2"
+        "wot" = "wot==1.0.8.post2",
+        "trimap" = "trimap==1.1.4",
+        "pacmap" = "pacmap==0.7.0",
+        "phate" = "phate==1.0.11"
         # "tables" = "git+https://github.com/PyTables/PyTables", # Fixed: PyTables install fails on macOS M1
       )
     ),
@@ -168,7 +170,7 @@ Env_requirements <- function(version = c("3.8-1", "3.8-2", "3.9-1", "3.10-1", "3
       packages = c(
         "leidenalg" = "leidenalg==0.10.1",
         "matplotlib" = "matplotlib==3.7.3",
-        "numba" = "numba==0.58.0",
+        "numba" = "numba==0.58.1",
         "numpy" = "numpy==1.24.4",
         "palantir" = "palantir==1.3.0",
         "pandas" = "pandas==1.5.3",
@@ -185,7 +187,7 @@ Env_requirements <- function(version = c("3.8-1", "3.8-2", "3.9-1", "3.10-1", "3
       packages = c(
         "leidenalg" = "leidenalg==0.10.1",
         "matplotlib" = "matplotlib==3.8.0",
-        "numba" = "numba==0.58.0",
+        "numba" = "numba==0.58.1",
         "numpy" = "numpy==1.25.2",
         "palantir" = "palantir==1.3.0",
         "pandas" = "pandas==1.5.3",
@@ -202,7 +204,7 @@ Env_requirements <- function(version = c("3.8-1", "3.8-2", "3.9-1", "3.10-1", "3
       packages = c(
         "leidenalg" = "leidenalg==0.10.1",
         "matplotlib" = "matplotlib==3.8.0",
-        "numba" = "numba==0.58.0",
+        "numba" = "numba==0.58.1",
         "numpy" = "numpy==1.25.2",
         "palantir" = "palantir==1.3.0",
         "pandas" = "pandas==1.5.3",
@@ -219,7 +221,7 @@ Env_requirements <- function(version = c("3.8-1", "3.8-2", "3.9-1", "3.10-1", "3
       packages = c(
         "leidenalg" = "leidenalg==0.10.1",
         "matplotlib" = "matplotlib==3.8.0",
-        "numba" = "numba==0.58.0",
+        "numba" = "numba==0.58.1",
         "numpy" = "numpy==1.25.2",
         "palantir" = "palantir==1.3.0",
         "pandas" = "pandas==1.5.3",
@@ -519,8 +521,7 @@ check_Python <- function(packages, envname = NULL, conda = "auto", force = FALSE
 
 #' Check and install R packages
 #'
-#' @param packages Package to be installed. Package source can be CRAN, Bioconductor or Github, e.g. scmap, davidsjoberg/ggsankey.
-#' @param package_names The name of the package that corresponds to the \code{packages} parameter, used to check if the package is already installed.
+#' @param packages Package to be installed. Package source can be CRAN, Bioconductor or Github, e.g. scmap, quadbiolab/simspec.
 #' By default, the package name is extracted according to the \code{packages} parameter.
 #' @param install_methods Functions used to install R packages.
 #' @param lib  The location of the library directories where to install the packages.
@@ -528,31 +529,11 @@ check_Python <- function(packages, envname = NULL, conda = "auto", force = FALSE
 #'
 #' @importFrom utils packageVersion
 #' @export
-check_R <- function(packages, package_names = NULL, install_methods = c("BiocManager::install", "install.packages", "devtools::install_github"), lib = .libPaths()[1], force = FALSE) {
-  if (length(package_names) != 0 && length(package_names) != length(packages)) {
-    stop("package_names must be NULL or a vector of the same length with packages")
-  }
+check_R <- function(packages, install_methods = c("BiocManager::install", "install.packages", "devtools::install_github"), lib = .libPaths()[1], force = FALSE) {
   status_list <- list()
-  for (n in seq_along(packages)) {
-    pkg <- packages[n]
-    pkg_info <- pkg
-    if (!grepl("/", pkg_info)) {
-      pkg_info <- paste0("/", pkg_info)
-    }
-    if (!grepl("@", pkg_info)) {
-      pkg_info <- paste0(pkg_info, "@")
-    }
-    git <- grep("/", sub(pattern = "(.*/)(.*)(@.*)", replacement = "\\1", x = pkg_info), value = TRUE)
-    git <- gsub("/", "", git)
-    pkg_name <- package_names[n] %||% sub(pattern = "(.*/)(.*)(@.*)", replacement = "\\2", x = pkg_info)
-    version <- grep("@", sub(pattern = "(.*/)(.*)(@.*)", replacement = "\\3", x = pkg_info), value = TRUE)
-    version <- gsub("@", "", version)
-    if (version != "") {
-      force_update <- isTRUE(packageVersion(pkg_name) < package_version(version)) || isTRUE(force)
-    } else {
-      force_update <- isTRUE(force)
-    }
-    if (!suppressPackageStartupMessages(requireNamespace(pkg_name, quietly = TRUE)) || isTRUE(force_update)) {
+  for (pkg in packages) {
+    pkg_name <- sub(pattern = "(.*)/(.*)", replacement = "\\2", x = pkg)
+    if (!suppressPackageStartupMessages(requireNamespace(pkg_name, quietly = TRUE)) || isTRUE(force)) {
       message("Install package: \"", pkg_name, "\" ...")
       status_list[[pkg]] <- FALSE
       i <- 1
@@ -577,15 +558,7 @@ check_R <- function(packages, package_names = NULL, install_methods = c("BiocMan
         }, error = function(e) {
           status_list[[pkg]] <- FALSE
         })
-        if (version == "") {
-          status_list[[pkg]] <- requireNamespace(pkg_name, quietly = TRUE)
-        } else {
-          if (requireNamespace(pkg_name, quietly = TRUE)) {
-            status_list[[pkg]] <- packageVersion(pkg_name) >= package_version(version)
-          } else {
-            status_list[[pkg]] <- FALSE
-          }
-        }
+        status_list[[pkg]] <- requireNamespace(pkg_name, quietly = TRUE)
         i <- i + 1
         if (i > length(install_methods)) {
           break

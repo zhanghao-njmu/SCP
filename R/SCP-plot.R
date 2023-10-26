@@ -2763,12 +2763,13 @@ FeatureDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), spli
 #' Plotting cell points on a reduced 3D space and coloring according to the groups of the cells.
 #'
 #' @inheritParams CellDimPlot
+#' @param dims Dimensions to plot, must be a three-length numeric vector specifying x-, y- and z-dimensions
 #' @param axis_labs A character vector of length 3 indicating the labels for the axes.
 #' @param span A numeric value specifying the span of the loess smoother for lineages line.
 #' @param shape.highlight Shape of the cell to highlight. See \href{https://plotly.com/r/reference/scattergl/#scattergl-marker-symbol}{scattergl-marker-symbol}
 #' @param width Width in pixels, defaults to automatic sizing.
 #' @param height Height in pixels, defaults to automatic sizing.
-#' @param save The name of the file to save the plot to. Must end in .html.
+#' @param save The name of the file to save the plot to. Must end in ".html".
 #' @seealso \code{\link{CellDimPlot}} \code{\link{FeatureDimPlot3D}}
 #'
 #' @examples
@@ -2778,6 +2779,7 @@ FeatureDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), spli
 #'
 #' pancreas_sub <- RunSlingshot(pancreas_sub, group.by = "SubCellType", reduction = "StandardpcaUMAP3D")
 #' CellDimPlot3D(pancreas_sub, group.by = "SubCellType", reduction = "StandardpcaUMAP3D", lineages = "Lineage1")
+#'
 #' @importFrom Seurat Reductions Embeddings Key
 #' @importFrom utils askYesNo
 #' @importFrom plotly plot_ly add_trace layout as_widget
@@ -2856,9 +2858,6 @@ CellDimPlot3D <- function(srt, group.by, reduction = NULL, dims = c(1, 2, 3), ax
   if (!is.null(lineages)) {
     dat_lineages <- srt@meta.data[, unique(lineages), drop = FALSE]
     dat_use <- cbind(dat_use, dat_lineages[row.names(dat_use), , drop = FALSE])
-  }
-  if (!is.factor(dat_use[[group.by]])) {
-    dat_use[[group.by]] <- factor(dat_use[[group.by]], levels = unique(dat_use[[group.by]]))
   }
   dat_use[["group.by"]] <- dat_use[[group.by]]
   if (any(is.na(dat_use[[group.by]]))) {
