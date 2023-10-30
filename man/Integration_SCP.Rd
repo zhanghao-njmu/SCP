@@ -115,17 +115,29 @@ Integrate single-cell RNA-seq data using various integration methods.
 \examples{
 data("panc8_sub")
 panc8_sub <- Integration_SCP(
-  srtMerge = panc8_sub, batch = "tech", integration_method = "Uncorrected"
+  srtMerge = panc8_sub, batch = "tech",
+  integration_method = "Uncorrected"
 )
 CellDimPlot(panc8_sub, group.by = c("tech", "celltype"))
 
 panc8_sub <- Integration_SCP(
-  srtMerge = panc8_sub, batch = "tech", integration_method = "Seurat"
+  srtMerge = panc8_sub, batch = "tech",
+  integration_method = "Uncorrected",
+  HVF_min_intersection = 5
+)
+CellDimPlot(panc8_sub, group.by = c("tech", "celltype"))
+
+panc8_sub <- Integration_SCP(
+  srtMerge = panc8_sub, batch = "tech",
+  integration_method = "Seurat"
 )
 CellDimPlot(panc8_sub, group.by = c("tech", "celltype"))
 
 \dontrun{
-integration_methods <- c("Uncorrected", "Seurat", "scVI", "MNN", "fastMNN", "Harmony", "Scanorama", "BBKNN", "CSS", "LIGER", "Conos", "ComBat")
+integration_methods <- c(
+  "Uncorrected", "Seurat", "scVI", "MNN", "fastMNN", "Harmony",
+  "Scanorama", "BBKNN", "CSS", "LIGER", "Conos", "ComBat"
+)
 for (method in integration_methods) {
   panc8_sub <- Integration_SCP(
     srtMerge = panc8_sub, batch = "tech",
@@ -133,7 +145,12 @@ for (method in integration_methods) {
     linear_reduction_dims_use = 1:50,
     nonlinear_reduction = "umap"
   )
-  print(CellDimPlot(panc8_sub, group.by = c("tech", "celltype"), reduction = paste0(method, "UMAP2D"), theme_use = "theme_blank"))
+  print(CellDimPlot(panc8_sub,
+    group.by = c("tech", "celltype"),
+    reduction = paste0(method, "UMAP2D"),
+    xlab = "", ylab = "", title = method,
+    legend.position = "none", theme_use = "theme_blank"
+  ))
 }
 
 nonlinear_reductions <- c("umap", "tsne", "dm", "phate", "pacmap", "trimap", "largevis", "fr")
@@ -144,7 +161,12 @@ panc8_sub <- Integration_SCP(
   nonlinear_reduction = nonlinear_reductions
 )
 for (nr in nonlinear_reductions) {
-  print(CellDimPlot(panc8_sub, group.by = c("tech", "celltype"), reduction = paste0("Seurat", nr, "2D"), theme_use = "theme_blank"))
+  print(CellDimPlot(panc8_sub,
+    group.by = c("tech", "celltype"),
+    reduction = paste0("Seurat", nr, "2D"),
+    xlab = "", ylab = "", title = nr,
+    legend.position = "none", theme_use = "theme_blank"
+  ))
 }
 }
 
