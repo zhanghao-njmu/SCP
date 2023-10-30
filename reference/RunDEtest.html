@@ -264,13 +264,13 @@ of the two groups, currently only used for poisson and negative binomial tests</
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"pancreas_sub"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu">RunDEtest</span><span class="op">(</span><span class="va">pancreas_sub</span>, group_by <span class="op">=</span> <span class="st">"SubCellType"</span><span class="op">)</span></span></span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Data in the 'data' slot is raw counts. Perform NormalizeData(LogNormalize) on the data.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-10-30 01:59:39.385635] Start DEtest</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-10-30 10:02:46.760868] Start DEtest</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Workers: 1</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Find all markers(wilcox) among 8 groups...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |==============================================================================================================| 100%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-10-30 01:59:44.751371] DEtest done</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:5.37 secs</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-10-30 10:02:51.595873] DEtest done</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:4.84 secs</span>
 <span class="r-in"><span><span class="va">AllMarkers</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">pancreas_sub</span><span class="op">@</span><span class="va">tools</span><span class="op">$</span><span class="va">DEtest_SubCellType</span><span class="op">$</span><span class="va">AllMarkers_wilcox</span>, <span class="va">p_val_adj</span> <span class="op">&lt;</span> <span class="fl">0.05</span> <span class="op">&amp;</span> <span class="va">avg_log2FC</span> <span class="op">&gt;</span> <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">AllMarkers</span><span class="op">$</span><span class="va">group1</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -296,13 +296,13 @@ of the two groups, currently only used for poisson and negative binomial tests</
 <span class="r-plt img"><img src="RunDEtest-2.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu">RunDEtest</span><span class="op">(</span><span class="va">pancreas_sub</span>, group_by <span class="op">=</span> <span class="st">"SubCellType"</span>, markers_type <span class="op">=</span> <span class="st">"paired"</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-10-30 01:59:48.325031] Start DEtest</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-10-30 10:02:54.049397] Start DEtest</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Workers: 1</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Find paired markers(wilcox) among 8 groups...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |==============================================================================================================| 100%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-10-30 02:00:15.155852] DEtest done</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:26.83 secs</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-10-30 10:03:17.991144] DEtest done</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:23.94 secs</span>
 <span class="r-in"><span><span class="va">PairedMarkers</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">pancreas_sub</span><span class="op">@</span><span class="va">tools</span><span class="op">$</span><span class="va">DEtest_SubCellType</span><span class="op">$</span><span class="va">PairedMarkers_wilcox</span>, <span class="va">p_val_adj</span> <span class="op">&lt;</span> <span class="fl">0.05</span> <span class="op">&amp;</span> <span class="va">avg_log2FC</span> <span class="op">&gt;</span> <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">PairedMarkers</span><span class="op">$</span><span class="va">group1</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -317,9 +317,9 @@ of the two groups, currently only used for poisson and negative binomial tests</
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"panc8_sub"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">panc8_sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="Integration_SCP.html">Integration_SCP</a></span><span class="op">(</span><span class="va">panc8_sub</span>, batch <span class="op">=</span> <span class="st">"tech"</span>, integration_method <span class="op">=</span> <span class="st">"Seurat"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 02:00:30.600977] Start Seurat_integrate</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 02:00:30.608966] Spliting srtMerge into srtList by column tech... ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 02:00:31.049632] Checking srtList... ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 10:03:27.964353] Start Seurat_integrate</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 10:03:27.970679] Spliting srtMerge into srtList by column tech... ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 10:03:28.331899] Checking srtList... ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Data 1/5 of the srtList is raw_normalized_counts. Perform NormalizeData(LogNormalize) on the data ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform FindVariableFeatures on the data 1/5 of the srtList...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Data 2/5 of the srtList is raw_normalized_counts. Perform NormalizeData(LogNormalize) on the data ...</span>
@@ -332,14 +332,14 @@ of the two groups, currently only used for poisson and negative binomial tests</
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform FindVariableFeatures on the data 5/5 of the srtList...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Use the separate HVF from srtList...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Number of available HVF: 2000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 02:00:35.178534] Finished checking.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 02:00:36.130366] Perform FindIntegrationAnchors on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 02:01:09.61294] Perform integration(Seurat) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 02:01:22.335971] Perform ScaleData on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 02:01:22.680471] Perform linear dimension reduction (pca) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 02:01:24.086768] Perform FindClusters (louvain) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 02:01:24.230293] Reorder clusters...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 02:01:24.357225] Perform nonlinear dimension reduction (umap) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 10:03:31.052853] Finished checking.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 10:03:31.799372] Perform FindIntegrationAnchors on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 10:03:56.081771] Perform integration(Seurat) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 10:04:05.04889] Perform ScaleData on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 10:04:05.217249] Perform linear dimension reduction (pca) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 10:04:06.413626] Perform FindClusters (louvain) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 10:04:06.534035] Reorder clusters...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 10:04:06.641675] Perform nonlinear dimension reduction (umap) on the data...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Non-linear dimensionality reduction(umap) using Reduction(Seuratpca, dims:1-12) as input</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Found more than one class "dist" in cache; using the first, from namespace 'BiocGenerics'</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Also defined by ‘spam’</span>
@@ -350,13 +350,13 @@ of the two groups, currently only used for poisson and negative binomial tests</
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Also defined by ‘spam’</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Found more than one class "dist" in cache; using the first, from namespace 'BiocGenerics'</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Also defined by ‘spam’</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 02:01:39.187446] Seurat_integrate done</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 1.14 mins </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 10:04:17.513938] Seurat_integrate done</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 49.55 secs </span>
 <span class="r-in"><span><span class="fu"><a href="CellDimPlot.html">CellDimPlot</a></span><span class="op">(</span><span class="va">panc8_sub</span>, group.by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"celltype"</span>, <span class="st">"tech"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="RunDEtest-4.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">panc8_sub</span> <span class="op">&lt;-</span> <span class="fu">RunDEtest</span><span class="op">(</span><span class="va">panc8_sub</span>, group_by <span class="op">=</span> <span class="st">"celltype"</span>, grouping.var <span class="op">=</span> <span class="st">"tech"</span>, markers_type <span class="op">=</span> <span class="st">"conserved"</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-10-30 02:01:40.349556] Start DEtest</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-10-30 10:04:18.399076] Start DEtest</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Workers: 1</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Find conserved markers(wilcox) among 13 groups...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%</span>
@@ -385,8 +385,8 @@ of the two groups, currently only used for poisson and negative binomial tests</
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Only a single group was tested</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |==============================================================================================================| 100%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-10-30 02:02:19.997791] DEtest done</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:39.65 secs</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-10-30 10:04:53.547196] DEtest done</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:35.15 secs</span>
 <span class="r-in"><span><span class="va">ConservedMarkers1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">panc8_sub</span><span class="op">@</span><span class="va">tools</span><span class="op">$</span><span class="va">DEtest_celltype</span><span class="op">$</span><span class="va">ConservedMarkers_wilcox</span>, <span class="va">p_val_adj</span> <span class="op">&lt;</span> <span class="fl">0.05</span> <span class="op">&amp;</span> <span class="va">avg_log2FC</span> <span class="op">&gt;</span> <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">ConservedMarkers1</span><span class="op">$</span><span class="va">group1</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -408,7 +408,7 @@ of the two groups, currently only used for poisson and negative binomial tests</
 <span class="r-plt img"><img src="RunDEtest-5.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">panc8_sub</span> <span class="op">&lt;-</span> <span class="fu">RunDEtest</span><span class="op">(</span><span class="va">panc8_sub</span>, group_by <span class="op">=</span> <span class="st">"tech"</span>, grouping.var <span class="op">=</span> <span class="st">"celltype"</span>, markers_type <span class="op">=</span> <span class="st">"conserved"</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-10-30 02:02:34.168356] Start DEtest</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-10-30 10:05:02.734554] Start DEtest</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Workers: 1</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Find conserved markers(wilcox) among 5 groups...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%</span>
@@ -440,8 +440,8 @@ of the two groups, currently only used for poisson and negative binomial tests</
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>endothelial has fewer than 3 cells. Skipping endothelial</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |==============================================================================================================| 100%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-10-30 02:03:08.710383] DEtest done</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:34.54 secs</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-10-30 10:05:31.577098] DEtest done</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:28.84 secs</span>
 <span class="r-in"><span><span class="va">ConservedMarkers2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">panc8_sub</span><span class="op">@</span><span class="va">tools</span><span class="op">$</span><span class="va">DEtest_tech</span><span class="op">$</span><span class="va">ConservedMarkers_wilcox</span>, <span class="va">p_val_adj</span> <span class="op">&lt;</span> <span class="fl">0.05</span> <span class="op">&amp;</span> <span class="va">avg_log2FC</span> <span class="op">&gt;</span> <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">ConservedMarkers2</span><span class="op">$</span><span class="va">group1</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -459,7 +459,7 @@ of the two groups, currently only used for poisson and negative binomial tests</
 <span class="r-plt img"><img src="RunDEtest-6.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">panc8_sub</span> <span class="op">&lt;-</span> <span class="fu">RunDEtest</span><span class="op">(</span><span class="va">panc8_sub</span>, group_by <span class="op">=</span> <span class="st">"celltype"</span>, grouping.var <span class="op">=</span> <span class="st">"tech"</span>, markers_type <span class="op">=</span> <span class="st">"disturbed"</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-10-30 02:03:13.24327] Start DEtest</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-10-30 10:05:34.630592] Start DEtest</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Workers: 1</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Find disturbed markers(wilcox) among 13 groups...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |==============================================================================================================| 100%</span>
@@ -488,8 +488,8 @@ of the two groups, currently only used for poisson and negative binomial tests</
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |==============================================================================================================| 100%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-10-30 02:03:51.81368] DEtest done</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:38.57 secs</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-10-30 10:06:07.019805] DEtest done</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:32.39 secs</span>
 <span class="r-in"><span><span class="va">DisturbedMarkers</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">panc8_sub</span><span class="op">@</span><span class="va">tools</span><span class="op">$</span><span class="va">DEtest_celltype</span><span class="op">$</span><span class="va">DisturbedMarkers_wilcox</span>, <span class="va">p_val_adj</span> <span class="op">&lt;</span> <span class="fl">0.05</span> <span class="op">&amp;</span> <span class="va">avg_log2FC</span> <span class="op">&gt;</span> <span class="fl">1</span> <span class="op">&amp;</span> <span class="va">var1</span> <span class="op">==</span> <span class="st">"smartseq2"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">DisturbedMarkers</span><span class="op">$</span><span class="va">group1</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>

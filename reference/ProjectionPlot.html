@@ -121,9 +121,9 @@
 <span class="r-in"><span><span class="va">srt_ref</span> <span class="op">&lt;-</span> <span class="va">panc8_sub</span><span class="op">[</span>, <span class="va">panc8_sub</span><span class="op">$</span><span class="va">tech</span> <span class="op">!=</span> <span class="st">"fluidigmc1"</span><span class="op">]</span></span></span>
 <span class="r-in"><span><span class="va">srt_query</span> <span class="op">&lt;-</span> <span class="va">panc8_sub</span><span class="op">[</span>, <span class="va">panc8_sub</span><span class="op">$</span><span class="va">tech</span> <span class="op">==</span> <span class="st">"fluidigmc1"</span><span class="op">]</span></span></span>
 <span class="r-in"><span><span class="va">srt_ref</span> <span class="op">&lt;-</span> <span class="fu"><a href="Integration_SCP.html">Integration_SCP</a></span><span class="op">(</span><span class="va">srt_ref</span>, batch <span class="op">=</span> <span class="st">"tech"</span>, integration_method <span class="op">=</span> <span class="st">"Seurat"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 01:56:28.215578] Start Seurat_integrate</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 01:56:28.225712] Spliting srtMerge into srtList by column tech... ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 01:56:28.692237] Checking srtList... ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 10:00:16.160064] Start Seurat_integrate</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 10:00:16.165743] Spliting srtMerge into srtList by column tech... ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 10:00:16.457634] Checking srtList... ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Data 1/4 of the srtList is raw_normalized_counts. Perform NormalizeData(LogNormalize) on the data ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform FindVariableFeatures on the data 1/4 of the srtList...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Data 2/4 of the srtList is raw_normalized_counts. Perform NormalizeData(LogNormalize) on the data ...</span>
@@ -134,14 +134,14 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform FindVariableFeatures on the data 4/4 of the srtList...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Use the separate HVF from srtList...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Number of available HVF: 2000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 01:56:33.394102] Finished checking.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 01:56:34.023049] Perform FindIntegrationAnchors on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 01:56:56.024512] Perform integration(Seurat) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 01:57:03.682274] Perform ScaleData on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 01:57:03.863717] Perform linear dimension reduction (pca) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 01:57:04.975341] Perform FindClusters (louvain) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 01:57:05.077559] Reorder clusters...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 01:57:05.189562] Perform nonlinear dimension reduction (umap) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 10:00:18.880967] Finished checking.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 10:00:19.307495] Perform FindIntegrationAnchors on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 10:00:33.924131] Perform integration(Seurat) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 10:00:39.712418] Perform ScaleData on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 10:00:39.844086] Perform linear dimension reduction (pca) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 10:00:40.753222] Perform FindClusters (louvain) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 10:00:40.843585] Reorder clusters...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 10:00:40.927717] Perform nonlinear dimension reduction (umap) on the data...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Non-linear dimensionality reduction(umap) using Reduction(Seuratpca, dims:1-11) as input</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Found more than one class "dist" in cache; using the first, from namespace 'BiocGenerics'</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Also defined by ‘spam’</span>
@@ -152,8 +152,8 @@
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Also defined by ‘spam’</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Found more than one class "dist" in cache; using the first, from namespace 'BiocGenerics'</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Also defined by ‘spam’</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 01:57:17.99902] Seurat_integrate done</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 49.78 secs </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 10:00:50.505023] Seurat_integrate done</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 34.34 secs </span>
 <span class="r-in"><span><span class="fu"><a href="CellDimPlot.html">CellDimPlot</a></span><span class="op">(</span><span class="va">srt_ref</span>, group.by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"celltype"</span>, <span class="st">"tech"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="ProjectionPlot-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
@@ -166,18 +166,20 @@
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Use 648 features to calculate distance.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Use 'raw' method to find neighbors.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Running UMAP projection</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 01:57:20 Read 200 rows</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 01:57:20 Processing block 1 of 1</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 01:57:20 Commencing smooth kNN distance calibration using 1 thread</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 10:00:52 Read 200 rows</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 10:00:52 Processing block 1 of 1</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 10:00:52 Commencing smooth kNN distance calibration using 1 thread</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>  with target n_neighbors = 30</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 01:57:20 Initializing by weighted average of neighbor coordinates using 1 thread</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 01:57:20 Commencing optimization for 200 epochs, with 6000 positive edges</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 01:57:20 Finished</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 10:00:52 Initializing by weighted average of neighbor coordinates using 1 thread</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 10:00:52 Commencing optimization for 200 epochs, with 6000 positive edges</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 10:00:52 Finished</span>
 <span class="r-in"><span><span class="fu">ProjectionPlot</span><span class="op">(</span>srt_query <span class="op">=</span> <span class="va">srt_query</span>, srt_ref <span class="op">=</span> <span class="va">srt_ref</span>, query_group <span class="op">=</span> <span class="st">"celltype"</span>, ref_group <span class="op">=</span> <span class="st">"celltype"</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Scale for <span style="color: #00BB00;">x</span> is already present.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Adding another scale for <span style="color: #00BB00;">x</span>, which will replace the existing scale.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Scale for <span style="color: #00BB00;">y</span> is already present.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Adding another scale for <span style="color: #00BB00;">y</span>, which will replace the existing scale.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Removed 1 rows containing missing values (`geom_point()`).</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Removed 1 rows containing missing values (`geom_point()`).</span>
 <span class="r-plt img"><img src="ProjectionPlot-2.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>

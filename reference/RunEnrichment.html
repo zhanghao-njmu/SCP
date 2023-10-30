@@ -222,21 +222,21 @@ If not specified, the <code>geneID</code> and <code>geneID_groups</code> argumen
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"pancreas_sub"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="RunDEtest.html">RunDEtest</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, group_by <span class="op">=</span> <span class="st">"CellType"</span><span class="op">)</span></span></span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Data in the 'data' slot is raw counts. Perform NormalizeData(LogNormalize) on the data.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-10-30 02:06:46.941278] Start DEtest</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-10-30 10:08:14.895445] Start DEtest</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Workers: 1</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Find all markers(wilcox) among 5 groups...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |==============================================================================================================| 100%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-10-30 02:06:51.182642] DEtest done</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:4.24 secs</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-10-30 10:08:18.539169] DEtest done</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:3.64 secs</span>
 <span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu">RunEnrichment</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  srt <span class="op">=</span> <span class="va">pancreas_sub</span>, group_by <span class="op">=</span> <span class="st">"CellType"</span>, DE_threshold <span class="op">=</span> <span class="st">"p_val_adj &lt; 0.05"</span>,</span></span>
 <span class="r-in"><span>  db <span class="op">=</span> <span class="st">"GO_BP"</span>, species <span class="op">=</span> <span class="st">"Mus_musculus"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-10-30 02:06:51.186792] Start Enrichment</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-10-30 10:08:18.54231] Start Enrichment</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Workers: 1</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Species: Mus_musculus</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db: GO_BP version:3.17.0 nterm:16027 created:2023-10-30 01:40:02.863023</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db: GO_BP version:3.17.0 nterm:16027 created:2023-10-30 09:45:59.674333</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Convert ID types for the database: GO_BP</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Connect to the Ensembl archives...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Using the 103 version of biomart...</span>
@@ -257,7 +257,7 @@ If not specified, the <code>geneID</code> and <code>geneID_groups</code> argumen
 <span class="r-in"><span>  srt <span class="op">=</span> <span class="va">pancreas_sub</span>, group_by <span class="op">=</span> <span class="st">"CellType"</span>, DE_threshold <span class="op">=</span> <span class="st">"p_val_adj &lt; 0.05"</span>,</span></span>
 <span class="r-in"><span>  db <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"MSigDB"</span>, <span class="st">"MSigDB_MH"</span><span class="op">)</span>, species <span class="op">=</span> <span class="st">"Mus_musculus"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-10-30 02:06:59.455606] Start Enrichment</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-10-30 10:08:22.888104] Start Enrichment</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Workers: 1</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Species: Mus_musculus</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Preparing database: MSigDB</span>
@@ -281,10 +281,10 @@ If not specified, the <code>geneID</code> and <code>geneID_groups</code> argumen
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Remove redundant GO terms</span></span></span>
 <span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu">RunEnrichment</span><span class="op">(</span>srt <span class="op">=</span> <span class="va">pancreas_sub</span>, group_by <span class="op">=</span> <span class="st">"CellType"</span>, db <span class="op">=</span> <span class="st">"GO_BP"</span>, GO_simplify <span class="op">=</span> <span class="cn">TRUE</span>, species <span class="op">=</span> <span class="st">"Mus_musculus"</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-10-30 02:07:27.449199] Start Enrichment</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-10-30 10:08:42.633417] Start Enrichment</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Workers: 1</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Species: Mus_musculus</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db: GO_BP version:3.17.0 nterm:16027 created:2023-10-30 01:40:02.863023</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db: GO_BP version:3.17.0 nterm:16027 created:2023-10-30 09:45:59.674333</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Convert ID types for the database: GO_BP</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Connect to the Ensembl archives...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Using the 103 version of biomart...</span>
@@ -308,10 +308,10 @@ If not specified, the <code>geneID</code> and <code>geneID_groups</code> argumen
 <span class="r-in"><span>  db_combine <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
 <span class="r-in"><span>  species <span class="op">=</span> <span class="st">"Mus_musculus"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-10-30 02:07:34.326387] Start Enrichment</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-10-30 10:08:48.287742] Start Enrichment</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Workers: 1</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Species: Mus_musculus</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db: MP version:2023-10-23 08:08 nterm:10298 created:2023-10-30 01:40:31.31888</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db: MP version:2023-10-23 08:08 nterm:10298 created:2023-10-30 09:46:21.903493</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Preparing database: KEGG</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Preparing database: WikiPathway</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Preparing database: Reactome</span>
@@ -335,10 +335,10 @@ If not specified, the <code>geneID</code> and <code>geneID_groups</code> argumen
 <span class="r-in"><span><span class="co"># Or use "geneID" and "geneID_groups" as input to run enrichment</span></span></span>
 <span class="r-in"><span><span class="va">de_df</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">pancreas_sub</span><span class="op">@</span><span class="va">tools</span><span class="op">$</span><span class="va">DEtest_CellType</span><span class="op">$</span><span class="va">AllMarkers_wilcox</span>, <span class="va">p_val_adj</span> <span class="op">&lt;</span> <span class="fl">0.05</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">enrich_out</span> <span class="op">&lt;-</span> <span class="fu">RunEnrichment</span><span class="op">(</span>geneID <span class="op">=</span> <span class="va">de_df</span><span class="op">[[</span><span class="st">"gene"</span><span class="op">]</span><span class="op">]</span>, geneID_groups <span class="op">=</span> <span class="va">de_df</span><span class="op">[[</span><span class="st">"group1"</span><span class="op">]</span><span class="op">]</span>, db <span class="op">=</span> <span class="st">"GO_BP"</span>, species <span class="op">=</span> <span class="st">"Mus_musculus"</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-10-30 02:08:10.706669] Start Enrichment</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-10-30 10:09:32.103766] Start Enrichment</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Workers: 1</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Species: Mus_musculus</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db: GO_BP version:3.17.0 nterm:16027 created:2023-10-30 01:40:02.863023</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db: GO_BP version:3.17.0 nterm:16027 created:2023-10-30 09:45:59.674333</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Convert ID types for the database: GO_BP</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Connect to the Ensembl archives...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Using the 103 version of biomart...</span>

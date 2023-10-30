@@ -593,13 +593,13 @@
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"pancreas_sub"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="RunDEtest.html">RunDEtest</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, group_by <span class="op">=</span> <span class="st">"CellType"</span><span class="op">)</span></span></span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Data in the 'data' slot is raw counts. Perform NormalizeData(LogNormalize) on the data.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-10-30 01:42:49.727664] Start DEtest</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-10-30 09:48:02.330596] Start DEtest</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Workers: 1</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Find all markers(wilcox) among 5 groups...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |==============================================================================================================| 100%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-10-30 01:42:54.023503] DEtest done</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:4.3 secs</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-10-30 09:48:05.803101] DEtest done</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:3.47 secs</span>
 <span class="r-in"><span><span class="va">de_filter</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">pancreas_sub</span><span class="op">@</span><span class="va">tools</span><span class="op">$</span><span class="va">DEtest_CellType</span><span class="op">$</span><span class="va">AllMarkers_wilcox</span>, <span class="va">p_val_adj</span> <span class="op">&lt;</span> <span class="fl">0.05</span> <span class="op">&amp;</span> <span class="va">avg_log2FC</span> <span class="op">&gt;</span> <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">ht1</span> <span class="op">&lt;-</span> <span class="fu">FeatureHeatmap</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  srt <span class="op">=</span> <span class="va">pancreas_sub</span>, features <span class="op">=</span> <span class="va">de_filter</span><span class="op">$</span><span class="va">gene</span>, group.by <span class="op">=</span> <span class="st">"CellType"</span>,</span></span>
@@ -636,10 +636,10 @@
 <span class="r-msg co"><span class="r-pr">#&gt;</span> 'magick' package is suggested to install to give better rasterization.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Set `ht_opt$message = FALSE` to turn off this message.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-10-30 01:43:24.919416] Start Enrichment</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-10-30 09:48:26.378417] Start Enrichment</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Workers: 1</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Species: Mus_musculus</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db: GO_BP version:3.17.0 nterm:16027 created:2023-10-30 01:40:02.863023</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db: GO_BP version:3.17.0 nterm:16027 created:2023-10-30 09:45:59.674333</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Convert ID types for the database: GO_BP</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Connect to the Ensembl archives...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Using the 103 version of biomart...</span>
@@ -658,8 +658,8 @@
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="AnnotateFeatures.html">AnnotateFeatures</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, species <span class="op">=</span> <span class="st">"Mus_musculus"</span>, db <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"TF"</span>, <span class="st">"CSPA"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Species: Mus_musculus</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db: TF version:AnimalTFDB4 nterm:2 created:2023-10-30 01:24:23.751853</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db: CSPA version:CSPA nterm:1 created:2023-10-30 01:24:29.156495</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db: TF version:AnimalTFDB4 nterm:2 created:2023-10-30 09:34:04.589855</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db: CSPA version:CSPA nterm:1 created:2023-10-30 09:34:08.354181</span>
 <span class="r-in"><span><span class="va">ht4</span> <span class="op">&lt;-</span> <span class="fu">FeatureHeatmap</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  srt <span class="op">=</span> <span class="va">pancreas_sub</span>, features <span class="op">=</span> <span class="va">de_filter</span><span class="op">$</span><span class="va">gene</span>, n_split <span class="op">=</span> <span class="fl">4</span>, group.by <span class="op">=</span> <span class="st">"CellType"</span>,</span></span>
 <span class="r-in"><span>  heatmap_palette <span class="op">=</span> <span class="st">"viridis"</span>,</span></span>

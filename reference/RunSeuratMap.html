@@ -156,9 +156,9 @@
 <span class="r-in"><span><span class="va">srt_ref</span> <span class="op">&lt;-</span> <span class="va">panc8_sub</span><span class="op">[</span>, <span class="va">panc8_sub</span><span class="op">$</span><span class="va">tech</span> <span class="op">!=</span> <span class="st">"fluidigmc1"</span><span class="op">]</span></span></span>
 <span class="r-in"><span><span class="va">srt_query</span> <span class="op">&lt;-</span> <span class="va">panc8_sub</span><span class="op">[</span>, <span class="va">panc8_sub</span><span class="op">$</span><span class="va">tech</span> <span class="op">==</span> <span class="st">"fluidigmc1"</span><span class="op">]</span></span></span>
 <span class="r-in"><span><span class="va">srt_ref</span> <span class="op">&lt;-</span> <span class="fu"><a href="Integration_SCP.html">Integration_SCP</a></span><span class="op">(</span><span class="va">srt_ref</span>, batch <span class="op">=</span> <span class="st">"tech"</span>, integration_method <span class="op">=</span> <span class="st">"Seurat"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 02:31:51.132965] Start Seurat_integrate</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 02:31:51.289296] Spliting srtMerge into srtList by column tech... ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 02:32:00.817869] Checking srtList... ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 10:34:20.64125] Start Seurat_integrate</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 10:34:20.647758] Spliting srtMerge into srtList by column tech... ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 10:34:20.932883] Checking srtList... ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Data 1/4 of the srtList is raw_normalized_counts. Perform NormalizeData(LogNormalize) on the data ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform FindVariableFeatures on the data 1/4 of the srtList...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Data 2/4 of the srtList is raw_normalized_counts. Perform NormalizeData(LogNormalize) on the data ...</span>
@@ -169,14 +169,14 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform FindVariableFeatures on the data 4/4 of the srtList...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Use the separate HVF from srtList...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Number of available HVF: 2000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 02:32:20.363393] Finished checking.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 02:32:23.388937] Perform FindIntegrationAnchors on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 02:32:57.130499] Perform integration(Seurat) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 02:33:13.268922] Perform ScaleData on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 02:33:14.063681] Perform linear dimension reduction (pca) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 02:33:15.345125] Perform FindClusters (louvain) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 02:33:15.469943] Reorder clusters...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 02:33:15.760097] Perform nonlinear dimension reduction (umap) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 10:34:23.518111] Finished checking.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 10:34:23.956937] Perform FindIntegrationAnchors on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 10:34:44.120763] Perform integration(Seurat) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 10:34:49.711087] Perform ScaleData on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 10:34:49.846122] Perform linear dimension reduction (pca) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 10:34:50.840374] Perform FindClusters (louvain) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 10:34:50.939698] Reorder clusters...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 10:34:51.055214] Perform nonlinear dimension reduction (umap) on the data...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Non-linear dimensionality reduction(umap) using Reduction(Seuratpca, dims:1-11) as input</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Found more than one class "dist" in cache; using the first, from namespace 'BiocGenerics'</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Also defined by ‘spam’</span>
@@ -187,8 +187,8 @@
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Also defined by ‘spam’</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Found more than one class "dist" in cache; using the first, from namespace 'BiocGenerics'</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Also defined by ‘spam’</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 02:33:31.918409] Seurat_integrate done</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 1.68 mins </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 10:35:02.694839] Seurat_integrate done</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 42.05 secs </span>
 <span class="r-in"><span><span class="fu"><a href="CellDimPlot.html">CellDimPlot</a></span><span class="op">(</span><span class="va">srt_ref</span>, group.by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"celltype"</span>, <span class="st">"tech"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="RunSeuratMap-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
@@ -202,9 +202,9 @@
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Projecting cell embeddings</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Finding neighborhoods</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Finding anchors</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 	Found 178 anchors</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 	Found 181 anchors</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Filtering anchors</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 	Retained 178 anchors</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 	Retained 181 anchors</span>
 <span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> Cannot add a different number of cells than already present</span>
 <span class="r-in"><span><span class="fu"><a href="ProjectionPlot.html">ProjectionPlot</a></span><span class="op">(</span>srt_query <span class="op">=</span> <span class="va">srt_query</span>, srt_ref <span class="op">=</span> <span class="va">srt_ref</span>, query_group <span class="op">=</span> <span class="st">"celltype"</span>, ref_group <span class="op">=</span> <span class="st">"celltype"</span><span class="op">)</span></span></span>
 <span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in srt_query[[query_reduction]]:</span> ‘ref.embeddings’ not found in this Seurat object</span>
