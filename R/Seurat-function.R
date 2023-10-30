@@ -120,7 +120,9 @@ RunNMF.default <- function(object, assay = NULL, slot = "data", nbes = 50,
     check_R("zdebruine/RcppML")
     options("RcppML.verbose" = FALSE)
     options("RcppML.threads" = 0)
-    attachNamespace("Matrix")
+    if (!"package:Matrix" %in% search()) {
+      attachNamespace("Matrix")
+    }
     nmf.results <- RcppML::nmf(
       t(object),
       k = nbes, tol = tol, maxit = maxit,
