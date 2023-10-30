@@ -1373,7 +1373,7 @@ Seurat_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtLi
     cat(paste0("[", Sys.time(), "]", " Perform integration(Seurat) on the data...\n"))
     params2 <- list(
       anchorset = srt_anchors,
-      new.assay.name = "Seurat",
+      new.assay.name = "Seuratcorrected",
       normalization.method = normalization_method,
       features.to.integrate = HVF,
       verbose = FALSE
@@ -1383,8 +1383,8 @@ Seurat_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtLi
     }
     srtIntegrated <- invoke(.fn = IntegrateData, .args = params2)
 
-    DefaultAssay(srtIntegrated) <- "Seurat"
-    VariableFeatures(srtIntegrated[["Seurat"]]) <- HVF
+    DefaultAssay(srtIntegrated) <- "Seuratcorrected"
+    VariableFeatures(srtIntegrated[["Seuratcorrected"]]) <- HVF
 
     if (isTRUE(do_scaling) || (is.null(do_scaling) && any(!HVF %in% rownames(GetAssayData(srtIntegrated, slot = "scale.data", assay = DefaultAssay(srtIntegrated)))))) {
       cat(paste0("[", Sys.time(), "]", " Perform ScaleData on the data...\n"))
@@ -1446,7 +1446,6 @@ Seurat_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtLi
       srtIntegrated <- SrtReorder(srtIntegrated, features = HVF, reorder_by = "seurat_clusters", slot = "data")
       srtIntegrated[["seurat_clusters"]] <- NULL
       srtIntegrated[["Seuratclusters"]] <- Idents(srtIntegrated)
-
       srtIntegrated
     },
     error = function(error) {
@@ -1620,8 +1619,8 @@ scVI_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtList
 
   latent <- as.matrix(model$get_latent_representation())
   rownames(latent) <- colnames(srtIntegrated)
-  colnames(latent) <- paste0("scvi_", seq_len(ncol(latent)))
-  srtIntegrated[["scVI"]] <- CreateDimReducObject(embeddings = latent, key = "scvi_", assay = DefaultAssay(srtIntegrated))
+  colnames(latent) <- paste0("scVI_", seq_len(ncol(latent)))
+  srtIntegrated[["scVI"]] <- CreateDimReducObject(embeddings = latent, key = "scVI_", assay = DefaultAssay(srtIntegrated))
   if (is.null(scVI_dims_use)) {
     scVI_dims_use <- 1:ncol(srtIntegrated[["scVI"]]@cell.embeddings)
   }
@@ -1640,7 +1639,6 @@ scVI_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtList
       srtIntegrated <- SrtReorder(srtIntegrated, features = HVF, reorder_by = "seurat_clusters", slot = "data")
       srtIntegrated[["seurat_clusters"]] <- NULL
       srtIntegrated[["scVIclusters"]] <- Idents(srtIntegrated)
-
       srtIntegrated
     },
     error = function(error) {
@@ -1844,7 +1842,6 @@ MNN_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtList 
       srtIntegrated <- SrtReorder(srtIntegrated, features = HVF, reorder_by = "seurat_clusters", slot = "data")
       srtIntegrated[["seurat_clusters"]] <- NULL
       srtIntegrated[["MNNclusters"]] <- Idents(srtIntegrated)
-
       srtIntegrated
     },
     error = function(error) {
@@ -2016,7 +2013,6 @@ fastMNN_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtL
       srtIntegrated <- SrtReorder(srtIntegrated, features = HVF, reorder_by = "seurat_clusters", slot = "data")
       srtIntegrated[["seurat_clusters"]] <- NULL
       srtIntegrated[["fastMNNclusters"]] <- Idents(srtIntegrated)
-
       srtIntegrated
     },
     error = function(error) {
@@ -2066,7 +2062,7 @@ fastMNN_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtL
 #'
 #' @inheritParams Integration_SCP
 #' @param Harmony_dims_use A vector specifying the dimensions returned by RunHarmony that will be utilized for downstream cell cluster finding and non-linear reduction. If set to NULL, all the returned dimensions will be used by default.
-#' @param RunHarmony_params A list of parameters for the RunHarmony function, default is an empty list.
+#' @param RunHarmony_params A list of parameters for the harmony::RunHarmony function, default is an empty list.
 #'
 #' @importFrom Seurat GetAssayData ScaleData SetAssayData DefaultAssay DefaultAssay<- Embeddings FindNeighbors FindClusters Idents VariableFeatures VariableFeatures<-
 #' @export
@@ -2219,7 +2215,6 @@ Harmony_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtL
       srtIntegrated <- SrtReorder(srtIntegrated, features = HVF, reorder_by = "seurat_clusters", slot = "data")
       srtIntegrated[["seurat_clusters"]] <- NULL
       srtIntegrated[["Harmonyclusters"]] <- Idents(srtIntegrated)
-
       srtIntegrated
     },
     error = function(error) {
@@ -2415,7 +2410,6 @@ Scanorama_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, sr
       srtIntegrated <- SrtReorder(srtIntegrated, features = HVF, reorder_by = "seurat_clusters", slot = "data")
       srtIntegrated[["seurat_clusters"]] <- NULL
       srtIntegrated[["Scanoramaclusters"]] <- Idents(srtIntegrated)
-
       srtIntegrated
     },
     error = function(error) {
@@ -2464,7 +2458,7 @@ Scanorama_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, sr
 #' BBKNN_integrate
 #'
 #' @inheritParams Integration_SCP
-#' @param bbknn_params A list of parameters for the bbknn.bbknn_matrix function, default is an empty list.
+#' @param bbknn_params A list of parameters for the bbknn.matrix.bbknn function, default is an empty list.
 #'
 #' @importFrom Seurat GetAssayData ScaleData SetAssayData DefaultAssay DefaultAssay<- as.Graph Embeddings FindClusters Idents VariableFeatures VariableFeatures<- as.sparse
 #' @importFrom Matrix t
@@ -2508,7 +2502,7 @@ BBKNN_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtLis
     "leiden" = 4
   )
 
-  check_Python("bbknn==1.5.1")
+  check_Python("bbknn")
   bbknn <- import("bbknn")
   set.seed(seed)
 
@@ -2592,7 +2586,7 @@ BBKNN_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtLis
   for (nm in names(bbknn_params)) {
     params[[nm]] <- bbknn_params[[nm]]
   }
-  bem <- invoke(.fn = bbknn$bbknn_matrix, .args = params)
+  bem <- invoke(.fn = bbknn$matrix$bbknn, .args = params)
   n.neighbors <- bem[[3]]$n_neighbors
   srtIntegrated <- srtMerge
 
@@ -2635,7 +2629,6 @@ BBKNN_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtLis
       srtIntegrated <- SrtReorder(srtIntegrated, features = HVF, reorder_by = "seurat_clusters", slot = "data")
       srtIntegrated[["seurat_clusters"]] <- NULL
       srtIntegrated[["BBKNNclusters"]] <- Idents(srtIntegrated)
-
       srtIntegrated
     },
     error = function(error) {
@@ -2843,7 +2836,6 @@ CSS_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtList 
       srtIntegrated <- SrtReorder(srtIntegrated, features = HVF, reorder_by = "seurat_clusters", slot = "data")
       srtIntegrated[["seurat_clusters"]] <- NULL
       srtIntegrated[["CSSclusters"]] <- Idents(srtIntegrated)
-
       srtIntegrated
     },
     error = function(error) {
@@ -3047,7 +3039,6 @@ LIGER_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtLis
       srtIntegrated <- SrtReorder(srtIntegrated, features = HVF, reorder_by = "seurat_clusters", slot = "data")
       srtIntegrated[["seurat_clusters"]] <- NULL
       srtIntegrated[["LIGERclusters"]] <- Idents(srtIntegrated)
-
       srtIntegrated
     },
     error = function(error) {
@@ -3248,7 +3239,6 @@ Conos_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtLis
       srtIntegrated <- SrtReorder(srtIntegrated, features = HVF, reorder_by = "seurat_clusters", slot = "data")
       srtIntegrated[["seurat_clusters"]] <- NULL
       srtIntegrated[["Conosclusters"]] <- Idents(srtIntegrated)
-
       srtIntegrated
     },
     error = function(error) {
@@ -3447,7 +3437,6 @@ ComBat_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtLi
       srtIntegrated <- SrtReorder(srtIntegrated, features = HVF, reorder_by = "seurat_clusters", slot = "data")
       srtIntegrated[["seurat_clusters"]] <- NULL
       srtIntegrated[["ComBatclusters"]] <- Idents(srtIntegrated)
-
       srtIntegrated
     },
     error = function(error) {
@@ -3540,7 +3529,15 @@ ComBat_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtLi
 #'   linear_reduction = linear_reductions,
 #'   nonlinear_reduction = "umap"
 #' )
-#' plist1 <- lapply(linear_reductions, function(lr) CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = paste0("Standard", lr, "UMAP2D"), theme_use = "theme_blank"))
+#' plist1 <- lapply(linear_reductions, function(lr) {
+#'   CellDimPlot(pancreas_sub,
+#'     group.by = "SubCellType",
+#'     reduction = paste0("Standard", lr, "UMAP2D"),
+#'     xlab = "", ylab = "", title = lr,
+#'     legend.position = "none",
+#'     theme_use = "theme_blank"
+#'   )
+#' })
 #' patchwork::wrap_plots(plotlist = plist1)
 #'
 #' nonlinear_reductions <- c("umap", "tsne", "dm", "phate", "pacmap", "trimap", "largevis", "fr")
@@ -3549,7 +3546,15 @@ ComBat_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtLi
 #'   linear_reduction = "pca",
 #'   nonlinear_reduction = nonlinear_reductions
 #' )
-#' plist2 <- lapply(nonlinear_reductions, function(nr) CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = paste0("Standardpca", toupper(nr), "2D"), theme_use = "theme_blank"))
+#' plist2 <- lapply(nonlinear_reductions, function(nr) {
+#'   CellDimPlot(pancreas_sub,
+#'     group.by = "SubCellType",
+#'     reduction = paste0("Standardpca", toupper(nr), "2D"),
+#'     xlab = "", ylab = "", title = nr,
+#'     legend.position = "none",
+#'     theme_use = "theme_blank"
+#'   )
+#' })
 #' patchwork::wrap_plots(plotlist = plist2)
 #'
 #' @importFrom Seurat Assays GetAssayData NormalizeData SCTransform SCTResults ScaleData SetAssayData DefaultAssay DefaultAssay<- FindNeighbors FindClusters Idents VariableFeatures VariableFeatures<-
@@ -3648,7 +3653,6 @@ Standard_SCP <- function(srt, prefix = "Standard", assay = NULL,
         srt <- SrtReorder(srt, features = HVF, reorder_by = "seurat_clusters", slot = "data")
         srt[["seurat_clusters"]] <- NULL
         srt[[paste0(prefix, lr, "clusters")]] <- Idents(srt)
-
         srt
       },
       error = function(error) {
@@ -3727,17 +3731,29 @@ Standard_SCP <- function(srt, prefix = "Standard", assay = NULL,
 #' @examples
 #' data("panc8_sub")
 #' panc8_sub <- Integration_SCP(
-#'   srtMerge = panc8_sub, batch = "tech", integration_method = "Uncorrected"
+#'   srtMerge = panc8_sub, batch = "tech",
+#'   integration_method = "Uncorrected"
 #' )
 #' CellDimPlot(panc8_sub, group.by = c("tech", "celltype"))
 #'
 #' panc8_sub <- Integration_SCP(
-#'   srtMerge = panc8_sub, batch = "tech", integration_method = "Seurat"
+#'   srtMerge = panc8_sub, batch = "tech",
+#'   integration_method = "Uncorrected",
+#'   HVF_min_intersection = 5
+#' )
+#' CellDimPlot(panc8_sub, group.by = c("tech", "celltype"))
+#'
+#' panc8_sub <- Integration_SCP(
+#'   srtMerge = panc8_sub, batch = "tech",
+#'   integration_method = "Seurat"
 #' )
 #' CellDimPlot(panc8_sub, group.by = c("tech", "celltype"))
 #'
 #' \dontrun{
-#' integration_methods <- c("Uncorrected", "Seurat", "scVI", "MNN", "fastMNN", "Harmony", "Scanorama", "BBKNN", "CSS", "LIGER", "Conos", "ComBat")
+#' integration_methods <- c(
+#'   "Uncorrected", "Seurat", "scVI", "MNN", "fastMNN", "Harmony",
+#'   "Scanorama", "BBKNN", "CSS", "LIGER", "Conos", "ComBat"
+#' )
 #' for (method in integration_methods) {
 #'   panc8_sub <- Integration_SCP(
 #'     srtMerge = panc8_sub, batch = "tech",
@@ -3745,7 +3761,12 @@ Standard_SCP <- function(srt, prefix = "Standard", assay = NULL,
 #'     linear_reduction_dims_use = 1:50,
 #'     nonlinear_reduction = "umap"
 #'   )
-#'   print(CellDimPlot(panc8_sub, group.by = c("tech", "celltype"), reduction = paste0(method, "UMAP2D"), theme_use = "theme_blank"))
+#'   print(CellDimPlot(panc8_sub,
+#'     group.by = c("tech", "celltype"),
+#'     reduction = paste0(method, "UMAP2D"),
+#'     xlab = "", ylab = "", title = method,
+#'     legend.position = "none", theme_use = "theme_blank"
+#'   ))
 #' }
 #'
 #' nonlinear_reductions <- c("umap", "tsne", "dm", "phate", "pacmap", "trimap", "largevis", "fr")
@@ -3756,7 +3777,12 @@ Standard_SCP <- function(srt, prefix = "Standard", assay = NULL,
 #'   nonlinear_reduction = nonlinear_reductions
 #' )
 #' for (nr in nonlinear_reductions) {
-#'   print(CellDimPlot(panc8_sub, group.by = c("tech", "celltype"), reduction = paste0("Seurat", nr, "2D"), theme_use = "theme_blank"))
+#'   print(CellDimPlot(panc8_sub,
+#'     group.by = c("tech", "celltype"),
+#'     reduction = paste0("Seurat", nr, "2D"),
+#'     xlab = "", ylab = "", title = nr,
+#'     legend.position = "none", theme_use = "theme_blank"
+#'   ))
 #' }
 #' }
 #'
@@ -3774,18 +3800,36 @@ Integration_SCP <- function(srtMerge = NULL, batch, append = TRUE, srtList = NUL
     stop("Neither 'srtList' nor 'srtMerge' was found.")
   }
   if (length(integration_method) == 1 && integration_method %in% c("Uncorrected", "Seurat", "scVI", "MNN", "fastMNN", "Harmony", "Scanorama", "BBKNN", "CSS", "LIGER", "Conos", "ComBat")) {
-    args1 <- mget(names(formals()))
-    args2 <- as.list(match.call())
-    for (n in names(args2)) {
-      args1[[n]] <- args2[[n]]
-    }
-    args1 <- args1[!names(args1) %in% c("integration_method", "...")]
+    # Convert the arguments of the function call to a list and remove the function itself
+    args <- as.list(match.call())[-1]
+
+    # Create a new environment, the parent of which is the environment that called the foo function
+    new_env <- new.env(parent = parent.frame())
+
+    # Evaluate the arguments in the new environment to get the correct values
+    args <- lapply(args, function(x) eval(x, envir = new_env))
+
+    # Keep srtMerge and srtList as type of 'symbol' when use `do.call` function
+    # args[!names(args) %in% c("srtMerge", "srtList")] <- lapply(args[!names(args) %in% c("srtMerge", "srtList")], function(x) eval(x, envir = new_env))
+
+    # print("================ args ================ ")
+    # print(args)
+
+    # Get the function's formal arguments and their default values
+    formals <- mget(names(formals()))
+    formals <- formals[names(formals) != "..."]
+
+    # print("================ formals ================ ")
+    # print(formals)
+
+    # Merge the formal arguments with the actual arguments, so that all arguments are included
+    args <- modifyList(formals, args)
 
     time_start <- Sys.time()
     cat(paste0("[", time_start, "] ", paste0("Start ", integration_method, "_integrate"), "\n"))
-    srtIntegrated <- do.call(
-      what = paste0(integration_method, "_integrate"),
-      args = args1[names(args1) %in% formalArgs(paste0(integration_method, "_integrate"))]
+    srtIntegrated <- invoke(
+      .fn = paste0(integration_method, "_integrate"),
+      .args = args[names(args) %in% formalArgs(paste0(integration_method, "_integrate"))]
     )
     time_end <- Sys.time()
     cat(paste0("[", time_end, "] ", paste0(integration_method, "_integrate done\n")))

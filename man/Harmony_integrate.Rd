@@ -100,7 +100,7 @@ Harmony_integrate(
 
 \item{cluster_resolution}{The resolution parameter to use for clustering. Larger values result in fewer clusters (default is 0.6).}
 
-\item{RunHarmony_params}{A list of parameters for the RunHarmony function, default is an empty list.}
+\item{RunHarmony_params}{A list of parameters for the harmony::RunHarmony function, default is an empty list.}
 
 \item{seed}{An integer specifying the random seed for reproducibility. Default is 11.}
 }

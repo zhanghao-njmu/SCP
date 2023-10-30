@@ -155,14 +155,16 @@ Env_requirements <- function(version = "3.8-1") {
         "pandas" = "pandas==1.3.5",
         "python-igraph" = "python-igraph==0.10.2",
         "scanpy" = "scanpy==1.9.5",
-        "scikit-learn" = "scikit-learn==1.1.2",
+        "scikit-learn" = "scikit-learn==1.3.2",
         "scipy" = "scipy==1.10.1",
         "scvelo" = "scvelo==0.2.5",
         "wot" = "wot==1.0.8.post2",
         "trimap" = "trimap==1.1.4",
         "pacmap" = "pacmap==0.7.0",
-        "phate" = "phate==1.0.11"
-        # "tables" = "git+https://github.com/PyTables/PyTables", # Fixed: PyTables install fails on macOS M1
+        "phate" = "phate==1.0.11",
+        "bbknn" = "bbknn==1.6.0",
+        "scanorama" = "scanorama==1.7.4",
+        "scvi-tools" = "scvi-tools==0.20.3"
       )
     ),
     "3.8-2" = list(
@@ -176,10 +178,16 @@ Env_requirements <- function(version = "3.8-1") {
         "pandas" = "pandas==1.5.3",
         "python-igraph" = "python-igraph==0.10.8",
         "scanpy" = "scanpy==1.9.5",
-        "scikit-learn" = "scikit-learn==1.3.1",
+        "scikit-learn" = "scikit-learn==1.3.2",
         "scipy" = "scipy==1.10.1",
         "scvelo" = "scvelo==0.2.5",
-        "wot" = "wot==1.0.8.post2"
+        "wot" = "wot==1.0.8.post2",
+        "trimap" = "trimap==1.1.4",
+        "pacmap" = "pacmap==0.7.0",
+        "phate" = "phate==1.0.11",
+        "bbknn" = "bbknn==1.6.0",
+        "scanorama" = "scanorama==1.7.4",
+        "scvi-tools" = "scvi-tools==0.20.3"
       )
     ),
     "3.9-1" = list(
@@ -193,10 +201,16 @@ Env_requirements <- function(version = "3.8-1") {
         "pandas" = "pandas==1.5.3",
         "python-igraph" = "python-igraph==0.10.8",
         "scanpy" = "scanpy==1.9.5",
-        "scikit-learn" = "scikit-learn==1.3.1",
+        "scikit-learn" = "scikit-learn==1.3.2",
         "scipy" = "scipy==1.11.3",
         "scvelo" = "scvelo==0.2.5",
-        "wot" = "wot==1.0.8.post2"
+        "wot" = "wot==1.0.8.post2",
+        "trimap" = "trimap==1.1.4",
+        "pacmap" = "pacmap==0.7.0",
+        "phate" = "phate==1.0.11",
+        "bbknn" = "bbknn==1.6.0",
+        "scanorama" = "scanorama==1.7.4",
+        "scvi-tools" = "scvi-tools==0.20.3"
       )
     ),
     "3.10-1" = list(
@@ -210,10 +224,16 @@ Env_requirements <- function(version = "3.8-1") {
         "pandas" = "pandas==1.5.3",
         "python-igraph" = "python-igraph==0.10.8",
         "scanpy" = "scanpy==1.9.5",
-        "scikit-learn" = "scikit-learn==1.3.1",
+        "scikit-learn" = "scikit-learn==1.3.2",
         "scipy" = "scipy==1.11.3",
         "scvelo" = "scvelo==0.2.5",
-        "wot" = "wot==1.0.8.post2"
+        "wot" = "wot==1.0.8.post2",
+        "trimap" = "trimap==1.1.4",
+        "pacmap" = "pacmap==0.7.0",
+        "phate" = "phate==1.0.11",
+        "bbknn" = "bbknn==1.6.0",
+        "scanorama" = "scanorama==1.7.4",
+        "scvi-tools" = "scvi-tools==0.20.3"
       )
     ),
     "3.11-1" = list(
@@ -227,10 +247,16 @@ Env_requirements <- function(version = "3.8-1") {
         "pandas" = "pandas==1.5.3",
         "python-igraph" = "python-igraph==0.10.8",
         "scanpy" = "scanpy==1.9.5",
-        "scikit-learn" = "scikit-learn==1.3.1",
+        "scikit-learn" = "scikit-learn==1.3.2",
         "scipy" = "scipy==1.11.3",
         "scvelo" = "scvelo==0.2.5",
-        "wot" = "wot==1.0.8.post2"
+        "wot" = "wot==1.0.8.post2",
+        "trimap" = "trimap==1.1.4",
+        "pacmap" = "pacmap==0.7.0",
+        "phate" = "phate==1.0.11",
+        "bbknn" = "bbknn==1.6.0",
+        "scanorama" = "scanorama==1.7.4",
+        "scvi-tools" = "scvi-tools==0.20.3"
       )
     )
   )
