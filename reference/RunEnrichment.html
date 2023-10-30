@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">SCP</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.4</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -222,36 +222,42 @@ If not specified, the <code>geneID</code> and <code>geneID_groups</code> argumen
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"pancreas_sub"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="RunDEtest.html">RunDEtest</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, group_by <span class="op">=</span> <span class="st">"CellType"</span><span class="op">)</span></span></span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Data in the 'data' slot is raw counts. Perform NormalizeData(LogNormalize) on the data.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-10-26 23:35:32.239849] Start DEtest</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-10-30 02:06:46.941278] Start DEtest</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Workers: 1</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Find all markers(wilcox) among 5 groups...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |==============================================================================================================| 100%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-10-26 23:35:36.143224] DEtest done</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:3.9 secs</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-10-30 02:06:51.182642] DEtest done</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:4.24 secs</span>
 <span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu">RunEnrichment</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  srt <span class="op">=</span> <span class="va">pancreas_sub</span>, group_by <span class="op">=</span> <span class="st">"CellType"</span>, DE_threshold <span class="op">=</span> <span class="st">"p_val_adj &lt; 0.05"</span>,</span></span>
 <span class="r-in"><span>  db <span class="op">=</span> <span class="st">"GO_BP"</span>, species <span class="op">=</span> <span class="st">"Mus_musculus"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-10-26 23:35:36.146535] Start Enrichment</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-10-30 02:06:51.186792] Start Enrichment</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Workers: 1</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Species: Mus_musculus</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db: GO_BP version:3.17.0 nterm:16027 created:2023-10-26 22:51:53.310255</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Permform enrichment...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |==============================================================================================================| 100%</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-10-26 23:36:36.67696] Enrichment done</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:1.01 mins</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db: GO_BP version:3.17.0 nterm:16027 created:2023-10-30 01:40:02.863023</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Convert ID types for the database: GO_BP</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Connect to the Ensembl archives...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Using the 103 version of biomart...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Connecting to the biomart...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Searching the dataset mmusculus ...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Connecting to the dataset mmusculus_gene_ensembl ...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Converting the geneIDs...</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in collect(., Inf):</span> Failed to collect lazy table.</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">Caused by error in `db_collect()`:</span></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> Arguments in `...` must be used.</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> Problematic argument:</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> ..1 = Inf</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Did you misspell an argument name?</span>
 <span class="r-in"><span><span class="fu"><a href="EnrichmentPlot.html">EnrichmentPlot</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, db <span class="op">=</span> <span class="st">"GO_BP"</span>, group_by <span class="op">=</span> <span class="st">"CellType"</span>, plot_type <span class="op">=</span> <span class="st">"comparison"</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Vectorized input to `element_text()` is not officially supported.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Results may be unexpected or may change in future versions of ggplot2.</span>
-<span class="r-plt img"><img src="RunEnrichment-1.png" alt="" width="700" height="433"></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in EnrichmentPlot(pancreas_sub, db = "GO_BP", group_by = "CellType",     plot_type = "comparison"):</span> No enrichment result found. You may perform RunEnrichment first.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu">RunEnrichment</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  srt <span class="op">=</span> <span class="va">pancreas_sub</span>, group_by <span class="op">=</span> <span class="st">"CellType"</span>, DE_threshold <span class="op">=</span> <span class="st">"p_val_adj &lt; 0.05"</span>,</span></span>
 <span class="r-in"><span>  db <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"MSigDB"</span>, <span class="st">"MSigDB_MH"</span><span class="op">)</span>, species <span class="op">=</span> <span class="st">"Mus_musculus"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-10-26 23:36:36.998971] Start Enrichment</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-10-30 02:06:59.455606] Start Enrichment</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Workers: 1</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Species: Mus_musculus</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Preparing database: MSigDB</span>
@@ -262,49 +268,38 @@ If not specified, the <code>geneID</code> and <code>geneID_groups</code> argumen
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Searching the dataset mmusculus ...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Connecting to the dataset mmusculus_gene_ensembl ...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Converting the geneIDs...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 39803 genes mapped with ensembl_symbol</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 204 genes mapped with entrez_symbol</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 27 genes mapped with uniprot_symbol</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 2 genes mapped with ensembl_id</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ==============================</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 40036 genes mapped</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 1644 genes unmapped</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ==============================</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Convert ID types for the database: MSigDB_M8</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Convert ID types for the database: MSigDB_M2</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Convert ID types for the database: MSigDB_M5</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Convert ID types for the database: MSigDB_M1</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Convert ID types for the database: MSigDB_M3</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Convert ID types for the database: MSigDB_MH</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Permform enrichment...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |==============================================================================================================| 100%</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-10-26 23:39:49.355498] Enrichment done</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:3.21 mins</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in collect(., Inf):</span> Failed to collect lazy table.</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">Caused by error in `db_collect()`:</span></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> Arguments in `...` must be used.</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> Problematic argument:</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> ..1 = Inf</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Did you misspell an argument name?</span>
 <span class="r-in"><span><span class="fu"><a href="EnrichmentPlot.html">EnrichmentPlot</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, db <span class="op">=</span> <span class="st">"MSigDB"</span>, group_by <span class="op">=</span> <span class="st">"CellType"</span>, plot_type <span class="op">=</span> <span class="st">"comparison"</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Vectorized input to `element_text()` is not officially supported.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Results may be unexpected or may change in future versions of ggplot2.</span>
-<span class="r-plt img"><img src="RunEnrichment-2.png" alt="" width="700" height="433"></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in EnrichmentPlot(pancreas_sub, db = "MSigDB", group_by = "CellType",     plot_type = "comparison"):</span> No enrichment result found. You may perform RunEnrichment first.</span>
 <span class="r-in"><span><span class="fu"><a href="EnrichmentPlot.html">EnrichmentPlot</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, db <span class="op">=</span> <span class="st">"MSigDB_MH"</span>, group_by <span class="op">=</span> <span class="st">"CellType"</span>, plot_type <span class="op">=</span> <span class="st">"comparison"</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Vectorized input to `element_text()` is not officially supported.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Results may be unexpected or may change in future versions of ggplot2.</span>
-<span class="r-plt img"><img src="RunEnrichment-3.png" alt="" width="700" height="433"></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in EnrichmentPlot(pancreas_sub, db = "MSigDB_MH", group_by = "CellType",     plot_type = "comparison"):</span> No enrichment result found. You may perform RunEnrichment first.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Remove redundant GO terms</span></span></span>
 <span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu">RunEnrichment</span><span class="op">(</span>srt <span class="op">=</span> <span class="va">pancreas_sub</span>, group_by <span class="op">=</span> <span class="st">"CellType"</span>, db <span class="op">=</span> <span class="st">"GO_BP"</span>, GO_simplify <span class="op">=</span> <span class="cn">TRUE</span>, species <span class="op">=</span> <span class="st">"Mus_musculus"</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-10-26 23:39:50.069471] Start Enrichment</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-10-30 02:07:27.449199] Start Enrichment</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Workers: 1</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Species: Mus_musculus</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db: GO_BP version:3.17.0 nterm:16027 created:2023-10-26 22:51:53.310255</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Permform enrichment...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |==============================================================================================================| 100%</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-10-26 23:41:56.118954] Enrichment done</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:2.1 mins</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db: GO_BP version:3.17.0 nterm:16027 created:2023-10-30 01:40:02.863023</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Convert ID types for the database: GO_BP</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Connect to the Ensembl archives...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Using the 103 version of biomart...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Connecting to the biomart...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Searching the dataset mmusculus ...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Connecting to the dataset mmusculus_gene_ensembl ...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Converting the geneIDs...</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in collect(., Inf):</span> Failed to collect lazy table.</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">Caused by error in `db_collect()`:</span></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> Arguments in `...` must be used.</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> Problematic argument:</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> ..1 = Inf</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Did you misspell an argument name?</span>
 <span class="r-in"><span><span class="fu"><a href="EnrichmentPlot.html">EnrichmentPlot</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, db <span class="op">=</span> <span class="st">"GO_BP_sim"</span>, group_by <span class="op">=</span> <span class="st">"CellType"</span>, plot_type <span class="op">=</span> <span class="st">"comparison"</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Vectorized input to `element_text()` is not officially supported.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Results may be unexpected or may change in future versions of ggplot2.</span>
-<span class="r-plt img"><img src="RunEnrichment-4.png" alt="" width="700" height="433"></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in EnrichmentPlot(pancreas_sub, db = "GO_BP_sim", group_by = "CellType",     plot_type = "comparison"):</span> No enrichment result found. You may perform RunEnrichment first.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Use a combined database</span></span></span>
 <span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu">RunEnrichment</span><span class="op">(</span></span></span>
@@ -313,10 +308,10 @@ If not specified, the <code>geneID</code> and <code>geneID_groups</code> argumen
 <span class="r-in"><span>  db_combine <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
 <span class="r-in"><span>  species <span class="op">=</span> <span class="st">"Mus_musculus"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-10-26 23:41:56.46893] Start Enrichment</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-10-30 02:07:34.326387] Start Enrichment</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Workers: 1</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Species: Mus_musculus</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db: MP version:2023-10-23 08:08 nterm:10298 created:2023-10-26 22:54:31.808988</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db: MP version:2023-10-23 08:08 nterm:10298 created:2023-10-30 01:40:31.31888</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Preparing database: KEGG</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Preparing database: WikiPathway</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Preparing database: Reactome</span>
@@ -328,74 +323,37 @@ If not specified, the <code>geneID</code> and <code>geneID_groups</code> argumen
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Searching the dataset mmusculus ...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Connecting to the dataset mmusculus_gene_ensembl ...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Converting the geneIDs...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 9284 genes mapped with entrez_id</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ==============================</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 9284 genes mapped</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 86 genes unmapped</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ==============================</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Convert ID types for the database: WikiPathway</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Connect to the Ensembl archives...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Using the 103 version of biomart...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Connecting to the biomart...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Searching the dataset mmusculus ...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Connecting to the dataset mmusculus_gene_ensembl ...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Converting the geneIDs...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 4526 genes mapped with entrez_id</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ==============================</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 4526 genes mapped</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 0 genes unmapped</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ==============================</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Convert ID types for the database: Reactome</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Connect to the Ensembl archives...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Using the 103 version of biomart...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Connecting to the biomart...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Searching the dataset mmusculus ...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Connecting to the dataset mmusculus_gene_ensembl ...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Converting the geneIDs...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 8562 genes mapped with entrez_id</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ==============================</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 8562 genes mapped</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 6 genes unmapped</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ==============================</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Convert ID types for the database: PFAM</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Connect to the Ensembl archives...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Using the 103 version of biomart...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Connecting to the biomart...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Searching the dataset mmusculus ...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Connecting to the dataset mmusculus_gene_ensembl ...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Converting the geneIDs...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 19463 genes mapped with entrez_id</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ==============================</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 19463 genes mapped</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 73 genes unmapped</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ==============================</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Create 'Combined' database ...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Permform enrichment...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |==============================================================================================================| 100%</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-10-26 23:43:47.287985] Enrichment done</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:1.85 mins</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in collect(., Inf):</span> Failed to collect lazy table.</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">Caused by error in `db_collect()`:</span></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> Arguments in `...` must be used.</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> Problematic argument:</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> ..1 = Inf</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Did you misspell an argument name?</span>
 <span class="r-in"><span><span class="fu"><a href="EnrichmentPlot.html">EnrichmentPlot</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, db <span class="op">=</span> <span class="st">"Combined"</span>, group_by <span class="op">=</span> <span class="st">"CellType"</span>, plot_type <span class="op">=</span> <span class="st">"comparison"</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Vectorized input to `element_text()` is not officially supported.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Results may be unexpected or may change in future versions of ggplot2.</span>
-<span class="r-plt img"><img src="RunEnrichment-5.png" alt="" width="700" height="433"></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in EnrichmentPlot(pancreas_sub, db = "Combined", group_by = "CellType",     plot_type = "comparison"):</span> No enrichment result found. You may perform RunEnrichment first.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Or use "geneID" and "geneID_groups" as input to run enrichment</span></span></span>
 <span class="r-in"><span><span class="va">de_df</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">pancreas_sub</span><span class="op">@</span><span class="va">tools</span><span class="op">$</span><span class="va">DEtest_CellType</span><span class="op">$</span><span class="va">AllMarkers_wilcox</span>, <span class="va">p_val_adj</span> <span class="op">&lt;</span> <span class="fl">0.05</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">enrich_out</span> <span class="op">&lt;-</span> <span class="fu">RunEnrichment</span><span class="op">(</span>geneID <span class="op">=</span> <span class="va">de_df</span><span class="op">[[</span><span class="st">"gene"</span><span class="op">]</span><span class="op">]</span>, geneID_groups <span class="op">=</span> <span class="va">de_df</span><span class="op">[[</span><span class="st">"group1"</span><span class="op">]</span><span class="op">]</span>, db <span class="op">=</span> <span class="st">"GO_BP"</span>, species <span class="op">=</span> <span class="st">"Mus_musculus"</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-10-26 23:43:47.663812] Start Enrichment</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-10-30 02:08:10.706669] Start Enrichment</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Workers: 1</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Species: Mus_musculus</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db: GO_BP version:3.17.0 nterm:16027 created:2023-10-26 22:51:53.310255</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Permform enrichment...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |==============================================================================================================| 100%</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-10-26 23:44:48.843725] Enrichment done</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:1.02 mins</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db: GO_BP version:3.17.0 nterm:16027 created:2023-10-30 01:40:02.863023</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Convert ID types for the database: GO_BP</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Connect to the Ensembl archives...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Using the 103 version of biomart...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Connecting to the biomart...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Searching the dataset mmusculus ...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Connecting to the dataset mmusculus_gene_ensembl ...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Converting the geneIDs...</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in collect(., Inf):</span> Failed to collect lazy table.</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">Caused by error in `db_collect()`:</span></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> Arguments in `...` must be used.</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> Problematic argument:</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> ..1 = Inf</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Did you misspell an argument name?</span>
 <span class="r-in"><span><span class="fu"><a href="EnrichmentPlot.html">EnrichmentPlot</a></span><span class="op">(</span>res <span class="op">=</span> <span class="va">enrich_out</span>, db <span class="op">=</span> <span class="st">"GO_BP"</span>, plot_type <span class="op">=</span> <span class="st">"comparison"</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Vectorized input to `element_text()` is not officially supported.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Results may be unexpected or may change in future versions of ggplot2.</span>
-<span class="r-plt img"><img src="RunEnrichment-6.png" alt="" width="700" height="433"></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in eval(expr, envir, enclos):</span> object 'enrich_out' not found</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

@@ -14,7 +14,7 @@ This function can set the panel width/height of plot to a fixed value and raster
     
     <a class="navbar-brand me-2" href="../index.html">SCP</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.4</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -176,7 +176,7 @@ This function can set the panel width/height of plot to a fixed value and raster
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/object.size.html" class="external-link">object.size</a></span><span class="op">(</span><span class="va">p</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 13984 bytes</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/object.size.html" class="external-link">object.size</a></span><span class="op">(</span><span class="fu">panel_fix</span><span class="op">(</span><span class="va">p</span>, width <span class="op">=</span> <span class="fl">5</span>, height <span class="op">=</span> <span class="fl">3</span>, units <span class="op">=</span> <span class="st">"cm"</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1398888 bytes</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1396728 bytes</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">## save the plot with appropriate size</span></span></span>
 <span class="r-in"><span><span class="co"># p_fix &lt;- panel_fix(p, width = 5, height = 3, units = "cm")</span></span></span>
@@ -247,27 +247,35 @@ This function can set the panel width/height of plot to a fixed value and raster
 <span class="r-msg co"><span class="r-pr">#&gt;</span> 'magick' package is suggested to install to give better rasterization.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Set `ht_opt$message = FALSE` to turn off this message.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-10-27 00:44:37.844496] Start Enrichment</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-10-30 02:51:13.472258] Start Enrichment</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Workers: 1</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Species: Mus_musculus</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db: GO_BP version:3.17.0 nterm:16027 created:2023-10-26 22:51:53.310255</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Permform enrichment...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |==============================================================================================================| 100%</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-10-27 00:46:08.159752] Enrichment done</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:1.51 mins</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db: GO_BP version:3.17.0 nterm:16027 created:2023-10-30 01:40:02.863023</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Convert ID types for the database: GO_BP</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Connect to the Ensembl archives...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Using the 103 version of biomart...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Connecting to the biomart...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Searching the dataset mmusculus ...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Connecting to the dataset mmusculus_gene_ensembl ...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Converting the geneIDs...</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in collect(., Inf):</span> Failed to collect lazy table.</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">Caused by error in `db_collect()`:</span></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> Arguments in `...` must be used.</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> Problematic argument:</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> ..1 = Inf</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Did you misspell an argument name?</span>
 <span class="r-in"><span><span class="co"># the size of the heatmap is already fixed</span></span></span>
 <span class="r-in"><span><span class="va">ht2</span><span class="op">$</span><span class="va">plot</span></span></span>
-<span class="r-plt img"><img src="panel_fix-9.png" alt="" width="700" height="433"></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in eval(expr, envir, enclos):</span> object 'ht2' not found</span>
 <span class="r-in"><span><span class="co"># when no height/width is specified, panel_fix does not change the size of the heatmap.</span></span></span>
 <span class="r-in"><span><span class="fu">panel_fix</span><span class="op">(</span><span class="va">ht2</span><span class="op">$</span><span class="va">plot</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="panel_fix-10.png" alt="" width="700" height="433"></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in eval(expr, envir, enclos):</span> object 'ht2' not found</span>
 <span class="r-in"><span><span class="co"># rasterize the heatmap body</span></span></span>
 <span class="r-in"><span><span class="fu">panel_fix</span><span class="op">(</span><span class="va">ht2</span><span class="op">$</span><span class="va">plot</span>, raster <span class="op">=</span> <span class="cn">TRUE</span>, dpi <span class="op">=</span> <span class="fl">30</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="panel_fix-11.png" alt="" width="700" height="433"></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in eval(expr, envir, enclos):</span> object 'ht2' not found</span>
 <span class="r-in"><span><span class="co"># however, gene labels on the left and enrichment annotations on the right cannot be adjusted</span></span></span>
 <span class="r-in"><span><span class="fu">panel_fix</span><span class="op">(</span><span class="va">ht2</span><span class="op">$</span><span class="va">plot</span>, height <span class="op">=</span> <span class="fl">5</span>, width <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="panel_fix-12.png" alt="" width="700" height="433"></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in eval(expr, envir, enclos):</span> object 'ht2' not found</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
