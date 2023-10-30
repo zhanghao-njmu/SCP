@@ -558,8 +558,20 @@ check_Python <- function(packages, envname = NULL, conda = "auto", force = FALSE
 check_R <- function(packages, install_methods = c("BiocManager::install", "install.packages", "devtools::install_github"), lib = .libPaths()[1], force = FALSE) {
   status_list <- list()
   for (pkg in packages) {
-    pkg_name <- sub(pattern = "(.*)/(.*)", replacement = "\\2", x = pkg)
-    if (!suppressPackageStartupMessages(requireNamespace(pkg_name, quietly = TRUE)) || isTRUE(force)) {
+    if (grepl("/", pkg)) {
+      # github package
+      pkg_name <- strsplit(pkg, split = "/|@|==", perl = TRUE)[[1]][[2]]
+      version <- NULL
+    } else {
+      pkg_name <- strsplit(pkg, split = "@|==", perl = TRUE)[[1]][[1]]
+      version <- strsplit(pkg, split = "@|==", perl = TRUE)[[1]][[2]]
+    }
+    if (is.null(version)) {
+      force_update <- isTRUE(force)
+    } else {
+      force_update <- isTRUE(packageVersion(pkg_name) < package_version(version)) || isTRUE(force)
+    }
+    if (!suppressPackageStartupMessages(requireNamespace(pkg_name, quietly = TRUE)) || isTRUE(force_update)) {
       message("Install package: \"", pkg_name, "\" ...")
       status_list[[pkg]] <- FALSE
       i <- 1
