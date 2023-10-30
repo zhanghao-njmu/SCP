@@ -344,7 +344,7 @@ RunCellQC <- function(srt, assay = "RNA", split.by = NULL,
   }
   status <- check_DataType(srt, slot = "counts", assay = assay)
   if (status != "raw_counts") {
-    stop("Data type is not raw counts!")
+    warning("Data type is not raw counts!")
   }
   if (!paste0("nCount_", assay) %in% colnames(srt@meta.data)) {
     srt@meta.data[[paste0("nCount_", assay)]] <- colSums(srt[[assay]]@counts)
