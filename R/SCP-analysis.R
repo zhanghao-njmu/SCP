@@ -2846,12 +2846,19 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
           }
           message("Preparing database: TRRUST")
           url <- switch(db_species["TRRUST"],
-            "Homo_sapiens" = "https://www.grnpedia.org/trrust/data/trrust_rawdata.human.tsv",
-            "Mus_musculus" = "https://www.grnpedia.org/trrust/data/trrust_rawdata.mouse.tsv"
+            "Homo_sapiens" = "https://raw.githubusercontent.com/bioinfonerd/Transcription-Factor-Databases/master/Ttrust_v2/trrust_rawdata.human.tsv",
+            "Mus_musculus" = "https://raw.githubusercontent.com/bioinfonerd/Transcription-Factor-Databases/master/Ttrust_v2/trrust_rawdata.mouse.tsv.gz"
           )
-          temp <- tempfile()
-          download(url = url, destfile = temp)
-          TERM2GENE <- read.table(temp, header = FALSE, fill = T, sep = "\t")[, 1:2]
+          if (endsWith(url, "gz")) {
+            temp <- tempfile(fileext = ".gz")
+            download(url = url, destfile = temp)
+            R.utils::gunzip(temp)
+            TERM2GENE <- read.table(gsub(".gz$", "", temp), header = FALSE, fill = T, sep = "\t")[, 1:2]
+          } else {
+            temp <- tempfile()
+            download(url = url, destfile = temp)
+            TERM2GENE <- read.table(temp, header = FALSE, fill = T, sep = "\t")[, 1:2]
+          }
           version <- "v2.0"
           TERM2NAME <- TERM2GENE[, c(1, 1)]
           colnames(TERM2GENE) <- c("Term", default_IDtypes[["TRRUST"]])
@@ -3275,7 +3282,7 @@ PrepareDB <- function(species = c("Homo_sapiens", "Mus_musculus"),
       }
     }
 
-    ### Convert ID
+    ### Convert ID types
     for (term in names(db_list[[sps]])) {
       IDtypes <- db_IDtypes[!db_IDtypes %in% colnames(db_list[[sps]][[term]][["TERM2GENE"]])]
       if (length(IDtypes) > 0) {
