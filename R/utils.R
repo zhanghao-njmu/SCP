@@ -558,13 +558,15 @@ check_Python <- function(packages, envname = NULL, conda = "auto", force = FALSE
 check_R <- function(packages, install_methods = c("BiocManager::install", "install.packages", "devtools::install_github"), lib = .libPaths()[1], force = FALSE) {
   status_list <- list()
   for (pkg in packages) {
+    version <- NULL
     if (grepl("/", pkg)) {
       # github package
       pkg_name <- strsplit(pkg, split = "/|@|==", perl = TRUE)[[1]][[2]]
-      version <- NULL
     } else {
       pkg_name <- strsplit(pkg, split = "@|==", perl = TRUE)[[1]][[1]]
-      version <- strsplit(pkg, split = "@|==", perl = TRUE)[[1]][[2]]
+      if (length(strsplit(pkg, split = "@|==", perl = TRUE)[[1]]) > 1) {
+        version <- strsplit(pkg, split = "@|==", perl = TRUE)[[1]][[2]]
+      }
     }
     if (is.null(version)) {
       force_update <- isTRUE(force)
