@@ -4068,7 +4068,10 @@ RunMonocle2 <- function(srt, assay = NULL, slot = "counts", expressionFamily = "
                         root_state = NULL, seed = 11) {
   set.seed(seed)
   check_R(c("monocle", "DDRTree", "BiocGenerics", "Biobase", "VGAM"))
-  attachNamespace("DDRTree")
+
+  if (!"package:DDRTree" %in% search()) {
+    attachNamespace("DDRTree")
+  }
 
   assay <- assay %||% DefaultAssay(srt)
   expr_matrix <- as.sparse(GetAssayData(srt, assay = assay, slot = slot))
