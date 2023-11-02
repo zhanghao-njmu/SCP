@@ -258,20 +258,22 @@
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"pancreas_sub"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="RunSCVELO.html">RunSCVELO</a></span><span class="op">(</span>srt <span class="op">=</span> <span class="va">pancreas_sub</span>, group_by <span class="op">=</span> <span class="st">"SubCellType"</span>, linear_reduction <span class="op">=</span> <span class="st">"PCA"</span>, nonlinear_reduction <span class="op">=</span> <span class="st">"UMAP"</span>, return_seurat <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in py_module_import(module, convert = convert):</span> ModuleNotFoundError: No module named 'scanpy'</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> Run `reticulate::py_last_error()` for details.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 'misc' slot is not converted.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 'tools' slot is not converted.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Keys should be one or more alphanumeric characters followed by an underscore, setting key from variance_stochastic_ to variancestochastic_</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Keys should be one or more alphanumeric characters followed by an underscore, setting key from variance_velocity_ to variancevelocity_</span>
 <span class="r-in"><span><span class="fu">VelocityPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in VelocityPlot(pancreas_sub, reduction = "UMAP"):</span> Cannot find the velocity embedding stochastic_UMAP.</span>
+<span class="r-plt img"><img src="VelocityPlot-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="fu">VelocityPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span>, group_by <span class="op">=</span> <span class="st">"SubCellType"</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in VelocityPlot(pancreas_sub, reduction = "UMAP", group_by = "SubCellType"):</span> Cannot find the velocity embedding stochastic_UMAP.</span>
+<span class="r-plt img"><img src="VelocityPlot-2.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="fu">VelocityPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span>, plot_type <span class="op">=</span> <span class="st">"grid"</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in VelocityPlot(pancreas_sub, reduction = "UMAP", plot_type = "grid"):</span> Cannot find the velocity embedding stochastic_UMAP.</span>
+<span class="r-plt img"><img src="VelocityPlot-3.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="fu">VelocityPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span>, plot_type <span class="op">=</span> <span class="st">"stream"</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in VelocityPlot(pancreas_sub, reduction = "UMAP", plot_type = "stream"):</span> Cannot find the velocity embedding stochastic_UMAP.</span>
+<span class="r-plt img"><img src="VelocityPlot-4.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="fu">VelocityPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span>, plot_type <span class="op">=</span> <span class="st">"stream"</span>, streamline_color <span class="op">=</span> <span class="st">"black"</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in VelocityPlot(pancreas_sub, reduction = "UMAP", plot_type = "stream",     streamline_color = "black"):</span> Cannot find the velocity embedding stochastic_UMAP.</span>
+<span class="r-plt img"><img src="VelocityPlot-5.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="fu">VelocityPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span>, plot_type <span class="op">=</span> <span class="st">"stream"</span>, streamline_color <span class="op">=</span> <span class="st">"black"</span>, arrow_color <span class="op">=</span> <span class="st">"red"</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in VelocityPlot(pancreas_sub, reduction = "UMAP", plot_type = "stream",     streamline_color = "black", arrow_color = "red"):</span> Cannot find the velocity embedding stochastic_UMAP.</span>
+<span class="r-plt img"><img src="VelocityPlot-6.png" alt="" width="700" height="433"></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>

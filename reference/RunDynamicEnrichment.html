@@ -187,14 +187,14 @@ If not specified, the <code>geneID</code> and <code>geneID_groups</code> argumen
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Removed 8 rows containing missing values (`geom_path()`).</span>
 <span class="r-plt img"><img src="RunDynamicEnrichment-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="RunDynamicFeatures.html">RunDynamicFeatures</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, lineages <span class="op">=</span> <span class="st">"Lineage1"</span>, n_candidates <span class="op">=</span> <span class="fl">200</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-11-02 18:02:59.039356] Start RunDynamicFeatures</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Workers: 1</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-11-02 20:10:14.262357] Start RunDynamicFeatures</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Workers: 2</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Number of candidate features(union): 199</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Calculate dynamic features for Lineage1...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |==============================================================================================================| 100%</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |=======================================================                                                       |  50%  |                                                                                                                      |==============================================================================================================| 100%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-11-02 18:03:13.431971] RunDynamicFeatures done</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:14.39 secs</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-11-02 20:10:27.432345] RunDynamicFeatures done</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:13.17 secs</span>
 <span class="r-in"><span><span class="va">ht1</span> <span class="op">&lt;-</span> <span class="fu"><a href="DynamicHeatmap.html">DynamicHeatmap</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>  srt <span class="op">=</span> <span class="va">pancreas_sub</span>,</span></span>
 <span class="r-in"><span>  lineages <span class="op">=</span> <span class="st">"Lineage1"</span>,</span></span>
@@ -221,10 +221,10 @@ If not specified, the <code>geneID</code> and <code>geneID_groups</code> argumen
 <span class="r-in"><span>  db <span class="op">=</span> <span class="st">"GO_BP"</span>,</span></span>
 <span class="r-in"><span>  species <span class="op">=</span> <span class="st">"Mus_musculus"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-11-02 18:03:16.57207] Start RunDynamicFeatures</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Workers: 1</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-11-02 20:10:30.075683] Start RunDynamicFeatures</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Workers: 2</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Species: Mus_musculus</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db: GO_BP version:3.17.0 nterm:16027 created:2023-11-02 17:41:40.191902</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db: GO_BP version:3.17.0 nterm:16027 created:2023-11-02 19:56:24.306095</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Convert ID types for the database: GO_BP</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Connect to the Ensembl archives...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Using the 103 version of biomart...</span>

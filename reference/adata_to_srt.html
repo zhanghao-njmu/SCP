@@ -62,14 +62,17 @@
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"pancreas_sub"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">adata</span> <span class="op">&lt;-</span> <span class="fu"><a href="srt_to_adata.html">srt_to_adata</a></span><span class="op">(</span><span class="va">pancreas_sub</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in py_module_import(module, convert = convert):</span> ModuleNotFoundError: No module named 'scanpy'</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> Run `reticulate::py_last_error()` for details.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 'misc' slot is not converted.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 'tools' slot is not converted.</span>
 <span class="r-in"><span><span class="va">adata</span> <span class="op">&lt;-</span> <span class="fu"><a href="RunPAGA.html">RunPAGA</a></span><span class="op">(</span>adata <span class="op">=</span> <span class="va">adata</span>, group_by <span class="op">=</span> <span class="st">"SubCellType"</span>, linear_reduction <span class="op">=</span> <span class="st">"PCA"</span>, nonlinear_reduction <span class="op">=</span> <span class="st">"UMAP"</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in eval(expr, envir, enclos):</span> object 'adata' not found</span>
 <span class="r-in"><span><span class="va">srt</span> <span class="op">&lt;-</span> <span class="fu">adata_to_srt</span><span class="op">(</span><span class="va">adata</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in eval(expr, envir, enclos):</span> object 'adata' not found</span>
 <span class="r-in"><span><span class="va">srt</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in eval(expr, envir, enclos):</span> object 'srt' not found</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> An object of class Seurat </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 47874 features across 1000 samples within 3 assays </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Active assay: RNA (15958 features, 0 variable features)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  2 layers present: counts, data</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  2 other assays present: spliced, unspliced</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  3 dimensional reductions calculated: PCA, UMAP, draw_graph_fr</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">### Or convert a h5ad file to Seurat object</span></span></span>
 <span class="r-in"><span><span class="co"># library(reticulate)</span></span></span>
