@@ -199,18 +199,18 @@
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"pancreas_sub"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu">Standard_SCP</span><span class="op">(</span>srt <span class="op">=</span> <span class="va">pancreas_sub</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 10:38:18.653879] Start Standard_SCP</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 10:38:18.654143] Checking srtList... ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 18:25:10.761612] Start Standard_SCP</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 18:25:10.761836] Checking srtList... ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Data 1/1 of the srtList is raw_counts. Perform NormalizeData(LogNormalize) on the data ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform FindVariableFeatures on the data 1/1 of the srtList...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Use the separate HVF from srtList...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Number of available HVF: 2000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 10:38:19.624259] Finished checking.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 10:38:19.624475] Perform ScaleData on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 10:38:19.733033] Perform linear dimension reduction (pca) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 10:38:20.496202] Perform FindClusters (louvain) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 10:38:20.564208] Reorder clusters...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 10:38:20.648268] Perform nonlinear dimension reduction (umap) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 18:25:11.824621] Finished checking.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 18:25:11.824863] Perform ScaleData on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 18:25:11.951778] Perform linear dimension reduction (pca) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 18:25:12.749974] Perform FindClusters (louvain) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 18:25:12.817611] Reorder clusters...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 18:25:12.909916] Perform nonlinear dimension reduction (umap) on the data...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Non-linear dimensionality reduction(umap) using Reduction(Standardpca, dims:1-13) as input</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Found more than one class "dist" in cache; using the first, from namespace 'BiocGenerics'</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Also defined by ‘spam’</span>
@@ -221,8 +221,8 @@
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Also defined by ‘spam’</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Found more than one class "dist" in cache; using the first, from namespace 'BiocGenerics'</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Also defined by ‘spam’</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 10:38:30.980656] Standard_SCP done</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 12.33 secs </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 18:25:23.77117] Standard_SCP done</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 13.01 secs </span>
 <span class="r-in"><span><span class="fu"><a href="CellDimPlot.html">CellDimPlot</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, group.by <span class="op">=</span> <span class="st">"SubCellType"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="Standard_SCP-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
@@ -233,18 +233,18 @@
 <span class="r-in"><span>  linear_reduction <span class="op">=</span> <span class="va">linear_reductions</span>,</span></span>
 <span class="r-in"><span>  nonlinear_reduction <span class="op">=</span> <span class="st">"umap"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 10:38:31.239187] Start Standard_SCP</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 10:38:31.239385] Checking srtList... ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 18:25:24.021189] Start Standard_SCP</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 18:25:24.021387] Checking srtList... ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Data 1/1 of the srtList has been log-normalized.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform FindVariableFeatures on the data 1/1 of the srtList...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Use the separate HVF from srtList...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Number of available HVF: 2000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 10:38:32.084263] Finished checking.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 10:38:32.084477] Perform ScaleData on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 10:38:32.196313] Perform linear dimension reduction (pca) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 10:38:32.862896] Perform FindClusters (louvain) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 10:38:32.929241] Reorder clusters...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 10:38:33.01468] Perform nonlinear dimension reduction (umap) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 18:25:24.927596] Finished checking.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 18:25:24.927845] Perform ScaleData on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 18:25:25.054763] Perform linear dimension reduction (pca) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 18:25:25.777702] Perform FindClusters (louvain) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 18:25:25.843529] Reorder clusters...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 18:25:25.937046] Perform nonlinear dimension reduction (umap) on the data...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Non-linear dimensionality reduction(umap) using Reduction(Standardpca, dims:1-13) as input</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Found more than one class "dist" in cache; using the first, from namespace 'BiocGenerics'</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Also defined by ‘spam’</span>
@@ -257,11 +257,11 @@
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Found more than one class "dist" in cache; using the first, from namespace 'BiocGenerics'</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Also defined by ‘spam’</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Key ‘StandardpcaUMAP3D_’ taken, using ‘standardpcaumap3d_’ instead</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 10:38:43.353154] Perform linear dimension reduction (ica) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 18:25:36.746475] Perform linear dimension reduction (ica) on the data...</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Number of cells changing from 0 to 1000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 10:38:45.064471] Perform FindClusters (louvain) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 10:38:45.16233] Reorder clusters...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 10:38:45.251257] Perform nonlinear dimension reduction (umap) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 18:25:38.043842] Perform FindClusters (louvain) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 18:25:38.13129] Reorder clusters...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 18:25:38.226955] Perform nonlinear dimension reduction (umap) on the data...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Non-linear dimensionality reduction(umap) using Reduction(Standardica, dims:1-17) as input</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Found more than one class "dist" in cache; using the first, from namespace 'BiocGenerics'</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Also defined by ‘spam’</span>
@@ -272,8 +272,50 @@
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Also defined by ‘spam’</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Found more than one class "dist" in cache; using the first, from namespace 'BiocGenerics'</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Also defined by ‘spam’</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 10:38:55.619045] Perform linear dimension reduction (nmf) on the data...</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in attachNamespace("Matrix"):</span> namespace is already attached</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 18:25:49.030497] Perform linear dimension reduction (nmf) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 18:25:57.306138] Perform FindClusters (louvain) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 18:25:57.377411] Reorder clusters...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 18:25:57.478777] Perform nonlinear dimension reduction (umap) on the data...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Non-linear dimensionality reduction(umap) using Reduction(Standardnmf, dims:1-50) as input</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Found more than one class "dist" in cache; using the first, from namespace 'BiocGenerics'</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Also defined by ‘spam’</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Found more than one class "dist" in cache; using the first, from namespace 'BiocGenerics'</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Also defined by ‘spam’</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Non-linear dimensionality reduction(umap) using Reduction(Standardnmf, dims:1-50) as input</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Found more than one class "dist" in cache; using the first, from namespace 'BiocGenerics'</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Also defined by ‘spam’</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Found more than one class "dist" in cache; using the first, from namespace 'BiocGenerics'</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Also defined by ‘spam’</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 18:26:08.332795] Perform linear dimension reduction (mds) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 18:26:09.552162] Perform FindClusters (louvain) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 18:26:09.617433] Reorder clusters...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 18:26:09.717837] Perform nonlinear dimension reduction (umap) on the data...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Non-linear dimensionality reduction(umap) using Reduction(Standardmds, dims:1-13) as input</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Found more than one class "dist" in cache; using the first, from namespace 'BiocGenerics'</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Also defined by ‘spam’</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Found more than one class "dist" in cache; using the first, from namespace 'BiocGenerics'</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Also defined by ‘spam’</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Non-linear dimensionality reduction(umap) using Reduction(Standardmds, dims:1-13) as input</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Found more than one class "dist" in cache; using the first, from namespace 'BiocGenerics'</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Also defined by ‘spam’</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Found more than one class "dist" in cache; using the first, from namespace 'BiocGenerics'</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Also defined by ‘spam’</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 18:26:20.389055] Perform linear dimension reduction (glmpca) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 18:27:37.434675] Perform FindClusters (louvain) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 18:27:37.526389] Reorder clusters...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 18:27:37.63881] Perform nonlinear dimension reduction (umap) on the data...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Non-linear dimensionality reduction(umap) using Reduction(Standardglmpca, dims:1-50) as input</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Found more than one class "dist" in cache; using the first, from namespace 'BiocGenerics'</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Also defined by ‘spam’</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Found more than one class "dist" in cache; using the first, from namespace 'BiocGenerics'</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Also defined by ‘spam’</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Non-linear dimensionality reduction(umap) using Reduction(Standardglmpca, dims:1-50) as input</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Found more than one class "dist" in cache; using the first, from namespace 'BiocGenerics'</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Also defined by ‘spam’</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Found more than one class "dist" in cache; using the first, from namespace 'BiocGenerics'</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Also defined by ‘spam’</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 18:27:48.246111] Standard_SCP done</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 2.4 mins </span>
 <span class="r-in"><span><span class="va">plist1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">linear_reductions</span>, <span class="kw">function</span><span class="op">(</span><span class="va">lr</span><span class="op">)</span> <span class="op">{</span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="CellDimPlot.html">CellDimPlot</a></span><span class="op">(</span><span class="va">pancreas_sub</span>,</span></span>
 <span class="r-in"><span>    group.by <span class="op">=</span> <span class="st">"SubCellType"</span>,</span></span>
@@ -292,34 +334,32 @@
 <span class="r-in"><span>  linear_reduction <span class="op">=</span> <span class="st">"pca"</span>,</span></span>
 <span class="r-in"><span>  nonlinear_reduction <span class="op">=</span> <span class="va">nonlinear_reductions</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 10:38:56.503677] Start Standard_SCP</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 10:38:56.503872] Checking srtList... ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 18:27:48.959913] Start Standard_SCP</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 18:27:48.960103] Checking srtList... ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Data 1/1 of the srtList has been log-normalized.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform FindVariableFeatures on the data 1/1 of the srtList...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Use the separate HVF from srtList...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Number of available HVF: 2000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 10:38:57.336245] Finished checking.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 10:38:57.336478] Perform ScaleData on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 10:38:57.448213] Perform linear dimension reduction (pca) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 10:38:58.188066] Perform FindClusters (louvain) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 10:38:58.255562] Reorder clusters...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 10:38:58.360772] Perform nonlinear dimension reduction (umap) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 18:27:49.773649] Finished checking.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 18:27:49.7739] Perform ScaleData on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 18:27:49.914592] Perform linear dimension reduction (pca) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 18:27:50.661318] Perform FindClusters (louvain) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 18:27:50.728243] Reorder clusters...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 18:27:50.836705] Perform nonlinear dimension reduction (umap) on the data...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Non-linear dimensionality reduction(umap) using Reduction(Standardpca, dims:1-13) as input</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Found more than one class "dist" in cache; using the first, from namespace 'BiocGenerics'</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Also defined by ‘spam’</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Found more than one class "dist" in cache; using the first, from namespace 'BiocGenerics'</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Also defined by ‘spam’</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Key ‘StandardpcaUMAP2D_’ taken, using ‘standardpcaumap2d_’ instead</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Non-linear dimensionality reduction(umap) using Reduction(Standardpca, dims:1-13) as input</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Found more than one class "dist" in cache; using the first, from namespace 'BiocGenerics'</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Also defined by ‘spam’</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Found more than one class "dist" in cache; using the first, from namespace 'BiocGenerics'</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Also defined by ‘spam’</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Key ‘StandardpcaUMAP3D_’ taken, using ‘standardpcaumap3d_’ instead</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 10:39:08.81677] Perform nonlinear dimension reduction (tsne) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 18:28:01.314343] Perform nonlinear dimension reduction (tsne) on the data...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Non-linear dimensionality reduction(tsne) using Reduction(Standardpca, dims:1-13) as input</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Non-linear dimensionality reduction(tsne) using Reduction(Standardpca, dims:1-13) as input</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 10:39:17.112539] Perform nonlinear dimension reduction (dm) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 18:28:07.068829] Perform nonlinear dimension reduction (dm) on the data...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Non-linear dimensionality reduction(dm) using Reduction(Standardpca, dims:1-13) as input</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>In destiny::DiffusionMap(data = as.matrix(object), n_eigs = ndcs, </span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span>     sigma = sigma, k = k, distance = dist.method, verbose = verbose, </span>
@@ -330,31 +370,10 @@
 <span class="r-wrn co"><span class="r-pr">#&gt;</span>     sigma = sigma, k = k, distance = dist.method, verbose = verbose, </span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span>     ...) :</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span>  extra argument ‘graph’ will be disregarded</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 10:39:17.521201] Perform nonlinear dimension reduction (phate) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 18:28:07.410485] Perform nonlinear dimension reduction (phate) on the data...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Non-linear dimensionality reduction(phate) using Reduction(Standardpca, dims:1-13) as input</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Non-linear dimensionality reduction(phate) using Reduction(Standardpca, dims:1-13) as input</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 10:39:52.191546] Perform nonlinear dimension reduction (pacmap) on the data...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Non-linear dimensionality reduction(pacmap) using Reduction(Standardpca, dims:1-13) as input</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Non-linear dimensionality reduction(pacmap) using Reduction(Standardpca, dims:1-13) as input</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 10:40:10.406331] Perform nonlinear dimension reduction (trimap) on the data...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Non-linear dimensionality reduction(trimap) using Reduction(Standardpca, dims:1-13) as input</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Non-linear dimensionality reduction(trimap) using Reduction(Standardpca, dims:1-13) as input</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 10:40:29.008939] Perform nonlinear dimension reduction (largevis) on the data...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Non-linear dimensionality reduction(largevis) using Reduction(Standardpca, dims:1-13) as input</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Found more than one class "dist" in cache; using the first, from namespace 'BiocGenerics'</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Also defined by ‘spam’</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Found more than one class "dist" in cache; using the first, from namespace 'BiocGenerics'</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Also defined by ‘spam’</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Non-linear dimensionality reduction(largevis) using Reduction(Standardpca, dims:1-13) as input</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Found more than one class "dist" in cache; using the first, from namespace 'BiocGenerics'</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Also defined by ‘spam’</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Found more than one class "dist" in cache; using the first, from namespace 'BiocGenerics'</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Also defined by ‘spam’</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 10:47:06.913329] Perform nonlinear dimension reduction (fr) on the data...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Non-linear dimensionality reduction(fr) using Graphs(Standardpca_SNN) as input</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Non-linear dimensionality reduction(fr) using Graphs(Standardpca_SNN) as input</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-10-30 10:47:10.891879] Standard_SCP done</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 8.24 mins </span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in py_module_import(module, convert = convert):</span> ModuleNotFoundError: No module named 'phate'</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> Run `reticulate::py_last_error()` for details.</span>
 <span class="r-in"><span><span class="va">plist2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">nonlinear_reductions</span>, <span class="kw">function</span><span class="op">(</span><span class="va">nr</span><span class="op">)</span> <span class="op">{</span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="CellDimPlot.html">CellDimPlot</a></span><span class="op">(</span><span class="va">pancreas_sub</span>,</span></span>
 <span class="r-in"><span>    group.by <span class="op">=</span> <span class="st">"SubCellType"</span>,</span></span>

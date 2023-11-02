@@ -358,42 +358,40 @@
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"pancreas_sub"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="RunPAGA.html">RunPAGA</a></span><span class="op">(</span>srt <span class="op">=</span> <span class="va">pancreas_sub</span>, group_by <span class="op">=</span> <span class="st">"SubCellType"</span>, linear_reduction <span class="op">=</span> <span class="st">"PCA"</span>, nonlinear_reduction <span class="op">=</span> <span class="st">"UMAP"</span>, return_seurat <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 'misc' slot is not converted.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 'tools' slot is not converted.</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in py_module_import(module, convert = convert):</span> ModuleNotFoundError: No module named 'scanpy'</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> Run `reticulate::py_last_error()` for details.</span>
 <span class="r-in"><span><span class="fu">PAGAPlot</span><span class="op">(</span><span class="va">pancreas_sub</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="PAGAPlot-1.png" alt="" width="700" height="433"></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in PAGAPlot(pancreas_sub):</span> Cannot find the paga result.</span>
 <span class="r-in"><span><span class="fu">PAGAPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, type <span class="op">=</span> <span class="st">"connectivities_tree"</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="PAGAPlot-2.png" alt="" width="700" height="433"></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in PAGAPlot(pancreas_sub, type = "connectivities_tree"):</span> Cannot find the paga result.</span>
 <span class="r-in"><span><span class="fu">PAGAPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, reduction <span class="op">=</span> <span class="st">"PCA"</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="PAGAPlot-3.png" alt="" width="700" height="433"></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in PAGAPlot(pancreas_sub, reduction = "PCA"):</span> Cannot find the paga result.</span>
 <span class="r-in"><span><span class="fu">PAGAPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, reduction <span class="op">=</span> <span class="st">"PAGAUMAP2D"</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="PAGAPlot-4.png" alt="" width="700" height="433"></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in PAGAPlot(pancreas_sub, reduction = "PAGAUMAP2D"):</span> Cannot find the paga result.</span>
 <span class="r-in"><span><span class="fu">PAGAPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, edge_shorten <span class="op">=</span> <span class="fl">0.05</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="PAGAPlot-5.png" alt="" width="700" height="433"></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in PAGAPlot(pancreas_sub, edge_shorten = 0.05):</span> Cannot find the paga result.</span>
 <span class="r-in"><span><span class="fu">PAGAPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, label <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="PAGAPlot-6.png" alt="" width="700" height="433"></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in PAGAPlot(pancreas_sub, label = TRUE):</span> Cannot find the paga result.</span>
 <span class="r-in"><span><span class="fu">PAGAPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, label <span class="op">=</span> <span class="cn">TRUE</span>, label_insitu <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="PAGAPlot-7.png" alt="" width="700" height="433"></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in PAGAPlot(pancreas_sub, label = TRUE, label_insitu = TRUE):</span> Cannot find the paga result.</span>
 <span class="r-in"><span><span class="fu">PAGAPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, label <span class="op">=</span> <span class="cn">TRUE</span>, label_insitu <span class="op">=</span> <span class="cn">TRUE</span>, label_repel <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="PAGAPlot-8.png" alt="" width="700" height="433"></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in PAGAPlot(pancreas_sub, label = TRUE, label_insitu = TRUE, label_repel = TRUE):</span> Cannot find the paga result.</span>
 <span class="r-in"><span><span class="fu">PAGAPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, edge_line <span class="op">=</span> <span class="st">"curved"</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="PAGAPlot-9.png" alt="" width="700" height="433"></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in PAGAPlot(pancreas_sub, edge_line = "curved"):</span> Cannot find the paga result.</span>
 <span class="r-in"><span><span class="fu">PAGAPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, node_size <span class="op">=</span> <span class="st">"GroupSize"</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="PAGAPlot-10.png" alt="" width="700" height="433"></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in PAGAPlot(pancreas_sub, node_size = "GroupSize"):</span> Cannot find the paga result.</span>
 <span class="r-in"><span><span class="fu">PAGAPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, node_highlight <span class="op">=</span> <span class="st">"Ductal"</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="PAGAPlot-11.png" alt="" width="700" height="433"></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in PAGAPlot(pancreas_sub, node_highlight = "Ductal"):</span> Cannot find the paga result.</span>
 <span class="r-in"><span><span class="fu">PAGAPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, edge_highlight <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="st">"Pre-endocrine"</span>, <span class="fu"><a href="https://rdrr.io/r/base/levels.html" class="external-link">levels</a></span><span class="op">(</span><span class="va">pancreas_sub</span><span class="op">$</span><span class="va">SubCellType</span><span class="op">)</span>, sep <span class="op">=</span> <span class="st">"-"</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="PAGAPlot-12.png" alt="" width="700" height="433"></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in PAGAPlot(pancreas_sub, edge_highlight = paste("Pre-endocrine",     levels(pancreas_sub$SubCellType), sep = "-")):</span> Cannot find the paga result.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="RunSCVELO.html">RunSCVELO</a></span><span class="op">(</span>srt <span class="op">=</span> <span class="va">pancreas_sub</span>, group_by <span class="op">=</span> <span class="st">"SubCellType"</span>, linear_reduction <span class="op">=</span> <span class="st">"PCA"</span>, nonlinear_reduction <span class="op">=</span> <span class="st">"UMAP"</span>, return_seurat <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 'misc' slot is not converted.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 'tools' slot is not converted.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Keys should be one or more alphanumeric characters followed by an underscore, setting key from variance_stochastic_ to variancestochastic_</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Keys should be one or more alphanumeric characters followed by an underscore, setting key from variance_velocity_ to variancevelocity_</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in py_module_import(module, convert = convert):</span> ModuleNotFoundError: No module named 'scanpy'</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> Run `reticulate::py_last_error()` for details.</span>
 <span class="r-in"><span><span class="fu">PAGAPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, show_transition <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="PAGAPlot-13.png" alt="" width="700" height="433"></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in PAGAPlot(pancreas_sub, show_transition = TRUE):</span> Cannot find the paga result.</span>
 <span class="r-in"><span><span class="fu">PAGAPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, show_transition <span class="op">=</span> <span class="cn">TRUE</span>, transition_offset <span class="op">=</span> <span class="fl">0.02</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="PAGAPlot-14.png" alt="" width="700" height="433"></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in PAGAPlot(pancreas_sub, show_transition = TRUE, transition_offset = 0.02):</span> Cannot find the paga result.</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

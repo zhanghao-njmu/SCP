@@ -178,7 +178,147 @@
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu">RunNMF</span><span class="op">(</span>object <span class="op">=</span> <span class="va">pancreas_sub</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in attachNamespace("Matrix"):</span> namespace is already attached</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> iter |      tol </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ---------------</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    1 | 9.14e-01</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    2 | 1.44e-01</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    3 | 5.46e-02</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    4 | 2.44e-02</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    5 | 1.24e-02</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    6 | 5.94e-03</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    7 | 3.16e-03</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    8 | 2.21e-03</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    9 | 1.20e-03</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   10 | 8.20e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   11 | 6.44e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   12 | 5.50e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   13 | 4.69e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   14 | 3.79e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   15 | 2.90e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   16 | 2.37e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   17 | 2.15e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   18 | 2.23e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   19 | 2.11e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   20 | 1.96e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   21 | 1.80e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   22 | 1.66e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   23 | 1.62e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   24 | 1.59e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   25 | 1.46e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   26 | 1.51e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   27 | 1.93e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   28 | 1.54e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   29 | 1.22e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   30 | 1.05e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   31 | 9.14e-05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   32 | 8.19e-05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   33 | 7.46e-05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   34 | 6.69e-05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   35 | 6.08e-05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   36 | 5.81e-05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   37 | 5.03e-05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   38 | 4.57e-05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   39 | 4.40e-05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   40 | 4.55e-05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   41 | 4.98e-05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   42 | 5.38e-05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   43 | 5.54e-05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   44 | 5.56e-05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   45 | 5.61e-05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   46 | 5.44e-05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   47 | 5.40e-05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   48 | 5.52e-05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   49 | 5.60e-05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   50 | 5.67e-05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   51 | 5.88e-05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   52 | 6.37e-05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   53 | 7.04e-05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   54 | 7.89e-05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   55 | 8.92e-05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   56 | 9.97e-05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   57 | 1.10e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   58 | 1.18e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   59 | 1.20e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   60 | 1.20e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   61 | 1.03e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   62 | 8.57e-05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   63 | 7.39e-05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   64 | 6.66e-05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   65 | 6.40e-05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   66 | 6.66e-05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   67 | 7.19e-05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   68 | 8.22e-05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   69 | 9.14e-05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   70 | 1.00e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   71 | 1.10e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   72 | 1.23e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   73 | 1.34e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   74 | 1.47e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   75 | 1.54e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   76 | 1.52e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   77 | 1.52e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   78 | 1.57e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   79 | 1.64e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   80 | 1.74e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   81 | 1.91e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   82 | 2.12e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   83 | 2.39e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   84 | 2.69e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   85 | 3.04e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   86 | 3.60e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   87 | 3.20e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   88 | 3.08e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   89 | 2.86e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   90 | 2.46e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   91 | 1.99e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   92 | 1.60e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   93 | 1.38e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   94 | 1.23e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   95 | 1.12e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   96 | 1.01e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   97 | 8.66e-05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   98 | 6.74e-05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   99 | 4.89e-05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  100 | 3.77e-05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  convergence not reached in 100 iterations</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   (actual tol = 3.77e-05, target tol = 1.00e-05)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> BE_ 1 </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Positive:  Pfn1, Ybx1, Eif5a, Prdx1, Atp5b, Eif4a1, Mdk, Pebp1, Ldha, Hmgn1 </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 	   Rpl5, Ccnd1, Cox8a, Ywhae, Rpl27, Chchd2, Cox4i1, Dbi, Btf3, Atp5a1 </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 	   Ppp1ca, Wfdc2, Psma7, Cfl1, Hnrnpk, Atp5h, Atp5j, Uqcrb, Psmb6, Cd24a </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Negative:  Ddx3y, Figf, Ace2, Tmem27, Ap1s2, Rai2, Map3k15, Sh3kbp1, Smpx, Cypt3 </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 	   Usp51, Wnk3, Alg13, Pak3, Nxt2, Cldn2, Mum1l1, Nrk, Zcchc18, Tceal1 </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 	   Gprasp1, Cenpi, Pou3f4, Fam46d, Magee1, Chic1, Stard8, Pcyt1b, Arx, Gdi1 </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> BE_ 2 </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Positive:  Cox4i1, Chchd2, Rpl27, Rpl5, Rpl15, Cox8a, Eif3h, Btf3, Hint1, Aes </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 	   Rpl30, Sub1, Atp5h, Ctrb1, Ndufa4, Eif3k, Cox6b1, Pebp1, Slc25a3, Psmb1 </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 	   Atpif1, Atp5f1, Atp5j2, Atp5d, Psma7, Atp5b, Malat1, Atp5c1, Atp5j, Pcbp2 </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Negative:  Ddx3y, Fancb, Figf, Ace2, Tmem27, Ap1s2, Rai2, Map3k15, Sh3kbp1, Smpx </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 	   Cypt3, Ubqln2, Usp51, Wnk3, Pak3, Cldn2, Nrk, Zcchc18, Tceal3, Gprasp1 </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 	   Cenpi, Pou3f4, Fam46d, Magee1, Stard8, Msn, Pcyt1b, Arx, Xlr4b, Hmgb3 </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> BE_ 3 </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Positive:  Bex2, Fev, Hmgn3, Krt7, Cystm1, Cryba2, Aplp1, Glud1, Cpe, Cfl1 </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 	   Pfn1, Ffar2, Tm4sf4, Eif4a1, Btg2, Map1b, Hnrnpk, Cldn4, Ypel3, Gch1 </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 	   Akr1c19, Gars, Eif3h, Pgrmc1, Runx1t1, Rap1b, Ywhae, Pcbp2, Fxyd3, Jun </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Negative:  Fancb, Figf, Ace2, Tmem27, Rai2, Smpx, Usp51, Wnk3, Alg13, Nxt2 </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 	   Cldn2, Nrk, Zcchc18, Gprasp1, Fam46d, Chic1, Stard8, Msn, Dusp9, Xlr3b </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 	   Hmgb3, 3830403N18Rik, Ocrl, Zcchc12, Usp9x, Slc38a5, Pcsk1n, Rnf138rt1, Reps2, Prdx4 </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> BE_ 4 </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Positive:  Spp1, Dbi, Mgst1, Hmgn1, Mdk, S100a11, Cd24a, Atp1b1, Ywhae, Prdx1 </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 	   Sparc, Hnrnpk, Atp5h, Pebp1, Cldn3, Cox4i1, Cfl1, Acot1, Aes, Rpl30 </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 	   Eif4a1, Vim, Ambp, Atp5a1, Ptn, Jun, Serbp1, Cox6b1, Rpl5, Clu </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Negative:  Erdr1, Fancb, Figf, Tmem27, Ap1s2, Rai2, Map3k15, Sh3kbp1, Smpx, Cypt3 </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 	   Ubqln2, Usp51, Wnk3, Alg13, Pak3, Prps1, Mum1l1, Nrk, Zcchc18, Tceal3 </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 	   Gprasp1, Cenpi, Pou3f4, Fam46d, Magee1, Chic1, Msn, Pcyt1b, Arx, Gdi1 </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> BE_ 5 </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Positive:  Krt18, Jun, Cyr61, Vim, Cldn3, Ier2, Cox4i1, Pfn1, S100a11, Atp1b1 </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 	   Prdx1, Anxa2, Atp5b, Dbi, Sparc, H19, Lurap1l, Tagln2, Pdzk1ip1, Sox9 </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 	   Hes1, Eif3h, Tpm1, Krt19, Slc25a3, 8430408G22Rik, Actb, Fos, Rpl15, Id2 </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Negative:  Ddx3y, Fancb, Ace2, Tmem27, Ap1s2, Rai2, Map3k15, Smpx, Cypt3, Ubqln2 </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 	   Usp51, Wnk3, Alg13, Pak3, Prps1, Mum1l1, Nrk, Zcchc18, Tceal1, Tceal3 </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 	   Gprasp1, Cenpi, Pou3f4, Fam46d, Magee1, Chic1, Msn, Arx, Atp6ap1, Bgn </span>
 <span class="r-in"><span><span class="fu"><a href="CellDimPlot.html">CellDimPlot</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, group.by <span class="op">=</span> <span class="st">"CellType"</span>, reduction <span class="op">=</span> <span class="st">"nmf"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="RunNMF-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
