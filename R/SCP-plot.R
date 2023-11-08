@@ -2121,6 +2121,8 @@ FeatureDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), spli
   if (!is.numeric(dat_exp) && !inherits(dat_exp, "Matrix")) {
     stop("'features' must be type of numeric variable.")
   }
+  dat_exp[, features][dat_exp[, features] <= bg_cutoff] <- NA
+
   if (length(features) > 50 && !isTRUE(force)) {
     warning("More than 50 features to be plotted", immediate. = TRUE)
     answer <- askYesNo("Are you sure to continue?", default = FALSE)
@@ -2195,7 +2197,6 @@ FeatureDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), spli
     plist <- lapply(levels(dat_sp[[split.by]]), function(s) {
       dat <- dat_split[[ifelse(split.by == "All.groups", 1, s)]][, , drop = FALSE]
       for (f in features) {
-        dat[, f][dat[, f] <= bg_cutoff] <- NA
         if (any(is.infinite(dat[, f]))) {
           dat[, f][which(dat[, f] == max(dat[, f], na.rm = TRUE))] <- max(dat[, f][is.finite(dat[, f])], na.rm = TRUE)
           dat[, f][which(dat[, f] == min(dat[, f], na.rm = TRUE))] <- min(dat[, f][is.finite(dat[, f])], na.rm = TRUE)
@@ -2502,7 +2503,6 @@ FeatureDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), spli
       f <- comb[i, "feature"]
       s <- comb[i, "split"]
       dat <- dat_split[[ifelse(split.by == "All.groups", 1, s)]][, c(colnames(dat_use), f), drop = FALSE]
-      dat[, f][dat[, f] <= bg_cutoff] <- NA
       if (any(is.infinite(dat[, f]))) {
         dat[, f][dat[, f] == max(dat[, f], na.rm = TRUE)] <- max(dat[, f][is.finite(dat[, f])], na.rm = TRUE)
         dat[, f][dat[, f] == min(dat[, f], na.rm = TRUE)] <- min(dat[, f][is.finite(dat[, f])], na.rm = TRUE)
