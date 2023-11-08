@@ -116,6 +116,8 @@ check_srtList <- function(srtList, batch, assay = NULL,
       type <- "RNA"
     } else if (assay_type == "ChromatinAssay") {
       type <- "Chromatin"
+    } else {
+      type <- "Unknown"
     }
   }
 

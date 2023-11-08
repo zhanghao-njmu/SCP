@@ -20,7 +20,7 @@ FeatureDimPlot(
   pt.alpha = 1,
   bg_cutoff = 0,
   bg_color = "grey80",
-  keep_scale = NULL,
+  keep_scale = "feature",
   lower_quantile = 0,
   upper_quantile = 0.99,
   lower_cutoff = NULL,

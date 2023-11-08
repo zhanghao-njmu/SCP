@@ -22,6 +22,7 @@ RunSCExplorer(
   initial_size = 4,
   initial_ncol = 3,
   initial_arrange = "Row",
+  initial_raster = "No",
   session_workers = 2,
   plotting_workers = 8,
   create_script = TRUE,

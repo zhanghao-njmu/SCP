@@ -33,6 +33,7 @@ FeatureStatPlot(
   pt.size = NULL,
   pt.alpha = 1,
   jitter.width = 0.5,
+  jitter.height = 0.1,
   add_trend = FALSE,
   trend_color = "black",
   trend_linewidth = 1,
@@ -133,6 +134,8 @@ FeatureStatPlot(
 \item{pt.alpha}{A numeric value specifying the transparency of the data points. Default is 1.}
 
 \item{jitter.width}{A numeric value specifying the width of the jitter. Default is 0.5.}
+
+\item{jitter.height}{A numeric value specifying the height of the jitter. Default is 0.1.}
 
 \item{add_trend}{A logical indicating whether to add a trend line to the plot. Default is FALSE.}
 

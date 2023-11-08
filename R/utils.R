@@ -468,13 +468,13 @@ conda_python <- function(envname = NULL, conda = "auto", all = FALSE) {
     stop(sprintf(fmt, envname))
   }
   conda_envs <- reticulate::conda_list(conda = conda)
-  conda_envs <- conda_envs[grep(normalizePath(reticulate:::conda_info(conda = conda)$envs_dirs[1]), x = normalizePath(conda_envs$python), fixed = TRUE), , drop = FALSE]
+  conda_envs <- conda_envs[grep(normalizePath(reticulate:::conda_info(conda = conda)$envs_dirs[1], mustWork = FALSE), x = normalizePath(conda_envs$python, mustWork = FALSE), fixed = TRUE), , drop = FALSE]
   env <- conda_envs[conda_envs$name == envname, , drop = FALSE]
   if (nrow(env) == 0) {
     stop("conda environment \"", envname, "\" not found")
   }
   python <- if (all) env$python else env$python[[1L]]
-  return(normalizePath(as.character(python)))
+  return(normalizePath(as.character(python), mustWork = FALSE))
 }
 
 run_Python <- function(command, envir = .GlobalEnv) {

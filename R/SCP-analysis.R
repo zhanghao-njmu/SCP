@@ -5567,7 +5567,7 @@ RunSCVELO <- function(srt = NULL, assay_X = "RNA", slot_X = "counts", assay_laye
     stop("One of 'srt', 'adata' must be provided.")
   }
   if (is.null(group_by)) {
-    stop("'roup_by' must be provided.")
+    stop("'group_by' must be provided.")
   }
   if (is.null(linear_reduction) && is.null(nonlinear_reduction)) {
     stop("'linear_reduction' or 'nonlinear_reduction' must be provided at least one.")

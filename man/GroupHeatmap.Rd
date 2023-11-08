@@ -80,7 +80,7 @@ GroupHeatmap(
   show_termid = FALSE,
   topWord = 20,
   words_excluded = NULL,
-  nlabel = 0,
+  nlabel = 20,
   features_label = NULL,
   label_size = 10,
   label_color = "black",

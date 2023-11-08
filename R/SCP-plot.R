@@ -1982,7 +1982,7 @@ FeatureDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), spli
                            show_stat = ifelse(identical(theme_use, "theme_blank"), FALSE, TRUE),
                            palette = ifelse(isTRUE(compare_features), "Set1", "Spectral"), palcolor = NULL,
                            pt.size = NULL, pt.alpha = 1, bg_cutoff = 0, bg_color = "grey80",
-                           keep_scale = NULL, lower_quantile = 0, upper_quantile = 0.99, lower_cutoff = NULL, upper_cutoff = NULL,
+                           keep_scale = "feature", lower_quantile = 0, upper_quantile = 0.99, lower_cutoff = NULL, upper_cutoff = NULL,
                            add_density = FALSE, density_color = "grey80", density_filled = FALSE, density_filled_palette = "Greys", density_filled_palcolor = NULL,
                            cells.highlight = NULL, cols.highlight = "black", sizes.highlight = 1, alpha.highlight = 1, stroke.highlight = 0.5,
                            calculate_coexp = FALSE, compare_features = FALSE, color_blend_mode = c("blend", "average", "screen", "multiply"),
@@ -3343,6 +3343,7 @@ FeatureDimPlot3D <- function(srt, features, reduction = NULL, dims = c(1, 2, 3),
 #' @param pt.size A numeric value specifying the size of the data points. If NULL, the size is automatically determined. Default is NULL.
 #' @param pt.alpha A numeric value specifying the transparency of the data points. Default is 1.
 #' @param jitter.width A numeric value specifying the width of the jitter. Default is 0.5.
+#' @param jitter.height A numeric value specifying the height of the jitter. Default is 0.1.
 #' @param add_trend A logical indicating whether to add a trend line to the plot. Default is FALSE.
 #' @param trend_color A string specifying the color of the trend line. Default is "black".
 #' @param trend_linewidth A numeric value specifying the width of the trend line. Default is 1.
@@ -3466,7 +3467,7 @@ FeatureStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.b
                             palette = "Paired", palcolor = NULL, alpha = 1,
                             bg_palette = "Paired", bg_palcolor = NULL, bg_alpha = 0.2,
                             add_box = FALSE, box_color = "black", box_width = 0.1, box_ptsize = 2,
-                            add_point = FALSE, pt.color = "grey30", pt.size = NULL, pt.alpha = 1, jitter.width = 0.5,
+                            add_point = FALSE, pt.color = "grey30", pt.size = NULL, pt.alpha = 1, jitter.width = 0.5, jitter.height = 0.1,
                             add_trend = FALSE, trend_color = "black", trend_linewidth = 1, trend_ptsize = 2,
                             add_stat = c("none", "mean", "median"), stat_color = "black", stat_size = 1,
                             cells.highlight = NULL, cols.highlight = "red", sizes.highlight = 1, alpha.highlight = 1,
@@ -3519,7 +3520,7 @@ FeatureStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.b
           palette = palette, palcolor = palcolor, alpha = alpha,
           bg_palette = bg_palette, bg_palcolor = bg_palcolor, bg_alpha = bg_alpha,
           add_box = add_box, box_color = box_color, box_width = box_width, box_ptsize = box_ptsize,
-          add_point = add_point, pt.color = pt.color, pt.size = pt.size, pt.alpha = pt.alpha, jitter.width = jitter.width,
+          add_point = add_point, pt.color = pt.color, pt.size = pt.size, pt.alpha = pt.alpha, jitter.width = jitter.width, jitter.height = jitter.height,
           add_trend = add_trend, trend_color = trend_color, trend_linewidth = trend_linewidth, trend_ptsize = trend_ptsize,
           add_stat = add_stat, stat_color = stat_color, stat_size = stat_size,
           cells.highlight = cells.highlight, cols.highlight = cols.highlight, sizes.highlight = sizes.highlight, alpha.highlight = alpha.highlight,
@@ -3546,7 +3547,7 @@ FeatureStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.b
       palette = palette, palcolor = palcolor, alpha = alpha,
       bg_palette = bg_palette, bg_palcolor = bg_palcolor, bg_alpha = bg_alpha,
       add_box = add_box, box_color = box_color, box_width = box_width, box_ptsize = box_ptsize,
-      add_point = add_point, pt.color = pt.color, pt.size = pt.size, pt.alpha = pt.alpha, jitter.width = jitter.width,
+      add_point = add_point, pt.color = pt.color, pt.size = pt.size, pt.alpha = pt.alpha, jitter.width = jitter.width, jitter.height = jitter.height,
       add_trend = add_trend, trend_color = trend_color, trend_linewidth = trend_linewidth, trend_ptsize = trend_ptsize,
       add_stat = add_stat, stat_color = stat_color, stat_size = stat_size,
       cells.highlight = cells.highlight, cols.highlight = cols.highlight, sizes.highlight = sizes.highlight, alpha.highlight = alpha.highlight,
@@ -3662,7 +3663,7 @@ ExpressionStatPlot <- function(exp.data, meta.data, stat.by, group.by = NULL, sp
                                palette = "Paired", palcolor = NULL, alpha = 1,
                                bg_palette = "Paired", bg_palcolor = NULL, bg_alpha = 0.2,
                                add_box = FALSE, box_color = "black", box_width = 0.1, box_ptsize = 2,
-                               add_point = FALSE, pt.color = "grey30", pt.size = NULL, pt.alpha = 1, jitter.width = 0.5,
+                               add_point = FALSE, pt.color = "grey30", pt.size = NULL, pt.alpha = 1, jitter.width = 0.5, jitter.height = 0.1,
                                add_trend = FALSE, trend_color = "black", trend_linewidth = 1, trend_ptsize = 2,
                                add_stat = c("none", "mean", "median"), stat_color = "black", stat_size = 1,
                                cells.highlight = NULL, cols.highlight = "red", sizes.highlight = 1, alpha.highlight = 1,
@@ -4162,7 +4163,7 @@ ExpressionStatPlot <- function(exp.data, meta.data, stat.by, group.by = NULL, sp
         aes(x = .data[["group.by"]], y = .data[["value"]], linetype = rep(f, nrow(dat)), group = .data[["group.unique"]]),
         inherit.aes = FALSE,
         color = pt.color, size = pt.size, alpha = pt.alpha,
-        position = position_jitterdodge(jitter.width = jitter.width, dodge.width = 0.9, seed = 11), show.legend = FALSE
+        position = position_jitterdodge(jitter.width = jitter.width, jitter.height = jitter.height, dodge.width = 0.9, seed = 11), show.legend = FALSE
       ))
       if (!is.null(cells.highlight)) {
         cell_df <- subset(p$data, rownames(p$data) %in% cells.highlight)
@@ -4170,7 +4171,7 @@ ExpressionStatPlot <- function(exp.data, meta.data, stat.by, group.by = NULL, sp
           p <- p + geom_point(
             data = cell_df, aes(x = .data[["group.by"]], y = .data[["value"]], linetype = rep(f, nrow(cell_df)), group = .data[["group.unique"]]), inherit.aes = FALSE,
             color = cols.highlight, size = sizes.highlight, alpha = alpha.highlight,
-            position = position_jitterdodge(jitter.width = jitter.width, dodge.width = 0.9, seed = 11), show.legend = FALSE
+            position = position_jitterdodge(jitter.width = jitter.width, jitter.height = jitter.height, dodge.width = 0.9, seed = 11), show.legend = FALSE
           )
         }
       }
@@ -7854,7 +7855,7 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
                          db = "GO_BP", TERM2GENE = NULL, TERM2NAME = NULL, minGSSize = 10, maxGSSize = 500,
                          GO_simplify = FALSE, GO_simplify_cutoff = "p.adjust < 0.05", simplify_method = "Wang", simplify_similarityCutoff = 0.7,
                          pvalueCutoff = NULL, padjustCutoff = 0.05, topTerm = 5, show_termid = FALSE, topWord = 20, words_excluded = NULL,
-                         nlabel = 0, features_label = NULL, label_size = 10, label_color = "black",
+                         nlabel = 20, features_label = NULL, label_size = 10, label_color = "black",
                          add_bg = FALSE, bg_alpha = 0.5,
                          add_dot = FALSE, dot_size = unit(8, "mm"),
                          add_reticle = FALSE, reticle_color = "grey",
