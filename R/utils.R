@@ -816,24 +816,27 @@ unnest <- function(data, cols, keep_empty = FALSE) {
 }
 
 #' Attempts to turn a dgCMatrix into a dense matrix
-#' @param matrix A dgCMatrix
+#'
+#' @examples
+#' data("pancreas_sub")
+#' system.time(mat1 <- as.matrix(slot(pancreas_sub[["RNA"]], "counts")))
+#' system.time(mat2 <- as_matrix(slot(pancreas_sub[["RNA"]], "counts")))
+#' identical(mat1, mat2)
+#'
+#' @param x A matrix.
 #' @useDynLib SCP
+#' @importFrom Matrix as.matrix
 #' @export
-as_matrix <- function(matrix) {
+as_matrix <- function(x) {
   if (!inherits(matrix, "dgCMatrix")) {
-    stop("matrix is not a dgCMatrix.")
+    return(as.matrix(x))
+  } else {
+    row_pos <- x@i
+    col_pos <- findInterval(seq_along(x@x) - 1, x@p[-1])
+    out <- asMatrix(rp = row_pos, cp = col_pos, z = x@x, nrows = x@Dim[1], ncols = x@Dim[2])
+    attr(out, "dimnames") <- list(x@Dimnames[[1]], x@Dimnames[[2]])
+    return(out)
   }
-  row_pos <- matrix@i
-  col_pos <- findInterval(seq(matrix@x) - 1, matrix@p[-1])
-
-  out <- asMatrix(
-    rp = row_pos, cp = col_pos, z = matrix@x,
-    nrows = matrix@Dim[1], ncols = matrix@Dim[2]
-  )
-
-  row.names(out) <- matrix@Dimnames[[1]]
-  colnames(out) <- matrix@Dimnames[[2]]
-  return(out)
 }
 
 #' Capitalizes the characters

@@ -60,7 +60,7 @@
 #'   by = list(res$geneID_expand[, "symbol"]), FUN = sum
 #' )
 #' rownames(homologs_counts) <- homologs_counts[, 1]
-#' homologs_counts <- as(as.matrix(homologs_counts[, -1]), "dgCMatrix")
+#' homologs_counts <- as(as_matrix(homologs_counts[, -1]), "dgCMatrix")
 #' homologs_counts
 #'
 #' @importFrom R.cache loadCache saveCache
@@ -470,8 +470,8 @@ searchDatasets <- function(datasets, pattern) {
 #' @importFrom R.cache loadCache saveCache
 #' @export
 CC_GenePrefetch <- function(species = "Homo_sapiens", Ensembl_version = 103, mirror = NULL, max_tries = 5, use_cached_gene = TRUE) {
-  cc_S_genes <- Seurat::cc.genes.updated.2019$s.genes
-  cc_G2M_genes <- Seurat::cc.genes.updated.2019$g2m.genes
+  S <- Seurat::cc.genes.updated.2019$s.genes
+  G2M <- Seurat::cc.genes.updated.2019$g2m.genes
   res <- NULL
   if (species != "Homo_sapiens") {
     if (isTRUE(use_cached_gene)) {
@@ -479,7 +479,7 @@ CC_GenePrefetch <- function(species = "Homo_sapiens", Ensembl_version = 103, mir
     }
     if (is.null(res)) {
       res <- GeneConvert(
-        geneID = unique(c(cc_S_genes, cc_G2M_genes)),
+        geneID = unique(c(S, G2M)),
         geneID_from_IDtype = "symbol",
         geneID_to_IDtype = "symbol",
         species_from = "Homo_sapiens",
@@ -493,13 +493,13 @@ CC_GenePrefetch <- function(species = "Homo_sapiens", Ensembl_version = 103, mir
       message("Using cached conversion results for ", species)
     }
     genes <- res[["geneID_collapse"]]
-    cc_S_genes <- unlist(genes[cc_S_genes[cc_S_genes %in% rownames(genes)], "symbol"])
-    cc_G2M_genes <- unlist(genes[cc_G2M_genes[cc_G2M_genes %in% rownames(genes)], "symbol"])
+    S <- unlist(genes[S[S %in% rownames(genes)], "symbol"])
+    G2M <- unlist(genes[G2M[G2M %in% rownames(genes)], "symbol"])
   }
   return(list(
     res = res,
-    cc_S_genes = cc_S_genes,
-    cc_G2M_genes = cc_G2M_genes
+    S = S,
+    G2M = G2M
   ))
 }
 
@@ -621,14 +621,14 @@ AddModuleScore2 <- function(object, slot = "data", features, pool = NULL, nbin =
   #   return(list(features.use, ctrl.use))
   # }, BPPARAM = BPPARAM)
   # features.scores <- bpaggregate(
-  #   x = as.matrix(assay.data[unlist(lapply(features_collapse, function(x) x[[1]])), ]),
+  #   x = as_matrix(assay.data[unlist(lapply(features_collapse, function(x) x[[1]])), ]),
   #   by = list(unlist(lapply(1:length(features_collapse), function(x) rep(x, length(features_collapse[[x]][[1]]))))),
   #   FUN = mean,
   #   BPPARAM = BPPARAM
   # )
   # features.scores <- features.scores[,-1]
   # ctrl.scores <- bpaggregate(
-  #   x = as.matrix(assay.data[unlist(lapply(features_collapse, function(x) x[[2]])), ]),
+  #   x = as_matrix(assay.data[unlist(lapply(features_collapse, function(x) x[[2]])), ]),
   #   by = list(unlist(lapply(1:length(features_collapse), function(x) rep(x, length(features_collapse[[x]][[2]]))))),
   #   FUN = mean,
   #   BPPARAM = BPPARAM
@@ -672,7 +672,7 @@ AddModuleScore2 <- function(object, slot = "data", features, pool = NULL, nbin =
 #' ccgenes <- CC_GenePrefetch("Mus_musculus")
 #' pancreas_sub <- CellScoring(
 #'   srt = pancreas_sub,
-#'   features = list(S = ccgenes$cc_S_genes, G2M = ccgenes$cc_G2M_genes),
+#'   features = list(S = ccgenes$S, G2M = ccgenes$G2M),
 #'   method = "Seurat", name = "CC"
 #' )
 #' CellDimPlot(pancreas_sub, "CC_classification")
@@ -862,7 +862,7 @@ CellScoring <- function(srt, features = NULL, slot = "data", assay = NULL, split
       colnames(scores) <- make.names(paste(name, names(features_nm), sep = "_"))
     } else if (method == "AUCell") {
       check_R("AUCell")
-      CellRank <- AUCell::AUCell_buildRankings(as.matrix(GetAssayData(srt_sp, slot = slot, assay = assay)), BPPARAM = BPPARAM, plotStats = FALSE)
+      CellRank <- AUCell::AUCell_buildRankings(as_matrix(GetAssayData(srt_sp, slot = slot, assay = assay)), BPPARAM = BPPARAM, plotStats = FALSE)
       cells_AUC <- AUCell::AUCell_calcAUC(
         geneSets = features,
         rankings = CellRank,
@@ -885,7 +885,7 @@ CellScoring <- function(srt, features = NULL, slot = "data", assay = NULL, split
   scores_mat <- do.call(rbind, lapply(scores_list, function(x) x[intersect(rownames(x), colnames(srt)), features_used, drop = FALSE]))
 
   if (isTRUE(new_assay)) {
-    srt[[name]] <- CreateAssayObject(counts = t(as.matrix(scores_mat[colnames(srt), , drop = FALSE])))
+    srt[[name]] <- CreateAssayObject(counts = t(as_matrix(scores_mat[colnames(srt), , drop = FALSE])))
     srt[[name]] <- AddMetaData(object = srt[[name]], metadata = data.frame(termnames = features_nm_used[colnames(scores_mat)]))
   } else {
     srt <- AddMetaData(object = srt, metadata = scores_mat)
@@ -1077,7 +1077,7 @@ FindConservedMarkers2 <- function(object, grouping.var, ident.1, ident.2 = NULL,
   object.var <- FetchData(object = object, vars = grouping.var)
   levels.split <- names(x = sort(x = table(object.var[, 1])))
   num.groups <- length(levels.split)
-  assay <- assay %||% DefaultAssay(srt)
+  assay <- assay %||% DefaultAssay(object)
 
   cells <- list()
   for (i in 1:num.groups) {
@@ -1216,6 +1216,353 @@ FindConservedMarkers2 <- function(object, grouping.var, ident.1, ident.2 = NULL,
   }
   return(markers.combined)
 }
+
+#' @examples
+#' markers <- FindExpressedMarkers(pancreas_sub, cells.1 = WhichCells(pancreas_sub, expression = Phase == "G2M"))
+#' head(markers)
+#' FeatureStatPlot(pancreas_sub, rownames(markers)[1], group.by = "Phase", add_point = TRUE)
+#' @importFrom Matrix rowSums
+#' @importFrom SeuratObject PackageCheck FetchData WhichCells SetIdent Idents
+#' @importFrom Seurat FindMarkers FoldChange Command
+#' @importFrom pbapply pbsapply
+#' @export
+FindExpressedMarkers <- function(object, ident.1 = NULL, ident.2 = NULL, cells.1 = NULL, cells.2 = NULL,
+                                 features = NULL, assay = NULL, slot = "data", min.expression = 0,
+                                 test.use = "wilcox", logfc.threshold = 0.25, base = 2, pseudocount.use = 1, mean.fxn = NULL, fc.name = NULL,
+                                 min.pct = 0.1, min.diff.pct = -Inf, max.cells.per.ident = Inf, latent.vars = NULL, only.pos = FALSE,
+                                 min.cells.group = 3, min.cells.feature = 3,
+                                 norm.method = "LogNormalize", verbose = TRUE, ...) {
+  ########## FindMarkers.Seurat ##########
+
+  assay <- assay %||% DefaultAssay(object)
+  data.use <- object[[assay]]
+
+  if (!is.null(cells.1)) {
+    if (is.null(cells.2)) {
+      cells.2 <- setdiff(colnames(object), cells.1)
+    }
+  } else {
+    cells.1 <- WhichCells(object = object, idents = ident.1)
+    cells.2 <- WhichCells(object = object, idents = ident.2)
+  }
+
+  # fetch latent.vars
+  if (!is.null(x = latent.vars)) {
+    latent.vars <- FetchData(
+      object = object,
+      vars = latent.vars,
+      cells = c(cells.1, cells.2)
+    )
+  }
+
+  ########## FindMarkers.Assay ##########
+
+  object <- data.use
+
+  pseudocount.use <- pseudocount.use %||% 1
+  data.slot <- ifelse(
+    test = test.use %in% c("negbinom", "poisson", "DESeq2"),
+    yes = "counts",
+    no = slot
+  )
+  data.use <- GetAssayData(object = object, slot = data.slot)
+  data.use <- data.use[rowSums(data.use) > 0, ]
+  data.use <- as_matrix(data.use)
+  data.use[data.use <= min.expression] <- NA
+  counts <- switch(
+    EXPR = data.slot,
+    "scale.data" = GetAssayData(object = object, slot = "counts"),
+    numeric()
+  )
+
+  ########## FoldChange.Assay ##########
+  features <- features %||% rownames(x = data.use)
+  slot <- data.slot
+
+  # By default run as if LogNormalize is done
+  log1pdata.mean.fxn <- function(x) {
+    return(log(x = rowMeans(x = expm1(x), na.rm = TRUE) + pseudocount.use, base = base))
+  }
+  scaledata.mean.fxn <- function(x) {
+    return(rowMeans(x, na.rm = TRUE))
+  }
+  counts.mean.fxn <- function(x) {
+    return(log(x = rowMeans(x = x, na.rm = TRUE) + pseudocount.use, base = base))
+  }
+  if (!is.null(x = norm.method)) {
+    # For anything apart from log normalization set to rowMeans
+    if (norm.method != "LogNormalize") {
+      new.mean.fxn <- counts.mean.fxn
+    } else {
+      new.mean.fxn <- switch(
+        EXPR = slot,
+        "data" = log1pdata.mean.fxn,
+        "scale.data" = scaledata.mean.fxn,
+        "counts" = counts.mean.fxn,
+        counts.mean.fxn
+      )
+    }
+  } else {
+    # If no normalization method is passed use slots to decide mean function
+    new.mean.fxn <- switch(
+      EXPR = slot,
+      "data" = log1pdata.mean.fxn,
+      "scale.data" = scaledata.mean.fxn,
+      "counts" = counts.mean.fxn,
+      log1pdata.mean.fxn
+    )
+  }
+  mean.fxn <- mean.fxn %||% new.mean.fxn
+  # Omit the decimal value of e from the column name if base == exp(1)
+  base.text <- ifelse(
+    test = base == exp(1),
+    yes = "",
+    no = base
+  )
+  fc.name <- fc.name %||% ifelse(
+    test = slot == "scale.data",
+    yes = "avg_diff",
+    no = paste0("avg_log", base.text, "FC")
+  )
+  fc.results <- FoldChange.default(
+    object = data.use,
+    cells.1 = cells.1,
+    cells.2 = cells.2,
+    features = features,
+    mean.fxn = mean.fxn,
+    fc.name = fc.name
+  )
+
+  ########## FindMarkers.default ##########
+
+  object <- data.use
+  slot <- data.slot
+
+  Seurat:::ValidateCellGroups(
+    object = object,
+    cells.1 = cells.1,
+    cells.2 = cells.2,
+    min.cells.group = min.cells.group
+  )
+
+  # reset parameters so no feature filtering is performed
+  if (test.use %in% "DESeq2") {
+    features <- rownames(x = object)
+    min.diff.pct <- -Inf
+    logfc.threshold <- 0
+  }
+  data <- switch(
+    EXPR = slot,
+    "scale.data" = counts,
+    object
+  )
+  # feature selection (based on percentages)
+  alpha.min <- pmax(fc.results$pct.1, fc.results$pct.2)
+  names(x = alpha.min) <- rownames(x = fc.results)
+  features <- names(x = which(x = alpha.min >= min.pct))
+  if (length(x = features) == 0) {
+    warning("No features pass min.pct threshold; returning empty data.frame")
+    return(fc.results[features, ])
+  }
+  alpha.diff <- alpha.min - pmin(fc.results$pct.1, fc.results$pct.2)
+  features <- names(
+    x = which(x = alpha.min >= min.pct & alpha.diff >= min.diff.pct)
+  )
+  if (length(x = features) == 0) {
+    warning("No features pass min.diff.pct threshold; returning empty data.frame")
+    return(fc.results[features, ])
+  }
+  # feature selection (based on logFC)
+  if (slot != "scale.data") {
+    total.diff <- fc.results[, 1] # first column is logFC
+    names(total.diff) <- rownames(fc.results)
+    features.diff <- if (only.pos) {
+      names(x = which(x = total.diff >= logfc.threshold))
+    } else {
+      names(x = which(x = abs(x = total.diff) >= logfc.threshold))
+    }
+    features <- intersect(x = features, y = features.diff)
+    if (length(x = features) == 0) {
+      warning("No features pass logfc.threshold threshold; returning empty data.frame")
+      return(fc.results[features, ])
+    }
+  }
+  # subsample cell groups if they are too large
+  if (max.cells.per.ident < Inf) {
+    set.seed(seed = random.seed)
+    if (length(x = cells.1) > max.cells.per.ident) {
+      cells.1 <- sample(x = cells.1, size = max.cells.per.ident)
+    }
+    if (length(x = cells.2) > max.cells.per.ident) {
+      cells.2 <- sample(x = cells.2, size = max.cells.per.ident)
+    }
+    if (!is.null(x = latent.vars)) {
+      latent.vars <- latent.vars[c(cells.1, cells.2), , drop = FALSE]
+    }
+  }
+
+  de.results <- PerformDE(
+    object = object,
+    cells.1 = cells.1,
+    cells.2 = cells.2,
+    features = features,
+    test.use = test.use,
+    verbose = verbose,
+    min.cells.feature = min.cells.feature,
+    latent.vars = latent.vars,
+    ...
+  )
+  de.results <- cbind(de.results, fc.results[rownames(x = de.results), , drop = FALSE])
+  if (only.pos) {
+    de.results <- de.results[de.results[, 2] > 0, , drop = FALSE]
+  }
+  if (test.use %in% "roc") {
+    de.results <- de.results[order(-de.results$power, -de.results[, 1]), ]
+  } else {
+    de.results <- de.results[order(de.results$p_val, -de.results[, 1]), ]
+    de.results$p_val_adj <- p.adjust(
+      p = de.results$p_val,
+      method = "bonferroni",
+      n = nrow(x = object)
+    )
+  }
+
+  return(de.results)
+}
+
+FoldChange.default <- function(object, cells.1, cells.2, mean.fxn, fc.name, features = NULL, ...) {
+  features <- features %||% rownames(x = object)
+  # Calculate percent expressed
+  thresh.min <- 0
+  pct.1 <- round(
+    x = rowSums(x = object[features, cells.1, drop = FALSE] > thresh.min, na.rm = TRUE) /
+      length(x = cells.1),
+    digits = 3
+  )
+  pct.2 <- round(
+    x = rowSums(x = object[features, cells.2, drop = FALSE] > thresh.min, na.rm = TRUE) /
+      length(x = cells.2),
+    digits = 3
+  )
+  # Calculate fold change
+  data.1 <- mean.fxn(object[features, cells.1, drop = FALSE])
+  data.2 <- mean.fxn(object[features, cells.2, drop = FALSE])
+  fc <- (data.1 - data.2)
+  fc.results <- as.data.frame(x = cbind(fc, pct.1, pct.2))
+  colnames(fc.results) <- c(fc.name, "pct.1", "pct.2")
+  return(fc.results)
+}
+
+
+PerformDE <- function(object, cells.1, cells.2, features, test.use, verbose, min.cells.feature, latent.vars, ...) {
+  if (!(test.use %in% c("negbinom", "poisson", "MAST", "LR")) && !is.null(x = latent.vars)) {
+    warning(
+      "'latent.vars' is only used for the following tests: ",
+      paste(c("negbinom", "poisson", "MAST", "LR"), collapse = ", "),
+      call. = FALSE,
+      immediate. = TRUE
+    )
+  }
+  data.use <- object[features, c(cells.1, cells.2), drop = FALSE]
+  data.use <- as_matrix(data.use)
+
+  de.results <- switch(
+    EXPR = test.use,
+    "wilcox" = WilcoxDETest(
+      data.use = data.use,
+      cells.1 = cells.1,
+      cells.2 = cells.2,
+      verbose = verbose,
+      ...
+    ),
+    "bimod" = Seurat:::DiffExpTest(
+      data.use = data.use,
+      cells.1 = cells.1,
+      cells.2 = cells.2,
+      verbose = verbose
+    ),
+    "roc" = Seurat:::MarkerTest(
+      data.use = data.use,
+      cells.1 = cells.1,
+      cells.2 = cells.2,
+      verbose = verbose
+    ),
+    "t" = Seurat:::DiffTTest(
+      data.use = data.use,
+      cells.1 = cells.1,
+      cells.2 = cells.2,
+      verbose = verbose
+    ),
+    "negbinom" = Seurat:::GLMDETest(
+      data.use = data.use,
+      cells.1 = cells.1,
+      cells.2 = cells.2,
+      min.cells = min.cells.feature,
+      latent.vars = latent.vars,
+      test.use = test.use,
+      verbose = verbose
+    ),
+    "poisson" = Seurat:::GLMDETest(
+      data.use = data.use,
+      cells.1 = cells.1,
+      cells.2 = cells.2,
+      min.cells = min.cells.feature,
+      latent.vars = latent.vars,
+      test.use = test.use,
+      verbose = verbose
+    ),
+    "MAST" = Seurat:::MASTDETest(
+      data.use = data.use,
+      cells.1 = cells.1,
+      cells.2 = cells.2,
+      latent.vars = latent.vars,
+      verbose = verbose,
+      ...
+    ),
+    "DESeq2" = Seurat:::DESeq2DETest(
+      data.use = data.use,
+      cells.1 = cells.1,
+      cells.2 = cells.2,
+      verbose = verbose,
+      ...
+    ),
+    "LR" = Seurat:::LRDETest(
+      data.use = data.use,
+      cells.1 = cells.1,
+      cells.2 = cells.2,
+      latent.vars = latent.vars,
+      verbose = verbose
+    ),
+    stop("Unknown test: ", test.use)
+  )
+  return(de.results)
+}
+
+#' @importFrom future nbrOfWorkers
+#' @importFrom future.apply future_sapply
+#' @importFrom pbapply pbsapply
+WilcoxDETest <- function(data.use, cells.1, cells.2, verbose = TRUE, ...) {
+  data.use <- data.use[, c(cells.1, cells.2), drop = FALSE]
+  j <- seq_len(length.out = length(x = cells.1))
+  my.sapply <- ifelse(
+    test = verbose && nbrOfWorkers() == 1,
+    yes = pbsapply,
+    no = future_sapply
+  )
+  check_R("limma")
+  p_val <- my.sapply(
+    X = 1:nrow(x = data.use),
+    FUN = function(x) {
+      keep <- colnames(data.use)[!is.na(data.use[x, ])]
+      j <- seq_len(length.out = length(x = intersect(cells.1, keep)))
+      statistics <- data.use[x, keep]
+      return(min(2 * min(limma::rankSumTestWithCorrelation(index = j, statistics = statistics)), 1))
+    }
+  )
+
+  return(data.frame(p_val, row.names = rownames(x = data.use)))
+}
+
 
 #' Differential gene test
 #'
@@ -1689,6 +2036,7 @@ RunDEtest <- function(srt, group_by = NULL, group1 = NULL, group2 = NULL, cells1
         srt@tools[[paste0("DEtest_", group_by)]][[paste0("ConservedMarkers_", test.use)]] <- data.frame()
       }
     }
+
     if (markers_type == "disturbed") {
       sub_BPPARAM <- SerialParam()
       bpprogressbar(sub_BPPARAM) <- FALSE
@@ -4166,8 +4514,8 @@ orderCells <- function(cds, root_state = NULL, num_paths = NULL, reverse = NULL)
       num_paths <- 1
     }
     adjusted_S <- t(cds@reducedDimS)
-    dp <- as.matrix(stats::dist(adjusted_S))
-    cellPairwiseDistances(cds) <- as.matrix(stats::dist(adjusted_S))
+    dp <- as_matrix(stats::dist(adjusted_S))
+    cellPairwiseDistances(cds) <- as_matrix(stats::dist(adjusted_S))
     gp <- igraph::graph.adjacency(dp, mode = "undirected", weighted = TRUE)
     dp_mst <- igraph::minimum.spanning.tree(gp)
     monocle::minSpanningTree(cds) <- dp_mst
@@ -4239,7 +4587,7 @@ project2MST <- function(cds, Projection_Method) {
   cds <- monocle:::findNearestPointOnMST(cds)
   closest_vertex <- cds@auxOrderingData[["DDRTree"]]$pr_graph_cell_proj_closest_vertex
   closest_vertex_names <- colnames(Y)[closest_vertex]
-  closest_vertex_df <- as.matrix(closest_vertex)
+  closest_vertex_df <- as_matrix(closest_vertex)
   row.names(closest_vertex_df) <- row.names(closest_vertex)
   tip_leaves <- names(which(igraph::degree(dp_mst) == 1))
   if (!is.function(Projection_Method)) {
@@ -4261,13 +4609,13 @@ project2MST <- function(cds, Projection_Method) {
         distance <- c(distance, stats::dist(rbind(Z_i, tmp)))
       }
       if (!inherits(projection, "matrix")) {
-        projection <- as.matrix(projection)
+        projection <- as_matrix(projection)
       }
       P[, i] <- projection[which(distance == min(distance))[1], ]
     }
   }
   colnames(P) <- colnames(Z)
-  dp <- as.matrix(stats::dist(t(P)))
+  dp <- as_matrix(stats::dist(t(P)))
   min_dist <- min(dp[dp != 0])
   dp <- dp + min_dist
   diag(dp) <- 0
@@ -4707,9 +5055,9 @@ RunDynamicFeatures <- function(srt, lineages, features = NULL, suffix = lineages
     t <- srt_sub[[l, drop = TRUE]]
     t <- t[is.finite(t)]
     t_ordered <- t[order(t)]
-    Y_ordered <- as.matrix(Y[features, names(t_ordered), drop = FALSE])
+    Y_ordered <- as_matrix(Y[features, names(t_ordered), drop = FALSE])
     l_libsize <- Y_libsize[names(t_ordered)]
-    raw_matrix <- as.matrix(cbind(data.frame(pseudotime = t_ordered), t(Y_ordered)))
+    raw_matrix <- as_matrix(cbind(data.frame(pseudotime = t_ordered), t(Y_ordered)))
 
     # df <- data.frame(x = rowMeans(Y_ordered), y = MatrixGenerics::rowVars(Y_ordered))
     # p <- ggplot(df, aes(x = .data[["x"]], y = .data[["y"]])) +
@@ -5228,7 +5576,7 @@ adata_to_srt <- function(adata) {
         next
       }
       if (!inherits(obsm, "matrix")) {
-        obsm <- as.matrix(obsm)
+        obsm <- as_matrix(obsm)
       }
       k <- gsub(pattern = "^X_", replacement = "", x = py_to_r_auto(k))
       colnames(obsm) <- paste0(k, "_", seq_len(ncol(obsm)))
@@ -5277,7 +5625,7 @@ adata_to_srt <- function(adata) {
         next
       }
       if (!inherits(varm, "matrix")) {
-        varm <- as.matrix(varm)
+        varm <- as_matrix(varm)
       }
       colnames(varm) <- paste0(py_to_r_auto(k), "_", seq_len(ncol(varm)))
       rownames(varm) <- py_to_r_auto(adata$var_names$values)
@@ -5298,7 +5646,7 @@ adata_to_srt <- function(adata) {
         next
       }
       if (!inherits(varp, "matrix")) {
-        varp <- as.matrix(varp)
+        varp <- as_matrix(varp)
       }
       colnames(varp) <- py_to_r_auto(adata$var_names$values)
       rownames(varp) <- py_to_r_auto(adata$var_names$values)

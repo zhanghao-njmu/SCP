@@ -276,7 +276,7 @@ RunKNNPredict <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
   }
 
   if (!inherits(ref, "matrix")) {
-    ref <- as.matrix(ref)
+    ref <- as_matrix(ref)
   }
   k <- min(c(k, nrow(ref)))
 
@@ -321,7 +321,7 @@ RunKNNPredict <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
   # rownames(tst.expr) <- rownames(ref)
   # colnames(tst.expr) <- colnames(query)
   # features_common <- intersect(rownames(query), rownames(ref.expr))
-  # tst.expr[features_common, ] <- as.matrix(query[features_common, ])
+  # tst.expr[features_common, ] <- as_matrix(query[features_common, ])
   #
   # library(RcppArmadillo)
   # library(RcppXPtrUtils)
@@ -335,7 +335,7 @@ RunKNNPredict <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
   # }",
   #     depends = c("RcppArmadillo")
   #   )
-  #   cors <- as.matrix(parDist(t(query), method = "custom", func = CosineCPP))
+  #   cors <- as_matrix(parDist(t(query), method = "custom", func = CosineCPP))
   #   cors <- cors[colnames(ref.expr), colnames(tst.expr)]
   #
 
@@ -407,11 +407,11 @@ RunKNNPredict <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
       )
     }
     if (k == 1) {
-      match_k_cell <- as.matrix(apply(d, 2, function(x) names(x)[order(x, decreasing = FALSE)[1]]))
-      match_k_distance <- as.matrix(apply(d, 2, function(x) x[order(x, decreasing = FALSE)[1]]))
+      match_k_cell <- as_matrix(apply(d, 2, function(x) names(x)[order(x, decreasing = FALSE)[1]]))
+      match_k_distance <- as_matrix(apply(d, 2, function(x) x[order(x, decreasing = FALSE)[1]]))
     } else {
-      match_k_cell <- t(as.matrix(apply(d, 2, function(x) names(x)[order(x, decreasing = FALSE)[1:k]])))
-      match_k_distance <- t(as.matrix(apply(d, 2, function(x) x[order(x, decreasing = FALSE)[1:k]])))
+      match_k_cell <- t(as_matrix(apply(d, 2, function(x) names(x)[order(x, decreasing = FALSE)[1:k]])))
+      match_k_distance <- t(as_matrix(apply(d, 2, function(x) x[order(x, decreasing = FALSE)[1:k]])))
     }
   }
 
@@ -438,7 +438,7 @@ RunKNNPredict <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
         x <- x / sum(x)
         return(x)
       }))
-      match_prob <- as.matrix(match_prob)
+      match_prob <- as_matrix(match_prob)
       rownames(match_prob) <- names(match_freq)
       match_best <- apply(match_prob, 1, function(x) names(x)[order(x, decreasing = TRUE)][1])
     }

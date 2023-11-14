@@ -86,7 +86,7 @@ data("pancreas_sub")
 ccgenes <- CC_GenePrefetch("Mus_musculus")
 pancreas_sub <- CellScoring(
   srt = pancreas_sub,
-  features = list(S = ccgenes$cc_S_genes, G2M = ccgenes$cc_G2M_genes),
+  features = list(S = ccgenes$S, G2M = ccgenes$G2M),
   method = "Seurat", name = "CC"
 )
 CellDimPlot(pancreas_sub, "CC_classification")

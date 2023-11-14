@@ -323,7 +323,13 @@ PrepareSCExplorer <- function(object,
 #' data("pancreas_sub")
 #' pancreas_sub <- Standard_SCP(pancreas_sub)
 #' PrepareSCExplorer(pancreas_sub, base_dir = "./SCExplorer")
-#' srt <- FetchH5(DataFile = "./SCExplorer/Data.hdf5", MetaFile = "./SCExplorer/Meta.hdf5", features = c("Ins1", "Ghrl"), metanames = c("SubCellType", "Phase"), reduction = "UMAP")
+#' srt <- FetchH5(
+#'   DataFile = "./SCExplorer/Data.hdf5",
+#'   MetaFile = "./SCExplorer/Meta.hdf5",
+#'   features = c("Ins1", "Ghrl"),
+#'   metanames = c("SubCellType", "Phase"),
+#'   reduction = "UMAP"
+#' )
 #' CellDimPlot(srt, group.by = c("SubCellType", "Phase"), reduction = "UMAP")
 #' FeatureDimPlot(srt, features = c("Ins1", "Ghrl"), reduction = "UMAP")
 #' }
@@ -506,13 +512,14 @@ CreateSeuratObject2 <- function(counts, project = "SeuratProject", assay = "RNA"
 #' @param initial_feature A string. The initial feature to be loaded into the app. Default is NULL.
 #' @param initial_assay A string. The initial assay to be loaded into the app. Default is NULL.
 #' @param initial_slot A string. The initial slot to be loaded into the app. Default is NULL.
-#' @param initial_label A string. Whether to add labels in the initial plot. Default is "No".
+#' @param initial_label A string. Whether to add labels in the initial plot. Default is FALSE.
 #' @param initial_cell_palette A string. The initial color palette for cells. Default is "Paired".
 #' @param initial_feature_palette A string. The initial color palette for features. Default is "Spectral".
 #' @param initial_theme A string. The initial theme for plots. Default is "theme_scp".
 #' @param initial_size A numeric. The initial size of plots. Default is 4.
 #' @param initial_ncol A numeric. The initial number of columns for arranging plots. Default is 3.
-#' @param initial_arrange A string. The initial arrangement of plots. Default is "Row".
+#' @param initial_arrange A logical. Whether to use "Row" as the initial arrangement. Default is TRUE.
+#' @param initial_raster A logical. Whether to perform rasterization in the initial plot. By default, it is set to automatic, meaning it will be TRUE if the number of cells in the initial datasets exceeds 100,000.
 #' @param session_workers A numeric. The number of workers for concurrent execution in an asynchronous programming session. Default is 2.
 #' @param plotting_workers A numeric. The number of threads per worker for parallel plotting. Default is 8.
 #' @param create_script A logical. Whether to create the SCExplorer app script. Default is TRUE.
@@ -577,14 +584,14 @@ RunSCExplorer <- function(base_dir = "SCExplorer",
                           initial_feature = NULL,
                           initial_assay = NULL,
                           initial_slot = NULL,
-                          initial_label = "No",
+                          initial_label = FALSE,
                           initial_cell_palette = "Paired",
                           initial_feature_palette = "Spectral",
                           initial_theme = "theme_scp",
                           initial_size = 4,
                           initial_ncol = 3,
-                          initial_arrange = "Row",
-                          initial_raster = "No",
+                          initial_arrange = NULL,
+                          initial_raster = NULL,
                           session_workers = 2,
                           plotting_workers = 8,
                           create_script = TRUE,
@@ -634,6 +641,7 @@ if (!initial_assay %in% assays) {
 if (!initial_slot %in% slots) {
   stop("initial_slot is not in the dataset ", initial_slot, " in the DataFile")
 }
+all_cells <- rhdf5::h5read(DataFile, name = paste0("/", initial_dataset, "/cells"))
 
 data <- HDF5Array::TENxMatrix(filepath = DataFile, group = paste0("/", initial_dataset, "/", initial_assay, "/", initial_slot))
 all_features <- colnames(data)
@@ -652,6 +660,12 @@ if (is.null(initial_group)) {
 }
 if (is.null(initial_feature)) {
   initial_feature <- meta_features_name[1]
+}
+if (is.null(initial_arrange)) {
+  initial_arrange <- TRUE
+}
+if (is.null(initial_raster)) {
+  initial_raster <- length(all_cells) > 1e5
 }
 
 palette_list <- SCP::palette_list
@@ -714,7 +728,7 @@ ui <- fluidPage(
               radioButtons(
                 inputId = "label1",
                 label = "Label",
-                choices = c("Yes", "No"),
+                choices = c("Yes" = TRUE, "No" = FALSE),
                 selected = initial_label,
                 inline = TRUE
               )
@@ -724,7 +738,7 @@ ui <- fluidPage(
               radioButtons(
                 inputId = "raster1",
                 label = "Raster",
-                choices = c("Yes", "No"),
+                choices = c("Yes" = TRUE, "No" = FALSE),
                 selected = initial_raster,
                 inline = TRUE
               )
@@ -737,7 +751,7 @@ ui <- fluidPage(
                 inputId = "pt_size1",
                 label = "Point size",
                 value = 1,
-                min = 0.5,
+                min = 0.1,
                 max = 10,
                 step = 0.5,
                 width = "150px"
@@ -774,7 +788,7 @@ ui <- fluidPage(
               radioButtons(
                 inputId = "arrange1",
                 label = "Arrange by",
-                choices = c("Row", "Column"),
+                choices = c("Row" = TRUE, "Column" = FALSE),
                 selected = initial_arrange
               )
             )
@@ -895,8 +909,8 @@ ui <- fluidPage(
               radioButtons(
                 inputId = "coExp2",
                 label = "Co-expression",
-                choices = c("Yes", "No"),
-                selected = "No",
+                choices = c("Yes" = TRUE, "No" = FALSE),
+                selected = FALSE,
                 inline = TRUE
               ),
             ),
@@ -915,7 +929,7 @@ ui <- fluidPage(
               radioButtons(
                 inputId = "raster2",
                 label = "Raster",
-                choices = c("Yes", "No"),
+                choices = c("Yes" = TRUE, "No" = FALSE),
                 selected = initial_raster,
                 inline = TRUE
               )
@@ -928,7 +942,7 @@ ui <- fluidPage(
                 inputId = "pt_size2",
                 label = "Point size",
                 value = 1,
-                min = 0.5,
+                min = 0.1,
                 max = 10,
                 step = 0.5,
                 width = "150px"
@@ -965,7 +979,7 @@ ui <- fluidPage(
               radioButtons(
                 inputId = "arrange2",
                 label = "Arrange by",
-                choices = c("Row", "Column"),
+                choices = c("Row" = TRUE, "Column" = FALSE),
                 selected = initial_arrange
               )
             )
@@ -1080,7 +1094,7 @@ ui <- fluidPage(
               radioButtons(
                 inputId = "label3",
                 label = "Label",
-                choices = c("Yes", "No"),
+                choices = c("Yes" = TRUE, "No" = FALSE),
                 selected = initial_label,
                 inline = TRUE
               )
@@ -1090,8 +1104,8 @@ ui <- fluidPage(
               radioButtons(
                 inputId = "flip3",
                 label = "Flip",
-                choices = c("Yes", "No"),
-                selected = "No",
+                choices = c("Yes" = TRUE, "No" = FALSE),
+                selected = FALSE,
                 inline = TRUE
               )
             ),
@@ -1178,7 +1192,7 @@ ui <- fluidPage(
               radioButtons(
                 inputId = "arrange3",
                 label = "Arrange by",
-                choices = c("Row", "Column"),
+                choices = c("Row" = TRUE, "Column" = FALSE),
                 selected = initial_arrange
               )
             )
@@ -1312,8 +1326,8 @@ ui <- fluidPage(
               radioButtons(
                 inputId = "coExp4",
                 label = "Co-expression",
-                choices = c("Yes", "No"),
-                selected = "No",
+                choices = c("Yes" = TRUE, "No" = FALSE),
+                selected = FALSE,
                 inline = TRUE
               )
             ),
@@ -1322,8 +1336,8 @@ ui <- fluidPage(
               radioButtons(
                 inputId = "stack4",
                 label = "Stack",
-                choices = c("Yes", "No"),
-                selected = "No",
+                choices = c("Yes" = TRUE, "No" = FALSE),
+                selected = FALSE,
                 inline = TRUE
               )
             ),
@@ -1332,8 +1346,8 @@ ui <- fluidPage(
               radioButtons(
                 inputId = "flip4",
                 label = "Flip",
-                choices = c("Yes", "No"),
-                selected = "No",
+                choices = c("Yes" = TRUE, "No" = FALSE),
+                selected = FALSE,
                 inline = TRUE
               )
             )
@@ -1344,8 +1358,8 @@ ui <- fluidPage(
               radioButtons(
                 inputId = "addbox4",
                 label = "Add box",
-                choices = c("Yes", "No"),
-                selected = "No",
+                choices = c("Yes" = TRUE, "No" = FALSE),
+                selected = FALSE,
                 inline = TRUE
               )
             ),
@@ -1354,8 +1368,8 @@ ui <- fluidPage(
               radioButtons(
                 inputId = "addpoint4",
                 label = "Add point",
-                choices = c("Yes", "No"),
-                selected = "No",
+                choices = c("Yes" = TRUE, "No" = FALSE),
+                selected = FALSE,
                 inline = TRUE
               )
             ),
@@ -1364,8 +1378,8 @@ ui <- fluidPage(
               radioButtons(
                 inputId = "addtrend4",
                 label = "Add trend",
-                choices = c("Yes", "No"),
-                selected = "No",
+                choices = c("Yes" = TRUE, "No" = FALSE),
+                selected = FALSE,
                 inline = TRUE
               )
             )
@@ -1414,8 +1428,8 @@ ui <- fluidPage(
               radioButtons(
                 inputId = "sameylims4",
                 label = "Same y-axis",
-                choices = c("Yes", "No"),
-                selected = "No",
+                choices = c("Yes" = TRUE, "No" = FALSE),
+                selected = FALSE,
                 inline = TRUE
               )
             ),
@@ -1450,7 +1464,7 @@ ui <- fluidPage(
               radioButtons(
                 inputId = "arrange4",
                 label = "Arrange by",
-                choices = c("Row", "Column"),
+                choices = c("Row" = TRUE, "Column" = FALSE),
                 selected = initial_arrange
               )
             )
@@ -1523,7 +1537,7 @@ server <- function(input, output, session) {
     updateSelectInput(session, "reduction1", choices = reduction_name, selected = intersect(c(initial_reduction, default_reduction), reduction_name)[1])
     updateSelectInput(session, "group1", choices = meta_groups_name, selected = intersect(c(initial_group, "orig.ident"), meta_groups_name)[1])
     updateSelectInput(session, "split1", choices = c("None", meta_groups_name), selected = "None")
-    updateRadioButtons(session, "raster1", choices = c("Yes", "No"), selected = initial_raster)
+    updateRadioButtons(session, "raster1", choices = c("Yes" = TRUE, "No" = FALSE), selected = initial_raster)
   }) %>% bindEvent(input$dataset1, ignoreNULL = TRUE, ignoreInit = FALSE)
 
   observe({
@@ -1548,7 +1562,7 @@ server <- function(input, output, session) {
       options = list(maxOptions = 20, maxItems = 20), server = TRUE
     )
     updateSelectInput(session, "split2", choices = c("None", meta_groups_name), selected = "None")
-    updateRadioButtons(session, "raster2", choices = c("Yes", "No"), selected = initial_raster)
+    updateRadioButtons(session, "raster2", choices = c("Yes" = TRUE, "No" = FALSE), selected = initial_raster)
   }) %>% bindEvent(input$dataset2, ignoreNULL = TRUE, ignoreInit = FALSE)
 
   observe({
@@ -1615,14 +1629,14 @@ server <- function(input, output, session) {
     } else {
       split1 <- input$split1
     }
-    label1 <- input$label1 == "Yes"
-    raster1 <- input$raster1 == "Yes"
+    label1 <- input$label1
+    raster1 <- input$raster1
     palette1 <- input$palette1
     theme1 <- input$theme1
     size1 <- input$size1
     pt_size1 <- input$pt_size1
     ncol1 <- input$ncol1
-    byrow1 <- input$arrange1 == "Row"
+    byrow1 <- input$arrange1
 
     # lapply(grep("1$",names(input),value = TRUE), function(x)print(paste0(x,":",input[[x]])))
 
@@ -1755,15 +1769,15 @@ server <- function(input, output, session) {
     slots2 <- input$slots2
     features2 <- input$features2
     feature_area2 <- input$feature_area2
-    coExp2 <- input$coExp2 == "Yes"
+    coExp2 <- input$coExp2
     scale2 <- input$scale2
-    raster2 <- input$raster2 == "Yes"
+    raster2 <- input$raster2
     palette2 <- input$palette2
     theme2 <- input$theme2
     size2 <- input$size2
     pt_size2 <- input$pt_size2
     ncol2 <- input$ncol2
-    byrow2 <- input$arrange2 == "Row"
+    byrow2 <- input$arrange2
 
     # lapply(grep("2$",names(input),value = TRUE), function(x)print(paste0(x,":",input[[x]])))
 
@@ -1812,7 +1826,7 @@ server <- function(input, output, session) {
         if (isTRUE(plot3d)) {
           p2_3d <- SCP::FeatureDimPlot3D(
             srt = srt_tmp, features = features2, reduction = reduction2, pt.size = pt_size2 * 2,
-            calculate_coexp = ifelse(coExp2 == "Yes", TRUE, FALSE), force = TRUE
+            calculate_coexp = coExp2, force = TRUE
           )
         } else {
           p2_3d <- NULL
@@ -1918,14 +1932,14 @@ server <- function(input, output, session) {
     } else {
       split3 <- input$split3
     }
-    label3 <- input$label3 == "Yes"
-    flip3 <- input$flip3 == "Yes"
+    label3 <- input$label3
+    flip3 <- input$flip3
     palette3 <- input$palette3
     theme3 <- input$theme3
     labelsize3 <- input$labelsize3
     size3 <- input$size3
     ncol3 <- input$ncol3
-    byrow3 <- input$arrange3 == "Row"
+    byrow3 <- input$arrange3
     if (input$aspectratio3 == "auto") {
       aspect.ratio <- NULL
     } else {
@@ -2067,18 +2081,18 @@ server <- function(input, output, session) {
     feature_area4 <- input$feature_area4
     plotby4 <- input$plotby4
     fillby4 <- input$fillby4
-    coExp4 <- input$coExp4 == "Yes"
-    stack4 <- input$stack4 == "Yes"
-    flip4 <- input$flip4 == "Yes"
-    addbox4 <- input$addbox4 == "Yes"
-    addpoint4 <- input$addpoint4 == "Yes"
-    addtrend4 <- input$addtrend4 == "Yes"
+    coExp4 <- input$coExp4
+    stack4 <- input$stack4
+    flip4 <- input$flip4
+    addbox4 <- input$addbox4
+    addpoint4 <- input$addpoint4
+    addtrend4 <- input$addtrend4
     palette4 <- input$palette4
     theme4 <- input$theme4
-    sameylims4 <- input$sameylims4 == "Yes"
+    sameylims4 <- input$sameylims4
     size4 <- input$size4
     ncol4 <- input$ncol4
-    byrow4 <- input$arrange4 == "Row"
+    byrow4 <- input$arrange4
     if (input$aspectratio4 == "auto") {
       aspect.ratio <- NULL
     } else {
