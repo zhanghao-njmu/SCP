@@ -32,7 +32,8 @@ FeatureStatPlot(
   pt.color = "grey30",
   pt.size = NULL,
   pt.alpha = 1,
-  jitter.width = 0.5,
+  jitter.width = 0.4,
+  jitter.height = 0.1,
   add_trend = FALSE,
   trend_color = "black",
   trend_linewidth = 1,
@@ -133,6 +134,8 @@ FeatureStatPlot(
 \item{pt.alpha}{A numeric value specifying the transparency of the data points. Default is 1.}
 
 \item{jitter.width}{A numeric value specifying the width of the jitter. Default is 0.5.}
+
+\item{jitter.height}{A numeric value specifying the height of the jitter. Default is 0.1.}
 
 \item{add_trend}{A logical indicating whether to add a trend line to the plot. Default is FALSE.}
 
@@ -263,6 +266,7 @@ FeatureStatPlot(pancreas_sub,
   group.by = "SubCellType", bg.by = "CellType", stack = TRUE, flip = TRUE
 ) \%>\% panel_fix_overall(width = 8, height = 5) # As the plot is created by combining, we can adjust the overall height and width directly.
 
+FeatureStatPlot(pancreas_sub, stat.by = c("Neurog3", "Rbp4", "Ins1"), group.by = "CellType", plot.by = "group")
 FeatureStatPlot(pancreas_sub, stat.by = c("Neurog3", "Rbp4", "Ins1"), group.by = "CellType", plot.by = "feature")
 FeatureStatPlot(pancreas_sub,
   stat.by = c("Neurog3", "Rbp4", "Ins1"), group.by = "CellType", plot.by = "feature",
@@ -283,7 +287,7 @@ FeatureStatPlot(pancreas_sub, stat.by = c(
 
 library(Matrix)
 data <- pancreas_sub@assays$RNA@data
-pancreas_sub@assays$RNA@scale.data <- as.matrix(data / rowMeans(data))
+pancreas_sub@assays$RNA@scale.data <- as_matrix(data / rowMeans(data))
 FeatureStatPlot(pancreas_sub,
   stat.by = c("Neurog3", "Rbp4", "Ins1"), group.by = "CellType",
   slot = "scale.data", ylab = "FoldChange", same.y.lims = TRUE, y.max = 4

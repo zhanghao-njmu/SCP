@@ -59,13 +59,13 @@ CellCorHeatmap(
   query_cell_annotation = NULL,
   query_cell_annotation_palette = "Paired",
   query_cell_annotation_palcolor = NULL,
-  query_cell_annotation_params = if (flip) list(height = grid::unit(1, "cm")) else
-    list(width = grid::unit(1, "cm")),
+  query_cell_annotation_params = if (flip) list(height = grid::unit(20, "mm")) else
+    list(width = grid::unit(20, "mm")),
   ref_cell_annotation = NULL,
   ref_cell_annotation_palette = "Paired",
   ref_cell_annotation_palcolor = NULL,
-  ref_cell_annotation_params = if (flip) list(width = grid::unit(1, "cm")) else
-    list(height = grid::unit(1, "cm")),
+  ref_cell_annotation_params = if (flip) list(width = grid::unit(20, "mm")) else
+    list(height = grid::unit(20, "mm")),
   use_raster = NULL,
   raster_device = "png",
   raster_by_magick = FALSE,
@@ -241,7 +241,7 @@ ht2 <- CellCorHeatmap(
   query_group = "SubCellType", ref_group = "celltype",
   query_cell_annotation = "Phase", query_cell_annotation_palette = "Set2",
   ref_cell_annotation = "tech", ref_cell_annotation_palette = "Set3",
-  width = 3, height = 2
+  width = 4, height = 4
 )
 ht2$plot
 

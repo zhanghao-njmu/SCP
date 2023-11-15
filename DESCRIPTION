@@ -1,7 +1,7 @@
 Package: SCP
 Type: Package
 Title: Single Cell Pipeline
-Version: 0.5.4
+Version: 0.5.5
 Author: Hao Zhang
 Maintainer: Hao Zhang <haozhang@njmu.edu.cn>
 Description: An end-to-end Single-Cell Pipeline designed to facilitate comprehensive analysis and exploration of single-cell data.
@@ -21,6 +21,8 @@ Imports:
     ComplexHeatmap (>= 2.13.0),
     data.table,
     dplyr (>= 1.1.0),
+    future,
+    future.apply,
     ggnewscale,
     ggplot2 (>= 3.4.0),
     ggrepel,
@@ -37,6 +39,7 @@ Imports:
     mgcv,
     Matrix,
     patchwork,
+    pbapply,
     png,
     plotly,
     proxyC,
@@ -68,7 +71,6 @@ Suggests:
     devtools,
     DDRTree,
     e1071,
-    future,
     ggpubr,
     ggridges,
     ggsignif,

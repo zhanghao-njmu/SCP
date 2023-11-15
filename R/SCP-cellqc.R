@@ -96,7 +96,7 @@ db_Scrublet <- function(srt, assay = "RNA", db_rate = ncol(srt) / 1000 * 0.01, .
   }
   check_Python("scrublet")
   scr <- import("scrublet")
-  raw_counts <- t(as.matrix(GetAssayData(object = srt, assay = assay, slot = "counts")))
+  raw_counts <- t(as_matrix(GetAssayData(object = srt, assay = assay, slot = "counts")))
   scrub <- scr$Scrublet(raw_counts, expected_doublet_rate = db_rate, ...)
   res <- scrub$scrub_doublets()
   doublet_scores <- res[[1]]

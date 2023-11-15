@@ -11,7 +11,7 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
 // asMatrix
-IntegerMatrix asMatrix(NumericVector rp, NumericVector cp, NumericVector z, int nrows, int ncols);
+NumericMatrix asMatrix(NumericVector rp, NumericVector cp, NumericVector z, int nrows, int ncols);
 RcppExport SEXP _SCP_asMatrix(SEXP rpSEXP, SEXP cpSEXP, SEXP zSEXP, SEXP nrowsSEXP, SEXP ncolsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;

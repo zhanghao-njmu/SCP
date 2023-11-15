@@ -4,11 +4,18 @@
 \alias{as_matrix}
 \title{Attempts to turn a dgCMatrix into a dense matrix}
 \usage{
-as_matrix(matrix)
+as_matrix(x)
 }
 \arguments{
-\item{matrix}{A dgCMatrix}
+\item{x}{A matrix.}
 }
 \description{
 Attempts to turn a dgCMatrix into a dense matrix
+}
+\examples{
+data("pancreas_sub")
+system.time(mat1 <- as.matrix(slot(pancreas_sub[["RNA"]], "counts")))
+system.time(mat2 <- as_matrix(slot(pancreas_sub[["RNA"]], "counts")))
+identical(mat1, mat2)
+
 }

@@ -134,7 +134,7 @@ RunNMF.default <- function(object, assay = NULL, slot = "data", nbes = 50,
   if (nmf.method == "NMF") {
     check_R("NMF")
     seed <- NMF::seed
-    nmf.results <- NMF::nmf(x = as.matrix(t(object)), rank = nbes)
+    nmf.results <- NMF::nmf(x = as_matrix(t(object)), rank = nbes)
     cell.embeddings <- nmf.results@fit@W
     feature.loadings <- t(nmf.results@fit@H)
   }
@@ -271,7 +271,7 @@ RunMDS.default <- function(object, assay = NULL, slot = "data",
     object <- t(object)
   }
   nmds <- min(nmds, nrow(x = object) - 1)
-  x <- t(as.matrix(object))
+  x <- t(as_matrix(object))
   cell.dist <- as.dist(dist(x = x, method = dist.method))
   if (mds.method == "cmdscale") {
     mds.results <- cmdscale(cell.dist, k = nmds, eig = TRUE, ...)
@@ -402,8 +402,8 @@ RunGLMPCA.default <- function(object, assay = NULL, slot = "counts",
   fam <- match.arg(fam)
   glmpca_results <- glmpca::glmpca(Y = object, L = L, fam = fam, ...)
   glmpca_dimnames <- paste0(reduction.key, seq_len(L))
-  factors <- as.matrix(glmpca_results$factors)
-  loadings <- as.matrix(glmpca_results$loadings)
+  factors <- as_matrix(glmpca_results$factors)
+  loadings <- as_matrix(glmpca_results$loadings)
   colnames(x = factors) <- glmpca_dimnames
   colnames(x = loadings) <- glmpca_dimnames
   factors_l2_norm <- sqrt(colSums(factors^2))
@@ -471,7 +471,7 @@ RunDM.Seurat <- function(object,
                          verbose = TRUE, seed.use = 11, ...) {
   if (!is.null(x = features)) {
     assay <- assay %||% DefaultAssay(object = object)
-    data.use <- as.matrix(x = t(x = GetAssayData(object = object, slot = slot, assay = assay)[features, , drop = FALSE]))
+    data.use <- as_matrix(t(x = GetAssayData(object = object, slot = slot, assay = assay)[features, , drop = FALSE]))
     if (ncol(x = data.use) < ndcs) {
       stop("Please provide as many or more features than ndcs: ",
         length(x = features), " features provided, ",
@@ -523,7 +523,7 @@ RunDM.default <- function(object, assay = NULL, slot = "data",
     set.seed(seed = seed.use)
   }
 
-  dm.results <- destiny::DiffusionMap(data = as.matrix(object), n_eigs = ndcs, sigma = sigma, k = k, distance = dist.method, verbose = verbose, ...)
+  dm.results <- destiny::DiffusionMap(data = as_matrix(object), n_eigs = ndcs, sigma = sigma, k = k, distance = dist.method, verbose = verbose, ...)
 
   cell.embeddings <- dm.results@eigenvectors
   rownames(x = cell.embeddings) <- rownames(object)
@@ -599,7 +599,7 @@ RunUMAP2.Seurat <- function(object,
   }
   if (!is.null(x = features)) {
     assay <- assay %||% DefaultAssay(object = object)
-    data.use <- as.matrix(x = t(x = GetAssayData(object = object, slot = slot, assay = assay)[features, , drop = FALSE]))
+    data.use <- as_matrix(t(x = GetAssayData(object = object, slot = slot, assay = assay)[features, , drop = FALSE]))
     if (ncol(x = data.use) < n.components) {
       stop(
         "Please provide as many or more features than n.components: ",
@@ -611,7 +611,7 @@ RunUMAP2.Seurat <- function(object,
       )
     }
   } else if (!is.null(x = dims)) {
-    data.use <- as.matrix(Embeddings(object[[reduction]])[, dims])
+    data.use <- as_matrix(Embeddings(object[[reduction]])[, dims])
     assay <- DefaultAssay(object = object[[reduction]])
     if (length(x = dims) < n.components) {
       stop(
@@ -793,7 +793,7 @@ RunUMAP2.default <- function(object, assay = NULL,
       } else {
         obs_sample <- 1:ncol(object)
       }
-      if (!isSymmetric(as.matrix(object[obs_sample, obs_sample]))) {
+      if (!isSymmetric(as_matrix(object[obs_sample, obs_sample]))) {
         stop("Graph must be a symmetric matrix.")
       }
 
@@ -810,7 +810,7 @@ RunUMAP2.default <- function(object, assay = NULL,
       # if (inherits(object, what = "dgCMatrix")) {
       #   object <- as_matrix(object)
       # } else {
-      #   object <- as.matrix(object)
+      #   object <- as_matrix(object)
       # }
       # if (!isSymmetric(object)) {
       #   stop("Graph must be a symmetric matrix.")
@@ -941,7 +941,7 @@ RunUMAP2.default <- function(object, assay = NULL,
       } else {
         obs_sample <- 1:ncol(object)
       }
-      if (!isSymmetric(as.matrix(object[obs_sample, obs_sample]))) {
+      if (!isSymmetric(as_matrix(object[obs_sample, obs_sample]))) {
         stop("Graph must be a symmetric matrix.")
       }
       val <- split(object@x, rep(1:ncol(object), diff(object@p)))
@@ -959,8 +959,8 @@ RunUMAP2.default <- function(object, assay = NULL,
       }, x = val, y = val))
       idx[is.na(idx)] <- sample(1:nrow(object), size = sum(is.na(idx)), replace = TRUE)
       nn <- list(idx = idx, dist = max(connectivity) - connectivity + min(diff(range(connectivity)), 1) / 1e50)
-      # idx <- t(as.matrix(apply(object, 2, function(x) order(x, decreasing = TRUE)[1:n.neighbors])))
-      # connectivity <- t(as.matrix(apply(object, 2, function(x) x[order(x, decreasing = TRUE)[1:n.neighbors]])))
+      # idx <- t(as_matrix(apply(object, 2, function(x) order(x, decreasing = TRUE)[1:n.neighbors])))
+      # connectivity <- t(as_matrix(apply(object, 2, function(x) x[order(x, decreasing = TRUE)[1:n.neighbors]])))
       out <- uwot::umap(
         X = NULL, nn_method = nn, n_threads = 1, n_components = n.components,
         metric = metric, n_epochs = n.epochs, learning_rate = learning.rate,
@@ -1080,8 +1080,8 @@ RunUMAP2.default <- function(object, assay = NULL,
       return(reduction)
     }
     if (inherits(x = object, what = "Graph")) {
-      match_k <- t(as.matrix(apply(object, 2, function(x) order(x, decreasing = TRUE)[1:n.neighbors])))
-      match_k_connectivity <- t(as.matrix(apply(object, 2, function(x) x[order(x, decreasing = TRUE)[1:n.neighbors]])))
+      match_k <- t(as_matrix(apply(object, 2, function(x) order(x, decreasing = TRUE)[1:n.neighbors])))
+      match_k_connectivity <- t(as_matrix(apply(object, 2, function(x) x[order(x, decreasing = TRUE)[1:n.neighbors]])))
       object <- list(idx = match_k, dist = max(match_k_connectivity) - match_k_connectivity)
       if (is.null(model$num_precomputed_nns) || model$num_precomputed_nns == 0) {
         model$num_precomputed_nns <- 1
@@ -1168,7 +1168,7 @@ RunPaCMAP.Seurat <- function(object, reduction = "pca", dims = NULL, features = 
   }
   if (!is.null(x = features)) {
     assay <- assay %||% DefaultAssay(object = object)
-    data.use <- as.matrix(x = t(x = GetAssayData(object = object, slot = slot, assay = assay)[features, , drop = FALSE]))
+    data.use <- as_matrix(t(x = GetAssayData(object = object, slot = slot, assay = assay)[features, , drop = FALSE]))
     if (ncol(x = data.use) < n_components) {
       stop(
         "Please provide as many or more features than n_components: ",
@@ -1297,7 +1297,7 @@ RunPHATE.Seurat <- function(object, reduction = "pca", dims = NULL, features = N
   }
   if (!is.null(x = features)) {
     assay <- assay %||% DefaultAssay(object = object)
-    data.use <- as.matrix(x = t(x = GetAssayData(object = object, slot = slot, assay = assay)[features, , drop = FALSE]))
+    data.use <- as_matrix(t(x = GetAssayData(object = object, slot = slot, assay = assay)[features, , drop = FALSE]))
     if (ncol(x = data.use) < n_components) {
       stop(
         "Please provide as many or more features than n_components: ",
@@ -1448,7 +1448,7 @@ RunTriMap.Seurat <- function(object, reduction = "pca", dims = NULL, features = 
   }
   if (!is.null(x = features)) {
     assay <- assay %||% DefaultAssay(object = object)
-    data.use <- as.matrix(x = t(x = GetAssayData(object = object, slot = slot, assay = assay)[features, , drop = FALSE]))
+    data.use <- as_matrix(t(x = GetAssayData(object = object, slot = slot, assay = assay)[features, , drop = FALSE]))
     if (ncol(x = data.use) < n_components) {
       stop(
         "Please provide as many or more features than n_components: ",
@@ -1570,7 +1570,7 @@ RunLargeVis.Seurat <- function(object, reduction = "pca", dims = NULL, features 
   }
   if (!is.null(x = features)) {
     assay <- assay %||% DefaultAssay(object = object)
-    data.use <- as.matrix(x = t(x = GetAssayData(object = object, slot = slot, assay = assay)[features, , drop = FALSE]))
+    data.use <- as_matrix(t(x = GetAssayData(object = object, slot = slot, assay = assay)[features, , drop = FALSE]))
     if (ncol(x = data.use) < n_components) {
       stop(
         "Please provide as many or more features than n_components: ",
@@ -1824,7 +1824,7 @@ RunHarmony2.Seurat <- function(object, group.by.vars,
     ...
   )
 
-  harmonyEmbed <- t(as.matrix(harmonyObject$Z_corr))
+  harmonyEmbed <- t(as_matrix(harmonyObject$Z_corr))
   rownames(harmonyEmbed) <- row.names(data.use)
   colnames(harmonyEmbed) <- paste0(reduction.name, "_", seq_len(ncol(harmonyEmbed)))
 

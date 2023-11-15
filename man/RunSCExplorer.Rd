@@ -15,13 +15,14 @@ RunSCExplorer(
   initial_feature = NULL,
   initial_assay = NULL,
   initial_slot = NULL,
-  initial_label = "No",
+  initial_label = FALSE,
   initial_cell_palette = "Paired",
   initial_feature_palette = "Spectral",
   initial_theme = "theme_scp",
   initial_size = 4,
   initial_ncol = 3,
-  initial_arrange = "Row",
+  initial_arrange = NULL,
+  initial_raster = NULL,
   session_workers = 2,
   plotting_workers = 8,
   create_script = TRUE,
@@ -51,7 +52,7 @@ RunSCExplorer(
 
 \item{initial_slot}{A string. The initial slot to be loaded into the app. Default is NULL.}
 
-\item{initial_label}{A string. Whether to add labels in the initial plot. Default is "No".}
+\item{initial_label}{A string. Whether to add labels in the initial plot. Default is FALSE.}
 
 \item{initial_cell_palette}{A string. The initial color palette for cells. Default is "Paired".}
 
@@ -63,7 +64,9 @@ RunSCExplorer(
 
 \item{initial_ncol}{A numeric. The initial number of columns for arranging plots. Default is 3.}
 
-\item{initial_arrange}{A string. The initial arrangement of plots. Default is "Row".}
+\item{initial_arrange}{A logical. Whether to use "Row" as the initial arrangement. Default is TRUE.}
+
+\item{initial_raster}{A logical. Whether to perform rasterization in the initial plot. By default, it is set to automatic, meaning it will be TRUE if the number of cells in the initial datasets exceeds 100,000.}
 
 \item{session_workers}{A numeric. The number of workers for concurrent execution in an asynchronous programming session. Default is 2.}
 

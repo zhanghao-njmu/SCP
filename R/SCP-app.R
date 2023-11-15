@@ -140,11 +140,10 @@ CreateMetaFile <- function(srt, MetaFile, name = NULL, write_tools = FALSE, writ
     } else {
       write.attributes <- FALSE
     }
-    if (inherits(meta, "numeric")) {
+    if (is.numeric(meta)) {
       meta <- as.double(meta)
       meta_asfeatures <- c(meta_asfeatures, var)
-    }
-    if (!is.numeric(meta)) {
+    } else {
       if (length(unique(meta)) > ignore_nlevel) {
         warning("The number of categories in ", var, " is greater than ", ignore_nlevel, ", it will be ignored.", immediate. = TRUE)
       } else {
@@ -249,7 +248,7 @@ PrepareSCExplorer <- function(object,
                               assays = "RNA", slots = c("counts", "data"),
                               ignore_nlevel = 100, write_tools = FALSE, write_misc = FALSE,
                               compression_level = 6, overwrite = FALSE) {
-  base_dir <- normalizePath(base_dir)
+  base_dir <- normalizePath(base_dir, mustWork = FALSE)
   if (!dir.exists(base_dir)) {
     message("Create SCExplorer base directory: ", base_dir)
     dir.create(base_dir, recursive = TRUE, showWarnings = FALSE)
@@ -324,7 +323,13 @@ PrepareSCExplorer <- function(object,
 #' data("pancreas_sub")
 #' pancreas_sub <- Standard_SCP(pancreas_sub)
 #' PrepareSCExplorer(pancreas_sub, base_dir = "./SCExplorer")
-#' srt <- FetchH5(DataFile = "./SCExplorer/Data.hdf5", MetaFile = "./SCExplorer/Meta.hdf5", features = c("Ins1", "Ghrl"), metanames = c("SubCellType", "Phase"), reduction = "UMAP")
+#' srt <- FetchH5(
+#'   DataFile = "./SCExplorer/Data.hdf5",
+#'   MetaFile = "./SCExplorer/Meta.hdf5",
+#'   features = c("Ins1", "Ghrl"),
+#'   metanames = c("SubCellType", "Phase"),
+#'   reduction = "UMAP"
+#' )
 #' CellDimPlot(srt, group.by = c("SubCellType", "Phase"), reduction = "UMAP")
 #' FeatureDimPlot(srt, features = c("Ins1", "Ghrl"), reduction = "UMAP")
 #' }
@@ -507,13 +512,14 @@ CreateSeuratObject2 <- function(counts, project = "SeuratProject", assay = "RNA"
 #' @param initial_feature A string. The initial feature to be loaded into the app. Default is NULL.
 #' @param initial_assay A string. The initial assay to be loaded into the app. Default is NULL.
 #' @param initial_slot A string. The initial slot to be loaded into the app. Default is NULL.
-#' @param initial_label A string. Whether to add labels in the initial plot. Default is "No".
+#' @param initial_label A string. Whether to add labels in the initial plot. Default is FALSE.
 #' @param initial_cell_palette A string. The initial color palette for cells. Default is "Paired".
 #' @param initial_feature_palette A string. The initial color palette for features. Default is "Spectral".
 #' @param initial_theme A string. The initial theme for plots. Default is "theme_scp".
 #' @param initial_size A numeric. The initial size of plots. Default is 4.
 #' @param initial_ncol A numeric. The initial number of columns for arranging plots. Default is 3.
-#' @param initial_arrange A string. The initial arrangement of plots. Default is "Row".
+#' @param initial_arrange A logical. Whether to use "Row" as the initial arrangement. Default is TRUE.
+#' @param initial_raster A logical. Whether to perform rasterization in the initial plot. By default, it is set to automatic, meaning it will be TRUE if the number of cells in the initial datasets exceeds 100,000.
 #' @param session_workers A numeric. The number of workers for concurrent execution in an asynchronous programming session. Default is 2.
 #' @param plotting_workers A numeric. The number of threads per worker for parallel plotting. Default is 8.
 #' @param create_script A logical. Whether to create the SCExplorer app script. Default is TRUE.
@@ -578,13 +584,14 @@ RunSCExplorer <- function(base_dir = "SCExplorer",
                           initial_feature = NULL,
                           initial_assay = NULL,
                           initial_slot = NULL,
-                          initial_label = "No",
+                          initial_label = FALSE,
                           initial_cell_palette = "Paired",
                           initial_feature_palette = "Spectral",
                           initial_theme = "theme_scp",
                           initial_size = 4,
                           initial_ncol = 3,
-                          initial_arrange = "Row",
+                          initial_arrange = NULL,
+                          initial_raster = NULL,
                           session_workers = 2,
                           plotting_workers = 8,
                           create_script = TRUE,
@@ -634,6 +641,7 @@ if (!initial_assay %in% assays) {
 if (!initial_slot %in% slots) {
   stop("initial_slot is not in the dataset ", initial_slot, " in the DataFile")
 }
+all_cells <- rhdf5::h5read(DataFile, name = paste0("/", initial_dataset, "/cells"))
 
 data <- HDF5Array::TENxMatrix(filepath = DataFile, group = paste0("/", initial_dataset, "/", initial_assay, "/", initial_slot))
 all_features <- colnames(data)
@@ -653,7 +661,12 @@ if (is.null(initial_group)) {
 if (is.null(initial_feature)) {
   initial_feature <- meta_features_name[1]
 }
-initial_raster <- ifelse(nrow(data) > 1e5, "Yes", "No")
+if (is.null(initial_arrange)) {
+  initial_arrange <- TRUE
+}
+if (is.null(initial_raster)) {
+  initial_raster <- length(all_cells) > 1e5
+}
 
 palette_list <- SCP::palette_list
 theme_list <- list(
@@ -715,7 +728,7 @@ ui <- fluidPage(
               radioButtons(
                 inputId = "label1",
                 label = "Label",
-                choices = c("Yes", "No"),
+                choices = c("Yes" = TRUE, "No" = FALSE),
                 selected = initial_label,
                 inline = TRUE
               )
@@ -725,7 +738,7 @@ ui <- fluidPage(
               radioButtons(
                 inputId = "raster1",
                 label = "Raster",
-                choices = c("Yes", "No"),
+                choices = c("Yes" = TRUE, "No" = FALSE),
                 selected = initial_raster,
                 inline = TRUE
               )
@@ -738,7 +751,7 @@ ui <- fluidPage(
                 inputId = "pt_size1",
                 label = "Point size",
                 value = 1,
-                min = 0.5,
+                min = 0.1,
                 max = 10,
                 step = 0.5,
                 width = "150px"
@@ -775,7 +788,7 @@ ui <- fluidPage(
               radioButtons(
                 inputId = "arrange1",
                 label = "Arrange by",
-                choices = c("Row", "Column"),
+                choices = c("Row" = TRUE, "Column" = FALSE),
                 selected = initial_arrange
               )
             )
@@ -892,21 +905,31 @@ ui <- fluidPage(
           ),
           fluidRow(
             column(
-              width = 6, align = "center",
+              width = 4, align = "center",
               radioButtons(
                 inputId = "coExp2",
                 label = "Co-expression",
-                choices = c("Yes", "No"),
-                selected = "No",
+                choices = c("Yes" = TRUE, "No" = FALSE),
+                selected = FALSE,
                 inline = TRUE
               ),
             ),
             column(
-              width = 6, align = "center",
+              width = 4, align = "center",
+              radioButtons(
+                inputId = "scale2",
+                label = "Color scale",
+                choices = list("feature" = "feature", "all" = "all"),
+                selected = "feature",
+                inline = TRUE
+              ),
+            ),
+            column(
+              width = 4, align = "center",
               radioButtons(
                 inputId = "raster2",
                 label = "Raster",
-                choices = c("Yes", "No"),
+                choices = c("Yes" = TRUE, "No" = FALSE),
                 selected = initial_raster,
                 inline = TRUE
               )
@@ -919,7 +942,7 @@ ui <- fluidPage(
                 inputId = "pt_size2",
                 label = "Point size",
                 value = 1,
-                min = 0.5,
+                min = 0.1,
                 max = 10,
                 step = 0.5,
                 width = "150px"
@@ -956,7 +979,7 @@ ui <- fluidPage(
               radioButtons(
                 inputId = "arrange2",
                 label = "Arrange by",
-                choices = c("Row", "Column"),
+                choices = c("Row" = TRUE, "Column" = FALSE),
                 selected = initial_arrange
               )
             )
@@ -1071,7 +1094,7 @@ ui <- fluidPage(
               radioButtons(
                 inputId = "label3",
                 label = "Label",
-                choices = c("Yes", "No"),
+                choices = c("Yes" = TRUE, "No" = FALSE),
                 selected = initial_label,
                 inline = TRUE
               )
@@ -1081,8 +1104,8 @@ ui <- fluidPage(
               radioButtons(
                 inputId = "flip3",
                 label = "Flip",
-                choices = c("Yes", "No"),
-                selected = "No",
+                choices = c("Yes" = TRUE, "No" = FALSE),
+                selected = FALSE,
                 inline = TRUE
               )
             ),
@@ -1169,7 +1192,7 @@ ui <- fluidPage(
               radioButtons(
                 inputId = "arrange3",
                 label = "Arrange by",
-                choices = c("Row", "Column"),
+                choices = c("Row" = TRUE, "Column" = FALSE),
                 selected = initial_arrange
               )
             )
@@ -1303,8 +1326,8 @@ ui <- fluidPage(
               radioButtons(
                 inputId = "coExp4",
                 label = "Co-expression",
-                choices = c("Yes", "No"),
-                selected = "No",
+                choices = c("Yes" = TRUE, "No" = FALSE),
+                selected = FALSE,
                 inline = TRUE
               )
             ),
@@ -1313,8 +1336,8 @@ ui <- fluidPage(
               radioButtons(
                 inputId = "stack4",
                 label = "Stack",
-                choices = c("Yes", "No"),
-                selected = "No",
+                choices = c("Yes" = TRUE, "No" = FALSE),
+                selected = FALSE,
                 inline = TRUE
               )
             ),
@@ -1323,8 +1346,8 @@ ui <- fluidPage(
               radioButtons(
                 inputId = "flip4",
                 label = "Flip",
-                choices = c("Yes", "No"),
-                selected = "No",
+                choices = c("Yes" = TRUE, "No" = FALSE),
+                selected = FALSE,
                 inline = TRUE
               )
             )
@@ -1335,8 +1358,8 @@ ui <- fluidPage(
               radioButtons(
                 inputId = "addbox4",
                 label = "Add box",
-                choices = c("Yes", "No"),
-                selected = "No",
+                choices = c("Yes" = TRUE, "No" = FALSE),
+                selected = FALSE,
                 inline = TRUE
               )
             ),
@@ -1345,8 +1368,8 @@ ui <- fluidPage(
               radioButtons(
                 inputId = "addpoint4",
                 label = "Add point",
-                choices = c("Yes", "No"),
-                selected = "No",
+                choices = c("Yes" = TRUE, "No" = FALSE),
+                selected = FALSE,
                 inline = TRUE
               )
             ),
@@ -1355,8 +1378,8 @@ ui <- fluidPage(
               radioButtons(
                 inputId = "addtrend4",
                 label = "Add trend",
-                choices = c("Yes", "No"),
-                selected = "No",
+                choices = c("Yes" = TRUE, "No" = FALSE),
+                selected = FALSE,
                 inline = TRUE
               )
             )
@@ -1405,8 +1428,8 @@ ui <- fluidPage(
               radioButtons(
                 inputId = "sameylims4",
                 label = "Same y-axis",
-                choices = c("Yes", "No"),
-                selected = "No",
+                choices = c("Yes" = TRUE, "No" = FALSE),
+                selected = FALSE,
                 inline = TRUE
               )
             ),
@@ -1441,7 +1464,7 @@ ui <- fluidPage(
               radioButtons(
                 inputId = "arrange4",
                 label = "Arrange by",
-                choices = c("Row", "Column"),
+                choices = c("Row" = TRUE, "Column" = FALSE),
                 selected = initial_arrange
               )
             )
@@ -1505,70 +1528,70 @@ server <- function(input, output, session) {
     }
   }
 
-  updateSelectizeInput(session, "features2", choices = c(meta_features_name, all_features), selected = initial_feature, server = TRUE)
-  updateSelectizeInput(session, "features4", choices = c(meta_features_name, all_features), selected = initial_feature, server = TRUE)
-
   # change dataset  ----------------------------------------------------------------
   observe({
     meta_groups_name <- rhdf5::h5read(MetaFile, name = paste0("/", input$dataset1, "/metadata.stat/asgroups"))
     reduction_name <- meta_struc[meta_struc$group == paste0("/", input$dataset1, "/reductions"), "name"]
     default_reduction <- as.character(rhdf5::h5read(MetaFile, name = paste0("/", input$dataset1, "/reductions.stat/Default_reduction")))
     all_cells <- rhdf5::h5read(DataFile, name = paste0("/", input$dataset1, "/cells"))
-    updateSelectInput(session, "reduction1", choices = reduction_name, selected = default_reduction)
-    updateSelectInput(session, "group1", choices = meta_groups_name, selected = "orig.ident")
+    updateSelectInput(session, "reduction1", choices = reduction_name, selected = intersect(c(initial_reduction, default_reduction), reduction_name)[1])
+    updateSelectInput(session, "group1", choices = meta_groups_name, selected = intersect(c(initial_group, "orig.ident"), meta_groups_name)[1])
     updateSelectInput(session, "split1", choices = c("None", meta_groups_name), selected = "None")
-    updateRadioButtons(session, "raster1", choices = c("Yes", "No"), selected = ifelse(length(all_cells) > 1e5, "Yes", "No"))
-  }) %>% bindEvent(input$dataset1, ignoreNULL = TRUE, ignoreInit = TRUE)
+    updateRadioButtons(session, "raster1", choices = c("Yes" = TRUE, "No" = FALSE), selected = initial_raster)
+  }) %>% bindEvent(input$dataset1, ignoreNULL = TRUE, ignoreInit = FALSE)
 
   observe({
     assays <- unique(na.omit(sapply(strsplit(data_group[grep(input$dataset2, data_group)], "/"), function(x) x[3])))
     slots <- unique(na.omit(sapply(strsplit(data_group[grep(input$dataset2, data_group)], "/"), function(x) x[4])))
     default_assay <- as.character(rhdf5::h5read(DataFile, name = paste0("/", input$dataset2, "/Default_assay")))
     default_slot <- ifelse("data" %in% slots, "data", slots[1])
-    updateSelectInput(session, "assays2", choices = assays, selected = default_assay)
-    updateSelectInput(session, "slots2", choices = slots, selected = default_slot)
-    data <- HDF5Array::TENxMatrix(filepath = DataFile, group = paste0("/", input$dataset2, "/", default_assay, "/", default_slot))
+    assay <- intersect(c(initial_assay, default_assay), assays)[1]
+    slot <- intersect(c(initial_slot, default_slot), slots)[1]
+    updateSelectInput(session, "assays2", choices = assays, selected = assay)
+    updateSelectInput(session, "slots2", choices = slots, selected = slot)
+    data <- HDF5Array::TENxMatrix(filepath = DataFile, group = paste0("/", input$dataset2, "/", assay, "/", slot))
     all_features <- colnames(data)
     all_cells <- rhdf5::h5read(DataFile, name = paste0("/", input$dataset2, "/cells"))
     meta_features_name <- rhdf5::h5read(MetaFile, name = paste0("/", input$dataset2, "/metadata.stat/asfeatures"))
     meta_groups_name <- rhdf5::h5read(MetaFile, name = paste0("/", input$dataset2, "/metadata.stat/asgroups"))
     reduction_name <- meta_struc[meta_struc$group == paste0("/", input$dataset2, "/reductions"), "name"]
     default_reduction <- as.character(rhdf5::h5read(MetaFile, name = paste0("/", input$dataset2, "/reductions.stat/Default_reduction")))
-    updateSelectInput(session, "reduction2", choices = reduction_name, selected = default_reduction)
+    updateSelectInput(session, "reduction2", choices = reduction_name, selected = intersect(c(initial_reduction, default_reduction), reduction_name)[1])
     updateSelectizeInput(session, "features2",
-      choices = c(meta_features_name, all_features), selected = meta_features_name[1],
+      choices = c(meta_features_name, all_features), selected = intersect(c(initial_feature, meta_features_name[1]), c(all_features, meta_features_name))[1],
       options = list(maxOptions = 20, maxItems = 20), server = TRUE
     )
     updateSelectInput(session, "split2", choices = c("None", meta_groups_name), selected = "None")
-    updateSelectInput(session, "group2", choices = meta_groups_name, selected = "orig.ident")
-    updateRadioButtons(session, "raster2", choices = c("Yes", "No"), selected = ifelse(length(all_cells) > 1e5, "Yes", "No"))
-  }) %>% bindEvent(input$dataset2, ignoreNULL = TRUE, ignoreInit = TRUE)
+    updateRadioButtons(session, "raster2", choices = c("Yes" = TRUE, "No" = FALSE), selected = initial_raster)
+  }) %>% bindEvent(input$dataset2, ignoreNULL = TRUE, ignoreInit = FALSE)
 
   observe({
     meta_groups_name <- rhdf5::h5read(MetaFile, name = paste0("/", input$dataset3, "/metadata.stat/asgroups"))
     updateSelectInput(session, "stat3", choices = meta_groups_name, selected = "orig.ident")
-    updateSelectInput(session, "group3", choices = meta_groups_name, selected = "orig.ident")
+    updateSelectInput(session, "group3", choices = meta_groups_name, selected = intersect(c(initial_group, "orig.ident"), meta_groups_name)[1])
     updateSelectInput(session, "split3", choices = c("None", meta_groups_name), selected = "None")
-  }) %>% bindEvent(input$dataset3, ignoreNULL = TRUE, ignoreInit = TRUE)
+  }) %>% bindEvent(input$dataset3, ignoreNULL = TRUE, ignoreInit = FALSE)
 
   observe({
     assays <- unique(na.omit(sapply(strsplit(data_group[grep(input$dataset4, data_group)], "/"), function(x) x[3])))
     slots <- unique(na.omit(sapply(strsplit(data_group[grep(input$dataset4, data_group)], "/"), function(x) x[4])))
     default_assay <- as.character(rhdf5::h5read(DataFile, name = paste0("/", input$dataset4, "/Default_assay")))
     default_slot <- ifelse("data" %in% slots, "data", slots[1])
-    updateSelectInput(session, "assays4", choices = assays, selected = default_assay)
-    updateSelectInput(session, "slots4", choices = slots, selected = default_slot)
-    data <- HDF5Array::TENxMatrix(filepath = DataFile, group = paste0("/", input$dataset4, "/", default_assay, "/", default_slot))
+    assay <- intersect(c(initial_assay, default_assay), assays)[1]
+    slot <- intersect(c(initial_slot, default_slot), slots)[1]
+    updateSelectInput(session, "assays4", choices = assays, selected = assay)
+    updateSelectInput(session, "slots4", choices = slots, selected = slot)
+    data <- HDF5Array::TENxMatrix(filepath = DataFile, group = paste0("/", input$dataset4, "/", assay, "/", slot))
     all_features <- colnames(data)
     meta_features_name <- rhdf5::h5read(MetaFile, name = paste0("/", input$dataset4, "/metadata.stat/asfeatures"))
     meta_groups_name <- rhdf5::h5read(MetaFile, name = paste0("/", input$dataset4, "/metadata.stat/asgroups"))
     updateSelectizeInput(session, "features4",
-      choices = c(meta_features_name, all_features), selected = meta_features_name[1],
+      choices = c(meta_features_name, all_features), selected = intersect(c(initial_feature, meta_features_name[1]), c(all_features, meta_features_name))[1],
       options = list(maxOptions = 20, maxItems = 20), server = TRUE
     )
     updateSelectInput(session, "split4", choices = c("None", meta_groups_name), selected = "None")
-    updateSelectInput(session, "group4", choices = meta_groups_name, selected = "orig.ident")
-  }) %>% bindEvent(input$dataset4, ignoreNULL = TRUE, ignoreInit = TRUE)
+    updateSelectInput(session, "group4", choices = meta_groups_name, selected = intersect(c(initial_group, "orig.ident"), meta_groups_name)[1])
+  }) %>% bindEvent(input$dataset4, ignoreNULL = TRUE, ignoreInit = FALSE)
 
   observe({
     if (input$group3 != "None") {
@@ -1606,14 +1629,14 @@ server <- function(input, output, session) {
     } else {
       split1 <- input$split1
     }
-    label1 <- input$label1 == "Yes"
-    raster1 <- input$raster1 == "Yes"
+    label1 <- input$label1
+    raster1 <- input$raster1
     palette1 <- input$palette1
     theme1 <- input$theme1
     size1 <- input$size1
     pt_size1 <- input$pt_size1
     ncol1 <- input$ncol1
-    byrow1 <- input$arrange1 == "Row"
+    byrow1 <- input$arrange1
 
     # lapply(grep("1$",names(input),value = TRUE), function(x)print(paste0(x,":",input[[x]])))
 
@@ -1746,14 +1769,15 @@ server <- function(input, output, session) {
     slots2 <- input$slots2
     features2 <- input$features2
     feature_area2 <- input$feature_area2
-    coExp2 <- input$coExp2 == "Yes"
-    raster2 <- input$raster2 == "Yes"
+    coExp2 <- input$coExp2
+    scale2 <- input$scale2
+    raster2 <- input$raster2
     palette2 <- input$palette2
     theme2 <- input$theme2
     size2 <- input$size2
     pt_size2 <- input$pt_size2
     ncol2 <- input$ncol2
-    byrow2 <- input$arrange2 == "Row"
+    byrow2 <- input$arrange2
 
     # lapply(grep("2$",names(input),value = TRUE), function(x)print(paste0(x,":",input[[x]])))
 
@@ -1765,7 +1789,7 @@ server <- function(input, output, session) {
     features2 <- c(as.character(features2), as.character(feature_area2))
     features2 <- unique(features2[features2 %in% c(all_features, meta_features_name)])
     if (length(features2) == 0) {
-      features2 <- meta_features_name[1]
+      features2 <- intersect(c(initial_feature, meta_features_name[1]), c(all_features, meta_features_name))[1]
     }
 
     promisedData[["p2_dim"]] <- NULL
@@ -1788,7 +1812,7 @@ server <- function(input, output, session) {
         # print(system.time(
         p2_dim <- SCP::FeatureDimPlot(
           srt = srt_tmp, features = features2, split.by = split2, reduction = reduction2, slot = "data", raster = raster2, pt.size = pt_size2,
-          calculate_coexp = coExp2, palette = palette2, theme_use = theme2,
+          calculate_coexp = coExp2, keep_scale = scale2, palette = palette2, theme_use = theme2,
           ncol = ncol2, byrow = byrow2, force = TRUE
         )
         # ))
@@ -1802,7 +1826,7 @@ server <- function(input, output, session) {
         if (isTRUE(plot3d)) {
           p2_3d <- SCP::FeatureDimPlot3D(
             srt = srt_tmp, features = features2, reduction = reduction2, pt.size = pt_size2 * 2,
-            calculate_coexp = ifelse(coExp2 == "Yes", TRUE, FALSE), force = TRUE
+            calculate_coexp = coExp2, force = TRUE
           )
         } else {
           p2_3d <- NULL
@@ -1815,7 +1839,7 @@ server <- function(input, output, session) {
     bindCache(
       input$dataset2, input$reduction2, input$split2, input$assays2, input$slots2,
       input$features2, input$feature_area2,
-      input$palette2, input$theme2, input$coExp2, input$raster2,
+      input$palette2, input$theme2, input$coExp2, input$scale2, input$raster2,
       input$pt_size2, input$size2, input$ncol2, input$arrange2
     ) %>%
     bindEvent(input$submit2, ignoreNULL = FALSE, ignoreInit = FALSE)
@@ -1908,14 +1932,14 @@ server <- function(input, output, session) {
     } else {
       split3 <- input$split3
     }
-    label3 <- input$label3 == "Yes"
-    flip3 <- input$flip3 == "Yes"
+    label3 <- input$label3
+    flip3 <- input$flip3
     palette3 <- input$palette3
     theme3 <- input$theme3
     labelsize3 <- input$labelsize3
     size3 <- input$size3
     ncol3 <- input$ncol3
-    byrow3 <- input$arrange3 == "Row"
+    byrow3 <- input$arrange3
     if (input$aspectratio3 == "auto") {
       aspect.ratio <- NULL
     } else {
@@ -2057,18 +2081,18 @@ server <- function(input, output, session) {
     feature_area4 <- input$feature_area4
     plotby4 <- input$plotby4
     fillby4 <- input$fillby4
-    coExp4 <- input$coExp4 == "Yes"
-    stack4 <- input$stack4 == "Yes"
-    flip4 <- input$flip4 == "Yes"
-    addbox4 <- input$addbox4 == "Yes"
-    addpoint4 <- input$addpoint4 == "Yes"
-    addtrend4 <- input$addtrend4 == "Yes"
+    coExp4 <- input$coExp4
+    stack4 <- input$stack4
+    flip4 <- input$flip4
+    addbox4 <- input$addbox4
+    addpoint4 <- input$addpoint4
+    addtrend4 <- input$addtrend4
     palette4 <- input$palette4
     theme4 <- input$theme4
-    sameylims4 <- input$sameylims4 == "Yes"
+    sameylims4 <- input$sameylims4
     size4 <- input$size4
     ncol4 <- input$ncol4
-    byrow4 <- input$arrange4 == "Row"
+    byrow4 <- input$arrange4
     if (input$aspectratio4 == "auto") {
       aspect.ratio <- NULL
     } else {
@@ -2085,7 +2109,7 @@ server <- function(input, output, session) {
     features4 <- c(as.character(features4), as.character(feature_area4))
     features4 <- unique(features4[features4 %in% c(all_features, meta_features_name)])
     if (length(features4) == 0) {
-      features4 <- meta_features_name[1]
+      features4 <- intersect(c(initial_feature, meta_features_name[1]), c(all_features, meta_features_name))[1]
     }
 
     promisedData[["p4"]] <- NULL
@@ -2232,6 +2256,7 @@ server <- function(input, output, session) {
     "library(promises)",
     "library(BiocParallel)",
     "library(ggplot2)",
+    "library(rlang)",
     args_code,
     "plan(multisession, workers = session_workers)",
     "if (.Platform$OS.type == 'windows') {
@@ -2245,11 +2270,6 @@ server <- function(input, output, session) {
   )
   temp <- tempfile("SCExplorer")
   writeLines(app_code, temp)
-  wd <- getwd()
-  on.exit(setwd(wd))
-  setwd(base_dir)
-  source(temp)
-  setwd(wd)
   if (isTRUE(create_script)) {
     app_file <- paste0(base_dir, "/app.R")
     if (!file.exists(app_file) || isTRUE(overwrite)) {
