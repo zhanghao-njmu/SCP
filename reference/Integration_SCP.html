@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">SCP</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.5</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -234,9 +234,9 @@ Supported methods are: <code>"Uncorrected"</code>, <code>"Seurat"</code>, <code>
 <span class="r-in"><span>  srtMerge <span class="op">=</span> <span class="va">panc8_sub</span>, batch <span class="op">=</span> <span class="st">"tech"</span>,</span></span>
 <span class="r-in"><span>  integration_method <span class="op">=</span> <span class="st">"Uncorrected"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 20:03:32.17769] Start Uncorrected_integrate</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 20:03:32.18447] Spliting srtMerge into srtList by column tech... ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 20:03:32.432131] Checking srtList... ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-15 04:13:02.559863] Start Uncorrected_integrate</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-15 04:13:02.566679] Spliting srtMerge into srtList by column tech... ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-15 04:13:03.286289] Checking srtList... ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Data 1/5 of the srtList is raw_normalized_counts. Perform NormalizeData(LogNormalize) on the data ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform FindVariableFeatures on the data 1/5 of the srtList...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Data 2/5 of the srtList is raw_normalized_counts. Perform NormalizeData(LogNormalize) on the data ...</span>
@@ -249,18 +249,20 @@ Supported methods are: <code>"Uncorrected"</code>, <code>"Seurat"</code>, <code>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform FindVariableFeatures on the data 5/5 of the srtList...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Use the separate HVF from srtList...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Number of available HVF: 2000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 20:03:35.875374] Finished checking.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 20:03:36.406713] Perform integration(Uncorrected) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 20:03:36.407015] Start Standard_SCP</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 20:03:36.407123] Checking srtList... ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-15 04:13:06.406456] Finished checking.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-15 04:13:07.301769] Perform integration(Uncorrected) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-15 04:13:07.302082] Start Standard_SCP</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-15 04:13:07.302195] Checking srtList... ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Data 1/1 of the srtList has been log-normalized.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Number of available HVF: 2000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 20:03:36.601694] Finished checking.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 20:03:36.601916] Perform ScaleData on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 20:03:36.754739] Perform linear dimension reduction (pca) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 20:03:37.530008] Perform FindClusters (louvain) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 20:03:37.612756] Reorder clusters...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 20:03:37.689306] Perform nonlinear dimension reduction (umap) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-15 04:13:07.47135] Finished checking.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-15 04:13:07.471545] Perform ScaleData on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-15 04:13:07.623099] Perform linear dimension reduction (pca) on the data...</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>The following arguments are not used: force.recalc</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>The following arguments are not used: force.recalc</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-15 04:13:08.452028] Perform FindClusters (louvain) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-15 04:13:08.548558] Reorder clusters...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-15 04:13:08.62934] Perform nonlinear dimension reduction (umap) on the data...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Non-linear dimensionality reduction(umap) using Reduction(Uncorrectedpca, dims:1-10) as input</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Found more than one class "dist" in cache; using the first, from namespace 'BiocGenerics'</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Also defined by ‘spam’</span>
@@ -271,10 +273,10 @@ Supported methods are: <code>"Uncorrected"</code>, <code>"Seurat"</code>, <code>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Also defined by ‘spam’</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Found more than one class "dist" in cache; using the first, from namespace 'BiocGenerics'</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Also defined by ‘spam’</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 20:03:46.138756] Standard_SCP done</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 9.73 secs </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 20:03:46.272651] Uncorrected_integrate done</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 14.09 secs </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-15 04:13:17.17368] Standard_SCP done</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 9.87 secs </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-15 04:13:17.308889] Uncorrected_integrate done</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 14.75 secs </span>
 <span class="r-in"><span><span class="fu"><a href="CellDimPlot.html">CellDimPlot</a></span><span class="op">(</span><span class="va">panc8_sub</span>, group.by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"tech"</span>, <span class="st">"celltype"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="Integration_SCP-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
@@ -283,9 +285,9 @@ Supported methods are: <code>"Uncorrected"</code>, <code>"Seurat"</code>, <code>
 <span class="r-in"><span>  integration_method <span class="op">=</span> <span class="st">"Uncorrected"</span>,</span></span>
 <span class="r-in"><span>  HVF_min_intersection <span class="op">=</span> <span class="fl">5</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 20:03:46.737798] Start Uncorrected_integrate</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 20:03:46.743127] Spliting srtMerge into srtList by column tech... ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 20:03:47.230032] Checking srtList... ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-15 04:13:17.79916] Start Uncorrected_integrate</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-15 04:13:17.804525] Spliting srtMerge into srtList by column tech... ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-15 04:13:18.299494] Checking srtList... ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Data 1/5 of the srtList has been log-normalized.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform FindVariableFeatures on the data 1/5 of the srtList...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Data 2/5 of the srtList has been log-normalized.</span>
@@ -298,18 +300,20 @@ Supported methods are: <code>"Uncorrected"</code>, <code>"Seurat"</code>, <code>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform FindVariableFeatures on the data 5/5 of the srtList...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Use the separate HVF from srtList...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Number of available HVF: 264</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 20:03:48.814299] Finished checking.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 20:03:49.365716] Perform integration(Uncorrected) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 20:03:49.366074] Start Standard_SCP</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 20:03:49.366184] Checking srtList... ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-15 04:13:19.901476] Finished checking.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-15 04:13:20.914005] Perform integration(Uncorrected) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-15 04:13:20.914341] Start Standard_SCP</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-15 04:13:20.914449] Checking srtList... ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Data 1/1 of the srtList has been log-normalized.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Number of available HVF: 264</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 20:03:49.600913] Finished checking.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 20:03:49.601112] Perform ScaleData on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 20:03:49.651555] Perform linear dimension reduction (pca) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 20:03:50.267308] Perform FindClusters (louvain) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 20:03:50.369671] Reorder clusters...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 20:03:50.426176] Perform nonlinear dimension reduction (umap) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-15 04:13:21.151732] Finished checking.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-15 04:13:21.151931] Perform ScaleData on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-15 04:13:21.208734] Perform linear dimension reduction (pca) on the data...</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>The following arguments are not used: force.recalc</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>The following arguments are not used: force.recalc</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-15 04:13:21.863603] Perform FindClusters (louvain) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-15 04:13:21.981743] Reorder clusters...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-15 04:13:22.043969] Perform nonlinear dimension reduction (umap) on the data...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Non-linear dimensionality reduction(umap) using Reduction(Uncorrectedpca, dims:1-11) as input</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Found more than one class "dist" in cache; using the first, from namespace 'BiocGenerics'</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Also defined by ‘spam’</span>
@@ -320,10 +324,10 @@ Supported methods are: <code>"Uncorrected"</code>, <code>"Seurat"</code>, <code>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Also defined by ‘spam’</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Found more than one class "dist" in cache; using the first, from namespace 'BiocGenerics'</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Also defined by ‘spam’</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 20:03:58.935843] Standard_SCP done</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 9.57 secs </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 20:03:59.079257] Uncorrected_integrate done</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 12.34 secs </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-15 04:13:30.672951] Standard_SCP done</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 9.76 secs </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-15 04:13:30.853135] Uncorrected_integrate done</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 13.05 secs </span>
 <span class="r-in"><span><span class="fu"><a href="CellDimPlot.html">CellDimPlot</a></span><span class="op">(</span><span class="va">panc8_sub</span>, group.by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"tech"</span>, <span class="st">"celltype"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="Integration_SCP-2.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
@@ -331,9 +335,9 @@ Supported methods are: <code>"Uncorrected"</code>, <code>"Seurat"</code>, <code>
 <span class="r-in"><span>  srtMerge <span class="op">=</span> <span class="va">panc8_sub</span>, batch <span class="op">=</span> <span class="st">"tech"</span>,</span></span>
 <span class="r-in"><span>  integration_method <span class="op">=</span> <span class="st">"Seurat"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 20:03:59.563196] Start Seurat_integrate</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 20:03:59.569521] Spliting srtMerge into srtList by column tech... ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 20:04:00.03483] Checking srtList... ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-15 04:13:31.368221] Start Seurat_integrate</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-15 04:13:31.374551] Spliting srtMerge into srtList by column tech... ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-15 04:13:31.829021] Checking srtList... ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Data 1/5 of the srtList has been log-normalized.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform FindVariableFeatures on the data 1/5 of the srtList...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Data 2/5 of the srtList has been log-normalized.</span>
@@ -346,14 +350,16 @@ Supported methods are: <code>"Uncorrected"</code>, <code>"Seurat"</code>, <code>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform FindVariableFeatures on the data 5/5 of the srtList...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Use the separate HVF from srtList...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Number of available HVF: 2000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 20:04:01.606763] Finished checking.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 20:04:02.25208] Perform FindIntegrationAnchors on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 20:04:21.660269] Perform integration(Seurat) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 20:04:29.393422] Perform ScaleData on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 20:04:29.573584] Perform linear dimension reduction (pca) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 20:04:30.383006] Perform FindClusters (louvain) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 20:04:30.499399] Reorder clusters...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 20:04:30.568851] Perform nonlinear dimension reduction (umap) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-15 04:13:33.409618] Finished checking.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-15 04:13:34.498649] Perform FindIntegrationAnchors on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-15 04:13:54.767393] Perform integration(Seurat) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-15 04:14:03.643861] Perform ScaleData on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-15 04:14:03.741264] Perform linear dimension reduction (pca) on the data...</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>The following arguments are not used: force.recalc</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>The following arguments are not used: force.recalc</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-15 04:14:04.627899] Perform FindClusters (louvain) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-15 04:14:04.782868] Reorder clusters...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-15 04:14:04.858297] Perform nonlinear dimension reduction (umap) on the data...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Non-linear dimensionality reduction(umap) using Reduction(Seuratpca, dims:1-12) as input</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Found more than one class "dist" in cache; using the first, from namespace 'BiocGenerics'</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Also defined by ‘spam’</span>
@@ -364,8 +370,8 @@ Supported methods are: <code>"Uncorrected"</code>, <code>"Seurat"</code>, <code>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Also defined by ‘spam’</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Found more than one class "dist" in cache; using the first, from namespace 'BiocGenerics'</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Also defined by ‘spam’</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 20:04:39.323149] Seurat_integrate done</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 39.76 secs </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-15 04:14:13.83958] Seurat_integrate done</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 42.47 secs </span>
 <span class="r-in"><span><span class="fu"><a href="CellDimPlot.html">CellDimPlot</a></span><span class="op">(</span><span class="va">panc8_sub</span>, group.by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"tech"</span>, <span class="st">"celltype"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="Integration_SCP-3.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>

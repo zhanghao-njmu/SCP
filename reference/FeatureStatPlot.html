@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">SCP</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.5</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -76,7 +76,8 @@
 <span>  pt.color <span class="op">=</span> <span class="st">"grey30"</span>,</span>
 <span>  pt.size <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  pt.alpha <span class="op">=</span> <span class="fl">1</span>,</span>
-<span>  jitter.width <span class="op">=</span> <span class="fl">0.5</span>,</span>
+<span>  jitter.width <span class="op">=</span> <span class="fl">0.4</span>,</span>
+<span>  jitter.height <span class="op">=</span> <span class="fl">0.1</span>,</span>
 <span>  add_trend <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  trend_color <span class="op">=</span> <span class="st">"black"</span>,</span>
 <span>  trend_linewidth <span class="op">=</span> <span class="fl">1</span>,</span>
@@ -234,6 +235,10 @@
 
 <dt>jitter.width</dt>
 <dd><p>A numeric value specifying the width of the jitter. Default is 0.5.</p></dd>
+
+
+<dt>jitter.height</dt>
+<dd><p>A numeric value specifying the height of the jitter. Default is 0.1.</p></dd>
 
 
 <dt>add_trend</dt>
@@ -491,22 +496,24 @@
 <span class="r-in"><span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="panel_fix.html">panel_fix_overall</a></span><span class="op">(</span>width <span class="op">=</span> <span class="fl">8</span>, height <span class="op">=</span> <span class="fl">5</span><span class="op">)</span> <span class="co"># As the plot is created by combining, we can adjust the overall height and width directly.</span></span></span>
 <span class="r-plt img"><img src="FeatureStatPlot-19.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu">FeatureStatPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, stat.by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Neurog3"</span>, <span class="st">"Rbp4"</span>, <span class="st">"Ins1"</span><span class="op">)</span>, group.by <span class="op">=</span> <span class="st">"CellType"</span>, plot.by <span class="op">=</span> <span class="st">"group"</span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="FeatureStatPlot-20.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="fu">FeatureStatPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, stat.by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Neurog3"</span>, <span class="st">"Rbp4"</span>, <span class="st">"Ins1"</span><span class="op">)</span>, group.by <span class="op">=</span> <span class="st">"CellType"</span>, plot.by <span class="op">=</span> <span class="st">"feature"</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Setting 'group.by' to 'Features' as 'plot.by' is set to 'feature'</span>
-<span class="r-plt img"><img src="FeatureStatPlot-20.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="FeatureStatPlot-21.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="fu">FeatureStatPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>,</span></span>
 <span class="r-in"><span>  stat.by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Neurog3"</span>, <span class="st">"Rbp4"</span>, <span class="st">"Ins1"</span><span class="op">)</span>, group.by <span class="op">=</span> <span class="st">"CellType"</span>, plot.by <span class="op">=</span> <span class="st">"feature"</span>,</span></span>
 <span class="r-in"><span>  multiplegroup_comparisons <span class="op">=</span> <span class="cn">TRUE</span>, sig_label <span class="op">=</span> <span class="st">"p.format"</span>, sig_labelsize <span class="op">=</span> <span class="fl">4</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Setting 'group.by' to 'Features' as 'plot.by' is set to 'feature'</span>
-<span class="r-plt img"><img src="FeatureStatPlot-21.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="FeatureStatPlot-22.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="fu">FeatureStatPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>,</span></span>
 <span class="r-in"><span>  stat.by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Neurog3"</span>, <span class="st">"Rbp4"</span>, <span class="st">"Ins1"</span><span class="op">)</span>, group.by <span class="op">=</span> <span class="st">"CellType"</span>, plot.by <span class="op">=</span> <span class="st">"feature"</span>,</span></span>
 <span class="r-in"><span>  comparisons <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Neurog3"</span>, <span class="st">"Rbp4"</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Rbp4"</span>, <span class="st">"Ins1"</span><span class="op">)</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  stack <span class="op">=</span> <span class="cn">TRUE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Setting 'group.by' to 'Features' as 'plot.by' is set to 'feature'</span>
-<span class="r-plt img"><img src="FeatureStatPlot-22.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="FeatureStatPlot-23.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="fu">FeatureStatPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>, stat.by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>  <span class="st">"Sox9"</span>, <span class="st">"Anxa2"</span>, <span class="st">"Bicc1"</span>, <span class="co"># Ductal</span></span></span>
 <span class="r-in"><span>  <span class="st">"Neurog3"</span>, <span class="st">"Hes6"</span>, <span class="co"># EPs</span></span></span>
@@ -515,7 +522,7 @@
 <span class="r-in"><span>  <span class="st">"Ins1"</span>, <span class="st">"Gcg"</span>, <span class="st">"Sst"</span>, <span class="st">"Ghrl"</span> <span class="co"># Beta, Alpha, Delta, Epsilon</span></span></span>
 <span class="r-in"><span><span class="op">)</span>, group.by <span class="op">=</span> <span class="st">"SubCellType"</span>, plot.by <span class="op">=</span> <span class="st">"feature"</span>, stack <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Setting 'group.by' to 'Features' as 'plot.by' is set to 'feature'</span>
-<span class="r-plt img"><img src="FeatureStatPlot-23.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="FeatureStatPlot-24.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://Matrix.R-forge.R-project.org" class="external-link">Matrix</a></span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
@@ -524,12 +531,12 @@
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>     expand</span>
 <span class="r-in"><span><span class="va">data</span> <span class="op">&lt;-</span> <span class="va">pancreas_sub</span><span class="op">@</span><span class="va">assays</span><span class="op">$</span><span class="va">RNA</span><span class="op">@</span><span class="va">data</span></span></span>
-<span class="r-in"><span><span class="va">pancreas_sub</span><span class="op">@</span><span class="va">assays</span><span class="op">$</span><span class="va">RNA</span><span class="op">@</span><span class="va">scale.data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="va">data</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/pkg/Matrix/man/colSums.html" class="external-link">rowMeans</a></span><span class="op">(</span><span class="va">data</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">pancreas_sub</span><span class="op">@</span><span class="va">assays</span><span class="op">$</span><span class="va">RNA</span><span class="op">@</span><span class="va">scale.data</span> <span class="op">&lt;-</span> <span class="fu"><a href="as_matrix.html">as_matrix</a></span><span class="op">(</span><span class="va">data</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/pkg/Matrix/man/colSums.html" class="external-link">rowMeans</a></span><span class="op">(</span><span class="va">data</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">FeatureStatPlot</span><span class="op">(</span><span class="va">pancreas_sub</span>,</span></span>
 <span class="r-in"><span>  stat.by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Neurog3"</span>, <span class="st">"Rbp4"</span>, <span class="st">"Ins1"</span><span class="op">)</span>, group.by <span class="op">=</span> <span class="st">"CellType"</span>,</span></span>
 <span class="r-in"><span>  slot <span class="op">=</span> <span class="st">"scale.data"</span>, ylab <span class="op">=</span> <span class="st">"FoldChange"</span>, same.y.lims <span class="op">=</span> <span class="cn">TRUE</span>, y.max <span class="op">=</span> <span class="fl">4</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="FeatureStatPlot-24.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="FeatureStatPlot-25.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">SCP</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.5</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -137,11 +137,13 @@
 <span>  cell_annotation <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  cell_annotation_palette <span class="op">=</span> <span class="st">"Paired"</span>,</span>
 <span>  cell_annotation_palcolor <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  cell_annotation_params <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  cell_annotation_params <span class="op">=</span> <span class="kw">if</span> <span class="op">(</span><span class="va">flip</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>width <span class="op">=</span> <span class="fu">grid</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/grid/unit.html" class="external-link">unit</a></span><span class="op">(</span><span class="fl">5</span>, <span class="st">"mm"</span><span class="op">)</span><span class="op">)</span> <span class="kw">else</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>height <span class="op">=</span></span>
+<span>    <span class="fu">grid</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/grid/unit.html" class="external-link">unit</a></span><span class="op">(</span><span class="fl">5</span>, <span class="st">"mm"</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>  feature_annotation <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  feature_annotation_palette <span class="op">=</span> <span class="st">"Dark2"</span>,</span>
 <span>  feature_annotation_palcolor <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  feature_annotation_params <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  feature_annotation_params <span class="op">=</span> <span class="kw">if</span> <span class="op">(</span><span class="va">flip</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>height <span class="op">=</span> <span class="fu">grid</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/grid/unit.html" class="external-link">unit</a></span><span class="op">(</span><span class="fl">5</span>, <span class="st">"mm"</span><span class="op">)</span><span class="op">)</span> <span class="kw">else</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>width <span class="op">=</span> <span class="fu">grid</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/grid/unit.html" class="external-link">unit</a></span><span class="op">(</span><span class="fl">5</span>, <span class="st">"mm"</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>  use_raster <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  raster_device <span class="op">=</span> <span class="st">"png"</span>,</span>
 <span>  raster_by_magick <span class="op">=</span> <span class="cn">FALSE</span>,</span>
@@ -593,19 +595,30 @@
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"pancreas_sub"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="RunDEtest.html">RunDEtest</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, group_by <span class="op">=</span> <span class="st">"CellType"</span><span class="op">)</span></span></span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Data in the 'data' slot is raw counts. Perform NormalizeData(LogNormalize) on the data.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-11-02 19:58:00.916756] Start DEtest</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-11-15 04:07:00.955204] Start DEtest</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Workers: 2</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Find all markers(wilcox) among 5 groups...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |============================================                                                                  |  40%  |                                                                                                                      |==============================================================================================================| 100%</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |============================================                                                                  |  40%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |==============================================================================================================| 100%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-11-02 19:58:03.265623] DEtest done</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:2.35 secs</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-11-15 04:07:09.97751] DEtest done</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:9.02 secs</span>
 <span class="r-in"><span><span class="va">de_filter</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">pancreas_sub</span><span class="op">@</span><span class="va">tools</span><span class="op">$</span><span class="va">DEtest_CellType</span><span class="op">$</span><span class="va">AllMarkers_wilcox</span>, <span class="va">p_val_adj</span> <span class="op">&lt;</span> <span class="fl">0.05</span> <span class="op">&amp;</span> <span class="va">avg_log2FC</span> <span class="op">&gt;</span> <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">ht1</span> <span class="op">&lt;-</span> <span class="fu">FeatureHeatmap</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  srt <span class="op">=</span> <span class="va">pancreas_sub</span>, features <span class="op">=</span> <span class="va">de_filter</span><span class="op">$</span><span class="va">gene</span>, group.by <span class="op">=</span> <span class="st">"CellType"</span>,</span></span>
 <span class="r-in"><span>  split.by <span class="op">=</span> <span class="st">"Phase"</span>, cell_split_palette <span class="op">=</span> <span class="st">"Dark2"</span>,</span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> 'magick' package is suggested to install to give better rasterization.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Set `ht_opt$message = FALSE` to turn off this message.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> `use_raster` is automatically set to TRUE for a matrix with more than 2000 rows. You can control</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> `use_raster` argument by explicitly setting TRUE/FALSE to it.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Set `ht_opt$message = FALSE` to turn off this message.</span>
 <span class="r-in"><span><span class="va">ht1</span><span class="op">$</span><span class="va">plot</span></span></span>
@@ -619,6 +632,14 @@
 <span class="r-in"><span>  ht_params <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>row_gap <span class="op">=</span> <span class="fu">grid</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/grid/unit.html" class="external-link">unit</a></span><span class="op">(</span><span class="fl">0</span>, <span class="st">"mm"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> 'magick' package is suggested to install to give better rasterization.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Set `ht_opt$message = FALSE` to turn off this message.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> `use_raster` is automatically set to TRUE for a matrix with more than 2000 rows. You can control</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> `use_raster` argument by explicitly setting TRUE/FALSE to it.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Set `ht_opt$message = FALSE` to turn off this message.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> `use_raster` is automatically set to TRUE for a matrix with more than 2000 rows. You can control</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> `use_raster` argument by explicitly setting TRUE/FALSE to it.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Set `ht_opt$message = FALSE` to turn off this message.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> The size of the heatmap is fixed because certain elements are not scalable.</span>
@@ -636,10 +657,10 @@
 <span class="r-msg co"><span class="r-pr">#&gt;</span> 'magick' package is suggested to install to give better rasterization.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Set `ht_opt$message = FALSE` to turn off this message.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-11-02 19:58:19.268309] Start Enrichment</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-11-15 04:07:50.593767] Start Enrichment</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Workers: 2</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Species: Mus_musculus</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db: GO_BP version:3.17.0 nterm:16027 created:2023-11-02 19:56:24.306095</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db: GO_BP version:3.17.0 nterm:16027 created:2023-11-15 04:05:26.140323</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Convert ID types for the database: GO_BP</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Connect to the Ensembl archives...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Using the 103 version of biomart...</span>
@@ -658,8 +679,8 @@
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="AnnotateFeatures.html">AnnotateFeatures</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, species <span class="op">=</span> <span class="st">"Mus_musculus"</span>, db <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"TF"</span>, <span class="st">"CSPA"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Species: Mus_musculus</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db: TF version:AnimalTFDB4 nterm:2 created:2023-11-02 19:47:14.558794</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db: CSPA version:CSPA nterm:1 created:2023-11-02 19:47:18.194481</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db: TF version:AnimalTFDB4 nterm:2 created:2023-11-15 03:57:28.25575</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db: CSPA version:CSPA nterm:1 created:2023-11-15 03:57:30.4099</span>
 <span class="r-in"><span><span class="va">ht4</span> <span class="op">&lt;-</span> <span class="fu">FeatureHeatmap</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  srt <span class="op">=</span> <span class="va">pancreas_sub</span>, features <span class="op">=</span> <span class="va">de_filter</span><span class="op">$</span><span class="va">gene</span>, n_split <span class="op">=</span> <span class="fl">4</span>, group.by <span class="op">=</span> <span class="st">"CellType"</span>,</span></span>
 <span class="r-in"><span>  heatmap_palette <span class="op">=</span> <span class="st">"viridis"</span>,</span></span>
@@ -668,6 +689,10 @@
 <span class="r-in"><span>  cell_annotation <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Phase"</span>, <span class="st">"G2M_score"</span><span class="op">)</span>, cell_annotation_palette <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Dark2"</span>, <span class="st">"Purples"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> 'magick' package is suggested to install to give better rasterization.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Set `ht_opt$message = FALSE` to turn off this message.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> `use_raster` is automatically set to TRUE for a matrix with more than 2000 rows. You can control</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> `use_raster` argument by explicitly setting TRUE/FALSE to it.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Set `ht_opt$message = FALSE` to turn off this message.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> The size of the heatmap is fixed because certain elements are not scalable.</span>
@@ -689,6 +714,10 @@
 <span class="r-msg co"><span class="r-pr">#&gt;</span> 'magick' package is suggested to install to give better rasterization.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Set `ht_opt$message = FALSE` to turn off this message.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> `use_raster` is automatically set to TRUE for a matrix with more than 2000 columns You can control</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> `use_raster` argument by explicitly setting TRUE/FALSE to it.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Set `ht_opt$message = FALSE` to turn off this message.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> The size of the heatmap is fixed because certain elements are not scalable.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>               The width and height of the heatmap are determined by the size of the current viewport.</span>
@@ -701,19 +730,17 @@
 <span class="r-in"><span>  srt <span class="op">=</span> <span class="va">pancreas_sub</span>, assay_X <span class="op">=</span> <span class="st">"RNA"</span>, group_by <span class="op">=</span> <span class="st">"SubCellType"</span>,</span></span>
 <span class="r-in"><span>  linear_reduction <span class="op">=</span> <span class="st">"PCA"</span>, nonlinear_reduction <span class="op">=</span> <span class="st">"UMAP"</span>, infer_pseudotime <span class="op">=</span> <span class="cn">TRUE</span>, root_group <span class="op">=</span> <span class="st">"Ductal"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 'misc' slot is not converted.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 'tools' slot is not converted.</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in py_module_import(module, convert = convert):</span> ModuleNotFoundError: No module named 'scanpy'</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> Run `reticulate::py_last_error()` for details.</span>
 <span class="r-in"><span><span class="va">ht6</span> <span class="op">&lt;-</span> <span class="fu">FeatureHeatmap</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  srt <span class="op">=</span> <span class="va">pancreas_sub</span>, features <span class="op">=</span> <span class="va">de_filter</span><span class="op">$</span><span class="va">gene</span>, nlabel <span class="op">=</span> <span class="fl">10</span>,</span></span>
 <span class="r-in"><span>  cell_order <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sort.html" class="external-link">sort</a></span><span class="op">(</span><span class="va">pancreas_sub</span><span class="op">$</span><span class="va">dpt_pseudotime</span><span class="op">)</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  cell_annotation <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CellType"</span>, <span class="st">"dpt_pseudotime"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  cell_annotation_palette <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Paired"</span>, <span class="st">"cividis"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 'magick' package is suggested to install to give better rasterization.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Set `ht_opt$message = FALSE` to turn off this message.</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in FeatureHeatmap(srt = pancreas_sub, features = de_filter$gene,     nlabel = 10, cell_order = names(sort(pancreas_sub$dpt_pseudotime)),     cell_annotation = c("CellType", "dpt_pseudotime"), cell_annotation_palette = c("Paired",         "cividis")):</span> cell_annotation: dpt_pseudotime is not in the Seurat object.</span>
 <span class="r-in"><span><span class="va">ht6</span><span class="op">$</span><span class="va">plot</span></span></span>
-<span class="r-plt img"><img src="FeatureHeatmap-6.png" alt="" width="700" height="433"></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in eval(expr, envir, enclos):</span> object 'ht6' not found</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

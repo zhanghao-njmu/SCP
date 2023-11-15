@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">SCP</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.5</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -75,10 +75,13 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"pancreas_sub"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu">db_DoubletDetection</span><span class="op">(</span><span class="va">pancreas_sub</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Try to install doubletdetection ...</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in py_module_import(module, convert = convert):</span> ModuleNotFoundError: No module named 'doubletdetection'</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> Run `reticulate::py_last_error()` for details.</span>
 <span class="r-in"><span><span class="fu"><a href="CellDimPlot.html">CellDimPlot</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, reduction <span class="op">=</span> <span class="st">"umap"</span>, group.by <span class="op">=</span> <span class="st">"db.DoubletDetection_class"</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="db_DoubletDetection-1.png" alt="" width="700" height="433"></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in CellDimPlot(pancreas_sub, reduction = "umap", group.by = "db.DoubletDetection_class"):</span> db.DoubletDetection_class is not in the meta.data of srt object.</span>
 <span class="r-in"><span><span class="fu"><a href="FeatureDimPlot.html">FeatureDimPlot</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, reduction <span class="op">=</span> <span class="st">"umap"</span>, features <span class="op">=</span> <span class="st">"db.DoubletDetection_score"</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="db_DoubletDetection-2.png" alt="" width="700" height="433"></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>db.DoubletDetection_score are not in the features of srt.</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in FeatureDimPlot(pancreas_sub, reduction = "umap", features = "db.DoubletDetection_score"):</span> There are no valid features present.</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>

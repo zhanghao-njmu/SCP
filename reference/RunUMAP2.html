@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">SCP</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.5</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -233,14 +233,14 @@
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu">Seurat</span><span class="fu">::</span><span class="fu"><a href="https://satijalab.org/seurat/reference/FindVariableFeatures.html" class="external-link">FindVariableFeatures</a></span><span class="op">(</span><span class="va">pancreas_sub</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu">RunUMAP2</span><span class="op">(</span>object <span class="op">=</span> <span class="va">pancreas_sub</span>, features <span class="op">=</span> <span class="fu">Seurat</span><span class="fu">::</span><span class="fu"><a href="https://mojaveazure.github.io/seurat-object/reference/VariableFeatures.html" class="external-link">VariableFeatures</a></span><span class="op">(</span><span class="va">pancreas_sub</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 20:25:37 UMAP embedding parameters a = 0.9922 b = 1.112</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 04:41:07 UMAP embedding parameters a = 0.9922 b = 1.112</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Found more than one class "dist" in cache; using the first, from namespace 'BiocGenerics'</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Also defined by ‘spam’</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 20:25:37 Read 1000 rows and found 2000 numeric columns</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 20:25:37 Using Annoy for neighbor search, n_neighbors = 30</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 04:41:07 Read 1000 rows and found 2000 numeric columns</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 04:41:07 Using Annoy for neighbor search, n_neighbors = 30</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Found more than one class "dist" in cache; using the first, from namespace 'BiocGenerics'</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Also defined by ‘spam’</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 20:25:37 Building Annoy index with metric = cosine, n_trees = 50</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 04:41:07 Building Annoy index with metric = cosine, n_trees = 50</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> 0%   10   20   30   40   50   60   70   80   90   100%</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> [----|----|----|----|----|----|----|----|----|----|</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> *</span>
@@ -294,14 +294,14 @@
 <span class="r-msg co"><span class="r-pr">#&gt;</span> *</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> *</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> |</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 20:25:37 Writing NN index file to temp file /tmp/Rtmpsq2NRa/file201218df6493</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 20:25:37 Searching Annoy index using 1 thread, search_k = 3000</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 20:25:39 Annoy recall = 100%</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 20:25:40 Commencing smooth kNN distance calibration using 1 thread</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 04:41:08 Writing NN index file to temp file /tmp/RtmpewBHPg/file8fbb553fbf92</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 04:41:08 Searching Annoy index using 1 thread, search_k = 3000</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 04:41:09 Annoy recall = 100%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 04:41:11 Commencing smooth kNN distance calibration using 1 thread</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>  with target n_neighbors = 30</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 20:25:43 Initializing from normalized Laplacian + noise (using RSpectra)</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 20:25:43 Commencing optimization for 200 epochs, with 40796 positive edges</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 20:25:44 Optimization finished</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 04:41:13 Initializing from normalized Laplacian + noise (using RSpectra)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 04:41:13 Commencing optimization for 200 epochs, with 40796 positive edges</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 04:41:15 Optimization finished</span>
 <span class="r-in"><span><span class="fu"><a href="CellDimPlot.html">CellDimPlot</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, group.by <span class="op">=</span> <span class="st">"CellType"</span>, reduction <span class="op">=</span> <span class="st">"umap"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="RunUMAP2-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>

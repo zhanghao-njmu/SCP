@@ -12,7 +12,7 @@ This function runs the PAGA analysis on a Seurat object."><!-- mathjax --><scrip
     
     <a class="navbar-brand me-2" href="../index.html">SCP</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.5</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -226,21 +226,21 @@ This function runs the PAGA analysis on a Seurat object.</p>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"pancreas_sub"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu">RunPAGA</span><span class="op">(</span>srt <span class="op">=</span> <span class="va">pancreas_sub</span>, assay_X <span class="op">=</span> <span class="st">"RNA"</span>, group_by <span class="op">=</span> <span class="st">"SubCellType"</span>, linear_reduction <span class="op">=</span> <span class="st">"PCA"</span>, nonlinear_reduction <span class="op">=</span> <span class="st">"UMAP"</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 'misc' slot is not converted.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 'tools' slot is not converted.</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in py_module_import(module, convert = convert):</span> ModuleNotFoundError: No module named 'scanpy'</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> Run `reticulate::py_last_error()` for details.</span>
 <span class="r-in"><span><span class="fu"><a href="CellDimPlot.html">CellDimPlot</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, group.by <span class="op">=</span> <span class="st">"SubCellType"</span>, reduction <span class="op">=</span> <span class="st">"draw_graph_fr"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="RunPAGA-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="fu"><a href="PAGAPlot.html">PAGAPlot</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="RunPAGA-2.png" alt="" width="700" height="433"></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in PAGAPlot(pancreas_sub, reduction = "UMAP"):</span> Cannot find the paga result.</span>
 <span class="r-in"><span><span class="fu"><a href="CellDimPlot.html">CellDimPlot</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, group.by <span class="op">=</span> <span class="st">"SubCellType"</span>, reduction <span class="op">=</span> <span class="st">"UMAP"</span>, paga <span class="op">=</span> <span class="va">pancreas_sub</span><span class="op">@</span><span class="va">misc</span><span class="op">$</span><span class="va">paga</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="RunPAGA-3.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="RunPAGA-2.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu">RunPAGA</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  srt <span class="op">=</span> <span class="va">pancreas_sub</span>, group_by <span class="op">=</span> <span class="st">"SubCellType"</span>, linear_reduction <span class="op">=</span> <span class="st">"PCA"</span>, nonlinear_reduction <span class="op">=</span> <span class="st">"UMAP"</span>,</span></span>
 <span class="r-in"><span>  embedded_with_PAGA <span class="op">=</span> <span class="cn">TRUE</span>, infer_pseudotime <span class="op">=</span> <span class="cn">TRUE</span>, root_group <span class="op">=</span> <span class="st">"Ductal"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 'misc' slot is not converted.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 'tools' slot is not converted.</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in py_module_import(module, convert = convert):</span> ModuleNotFoundError: No module named 'scanpy'</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> Run `reticulate::py_last_error()` for details.</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">pancreas_sub</span><span class="op">[[</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                     orig.ident nCount_RNA nFeature_RNA     S_score   G2M_score nCount_spliced nFeature_spliced</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> CAGCCGAAGCGATATA SeuratProject      10653         3295  0.33188155  0.54532743          10653             3295</span>
@@ -249,21 +249,22 @@ This function runs the PAGA analysis on a Seurat object.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> CACAGTACATCCGTGG SeuratProject       5484         2510 -0.25927997 -0.25941831           5484             2510</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> CGGAGCTCATTGGGCC SeuratProject       7357         2674 -0.11764368  0.46237856           7357             2674</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> AGAGCTTGTGTGACCC SeuratProject       6498         2516 -0.11406432 -0.17830831           6498             2516</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                  nCount_unspliced nFeature_unspliced      CellType   SubCellType Phase dpt_pseudotime</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> CAGCCGAAGCGATATA             1587               1063        Ductal        Ductal   G2M     0.08858818</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> AGTGTCATCGCCGTGA             1199                803 Pre-endocrine Pre-endocrine    G1     0.61145544</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GATGAAAAGTTGTAGA             2166               1379   Ngn3 low EP   Ngn3 low EP   G2M     0.10923151</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> CACAGTACATCCGTGG             1339                859     Endocrine          Beta    G1     0.86335444</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> CGGAGCTCATTGGGCC              976                745        Ductal        Ductal   G2M     0.03584588</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> AGAGCTTGTGTGACCC              822                591        Ductal        Ductal    G1     0.03778159</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                  nCount_unspliced nFeature_unspliced      CellType   SubCellType Phase</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> CAGCCGAAGCGATATA             1587               1063        Ductal        Ductal   G2M</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> AGTGTCATCGCCGTGA             1199                803 Pre-endocrine Pre-endocrine    G1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GATGAAAAGTTGTAGA             2166               1379   Ngn3 low EP   Ngn3 low EP   G2M</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> CACAGTACATCCGTGG             1339                859     Endocrine          Beta    G1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> CGGAGCTCATTGGGCC              976                745        Ductal        Ductal   G2M</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> AGAGCTTGTGTGACCC              822                591        Ductal        Ductal    G1</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">pancreas_sub</span><span class="op">@</span><span class="va">reductions</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "PCA"           "UMAP"          "draw_graph_fr" "PAGAUMAP2D"    "diffmap"      </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "PCA"  "UMAP"</span>
 <span class="r-in"><span><span class="fu"><a href="FeatureDimPlot.html">FeatureDimPlot</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, features <span class="op">=</span> <span class="st">"dpt_pseudotime"</span>, reduction <span class="op">=</span> <span class="st">"PAGAUMAP2D"</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="RunPAGA-4.png" alt="" width="700" height="433"></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>dpt_pseudotime are not in the features of srt.</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in FeatureDimPlot(pancreas_sub, features = "dpt_pseudotime", reduction = "PAGAUMAP2D"):</span> There are no valid features present.</span>
 <span class="r-in"><span><span class="fu"><a href="PAGAPlot.html">PAGAPlot</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, reduction <span class="op">=</span> <span class="st">"PAGAUMAP2D"</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="RunPAGA-5.png" alt="" width="700" height="433"></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in PAGAPlot(pancreas_sub, reduction = "PAGAUMAP2D"):</span> Cannot find the paga result.</span>
 <span class="r-in"><span><span class="fu"><a href="CellDimPlot.html">CellDimPlot</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, group.by <span class="op">=</span> <span class="st">"SubCellType"</span>, reduction <span class="op">=</span> <span class="st">"PAGAUMAP2D"</span>, paga <span class="op">=</span> <span class="va">pancreas_sub</span><span class="op">@</span><span class="va">misc</span><span class="op">$</span><span class="va">paga</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="RunPAGA-6.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="RunPAGA-3.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

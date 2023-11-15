@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">SCP</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.5</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -186,18 +186,20 @@
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"pancreas_sub"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"ref_scMCA"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="Standard_SCP.html">Standard_SCP</a></span><span class="op">(</span><span class="va">pancreas_sub</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 20:16:46.019287] Start Standard_SCP</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 20:16:46.020172] Checking srtList... ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-15 04:32:46.533354] Start Standard_SCP</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-15 04:32:46.533563] Checking srtList... ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Data 1/1 of the srtList is raw_counts. Perform NormalizeData(LogNormalize) on the data ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform FindVariableFeatures on the data 1/1 of the srtList...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Use the separate HVF from srtList...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Number of available HVF: 2000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 20:16:46.633106] Finished checking.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 20:16:46.633284] Perform ScaleData on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 20:16:46.700274] Perform linear dimension reduction (pca) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 20:16:47.218284] Perform FindClusters (louvain) on the data...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 20:16:47.27605] Reorder clusters...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 20:16:47.333258] Perform nonlinear dimension reduction (umap) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-15 04:32:47.221536] Finished checking.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-15 04:32:47.221735] Perform ScaleData on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-15 04:32:47.297358] Perform linear dimension reduction (pca) on the data...</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>The following arguments are not used: force.recalc</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>The following arguments are not used: force.recalc</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-15 04:32:47.939663] Perform FindClusters (louvain) on the data...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-15 04:32:48.017389] Reorder clusters...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-15 04:32:48.081236] Perform nonlinear dimension reduction (umap) on the data...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Non-linear dimensionality reduction(umap) using Reduction(Standardpca, dims:1-13) as input</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Found more than one class "dist" in cache; using the first, from namespace 'BiocGenerics'</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Also defined by ‘spam’</span>
@@ -208,8 +210,8 @@
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Also defined by ‘spam’</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Found more than one class "dist" in cache; using the first, from namespace 'BiocGenerics'</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Also defined by ‘spam’</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 20:16:56.059196] Standard_SCP done</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 10.04 secs </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-15 04:32:57.137562] Standard_SCP done</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Elapsed time: 10.6 secs </span>
 <span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu">RunKNNPredict</span><span class="op">(</span>srt_query <span class="op">=</span> <span class="va">pancreas_sub</span>, bulk_ref <span class="op">=</span> <span class="va">ref_scMCA</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Use 535 features to calculate distance.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Detected query data type: log_normalized_counts</span>
@@ -250,8 +252,8 @@
 <span class="r-in"><span><span class="va">panc8_sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="RenameFeatures.html">RenameFeatures</a></span><span class="op">(</span><span class="va">panc8_sub</span>, newnames <span class="op">=</span> <span class="va">genenames</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Rename features for the assay: RNA</span>
 <span class="r-in"><span><span class="va">panc8_sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="check_srtMerge.html">check_srtMerge</a></span><span class="op">(</span><span class="va">panc8_sub</span>, batch <span class="op">=</span> <span class="st">"tech"</span><span class="op">)</span><span class="op">[[</span><span class="st">"srtMerge"</span><span class="op">]</span><span class="op">]</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 20:16:58.99077] Spliting srtMerge into srtList by column tech... ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 20:16:59.240083] Checking srtList... ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-15 04:32:59.911105] Spliting srtMerge into srtList by column tech... ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-15 04:33:00.145532] Checking srtList... ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Data 1/5 of the srtList is raw_normalized_counts. Perform NormalizeData(LogNormalize) on the data ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform FindVariableFeatures on the data 1/5 of the srtList...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Data 2/5 of the srtList is raw_normalized_counts. Perform NormalizeData(LogNormalize) on the data ...</span>
@@ -264,7 +266,7 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span> Perform FindVariableFeatures on the data 5/5 of the srtList...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Use the separate HVF from srtList...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Number of available HVF: 2000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-02 20:17:01.047617] Finished checking.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2023-11-15 04:33:01.950304] Finished checking.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu">RunKNNPredict</span><span class="op">(</span>srt_query <span class="op">=</span> <span class="va">pancreas_sub</span>, srt_ref <span class="op">=</span> <span class="va">panc8_sub</span>, ref_group <span class="op">=</span> <span class="st">"celltype"</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Use the HVF to calculate distance metric.</span>
@@ -318,16 +320,30 @@
 <span class="r-in"><span>  ref_group <span class="op">=</span> <span class="st">"celltype"</span>,</span></span>
 <span class="r-in"><span>  features_type <span class="op">=</span> <span class="st">"DE"</span>, feature_source <span class="op">=</span> <span class="st">"ref"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-11-02 20:17:03.98063] Start DEtest</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-11-15 04:33:05.264339] Start DEtest</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Workers: 2</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Find all markers(wilcox) among 13 groups...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |===========================================================                                                   |  54%  |                                                                                                                      |==============================================================================================================| 100%</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |===========================================================                                                   |  54%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |==============================================================================================================| 100%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-11-02 20:17:09.635073] DEtest done</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:5.65 secs</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-11-15 04:33:27.641556] DEtest done</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:22.38 secs</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Use the DE features from AllMarkers_wilcox to calculate distance metric.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> DE features number of the ref data: 2000</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Use 1865 features to calculate distance.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Use 1817 features to calculate distance.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Detected query data type: log_normalized_counts</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Detected reference data type: log_normalized_counts</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Calculate similarity...</span>
@@ -343,25 +359,49 @@
 <span class="r-in"><span>  query_group <span class="op">=</span> <span class="st">"SubCellType"</span>, ref_group <span class="op">=</span> <span class="st">"celltype"</span>,</span></span>
 <span class="r-in"><span>  features_type <span class="op">=</span> <span class="st">"DE"</span>, feature_source <span class="op">=</span> <span class="st">"both"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-11-02 20:17:10.484751] Start DEtest</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-11-15 04:33:28.554987] Start DEtest</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Workers: 2</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Find all markers(wilcox) among 8 groups...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |=======================================================                                                       |  50%  |                                                                                                                      |==============================================================================================================| 100%</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |=======================================================                                                       |  50%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |==============================================================================================================| 100%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-11-02 20:17:12.344453] DEtest done</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:1.86 secs</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-11-15 04:33:35.14104] DEtest done</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:6.59 secs</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Use the DE features from AllMarkers_wilcox to calculate distance metric.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> DE features number of the query data: 956</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-11-02 20:17:12.63767] Start DEtest</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> DE features number of the query data: 1848</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-11-15 04:33:35.318257] Start DEtest</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Workers: 2</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Find all markers(wilcox) among 13 groups...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%  |                                                                                                                      |===========================================================                                                   |  54%  |                                                                                                                      |==============================================================================================================| 100%</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |===========================================================                                                   |  54%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |==============================================================================================================| 100%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-11-02 20:17:17.901627] DEtest done</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:5.26 secs</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-11-15 04:33:57.783435] DEtest done</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:22.47 secs</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Use the DE features from AllMarkers_wilcox to calculate distance metric.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> DE features number of the ref data: 252</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Use 67 features to calculate distance.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> DE features number of the ref data: 744</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Use 210 features to calculate distance.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Detected query data type: log_normalized_counts</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Detected reference data type: log_normalized_counts</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Calculate similarity...</span>

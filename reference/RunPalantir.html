@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">SCP</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.5</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -242,8 +242,9 @@
 <span class="r-in"><span>  early_group <span class="op">=</span> <span class="st">"Ductal"</span>, use_early_cell_as_start <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
 <span class="r-in"><span>  terminal_groups <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Alpha"</span>, <span class="st">"Beta"</span>, <span class="st">"Delta"</span>, <span class="st">"Epsilon"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 'misc' slot is not converted.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 'tools' slot is not converted.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Try to install palantir ...</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in py_module_import(module, convert = convert):</span> ModuleNotFoundError: No module named 'scanpy'</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> Run `reticulate::py_last_error()` for details.</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">pancreas_sub</span><span class="op">[[</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                     orig.ident nCount_RNA nFeature_RNA     S_score   G2M_score nCount_spliced nFeature_spliced</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> CAGCCGAAGCGATATA SeuratProject      10653         3295  0.33188155  0.54532743          10653             3295</span>
@@ -252,31 +253,19 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span> CACAGTACATCCGTGG SeuratProject       5484         2510 -0.25927997 -0.25941831           5484             2510</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> CGGAGCTCATTGGGCC SeuratProject       7357         2674 -0.11764368  0.46237856           7357             2674</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> AGAGCTTGTGTGACCC SeuratProject       6498         2516 -0.11406432 -0.17830831           6498             2516</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                  nCount_unspliced nFeature_unspliced      CellType   SubCellType Phase palantir_pseudotime</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> CAGCCGAAGCGATATA             1587               1063        Ductal        Ductal   G2M          0.25910808</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> AGTGTCATCGCCGTGA             1199                803 Pre-endocrine Pre-endocrine    G1          0.49968980</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GATGAAAAGTTGTAGA             2166               1379   Ngn3 low EP   Ngn3 low EP   G2M          0.29036675</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> CACAGTACATCCGTGG             1339                859     Endocrine          Beta    G1          0.69014101</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> CGGAGCTCATTGGGCC              976                745        Ductal        Ductal   G2M          0.11107706</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> AGAGCTTGTGTGACCC              822                591        Ductal        Ductal    G1          0.03843483</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                  palantir_diff_potential Delta_diff_potential Epsilon_diff_potential Alpha_diff_potential</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> CAGCCGAAGCGATATA               1.1828661            0.3363345             0.09180837           0.10830487</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> AGTGTCATCGCCGTGA               1.1772545            0.3362934             0.08943487           0.10713285</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GATGAAAAGTTGTAGA               1.1828661            0.3363345             0.09180837           0.10830487</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> CACAGTACATCCGTGG               0.9354271            0.2798339             0.02801623           0.06885154</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> CGGAGCTCATTGGGCC               1.1828661            0.3363345             0.09180837           0.10830487</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> AGAGCTTGTGTGACCC               1.1828661            0.3363345             0.09180837           0.10830487</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                  Beta_diff_potential</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> CAGCCGAAGCGATATA           0.4635523</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> AGTGTCATCGCCGTGA           0.4671389</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GATGAAAAGTTGTAGA           0.4635523</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> CACAGTACATCCGTGG           0.6232984</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> CGGAGCTCATTGGGCC           0.4635523</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> AGAGCTTGTGTGACCC           0.4635523</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                  nCount_unspliced nFeature_unspliced      CellType   SubCellType Phase</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> CAGCCGAAGCGATATA             1587               1063        Ductal        Ductal   G2M</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> AGTGTCATCGCCGTGA             1199                803 Pre-endocrine Pre-endocrine    G1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GATGAAAAGTTGTAGA             2166               1379   Ngn3 low EP   Ngn3 low EP   G2M</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> CACAGTACATCCGTGG             1339                859     Endocrine          Beta    G1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> CGGAGCTCATTGGGCC              976                745        Ductal        Ductal   G2M</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> AGAGCTTGTGTGACCC              822                591        Ductal        Ductal    G1</span>
 <span class="r-in"><span><span class="fu"><a href="FeatureDimPlot.html">FeatureDimPlot</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"palantir_pseudotime"</span>, <span class="st">"palantir_diff_potential"</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="RunPalantir-1.png" alt="" width="700" height="433"></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>palantir_pseudotime,palantir_diff_potential are not in the features of srt.</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in FeatureDimPlot(pancreas_sub, c("palantir_pseudotime", "palantir_diff_potential")):</span> There are no valid features present.</span>
 <span class="r-in"><span><span class="fu"><a href="FeatureDimPlot.html">FeatureDimPlot</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Alpha"</span>, <span class="st">"Beta"</span>, <span class="st">"Delta"</span>, <span class="st">"Epsilon"</span><span class="op">)</span>, <span class="st">"_diff_potential"</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="RunPalantir-2.png" alt="" width="700" height="433"></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Alpha_diff_potential,Beta_diff_potential,Delta_diff_potential,Epsilon_diff_potential are not in the features of srt.</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in FeatureDimPlot(pancreas_sub, paste0(c("Alpha", "Beta", "Delta",     "Epsilon"), "_diff_potential")):</span> There are no valid features present.</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
