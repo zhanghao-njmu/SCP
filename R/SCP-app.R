@@ -145,7 +145,7 @@ CreateMetaFile <- function(srt, MetaFile, name = NULL, write_tools = FALSE, writ
       meta_asfeatures <- c(meta_asfeatures, var)
     } else {
       if (length(unique(meta)) > ignore_nlevel) {
-        warning("The number of categories in ", var, " is greater than ", ignore_nlevel, ", it will be ignored.", immediate. = TRUE)
+        warning("The number of categories in ", var, " is greater than ", ignore_nlevel, ". It will be ignored.", immediate. = TRUE)
       } else {
         meta_asgroups <- c(meta_asgroups, var)
       }
@@ -156,7 +156,11 @@ CreateMetaFile <- function(srt, MetaFile, name = NULL, write_tools = FALSE, writ
     if (paste0(name, "/metadata/", var) %in% paste0(h5ls(MetaFile)$group, "/", h5ls(MetaFile)$name)) {
       message("Group ", paste0(name, "/metadata/", var), " already exists in the ", MetaFile)
     } else {
-      h5write(obj = meta, file = MetaFile, name = paste0(name, "/metadata/", var), write.attributes = write.attributes, level = compression_level)
+      if (all(is.na(meta))) {
+        warning("All of values in ", var, " is NA. It will be ignored.", immediate. = TRUE)
+      } else {
+        h5write(obj = meta, file = MetaFile, name = paste0(name, "/metadata/", var), write.attributes = write.attributes, level = compression_level)
+      }
     }
   }
 

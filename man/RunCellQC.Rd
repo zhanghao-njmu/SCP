@@ -8,13 +8,13 @@ RunCellQC(
   srt,
   assay = "RNA",
   split.by = NULL,
+  return_filtered = FALSE,
   qc_metrics = c("doublets", "outlier", "umi", "gene", "mito", "ribo", "ribo_mito_ratio",
     "species"),
-  return_filtered = FALSE,
   db_method = "scDblFinder",
   db_rate = NULL,
   db_coefficient = 0.01,
-  outlier_cutoff = c("log10_nCount:lower:2.5", "log10_nCount:higher:5",
+  outlier_threshold = c("log10_nCount:lower:2.5", "log10_nCount:higher:5",
     "log10_nFeature:lower:2.5", "log10_nFeature:higher:5", "featurecount_dist:lower:2.5"),
   outlier_n = 1,
   UMI_threshold = 3000,
@@ -40,10 +40,10 @@ RunCellQC(
 
 \item{split.by}{Name of the sample variable to split the Seurat object. Default is NULL.}
 
+\item{return_filtered}{Logical indicating whether to return a cell-filtered Seurat object. Default is FALSE.}
+
 \item{qc_metrics}{A character vector specifying the quality control metrics to be applied. Default is
 `c("doublets", "outlier", "umi", "gene", "mito", "ribo", "ribo_mito_ratio", "species")`.}
-
-\item{return_filtered}{Logical indicating whether to return a cell-filtered Seurat object. Default is FALSE.}
 
 \item{db_method}{Doublet-calling methods used. Can be one of \code{scDblFinder}, \code{Scrublet}, \code{DoubletDetection}, \code{scds_cxds}, \code{scds_bcds}, \code{scds_hybrid}}
 
@@ -51,7 +51,7 @@ RunCellQC(
 
 \item{db_coefficient}{The coefficient used to calculate the doublet rate. Default is 0.01. Doublet rate is calculated as`ncol(srt) / 1000 * db_coefficient`}
 
-\item{outlier_cutoff}{A character vector specifying the outlier cutoff values. Default is
+\item{outlier_threshold}{A character vector specifying the outlier threshold. Default is
 `c("log10_nCount:lower:2.5", "log10_nCount:higher:5", "log10_nFeature:lower:2.5", "log10_nFeature:higher:5", "featurecount_dist:lower:2.5")`. See \link[scuttle]{isOutlier}.}
 
 \item{outlier_n}{Minimum number of outlier metrics that meet the conditions for determining outlier cells. Default is 1.}

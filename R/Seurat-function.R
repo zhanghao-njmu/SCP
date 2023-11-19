@@ -587,7 +587,7 @@ RunUMAP2 <- function(object, ...) {
 RunUMAP2.Seurat <- function(object,
                             reduction = "pca", dims = NULL, features = NULL, neighbor = NULL, graph = NULL,
                             assay = NULL, slot = "data",
-                            umap.method = "uwot", reduction.model = NULL,
+                            umap.method = "uwot", reduction.model = NULL, n_threads = NULL,
                             return.model = FALSE, n.neighbors = 30L, n.components = 2L,
                             metric = "cosine", n.epochs = 200L, spread = 1, min.dist = 0.3,
                             set.op.mix.ratio = 1, local.connectivity = 1L, negative.sample.rate = 5L,
@@ -667,7 +667,7 @@ RunUMAP2.Seurat <- function(object,
 #' @importFrom Matrix sparseMatrix
 #' @export
 RunUMAP2.default <- function(object, assay = NULL,
-                             umap.method = "uwot", reduction.model = NULL,
+                             umap.method = "uwot", reduction.model = NULL, n_threads = NULL,
                              return.model = FALSE, n.neighbors = 30L, n.components = 2L,
                              metric = "cosine", n.epochs = 200L, spread = 1, min.dist = 0.3,
                              set.op.mix.ratio = 1, local.connectivity = 1L, negative.sample.rate = 5L,
@@ -879,7 +879,7 @@ RunUMAP2.default <- function(object, assay = NULL,
   if (umap.method == "uwot") {
     if (inherits(x = object, what = "dist")) {
       embeddings <- uwot::umap(
-        X = object, n_neighbors = n.neighbors, n_threads = 1, n_components = n.components,
+        X = object, n_neighbors = n.neighbors, n_threads = n_threads, n_components = n.components,
         metric = metric, n_epochs = n.epochs, learning_rate = learning.rate,
         min_dist = min.dist, spread = spread, set_op_mix_ratio = set.op.mix.ratio,
         local_connectivity = local.connectivity, repulsion_strength = repulsion.strength,
@@ -904,7 +904,7 @@ RunUMAP2.default <- function(object, assay = NULL,
       # object <- srt@neighbors$Seurat.nn
       # object <- list(idx = Indices(object), dist = Distances(object))
       out <- uwot::umap(
-        X = NULL, nn_method = object, n_threads = 1, n_components = n.components,
+        X = NULL, nn_method = object, n_threads = n_threads, n_components = n.components,
         metric = metric, n_epochs = n.epochs, learning_rate = learning.rate,
         min_dist = min.dist, spread = spread, set_op_mix_ratio = set.op.mix.ratio,
         local_connectivity = local.connectivity, repulsion_strength = repulsion.strength,
@@ -962,7 +962,7 @@ RunUMAP2.default <- function(object, assay = NULL,
       # idx <- t(as_matrix(apply(object, 2, function(x) order(x, decreasing = TRUE)[1:n.neighbors])))
       # connectivity <- t(as_matrix(apply(object, 2, function(x) x[order(x, decreasing = TRUE)[1:n.neighbors]])))
       out <- uwot::umap(
-        X = NULL, nn_method = nn, n_threads = 1, n_components = n.components,
+        X = NULL, nn_method = nn, n_threads = n_threads, n_components = n.components,
         metric = metric, n_epochs = n.epochs, learning_rate = learning.rate,
         min_dist = min.dist, spread = spread, set_op_mix_ratio = set.op.mix.ratio,
         local_connectivity = local.connectivity, repulsion_strength = repulsion.strength,
@@ -1004,7 +1004,7 @@ RunUMAP2.default <- function(object, assay = NULL,
     if (inherits(x = object, what = "matrix") || inherits(x = object, what = "Matrix")) {
       # object <- srt@reductions$Seuratpca@cell.embeddings
       out <- uwot::umap(
-        X = object, n_neighbors = n.neighbors, n_threads = 1, n_components = n.components,
+        X = object, n_neighbors = n.neighbors, n_threads = n_threads, n_components = n.components,
         metric = metric, n_epochs = n.epochs, learning_rate = learning.rate,
         min_dist = min.dist, spread = spread, set_op_mix_ratio = set.op.mix.ratio,
         local_connectivity = local.connectivity, repulsion_strength = repulsion.strength,
@@ -1067,7 +1067,7 @@ RunUMAP2.default <- function(object, assay = NULL,
       }
       embeddings <- uwot::umap_transform(
         X = NULL, nn_method = object, model = model, n_epochs = n.epochs,
-        n_threads = 1, verbose = verbose
+        n_threads = n_threads, verbose = verbose
       )
       rownames(x = embeddings) <- row.names(object[["idx"]])
       colnames(x = embeddings) <- paste0(reduction.key, 1:n.components)
@@ -1088,7 +1088,7 @@ RunUMAP2.default <- function(object, assay = NULL,
       }
       embeddings <- uwot::umap_transform(
         X = NULL, nn_method = object, model = model, n_epochs = n.epochs,
-        n_threads = 1, verbose = verbose
+        n_threads = n_threads, verbose = verbose
       )
       rownames(x = embeddings) <- row.names(object[["idx"]])
       colnames(x = embeddings) <- paste0(reduction.key, 1:n.components)
@@ -1103,7 +1103,7 @@ RunUMAP2.default <- function(object, assay = NULL,
     if (inherits(x = object, what = "matrix") || inherits(x = object, what = "Matrix")) {
       embeddings <- uwot::umap_transform(
         X = object, model = model, n_epochs = n.epochs,
-        n_threads = 1, verbose = verbose
+        n_threads = n_threads, verbose = verbose
       )
       rownames(x = embeddings) <- row.names(object)
       colnames(x = embeddings) <- paste0(reduction.key, 1:n.components)

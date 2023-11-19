@@ -1925,6 +1925,9 @@ RunDEtest <- function(srt, group_by = NULL, group1 = NULL, group2 = NULL, cells1
             markers[, "gene"] <- rownames(markers)
             markers[, "group1"] <- as.character(group)
             markers[, "group2"] <- "others"
+            if ("p_val" %in% colnames(markers)) {
+              markers[, "p_val_adj"] <- p.adjust(markers[, "p_val"], method = p.adjust.method)
+            }
             return(markers)
           } else {
             return(NULL)
@@ -1935,9 +1938,6 @@ RunDEtest <- function(srt, group_by = NULL, group1 = NULL, group2 = NULL, cells1
       if (!is.null(AllMarkers) && nrow(AllMarkers) > 0) {
         rownames(AllMarkers) <- NULL
         AllMarkers[, "group1"] <- factor(AllMarkers[, "group1"], levels = levels(cell_group))
-        if ("p_val" %in% colnames(AllMarkers)) {
-          AllMarkers[, "p_val_adj"] <- p.adjust(AllMarkers[, "p_val"], method = p.adjust.method)
-        }
         AllMarkers[, "test_group_number"] <- as.integer(table(AllMarkers[["gene"]])[AllMarkers[, "gene"]])
         AllMarkersMatrix <- as.data.frame.matrix(table(AllMarkers[, c("gene", "group1")]))
         AllMarkers[, "test_group"] <- apply(AllMarkersMatrix, 1, function(x) {
@@ -1965,6 +1965,9 @@ RunDEtest <- function(srt, group_by = NULL, group1 = NULL, group2 = NULL, cells1
             markers[, "gene"] <- rownames(markers)
             markers[, "group1"] <- as.character(pair[i, 1])
             markers[, "group2"] <- as.character(pair[i, 2])
+            if ("p_val" %in% colnames(markers)) {
+              markers[, "p_val_adj"] <- p.adjust(markers[, "p_val"], method = p.adjust.method)
+            }
             return(markers)
           } else {
             return(NULL)
@@ -1975,9 +1978,6 @@ RunDEtest <- function(srt, group_by = NULL, group1 = NULL, group2 = NULL, cells1
       if (!is.null(PairedMarkers) && nrow(PairedMarkers) > 0) {
         rownames(PairedMarkers) <- NULL
         PairedMarkers[, "group1"] <- factor(PairedMarkers[, "group1"], levels = levels(cell_group))
-        if ("p_val" %in% colnames(PairedMarkers)) {
-          PairedMarkers[, "p_val_adj"] <- p.adjust(PairedMarkers[, "p_val"], method = p.adjust.method)
-        }
         PairedMarkers[, "test_group_number"] <- as.integer(table(PairedMarkers[["gene"]])[PairedMarkers[, "gene"]])
         PairedMarkersMatrix <- as.data.frame.matrix(table(PairedMarkers[, c("gene", "group1")]))
         PairedMarkers[, "test_group"] <- apply(PairedMarkersMatrix, 1, function(x) {
@@ -2011,19 +2011,19 @@ RunDEtest <- function(srt, group_by = NULL, group1 = NULL, group2 = NULL, cells1
             markers[, "gene"] <- rownames(markers)
             markers[, "group1"] <- as.character(group)
             markers[, "group2"] <- "others"
+            if ("p_val" %in% colnames(markers)) {
+              markers[, "p_val_adj"] <- p.adjust(markers[, "p_val"], method = p.adjust.method)
+            }
             return(markers)
           } else {
             return(NULL)
           }
         }
       }, BPPARAM = BPPARAM)
-      ConservedMarkers <- do.call(rbind.data.frame, lapply(ConservedMarkers, function(x) x[, c("avg_log2FC", "pct.1", "pct.2", "max_pval", "p_val", "gene", "group1", "group2")]))
+      ConservedMarkers <- do.call(rbind.data.frame, lapply(ConservedMarkers, function(x) x[, c("avg_log2FC", "pct.1", "pct.2", "max_pval", "p_val", "p_val_adj", "gene", "group1", "group2")]))
       if (!is.null(ConservedMarkers) && nrow(ConservedMarkers) > 0) {
         rownames(ConservedMarkers) <- NULL
         ConservedMarkers[, "group1"] <- factor(ConservedMarkers[, "group1"], levels = levels(cell_group))
-        if ("p_val" %in% colnames(ConservedMarkers)) {
-          ConservedMarkers[, "p_val_adj"] <- p.adjust(ConservedMarkers[, "p_val"], method = p.adjust.method)
-        }
         ConservedMarkers[, "test_group_number"] <- as.integer(table(ConservedMarkers[["gene"]])[ConservedMarkers[, "gene"]])
         ConservedMarkersMatrix <- as.data.frame.matrix(table(ConservedMarkers[, c("gene", "group1")]))
         ConservedMarkers[, "test_group"] <- apply(ConservedMarkersMatrix, 1, function(x) {
@@ -2085,9 +2085,6 @@ RunDEtest <- function(srt, group_by = NULL, group1 = NULL, group2 = NULL, cells1
       if (!is.null(DisturbedMarkers) && nrow(DisturbedMarkers) > 0) {
         rownames(DisturbedMarkers) <- NULL
         DisturbedMarkers[, "group1"] <- factor(DisturbedMarkers[, "group1"], levels = levels(cell_group))
-        if ("p_val" %in% colnames(DisturbedMarkers)) {
-          DisturbedMarkers[, "p_val_adj"] <- p.adjust(DisturbedMarkers[, "p_val"], method = p.adjust.method)
-        }
         DisturbedMarkers[, "test_group_number"] <- as.integer(table(unique(DisturbedMarkers[, c("gene", "group1")])[["gene"]])[DisturbedMarkers[, "gene"]])
         DisturbedMarkersMatrix <- as.data.frame.matrix(table(DisturbedMarkers[, c("gene", "group1")]))
         DisturbedMarkers[, "test_group"] <- apply(DisturbedMarkersMatrix, 1, function(x) {
@@ -5398,6 +5395,7 @@ srt_to_adata <- function(srt, features = NULL,
     var[["highly_variable"]] <- features %in% VariableFeatures(srt, assay = assay_X)
   }
 
+  # X <- t(as_matrix(slot(srt@assays[[assay_X]], slot_X)[features, , drop = FALSE]))
   X <- t(GetAssayData(srt, assay = assay_X, slot = slot_X)[features, , drop = FALSE])
   adata <- sc$AnnData(
     X = np_array(X, dtype = np$float32),

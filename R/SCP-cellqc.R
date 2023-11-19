@@ -259,10 +259,10 @@ isOutlier <- function(x, nmads = 2.5, constant = 1.4826, type = c("both", "lower
 #'
 #' @inheritParams RunDoubletCalling
 #' @param split.by Name of the sample variable to split the Seurat object. Default is NULL.
+#' @param return_filtered Logical indicating whether to return a cell-filtered Seurat object. Default is FALSE.
 #' @param qc_metrics A character vector specifying the quality control metrics to be applied. Default is
 #'   `c("doublets", "outlier", "umi", "gene", "mito", "ribo", "ribo_mito_ratio", "species")`.
-#' @param return_filtered Logical indicating whether to return a cell-filtered Seurat object. Default is FALSE.
-#' @param outlier_cutoff A character vector specifying the outlier cutoff values. Default is
+#' @param outlier_threshold A character vector specifying the outlier threshold. Default is
 #'   `c("log10_nCount:lower:2.5", "log10_nCount:higher:5", "log10_nFeature:lower:2.5", "log10_nFeature:higher:5", "featurecount_dist:lower:2.5")`. See \link[scuttle]{isOutlier}.
 #' @param db_coefficient The coefficient used to calculate the doublet rate. Default is 0.01. Doublet rate is calculated as`ncol(srt) / 1000 * db_coefficient`
 #' @param outlier_n Minimum number of outlier metrics that meet the conditions for determining outlier cells. Default is 1.
@@ -311,11 +311,10 @@ isOutlier <- function(x, nmads = 2.5, constant = 1.4826, type = c("both", "lower
 #' @importFrom Matrix colSums t
 #' @export
 #'
-RunCellQC <- function(srt, assay = "RNA", split.by = NULL,
+RunCellQC <- function(srt, assay = "RNA", split.by = NULL, return_filtered = FALSE,
                       qc_metrics = c("doublets", "outlier", "umi", "gene", "mito", "ribo", "ribo_mito_ratio", "species"),
-                      return_filtered = FALSE,
                       db_method = "scDblFinder", db_rate = NULL, db_coefficient = 0.01,
-                      outlier_cutoff = c(
+                      outlier_threshold = c(
                         "log10_nCount:lower:2.5",
                         "log10_nCount:higher:5",
                         "log10_nFeature:lower:2.5",
@@ -344,7 +343,7 @@ RunCellQC <- function(srt, assay = "RNA", split.by = NULL,
   }
   status <- check_DataType(srt, slot = "counts", assay = assay)
   if (status != "raw_counts") {
-    warning("Data type is not raw counts!")
+    warning("Data type is not raw counts!", immediate. = TRUE)
   }
   if (!paste0("nCount_", assay) %in% colnames(srt@meta.data)) {
     srt@meta.data[[paste0("nCount_", assay)]] <- colSums(srt[[assay]]@counts)
@@ -429,15 +428,15 @@ RunCellQC <- function(srt, assay = "RNA", split.by = NULL,
           #   theme(panel.background = element_rect(fill = "grey"))
           # nrow(lower_df)
 
-          var <- sapply(strsplit(outlier_cutoff, ":"), function(x) x[[1]])
+          var <- sapply(strsplit(outlier_threshold, ":"), function(x) x[[1]])
           var_valid <- var %in% colnames(srt@meta.data) | sapply(var, FUN = function(x) exists(x, where = environment()))
           if (any(!var_valid)) {
             stop("Variable ", paste0(names(var_valid)[!var_valid], collapse = ","), " is not found in the srt object.")
           }
-          outlier <- lapply(strsplit(outlier_cutoff, ":"), function(m) {
+          outlier <- lapply(strsplit(outlier_threshold, ":"), function(m) {
             colnames(srt)[isOutlier(get(m[1]), nmads = as.numeric(m[3]), type = m[2])]
           })
-          names(outlier) <- outlier_cutoff
+          names(outlier) <- outlier_threshold
           # print(unlist(lapply(outlier, length)))
           outlier_tb <- table(unlist(outlier))
           outlier_qc <- c(outlier_qc, names(outlier_tb)[outlier_tb >= outlier_n])

@@ -59,13 +59,13 @@ CellCorHeatmap(
   query_cell_annotation = NULL,
   query_cell_annotation_palette = "Paired",
   query_cell_annotation_palcolor = NULL,
-  query_cell_annotation_params = if (flip) list(height = grid::unit(20, "mm")) else
-    list(width = grid::unit(20, "mm")),
+  query_cell_annotation_params = if (flip) list(height = grid::unit(10, "mm")) else
+    list(width = grid::unit(10, "mm")),
   ref_cell_annotation = NULL,
   ref_cell_annotation_palette = "Paired",
   ref_cell_annotation_palcolor = NULL,
-  ref_cell_annotation_params = if (flip) list(width = grid::unit(20, "mm")) else
-    list(height = grid::unit(20, "mm")),
+  ref_cell_annotation_params = if (flip) list(width = grid::unit(10, "mm")) else
+    list(height = grid::unit(10, "mm")),
   use_raster = NULL,
   raster_device = "png",
   raster_by_magick = FALSE,
