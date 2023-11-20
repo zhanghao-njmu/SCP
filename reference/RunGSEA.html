@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">SCP</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.6</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -232,7 +232,7 @@ If not specified, the <code>geneID</code> and <code>geneID_groups</code> argumen
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"pancreas_sub"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="RunDEtest.html">RunDEtest</a></span><span class="op">(</span><span class="va">pancreas_sub</span>, group_by <span class="op">=</span> <span class="st">"CellType"</span>, only.pos <span class="op">=</span> <span class="cn">FALSE</span>, fc.threshold <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Data in the 'data' slot is raw counts. Perform NormalizeData(LogNormalize) on the data.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-11-20 14:58:22.894585] Start DEtest</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-11-20 16:45:39.087932] Start DEtest</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Workers: 2</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Find all markers(wilcox) among 5 groups...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |                                                                                                              |   0%</span>
@@ -244,16 +244,16 @@ If not specified, the <code>geneID</code> and <code>geneID_groups</code> argumen
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                                                                      |==============================================================================================================| 100%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-11-20 15:00:50.076329] DEtest done</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:2.45 mins</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-11-20 16:48:07.485358] DEtest done</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Elapsed time:2.47 mins</span>
 <span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu">RunGSEA</span><span class="op">(</span><span class="va">pancreas_sub</span>,</span></span>
 <span class="r-in"><span>  group_by <span class="op">=</span> <span class="st">"CellType"</span>, DE_threshold <span class="op">=</span> <span class="st">"p_val_adj &lt; 0.05"</span>,</span></span>
 <span class="r-in"><span>  scoreType <span class="op">=</span> <span class="st">"std"</span>, db <span class="op">=</span> <span class="st">"GO_BP"</span>, species <span class="op">=</span> <span class="st">"Mus_musculus"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-11-20 15:00:50.080196] Start GSEA</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-11-20 16:48:07.489671] Start GSEA</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Workers: 2</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Species: Mus_musculus</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db: GO_BP version:3.17.0 nterm:16027 created:2023-11-20 14:33:03.018986</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db: GO_BP version:3.17.0 nterm:16027 created:2023-11-20 16:20:38.408212</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Convert ID types for the database: GO_BP</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Connect to the Ensembl archives...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Using the 103 version of biomart...</span>
@@ -276,10 +276,10 @@ If not specified, the <code>geneID</code> and <code>geneID_groups</code> argumen
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Remove redundant GO terms</span></span></span>
 <span class="r-in"><span><span class="va">pancreas_sub</span> <span class="op">&lt;-</span> <span class="fu">RunGSEA</span><span class="op">(</span>srt <span class="op">=</span> <span class="va">pancreas_sub</span>, group_by <span class="op">=</span> <span class="st">"CellType"</span>, db <span class="op">=</span> <span class="st">"GO_BP"</span>, GO_simplify <span class="op">=</span> <span class="cn">TRUE</span>, species <span class="op">=</span> <span class="st">"Mus_musculus"</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-11-20 15:00:54.124523] Start GSEA</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-11-20 16:48:13.345298] Start GSEA</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Workers: 2</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Species: Mus_musculus</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db: GO_BP version:3.17.0 nterm:16027 created:2023-11-20 14:33:03.018986</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db: GO_BP version:3.17.0 nterm:16027 created:2023-11-20 16:20:38.408212</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Convert ID types for the database: GO_BP</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Connect to the Ensembl archives...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Using the 103 version of biomart...</span>
@@ -303,14 +303,14 @@ If not specified, the <code>geneID</code> and <code>geneID_groups</code> argumen
 <span class="r-in"><span>  db_combine <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
 <span class="r-in"><span>  species <span class="op">=</span> <span class="st">"Mus_musculus"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-11-20 15:00:57.753723] Start GSEA</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-11-20 16:48:16.93219] Start GSEA</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Workers: 2</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Species: Mus_musculus</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db: KEGG version:Release 108.0+/11-18, Nov 23 nterm:352 created:2023-11-20 14:57:32.382277</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db: WikiPathway version:20231110 nterm:202 created:2023-11-20 14:57:36.447615</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db: Reactome version:1.84.0 nterm:1715 created:2023-11-20 14:57:41.977721</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db: PFAM version:3.17.0 nterm:6565 created:2023-11-20 14:57:42.620329</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db: MP version:2023-11-20 08:08 nterm:10311 created:2023-11-20 14:33:20.264929</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db: KEGG version:Release 108.0+/11-18, Nov 23 nterm:352 created:2023-11-20 16:44:47.788021</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db: WikiPathway version:20231110 nterm:202 created:2023-11-20 16:44:51.996033</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db: Reactome version:1.84.0 nterm:1715 created:2023-11-20 16:44:58.583929</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db: PFAM version:3.17.0 nterm:6565 created:2023-11-20 16:44:59.208539</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db: MP version:2023-11-20 08:08 nterm:10311 created:2023-11-20 16:20:58.084545</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Convert ID types for the database: KEGG</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Connect to the Ensembl archives...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Using the 103 version of biomart...</span>
@@ -330,10 +330,10 @@ If not specified, the <code>geneID</code> and <code>geneID_groups</code> argumen
 <span class="r-in"><span><span class="co"># Or use "geneID", "geneScore" and "geneID_groups" as input to run GSEA</span></span></span>
 <span class="r-in"><span><span class="va">de_df</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">pancreas_sub</span><span class="op">@</span><span class="va">tools</span><span class="op">$</span><span class="va">DEtest_CellType</span><span class="op">$</span><span class="va">AllMarkers_wilcox</span>, <span class="va">p_val_adj</span> <span class="op">&lt;</span> <span class="fl">0.05</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">gsea_out</span> <span class="op">&lt;-</span> <span class="fu">RunGSEA</span><span class="op">(</span>geneID <span class="op">=</span> <span class="va">de_df</span><span class="op">[[</span><span class="st">"gene"</span><span class="op">]</span><span class="op">]</span>, geneScore <span class="op">=</span> <span class="va">de_df</span><span class="op">[[</span><span class="st">"avg_log2FC"</span><span class="op">]</span><span class="op">]</span>, geneID_groups <span class="op">=</span> <span class="va">de_df</span><span class="op">[[</span><span class="st">"group1"</span><span class="op">]</span><span class="op">]</span>, db <span class="op">=</span> <span class="st">"GO_BP"</span>, species <span class="op">=</span> <span class="st">"Mus_musculus"</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-11-20 15:01:03.060612] Start GSEA</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [2023-11-20 16:48:22.334113] Start GSEA</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Workers: 2</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Species: Mus_musculus</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db: GO_BP version:3.17.0 nterm:16027 created:2023-11-20 14:33:03.018986</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading cached db: GO_BP version:3.17.0 nterm:16027 created:2023-11-20 16:20:38.408212</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Convert ID types for the database: GO_BP</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Connect to the Ensembl archives...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Using the 103 version of biomart...</span>
