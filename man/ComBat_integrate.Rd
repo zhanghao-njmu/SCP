@@ -21,6 +21,7 @@ ComBat_integrate(
   do_scaling = TRUE,
   vars_to_regress = NULL,
   regression_model = "linear",
+  scale_within_batch = FALSE,
   linear_reduction = "pca",
   linear_reduction_dims = 50,
   linear_reduction_dims_use = NULL,
@@ -70,6 +71,8 @@ ComBat_integrate(
 \item{vars_to_regress}{A vector of variable names to include as additional regression variables. Default is NULL.}
 
 \item{regression_model}{The regression model to use for scaling. Options are "linear", "poisson", or "negativebinomial" (default is "linear").}
+
+\item{scale_within_batch}{Whether to scale data within each batch. Only valid when the \code{integration_method} is one of \code{"Uncorrected"}, \code{"Seurat"}, \code{"MNN"}, \code{"Harmony"}, \code{"BBKNN"}, \code{"CSS"}, \code{"ComBat"}.}
 
 \item{linear_reduction}{The linear dimensionality reduction method to use. Options are "pca", "svd", "ica", "nmf", "mds", or "glmpca" (default is "pca").}
 

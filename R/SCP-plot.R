@@ -10084,6 +10084,7 @@ CellCorHeatmap <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
     check_R("magick")
   }
 
+  ref_legend <- TRUE
   simil_method <- c(
     "cosine", "pearson", "spearman", "correlation", "jaccard", "ejaccard", "dice", "edice",
     "hamman", "simple matching", "faith"
@@ -10104,7 +10105,7 @@ CellCorHeatmap <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
     ref_cell_annotation <- query_cell_annotation
     ref_cell_annotation_palette <- query_cell_annotation_palette
     ref_cell_annotation_palcolor <- query_cell_annotation_palcolor
-    ref_cell_annotation_params <- query_cell_annotation_params
+    ref_legend <- FALSE
   }
   if (!is.null(bulk_ref)) {
     srt_ref <- CreateSeuratObject(counts = bulk_ref, meta.data = data.frame(celltype = colnames(bulk_ref)), assay = "RNA")
@@ -10257,6 +10258,8 @@ CellCorHeatmap <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
   if (query_group != "All.groups") {
     if (isFALSE(query_collapsing) && ((isFALSE(flip) & isTRUE(cluster_rows)) || (isTRUE(flip) & isTRUE(cluster_columns)))) {
       query_cell_annotation <- c(query_group, query_cell_annotation)
+      query_cell_annotation_palette <- c(query_group_palette, query_cell_annotation_palette)
+      query_cell_annotation_palcolor <- c(list(query_group_palcolor), query_cell_annotation_palcolor %||% list(NULL))
     } else {
       funbody <- paste0(
         "
@@ -10295,6 +10298,8 @@ CellCorHeatmap <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
   if (ref_group != "All.groups") {
     if (isFALSE(ref_collapsing) && ((isFALSE(flip) & isTRUE(cluster_columns)) || (isTRUE(flip) & isTRUE(cluster_rows)))) {
       ref_cell_annotation <- c(ref_group, ref_cell_annotation)
+      ref_cell_annotation_palette <- c(ref_group_palette, ref_cell_annotation_palette)
+      ref_cell_annotation_palcolor <- c(list(ref_group_palcolor), ref_cell_annotation_palcolor %||% list(NULL))
     } else {
       funbody <- paste0(
         "
@@ -10673,6 +10678,10 @@ CellCorHeatmap <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
         }
       }
     }
+  }
+
+  if (!isTRUE(ref_legend)) {
+    lgd <- lgd[grep("Ref", names(lgd), invert = TRUE)]
   }
 
   layer_fun <- function(j, i, x, y, w, h, fill) {
@@ -12404,6 +12413,10 @@ DynamicPlot <- function(srt, lineages, features, group.by = NULL, cells = NULL, 
   } else {
     return(plist)
   }
+}
+
+GroupTreePlot <- function() {
+
 }
 
 #' Projection Plot
