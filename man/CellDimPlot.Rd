@@ -41,7 +41,7 @@ CellDimPlot(
   density_filled_palcolor = NULL,
   add_mark = FALSE,
   mark_type = c("hull", "ellipse", "rect", "circle"),
-  mark_expand = unit(3, "mm"),
+  mark_expand = grid::unit(3, "mm"),
   mark_alpha = 0.1,
   mark_linetype = 1,
   lineages = NULL,
