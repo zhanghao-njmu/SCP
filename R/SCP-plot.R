@@ -1222,9 +1222,9 @@ BlendRGBList <- function(Clist, mode = "blend", RGB_BackGround = c(1, 1, 1)) {
 #' CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", theme_use = ggplot2::theme_classic, theme_args = list(base_size = 16))
 #' CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP") %>% panel_fix(height = 2, raster = TRUE, dpi = 30)
 #'
-#' # Label and highlight cell points
+#' # Highlight cells
 #' CellDimPlot(pancreas_sub,
-#'   group.by = "SubCellType", reduction = "UMAP", label = TRUE, label_insitu = TRUE,
+#'   group.by = "SubCellType", reduction = "UMAP",
 #'   cells.highlight = colnames(pancreas_sub)[pancreas_sub$SubCellType == "Epsilon"]
 #' )
 #' CellDimPlot(pancreas_sub,
@@ -1232,9 +1232,38 @@ BlendRGBList <- function(Clist, mode = "blend", RGB_BackGround = c(1, 1, 1)) {
 #'   cells.highlight = TRUE, theme_use = "theme_blank", legend.position = "none"
 #' )
 #'
+#' # Add group labels
+#' CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", label = TRUE)
+#' CellDimPlot(pancreas_sub,
+#'   group.by = "SubCellType", reduction = "UMAP",
+#'   label = TRUE, label.fg = "orange", label.bg = "red", label.size = 5
+#' )
+#' CellDimPlot(pancreas_sub,
+#'   group.by = "SubCellType", reduction = "UMAP",
+#'   label = TRUE, label_insitu = TRUE
+#' )
+#' CellDimPlot(pancreas_sub,
+#'   group.by = "SubCellType", reduction = "UMAP",
+#'   label = TRUE, label_insitu = TRUE, label_repel = TRUE, label_segment_color = "red"
+#' )
+#'
+#' # Add various shape of marks
+#' CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", add_mark = TRUE)
+#' CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", add_mark = TRUE, mark_expand = unit(1, "mm"))
+#' CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", add_mark = TRUE, mark_alpha = 0.3)
+#' CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", add_mark = TRUE, mark_linetype = 2)
+#' CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", add_mark = TRUE, mark_type = "ellipse")
+#' CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", add_mark = TRUE, mark_type = "rect")
+#' CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", add_mark = TRUE, mark_type = "circle")
+#'
 #' # Add a density layer
-#' CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", label = TRUE, add_density = TRUE)
-#' CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", label = TRUE, add_density = TRUE, density_filled = TRUE)
+#' CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", add_density = TRUE)
+#' CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", add_density = TRUE, density_filled = TRUE)
+#' CellDimPlot(pancreas_sub,
+#'   group.by = "SubCellType", reduction = "UMAP",
+#'   add_density = TRUE, density_filled = TRUE, density_filled_palette = "Blues",
+#'   cells.highlight = TRUE
+#' )
 #'
 #' # Add statistical charts
 #' CellDimPlot(pancreas_sub, group.by = "CellType", reduction = "UMAP", stat.by = "Phase")
@@ -1289,6 +1318,7 @@ BlendRGBList <- function(Clist, mode = "blend", RGB_BackGround = c(1, 1, 1)) {
 #' @importFrom ggrepel geom_text_repel
 #' @importFrom ggnewscale new_scale_color new_scale_fill new_scale
 #' @importFrom gtable gtable_add_cols gtable_add_grob
+#' @importFrom ggforce geom_mark_hull geom_mark_ellipse geom_mark_circle geom_mark_rect
 #' @importFrom patchwork wrap_plots
 #' @importFrom stats median loess aggregate
 #' @importFrom utils askYesNo
@@ -1302,6 +1332,7 @@ CellDimPlot <- function(srt, group.by, reduction = NULL, dims = c(1, 2), split.b
                         label_point_size = 1, label_point_color = "black", label_segment_color = "black",
                         cells.highlight = NULL, cols.highlight = "black", sizes.highlight = 1, alpha.highlight = 1, stroke.highlight = 0.5,
                         add_density = FALSE, density_color = "grey80", density_filled = FALSE, density_filled_palette = "Greys", density_filled_palcolor = NULL,
+                        add_mark = FALSE, mark_type = c("hull", "ellipse", "rect", "circle"), mark_expand = unit(3, "mm"), mark_alpha = 0.1, mark_linetype = 1,
                         lineages = NULL, lineages_trim = c(0.01, 0.99), lineages_span = 0.75,
                         lineages_palette = "Dark2", lineages_palcolor = NULL, lineages_arrow = arrow(length = unit(0.1, "inches")),
                         lineages_linewidth = 1, lineages_line_bg = "white", lineages_line_bg_stroke = 0.5,
@@ -1325,6 +1356,7 @@ CellDimPlot <- function(srt, group.by, reduction = NULL, dims = c(1, 2), split.b
                         theme_use = "theme_scp", theme_args = list(),
                         combine = TRUE, nrow = NULL, ncol = NULL, byrow = TRUE, force = FALSE, seed = 11) {
   set.seed(seed)
+  mark_type <- match.arg(mark_type)
 
   if (is.null(split.by)) {
     split.by <- "All.groups"
@@ -1528,25 +1560,32 @@ CellDimPlot <- function(srt, group.by, reduction = NULL, dims = c(1, 2), split.b
     } else {
       subtitle_use <- subtitle
     }
-    if (isTRUE(add_density)) {
-      if (isTRUE(density_filled)) {
-        filled_color <- palette_scp(palette = density_filled_palette, palcolor = density_filled_palcolor)
-        density <- list(
-          stat_density_2d(
-            geom = "raster", aes(x = .data[["x"]], y = .data[["y"]], fill = after_stat(density)),
-            contour = FALSE, inherit.aes = FALSE, show.legend = FALSE
+
+    if (isTRUE(add_mark)) {
+      mark_fun <- switch(mark_type,
+        "ellipse" = "geom_mark_ellipse",
+        "hull" = "geom_mark_hull",
+        "rect" = "geom_mark_rect",
+        "circle" = "geom_mark_circle"
+      )
+      mark <- list(
+        do.call(
+          mark_fun,
+          list(
+            data = dat[!is.na(dat[["group.by"]]), , drop = FALSE],
+            mapping = aes(x = .data[["x"]], y = .data[["y"]], color = .data[["group.by"]], fill = .data[["group.by"]]),
+            expand = mark_expand, alpha = mark_alpha, linetype = mark_linetype, show.legend = FALSE, inherit.aes = FALSE
           ),
-          scale_fill_gradientn(name = "Density", colours = filled_color),
-          new_scale_fill()
-        )
-      } else {
-        density <- geom_density_2d(aes(x = .data[["x"]], y = .data[["y"]]),
-          color = density_color, inherit.aes = FALSE, show.legend = FALSE
-        )
-      }
+        ),
+        scale_fill_manual(values = colors[names(labels_tb)]),
+        scale_color_manual(values = colors[names(labels_tb)]),
+        new_scale_fill(),
+        new_scale_color()
+      )
     } else {
-      density <- NULL
+      mark <- NULL
     }
+
     if (!is.null(graph)) {
       net_mat <- as_matrix(graph)[rownames(dat), rownames(dat)]
       net_mat[net_mat == 0] <- NA
@@ -1570,7 +1609,28 @@ CellDimPlot <- function(srt, group.by, reduction = NULL, dims = c(1, 2), split.b
       net <- NULL
     }
 
+    if (isTRUE(add_density)) {
+      if (isTRUE(density_filled)) {
+        filled_color <- palette_scp(palette = density_filled_palette, palcolor = density_filled_palcolor)
+        density <- list(
+          stat_density_2d(
+            geom = "raster", aes(x = .data[["x"]], y = .data[["y"]], fill = after_stat(density)),
+            contour = FALSE, inherit.aes = FALSE, show.legend = FALSE
+          ),
+          scale_fill_gradientn(name = "Density", colours = filled_color),
+          new_scale_fill()
+        )
+      } else {
+        density <- geom_density_2d(aes(x = .data[["x"]], y = .data[["y"]]),
+          color = density_color, inherit.aes = FALSE, show.legend = FALSE
+        )
+      }
+    } else {
+      density <- NULL
+    }
+
     p <- ggplot(dat) +
+      mark +
       net +
       density +
       labs(title = title, subtitle = subtitle_use, x = xlab, y = ylab) +
@@ -1590,11 +1650,11 @@ CellDimPlot <- function(srt, group.by, reduction = NULL, dims = c(1, 2), split.b
       p <- p + scattermore::geom_scattermore(
         data = dat[is.na(dat[, "group.by"]), , drop = FALSE],
         mapping = aes(x = .data[["x"]], y = .data[["y"]]), color = bg_color,
-        pointsize = floor(pt.size), alpha = pt.alpha, pixels = raster.dpi
+        pointsize = ceiling(pt.size), alpha = pt.alpha, pixels = raster.dpi
       ) + scattermore::geom_scattermore(
         data = dat[!is.na(dat[, "group.by"]), , drop = FALSE],
         mapping = aes(x = .data[["x"]], y = .data[["y"]], color = .data[["group.by"]]),
-        pointsize = floor(pt.size), alpha = pt.alpha, pixels = raster.dpi
+        pointsize = ceiling(pt.size), alpha = pt.alpha, pixels = raster.dpi
       )
     } else if (isTRUE(hex)) {
       check_R("hexbin")
@@ -1615,6 +1675,7 @@ CellDimPlot <- function(srt, group.by, reduction = NULL, dims = c(1, 2), split.b
         size = pt.size, alpha = pt.alpha
       )
     }
+
     if (!is.null(cells.highlight_use) && !isTRUE(hex)) {
       cell_df <- subset(p$data, rownames(p$data) %in% cells.highlight_use)
       if (nrow(cell_df) > 0) {
@@ -2325,12 +2386,12 @@ FeatureDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), spli
         p <- p + scattermore::geom_scattermore(
           data = dat[dat[, "color_blend"] == bg_color, , drop = FALSE],
           mapping = aes(x = .data[["x"]], y = .data[["y"]], color = .data[["color_blend"]]),
-          pointsize = floor(pt.size), alpha = pt.alpha, pixels = raster.dpi
+          pointsize = ceiling(pt.size), alpha = pt.alpha, pixels = raster.dpi
         ) +
           scattermore::geom_scattermore(
             data = dat[dat[, "color_blend"] != bg_color, , drop = FALSE],
             mapping = aes(x = .data[["x"]], y = .data[["y"]], color = .data[["color_blend"]]),
-            pointsize = floor(pt.size), alpha = pt.alpha, pixels = raster.dpi
+            pointsize = ceiling(pt.size), alpha = pt.alpha, pixels = raster.dpi
           ) +
           scale_color_identity() +
           new_scale_color()
@@ -2599,12 +2660,12 @@ FeatureDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), spli
         p <- p + scattermore::geom_scattermore(
           data = dat[is.na(dat[, "value"]), , drop = FALSE],
           mapping = aes(x = .data[["x"]], y = .data[["y"]], color = .data[["value"]]),
-          pointsize = floor(pt.size), alpha = pt.alpha, pixels = raster.dpi
+          pointsize = ceiling(pt.size), alpha = pt.alpha, pixels = raster.dpi
         ) +
           scattermore::geom_scattermore(
             data = dat[!is.na(dat[, "value"]), , drop = FALSE],
             mapping = aes(x = .data[["x"]], y = .data[["y"]], color = .data[["value"]]),
-            pointsize = floor(pt.size), alpha = pt.alpha, pixels = raster.dpi
+            pointsize = ceiling(pt.size), alpha = pt.alpha, pixels = raster.dpi
           )
       } else if (isTRUE(hex)) {
         check_R("hexbin")
@@ -3399,6 +3460,8 @@ FeatureDimPlot3D <- function(srt, features, reduction = NULL, dims = c(1, 2, 3),
 #' FeatureStatPlot(pancreas_sub, stat.by = c("G2M_score", "Fev"), group.by = "SubCellType", add_box = TRUE)
 #' FeatureStatPlot(pancreas_sub, stat.by = c("G2M_score", "Fev"), group.by = "SubCellType", add_point = TRUE)
 #' FeatureStatPlot(pancreas_sub, stat.by = c("G2M_score", "Fev"), group.by = "SubCellType", add_trend = TRUE)
+#' FeatureStatPlot(pancreas_sub, stat.by = c("G2M_score", "Fev"), group.by = "SubCellType", add_stat = "mean")
+#' FeatureStatPlot(pancreas_sub, stat.by = c("G2M_score", "Fev"), group.by = "SubCellType", add_line = 0.2, line_type = 2)
 #' FeatureStatPlot(pancreas_sub, stat.by = c("G2M_score", "Fev"), group.by = "SubCellType", split.by = "Phase")
 #' FeatureStatPlot(pancreas_sub, stat.by = c("G2M_score", "Fev"), group.by = "SubCellType", split.by = "Phase", add_box = TRUE, add_trend = TRUE)
 #' FeatureStatPlot(pancreas_sub, stat.by = c("G2M_score", "Fev"), group.by = "SubCellType", split.by = "Phase", comparisons = TRUE)
@@ -3471,7 +3534,8 @@ FeatureStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.b
                             add_box = FALSE, box_color = "black", box_width = 0.1, box_ptsize = 2,
                             add_point = FALSE, pt.color = "grey30", pt.size = NULL, pt.alpha = 1, jitter.width = 0.4, jitter.height = 0.1,
                             add_trend = FALSE, trend_color = "black", trend_linewidth = 1, trend_ptsize = 2,
-                            add_stat = c("none", "mean", "median"), stat_color = "black", stat_size = 1,
+                            add_stat = c("none", "mean", "median"), stat_color = "black", stat_size = 1, stat_stroke = 1, stat_shape = 25,
+                            add_line = NULL, line_color = "red", line_size = 1, line_type = 1,
                             cells.highlight = NULL, cols.highlight = "red", sizes.highlight = 1, alpha.highlight = 1,
                             calculate_coexp = FALSE,
                             same.y.lims = FALSE, y.min = NULL, y.max = NULL, y.trans = "identity", y.nbreaks = 5,
@@ -3524,7 +3588,8 @@ FeatureStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.b
           add_box = add_box, box_color = box_color, box_width = box_width, box_ptsize = box_ptsize,
           add_point = add_point, pt.color = pt.color, pt.size = pt.size, pt.alpha = pt.alpha, jitter.width = jitter.width, jitter.height = jitter.height,
           add_trend = add_trend, trend_color = trend_color, trend_linewidth = trend_linewidth, trend_ptsize = trend_ptsize,
-          add_stat = add_stat, stat_color = stat_color, stat_size = stat_size,
+          add_stat = add_stat, stat_color = stat_color, stat_size = stat_size, stat_stroke = stat_stroke, stat_shape = stat_shape,
+          add_line = add_line, line_color = line_color, line_size = line_size, line_type = line_type,
           cells.highlight = cells.highlight, cols.highlight = cols.highlight, sizes.highlight = sizes.highlight, alpha.highlight = alpha.highlight,
           calculate_coexp = calculate_coexp,
           same.y.lims = same.y.lims, y.min = y.min, y.max = y.max, y.trans = y.trans, y.nbreaks = y.nbreaks,
@@ -3551,7 +3616,8 @@ FeatureStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.b
       add_box = add_box, box_color = box_color, box_width = box_width, box_ptsize = box_ptsize,
       add_point = add_point, pt.color = pt.color, pt.size = pt.size, pt.alpha = pt.alpha, jitter.width = jitter.width, jitter.height = jitter.height,
       add_trend = add_trend, trend_color = trend_color, trend_linewidth = trend_linewidth, trend_ptsize = trend_ptsize,
-      add_stat = add_stat, stat_color = stat_color, stat_size = stat_size,
+      add_stat = add_stat, stat_color = stat_color, stat_size = stat_size, stat_stroke = stat_stroke, stat_shape = stat_shape,
+      add_line = add_line, line_color = line_color, line_size = line_size, line_type = line_type,
       cells.highlight = cells.highlight, cols.highlight = cols.highlight, sizes.highlight = sizes.highlight, alpha.highlight = alpha.highlight,
       calculate_coexp = calculate_coexp,
       same.y.lims = same.y.lims, y.min = y.min, y.max = y.max, y.trans = y.trans, y.nbreaks = y.nbreaks,
@@ -3667,7 +3733,8 @@ ExpressionStatPlot <- function(exp.data, meta.data, stat.by, group.by = NULL, sp
                                add_box = FALSE, box_color = "black", box_width = 0.1, box_ptsize = 2,
                                add_point = FALSE, pt.color = "grey30", pt.size = NULL, pt.alpha = 1, jitter.width = 0.4, jitter.height = 0.1,
                                add_trend = FALSE, trend_color = "black", trend_linewidth = 1, trend_ptsize = 2,
-                               add_stat = c("none", "mean", "median"), stat_color = "black", stat_size = 1,
+                               add_stat = c("none", "mean", "median"), stat_color = "black", stat_size = 1, stat_stroke = 1, stat_shape = 25,
+                               add_line = NULL, line_color = "red", line_size = 1, line_type = 1,
                                cells.highlight = NULL, cols.highlight = "red", sizes.highlight = 1, alpha.highlight = 1,
                                calculate_coexp = FALSE,
                                same.y.lims = FALSE, y.min = NULL, y.max = NULL, y.trans = "identity", y.nbreaks = 5,
@@ -3686,6 +3753,9 @@ ExpressionStatPlot <- function(exp.data, meta.data, stat.by, group.by = NULL, sp
   fill.by <- match.arg(fill.by)
   sig_label <- match.arg(sig_label)
   add_stat <- match.arg(add_stat)
+  if (!is.null(add_line)) {
+    stopifnot(is.numeric(add_line))
+  }
 
   if (missing(exp.data)) {
     exp.data <- matrix(0, nrow = 1, ncol = nrow(meta.data), dimnames = list("", rownames(meta.data)))
@@ -4245,9 +4315,15 @@ ExpressionStatPlot <- function(exp.data, meta.data, stat.by, group.by = NULL, sp
     }
     if (add_stat != "none") {
       p <- p + stat_summary(
-        fun = add_stat, geom = "point", mapping = aes(group = .data[["split.by"]], shape = 95),
-        position = position_dodge(width = 0.9), color = stat_color, fill = "white", size = stat_size, stroke = 10,
+        fun = add_stat, geom = "point", mapping = aes(group = .data[["split.by"]], shape = stat_shape),
+        position = position_dodge(width = 0.9), color = stat_color, fill = stat_color, size = stat_size, stroke = stat_stroke,
       ) + scale_shape_identity()
+    }
+    if (!is.null(add_line)) {
+      p <- p + geom_hline(
+        yintercept = add_line,
+        color = line_color, linetype = line_type, linewidth = line_size
+      )
     }
 
     if (nrow(dat) == 0) {
@@ -5356,7 +5432,7 @@ FeatureCorPlot <- function(srt, features, group.by = NULL, split.by = NULL, cell
         if (isTRUE(raster)) {
           p <- p + scattermore::geom_scattermore(
             mapping = aes(x = .data[[f1]], y = .data[[f2]], color = .data[[group.by]]),
-            pointsize = floor(pt.size), alpha = pt.alpha, pixels = raster.dpi
+            pointsize = ceiling(pt.size), alpha = pt.alpha, pixels = raster.dpi
           )
         } else {
           p <- p + geom_point(aes(x = .data[[f1]], y = .data[[f2]], color = .data[[group.by]]),
@@ -7786,7 +7862,7 @@ mestimate <- function(data) {
 #'   features = de_top$gene, feature_split = de_top$group1, group.by = "CellType",
 #'   heatmap_palette = "YlOrRd",
 #'   cell_annotation = c("Phase", "G2M_score", "Neurod2"), cell_annotation_palette = c("Dark2", "Paired", "Paired"),
-#'   cell_annotation_params = list(height = grid::unit(20, "mm")),
+#'   cell_annotation_params = list(height = grid::unit(10, "mm")),
 #'   feature_annotation = c("TF", "CSPA"),
 #'   feature_annotation_palcolor = list(c("gold", "steelblue"), c("forestgreen")),
 #'   add_dot = TRUE, add_bg = TRUE, nlabel = 0, show_row_names = TRUE
@@ -7797,7 +7873,7 @@ mestimate <- function(data) {
 #'   features = de_top$gene, feature_split = de_top$group1, group.by = "CellType",
 #'   heatmap_palette = "YlOrRd",
 #'   cell_annotation = c("Phase", "G2M_score", "Neurod2"), cell_annotation_palette = c("Dark2", "Paired", "Paired"),
-#'   cell_annotation_params = list(width = grid::unit(20, "mm")),
+#'   cell_annotation_params = list(width = grid::unit(10, "mm")),
 #'   feature_annotation = c("TF", "CSPA"),
 #'   feature_annotation_palcolor = list(c("gold", "steelblue"), c("forestgreen")),
 #'   add_dot = TRUE, add_bg = TRUE,
@@ -7862,7 +7938,7 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
                          add_violin = FALSE, fill.by = "feature", fill_palette = "Dark2", fill_palcolor = NULL,
                          heatmap_palette = "RdBu", heatmap_palcolor = NULL, group_palette = "Paired", group_palcolor = NULL,
                          cell_split_palette = "simspec", cell_split_palcolor = NULL, feature_split_palette = "simspec", feature_split_palcolor = NULL,
-                         cell_annotation = NULL, cell_annotation_palette = "Paired", cell_annotation_palcolor = NULL, cell_annotation_params = if (flip) list(width = grid::unit(20, "mm")) else list(height = grid::unit(20, "mm")),
+                         cell_annotation = NULL, cell_annotation_palette = "Paired", cell_annotation_palcolor = NULL, cell_annotation_params = if (flip) list(width = grid::unit(10, "mm")) else list(height = grid::unit(10, "mm")),
                          feature_annotation = NULL, feature_annotation_palette = "Dark2", feature_annotation_palcolor = NULL, feature_annotation_params = if (flip) list(height = grid::unit(5, "mm")) else list(width = grid::unit(5, "mm")),
                          use_raster = NULL, raster_device = "png", raster_by_magick = FALSE, height = NULL, width = NULL, units = "inch",
                          seed = 11, ht_params = list()) {
@@ -8878,9 +8954,7 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
   if ((!is.null(row_split) && length(index) > 0) || any(c(anno_terms, anno_keys, anno_features)) || !is.null(width) || !is.null(height)) {
     fix <- TRUE
     if (is.null(width) || is.null(height)) {
-      message("The size of the heatmap is fixed because certain elements are not scalable.\n
-              The width and height of the heatmap are determined by the size of the current viewport.\n
-              If you want to have more control over the size, you can manually set the parameters 'width' and 'height'.")
+      message("\nThe size of the heatmap is fixed because certain elements are not scalable.\nThe width and height of the heatmap are determined by the size of the current viewport.\nIf you want to have more control over the size, you can manually set the parameters 'width' and 'height'.\n")
     }
   } else {
     fix <- FALSE
@@ -9822,9 +9896,7 @@ FeatureHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, 
   if ((!is.null(row_split) && length(index) > 0) || any(c(anno_terms, anno_keys, anno_features)) || !is.null(width) || !is.null(height)) {
     fix <- TRUE
     if (is.null(width) || is.null(height)) {
-      message("The size of the heatmap is fixed because certain elements are not scalable.\n
-              The width and height of the heatmap are determined by the size of the current viewport.\n
-              If you want to have more control over the size, you can manually set the parameters 'width' and 'height'.")
+      message("\nThe size of the heatmap is fixed because certain elements are not scalable.\nThe width and height of the heatmap are determined by the size of the current viewport.\nIf you want to have more control over the size, you can manually set the parameters 'width' and 'height'.\n")
     }
   } else {
     fix <- FALSE
@@ -10064,8 +10136,8 @@ CellCorHeatmap <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
                            heatmap_palette = "RdBu", heatmap_palcolor = NULL,
                            query_group_palette = "Paired", query_group_palcolor = NULL,
                            ref_group_palette = "simspec", ref_group_palcolor = NULL,
-                           query_cell_annotation = NULL, query_cell_annotation_palette = "Paired", query_cell_annotation_palcolor = NULL, query_cell_annotation_params = if (flip) list(height = grid::unit(20, "mm")) else list(width = grid::unit(20, "mm")),
-                           ref_cell_annotation = NULL, ref_cell_annotation_palette = "Paired", ref_cell_annotation_palcolor = NULL, ref_cell_annotation_params = if (flip) list(width = grid::unit(20, "mm")) else list(height = grid::unit(20, "mm")),
+                           query_cell_annotation = NULL, query_cell_annotation_palette = "Paired", query_cell_annotation_palcolor = NULL, query_cell_annotation_params = if (flip) list(height = grid::unit(10, "mm")) else list(width = grid::unit(10, "mm")),
+                           ref_cell_annotation = NULL, ref_cell_annotation_palette = "Paired", ref_cell_annotation_palcolor = NULL, ref_cell_annotation_params = if (flip) list(width = grid::unit(10, "mm")) else list(height = grid::unit(10, "mm")),
                            use_raster = NULL, raster_device = "png", raster_by_magick = FALSE, height = NULL, width = NULL, units = "inch",
                            seed = 11, ht_params = list()) {
   set.seed(seed)
@@ -10073,6 +10145,7 @@ CellCorHeatmap <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
     check_R("magick")
   }
 
+  ref_legend <- TRUE
   simil_method <- c(
     "cosine", "pearson", "spearman", "correlation", "jaccard", "ejaccard", "dice", "edice",
     "hamman", "simple matching", "faith"
@@ -10093,7 +10166,7 @@ CellCorHeatmap <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
     ref_cell_annotation <- query_cell_annotation
     ref_cell_annotation_palette <- query_cell_annotation_palette
     ref_cell_annotation_palcolor <- query_cell_annotation_palcolor
-    ref_cell_annotation_params <- query_cell_annotation_params
+    ref_legend <- FALSE
   }
   if (!is.null(bulk_ref)) {
     srt_ref <- CreateSeuratObject(counts = bulk_ref, meta.data = data.frame(celltype = colnames(bulk_ref)), assay = "RNA")
@@ -10246,6 +10319,8 @@ CellCorHeatmap <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
   if (query_group != "All.groups") {
     if (isFALSE(query_collapsing) && ((isFALSE(flip) & isTRUE(cluster_rows)) || (isTRUE(flip) & isTRUE(cluster_columns)))) {
       query_cell_annotation <- c(query_group, query_cell_annotation)
+      query_cell_annotation_palette <- c(query_group_palette, query_cell_annotation_palette)
+      query_cell_annotation_palcolor <- c(list(query_group_palcolor), query_cell_annotation_palcolor %||% list(NULL))
     } else {
       funbody <- paste0(
         "
@@ -10284,6 +10359,8 @@ CellCorHeatmap <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
   if (ref_group != "All.groups") {
     if (isFALSE(ref_collapsing) && ((isFALSE(flip) & isTRUE(cluster_columns)) || (isTRUE(flip) & isTRUE(cluster_rows)))) {
       ref_cell_annotation <- c(ref_group, ref_cell_annotation)
+      ref_cell_annotation_palette <- c(ref_group_palette, ref_cell_annotation_palette)
+      ref_cell_annotation_palcolor <- c(list(ref_group_palcolor), ref_cell_annotation_palcolor %||% list(NULL))
     } else {
       funbody <- paste0(
         "
@@ -10664,6 +10741,10 @@ CellCorHeatmap <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
     }
   }
 
+  if (!isTRUE(ref_legend)) {
+    lgd <- lgd[grep("Ref", names(lgd), invert = TRUE)]
+  }
+
   layer_fun <- function(j, i, x, y, w, h, fill) {
     if (nlabel > 0) {
       if (flip) {
@@ -10892,7 +10973,7 @@ CellCorHeatmap <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
 #'   cell_annotation_palette = c("Paired", "simspec", "Purples"),
 #'   separate_annotation = list("SubCellType", c("Nnat", "Irx1")),
 #'   separate_annotation_palette = c("Paired", "Set1"),
-#'   separate_annotation_params = list(height = grid::unit(20, "mm")),
+#'   separate_annotation_params = list(height = grid::unit(10, "mm")),
 #'   feature_annotation = c("TF", "CSPA"),
 #'   feature_annotation_palcolor = list(c("gold", "steelblue"), c("forestgreen")),
 #'   pseudotime_label = 25,
@@ -10912,7 +10993,7 @@ CellCorHeatmap <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
 #'   cell_annotation_palette = c("Paired", "simspec", "Purples"),
 #'   separate_annotation = list("SubCellType", c("Nnat", "Irx1")),
 #'   separate_annotation_palette = c("Paired", "Set1"),
-#'   separate_annotation_params = list(width = grid::unit(20, "mm")),
+#'   separate_annotation_params = list(width = grid::unit(10, "mm")),
 #'   feature_annotation = c("TF", "CSPA"),
 #'   feature_annotation_palcolor = list(c("gold", "steelblue"), c("forestgreen")),
 #'   pseudotime_label = 25,
@@ -10969,7 +11050,7 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, use_fitted = FALSE, b
                            feature_split_palette = "simspec", feature_split_palcolor = NULL,
                            cell_annotation = NULL, cell_annotation_palette = "Paired", cell_annotation_palcolor = NULL, cell_annotation_params = if (flip) list(width = grid::unit(5, "mm")) else list(height = grid::unit(5, "mm")),
                            feature_annotation = NULL, feature_annotation_palette = "Dark2", feature_annotation_palcolor = NULL, feature_annotation_params = if (flip) list(height = grid::unit(5, "mm")) else list(width = grid::unit(5, "mm")),
-                           separate_annotation = NULL, separate_annotation_palette = "Paired", separate_annotation_palcolor = NULL, separate_annotation_params = if (flip) list(width = grid::unit(20, "mm")) else list(height = grid::unit(20, "mm")),
+                           separate_annotation = NULL, separate_annotation_palette = "Paired", separate_annotation_palcolor = NULL, separate_annotation_params = if (flip) list(width = grid::unit(10, "mm")) else list(height = grid::unit(10, "mm")),
                            reverse_ht = NULL, use_raster = NULL, raster_device = "png", raster_by_magick = FALSE, height = NULL, width = NULL, units = "inch",
                            seed = 11, ht_params = list()) {
   set.seed(seed)
@@ -12393,6 +12474,10 @@ DynamicPlot <- function(srt, lineages, features, group.by = NULL, cells = NULL, 
   } else {
     return(plist)
   }
+}
+
+GroupTreePlot <- function() {
+
 }
 
 #' Projection Plot

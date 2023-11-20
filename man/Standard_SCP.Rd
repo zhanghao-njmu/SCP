@@ -94,13 +94,13 @@ This function performs a standard single-cell analysis workflow.
 }
 \examples{
 data("pancreas_sub")
-pancreas_sub <- Standard_SCP(srt = pancreas_sub)
+pancreas_sub <- Standard_SCP(pancreas_sub)
 CellDimPlot(pancreas_sub, group.by = "SubCellType")
 
 # Use a combination of different linear or non-linear dimension reduction methods
 linear_reductions <- c("pca", "ica", "nmf", "mds", "glmpca")
 pancreas_sub <- Standard_SCP(
-  srt = pancreas_sub,
+  pancreas_sub,
   linear_reduction = linear_reductions,
   nonlinear_reduction = "umap"
 )
@@ -117,7 +117,7 @@ patchwork::wrap_plots(plotlist = plist1)
 
 nonlinear_reductions <- c("umap", "tsne", "dm", "phate", "pacmap", "trimap", "largevis", "fr")
 pancreas_sub <- Standard_SCP(
-  srt = pancreas_sub,
+  pancreas_sub,
   linear_reduction = "pca",
   nonlinear_reduction = nonlinear_reductions
 )

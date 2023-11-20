@@ -22,6 +22,7 @@ Integration_SCP(
   do_scaling = TRUE,
   vars_to_regress = NULL,
   regression_model = "linear",
+  scale_within_batch = FALSE,
   linear_reduction = "pca",
   linear_reduction_dims = 50,
   linear_reduction_dims_use = NULL,
@@ -76,6 +77,8 @@ Supported methods are: \code{"Uncorrected"}, \code{"Seurat"}, \code{"scVI"}, \co
 
 \item{regression_model}{The regression model to use for scaling. Options are "linear", "poisson", or "negativebinomial" (default is "linear").}
 
+\item{scale_within_batch}{Whether to scale data within each batch. Only valid when the \code{integration_method} is one of \code{"Uncorrected"}, \code{"Seurat"}, \code{"MNN"}, \code{"Harmony"}, \code{"BBKNN"}, \code{"CSS"}, \code{"ComBat"}.}
+
 \item{linear_reduction}{The linear dimensionality reduction method to use. Options are "pca", "svd", "ica", "nmf", "mds", or "glmpca" (default is "pca").}
 
 \item{linear_reduction_dims}{The number of dimensions to keep after linear dimensionality reduction (default is 50).}
@@ -129,7 +132,21 @@ CellDimPlot(panc8_sub, group.by = c("tech", "celltype"))
 
 panc8_sub <- Integration_SCP(
   srtMerge = panc8_sub, batch = "tech",
+  integration_method = "Uncorrected",
+  HVF_min_intersection = 5, scale_within_batch = TRUE
+)
+CellDimPlot(panc8_sub, group.by = c("tech", "celltype"))
+
+panc8_sub <- Integration_SCP(
+  srtMerge = panc8_sub, batch = "tech",
   integration_method = "Seurat"
+)
+CellDimPlot(panc8_sub, group.by = c("tech", "celltype"))
+
+panc8_sub <- Integration_SCP(
+  srtMerge = panc8_sub, batch = "tech",
+  integration_method = "Seurat",
+  FindIntegrationAnchors_params = list(reduction = "rpca")
 )
 CellDimPlot(panc8_sub, group.by = c("tech", "celltype"))
 

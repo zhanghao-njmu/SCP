@@ -39,6 +39,11 @@ CellDimPlot(
   density_filled = FALSE,
   density_filled_palette = "Greys",
   density_filled_palcolor = NULL,
+  add_mark = FALSE,
+  mark_type = c("hull", "ellipse", "rect", "circle"),
+  mark_expand = unit(3, "mm"),
+  mark_alpha = 0.1,
+  mark_linetype = 1,
   lineages = NULL,
   lineages_trim = c(0.01, 0.99),
   lineages_span = 0.75,
@@ -363,9 +368,9 @@ CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", theme_us
 CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", theme_use = ggplot2::theme_classic, theme_args = list(base_size = 16))
 CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP") \%>\% panel_fix(height = 2, raster = TRUE, dpi = 30)
 
-# Label and highlight cell points
+# Highlight cells
 CellDimPlot(pancreas_sub,
-  group.by = "SubCellType", reduction = "UMAP", label = TRUE, label_insitu = TRUE,
+  group.by = "SubCellType", reduction = "UMAP",
   cells.highlight = colnames(pancreas_sub)[pancreas_sub$SubCellType == "Epsilon"]
 )
 CellDimPlot(pancreas_sub,
@@ -373,9 +378,38 @@ CellDimPlot(pancreas_sub,
   cells.highlight = TRUE, theme_use = "theme_blank", legend.position = "none"
 )
 
+# Add group labels
+CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", label = TRUE)
+CellDimPlot(pancreas_sub,
+  group.by = "SubCellType", reduction = "UMAP",
+  label = TRUE, label.fg = "orange", label.bg = "red", label.size = 5
+)
+CellDimPlot(pancreas_sub,
+  group.by = "SubCellType", reduction = "UMAP",
+  label = TRUE, label_insitu = TRUE
+)
+CellDimPlot(pancreas_sub,
+  group.by = "SubCellType", reduction = "UMAP",
+  label = TRUE, label_insitu = TRUE, label_repel = TRUE, label_segment_color = "red"
+)
+
+# Add various shape of marks
+CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", add_mark = TRUE)
+CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", add_mark = TRUE, mark_expand = unit(1, "mm"))
+CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", add_mark = TRUE, mark_alpha = 0.3)
+CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", add_mark = TRUE, mark_linetype = 2)
+CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", add_mark = TRUE, mark_type = "ellipse")
+CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", add_mark = TRUE, mark_type = "rect")
+CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", add_mark = TRUE, mark_type = "circle")
+
 # Add a density layer
-CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", label = TRUE, add_density = TRUE)
-CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", label = TRUE, add_density = TRUE, density_filled = TRUE)
+CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", add_density = TRUE)
+CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", add_density = TRUE, density_filled = TRUE)
+CellDimPlot(pancreas_sub,
+  group.by = "SubCellType", reduction = "UMAP",
+  add_density = TRUE, density_filled = TRUE, density_filled_palette = "Blues",
+  cells.highlight = TRUE
+)
 
 # Add statistical charts
 CellDimPlot(pancreas_sub, group.by = "CellType", reduction = "UMAP", stat.by = "Phase")

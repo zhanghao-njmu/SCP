@@ -1092,7 +1092,7 @@ DefaultReduction <- function(srt, pattern = NULL, min_dim = 2, max_distance = 0.
 Uncorrected_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtList = NULL, assay = NULL,
                                   do_normalization = NULL, normalization_method = "LogNormalize",
                                   do_HVF_finding = TRUE, HVF_source = "separate", HVF_method = "vst", nHVF = 2000, HVF_min_intersection = 1, HVF = NULL,
-                                  do_scaling = TRUE, vars_to_regress = NULL, regression_model = "linear",
+                                  do_scaling = TRUE, vars_to_regress = NULL, regression_model = "linear", scale_within_batch = FALSE,
                                   linear_reduction = "pca", linear_reduction_dims = 50, linear_reduction_dims_use = NULL, linear_reduction_params = list(), force_linear_reduction = FALSE,
                                   nonlinear_reduction = "umap", nonlinear_reduction_dims = c(2, 3), nonlinear_reduction_params = list(), force_nonlinear_reduction = TRUE,
                                   neighbor_metric = "euclidean", neighbor_k = 20L, cluster_algorithm = "louvain", cluster_resolution = 0.6,
@@ -1108,6 +1108,9 @@ Uncorrected_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, 
   if (any(!linear_reduction %in% reduc_test)) {
     stop("'linear_reduction' must be one of 'pca', 'ica', 'nmf', 'mds', 'glmpca'.")
   }
+  if (!is.null(linear_reduction_dims_use) && max(linear_reduction_dims_use) > linear_reduction_dims) {
+    linear_reduction_dims <- max(linear_reduction_dims_use)
+  }
   if (any(!nonlinear_reduction %in% c("umap", "umap-naive", "tsne", "dm", "phate", "pacmap", "trimap", "largevis", "fr"))) {
     stop("'nonlinear_reduction' must be one of 'umap', 'tsne', 'dm', 'phate', 'pacmap', 'trimap', 'largevis', 'fr'.")
   }
@@ -1117,9 +1120,12 @@ Uncorrected_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, 
   if (cluster_algorithm == "leiden") {
     check_Python("leidenalg")
   }
-  if (!is.null(linear_reduction_dims_use) && max(linear_reduction_dims_use) > linear_reduction_dims) {
-    linear_reduction_dims <- max(linear_reduction_dims_use)
-  }
+  cluster_algorithm_index <- switch(tolower(cluster_algorithm),
+    "louvain" = 1,
+    "louvain_refined" = 2,
+    "slm" = 3,
+    "leiden" = 4
+  )
 
   set.seed(seed)
   if (is.null(srtList) && is.null(srtMerge)) {
@@ -1175,39 +1181,85 @@ Uncorrected_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, 
   }
 
   cat(paste0("[", Sys.time(), "]", " Perform integration(Uncorrected) on the data...\n"))
-  srtIntegrated <- Standard_SCP(
-    srt = srtMerge, prefix = "Uncorrected", assay = DefaultAssay(srtMerge),
-    do_normalization = do_normalization, normalization_method = normalization_method,
-    do_HVF_finding = do_HVF_finding, nHVF = nHVF, HVF = HVF, HVF_method = HVF_method,
-    do_scaling = do_scaling, vars_to_regress = vars_to_regress, regression_model = regression_model,
-    linear_reduction = linear_reduction, linear_reduction_dims = linear_reduction_dims, linear_reduction_dims_use = linear_reduction_dims_use, linear_reduction_params = linear_reduction_params, force_linear_reduction = force_linear_reduction,
-    nonlinear_reduction = nonlinear_reduction, nonlinear_reduction_dims = nonlinear_reduction_dims, nonlinear_reduction_params = nonlinear_reduction_params, force_nonlinear_reduction = force_nonlinear_reduction,
-    cluster_algorithm = cluster_algorithm, cluster_resolution = cluster_resolution,
-    seed = seed
-  )
-  if ("Uncorrectedclusters" %in% colnames(srtIntegrated@meta.data)) {
-    srtIntegrated[[paste0("Uncorrectedclusters")]] <- srtIntegrated[[paste0("Uncorrected", linear_reduction, "clusters")]]
-    srtIntegrated[[paste0("Uncorrected", linear_reduction, "clusters")]] <- NULL
-  }
-  for (nr in nonlinear_reduction) {
-    for (n in nonlinear_reduction_dims) {
-      if (paste0("Uncorrected", linear_reduction, toupper(nr), n, "D") %in% Reductions(srtIntegrated)) {
-        reduc <- srtIntegrated@reductions[[paste0("Uncorrected", linear_reduction, toupper(nr), n, "D")]]
-        Key(reduc) <- paste0("Uncorrected", toupper(nr), n, "D_")
-        srtIntegrated@reductions[[paste0("Uncorrected", linear_reduction, toupper(nr), n, "D")]] <- NULL
-        srtIntegrated@reductions[[paste0("Uncorrected", toupper(nr), n, "D")]] <- reduc
-      }
+
+  if (isTRUE(do_scaling) || (is.null(do_scaling) && any(!HVF %in% rownames(GetAssayData(srtMerge, slot = "scale.data", assay = DefaultAssay(srtMerge)))))) {
+    if (normalization_method != "SCT") {
+      cat(paste0("[", Sys.time(), "]", " Perform ScaleData on the data...\n"))
+      srtMerge <- ScaleData(object = srtMerge, split.by = if (isTRUE(scale_within_batch)) batch else NULL, assay = DefaultAssay(srtMerge), features = HVF, vars.to.regress = vars_to_regress, model.use = regression_model, verbose = FALSE)
     }
-    srtIntegrated@misc[["Default_reduction"]] <- paste0("Uncorrected", toupper(nr))
   }
-  DefaultAssay(srtIntegrated) <- assay
-  VariableFeatures(srtIntegrated) <- srtIntegrated@misc[["Uncorrected_HVF"]] <- HVF
+
+  cat(paste0("[", Sys.time(), "]", " Perform linear dimension reduction (", linear_reduction, ") on the data...\n"))
+  srtMerge <- RunDimReduction(
+    srtMerge,
+    prefix = "Uncorrected", features = HVF, assay = DefaultAssay(srtMerge),
+    linear_reduction = linear_reduction, linear_reduction_dims = linear_reduction_dims, linear_reduction_params = linear_reduction_params, force_linear_reduction = force_linear_reduction,
+    verbose = FALSE, seed = seed
+  )
+  if (is.null(linear_reduction_dims_use)) {
+    linear_reduction_dims_use <- srtMerge@reductions[[paste0("Uncorrected", linear_reduction)]]@misc[["dims_estimate"]]
+    if (normalization_method == "TFIDF") {
+      linear_reduction_dims_use <- 2:max(linear_reduction_dims_use)
+    }
+  }
+
+  srtMerge <- tryCatch(
+    {
+      srtMerge <- FindNeighbors(
+        object = srtMerge, reduction = paste0("Uncorrected", linear_reduction), dims = linear_reduction_dims_use,
+        annoy.metric = neighbor_metric, k.param = neighbor_k,
+        force.recalc = TRUE, graph.name = paste0("Uncorrected_", c("KNN", "SNN")), verbose = FALSE
+      )
+
+      cat(paste0("[", Sys.time(), "]", " Perform FindClusters (", cluster_algorithm, ") on the data...\n"))
+      srtMerge <- FindClusters(object = srtMerge, resolution = cluster_resolution, algorithm = cluster_algorithm_index, method = "igraph", graph.name = "Uncorrected_SNN", verbose = FALSE)
+      cat(paste0("[", Sys.time(), "]", " Reorder clusters...\n"))
+      srtMerge <- SrtReorder(srtMerge, features = HVF, reorder_by = "seurat_clusters", slot = "data")
+      srtMerge[["seurat_clusters"]] <- NULL
+      srtMerge[[paste0("Uncorrected", linear_reduction, "clusters")]] <- Idents(srtMerge)
+      srtMerge
+    },
+    error = function(error) {
+      message(error)
+      message("Error when performing FindClusters. Skip this step...")
+      return(srtMerge)
+    }
+  )
+
+  srtMerge <- tryCatch(
+    {
+      for (nr in nonlinear_reduction) {
+        cat(paste0("[", Sys.time(), "]", " Perform nonlinear dimension reduction (", nr, ") on the data...\n"))
+        for (n in nonlinear_reduction_dims) {
+          srtMerge <- RunDimReduction(
+            srtMerge,
+            prefix = "Uncorrected",
+            reduction_use = paste0("Uncorrected", linear_reduction), reduction_dims = linear_reduction_dims_use,
+            graph_use = "Uncorrected_SNN",
+            nonlinear_reduction = nr, nonlinear_reduction_dims = n,
+            nonlinear_reduction_params = nonlinear_reduction_params,
+            force_nonlinear_reduction = force_nonlinear_reduction,
+            verbose = FALSE, seed = seed
+          )
+        }
+      }
+      srtMerge
+    },
+    error = function(error) {
+      message(error)
+      message("Error when performing nonlinear dimension reduction. Skip this step...")
+      return(srtMerge)
+    }
+  )
+
+  DefaultAssay(srtMerge) <- assay
+  VariableFeatures(srtMerge) <- srtMerge@misc[["Uncorrected_HVF"]] <- HVF
 
   if (isTRUE(append) && !is.null(srtMerge_raw)) {
-    srtMerge_raw <- SrtAppend(srt_raw = srtMerge_raw, srt_append = srtIntegrated, pattern = paste0(assay, "|Uncorrected|Default_reduction"), overwrite = TRUE, verbose = FALSE)
+    srtMerge_raw <- SrtAppend(srt_raw = srtMerge_raw, srt_append = srtMerge, pattern = paste0(assay, "|Uncorrected|Default_reduction"), overwrite = TRUE, verbose = FALSE)
     return(srtMerge_raw)
   } else {
-    return(srtIntegrated)
+    return(srtMerge)
   }
 }
 
@@ -1224,7 +1276,7 @@ Uncorrected_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, 
 Seurat_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtList = NULL, assay = NULL,
                              do_normalization = NULL, normalization_method = "LogNormalize",
                              do_HVF_finding = TRUE, HVF_source = "separate", HVF_method = "vst", nHVF = 2000, HVF_min_intersection = 1, HVF = NULL,
-                             do_scaling = TRUE, vars_to_regress = NULL, regression_model = "linear",
+                             do_scaling = TRUE, vars_to_regress = NULL, regression_model = "linear", scale_within_batch = FALSE,
                              linear_reduction = "pca", linear_reduction_dims = 50, linear_reduction_dims_use = NULL, linear_reduction_params = list(), force_linear_reduction = FALSE,
                              nonlinear_reduction = "umap", nonlinear_reduction_dims = c(2, 3), nonlinear_reduction_params = list(), force_nonlinear_reduction = TRUE,
                              neighbor_metric = "euclidean", neighbor_k = 20L, cluster_algorithm = "louvain", cluster_resolution = 0.6,
@@ -1309,6 +1361,14 @@ Seurat_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtLi
     type <- checked[["type"]]
   }
 
+  if (min(sapply(srtList, ncol)) < 50) {
+    warning("The cell count in some batches is lower than 50, which may not be suitable for the current integration method.", immediate. = TRUE)
+    answer <- askYesNo("Are you sure to continue?", default = FALSE)
+    if (!isTRUE(answer)) {
+      return(srtMerge)
+    }
+  }
+
   if (normalization_method == "TFIDF") {
     cat(paste0("[", Sys.time(), "]", " normalization_method is 'TFIDF'. Use 'rlsi' integration workflow...\n"))
     do_scaling <- FALSE
@@ -1319,7 +1379,8 @@ Seurat_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtLi
     }
     srtMerge <- RunTFIDF(object = srtMerge, assay = DefaultAssay(srtMerge), verbose = FALSE)
     srtMerge <- RunDimReduction(
-      srt = srtMerge, prefix = "", features = HVF, assay = DefaultAssay(srtMerge),
+      srtMerge,
+      prefix = "", features = HVF, assay = DefaultAssay(srtMerge),
       linear_reduction = "svd", linear_reduction_dims = linear_reduction_dims, linear_reduction_params = linear_reduction_params, force_linear_reduction = force_linear_reduction,
       verbose = FALSE, seed = seed
     )
@@ -1328,7 +1389,8 @@ Seurat_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtLi
       srt <- srtList[[i]]
       cat(paste0("[", Sys.time(), "]", " Perform linear dimension reduction (svd) on the data ", i, " ...\n"))
       srt <- RunDimReduction(
-        srt = srt, prefix = "", features = HVF, assay = DefaultAssay(srt),
+        srt,
+        prefix = "", features = HVF, assay = DefaultAssay(srt),
         linear_reduction = "svd", linear_reduction_dims = linear_reduction_dims, linear_reduction_params = linear_reduction_params, force_linear_reduction = force_linear_reduction,
         verbose = FALSE, seed = seed
       )
@@ -1347,7 +1409,8 @@ Seurat_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtLi
       }
       cat(paste0("[", Sys.time(), "]", " Perform linear dimension reduction (pca) on the data ", i, " ...\n"))
       srt <- RunDimReduction(
-        srt = srt, prefix = "", features = HVF, assay = DefaultAssay(srt),
+        srt,
+        prefix = "", features = HVF, assay = DefaultAssay(srt),
         linear_reduction = "pca", linear_reduction_dims = linear_reduction_dims, linear_reduction_params = linear_reduction_params, force_linear_reduction = force_linear_reduction,
         verbose = FALSE, seed = seed
       )
@@ -1390,12 +1453,13 @@ Seurat_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtLi
 
     if (isTRUE(do_scaling) || (is.null(do_scaling) && any(!HVF %in% rownames(GetAssayData(srtIntegrated, slot = "scale.data", assay = DefaultAssay(srtIntegrated)))))) {
       cat(paste0("[", Sys.time(), "]", " Perform ScaleData on the data...\n"))
-      srtIntegrated <- ScaleData(object = srtIntegrated, assay = DefaultAssay(srtIntegrated), features = HVF, vars.to.regress = vars_to_regress, model.use = regression_model, verbose = FALSE)
+      srtIntegrated <- ScaleData(object = srtIntegrated, split.by = if (isTRUE(scale_within_batch)) batch else NULL, assay = DefaultAssay(srtIntegrated), features = HVF, vars.to.regress = vars_to_regress, model.use = regression_model, verbose = FALSE)
     }
 
     cat(paste0("[", Sys.time(), "]", " Perform linear dimension reduction (", linear_reduction, ") on the data...\n"))
     srtIntegrated <- RunDimReduction(
-      srt = srtIntegrated, prefix = "Seurat", features = HVF, assay = DefaultAssay(srtIntegrated),
+      srtIntegrated,
+      prefix = "Seurat", features = HVF, assay = DefaultAssay(srtIntegrated),
       linear_reduction = linear_reduction, linear_reduction_dims = linear_reduction_dims, linear_reduction_params = linear_reduction_params, force_linear_reduction = force_linear_reduction,
       verbose = FALSE, seed = seed
     )
@@ -1463,7 +1527,8 @@ Seurat_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtLi
         cat(paste0("[", Sys.time(), "]", " Perform nonlinear dimension reduction (", nr, ") on the data...\n"))
         for (n in nonlinear_reduction_dims) {
           srtIntegrated <- RunDimReduction(
-            srt = srtIntegrated, prefix = "Seurat",
+            srtIntegrated,
+            prefix = "Seurat",
             reduction_use = paste0("Seurat", linear_reduction), reduction_dims = linear_reduction_dims_use,
             graph_use = "Seurat_SNN",
             nonlinear_reduction = nr, nonlinear_reduction_dims = n,
@@ -1656,7 +1721,8 @@ scVI_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtList
         cat(paste0("[", Sys.time(), "]", " Perform nonlinear dimension reduction (", nr, ") on the data...\n"))
         for (n in nonlinear_reduction_dims) {
           srtIntegrated <- RunDimReduction(
-            srt = srtIntegrated, prefix = "scVI",
+            srtIntegrated,
+            prefix = "scVI",
             reduction_use = "scVI", reduction_dims = scVI_dims_use,
             graph_use = "scVI_SNN",
             nonlinear_reduction = nr, nonlinear_reduction_dims = n,
@@ -1696,7 +1762,7 @@ scVI_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtList
 MNN_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtList = NULL, assay = NULL,
                           do_normalization = NULL, normalization_method = "LogNormalize",
                           do_HVF_finding = TRUE, HVF_source = "separate", HVF_method = "vst", nHVF = 2000, HVF_min_intersection = 1, HVF = NULL,
-                          do_scaling = TRUE, vars_to_regress = NULL, regression_model = "linear",
+                          do_scaling = TRUE, vars_to_regress = NULL, regression_model = "linear", scale_within_batch = FALSE,
                           linear_reduction = "pca", linear_reduction_dims = 50, linear_reduction_dims_use = NULL, linear_reduction_params = list(), force_linear_reduction = FALSE,
                           nonlinear_reduction = "umap", nonlinear_reduction_dims = c(2, 3), nonlinear_reduction_params = list(), force_nonlinear_reduction = TRUE,
                           neighbor_metric = "euclidean", neighbor_k = 20L, cluster_algorithm = "louvain", cluster_resolution = 0.6,
@@ -1814,12 +1880,13 @@ MNN_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtList 
 
   if (isTRUE(do_scaling) || (is.null(do_scaling) && any(!HVF %in% rownames(GetAssayData(srtIntegrated, slot = "scale.data", assay = DefaultAssay(srtIntegrated)))))) {
     cat(paste0("[", Sys.time(), "]", " Perform ScaleData on the data...\n"))
-    srtIntegrated <- ScaleData(object = srtIntegrated, assay = DefaultAssay(srtIntegrated), features = HVF, vars.to.regress = vars_to_regress, model.use = regression_model, verbose = FALSE)
+    srtIntegrated <- ScaleData(object = srtIntegrated, split.by = if (isTRUE(scale_within_batch)) batch else NULL, assay = DefaultAssay(srtIntegrated), features = HVF, vars.to.regress = vars_to_regress, model.use = regression_model, verbose = FALSE)
   }
 
   cat(paste0("[", Sys.time(), "]", " Perform linear dimension reduction (", linear_reduction, ") on the data...\n"))
   srtIntegrated <- RunDimReduction(
-    srt = srtIntegrated, prefix = "MNN", features = HVF, assay = DefaultAssay(srtIntegrated),
+    srtIntegrated,
+    prefix = "MNN", features = HVF, assay = DefaultAssay(srtIntegrated),
     linear_reduction = linear_reduction, linear_reduction_dims = linear_reduction_dims, linear_reduction_params = linear_reduction_params, force_linear_reduction = force_linear_reduction,
     verbose = FALSE, seed = seed
   )
@@ -1859,7 +1926,8 @@ MNN_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtList 
         cat(paste0("[", Sys.time(), "]", " Perform nonlinear dimension reduction (", nr, ") on the data...\n"))
         for (n in nonlinear_reduction_dims) {
           srtIntegrated <- RunDimReduction(
-            srt = srtIntegrated, prefix = "MNN",
+            srtIntegrated,
+            prefix = "MNN",
             reduction_use = paste0("MNN", linear_reduction), reduction_dims = linear_reduction_dims_use,
             graph_use = "MNN_SNN",
             nonlinear_reduction = nr, nonlinear_reduction_dims = n,
@@ -2030,7 +2098,8 @@ fastMNN_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtL
         cat(paste0("[", Sys.time(), "]", " Perform nonlinear dimension reduction (", nr, ") on the data...\n"))
         for (n in nonlinear_reduction_dims) {
           srtIntegrated <- RunDimReduction(
-            srt = srtIntegrated, prefix = "fastMNN",
+            srtIntegrated,
+            prefix = "fastMNN",
             reduction_use = "fastMNN", reduction_dims = fastMNN_dims_use,
             graph_use = "fastMNN_SNN",
             nonlinear_reduction = nr, nonlinear_reduction_dims = n,
@@ -2071,7 +2140,7 @@ fastMNN_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtL
 Harmony_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtList = NULL, assay = NULL,
                               do_normalization = NULL, normalization_method = "LogNormalize",
                               do_HVF_finding = TRUE, HVF_source = "separate", HVF_method = "vst", nHVF = 2000, HVF_min_intersection = 1, HVF = NULL,
-                              do_scaling = TRUE, vars_to_regress = NULL, regression_model = "linear",
+                              do_scaling = TRUE, vars_to_regress = NULL, regression_model = "linear", scale_within_batch = FALSE,
                               linear_reduction = "pca", linear_reduction_dims = 50, linear_reduction_dims_use = NULL, linear_reduction_params = list(), force_linear_reduction = FALSE,
                               Harmony_dims_use = NULL,
                               nonlinear_reduction = "umap", nonlinear_reduction_dims = c(2, 3), nonlinear_reduction_params = list(), force_nonlinear_reduction = TRUE,
@@ -2107,7 +2176,7 @@ Harmony_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtL
     "leiden" = 4
   )
 
-  check_R("harmony")
+  check_R("harmony@1.1.0")
   set.seed(seed)
 
   if (is.null(srtList) && is.null(srtMerge)) {
@@ -2164,12 +2233,13 @@ Harmony_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtL
 
   if (isTRUE(do_scaling) || (is.null(do_scaling) && any(!HVF %in% rownames(GetAssayData(srtMerge, slot = "scale.data", assay = DefaultAssay(srtMerge)))))) {
     cat(paste0("[", Sys.time(), "]", " Perform ScaleData on the data...\n"))
-    srtMerge <- ScaleData(object = srtMerge, assay = DefaultAssay(srtMerge), features = HVF, vars.to.regress = vars_to_regress, model.use = regression_model, verbose = FALSE)
+    srtMerge <- ScaleData(object = srtMerge, split.by = if (isTRUE(scale_within_batch)) batch else NULL, assay = DefaultAssay(srtMerge), features = HVF, vars.to.regress = vars_to_regress, model.use = regression_model, verbose = FALSE)
   }
 
   cat(paste0("[", Sys.time(), "]", " Perform linear dimension reduction (", linear_reduction, ") on the data...\n"))
   srtMerge <- RunDimReduction(
-    srt = srtMerge, prefix = "Harmony", features = HVF, assay = DefaultAssay(srtMerge),
+    srtMerge,
+    prefix = "Harmony", features = HVF, assay = DefaultAssay(srtMerge),
     linear_reduction = linear_reduction, linear_reduction_dims = linear_reduction_dims, linear_reduction_params = linear_reduction_params, force_linear_reduction = force_linear_reduction,
     verbose = FALSE, seed = seed
   )
@@ -2232,7 +2302,8 @@ Harmony_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtL
         cat(paste0("[", Sys.time(), "]", " Perform nonlinear dimension reduction (", nr, ") on the data...\n"))
         for (n in nonlinear_reduction_dims) {
           srtIntegrated <- RunDimReduction(
-            srt = srtIntegrated, prefix = "Harmony",
+            srtIntegrated,
+            prefix = "Harmony",
             reduction_use = "Harmony", reduction_dims = Harmony_dims_use,
             graph_use = "Harmony_SNN",
             nonlinear_reduction = nr, nonlinear_reduction_dims = n,
@@ -2427,7 +2498,8 @@ Scanorama_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, sr
         cat(paste0("[", Sys.time(), "]", " Perform nonlinear dimension reduction (", nr, ") on the data...\n"))
         for (n in nonlinear_reduction_dims) {
           srtIntegrated <- RunDimReduction(
-            srt = srtIntegrated, prefix = "Scanorama",
+            srtIntegrated,
+            prefix = "Scanorama",
             reduction_use = "Scanorama", reduction_dims = Scanorama_dims_use,
             graph_use = "Scanorama_SNN",
             nonlinear_reduction = nr, nonlinear_reduction_dims = n,
@@ -2469,7 +2541,7 @@ Scanorama_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, sr
 BBKNN_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtList = NULL, assay = NULL,
                             do_normalization = NULL, normalization_method = "LogNormalize",
                             do_HVF_finding = TRUE, HVF_source = "separate", HVF_method = "vst", nHVF = 2000, HVF_min_intersection = 1, HVF = NULL,
-                            do_scaling = TRUE, vars_to_regress = NULL, regression_model = "linear",
+                            do_scaling = TRUE, vars_to_regress = NULL, regression_model = "linear", scale_within_batch = FALSE,
                             linear_reduction = "pca", linear_reduction_dims = 50, linear_reduction_dims_use = NULL, linear_reduction_params = list(), force_linear_reduction = FALSE,
                             nonlinear_reduction = "umap", nonlinear_reduction_dims = c(2, 3), nonlinear_reduction_params = list(), force_nonlinear_reduction = TRUE,
                             cluster_algorithm = "louvain", cluster_resolution = 0.6,
@@ -2562,12 +2634,13 @@ BBKNN_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtLis
 
   if (isTRUE(do_scaling) || (is.null(do_scaling) && any(!HVF %in% rownames(GetAssayData(srtMerge, slot = "scale.data", assay = DefaultAssay(srtMerge)))))) {
     cat(paste0("[", Sys.time(), "]", " Perform ScaleData on the data...\n"))
-    srtMerge <- ScaleData(object = srtMerge, assay = DefaultAssay(srtMerge), features = HVF, vars.to.regress = vars_to_regress, model.use = regression_model, verbose = FALSE)
+    srtMerge <- ScaleData(object = srtMerge, split.by = if (isTRUE(scale_within_batch)) batch else NULL, assay = DefaultAssay(srtMerge), features = HVF, vars.to.regress = vars_to_regress, model.use = regression_model, verbose = FALSE)
   }
 
   cat(paste0("[", Sys.time(), "]", " Perform linear dimension reduction (", linear_reduction, ") on the data...\n"))
   srtMerge <- RunDimReduction(
-    srt = srtMerge, prefix = "BBKNN", features = HVF, assay = DefaultAssay(srtMerge),
+    srtMerge,
+    prefix = "BBKNN", features = HVF, assay = DefaultAssay(srtMerge),
     linear_reduction = linear_reduction, linear_reduction_dims = linear_reduction_dims, linear_reduction_params = linear_reduction_params, force_linear_reduction = force_linear_reduction,
     verbose = FALSE, seed = seed
   )
@@ -2651,7 +2724,8 @@ BBKNN_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtLis
         }
         for (n in nonlinear_reduction_dims) {
           srtIntegrated <- RunDimReduction(
-            srt = srtIntegrated, prefix = "BBKNN", neighbor_use = "BBKNN_neighbors",
+            srtIntegrated,
+            prefix = "BBKNN", neighbor_use = "BBKNN_neighbors",
             graph_use = "BBKNN",
             nonlinear_reduction = nr, nonlinear_reduction_dims = n,
             nonlinear_reduction_params = nonlinear_reduction_params,
@@ -2691,7 +2765,7 @@ BBKNN_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtLis
 CSS_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtList = NULL, assay = NULL,
                           do_normalization = NULL, normalization_method = "LogNormalize",
                           do_HVF_finding = TRUE, HVF_source = "separate", HVF_method = "vst", nHVF = 2000, HVF_min_intersection = 1, HVF = NULL,
-                          do_scaling = TRUE, vars_to_regress = NULL, regression_model = "linear",
+                          do_scaling = TRUE, vars_to_regress = NULL, regression_model = "linear", scale_within_batch = FALSE,
                           linear_reduction = "pca", linear_reduction_dims = 50, linear_reduction_dims_use = NULL, linear_reduction_params = list(), force_linear_reduction = FALSE,
                           CSS_dims_use = NULL,
                           nonlinear_reduction = "umap", nonlinear_reduction_dims = c(2, 3), nonlinear_reduction_params = list(), force_nonlinear_reduction = TRUE,
@@ -2784,12 +2858,13 @@ CSS_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtList 
 
   if (isTRUE(do_scaling) || (is.null(do_scaling) && any(!HVF %in% rownames(GetAssayData(srtMerge, slot = "scale.data", assay = DefaultAssay(srtMerge)))))) {
     cat(paste0("[", Sys.time(), "]", " Perform ScaleData on the data...\n"))
-    srtMerge <- ScaleData(object = srtMerge, assay = DefaultAssay(srtMerge), features = HVF, vars.to.regress = vars_to_regress, model.use = regression_model, verbose = FALSE)
+    srtMerge <- ScaleData(object = srtMerge, split.by = if (isTRUE(scale_within_batch)) batch else NULL, assay = DefaultAssay(srtMerge), features = HVF, vars.to.regress = vars_to_regress, model.use = regression_model, verbose = FALSE)
   }
 
   cat(paste0("[", Sys.time(), "]", " Perform linear dimension reduction (", linear_reduction, ") on the data...\n"))
   srtMerge <- RunDimReduction(
-    srt = srtMerge, prefix = "CSS", features = HVF, assay = DefaultAssay(srtMerge),
+    srtMerge,
+    prefix = "CSS", features = HVF, assay = DefaultAssay(srtMerge),
     linear_reduction = linear_reduction, linear_reduction_dims = linear_reduction_dims, linear_reduction_params = linear_reduction_params, force_linear_reduction = force_linear_reduction,
     verbose = FALSE, seed = seed
   )
@@ -2853,7 +2928,8 @@ CSS_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtList 
         cat("Perform nonlinear dimension reduction (", nr, ") on the data...\n", sep = "")
         for (n in nonlinear_reduction_dims) {
           srtIntegrated <- RunDimReduction(
-            srt = srtIntegrated, prefix = "CSS",
+            srtIntegrated,
+            prefix = "CSS",
             reduction_use = "CSS", reduction_dims = CSS_dims_use,
             graph_use = "CSS_SNN",
             nonlinear_reduction = nr, nonlinear_reduction_dims = n,
@@ -2966,6 +3042,14 @@ LIGER_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtLis
     type <- checked[["type"]]
   }
 
+  if (min(sapply(srtList, ncol)) < 30) {
+    warning("The cell count in some batches is lower than 30, which may not be suitable for the current integration method.", immediate. = TRUE)
+    answer <- askYesNo("Are you sure to continue?", default = FALSE)
+    if (!isTRUE(answer)) {
+      return(srtMerge)
+    }
+  }
+
   scale.data <- list()
   for (i in seq_along(srtList)) {
     srt <- srtList[[i]]
@@ -3056,7 +3140,8 @@ LIGER_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtLis
         cat(paste0("[", Sys.time(), "]", " Perform nonlinear dimension reduction (", nr, ") on the data...\n"))
         for (n in nonlinear_reduction_dims) {
           srtIntegrated <- RunDimReduction(
-            srt = srtIntegrated, prefix = "LIGER",
+            srtIntegrated,
+            prefix = "LIGER",
             reduction_use = "LIGER", reduction_dims = LIGER_dims_use,
             graph_use = "LIGER_SNN",
             nonlinear_reduction = nr, nonlinear_reduction_dims = n,
@@ -3182,6 +3267,15 @@ Conos_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtLis
     assay <- checked[["assay"]]
     type <- checked[["type"]]
   }
+
+  if (min(sapply(srtList, ncol)) < 30) {
+    warning("The cell count in some batches is lower than 30, which may not be suitable for the current integration method.", immediate. = TRUE)
+    answer <- askYesNo("Are you sure to continue?", default = FALSE)
+    if (!isTRUE(answer)) {
+      return(srtMerge)
+    }
+  }
+
   srtIntegrated <- srtMerge
   srtMerge <- NULL
 
@@ -3199,7 +3293,8 @@ Conos_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtLis
     }
     cat(paste0("[", Sys.time(), "]", " Perform linear dimension reduction (", linear_reduction, ") on the data ", i, " ...\n"))
     srt <- RunDimReduction(
-      srt = srt, prefix = "Conos", features = HVF, assay = DefaultAssay(srt),
+      srt,
+      prefix = "Conos", features = HVF, assay = DefaultAssay(srt),
       linear_reduction = linear_reduction, linear_reduction_dims = linear_reduction_dims, linear_reduction_params = linear_reduction_params, force_linear_reduction = force_linear_reduction,
       verbose = FALSE, seed = seed
     )
@@ -3261,7 +3356,8 @@ Conos_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtLis
         }
         for (n in nonlinear_reduction_dims) {
           srtIntegrated <- RunDimReduction(
-            srt = srtIntegrated, prefix = "Conos", graph_use = "Conos",
+            srtIntegrated,
+            prefix = "Conos", graph_use = "Conos",
             nonlinear_reduction = nr, nonlinear_reduction_dims = n,
             nonlinear_reduction_params = nonlinear_reduction_params,
             force_nonlinear_reduction = force_nonlinear_reduction,
@@ -3299,7 +3395,7 @@ Conos_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtLis
 ComBat_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtList = NULL, assay = NULL,
                              do_normalization = NULL, normalization_method = "LogNormalize",
                              do_HVF_finding = TRUE, HVF_source = "separate", HVF_method = "vst", nHVF = 2000, HVF_min_intersection = 1, HVF = NULL,
-                             do_scaling = TRUE, vars_to_regress = NULL, regression_model = "linear",
+                             do_scaling = TRUE, vars_to_regress = NULL, regression_model = "linear", scale_within_batch = FALSE,
                              linear_reduction = "pca", linear_reduction_dims = 50, linear_reduction_dims_use = NULL, linear_reduction_params = list(), force_linear_reduction = FALSE,
                              nonlinear_reduction = "umap", nonlinear_reduction_dims = c(2, 3), nonlinear_reduction_params = list(), force_nonlinear_reduction = TRUE,
                              neighbor_metric = "euclidean", neighbor_k = 20L, cluster_algorithm = "louvain", cluster_resolution = 0.6,
@@ -3409,12 +3505,13 @@ ComBat_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtLi
 
   if (isTRUE(do_scaling) || (is.null(do_scaling) && any(!HVF %in% rownames(GetAssayData(srtIntegrated, slot = "scale.data", assay = DefaultAssay(srtIntegrated)))))) {
     cat(paste0("[", Sys.time(), "]", " Perform ScaleData on the data...\n"))
-    srtIntegrated <- ScaleData(srtIntegrated, assay = DefaultAssay(srtIntegrated), features = HVF, vars.to.regress = vars_to_regress, model.use = regression_model, verbose = FALSE)
+    srtIntegrated <- ScaleData(srtIntegrated, split.by = if (isTRUE(scale_within_batch)) batch else NULL, assay = DefaultAssay(srtIntegrated), features = HVF, vars.to.regress = vars_to_regress, model.use = regression_model, verbose = FALSE)
   }
 
   cat(paste0("[", Sys.time(), "]", " Perform linear dimension reduction (", linear_reduction, ") on the data...\n"))
   srtIntegrated <- RunDimReduction(
-    srt = srtIntegrated, prefix = "ComBat", features = HVF, assay = DefaultAssay(srtIntegrated),
+    srtIntegrated,
+    prefix = "ComBat", features = HVF, assay = DefaultAssay(srtIntegrated),
     linear_reduction = linear_reduction, linear_reduction_dims = linear_reduction_dims, linear_reduction_params = linear_reduction_params, force_linear_reduction = force_linear_reduction,
     verbose = FALSE, seed = seed
   )
@@ -3454,7 +3551,8 @@ ComBat_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtLi
         cat(paste0("[", Sys.time(), "]", " Perform nonlinear dimension reduction (", nr, ") on the data...\n"))
         for (n in nonlinear_reduction_dims) {
           srtIntegrated <- RunDimReduction(
-            srt = srtIntegrated, prefix = "ComBat",
+            srtIntegrated,
+            prefix = "ComBat",
             reduction_use = paste0("ComBat", linear_reduction), reduction_dims = linear_reduction_dims_use,
             graph_use = "ComBat_SNN",
             nonlinear_reduction = nr, nonlinear_reduction_dims = n,
@@ -3521,13 +3619,13 @@ ComBat_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtLi
 #'
 #' @examples
 #' data("pancreas_sub")
-#' pancreas_sub <- Standard_SCP(srt = pancreas_sub)
+#' pancreas_sub <- Standard_SCP(pancreas_sub)
 #' CellDimPlot(pancreas_sub, group.by = "SubCellType")
 #'
 #' # Use a combination of different linear or non-linear dimension reduction methods
 #' linear_reductions <- c("pca", "ica", "nmf", "mds", "glmpca")
 #' pancreas_sub <- Standard_SCP(
-#'   srt = pancreas_sub,
+#'   pancreas_sub,
 #'   linear_reduction = linear_reductions,
 #'   nonlinear_reduction = "umap"
 #' )
@@ -3544,7 +3642,7 @@ ComBat_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtLi
 #'
 #' nonlinear_reductions <- c("umap", "tsne", "dm", "phate", "pacmap", "trimap", "largevis", "fr")
 #' pancreas_sub <- Standard_SCP(
-#'   srt = pancreas_sub,
+#'   pancreas_sub,
 #'   linear_reduction = "pca",
 #'   nonlinear_reduction = nonlinear_reductions
 #' )
@@ -3628,7 +3726,8 @@ Standard_SCP <- function(srt, prefix = "Standard", assay = NULL,
   for (lr in linear_reduction) {
     cat(paste0("[", Sys.time(), "]", " Perform linear dimension reduction (", lr, ") on the data...\n"))
     srt <- RunDimReduction(
-      srt = srt, prefix = prefix, features = HVF, assay = DefaultAssay(srt),
+      srt,
+      prefix = prefix, features = HVF, assay = DefaultAssay(srt),
       linear_reduction = lr, linear_reduction_dims = linear_reduction_dims, linear_reduction_params = linear_reduction_params, force_linear_reduction = force_linear_reduction,
       verbose = FALSE, seed = seed
     )
@@ -3670,7 +3769,8 @@ Standard_SCP <- function(srt, prefix = "Standard", assay = NULL,
           cat(paste0("[", Sys.time(), "]", " Perform nonlinear dimension reduction (", nr, ") on the data...\n"))
           for (n in nonlinear_reduction_dims) {
             srt <- RunDimReduction(
-              srt = srt, prefix = paste0(prefix, lr),
+              srt,
+              prefix = paste0(prefix, lr),
               reduction_use = paste0(prefix, lr), reduction_dims = linear_reduction_dims_use_current,
               graph_use = paste0(prefix, lr, "_SNN"),
               nonlinear_reduction = nr, nonlinear_reduction_dims = n,
@@ -3720,6 +3820,7 @@ Standard_SCP <- function(srt, prefix = "Standard", assay = NULL,
 #' @inheritParams check_srtList
 #' @inheritParams check_srtMerge
 #' @inheritParams Standard_SCP
+#' @param scale_within_batch  Whether to scale data within each batch. Only valid when the \code{integration_method} is one of \code{"Uncorrected"}, \code{"Seurat"}, \code{"MNN"}, \code{"Harmony"}, \code{"BBKNN"}, \code{"CSS"}, \code{"ComBat"}.
 #' @param integration_method  A character string specifying the integration method to use.
 #'   Supported methods are: \code{"Uncorrected"}, \code{"Seurat"}, \code{"scVI"}, \code{"MNN"}, \code{"fastMNN"}, \code{"Harmony"},
 #'   \code{"Scanorama"}, \code{"BBKNN"}, \code{"CSS"}, \code{"LIGER"}, \code{"Conos"}, \code{"ComBat"}. Default is \code{"Uncorrected"}.
@@ -3747,7 +3848,21 @@ Standard_SCP <- function(srt, prefix = "Standard", assay = NULL,
 #'
 #' panc8_sub <- Integration_SCP(
 #'   srtMerge = panc8_sub, batch = "tech",
+#'   integration_method = "Uncorrected",
+#'   HVF_min_intersection = 5, scale_within_batch = TRUE
+#' )
+#' CellDimPlot(panc8_sub, group.by = c("tech", "celltype"))
+#'
+#' panc8_sub <- Integration_SCP(
+#'   srtMerge = panc8_sub, batch = "tech",
 #'   integration_method = "Seurat"
+#' )
+#' CellDimPlot(panc8_sub, group.by = c("tech", "celltype"))
+#'
+#' panc8_sub <- Integration_SCP(
+#'   srtMerge = panc8_sub, batch = "tech",
+#'   integration_method = "Seurat",
+#'   FindIntegrationAnchors_params = list(reduction = "rpca")
 #' )
 #' CellDimPlot(panc8_sub, group.by = c("tech", "celltype"))
 #'
@@ -3793,7 +3908,7 @@ Integration_SCP <- function(srtMerge = NULL, batch, append = TRUE, srtList = NUL
                             integration_method = "Uncorrected",
                             do_normalization = NULL, normalization_method = "LogNormalize",
                             do_HVF_finding = TRUE, HVF_source = "separate", HVF_method = "vst", nHVF = 2000, HVF_min_intersection = 1, HVF = NULL,
-                            do_scaling = TRUE, vars_to_regress = NULL, regression_model = "linear",
+                            do_scaling = TRUE, vars_to_regress = NULL, regression_model = "linear", scale_within_batch = FALSE,
                             linear_reduction = "pca", linear_reduction_dims = 50, linear_reduction_dims_use = NULL, linear_reduction_params = list(), force_linear_reduction = FALSE,
                             nonlinear_reduction = "umap", nonlinear_reduction_dims = c(2, 3), nonlinear_reduction_params = list(), force_nonlinear_reduction = TRUE,
                             neighbor_metric = "euclidean", neighbor_k = 20L, cluster_algorithm = "louvain", cluster_resolution = 0.6,
