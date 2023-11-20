@@ -602,7 +602,7 @@ RunSCExplorer <- function(base_dir = "SCExplorer",
                           style_script = require("styler", quietly = TRUE),
                           overwrite = FALSE,
                           return_app = TRUE) {
-  check_R(c("rhdf5", "HDF5Array", "shiny", "ggplot2", "ragg", "htmlwidgets", "plotly", "bslib", "future", "promises", "BiocParallel"))
+  check_R(c("rhdf5", "HDF5Array", "shiny@1.6.0", "ggplot2", "ragg", "htmlwidgets", "plotly", "bslib", "future", "promises", "BiocParallel"))
   DataFile_full <- paste0(base_dir, "/", DataFile)
   MetaFile_full <- paste0(base_dir, "/", MetaFile)
   if (!file.exists(DataFile_full) || !file.exists(MetaFile_full)) {

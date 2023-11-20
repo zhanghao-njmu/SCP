@@ -1222,9 +1222,9 @@ BlendRGBList <- function(Clist, mode = "blend", RGB_BackGround = c(1, 1, 1)) {
 #' CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", theme_use = ggplot2::theme_classic, theme_args = list(base_size = 16))
 #' CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP") %>% panel_fix(height = 2, raster = TRUE, dpi = 30)
 #'
-#' # Label and highlight cell points
+#' # Highlight cells
 #' CellDimPlot(pancreas_sub,
-#'   group.by = "SubCellType", reduction = "UMAP", label = TRUE, label_insitu = TRUE,
+#'   group.by = "SubCellType", reduction = "UMAP",
 #'   cells.highlight = colnames(pancreas_sub)[pancreas_sub$SubCellType == "Epsilon"]
 #' )
 #' CellDimPlot(pancreas_sub,
@@ -1232,9 +1232,38 @@ BlendRGBList <- function(Clist, mode = "blend", RGB_BackGround = c(1, 1, 1)) {
 #'   cells.highlight = TRUE, theme_use = "theme_blank", legend.position = "none"
 #' )
 #'
+#' # Add group labels
+#' CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", label = TRUE)
+#' CellDimPlot(pancreas_sub,
+#'   group.by = "SubCellType", reduction = "UMAP",
+#'   label = TRUE, label.fg = "orange", label.bg = "red", label.size = 5
+#' )
+#' CellDimPlot(pancreas_sub,
+#'   group.by = "SubCellType", reduction = "UMAP",
+#'   label = TRUE, label_insitu = TRUE
+#' )
+#' CellDimPlot(pancreas_sub,
+#'   group.by = "SubCellType", reduction = "UMAP",
+#'   label = TRUE, label_insitu = TRUE, label_repel = TRUE, label_segment_color = "red"
+#' )
+#'
+#' # Add various shape of marks
+#' CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", add_mark = TRUE)
+#' CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", add_mark = TRUE, mark_expand = unit(1, "mm"))
+#' CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", add_mark = TRUE, mark_alpha = 0.3)
+#' CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", add_mark = TRUE, mark_linetype = 2)
+#' CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", add_mark = TRUE, mark_type = "ellipse")
+#' CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", add_mark = TRUE, mark_type = "rect")
+#' CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", add_mark = TRUE, mark_type = "circle")
+#'
 #' # Add a density layer
-#' CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", label = TRUE, add_density = TRUE)
-#' CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", label = TRUE, add_density = TRUE, density_filled = TRUE)
+#' CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", add_density = TRUE)
+#' CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", add_density = TRUE, density_filled = TRUE)
+#' CellDimPlot(pancreas_sub,
+#'   group.by = "SubCellType", reduction = "UMAP",
+#'   add_density = TRUE, density_filled = TRUE, density_filled_palette = "Blues",
+#'   cells.highlight = TRUE
+#' )
 #'
 #' # Add statistical charts
 #' CellDimPlot(pancreas_sub, group.by = "CellType", reduction = "UMAP", stat.by = "Phase")
@@ -1289,6 +1318,7 @@ BlendRGBList <- function(Clist, mode = "blend", RGB_BackGround = c(1, 1, 1)) {
 #' @importFrom ggrepel geom_text_repel
 #' @importFrom ggnewscale new_scale_color new_scale_fill new_scale
 #' @importFrom gtable gtable_add_cols gtable_add_grob
+#' @importFrom ggforce geom_mark_hull geom_mark_ellipse geom_mark_circle geom_mark_rect
 #' @importFrom patchwork wrap_plots
 #' @importFrom stats median loess aggregate
 #' @importFrom utils askYesNo
@@ -1302,6 +1332,7 @@ CellDimPlot <- function(srt, group.by, reduction = NULL, dims = c(1, 2), split.b
                         label_point_size = 1, label_point_color = "black", label_segment_color = "black",
                         cells.highlight = NULL, cols.highlight = "black", sizes.highlight = 1, alpha.highlight = 1, stroke.highlight = 0.5,
                         add_density = FALSE, density_color = "grey80", density_filled = FALSE, density_filled_palette = "Greys", density_filled_palcolor = NULL,
+                        add_mark = FALSE, mark_type = c("hull", "ellipse", "rect", "circle"), mark_expand = unit(3, "mm"), mark_alpha = 0.1, mark_linetype = 1,
                         lineages = NULL, lineages_trim = c(0.01, 0.99), lineages_span = 0.75,
                         lineages_palette = "Dark2", lineages_palcolor = NULL, lineages_arrow = arrow(length = unit(0.1, "inches")),
                         lineages_linewidth = 1, lineages_line_bg = "white", lineages_line_bg_stroke = 0.5,
@@ -1325,6 +1356,7 @@ CellDimPlot <- function(srt, group.by, reduction = NULL, dims = c(1, 2), split.b
                         theme_use = "theme_scp", theme_args = list(),
                         combine = TRUE, nrow = NULL, ncol = NULL, byrow = TRUE, force = FALSE, seed = 11) {
   set.seed(seed)
+  mark_type <- match.arg(mark_type)
 
   if (is.null(split.by)) {
     split.by <- "All.groups"
@@ -1528,25 +1560,32 @@ CellDimPlot <- function(srt, group.by, reduction = NULL, dims = c(1, 2), split.b
     } else {
       subtitle_use <- subtitle
     }
-    if (isTRUE(add_density)) {
-      if (isTRUE(density_filled)) {
-        filled_color <- palette_scp(palette = density_filled_palette, palcolor = density_filled_palcolor)
-        density <- list(
-          stat_density_2d(
-            geom = "raster", aes(x = .data[["x"]], y = .data[["y"]], fill = after_stat(density)),
-            contour = FALSE, inherit.aes = FALSE, show.legend = FALSE
+
+    if (isTRUE(add_mark)) {
+      mark_fun <- switch(mark_type,
+        "ellipse" = "geom_mark_ellipse",
+        "hull" = "geom_mark_hull",
+        "rect" = "geom_mark_rect",
+        "circle" = "geom_mark_circle"
+      )
+      mark <- list(
+        do.call(
+          mark_fun,
+          list(
+            data = dat[!is.na(dat[["group.by"]]), , drop = FALSE],
+            mapping = aes(x = .data[["x"]], y = .data[["y"]], color = .data[["group.by"]], fill = .data[["group.by"]]),
+            expand = mark_expand, alpha = mark_alpha, linetype = mark_linetype, show.legend = FALSE, inherit.aes = FALSE
           ),
-          scale_fill_gradientn(name = "Density", colours = filled_color),
-          new_scale_fill()
-        )
-      } else {
-        density <- geom_density_2d(aes(x = .data[["x"]], y = .data[["y"]]),
-          color = density_color, inherit.aes = FALSE, show.legend = FALSE
-        )
-      }
+        ),
+        scale_fill_manual(values = colors[names(labels_tb)]),
+        scale_color_manual(values = colors[names(labels_tb)]),
+        new_scale_fill(),
+        new_scale_color()
+      )
     } else {
-      density <- NULL
+      mark <- NULL
     }
+
     if (!is.null(graph)) {
       net_mat <- as_matrix(graph)[rownames(dat), rownames(dat)]
       net_mat[net_mat == 0] <- NA
@@ -1570,7 +1609,28 @@ CellDimPlot <- function(srt, group.by, reduction = NULL, dims = c(1, 2), split.b
       net <- NULL
     }
 
+    if (isTRUE(add_density)) {
+      if (isTRUE(density_filled)) {
+        filled_color <- palette_scp(palette = density_filled_palette, palcolor = density_filled_palcolor)
+        density <- list(
+          stat_density_2d(
+            geom = "raster", aes(x = .data[["x"]], y = .data[["y"]], fill = after_stat(density)),
+            contour = FALSE, inherit.aes = FALSE, show.legend = FALSE
+          ),
+          scale_fill_gradientn(name = "Density", colours = filled_color),
+          new_scale_fill()
+        )
+      } else {
+        density <- geom_density_2d(aes(x = .data[["x"]], y = .data[["y"]]),
+          color = density_color, inherit.aes = FALSE, show.legend = FALSE
+        )
+      }
+    } else {
+      density <- NULL
+    }
+
     p <- ggplot(dat) +
+      mark +
       net +
       density +
       labs(title = title, subtitle = subtitle_use, x = xlab, y = ylab) +
@@ -1615,6 +1675,7 @@ CellDimPlot <- function(srt, group.by, reduction = NULL, dims = c(1, 2), split.b
         size = pt.size, alpha = pt.alpha
       )
     }
+
     if (!is.null(cells.highlight_use) && !isTRUE(hex)) {
       cell_df <- subset(p$data, rownames(p$data) %in% cells.highlight_use)
       if (nrow(cell_df) > 0) {

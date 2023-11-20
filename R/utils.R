@@ -568,6 +568,7 @@ check_R <- function(packages, install_methods = c("BiocManager::install", "insta
         version <- strsplit(pkg, split = "@|==", perl = TRUE)[[1]][[2]]
       }
     }
+    dest <- gsub("@.*|==.*|>=.*", "", pkg)
     if (is.null(version)) {
       force_update <- isTRUE(force)
     } else {
@@ -583,7 +584,7 @@ check_R <- function(packages, install_methods = c("BiocManager::install", "insta
             if (!requireNamespace("BiocManager", quietly = TRUE)) {
               install.packages("BiocManager", lib = lib)
             }
-            eval(str2lang(paste0(install_methods[i], "(\"", pkg, "\", lib=\"", lib, "\", update = FALSE, upgrade = \"never\", ask = FALSE, force = TRUE)")))
+            eval(str2lang(paste0(install_methods[i], "(\"", dest, "\", lib=\"", lib, "\", update = FALSE, upgrade = \"never\", ask = FALSE, force = TRUE)")))
           } else if (grepl("devtools", install_methods[i])) {
             if (!requireNamespace("devtools", quietly = TRUE)) {
               install.packages("devtools", lib = lib)
@@ -591,9 +592,9 @@ check_R <- function(packages, install_methods = c("BiocManager::install", "insta
             if (!requireNamespace("withr", quietly = TRUE)) {
               install.packages("withr", lib = lib)
             }
-            eval(str2lang(paste0("withr::with_libpaths(new = \"", lib, "\", ", install_methods[i], "(\"", pkg, "\", upgrade = \"never\", force = TRUE))")))
+            eval(str2lang(paste0("withr::with_libpaths(new = \"", lib, "\", ", install_methods[i], "(\"", dest, "\", upgrade = \"never\", force = TRUE))")))
           } else {
-            eval(str2lang(paste0(install_methods[i], "(\"", pkg, "\", lib=\"", lib, "\", force = TRUE)")))
+            eval(str2lang(paste0(install_methods[i], "(\"", dest, "\", lib=\"", lib, "\", force = TRUE)")))
           }
         }, error = function(e) {
           status_list[[pkg]] <- FALSE

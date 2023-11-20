@@ -1361,6 +1361,14 @@ Seurat_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtLi
     type <- checked[["type"]]
   }
 
+  if (min(sapply(srtList, ncol)) < 50) {
+    warning("The cell count in some batches is lower than 50, which may not be suitable for the current integration method.", immediate. = TRUE)
+    answer <- askYesNo("Are you sure to continue?", default = FALSE)
+    if (!isTRUE(answer)) {
+      return(srtMerge)
+    }
+  }
+
   if (normalization_method == "TFIDF") {
     cat(paste0("[", Sys.time(), "]", " normalization_method is 'TFIDF'. Use 'rlsi' integration workflow...\n"))
     do_scaling <- FALSE
@@ -1420,7 +1428,6 @@ Seurat_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtLi
       object.list = srtList,
       normalization.method = normalization_method,
       anchor.features = HVF,
-      dims = seq_len(min(min(sapply(srtList, ncol)) - 1, 30)),
       verbose = FALSE
     )
     for (nm in names(FindIntegrationAnchors_params)) {
@@ -1434,7 +1441,6 @@ Seurat_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtLi
       new.assay.name = "Seuratcorrected",
       normalization.method = normalization_method,
       features.to.integrate = HVF,
-      dims = seq_len(min(min(sapply(srtList, ncol)), 30)),
       verbose = FALSE
     )
     for (nm in names(IntegrateData_params)) {
@@ -2170,7 +2176,7 @@ Harmony_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtL
     "leiden" = 4
   )
 
-  check_R("harmony")
+  check_R("harmony@1.1.0")
   set.seed(seed)
 
   if (is.null(srtList) && is.null(srtMerge)) {
@@ -3036,6 +3042,14 @@ LIGER_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtLis
     type <- checked[["type"]]
   }
 
+  if (min(sapply(srtList, ncol)) < 30) {
+    warning("The cell count in some batches is lower than 30, which may not be suitable for the current integration method.", immediate. = TRUE)
+    answer <- askYesNo("Are you sure to continue?", default = FALSE)
+    if (!isTRUE(answer)) {
+      return(srtMerge)
+    }
+  }
+
   scale.data <- list()
   for (i in seq_along(srtList)) {
     srt <- srtList[[i]]
@@ -3253,6 +3267,15 @@ Conos_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtLis
     assay <- checked[["assay"]]
     type <- checked[["type"]]
   }
+
+  if (min(sapply(srtList, ncol)) < 30) {
+    warning("The cell count in some batches is lower than 30, which may not be suitable for the current integration method.", immediate. = TRUE)
+    answer <- askYesNo("Are you sure to continue?", default = FALSE)
+    if (!isTRUE(answer)) {
+      return(srtMerge)
+    }
+  }
+
   srtIntegrated <- srtMerge
   srtMerge <- NULL
 

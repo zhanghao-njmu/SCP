@@ -1799,7 +1799,7 @@ RunHarmony2.Seurat <- function(object, group.by.vars,
                                project.dim = TRUE,
                                reduction.name = "Harmony", reduction.key = "Harmony_",
                                verbose = TRUE, seed.use = 11L, ...) {
-  check_R("immunogenomics/harmony")
+  check_R("harmony@1.1.0")
   if (!is.null(x = seed.use)) {
     set.seed(seed = seed.use)
   }
