@@ -93,13 +93,13 @@ FeatureHeatmap(
   cell_annotation = NULL,
   cell_annotation_palette = "Paired",
   cell_annotation_palcolor = NULL,
-  cell_annotation_params = if (flip) list(width = grid::unit(5, "mm")) else list(height =
-    grid::unit(5, "mm")),
+  cell_annotation_params = if (flip) list(width = unit(5, "mm")) else list(height =
+    unit(5, "mm")),
   feature_annotation = NULL,
   feature_annotation_palette = "Dark2",
   feature_annotation_palcolor = NULL,
-  feature_annotation_params = if (flip) list(height = grid::unit(5, "mm")) else
-    list(width = grid::unit(5, "mm")),
+  feature_annotation_params = if (flip) list(height = unit(5, "mm")) else list(width =
+    unit(5, "mm")),
   use_raster = NULL,
   raster_device = "png",
   raster_by_magick = FALSE,
@@ -287,7 +287,7 @@ FeatureHeatmap(
 
 \item{cell_annotation_palcolor}{A list of character vector specifying the cell annotation color(s) to use. The length of the list should match the number of cell_annotation. Default is NULL.}
 
-\item{cell_annotation_params}{A list specifying additional parameters for cell annotations. Default is a list with width = grid::unit(1, "cm") if flip is TRUE, else a list with height = grid::unit(1, "cm").}
+\item{cell_annotation_params}{A list specifying additional parameters for cell annotations. Default is a list with width = unit(1, "cm") if flip is TRUE, else a list with height = unit(1, "cm").}
 
 \item{feature_annotation}{A character vector specifying the feature annotation(s) to include. Default is NULL.}
 
@@ -331,7 +331,7 @@ panel_fix(ht1$plot, height = 4, width = 6, raster = TRUE, dpi = 50)
 ht2 <- FeatureHeatmap(
   srt = pancreas_sub, features = de_filter$gene, group.by = c("CellType", "SubCellType"), n_split = 4,
   cluster_rows = TRUE, cluster_row_slices = TRUE, cluster_columns = TRUE, cluster_column_slices = TRUE,
-  ht_params = list(row_gap = grid::unit(0, "mm"))
+  ht_params = list(row_gap = unit(0, "mm"))
 )
 ht2$plot
 
