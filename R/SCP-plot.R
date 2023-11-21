@@ -1249,7 +1249,7 @@ BlendRGBList <- function(Clist, mode = "blend", RGB_BackGround = c(1, 1, 1)) {
 #'
 #' # Add various shape of marks
 #' CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", add_mark = TRUE)
-#' CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", add_mark = TRUE, mark_expand = grid::unit(1, "mm"))
+#' CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", add_mark = TRUE, mark_expand = unit(1, "mm"))
 #' CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", add_mark = TRUE, mark_alpha = 0.3)
 #' CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", add_mark = TRUE, mark_linetype = 2)
 #' CellDimPlot(pancreas_sub, group.by = "SubCellType", reduction = "UMAP", add_mark = TRUE, mark_type = "ellipse")
@@ -1319,6 +1319,7 @@ BlendRGBList <- function(Clist, mode = "blend", RGB_BackGround = c(1, 1, 1)) {
 #' @importFrom ggnewscale new_scale_color new_scale_fill new_scale
 #' @importFrom gtable gtable_add_cols gtable_add_grob
 #' @importFrom ggforce geom_mark_hull geom_mark_ellipse geom_mark_circle geom_mark_rect
+#' @importFrom grid arrow unit
 #' @importFrom patchwork wrap_plots
 #' @importFrom stats median loess aggregate
 #' @importFrom utils askYesNo
@@ -1332,7 +1333,7 @@ CellDimPlot <- function(srt, group.by, reduction = NULL, dims = c(1, 2), split.b
                         label_point_size = 1, label_point_color = "black", label_segment_color = "black",
                         cells.highlight = NULL, cols.highlight = "black", sizes.highlight = 1, alpha.highlight = 1, stroke.highlight = 0.5,
                         add_density = FALSE, density_color = "grey80", density_filled = FALSE, density_filled_palette = "Greys", density_filled_palcolor = NULL,
-                        add_mark = FALSE, mark_type = c("hull", "ellipse", "rect", "circle"), mark_expand = grid::unit(3, "mm"), mark_alpha = 0.1, mark_linetype = 1,
+                        add_mark = FALSE, mark_type = c("hull", "ellipse", "rect", "circle"), mark_expand = unit(3, "mm"), mark_alpha = 0.1, mark_linetype = 1,
                         lineages = NULL, lineages_trim = c(0.01, 0.99), lineages_span = 0.75,
                         lineages_palette = "Dark2", lineages_palcolor = NULL, lineages_arrow = arrow(length = unit(0.1, "inches")),
                         lineages_linewidth = 1, lineages_line_bg = "white", lineages_line_bg_stroke = 0.5,
@@ -1545,11 +1546,9 @@ CellDimPlot <- function(srt, group.by, reduction = NULL, dims = c(1, 2), split.b
         }
       }
     }
-    var_nm <- setNames(
-      object = c("x", "y", "group.by"),
-      nm = c(paste0(reduction_key, dims[1]), paste0(reduction_key, dims[2]), g)
-    )
-    colnames(dat)[colnames(dat) %in% names(var_nm)] <- var_nm[colnames(dat)[colnames(dat) %in% names(var_nm)]]
+    dat[["x"]] <- dat[[paste0(reduction_key, dims[1])]]
+    dat[["y"]] <- dat[[paste0(reduction_key, dims[2])]]
+    dat[["group.by"]] <- dat[[g]]
     dat[, "split.by"] <- s
     dat <- dat[order(dat[, "group.by"], decreasing = FALSE, na.last = FALSE), , drop = FALSE]
     naindex <- which(is.na(dat[, "group.by"]))
@@ -2034,6 +2033,7 @@ CellDimPlot <- function(srt, group.by, reduction = NULL, dims = c(1, 2), split.b
 #' @importFrom ggnewscale new_scale_color new_scale_fill
 #' @importFrom gtable gtable_add_cols
 #' @importFrom ggrepel geom_text_repel GeomTextRepel
+#' @importFrom grid arrow unit
 #' @importFrom patchwork wrap_plots
 #' @importFrom Matrix t
 #' @importFrom methods slot
@@ -2263,11 +2263,8 @@ FeatureDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), spli
           dat[, f][which(dat[, f] == min(dat[, f], na.rm = TRUE))] <- min(dat[, f][is.finite(dat[, f])], na.rm = TRUE)
         }
       }
-      var_nm <- setNames(
-        object = c("x", "y"),
-        nm = c(paste0(reduction_key, dims[1]), paste0(reduction_key, dims[2]))
-      )
-      colnames(dat)[colnames(dat) %in% names(var_nm)] <- var_nm[colnames(dat)[colnames(dat) %in% names(var_nm)]]
+      dat[["x"]] <- dat[[paste0(reduction_key, dims[1])]]
+      dat[["y"]] <- dat[[paste0(reduction_key, dims[2])]]
       dat[, "split.by"] <- s
       dat[, "features"] <- paste(features, collapse = "|")
       subtitle_use <- paste0(subtitle, collapse = "|") %||% s
@@ -2568,11 +2565,9 @@ FeatureDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), spli
         dat[, f][dat[, f] == max(dat[, f], na.rm = TRUE)] <- max(dat[, f][is.finite(dat[, f])], na.rm = TRUE)
         dat[, f][dat[, f] == min(dat[, f], na.rm = TRUE)] <- min(dat[, f][is.finite(dat[, f])], na.rm = TRUE)
       }
-      var_nm <- setNames(
-        object = c("x", "y", "value"),
-        nm = c(paste0(reduction_key, dims[1]), paste0(reduction_key, dims[2]), f)
-      )
-      colnames(dat)[colnames(dat) %in% names(var_nm)] <- var_nm[colnames(dat)[colnames(dat) %in% names(var_nm)]]
+      dat[["x"]] <- dat[[paste0(reduction_key, dims[1])]]
+      dat[["y"]] <- dat[[paste0(reduction_key, dims[2])]]
+      dat[["value"]] <- dat[[f]]
       dat <- dat[order(dat[, "value"], method = "radix", decreasing = FALSE, na.last = FALSE), , drop = FALSE]
       dat[, "features"] <- f
       cells.highlight_use <- cells.highlight
@@ -4001,12 +3996,9 @@ ExpressionStatPlot <- function(exp.data, meta.data, stat.by, group.by = NULL, sp
       bg_color <- palette_scp(levels(dat[[bg]]), palcolor = bg_palcolor %||% rep(c("transparent", "grey85"), nlevels(dat[[bg]])))
     }
     dat[["bg.by"]] <- dat[[bg]]
-
-    var_nm <- setNames(
-      object = c("value", "group.by", "split.by"),
-      nm = c(f, g, split.by)
-    )
-    colnames(dat)[colnames(dat) %in% names(var_nm)] <- var_nm[colnames(dat)[colnames(dat) %in% names(var_nm)]]
+    dat[["value"]] <- dat[[f]]
+    dat[["group.by"]] <- dat[[g]]
+    dat[["split.by"]] <- dat[[split.by]]
     if (split.by == g) {
       dat[["split.by"]] <- dat[["group.by"]]
     }
@@ -5920,6 +5912,7 @@ CellDensityPlot <- function(srt, features, group.by = NULL, split.by = NULL, ass
 #' LineagePlot(pancreas_sub, lineages = paste0("Lineage", 1:3), whiskers = TRUE)
 #' @importFrom Seurat Key Embeddings
 #' @importFrom ggplot2 aes geom_path geom_segment labs
+#' @importFrom grid arrow unit
 #' @importFrom stats loess quantile
 #' @export
 LineagePlot <- function(srt, lineages, reduction = NULL, dims = c(1, 2), cells = NULL,
@@ -7299,7 +7292,7 @@ cluster_within_group2 <- function(mat, factor) {
 }
 
 #' @importFrom ComplexHeatmap HeatmapAnnotation anno_empty anno_block anno_textbox
-#' @importFrom grid gpar
+#' @importFrom grid gpar unit
 #' @importFrom dplyr %>% filter group_by arrange desc across reframe mutate distinct n .data "%>%"
 heatmap_enrichment <- function(geneID, geneID_groups, feature_split_palette = "simspec", feature_split_palcolor = NULL, ha_right = NULL, flip = FALSE,
                                anno_terms = FALSE, anno_keys = FALSE, anno_features = FALSE,
@@ -7794,7 +7787,7 @@ mestimate <- function(data) {
 #' @param cell_annotation A character vector specifying the cell annotation(s) to include. Default is NULL.
 #' @param cell_annotation_palette A character vector specifying the palette to use for cell annotations. The length of the vector should match the number of cell_annotation. Default is "Paired".
 #' @param cell_annotation_palcolor A list of character vector specifying the cell annotation color(s) to use. The length of the list should match the number of cell_annotation. Default is NULL.
-#' @param cell_annotation_params A list specifying additional parameters for cell annotations. Default is a list with width = grid::unit(1, "cm") if flip is TRUE, else a list with height = grid::unit(1, "cm").
+#' @param cell_annotation_params A list specifying additional parameters for cell annotations. Default is a list with width = unit(1, "cm") if flip is TRUE, else a list with height = unit(1, "cm").
 #' @param feature_annotation A character vector specifying the feature annotation(s) to include. Default is NULL.
 #' @param feature_annotation_palette A character vector specifying the palette to use for feature annotations. The length of the vector should match the number of feature_annotation. Default is "Dark2".
 #' @param feature_annotation_palcolor A list of character vector specifying the feature annotation color to use. The length of the list should match the number of feature_annotation. Default is NULL.
@@ -7862,7 +7855,7 @@ mestimate <- function(data) {
 #'   features = de_top$gene, feature_split = de_top$group1, group.by = "CellType",
 #'   heatmap_palette = "YlOrRd",
 #'   cell_annotation = c("Phase", "G2M_score", "Neurod2"), cell_annotation_palette = c("Dark2", "Paired", "Paired"),
-#'   cell_annotation_params = list(height = grid::unit(10, "mm")),
+#'   cell_annotation_params = list(height = unit(10, "mm")),
 #'   feature_annotation = c("TF", "CSPA"),
 #'   feature_annotation_palcolor = list(c("gold", "steelblue"), c("forestgreen")),
 #'   add_dot = TRUE, add_bg = TRUE, nlabel = 0, show_row_names = TRUE
@@ -7873,7 +7866,7 @@ mestimate <- function(data) {
 #'   features = de_top$gene, feature_split = de_top$group1, group.by = "CellType",
 #'   heatmap_palette = "YlOrRd",
 #'   cell_annotation = c("Phase", "G2M_score", "Neurod2"), cell_annotation_palette = c("Dark2", "Paired", "Paired"),
-#'   cell_annotation_params = list(width = grid::unit(10, "mm")),
+#'   cell_annotation_params = list(width = unit(10, "mm")),
 #'   feature_annotation = c("TF", "CSPA"),
 #'   feature_annotation_palcolor = list(c("gold", "steelblue"), c("forestgreen")),
 #'   add_dot = TRUE, add_bg = TRUE,
@@ -7900,7 +7893,7 @@ mestimate <- function(data) {
 #'   cluster_rows = TRUE, cluster_columns = TRUE, cluster_row_slices = TRUE, cluster_column_slices = TRUE,
 #'   add_dot = TRUE, add_reticle = TRUE, heatmap_palette = "viridis",
 #'   nlabel = 0, show_row_names = TRUE,
-#'   ht_params = list(row_gap = grid::unit(0, "mm"), row_names_gp = grid::gpar(fontsize = 10))
+#'   ht_params = list(row_gap = unit(0, "mm"), row_names_gp = gpar(fontsize = 10))
 #' )
 #' ht8$plot
 #'
@@ -7938,8 +7931,8 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
                          add_violin = FALSE, fill.by = "feature", fill_palette = "Dark2", fill_palcolor = NULL,
                          heatmap_palette = "RdBu", heatmap_palcolor = NULL, group_palette = "Paired", group_palcolor = NULL,
                          cell_split_palette = "simspec", cell_split_palcolor = NULL, feature_split_palette = "simspec", feature_split_palcolor = NULL,
-                         cell_annotation = NULL, cell_annotation_palette = "Paired", cell_annotation_palcolor = NULL, cell_annotation_params = if (flip) list(width = grid::unit(10, "mm")) else list(height = grid::unit(10, "mm")),
-                         feature_annotation = NULL, feature_annotation_palette = "Dark2", feature_annotation_palcolor = NULL, feature_annotation_params = if (flip) list(height = grid::unit(5, "mm")) else list(width = grid::unit(5, "mm")),
+                         cell_annotation = NULL, cell_annotation_palette = "Paired", cell_annotation_palcolor = NULL, cell_annotation_params = if (flip) list(width = unit(10, "mm")) else list(height = unit(10, "mm")),
+                         feature_annotation = NULL, feature_annotation_palette = "Dark2", feature_annotation_palcolor = NULL, feature_annotation_params = if (flip) list(height = unit(5, "mm")) else list(width = unit(5, "mm")),
                          use_raster = NULL, raster_device = "png", raster_by_magick = FALSE, height = NULL, width = NULL, units = "inch",
                          seed = 11, ht_params = list()) {
   set.seed(seed)
@@ -9065,7 +9058,7 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
 #' ht2 <- FeatureHeatmap(
 #'   srt = pancreas_sub, features = de_filter$gene, group.by = c("CellType", "SubCellType"), n_split = 4,
 #'   cluster_rows = TRUE, cluster_row_slices = TRUE, cluster_columns = TRUE, cluster_column_slices = TRUE,
-#'   ht_params = list(row_gap = grid::unit(0, "mm"))
+#'   ht_params = list(row_gap = unit(0, "mm"))
 #' )
 #' ht2$plot
 #'
@@ -9109,7 +9102,7 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
 #'
 #' @importFrom circlize colorRamp2
 #' @importFrom ComplexHeatmap Heatmap Legend HeatmapAnnotation anno_empty anno_mark anno_simple anno_textbox draw decorate_heatmap_body width.HeatmapAnnotation height.HeatmapAnnotation width.Legends height.Legends cluster_within_group decorate_annotation row_order %v%
-#' @importFrom grid gpar grid.grabExpr grid.text
+#' @importFrom grid unit gpar grid.grabExpr grid.text
 #' @importFrom gtable gtable_add_padding
 #' @importFrom patchwork wrap_plots
 #' @importFrom Seurat GetAssayData
@@ -9137,8 +9130,8 @@ FeatureHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, 
                            nlabel = 20, features_label = NULL, label_size = 10, label_color = "black",
                            heatmap_palette = "RdBu", heatmap_palcolor = NULL, group_palette = "Paired", group_palcolor = NULL,
                            cell_split_palette = "simspec", cell_split_palcolor = NULL, feature_split_palette = "simspec", feature_split_palcolor = NULL,
-                           cell_annotation = NULL, cell_annotation_palette = "Paired", cell_annotation_palcolor = NULL, cell_annotation_params = if (flip) list(width = grid::unit(5, "mm")) else list(height = grid::unit(5, "mm")),
-                           feature_annotation = NULL, feature_annotation_palette = "Dark2", feature_annotation_palcolor = NULL, feature_annotation_params = if (flip) list(height = grid::unit(5, "mm")) else list(width = grid::unit(5, "mm")),
+                           cell_annotation = NULL, cell_annotation_palette = "Paired", cell_annotation_palcolor = NULL, cell_annotation_params = if (flip) list(width = unit(5, "mm")) else list(height = unit(5, "mm")),
+                           feature_annotation = NULL, feature_annotation_palette = "Dark2", feature_annotation_palcolor = NULL, feature_annotation_params = if (flip) list(height = unit(5, "mm")) else list(width = unit(5, "mm")),
                            use_raster = NULL, raster_device = "png", raster_by_magick = FALSE, height = NULL, width = NULL, units = "inch",
                            seed = 11, ht_params = list()) {
   set.seed(seed)
@@ -10136,8 +10129,8 @@ CellCorHeatmap <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
                            heatmap_palette = "RdBu", heatmap_palcolor = NULL,
                            query_group_palette = "Paired", query_group_palcolor = NULL,
                            ref_group_palette = "simspec", ref_group_palcolor = NULL,
-                           query_cell_annotation = NULL, query_cell_annotation_palette = "Paired", query_cell_annotation_palcolor = NULL, query_cell_annotation_params = if (flip) list(height = grid::unit(10, "mm")) else list(width = grid::unit(10, "mm")),
-                           ref_cell_annotation = NULL, ref_cell_annotation_palette = "Paired", ref_cell_annotation_palcolor = NULL, ref_cell_annotation_params = if (flip) list(width = grid::unit(10, "mm")) else list(height = grid::unit(10, "mm")),
+                           query_cell_annotation = NULL, query_cell_annotation_palette = "Paired", query_cell_annotation_palcolor = NULL, query_cell_annotation_params = if (flip) list(height = unit(10, "mm")) else list(width = unit(10, "mm")),
+                           ref_cell_annotation = NULL, ref_cell_annotation_palette = "Paired", ref_cell_annotation_palcolor = NULL, ref_cell_annotation_params = if (flip) list(width = unit(10, "mm")) else list(height = unit(10, "mm")),
                            use_raster = NULL, raster_device = "png", raster_by_magick = FALSE, height = NULL, width = NULL, units = "inch",
                            seed = 11, ht_params = list()) {
   set.seed(seed)
@@ -10973,7 +10966,7 @@ CellCorHeatmap <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
 #'   cell_annotation_palette = c("Paired", "simspec", "Purples"),
 #'   separate_annotation = list("SubCellType", c("Nnat", "Irx1")),
 #'   separate_annotation_palette = c("Paired", "Set1"),
-#'   separate_annotation_params = list(height = grid::unit(10, "mm")),
+#'   separate_annotation_params = list(height = unit(10, "mm")),
 #'   feature_annotation = c("TF", "CSPA"),
 #'   feature_annotation_palcolor = list(c("gold", "steelblue"), c("forestgreen")),
 #'   pseudotime_label = 25,
@@ -10993,7 +10986,7 @@ CellCorHeatmap <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
 #'   cell_annotation_palette = c("Paired", "simspec", "Purples"),
 #'   separate_annotation = list("SubCellType", c("Nnat", "Irx1")),
 #'   separate_annotation_palette = c("Paired", "Set1"),
-#'   separate_annotation_params = list(width = grid::unit(10, "mm")),
+#'   separate_annotation_params = list(width = unit(10, "mm")),
 #'   feature_annotation = c("TF", "CSPA"),
 #'   feature_annotation_palcolor = list(c("gold", "steelblue"), c("forestgreen")),
 #'   pseudotime_label = 25,
@@ -11018,7 +11011,7 @@ CellCorHeatmap <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
 #' @importFrom ComplexHeatmap Heatmap Legend HeatmapAnnotation anno_empty anno_mark anno_simple anno_textbox draw decorate_heatmap_body width.HeatmapAnnotation height.HeatmapAnnotation width.Legends height.Legends decorate_annotation row_order %v%
 #' @importFrom stats kmeans sd
 #' @importFrom patchwork wrap_plots
-#' @importFrom grid gpar grid.lines grid.text
+#' @importFrom grid gpar grid.lines grid.text unit
 #' @importFrom gtable gtable_add_padding
 #' @importFrom Matrix t
 #' @importFrom dplyr %>% filter group_by arrange desc across mutate reframe distinct n .data
@@ -11048,9 +11041,9 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, use_fitted = FALSE, b
                            heatmap_palette = "viridis", heatmap_palcolor = NULL,
                            pseudotime_palette = "cividis", pseudotime_palcolor = NULL,
                            feature_split_palette = "simspec", feature_split_palcolor = NULL,
-                           cell_annotation = NULL, cell_annotation_palette = "Paired", cell_annotation_palcolor = NULL, cell_annotation_params = if (flip) list(width = grid::unit(5, "mm")) else list(height = grid::unit(5, "mm")),
-                           feature_annotation = NULL, feature_annotation_palette = "Dark2", feature_annotation_palcolor = NULL, feature_annotation_params = if (flip) list(height = grid::unit(5, "mm")) else list(width = grid::unit(5, "mm")),
-                           separate_annotation = NULL, separate_annotation_palette = "Paired", separate_annotation_palcolor = NULL, separate_annotation_params = if (flip) list(width = grid::unit(10, "mm")) else list(height = grid::unit(10, "mm")),
+                           cell_annotation = NULL, cell_annotation_palette = "Paired", cell_annotation_palcolor = NULL, cell_annotation_params = if (flip) list(width = unit(5, "mm")) else list(height = unit(5, "mm")),
+                           feature_annotation = NULL, feature_annotation_palette = "Dark2", feature_annotation_palcolor = NULL, feature_annotation_params = if (flip) list(height = unit(5, "mm")) else list(width = unit(5, "mm")),
+                           separate_annotation = NULL, separate_annotation_palette = "Paired", separate_annotation_palcolor = NULL, separate_annotation_params = if (flip) list(width = unit(10, "mm")) else list(height = unit(10, "mm")),
                            reverse_ht = NULL, use_raster = NULL, raster_device = "png", raster_by_magick = FALSE, height = NULL, width = NULL, units = "inch",
                            seed = 11, ht_params = list()) {
   set.seed(seed)

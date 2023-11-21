@@ -100,18 +100,18 @@ DynamicHeatmap(
   cell_annotation = NULL,
   cell_annotation_palette = "Paired",
   cell_annotation_palcolor = NULL,
-  cell_annotation_params = if (flip) list(width = grid::unit(5, "mm")) else list(height =
-    grid::unit(5, "mm")),
+  cell_annotation_params = if (flip) list(width = unit(5, "mm")) else list(height =
+    unit(5, "mm")),
   feature_annotation = NULL,
   feature_annotation_palette = "Dark2",
   feature_annotation_palcolor = NULL,
-  feature_annotation_params = if (flip) list(height = grid::unit(5, "mm")) else
-    list(width = grid::unit(5, "mm")),
+  feature_annotation_params = if (flip) list(height = unit(5, "mm")) else list(width =
+    unit(5, "mm")),
   separate_annotation = NULL,
   separate_annotation_palette = "Paired",
   separate_annotation_palcolor = NULL,
-  separate_annotation_params = if (flip) list(width = grid::unit(10, "mm")) else
-    list(height = grid::unit(10, "mm")),
+  separate_annotation_params = if (flip) list(width = unit(10, "mm")) else list(height =
+    unit(10, "mm")),
   reverse_ht = NULL,
   use_raster = NULL,
   raster_device = "png",
@@ -314,7 +314,7 @@ DynamicHeatmap(
 
 \item{cell_annotation_palcolor}{A list of character vector specifying the cell annotation color(s) to use. The length of the list should match the number of cell_annotation. Default is NULL.}
 
-\item{cell_annotation_params}{A list specifying additional parameters for cell annotations. Default is a list with width = grid::unit(1, "cm") if flip is TRUE, else a list with height = grid::unit(1, "cm").}
+\item{cell_annotation_params}{A list specifying additional parameters for cell annotations. Default is a list with width = unit(1, "cm") if flip is TRUE, else a list with height = unit(1, "cm").}
 
 \item{feature_annotation}{A character vector specifying the feature annotation(s) to include. Default is NULL.}
 
@@ -399,7 +399,7 @@ ht4 <- DynamicHeatmap(
   cell_annotation_palette = c("Paired", "simspec", "Purples"),
   separate_annotation = list("SubCellType", c("Nnat", "Irx1")),
   separate_annotation_palette = c("Paired", "Set1"),
-  separate_annotation_params = list(height = grid::unit(10, "mm")),
+  separate_annotation_params = list(height = unit(10, "mm")),
   feature_annotation = c("TF", "CSPA"),
   feature_annotation_palcolor = list(c("gold", "steelblue"), c("forestgreen")),
   pseudotime_label = 25,
@@ -419,7 +419,7 @@ ht5 <- DynamicHeatmap(
   cell_annotation_palette = c("Paired", "simspec", "Purples"),
   separate_annotation = list("SubCellType", c("Nnat", "Irx1")),
   separate_annotation_palette = c("Paired", "Set1"),
-  separate_annotation_params = list(width = grid::unit(10, "mm")),
+  separate_annotation_params = list(width = unit(10, "mm")),
   feature_annotation = c("TF", "CSPA"),
   feature_annotation_palcolor = list(c("gold", "steelblue"), c("forestgreen")),
   pseudotime_label = 25,

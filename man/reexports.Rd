@@ -5,6 +5,9 @@
 \alias{reexports}
 \alias{\%||\%}
 \alias{\%>\%}
+\alias{unit}
+\alias{arrow}
+\alias{gpar}
 \title{Objects exported from other packages}
 \keyword{internal}
 \description{
@@ -13,6 +16,8 @@ below to see their documentation.
 
 \describe{
   \item{dplyr}{\code{\link[dplyr:reexports]{\%>\%}}}
+
+  \item{grid}{\code{\link[grid]{arrow}}, \code{\link[grid]{gpar}}, \code{\link[grid]{unit}}}
 
   \item{rlang}{\code{\link[rlang:op-null-default]{\%||\%}}}
 }}
