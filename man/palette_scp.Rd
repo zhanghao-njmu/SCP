@@ -7,7 +7,7 @@
 palette_scp(
   x,
   n = 100,
-  palette = "Paired",
+  palette = NULL,
   palcolor = NULL,
   type = "auto",
   matched = FALSE,
@@ -21,7 +21,7 @@ palette_scp(
 
 \item{n}{The number of colors to return for numeric values.}
 
-\item{palette}{Palette name. All available palette names can be queried with \code{show_palettes()}.}
+\item{palette}{Palette name. All available palette names can be queried with \code{show_palettes()}. Default is NULL, indicating a random palette.}
 
 \item{palcolor}{Custom colors used to create a color palette.}
 
@@ -47,7 +47,14 @@ x <- c(1:3, NA, 3:5)
 (pal5 <- palette_scp(x, palette = "Spectral", matched = TRUE))
 (pal6 <- palette_scp(x, palette = "Spectral", matched = TRUE, NA_keep = TRUE))
 (pal7 <- palette_scp(x, palette = "Paired", type = "discrete"))
-show_palettes(list(pal1, pal2, pal3, pal4, pal5, pal6, pal7))
+show_palettes(palette_list = list(pal1, pal2, pal3, pal4, pal5, pal6, pal7))
+
+set.seed(11)
+random1 <- palette_scp(x = 1:100)
+random2 <- palette_scp(x = 1:100)
+random3 <- palette_scp(x = letters[1:5])
+random4 <- palette_scp(x = letters[1:5])
+show_palettes(palette_list = list(random1, random2, random3, random4))
 
 all_palettes <- show_palettes(return_palettes = TRUE)
 names(all_palettes)

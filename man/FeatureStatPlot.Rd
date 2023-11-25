@@ -26,8 +26,8 @@ FeatureStatPlot(
   bg_alpha = 0.2,
   add_box = FALSE,
   box_color = "black",
-  box_width = 0.1,
   box_ptsize = 2,
+  box_width = ifelse(plot_type == "box", 0.8, 0.1),
   add_point = FALSE,
   pt.color = "grey30",
   pt.size = NULL,
@@ -127,9 +127,9 @@ FeatureStatPlot(
 
 \item{box_color}{A string specifying the color of the box plot. Default is "black".}
 
-\item{box_width}{A numeric value specifying the width of the box plot. Default is 0.1.}
-
 \item{box_ptsize}{A numeric value specifying the size of the points of the box plot. Default is 2.}
+
+\item{box_width}{A numeric value specifying the width of the box plot. Default is 0.1.}
 
 \item{add_point}{A logical indicating whether to add individual data points to the plot. Default is FALSE.}
 

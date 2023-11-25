@@ -5,39 +5,38 @@
 \title{Show the color palettes}
 \usage{
 show_palettes(
-  palettes = NULL,
+  palette_list = NULL,
   type = c("discrete", "continuous"),
   index = NULL,
-  palette_names = NULL,
-  return_names = TRUE,
-  return_palettes = FALSE
+  palettes = NULL,
+  return_palettes = !is.null(palettes)
 )
 }
 \arguments{
-\item{palettes}{A list of color palettes. If `NULL`, uses default palettes.}
+\item{palette_list}{A list of color palettes. If `NULL`, uses default palettes.}
 
 \item{type}{A character vector specifying the type of palettes to include. Default is "discrete".}
 
 \item{index}{A numeric vector specifying the indices of the palettes to include. Default is `NULL`.}
 
-\item{palette_names}{A character vector specifying the names of the SCP palettes to include. Default is `NULL`.}
-
-\item{return_names}{A logical value indicating whether to return the names of the selected palettes. Default is `TRUE`.}
+\item{palettes}{A character vector specifying the names of the SCP palettes to include. Default is `NULL`.}
 
 \item{return_palettes}{A logical value indicating whether to return the colors of selected palettes. Default is `FALSE`.}
+
+\item{return_names}{A logical value indicating whether to return the names of the selected palettes. Default is `TRUE`.}
 }
 \description{
 This function displays color palettes using ggplot2.
 }
 \examples{
-show_palettes(palettes = list(c("red", "blue", "green"), c("yellow", "purple", "orange")))
-all_palettes <- show_palettes(return_palettes = TRUE)
+show_palettes(palette_list = list(c("red", "blue", "green"), c("yellow", "purple", "orange")))
+all_palettes <- show_palettes()
 names(all_palettes)
 all_palettes[["simspec"]]
 show_palettes(index = 1:10)
 show_palettes(type = "discrete", index = 1:10)
 show_palettes(type = "continuous", index = 1:10)
-show_palettes(palette_names = c("Paired", "nejm", "simspec", "Spectral", "jet"), return_palettes = TRUE)
+show_palettes(palettes = c("Paired", "nejm", "simspec", "Spectral", "jet"))
 
 }
 \seealso{

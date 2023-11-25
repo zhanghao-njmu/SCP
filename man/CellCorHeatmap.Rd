@@ -58,12 +58,12 @@ CellCorHeatmap(
   ref_group_palcolor = NULL,
   query_cell_annotation = NULL,
   query_cell_annotation_palette = "Paired",
-  query_cell_annotation_palcolor = NULL,
+  query_cell_annotation_palcolor = list(NULL),
   query_cell_annotation_params = if (flip) list(height = unit(10, "mm")) else list(width
     = unit(10, "mm")),
   ref_cell_annotation = NULL,
   ref_cell_annotation_palette = "Paired",
-  ref_cell_annotation_palcolor = NULL,
+  ref_cell_annotation_palcolor = list(NULL),
   ref_cell_annotation_params = if (flip) list(width = unit(10, "mm")) else list(height =
     unit(10, "mm")),
   use_raster = NULL,
@@ -230,36 +230,44 @@ pancreas_sub <- Standard_SCP(pancreas_sub)
 ht1 <- CellCorHeatmap(srt_query = pancreas_sub, query_group = "SubCellType")
 ht1$plot
 
+ht2 <- CellCorHeatmap(
+  srt_query = pancreas_sub, query_group = "SubCellType",
+  cluster_rows = TRUE, cluster_columns = TRUE,
+  show_row_names = TRUE, show_column_names = TRUE,
+  ht_params = list(rect_gp = gpar(col = "black"))
+)
+ht2$plot
+
 data("panc8_sub")
 # Simply convert genes from human to mouse and preprocess the data
 genenames <- make.unique(capitalize(rownames(panc8_sub), force_tolower = TRUE))
 panc8_sub <- RenameFeatures(panc8_sub, newnames = genenames)
 panc8_sub <- check_srtMerge(panc8_sub, batch = "tech")[["srtMerge"]]
 
-ht2 <- CellCorHeatmap(
+ht3 <- CellCorHeatmap(
   srt_query = pancreas_sub, srt_ref = panc8_sub, nlabel = 3, label_cutoff = 0.6,
   query_group = "SubCellType", ref_group = "celltype",
   query_cell_annotation = "Phase", query_cell_annotation_palette = "Set2",
   ref_cell_annotation = "tech", ref_cell_annotation_palette = "Set3",
   width = 4, height = 4
 )
-ht2$plot
+ht3$plot
 
-ht3 <- CellCorHeatmap(
+ht4 <- CellCorHeatmap(
   srt_query = pancreas_sub, srt_ref = panc8_sub,
   query_group = "SubCellType", query_collapsing = FALSE, cluster_rows = TRUE,
   ref_group = "celltype", ref_collapsing = FALSE, cluster_columns = TRUE
 )
-ht3$plot
+ht4$plot
 
-ht4 <- CellCorHeatmap(
+ht5 <- CellCorHeatmap(
   srt_query = pancreas_sub, srt_ref = panc8_sub,
   show_row_names = TRUE, show_column_names = TRUE,
   query_group = "SubCellType", ref_group = "celltype",
   query_cell_annotation = c("Sox9", "Rbp4", "Gcg"),
   ref_cell_annotation = c("Sox9", "Rbp4", "Gcg")
 )
-ht4$plot
+ht5$plot
 
 }
 \seealso{

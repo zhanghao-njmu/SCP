@@ -20,7 +20,7 @@ colors <- c("red", "blue", "green")
 adjcolors(colors, 0.5)
 ggplot2::alpha(colors, 0.5)
 
-show_palettes(list(
+show_palettes(palette_list = list(
   "raw" = colors,
   "adjcolors" = adjcolors(colors, 0.5),
   "ggplot2::alpha" = ggplot2::alpha(colors, 0.5)

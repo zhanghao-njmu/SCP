@@ -92,12 +92,12 @@ FeatureHeatmap(
   feature_split_palcolor = NULL,
   cell_annotation = NULL,
   cell_annotation_palette = "Paired",
-  cell_annotation_palcolor = NULL,
+  cell_annotation_palcolor = list(NULL),
   cell_annotation_params = if (flip) list(width = unit(5, "mm")) else list(height =
     unit(5, "mm")),
   feature_annotation = NULL,
   feature_annotation_palette = "Dark2",
-  feature_annotation_palcolor = NULL,
+  feature_annotation_palcolor = list(NULL),
   feature_annotation_params = if (flip) list(height = unit(5, "mm")) else list(width =
     unit(5, "mm")),
   use_raster = NULL,

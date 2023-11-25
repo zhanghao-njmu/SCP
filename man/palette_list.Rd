@@ -32,20 +32,29 @@ if (interactive()) {
   ocean_palettes <- pals:::syspals[ocean_names]
   dichromat_palettes <- dichromat::colorschemes
   jcolors_names <- paste0("jcolors-", c("default", "pal2", "pal3", "pal4", "pal5", "pal6", "pal7", "pal8", "pal9", "pal10", "pal11", "pal12", "rainbow"))
-  custom_names <- c("jet", "simspec", "GdRd")
   custom_palettes <- list(
-    oompaBase::jetColors(N = 100),
-    c("#c22b86", "#f769a1", "#fcc5c1", "#253777", "#1d92c0", "#9ec9e1", "#015b33", "#42aa5e", "#d9f0a2", "#E66F00", "#f18c28", "#FFBB61"),
-    c("gold", "red3")
+    "jet" = oompaBase::jetColors(N = 100),
+    "simspec" = c("#c22b86", "#f769a1", "#fcc5c1", "#253777", "#1d92c0", "#9ec9e1", "#015b33", "#42aa5e", "#d9f0a2", "#E66F00", "#f18c28", "#FFBB61"),
+    "GdRd" = c("gold", "red3"),
+    "mGast" = c(
+      "Epiblast" = "#635547", "Primitive Streak" = "#DABE99", "Caudal epiblast" = "#9e6762", "PGC" = "#FACB12",
+      "Anterior Primitive Streak" = "#c19f70", "Notochord" = "#0F4A9C", "Def. endoderm" = "#F397C0", "Gut" = "#EF5A9D",
+      "Nascent mesoderm" = "#C594BF", "Mixed mesoderm" = "#DFCDE4", "Intermediate mesoderm" = "#139992", "Caudal Mesoderm" = "#3F84AA",
+      "Paraxial mesoderm" = "#8DB5CE", "Somitic mesoderm" = "#005579", "Pharyngeal mesoderm" = "#C9EBFB", "Cardiomyocytes" = "#B51D8D",
+      "Allantois" = "#532C8A", "ExE mesoderm" = "#8870ad", "Mesenchyme" = "#cc7818", "Haematoendothelial progenitors" = "#FBBE92",
+      "Endothelium" = "#ff891c", "Blood progenitors 1" = "#f9decf", "Blood progenitors 2" = "#c9a997", "Erythroid1" = "#C72228",
+      "Erythroid2" = "#f79083", "Erythroid3" = "#EF4E22", "NMP" = "#8EC792", "Rostral neurectoderm" = "#65A83E",
+      "Caudal neurectoderm" = "#354E23", "Neural crest" = "#C3C388", "Forebrain/Midbrain/Hindbrain" = "#647a4f", "Spinal cord" = "#CDE088",
+      "Surface ectoderm" = "#f7f79e", "Visceral endoderm" = "#F6BFCB", "ExE endoderm" = "#7F6874", "ExE ectoderm" = "#989898", "Parietal endoderm" = "#1A1A1A"
+    )
   )
-  names(custom_palettes) <- custom_names
 
   palette_list <- list()
   all_colors <- c(
     rownames(brewer.pal.info), names(ggsci_db), rownames(redmonder.pal.info),
     rownames(metacartocolors), names(nord_palettes), names(viridis_palettes),
     ocean_names, names(dichromat_palettes), jcolors_names,
-    custom_names
+    names(custom_palettes)
   )
   for (pal in all_colors) {
     if (!pal \%in\% all_colors) {
@@ -132,7 +141,7 @@ if (interactive()) {
       } else {
         attr(palcolor, "type") <- "discrete"
       }
-    } else if (pal \%in\% custom_names) {
+    } else if (pal \%in\% names(custom_palettes)) {
       palcolor <- custom_palettes[[pal]]
       if (pal \%in\% c("jet")) {
         attr(palcolor, "type") <- "continuous"

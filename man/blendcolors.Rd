@@ -19,7 +19,7 @@ blend <- c("red", "green", blendcolors(c("red", "green"), mode = "blend"))
 average <- c("red", "green", blendcolors(c("red", "green"), mode = "average"))
 screen <- c("red", "green", blendcolors(c("red", "green"), mode = "screen"))
 multiply <- c("red", "green", blendcolors(c("red", "green"), mode = "multiply"))
-show_palettes(list("blend" = blend, "average" = average, "screen" = screen, "multiply" = multiply))
+show_palettes(palette_list = list("blend" = blend, "average" = average, "screen" = screen, "multiply" = multiply))
 
 }
 \seealso{

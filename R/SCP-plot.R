@@ -137,7 +137,7 @@ theme_blank <- function(add_coord = TRUE, xlen_npc = 0.15, ylen_npc = 0.15, xlab
 #'
 #' @param x A vector of character/factor or numeric values. If missing, numeric values 1:n will be used as x.
 #' @param n The number of colors to return for numeric values.
-#' @param palette Palette name. All available palette names can be queried with \code{show_palettes()}.
+#' @param palette Palette name. All available palette names can be queried with \code{show_palettes()}. Default is NULL, indicating a random palette.
 #' @param palcolor Custom colors used to create a color palette.
 #' @param type Type of \code{x}. Can be one of "auto", "discrete" or "continuous". The default is "auto", which automatically detects if \code{x} is a numeric value.
 #' @param matched If \code{TRUE}, will return a color vector of the same length as \code{x}.
@@ -156,7 +156,14 @@ theme_blank <- function(add_coord = TRUE, xlen_npc = 0.15, ylen_npc = 0.15, xlab
 #' (pal5 <- palette_scp(x, palette = "Spectral", matched = TRUE))
 #' (pal6 <- palette_scp(x, palette = "Spectral", matched = TRUE, NA_keep = TRUE))
 #' (pal7 <- palette_scp(x, palette = "Paired", type = "discrete"))
-#' show_palettes(list(pal1, pal2, pal3, pal4, pal5, pal6, pal7))
+#' show_palettes(palette_list = list(pal1, pal2, pal3, pal4, pal5, pal6, pal7))
+#'
+#' set.seed(11)
+#' random1 <- palette_scp(x = 1:100)
+#' random2 <- palette_scp(x = 1:100)
+#' random3 <- palette_scp(x = letters[1:5])
+#' random4 <- palette_scp(x = letters[1:5])
+#' show_palettes(palette_list = list(random1, random2, random3, random4))
 #'
 #' all_palettes <- show_palettes(return_palettes = TRUE)
 #' names(all_palettes)
@@ -165,12 +172,26 @@ theme_blank <- function(add_coord = TRUE, xlen_npc = 0.15, ylen_npc = 0.15, xlab
 #' @importFrom stats setNames
 #' @export
 #'
-palette_scp <- function(x, n = 100, palette = "Paired", palcolor = NULL, type = "auto",
+palette_scp <- function(x, n = 100, palette = NULL, palcolor = NULL, type = "auto",
                         matched = FALSE, reverse = FALSE, NA_keep = FALSE, NA_color = "grey80") {
-  palette_list <- SCP::palette_list
   if (missing(x)) {
     x <- 1:n
     type <- "continuous"
+  }
+  if (!type %in% c("auto", "discrete", "continuous")) {
+    stop("'type' must be one of 'auto','discrete' and 'continuous'.")
+  }
+  if (type == "auto") {
+    if (is.numeric(x)) {
+      type <- "continuous"
+    } else {
+      type <- "discrete"
+    }
+  }
+
+  palette_list <- SCP::palette_list
+  if (is.null(palette)) {
+    palette <- sample(names(which(unlist(lapply(palette_list, function(x) isTRUE(attr(x, "type") %in% type))))), 1)
   }
   if (!palette %in% names(palette_list)) {
     stop("The palette name (", palette, ") is invalid! You can check the available palette names with 'show_palettes()'. Or pass palette colors via the 'palcolor' parameter.")
@@ -190,17 +211,6 @@ palette_scp <- function(x, n = 100, palette = "Paired", palcolor = NULL, type = 
     }
   }
   pal_n <- length(palcolor)
-
-  if (!type %in% c("auto", "discrete", "continuous")) {
-    stop("'type' must be one of 'auto','discrete' and 'continuous'.")
-  }
-  if (type == "auto") {
-    if (is.numeric(x)) {
-      type <- "continuous"
-    } else {
-      type <- "discrete"
-    }
-  }
 
   if (type == "discrete") {
     if (!is.factor(x)) {
@@ -274,32 +284,34 @@ palette_scp <- function(x, n = 100, palette = "Paired", palcolor = NULL, type = 
 #'
 #' This function displays color palettes using ggplot2.
 #'
-#' @param palettes A list of color palettes. If `NULL`, uses default palettes.
+#' @param palettes A character vector specifying the names of the SCP palettes to include. Default is `NULL`.
 #' @param type A character vector specifying the type of palettes to include. Default is "discrete".
 #' @param index A numeric vector specifying the indices of the palettes to include. Default is `NULL`.
-#' @param palette_names A character vector specifying the names of the SCP palettes to include. Default is `NULL`.
+#' @param palette_list A list of color palettes. If `NULL`, uses default palettes.
 #' @param return_names A logical value indicating whether to return the names of the selected palettes. Default is `TRUE`.
 #' @param return_palettes A logical value indicating whether to return the colors of selected palettes. Default is `FALSE`.
 #'
 #' @seealso \code{\link{palette_scp}} \code{\link{palette_list}}
 #'
 #' @examples
-#' show_palettes(palettes = list(c("red", "blue", "green"), c("yellow", "purple", "orange")))
-#' all_palettes <- show_palettes(return_palettes = TRUE)
+#' show_palettes(palette_list = list(c("red", "blue", "green"), c("yellow", "purple", "orange")))
+#' all_palettes <- show_palettes()
 #' names(all_palettes)
 #' all_palettes[["simspec"]]
 #' show_palettes(index = 1:10)
 #' show_palettes(type = "discrete", index = 1:10)
 #' show_palettes(type = "continuous", index = 1:10)
-#' show_palettes(palette_names = c("Paired", "nejm", "simspec", "Spectral", "jet"), return_palettes = TRUE)
+#' show_palettes(palettes = c("Paired", "nejm", "simspec", "Spectral", "jet"))
 #'
 #' @importFrom ggplot2 ggplot geom_col scale_fill_manual scale_x_continuous element_blank
 #' @export
-show_palettes <- function(palettes = NULL, type = c("discrete", "continuous"), index = NULL, palette_names = NULL, return_names = TRUE, return_palettes = FALSE) {
-  palette_list <- SCP::palette_list
-  if (!is.null(palettes)) {
-    palette_list <- palettes
+show_palettes <- function(palette_list = NULL, type = c("discrete", "continuous"), index = NULL, palettes = NULL, return_palettes = !is.null(palettes)) {
+  if (!is.null(palette_list)) {
+    if (!is.list(palette_list)) {
+      palette_list <- list(palette_list)
+    }
   } else {
+    palette_list <- SCP::palette_list
     palette_list <- palette_list[unlist(lapply(palette_list, function(x) isTRUE(attr(x, "type") %in% type)))]
   }
   index <- index[index %in% seq_along(palette_list)]
@@ -309,13 +321,13 @@ show_palettes <- function(palettes = NULL, type = c("discrete", "continuous"), i
   if (is.null(names(palette_list))) {
     names(palette_list) <- seq_along(palette_list)
   }
-  if (is.null(palette_names)) {
-    palette_names <- palette_names %||% names(palette_list)
+  if (is.null(palettes)) {
+    palettes <- palettes %||% names(palette_list)
   }
-  if (any(!palette_names %in% names(palette_list))) {
-    stop(paste("Can not find the palettes: ", paste0(palette_names[!palette_names %in% names(palette_list)], collapse = ",")))
+  if (any(!palettes %in% names(palette_list))) {
+    stop(paste("Can not find the palettes: ", paste0(palettes[!palettes %in% names(palette_list)], collapse = ",")))
   }
-  palette_list <- palette_list[palette_names]
+  palette_list <- palette_list[palettes]
 
   df <- data.frame(palette = rep(names(palette_list), sapply(palette_list, length)), color = unlist(palette_list))
   df[["palette"]] <- factor(df[["palette"]], levels = rev(unique(df[["palette"]])))
@@ -336,9 +348,8 @@ show_palettes <- function(palettes = NULL, type = c("discrete", "continuous"), i
 
   if (isTRUE(return_palettes)) {
     return(palette_list)
-  }
-  if (isTRUE(return_names)) {
-    return(palette_names)
+  } else {
+    return(palettes)
   }
 }
 
@@ -563,7 +574,7 @@ panel_fix <- function(x = NULL, panel_index = NULL, respect = NULL,
       if (units == "null") {
         stop("units can not be 'null' if want to save the plot.")
       }
-      filename <- normalizePath(save)
+      filename <- normalizePath(save, mustWork = FALSE)
       if (isTRUE(verbose)) {
         message("Save the plot to the file: ", filename)
       }
@@ -796,7 +807,7 @@ panel_fix_overall <- function(x, panel_index = NULL, respect = NULL,
       if (units == "null") {
         stop("units can not be 'null' if want to save the plot.")
       }
-      filename <- normalizePath(save)
+      filename <- normalizePath(save, mustWork = FALSE)
       if (isTRUE(verbose)) {
         message("Save the plot to the file: ", filename)
       }
@@ -990,7 +1001,7 @@ get_vars <- function(p, reverse, verbose = FALSE) {
 #' adjcolors(colors, 0.5)
 #' ggplot2::alpha(colors, 0.5)
 #'
-#' show_palettes(list(
+#' show_palettes(palette_list = list(
 #'   "raw" = colors,
 #'   "adjcolors" = adjcolors(colors, 0.5),
 #'   "ggplot2::alpha" = ggplot2::alpha(colors, 0.5)
@@ -1020,7 +1031,7 @@ adjcolors <- function(colors, alpha) {
 #' average <- c("red", "green", blendcolors(c("red", "green"), mode = "average"))
 #' screen <- c("red", "green", blendcolors(c("red", "green"), mode = "screen"))
 #' multiply <- c("red", "green", blendcolors(c("red", "green"), mode = "multiply"))
-#' show_palettes(list("blend" = blend, "average" = average, "screen" = screen, "multiply" = multiply))
+#' show_palettes(palette_list = list("blend" = blend, "average" = average, "screen" = screen, "multiply" = multiply))
 #'
 #' @export
 blendcolors <- function(colors, mode = c("blend", "average", "screen", "multiply")) {
@@ -2077,6 +2088,7 @@ FeatureDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), spli
   if (!inherits(features, "character")) {
     stop("'features' is not a character vectors")
   }
+  feature_input <- features
 
   assay <- assay %||% DefaultAssay(srt)
   if (is.null(split.by)) {
@@ -2120,7 +2132,6 @@ FeatureDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), spli
     cells.highlight <- intersect(cells.highlight, colnames(srt@assays[[1]]))
   }
 
-  feature_input <- features
   features <- unique(features)
   embeddings <- lapply(srt@reductions, function(x) colnames(x@cell.embeddings))
   embeddings <- setNames(rep(names(embeddings), sapply(embeddings, length)), nm = unlist(embeddings))
@@ -2153,8 +2164,8 @@ FeatureDimPlot <- function(srt, features, reduction = NULL, dims = c(1, 2), spli
     } else {
       stop("Can not determine the data type.")
     }
-    features <- c(features, "CoExp")
-    features_meta <- c(features_meta, "CoExp")
+    features <- c(features, "CoExp" = "CoExp")
+    features_meta <- c(features_meta, "CoExp" = "CoExp")
   }
 
   if (length(features_gene) > 0) {
@@ -3162,8 +3173,8 @@ FeatureDimPlot3D <- function(srt, features, reduction = NULL, dims = c(1, 2, 3),
     } else {
       stop("Can not determine the data type.")
     }
-    features <- c(features, "CoExp")
-    features_meta <- c(features_meta, "CoExp")
+    features <- c(features, "CoExp" = "CoExp")
+    features_meta <- c(features_meta, "CoExp" = "CoExp")
   }
 
   if (length(features_gene) > 0) {
@@ -3526,7 +3537,7 @@ FeatureStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.b
                             plot_type = c("violin", "box", "bar", "dot", "col"),
                             palette = "Paired", palcolor = NULL, alpha = 1,
                             bg_palette = "Paired", bg_palcolor = NULL, bg_alpha = 0.2,
-                            add_box = FALSE, box_color = "black", box_width = 0.1, box_ptsize = 2,
+                            add_box = FALSE, box_color = "black", box_ptsize = 2, box_width = ifelse(plot_type == "box", 0.8, 0.1),
                             add_point = FALSE, pt.color = "grey30", pt.size = NULL, pt.alpha = 1, jitter.width = 0.4, jitter.height = 0.1,
                             add_trend = FALSE, trend_color = "black", trend_linewidth = 1, trend_ptsize = 2,
                             add_stat = c("none", "mean", "median"), stat_color = "black", stat_size = 1, stat_stroke = 1, stat_shape = 25,
@@ -3725,7 +3736,7 @@ ExpressionStatPlot <- function(exp.data, meta.data, stat.by, group.by = NULL, sp
                                plot_type = c("violin", "box", "bar", "dot", "col"),
                                palette = "Paired", palcolor = NULL, alpha = 1,
                                bg_palette = "Paired", bg_palcolor = NULL, bg_alpha = 0.2,
-                               add_box = FALSE, box_color = "black", box_width = 0.1, box_ptsize = 2,
+                               add_box = FALSE, box_color = "black", box_ptsize = 2, box_width = ifelse(plot_type == "box", 0.8, 0.1),
                                add_point = FALSE, pt.color = "grey30", pt.size = NULL, pt.alpha = 1, jitter.width = 0.4, jitter.height = 0.1,
                                add_trend = FALSE, trend_color = "black", trend_linewidth = 1, trend_ptsize = 2,
                                add_stat = c("none", "mean", "median"), stat_color = "black", stat_size = 1, stat_stroke = 1, stat_shape = 25,
@@ -3751,6 +3762,18 @@ ExpressionStatPlot <- function(exp.data, meta.data, stat.by, group.by = NULL, sp
   if (!is.null(add_line)) {
     stopifnot(is.numeric(add_line))
   }
+
+  if (is.list(stat.by)) {
+    if (is.null(names(stat.by))) {
+      stat.by <- unlist(stat.by)
+    } else {
+      stat.by <- setNames(unlist(stat.by), nm = rep(names(stat.by), sapply(stat.by, length)))
+    }
+  }
+  if (!inherits(stat.by, "character")) {
+    stop("'stat.by' is not a character vectors")
+  }
+  stat.by.input <- stat.by
 
   if (missing(exp.data)) {
     exp.data <- matrix(0, nrow = 1, ncol = nrow(meta.data), dimnames = list("", rownames(meta.data)))
@@ -3865,8 +3888,8 @@ ExpressionStatPlot <- function(exp.data, meta.data, stat.by, group.by = NULL, sp
     } else {
       stop("Can not determine the data type.")
     }
-    stat.by <- c(stat.by, "CoExp")
-    features_meta <- c(features_meta, "CoExp")
+    stat.by <- c(stat.by, "CoExp" = "CoExp")
+    features_meta <- c(features_meta, "CoExp" = "CoExp")
   }
   if (length(features_gene) > 0) {
     if (all(allfeatures %in% features_gene)) {
@@ -3925,6 +3948,20 @@ ExpressionStatPlot <- function(exp.data, meta.data, stat.by, group.by = NULL, sp
     } else if (is.character(y.min)) {
       q.min <- as.numeric(sub("(^q)(\\d+)", "\\2", y.min)) / 100
       y.min <- quantile(values, q.min, na.rm = TRUE)
+    }
+  }
+
+  if (is.null(subtitle)) {
+    if (!is.null(names(stat.by.input))) {
+      subtitle <- setNames(names(stat.by.input), nm = stat.by.input)
+    }
+  } else {
+    if (length(subtitle) == 1) {
+      subtitle <- setNames(rep(subtitle, length(stat.by)), nm = stat.by)
+    } else if (length(subtitle) == length(stat.by)) {
+      subtitle <- setNames(subtitle, nm = stat.by)
+    } else {
+      stop(paste0("Subtitle length must be 1 or length of stat.by(", length(stat.by), ")"))
     }
   }
 
@@ -4127,11 +4164,11 @@ ExpressionStatPlot <- function(exp.data, meta.data, stat.by, group.by = NULL, sp
       add_box <- FALSE
       p <- p + geom_boxplot(
         mapping = aes(group = .data[["group.unique"]]),
-        position = position_dodge(width = 0.9), color = "black", width = 0.8, outlier.shape = NA
+        position = position_dodge(width = 0.9), color = box_color, width = box_width, outlier.shape = NA
       ) +
         stat_summary(
           fun = median, geom = "point", mapping = aes(group = .data[["split.by"]]),
-          position = position_dodge(width = 0.9), color = "black", fill = "white", size = 1.5, shape = 21,
+          position = position_dodge(width = 0.9), color = "black", fill = "white", size = box_ptsize, shape = 21,
         )
     }
     if (plot_type == "bar") {
@@ -4146,7 +4183,7 @@ ExpressionStatPlot <- function(exp.data, meta.data, stat.by, group.by = NULL, sp
       y_min_use <- layer_scales(p)$y$range$range[1]
     }
     if (plot_type == "dot") {
-      bins <- cut(dat$value, breaks = seq(min(dat$value), max(dat$value), length.out = 15), include.lowest = TRUE)
+      bins <- cut(dat$value, breaks = seq(y_min_use, y_max_use, length.out = 15), include.lowest = TRUE)
       bins_median <- sapply(strsplit(levels(bins), ","), function(x) median(as.numeric(gsub("\\(|\\)|\\[|\\]", "", x)), na.rm = TRUE))
       names(bins_median) <- levels(bins)
       dat[["bins"]] <- bins_median[bins]
@@ -4327,7 +4364,7 @@ ExpressionStatPlot <- function(exp.data, meta.data, stat.by, group.by = NULL, sp
         p <- p + facet_grid(. ~ features)
       }
     }
-    p <- p + labs(title = title, subtitle = subtitle, x = xlab, y = ylab)
+    p <- p + labs(title = title, subtitle = subtitle[f], x = xlab, y = ylab)
     if (nrow(dat) != 0) {
       p <- p + scale_x_discrete(drop = !keep_empty)
     }
@@ -5302,8 +5339,8 @@ FeatureCorPlot <- function(srt, features, group.by = NULL, split.by = NULL, cell
     } else {
       stop("Can not determine the data type.")
     }
-    features <- c(features, "CoExp")
-    features_meta <- c(features_meta, "CoExp")
+    features <- c(features, "CoExp" = "CoExp")
+    features_meta <- c(features_meta, "CoExp" = "CoExp")
   }
   if (length(features_gene) > 0) {
     dat_gene <- t(slot(srt@assays[[assay]], slot)[features_gene, , drop = FALSE])
@@ -7931,8 +7968,8 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
                          add_violin = FALSE, fill.by = "feature", fill_palette = "Dark2", fill_palcolor = NULL,
                          heatmap_palette = "RdBu", heatmap_palcolor = NULL, group_palette = "Paired", group_palcolor = NULL,
                          cell_split_palette = "simspec", cell_split_palcolor = NULL, feature_split_palette = "simspec", feature_split_palcolor = NULL,
-                         cell_annotation = NULL, cell_annotation_palette = "Paired", cell_annotation_palcolor = NULL, cell_annotation_params = if (flip) list(width = unit(10, "mm")) else list(height = unit(10, "mm")),
-                         feature_annotation = NULL, feature_annotation_palette = "Dark2", feature_annotation_palcolor = NULL, feature_annotation_params = if (flip) list(height = unit(5, "mm")) else list(width = unit(5, "mm")),
+                         cell_annotation = NULL, cell_annotation_palette = "Paired", cell_annotation_palcolor = list(NULL), cell_annotation_params = if (flip) list(width = unit(10, "mm")) else list(height = unit(10, "mm")),
+                         feature_annotation = NULL, feature_annotation_palette = "Dark2", feature_annotation_palcolor = list(NULL), feature_annotation_params = if (flip) list(height = unit(5, "mm")) else list(width = unit(5, "mm")),
                          use_raster = NULL, raster_device = "png", raster_by_magick = FALSE, height = NULL, width = NULL, units = "inch",
                          seed = 11, ht_params = list()) {
   set.seed(seed)
@@ -9130,8 +9167,8 @@ FeatureHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, 
                            nlabel = 20, features_label = NULL, label_size = 10, label_color = "black",
                            heatmap_palette = "RdBu", heatmap_palcolor = NULL, group_palette = "Paired", group_palcolor = NULL,
                            cell_split_palette = "simspec", cell_split_palcolor = NULL, feature_split_palette = "simspec", feature_split_palcolor = NULL,
-                           cell_annotation = NULL, cell_annotation_palette = "Paired", cell_annotation_palcolor = NULL, cell_annotation_params = if (flip) list(width = unit(5, "mm")) else list(height = unit(5, "mm")),
-                           feature_annotation = NULL, feature_annotation_palette = "Dark2", feature_annotation_palcolor = NULL, feature_annotation_params = if (flip) list(height = unit(5, "mm")) else list(width = unit(5, "mm")),
+                           cell_annotation = NULL, cell_annotation_palette = "Paired", cell_annotation_palcolor = list(NULL), cell_annotation_params = if (flip) list(width = unit(5, "mm")) else list(height = unit(5, "mm")),
+                           feature_annotation = NULL, feature_annotation_palette = "Dark2", feature_annotation_palcolor = list(NULL), feature_annotation_params = if (flip) list(height = unit(5, "mm")) else list(width = unit(5, "mm")),
                            use_raster = NULL, raster_device = "png", raster_by_magick = FALSE, height = NULL, width = NULL, units = "inch",
                            seed = 11, ht_params = list()) {
   set.seed(seed)
@@ -10070,36 +10107,44 @@ FeatureCorHeatmap <- function(srt, features, cells) {
 #' ht1 <- CellCorHeatmap(srt_query = pancreas_sub, query_group = "SubCellType")
 #' ht1$plot
 #'
+#' ht2 <- CellCorHeatmap(
+#'   srt_query = pancreas_sub, query_group = "SubCellType",
+#'   cluster_rows = TRUE, cluster_columns = TRUE,
+#'   show_row_names = TRUE, show_column_names = TRUE,
+#'   ht_params = list(rect_gp = gpar(col = "black"))
+#' )
+#' ht2$plot
+#'
 #' data("panc8_sub")
 #' # Simply convert genes from human to mouse and preprocess the data
 #' genenames <- make.unique(capitalize(rownames(panc8_sub), force_tolower = TRUE))
 #' panc8_sub <- RenameFeatures(panc8_sub, newnames = genenames)
 #' panc8_sub <- check_srtMerge(panc8_sub, batch = "tech")[["srtMerge"]]
 #'
-#' ht2 <- CellCorHeatmap(
+#' ht3 <- CellCorHeatmap(
 #'   srt_query = pancreas_sub, srt_ref = panc8_sub, nlabel = 3, label_cutoff = 0.6,
 #'   query_group = "SubCellType", ref_group = "celltype",
 #'   query_cell_annotation = "Phase", query_cell_annotation_palette = "Set2",
 #'   ref_cell_annotation = "tech", ref_cell_annotation_palette = "Set3",
 #'   width = 4, height = 4
 #' )
-#' ht2$plot
+#' ht3$plot
 #'
-#' ht3 <- CellCorHeatmap(
+#' ht4 <- CellCorHeatmap(
 #'   srt_query = pancreas_sub, srt_ref = panc8_sub,
 #'   query_group = "SubCellType", query_collapsing = FALSE, cluster_rows = TRUE,
 #'   ref_group = "celltype", ref_collapsing = FALSE, cluster_columns = TRUE
 #' )
-#' ht3$plot
+#' ht4$plot
 #'
-#' ht4 <- CellCorHeatmap(
+#' ht5 <- CellCorHeatmap(
 #'   srt_query = pancreas_sub, srt_ref = panc8_sub,
 #'   show_row_names = TRUE, show_column_names = TRUE,
 #'   query_group = "SubCellType", ref_group = "celltype",
 #'   query_cell_annotation = c("Sox9", "Rbp4", "Gcg"),
 #'   ref_cell_annotation = c("Sox9", "Rbp4", "Gcg")
 #' )
-#' ht4$plot
+#' ht5$plot
 #'
 #' @importFrom circlize colorRamp2
 #' @importFrom ComplexHeatmap Legend HeatmapAnnotation anno_block anno_simple anno_customize Heatmap draw pindex restore_matrix %v%
@@ -10129,8 +10174,8 @@ CellCorHeatmap <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
                            heatmap_palette = "RdBu", heatmap_palcolor = NULL,
                            query_group_palette = "Paired", query_group_palcolor = NULL,
                            ref_group_palette = "simspec", ref_group_palcolor = NULL,
-                           query_cell_annotation = NULL, query_cell_annotation_palette = "Paired", query_cell_annotation_palcolor = NULL, query_cell_annotation_params = if (flip) list(height = unit(10, "mm")) else list(width = unit(10, "mm")),
-                           ref_cell_annotation = NULL, ref_cell_annotation_palette = "Paired", ref_cell_annotation_palcolor = NULL, ref_cell_annotation_params = if (flip) list(width = unit(10, "mm")) else list(height = unit(10, "mm")),
+                           query_cell_annotation = NULL, query_cell_annotation_palette = "Paired", query_cell_annotation_palcolor = list(NULL), query_cell_annotation_params = if (flip) list(height = unit(10, "mm")) else list(width = unit(10, "mm")),
+                           ref_cell_annotation = NULL, ref_cell_annotation_palette = "Paired", ref_cell_annotation_palcolor = list(NULL), ref_cell_annotation_params = if (flip) list(width = unit(10, "mm")) else list(height = unit(10, "mm")),
                            use_raster = NULL, raster_device = "png", raster_by_magick = FALSE, height = NULL, width = NULL, units = "inch",
                            seed = 11, ht_params = list()) {
   set.seed(seed)
@@ -11041,9 +11086,9 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, use_fitted = FALSE, b
                            heatmap_palette = "viridis", heatmap_palcolor = NULL,
                            pseudotime_palette = "cividis", pseudotime_palcolor = NULL,
                            feature_split_palette = "simspec", feature_split_palcolor = NULL,
-                           cell_annotation = NULL, cell_annotation_palette = "Paired", cell_annotation_palcolor = NULL, cell_annotation_params = if (flip) list(width = unit(5, "mm")) else list(height = unit(5, "mm")),
-                           feature_annotation = NULL, feature_annotation_palette = "Dark2", feature_annotation_palcolor = NULL, feature_annotation_params = if (flip) list(height = unit(5, "mm")) else list(width = unit(5, "mm")),
-                           separate_annotation = NULL, separate_annotation_palette = "Paired", separate_annotation_palcolor = NULL, separate_annotation_params = if (flip) list(width = unit(10, "mm")) else list(height = unit(10, "mm")),
+                           cell_annotation = NULL, cell_annotation_palette = "Paired", cell_annotation_palcolor = list(NULL), cell_annotation_params = if (flip) list(width = unit(5, "mm")) else list(height = unit(5, "mm")),
+                           feature_annotation = NULL, feature_annotation_palette = "Dark2", feature_annotation_palcolor = list(NULL), feature_annotation_params = if (flip) list(height = unit(5, "mm")) else list(width = unit(5, "mm")),
+                           separate_annotation = NULL, separate_annotation_palette = "Paired", separate_annotation_palcolor = list(NULL), separate_annotation_params = if (flip) list(width = unit(10, "mm")) else list(height = unit(10, "mm")),
                            reverse_ht = NULL, use_raster = NULL, raster_device = "png", raster_by_magick = FALSE, height = NULL, width = NULL, units = "inch",
                            seed = 11, ht_params = list()) {
   set.seed(seed)
