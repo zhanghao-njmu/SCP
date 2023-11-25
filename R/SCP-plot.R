@@ -3534,12 +3534,12 @@ FeatureDimPlot3D <- function(srt, features, reduction = NULL, dims = c(1, 2, 3),
 #' @export
 FeatureStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.by = NULL, plot.by = c("group", "feature"), fill.by = c("group", "feature", "expression"),
                             cells = NULL, slot = "data", assay = NULL, keep_empty = FALSE, individual = FALSE,
-                            plot_type = c("violin", "box", "bar", "dot", "col"),
+                            plot_type = "violin",
                             palette = "Paired", palcolor = NULL, alpha = 1,
                             bg_palette = "Paired", bg_palcolor = NULL, bg_alpha = 0.2,
                             add_box = FALSE, box_color = "black", box_ptsize = 2, box_width = ifelse(plot_type == "box", 0.8, 0.1),
                             add_point = FALSE, pt.color = "grey30", pt.size = NULL, pt.alpha = 1, jitter.width = 0.4, jitter.height = 0.1,
-                            add_trend = FALSE, trend_color = "black", trend_linewidth = 1, trend_ptsize = 2,
+                            add_trend = FALSE, trend_color = "black", trend_linetype = 1, trend_linewidth = 1, trend_ptsize = 2,
                             add_stat = c("none", "mean", "median"), stat_color = "black", stat_size = 1, stat_stroke = 1, stat_shape = 25,
                             add_line = NULL, line_color = "red", line_size = 1, line_type = 1,
                             cells.highlight = NULL, cols.highlight = "red", sizes.highlight = 1, alpha.highlight = 1,
@@ -3593,7 +3593,7 @@ FeatureStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.b
           bg_palette = bg_palette, bg_palcolor = bg_palcolor, bg_alpha = bg_alpha,
           add_box = add_box, box_color = box_color, box_width = box_width, box_ptsize = box_ptsize,
           add_point = add_point, pt.color = pt.color, pt.size = pt.size, pt.alpha = pt.alpha, jitter.width = jitter.width, jitter.height = jitter.height,
-          add_trend = add_trend, trend_color = trend_color, trend_linewidth = trend_linewidth, trend_ptsize = trend_ptsize,
+          add_trend = add_trend, trend_color = trend_color, trend_linetype = trend_linetype, trend_linewidth = trend_linewidth, trend_ptsize = trend_ptsize,
           add_stat = add_stat, stat_color = stat_color, stat_size = stat_size, stat_stroke = stat_stroke, stat_shape = stat_shape,
           add_line = add_line, line_color = line_color, line_size = line_size, line_type = line_type,
           cells.highlight = cells.highlight, cols.highlight = cols.highlight, sizes.highlight = sizes.highlight, alpha.highlight = alpha.highlight,
@@ -3621,7 +3621,7 @@ FeatureStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.b
       bg_palette = bg_palette, bg_palcolor = bg_palcolor, bg_alpha = bg_alpha,
       add_box = add_box, box_color = box_color, box_width = box_width, box_ptsize = box_ptsize,
       add_point = add_point, pt.color = pt.color, pt.size = pt.size, pt.alpha = pt.alpha, jitter.width = jitter.width, jitter.height = jitter.height,
-      add_trend = add_trend, trend_color = trend_color, trend_linewidth = trend_linewidth, trend_ptsize = trend_ptsize,
+      add_trend = add_trend, trend_color = trend_color, trend_linetype = trend_linetype, trend_linewidth = trend_linewidth, trend_ptsize = trend_ptsize,
       add_stat = add_stat, stat_color = stat_color, stat_size = stat_size, stat_stroke = stat_stroke, stat_shape = stat_shape,
       add_line = add_line, line_color = line_color, line_size = line_size, line_type = line_type,
       cells.highlight = cells.highlight, cols.highlight = cols.highlight, sizes.highlight = sizes.highlight, alpha.highlight = alpha.highlight,
@@ -3650,9 +3650,9 @@ FeatureStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.b
           if (i != 1) {
             suppressWarnings(p <- p + theme(
               legend.position = "none",
-              panel.grid = element_blank(),
               plot.title = element_blank(),
               plot.subtitle = element_blank(),
+              panel.grid = element_blank(),
               axis.title = element_blank(),
               axis.text.y = element_blank(),
               axis.text.x = element_text(vjust = c(1, 0)),
@@ -3662,6 +3662,8 @@ FeatureStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.b
           } else {
             suppressWarnings(p <- p + theme(
               legend.position = "none",
+              plot.title = element_blank(),
+              plot.subtitle = element_blank(),
               panel.grid = element_blank(),
               axis.title.x = element_blank(),
               axis.text.x = element_text(vjust = c(1, 0)),
@@ -3681,6 +3683,8 @@ FeatureStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.b
           if (i != length(plist_g)) {
             suppressWarnings(p <- p + theme(
               legend.position = "none",
+              plot.title = element_blank(),
+              plot.subtitle = element_blank(),
               panel.grid = element_blank(),
               axis.title = element_blank(),
               axis.text.x = element_blank(),
@@ -3688,12 +3692,11 @@ FeatureStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.b
               axis.ticks.length.x = unit(0, "pt"),
               plot.margin = unit(c(-0.5, 0, 0, 0), "mm")
             ))
-            if (i == 1) {
-              p <- p + theme(plot.title = element_blank(), plot.subtitle = element_blank())
-            }
           } else {
             suppressWarnings(p <- p + theme(
               legend.position = "none",
+              plot.title = element_blank(),
+              plot.subtitle = element_blank(),
               panel.grid = element_blank(),
               axis.title.y = element_blank(),
               axis.text.y = element_text(vjust = c(0, 1)),
@@ -3733,12 +3736,12 @@ FeatureStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.b
 #' @importFrom Matrix rowSums
 ExpressionStatPlot <- function(exp.data, meta.data, stat.by, group.by = NULL, split.by = NULL, bg.by = NULL, plot.by = c("group", "feature"), fill.by = c("group", "feature", "expression"),
                                cells = NULL, keep_empty = FALSE, individual = FALSE,
-                               plot_type = c("violin", "box", "bar", "dot", "col"),
+                               plot_type = "violin",
                                palette = "Paired", palcolor = NULL, alpha = 1,
                                bg_palette = "Paired", bg_palcolor = NULL, bg_alpha = 0.2,
                                add_box = FALSE, box_color = "black", box_ptsize = 2, box_width = ifelse(plot_type == "box", 0.8, 0.1),
                                add_point = FALSE, pt.color = "grey30", pt.size = NULL, pt.alpha = 1, jitter.width = 0.4, jitter.height = 0.1,
-                               add_trend = FALSE, trend_color = "black", trend_linewidth = 1, trend_ptsize = 2,
+                               add_trend = FALSE, trend_color = "black", trend_linetype = 1, trend_linewidth = 1, trend_ptsize = 2,
                                add_stat = c("none", "mean", "median"), stat_color = "black", stat_size = 1, stat_stroke = 1, stat_shape = 25,
                                add_line = NULL, line_color = "red", line_size = 1, line_type = 1,
                                cells.highlight = NULL, cols.highlight = "red", sizes.highlight = 1, alpha.highlight = 1,
@@ -3755,7 +3758,7 @@ ExpressionStatPlot <- function(exp.data, meta.data, stat.by, group.by = NULL, sp
   set.seed(seed)
 
   plot.by <- match.arg(plot.by)
-  plot_type <- match.arg(plot_type)
+  plot_type <- match.arg(plot_type, choices = c("violin", "box", "bar", "dot", "col"))
   fill.by <- match.arg(fill.by)
   sig_label <- match.arg(sig_label)
   add_stat <- match.arg(add_stat)
@@ -4178,12 +4181,12 @@ ExpressionStatPlot <- function(exp.data, meta.data, stat.by, group.by = NULL, sp
       ) +
         stat_summary(
           fun.data = mean_sdl, fun.args = list(mult = 1), geom = "errorbar", mapping = aes(group = .data[["split.by"]]),
-          position = position_dodge(width = 0.9), width = 0.2, color = "black"
+          position = position_dodge(width = 0.9), width = 0.3, color = "black"
         )
       y_min_use <- layer_scales(p)$y$range$range[1]
     }
     if (plot_type == "dot") {
-      bins <- cut(dat$value, breaks = seq(y_min_use, y_max_use, length.out = 15), include.lowest = TRUE)
+      bins <- cut(dat$value, breaks = seq(y_min_use, y_max_use, length.out = 8), include.lowest = TRUE)
       bins_median <- sapply(strsplit(levels(bins), ","), function(x) median(as.numeric(gsub("\\(|\\)|\\[|\\]", "", x)), na.rm = TRUE))
       names(bins_median) <- levels(bins)
       dat[["bins"]] <- bins_median[bins]
@@ -4279,7 +4282,7 @@ ExpressionStatPlot <- function(exp.data, meta.data, stat.by, group.by = NULL, sp
     }
     if (isTRUE(add_box)) {
       p <- p + geom_boxplot(aes(group = .data[["group.unique"]]),
-        position = position_dodge(width = 0.9), color = box_color, fill = box_color, width = box_width, show.legend = FALSE, outlier.shape = NA
+        position = position_dodge(width = 0.9), color = box_color, fill = box_color, width = box_width, outlier.shape = NA, show.legend = FALSE
       ) +
         stat_summary(
           fun = median, geom = "point", mapping = aes(group = .data[["split.by"]]),
@@ -4297,7 +4300,7 @@ ExpressionStatPlot <- function(exp.data, meta.data, stat.by, group.by = NULL, sp
           p <- p + geom_line(
             data = layer_data(p_data, length(p_data$layers)),
             aes(x = x, y = y, group = colour),
-            color = trend_color, linewidth = trend_linewidth, inherit.aes = FALSE
+            color = trend_color, linetype = trend_linetype, linewidth = trend_linewidth, inherit.aes = FALSE
           ) +
             stat_summary(
               fun = median, geom = "point", mapping = aes(group = .data[["split.by"]]),
@@ -4306,7 +4309,7 @@ ExpressionStatPlot <- function(exp.data, meta.data, stat.by, group.by = NULL, sp
         } else {
           p <- p + stat_summary(
             fun = median, geom = "line", mapping = aes(group = .data[["split.by"]]),
-            position = position_dodge(width = 0.9), color = trend_color, linewidth = trend_linewidth
+            position = position_dodge(width = 0.9), color = trend_color, linetype = trend_linetype, linewidth = trend_linewidth
           ) +
             stat_summary(
               fun = median, geom = "point", mapping = aes(group = .data[["split.by"]]),
@@ -4324,7 +4327,7 @@ ExpressionStatPlot <- function(exp.data, meta.data, stat.by, group.by = NULL, sp
           p <- p + geom_line(
             data = layer_data(p_data, length(p_data$layers)),
             aes(x = x, y = y, group = colour),
-            color = trend_color, linewidth = trend_linewidth, inherit.aes = FALSE
+            color = trend_color, linetype = trend_linetype, linewidth = trend_linewidth, inherit.aes = FALSE
           ) +
             stat_summary(
               fun = mean, geom = "point", mapping = aes(group = .data[["split.by"]]),
@@ -4333,7 +4336,7 @@ ExpressionStatPlot <- function(exp.data, meta.data, stat.by, group.by = NULL, sp
         } else {
           p <- p + stat_summary(
             fun = mean, geom = "line", mapping = aes(group = .data[["split.by"]]),
-            position = position_dodge(width = 0.9), color = trend_color, linewidth = trend_linewidth,
+            position = position_dodge(width = 0.9), color = trend_color, linetype = trend_linetype, linewidth = trend_linewidth,
           ) +
             stat_summary(
               fun = mean, geom = "point", mapping = aes(group = .data[["split.by"]]),
