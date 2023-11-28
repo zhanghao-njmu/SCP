@@ -19,7 +19,7 @@ RunLargeVis(object, ...)
   n_neighbors = perplexity * 3,
   n_components = 2,
   metric = "euclidean",
-  n_epochs = -1,
+  n_epochs = 500,
   learning_rate = 1,
   scale = "maxabs",
   init = "lvrandom",
@@ -55,7 +55,7 @@ RunLargeVis(object, ...)
   n_neighbors = perplexity * 3,
   n_components = 2,
   metric = "euclidean",
-  n_epochs = -1,
+  n_epochs = 500,
   learning_rate = 1,
   scale = "maxabs",
   init = "lvrandom",
@@ -147,12 +147,7 @@ exists to allow mixed binary and real-valued data to be included and to have
 PCA applied to both, but with centering applied only to the real-valued data
 (it is typical not to apply centering to binary data before PCA is applied).}
 
-\item{n_epochs}{Number of epochs to use during the optimization of the
-embedded coordinates. The default is calculate the number of epochs
-dynamically based on dataset size, to give the same number of edge samples
-as the LargeVis defaults. This is usually substantially larger than the
-UMAP defaults. If \code{n_epochs = 0}, then coordinates determined by
-\code{"init"} will be returned.}
+\item{n_epochs}{Number of epochs to use during the optimization of the embedded coordinates. Default is 500.}
 
 \item{learning_rate}{Initial learning rate used in optimization of the
 coordinates.}

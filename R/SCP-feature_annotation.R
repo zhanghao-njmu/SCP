@@ -10,9 +10,10 @@
 #' @param Ensembl_version Version of the Ensembl database to use. Default is 103.
 #' @param mirror URL of the mirror to use for Ensembl database. Default is NULL.
 #' @param gtf Path to the GTF file to be used for annotation. Default is NULL.
-#' @param merge_gtf_by Column name to merge the GTF file by. Default is "gene_name".
-#' @param columns Vector of column names to be used from the GTF file. Default is
-#'     "seqname", "feature", "start", "end", "strand", "gene_id", "gene_name", "gene_type".
+#' @param gtf_field The features in the GTF file to include for annotation. By default, search and select the first "feature" found in the order of "gene", "transcript", "exon", and "CDS" in the GTF file.
+#' @param gtf_columns Vector of column names to be used from the GTF file. Default is
+#'     c("seqname", "feature", "start", "end", "strand", "gene_id", "gene_name", "gene_type", "gene_biotype").
+#' @param gtf_merge_by Column name to merge the GTF file by. Default is "gene_name".
 #' @param assays Character vector of assay names to be annotated. Default is "RNA".
 #' @param overwrite Logical value indicating whether to overwrite existing metadata. Default is FALSE.
 #'
@@ -32,10 +33,11 @@
 #' @export
 AnnotateFeatures <- function(srt, species = "Homo_sapiens", IDtype = c("symbol", "ensembl_id", "entrez_id"),
                              db = NULL, db_update = FALSE, db_version = "latest", convert_species = TRUE, Ensembl_version = 103, mirror = NULL,
-                             gtf = NULL, merge_gtf_by = "gene_name", columns = c(
+                             gtf = NULL, gtf_field = c("gene", "transcript", "exon", "CDS"),
+                             gtf_columns = c(
                                "seqname", "feature", "start", "end", "strand",
-                               "gene_id", "gene_name", "gene_type"
-                             ),
+                               "gene_id", "gene_name", "gene_type", "gene_biotype"
+                             ), gtf_merge_by = "gene_name",
                              assays = "RNA", overwrite = FALSE) {
   IDtype <- match.arg(IDtype)
   if (is.null(db) && is.null(gtf)) {
@@ -82,13 +84,12 @@ AnnotateFeatures <- function(srt, species = "Homo_sapiens", IDtype = c("symbol",
     gtf_all <- suppressWarnings(fread(gtf, sep = "\t"))
     gtf_all <- gtf_all[, 1:9]
     colnames(gtf_all) <- c("seqname", "source", "feature", "start", "end", "score", "strand", "frame", "attribute")
-    for (type in c("gene", "transcript", "exon", "CDS")) {
+    for (type in gtf_field) {
       if (type %in% gtf_all[["feature"]]) {
         gtf_all <- gtf_all[gtf_all[["feature"]] == type, ]
         break
       }
     }
-    columns1 <- intersect(colnames(gtf_all), columns)
 
     gtf_attribute <- gtf_all[["attribute"]]
     gtf_attribute <- gsub(pattern = "\"", replacement = "", x = gtf_attribute)
@@ -97,13 +98,13 @@ AnnotateFeatures <- function(srt, species = "Homo_sapiens", IDtype = c("symbol",
       detail <- strsplit(x, " ")
       out <- lapply(detail, function(x) x[2:length(x)])
       names(out) <- sapply(detail, function(x) x[1])
-      out <- out[intersect(columns, names(out))]
+      out <- out[intersect(gtf_columns, names(out))]
       return(out)
     })
     gene_attr_df <- rbindlist(gene_attr, fill = TRUE)
-    gtf_columns <- cbind(gtf_all[, intersect(colnames(gtf_all), columns), with = FALSE], gene_attr_df)
+    gtf_columns <- cbind(gtf_all[, intersect(colnames(gtf_all), gtf_columns), with = FALSE], gene_attr_df)
     colnames(gtf_columns) <- make.unique(colnames(gtf_columns))
-    gtf_columns_collapse <- aggregate(gtf_columns, by = list(rowid = gtf_columns[[merge_gtf_by]]), FUN = function(x) {
+    gtf_columns_collapse <- aggregate(gtf_columns, by = list(rowid = gtf_columns[[gtf_merge_by]]), FUN = function(x) {
       paste0(unique(x), collapse = ";")
     })
     rownames(gtf_columns_collapse) <- gtf_columns_collapse[["rowid"]]

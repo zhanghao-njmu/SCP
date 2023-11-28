@@ -16,9 +16,10 @@ AnnotateFeatures(
   Ensembl_version = 103,
   mirror = NULL,
   gtf = NULL,
-  merge_gtf_by = "gene_name",
-  columns = c("seqname", "feature", "start", "end", "strand", "gene_id", "gene_name",
-    "gene_type"),
+  gtf_field = c("gene", "transcript", "exon", "CDS"),
+  gtf_columns = c("seqname", "feature", "start", "end", "strand", "gene_id", "gene_name",
+    "gene_type", "gene_biotype"),
+  gtf_merge_by = "gene_name",
   assays = "RNA",
   overwrite = FALSE
 )
@@ -44,10 +45,12 @@ AnnotateFeatures(
 
 \item{gtf}{Path to the GTF file to be used for annotation. Default is NULL.}
 
-\item{merge_gtf_by}{Column name to merge the GTF file by. Default is "gene_name".}
+\item{gtf_field}{The features in the GTF file to include for annotation. By default, search and select the first "feature" found in the order of "gene", "transcript", "exon", and "CDS" in the GTF file.}
 
-\item{columns}{Vector of column names to be used from the GTF file. Default is
-"seqname", "feature", "start", "end", "strand", "gene_id", "gene_name", "gene_type".}
+\item{gtf_columns}{Vector of column names to be used from the GTF file. Default is
+c("seqname", "feature", "start", "end", "strand", "gene_id", "gene_name", "gene_type", "gene_biotype").}
+
+\item{gtf_merge_by}{Column name to merge the GTF file by. Default is "gene_name".}
 
 \item{assays}{Character vector of assay names to be annotated. Default is "RNA".}
 

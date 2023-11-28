@@ -1216,7 +1216,7 @@ Uncorrected_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, 
       cat(paste0("[", Sys.time(), "]", " Reorder clusters...\n"))
       srtMerge <- SrtReorder(srtMerge, features = HVF, reorder_by = "seurat_clusters", slot = "data")
       srtMerge[["seurat_clusters"]] <- NULL
-      srtMerge[[paste0("Uncorrected", linear_reduction, "clusters")]] <- Idents(srtMerge)
+      srtMerge[["Uncorrectedclusters"]] <- Idents(srtMerge)
       srtMerge
     },
     error = function(error) {
@@ -1361,8 +1361,8 @@ Seurat_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtLi
     type <- checked[["type"]]
   }
 
-  if (min(sapply(srtList, ncol)) < 50) {
-    warning("The cell count in some batches is lower than 50, which may not be suitable for the current integration method.", immediate. = TRUE)
+  if (min(sapply(srtList, ncol)) <= 50) {
+    warning("The cell count in some batches is lower than or equal to 50, which may not be suitable for the current integration method.", immediate. = TRUE)
     answer <- askYesNo("Are you sure to continue?", default = FALSE)
     if (!isTRUE(answer)) {
       return(srtMerge)
@@ -3042,8 +3042,8 @@ LIGER_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtLis
     type <- checked[["type"]]
   }
 
-  if (min(sapply(srtList, ncol)) < 30) {
-    warning("The cell count in some batches is lower than 30, which may not be suitable for the current integration method.", immediate. = TRUE)
+  if (min(sapply(srtList, ncol)) <= 30) {
+    warning("The cell count in some batches is lower than or equal to 30, which may not be suitable for the current integration method.", immediate. = TRUE)
     answer <- askYesNo("Are you sure to continue?", default = FALSE)
     if (!isTRUE(answer)) {
       return(srtMerge)
@@ -3268,8 +3268,8 @@ Conos_integrate <- function(srtMerge = NULL, batch = NULL, append = TRUE, srtLis
     type <- checked[["type"]]
   }
 
-  if (min(sapply(srtList, ncol)) < 30) {
-    warning("The cell count in some batches is lower than 30, which may not be suitable for the current integration method.", immediate. = TRUE)
+  if (min(sapply(srtList, ncol)) <= 30) {
+    warning("The cell count in some batches is lower than or equal to 30, which may not be suitable for the current integration method.", immediate. = TRUE)
     answer <- askYesNo("Are you sure to continue?", default = FALSE)
     if (!isTRUE(answer)) {
       return(srtMerge)

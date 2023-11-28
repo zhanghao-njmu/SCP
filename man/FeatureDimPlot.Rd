@@ -116,7 +116,7 @@ FeatureDimPlot(
 
 \item{pt.alpha}{Point transparency.}
 
-\item{bg_cutoff}{Background cutoff. Points with feature values lower than the cutoff will be considered as background and will be colored with \code{bg_color}.}
+\item{bg_cutoff}{Background cutoff. Can also be considered as a detection threshold. Points with feature values lower than the cutoff will be considered as background and will be colored with \code{bg_color}.}
 
 \item{bg_color}{Color value for background points.}
 
@@ -127,7 +127,7 @@ FeatureDimPlot(
   \item{"all" (universal scaling):}{ The plots for all features and conditions are scaled to the maximum expression value for the feature with the highest overall expression.}
 }}
 
-\item{lower_quantile, upper_quantile, lower_cutoff, upper_cutoff}{Vector of minimum and maximum cutoff values or quantile values for each feature.}
+\item{lower_quantile, upper_quantile, lower_cutoff, upper_cutoff}{Vector of minimum and maximum cutoff values or quantile values for each feature. Any feature value that exceeds the cutoff will be replaced with the corresponding cutoff value.}
 
 \item{add_density}{Whether to add a density layer on the plot.}
 

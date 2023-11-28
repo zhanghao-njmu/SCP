@@ -53,6 +53,7 @@ FeatureStatPlot(
   sizes.highlight = 1,
   alpha.highlight = 1,
   calculate_coexp = FALSE,
+  range = c(-Inf, Inf),
   same.y.lims = FALSE,
   y.min = NULL,
   y.max = NULL,
@@ -72,7 +73,7 @@ FeatureStatPlot(
   title = NULL,
   subtitle = NULL,
   xlab = NULL,
-  ylab = "Expression level",
+  ylab = "Expression",
   legend.position = "right",
   legend.direction = "vertical",
   theme_use = "theme_scp",
@@ -206,7 +207,7 @@ FeatureStatPlot(
 
 \item{xlab}{A string specifying the label of the x-axis. Default is NULL.}
 
-\item{ylab}{A string specifying the label of the y-axis. Default is "Expression level".}
+\item{ylab}{A string specifying the label of the y-axis. Default is "Expression".}
 
 \item{legend.position}{A string specifying the position of the legend. Possible values are "right", "left", "top", "bottom", or "none". Default is "right".}
 
@@ -247,6 +248,7 @@ FeatureStatPlot(pancreas_sub, stat.by = c("G2M_score", "Fev"), group.by = "SubCe
 FeatureStatPlot(pancreas_sub, stat.by = c("G2M_score", "Fev"), group.by = "SubCellType", split.by = "Phase")
 FeatureStatPlot(pancreas_sub, stat.by = c("G2M_score", "Fev"), group.by = "SubCellType", split.by = "Phase", add_box = TRUE, add_trend = TRUE)
 FeatureStatPlot(pancreas_sub, stat.by = c("G2M_score", "Fev"), group.by = "SubCellType", split.by = "Phase", comparisons = TRUE)
+FeatureStatPlot(pancreas_sub, stat.by = c("G2M_score", "Fev"), group.by = "SubCellType", range = c(0, Inf))
 FeatureStatPlot(pancreas_sub, stat.by = c("Rbp4", "Pyy"), group.by = "SubCellType", fill.by = "expression", palette = "Blues", same.y.lims = TRUE)
 FeatureStatPlot(pancreas_sub, stat.by = c("Rbp4", "Pyy"), group.by = "SubCellType", multiplegroup_comparisons = TRUE)
 FeatureStatPlot(pancreas_sub, stat.by = c("Rbp4", "Pyy"), group.by = "SubCellType", comparisons = list(c("Alpha", "Beta"), c("Alpha", "Delta")))

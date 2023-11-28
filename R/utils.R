@@ -316,9 +316,9 @@ exist_Python_pkgs <- function(packages, envname = NULL, conda = "auto") {
       pkg_name <- names(pkg) %||% pkg
       pkg_version <- NA
     }
-    if (pkg_name %in% all_installed$package) {
+    if (tolower(pkg_name) %in% tolower(all_installed$package)) {
       if (!is.na(pkg_version)) {
-        packages_installed[pkg] <- all_installed$version[all_installed$package == pkg_name] == pkg_version
+        packages_installed[pkg] <- all_installed$version[tolower(all_installed$package) == tolower(pkg_name)] == pkg_version
       } else {
         packages_installed[pkg] <- TRUE
       }

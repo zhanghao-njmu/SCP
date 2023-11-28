@@ -1897,9 +1897,9 @@ CellDimPlot <- function(srt, group.by, reduction = NULL, dims = c(1, 2), split.b
 #' @param calculate_coexp Whether to calculate the co-expression value (geometric mean) of the features.
 #' @param compare_features Whether to show the values of multiple features on a single plot.
 #' @param color_blend_mode Blend mode to use when \code{compare_features = TRUE}
-#' @param bg_cutoff Background cutoff. Points with feature values lower than the cutoff will be considered as background and will be colored with \code{bg_color}.
+#' @param bg_cutoff Background cutoff. Can also be considered as a detection threshold. Points with feature values lower than the cutoff will be considered as background and will be colored with \code{bg_color}.
 #' @param bg_color Color value for background points.
-#' @param lower_quantile,upper_quantile,lower_cutoff,upper_cutoff Vector of minimum and maximum cutoff values or quantile values for each feature.
+#' @param lower_quantile,upper_quantile,lower_cutoff,upper_cutoff Vector of minimum and maximum cutoff values or quantile values for each feature. Any feature value that exceeds the cutoff will be replaced with the corresponding cutoff value.
 #' @param add_density Whether to add a density layer on the plot.
 #' @param density_color Color of the density contours lines.
 #' @param density_filled Whether to add filled contour bands instead of contour lines.
@@ -3443,7 +3443,7 @@ FeatureDimPlot3D <- function(srt, features, reduction = NULL, dims = c(1, 2, 3),
 #' @param title A string specifying the title of the plot. Default is NULL.
 #' @param subtitle A string specifying the subtitle of the plot. Default is NULL.
 #' @param xlab A string specifying the label of the x-axis. Default is NULL.
-#' @param ylab A string specifying the label of the y-axis. Default is "Expression level".
+#' @param ylab A string specifying the label of the y-axis. Default is "Expression".
 #' @param legend.position A string specifying the position of the legend. Possible values are "right", "left", "top", "bottom", or "none". Default is "right".
 #' @param legend.direction A string specifying the direction of the legend. Possible values are "vertical" or "horizontal". Default is "vertical".
 #' @param theme_use A string specifying the theme to use for the plot. Default is "theme_scp".
@@ -3471,6 +3471,7 @@ FeatureDimPlot3D <- function(srt, features, reduction = NULL, dims = c(1, 2, 3),
 #' FeatureStatPlot(pancreas_sub, stat.by = c("G2M_score", "Fev"), group.by = "SubCellType", split.by = "Phase")
 #' FeatureStatPlot(pancreas_sub, stat.by = c("G2M_score", "Fev"), group.by = "SubCellType", split.by = "Phase", add_box = TRUE, add_trend = TRUE)
 #' FeatureStatPlot(pancreas_sub, stat.by = c("G2M_score", "Fev"), group.by = "SubCellType", split.by = "Phase", comparisons = TRUE)
+#' FeatureStatPlot(pancreas_sub, stat.by = c("G2M_score", "Fev"), group.by = "SubCellType", range = c(0, Inf))
 #' FeatureStatPlot(pancreas_sub, stat.by = c("Rbp4", "Pyy"), group.by = "SubCellType", fill.by = "expression", palette = "Blues", same.y.lims = TRUE)
 #' FeatureStatPlot(pancreas_sub, stat.by = c("Rbp4", "Pyy"), group.by = "SubCellType", multiplegroup_comparisons = TRUE)
 #' FeatureStatPlot(pancreas_sub, stat.by = c("Rbp4", "Pyy"), group.by = "SubCellType", comparisons = list(c("Alpha", "Beta"), c("Alpha", "Delta")))
@@ -3543,13 +3544,13 @@ FeatureStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.b
                             add_stat = c("none", "mean", "median"), stat_color = "black", stat_size = 1, stat_stroke = 1, stat_shape = 25,
                             add_line = NULL, line_color = "red", line_size = 1, line_type = 1,
                             cells.highlight = NULL, cols.highlight = "red", sizes.highlight = 1, alpha.highlight = 1,
-                            calculate_coexp = FALSE,
+                            calculate_coexp = FALSE, range = c(-Inf, Inf),
                             same.y.lims = FALSE, y.min = NULL, y.max = NULL, y.trans = "identity", y.nbreaks = 5,
                             sort = FALSE, stack = FALSE, flip = FALSE,
                             comparisons = NULL, ref_group = NULL, pairwise_method = "wilcox.test",
                             multiplegroup_comparisons = FALSE, multiple_method = "kruskal.test",
                             sig_label = c("p.signif", "p.format"), sig_labelsize = 3.5,
-                            aspect.ratio = NULL, title = NULL, subtitle = NULL, xlab = NULL, ylab = "Expression level",
+                            aspect.ratio = NULL, title = NULL, subtitle = NULL, xlab = NULL, ylab = "Expression",
                             legend.position = "right", legend.direction = "vertical",
                             theme_use = "theme_scp", theme_args = list(),
                             combine = TRUE, nrow = NULL, ncol = NULL, byrow = TRUE, force = FALSE, seed = 11) {
@@ -3597,7 +3598,7 @@ FeatureStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.b
           add_stat = add_stat, stat_color = stat_color, stat_size = stat_size, stat_stroke = stat_stroke, stat_shape = stat_shape,
           add_line = add_line, line_color = line_color, line_size = line_size, line_type = line_type,
           cells.highlight = cells.highlight, cols.highlight = cols.highlight, sizes.highlight = sizes.highlight, alpha.highlight = alpha.highlight,
-          calculate_coexp = calculate_coexp,
+          calculate_coexp = calculate_coexp, range = range,
           same.y.lims = same.y.lims, y.min = y.min, y.max = y.max, y.trans = y.trans, y.nbreaks = y.nbreaks,
           sort = sort, stack = stack, flip = flip,
           comparisons = comparisons, ref_group = ref_group, pairwise_method = pairwise_method,
@@ -3625,7 +3626,7 @@ FeatureStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.b
       add_stat = add_stat, stat_color = stat_color, stat_size = stat_size, stat_stroke = stat_stroke, stat_shape = stat_shape,
       add_line = add_line, line_color = line_color, line_size = line_size, line_type = line_type,
       cells.highlight = cells.highlight, cols.highlight = cols.highlight, sizes.highlight = sizes.highlight, alpha.highlight = alpha.highlight,
-      calculate_coexp = calculate_coexp,
+      calculate_coexp = calculate_coexp, range = range,
       same.y.lims = same.y.lims, y.min = y.min, y.max = y.max, y.trans = y.trans, y.nbreaks = y.nbreaks,
       sort = sort, stack = stack, flip = flip,
       comparisons = comparisons, ref_group = ref_group, pairwise_method = pairwise_method,
@@ -3644,7 +3645,7 @@ FeatureStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.b
       plist_g <- plist[sapply(strsplit(names(plist), ":"), function(x) x[2]) == g]
       legend <- get_legend(plist_g[[1]])
       if (isTRUE(flip)) {
-        lab <- textGrob(label = ifelse(is.null(ylab), "Expression level", ylab), hjust = 0.5)
+        lab <- textGrob(label = ifelse(is.null(ylab), "Expression", ylab), hjust = 0.5)
         plist_g <- lapply(seq_along(plist_g), FUN = function(i) {
           p <- plist_g[[i]]
           if (i != 1) {
@@ -3677,7 +3678,7 @@ FeatureStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.b
         gtable <- add_grob(gtable, lab, "bottom", clip = "off")
         gtable <- add_grob(gtable, legend, legend.position)
       } else {
-        lab <- textGrob(label = ifelse(is.null(ylab), "Expression level", ylab), rot = 90, hjust = 0.5)
+        lab <- textGrob(label = ifelse(is.null(ylab), "Expression", ylab), rot = 90, hjust = 0.5)
         plist_g <- lapply(seq_along(plist_g), FUN = function(i) {
           p <- plist_g[[i]]
           if (i != length(plist_g)) {
@@ -3745,13 +3746,13 @@ ExpressionStatPlot <- function(exp.data, meta.data, stat.by, group.by = NULL, sp
                                add_stat = c("none", "mean", "median"), stat_color = "black", stat_size = 1, stat_stroke = 1, stat_shape = 25,
                                add_line = NULL, line_color = "red", line_size = 1, line_type = 1,
                                cells.highlight = NULL, cols.highlight = "red", sizes.highlight = 1, alpha.highlight = 1,
-                               calculate_coexp = FALSE,
+                               calculate_coexp = FALSE, range = c(-Inf, Inf),
                                same.y.lims = FALSE, y.min = NULL, y.max = NULL, y.trans = "identity", y.nbreaks = 5,
                                sort = FALSE, stack = FALSE, flip = FALSE,
                                comparisons = NULL, ref_group = NULL, pairwise_method = "wilcox.test",
                                multiplegroup_comparisons = FALSE, multiple_method = "kruskal.test",
                                sig_label = c("p.signif", "p.format"), sig_labelsize = 3.5,
-                               aspect.ratio = NULL, title = NULL, subtitle = NULL, xlab = NULL, ylab = "Expression level",
+                               aspect.ratio = NULL, title = NULL, subtitle = NULL, xlab = NULL, ylab = "Expression",
                                legend.position = "right", legend.direction = "vertical",
                                theme_use = "theme_scp", theme_args = list(),
                                force = FALSE, seed = 11) {
@@ -3825,6 +3826,7 @@ ExpressionStatPlot <- function(exp.data, meta.data, stat.by, group.by = NULL, sp
   }
   bg_map <- NULL
   if (!is.null(bg.by)) {
+    meta.data[[bg.by]] <- factor(meta.data[[bg.by]], levels = intersect(levels(meta.data[[bg.by]]), meta.data[[bg.by]]))
     for (g in group.by) {
       df_table <- table(meta.data[[g]], meta.data[[bg.by]])
       if (max(rowSums(df_table > 0), na.rm = TRUE) > 1) {
@@ -3923,6 +3925,9 @@ ExpressionStatPlot <- function(exp.data, meta.data, stat.by, group.by = NULL, sp
   if (nrow(dat_group) == 0) {
     stop("No specified cells found.")
   }
+  # stat.by<<-stat.by
+  # dat_use<<-dat_use
+  dat_use[, stat.by][dat_use[, stat.by] <= range[1] | dat_use[, stat.by] >= range[2]] <- NA
 
   if (is.null(pt.size)) {
     pt.size <- min(3000 / nrow(dat_group), 0.5)
@@ -4004,7 +4009,7 @@ ExpressionStatPlot <- function(exp.data, meta.data, stat.by, group.by = NULL, sp
     single_group <- comb[[i, "group_element"]]
     sp <- comb[[i, "split_name"]]
     xlab <- xlab %||% g
-    ylab <- ylab %||% "Expression level"
+    ylab <- ylab %||% "Expression"
     if (identical(theme_use, "theme_blank")) {
       theme_args[["xlab"]] <- xlab
       theme_args[["ylab"]] <- ylab
@@ -7976,12 +7981,17 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
                          use_raster = NULL, raster_device = "png", raster_by_magick = FALSE, height = NULL, width = NULL, units = "inch",
                          seed = 11, ht_params = list()) {
   set.seed(seed)
-
   if (isTRUE(raster_by_magick)) {
     check_R("magick")
   }
   if (is.null(features)) {
     stop("No feature provided.")
+  }
+  if (is.list(features)) {
+    if (!is.null(names(features))) {
+      feature_split <- rep(names(features), sapply(features, length))
+    }
+    features <- unlist(features)
   }
 
   split_method <- match.arg(split_method)
@@ -8684,7 +8694,7 @@ GroupHeatmap <- function(srt, features = NULL, group.by = NULL, split.by = NULL,
     index <- which(features_ordered %in% features_label)
     drop <- setdiff(features_label, features_ordered)
     if (length(drop) > 0) {
-      warning(paste0(paste0(drop, collapse = ","), "was not found in the features"), immediate. = TRUE)
+      warning(paste0(paste0(drop, collapse = ","), " was not found in the features"), immediate. = TRUE)
     }
   }
   if (length(index) > 0) {
@@ -9177,6 +9187,15 @@ FeatureHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, 
   set.seed(seed)
   if (isTRUE(raster_by_magick)) {
     check_R("magick")
+  }
+  if (is.null(features)) {
+    stop("No feature provided.")
+  }
+  if (is.list(features)) {
+    if (!is.null(names(features))) {
+      feature_split <- rep(names(features), sapply(features, length))
+    }
+    features <- unlist(features)
   }
 
   split_method <- match.arg(split_method)
@@ -9754,7 +9773,7 @@ FeatureHeatmap <- function(srt, features = NULL, cells = NULL, group.by = NULL, 
     index <- which(features_ordered %in% features_label)
     drop <- setdiff(features_label, features_ordered)
     if (length(drop) > 0) {
-      warning(paste0(paste0(drop, collapse = ","), "was not found in the features"), immediate. = TRUE)
+      warning(paste0(paste0(drop, collapse = ","), " was not found in the features"), immediate. = TRUE)
     }
   }
   if (length(index) > 0) {
@@ -11098,6 +11117,15 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, use_fitted = FALSE, b
   if (isTRUE(raster_by_magick)) {
     check_R("magick")
   }
+  if (is.null(features)) {
+    stop("No feature provided.")
+  }
+  if (is.list(features)) {
+    if (!is.null(names(features))) {
+      feature_split <- rep(names(features), sapply(features, length))
+    }
+    features <- unlist(features)
+  }
 
   split_method <- match.arg(split_method)
   order_by <- match.arg(order_by)
@@ -11743,7 +11771,7 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, use_fitted = FALSE, b
     index <- which(features_ordered %in% features_label)
     drop <- setdiff(features_label, features_ordered)
     if (length(drop) > 0) {
-      warning(paste0(paste0(drop, collapse = ","), "was not found in the features"), immediate. = TRUE)
+      warning(paste0(paste0(drop, collapse = ","), " was not found in the features"), immediate. = TRUE)
     }
   }
   if (length(index) > 0) {

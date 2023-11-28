@@ -450,6 +450,43 @@ searchDatasets <- function(datasets, pattern) {
   }
 }
 
+#' @export
+MatrixConvert <- function(matrix, aggregate_method = "sum", geneID_from_IDtype = "symbol", geneID_to_IDtype = "entrez_id",
+                          species_from = "Homo_sapiens", species_to = NULL,
+                          Ensembl_version = 103, biomart = NULL, mirror = NULL, max_tries = 5) {
+  matrix <- as_matrix(matrix)
+  res <- GeneConvert(
+    geneID = rownames(matrix),
+    geneID_from_IDtype = geneID_from_IDtype,
+    geneID_to_IDtype = geneID_to_IDtype,
+    species_from = species_from,
+    species_to = species_to,
+    Ensembl_version = Ensembl_version,
+    biomart = biomart,
+    mirror = mirror,
+    max_tries = max_tries
+  )
+  matrix <- aggregate(
+    x = matrix[res$geneID_expand[, "from_geneID"], ],
+    by = list(res$geneID_expand[, geneID_to_IDtype]),
+    FUN = aggregate_method
+  )
+  rownames(matrix) <- matrix[, 1]
+  matrix <- as_matrix(matrix[, -1])
+  return(matrix)
+}
+
+#' @export
+FindCorrelatedFeatures <- function(srt, feature, method = "ejaccard", assay = NULL, slot = "data") {
+  assay <- assay %||% DefaultAssay(srt)
+  x <- as_matrix(t(FetchData(srt, feature)))
+  y <- GetAssayData(srt, assay = assay, slot = slot)
+  out <- proxyC::simil(x = x, y = y, method = "ejaccard", use_nan = TRUE)
+  out[is.na(out)] <- 0
+  out <- sort(out[1, ], decreasing = T)
+  return(out)
+}
+
 #' Prefetch cycle gene
 #'
 #' Based on the human cell cycle genes, the cell cycle genes of the corresponding species were captured by homologous gene conversion.

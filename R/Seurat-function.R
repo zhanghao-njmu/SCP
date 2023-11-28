@@ -553,7 +553,7 @@ RunDM.default <- function(object, assay = NULL, slot = "data",
 #' @param n.neighbors An integer specifying the number of nearest neighbors to be used. Default is 30.
 #' @param n.components An integer specifying the number of UMAP components. Default is 2.
 #' @param metric A character string specifying the metric or a function to be used for distance calculations. When using a string, available metrics are: euclidean, manhattan. Other available generalized metrics are: cosine, pearson, pearson2. Note the triangle inequality may not be satisfied by some generalized metrics, hence knn search may not be optimal. When using metric.function as a function, the signature must be function(matrix, origin, target) and should compute a distance between the origin column and the target columns.  Default is "cosine".
-#' @param n.epochs An integer specifying the number of iterations performed during layout optimization for UMAP. Default is 200.
+#' @param n.epochs An integer specifying the number of iterations performed during layout optimization for UMAP. Default is 500.
 #' @param spread A numeric value specifying the spread parameter for UMAP, used during automatic estimation of a/b parameters. Default is 1.
 #' @param min.dist A numeric value specifying the minimum distance between UMAP embeddings, determines how close points appear in the final layout. Default is 0.3.
 #' @param set.op.mix.ratio Interpolate between (fuzzy) union and intersection as the set operation used to combine local fuzzy simplicial sets to obtain a global fuzzy simplicial sets. Both fuzzy set operations use the product t-norm. The value of this parameter should be between 0.0 and 1.0; a value of 1.0 will use a pure fuzzy union, while 0.0 will use a pure fuzzy intersection.
@@ -589,7 +589,7 @@ RunUMAP2.Seurat <- function(object,
                             assay = NULL, slot = "data",
                             umap.method = "uwot", reduction.model = NULL, n_threads = NULL,
                             return.model = FALSE, n.neighbors = 30L, n.components = 2L,
-                            metric = "cosine", n.epochs = 200L, spread = 1, min.dist = 0.3,
+                            metric = "cosine", n.epochs = 500L, spread = 1, min.dist = 0.3,
                             set.op.mix.ratio = 1, local.connectivity = 1L, negative.sample.rate = 5L,
                             a = NULL, b = NULL, learning.rate = 1, repulsion.strength = 1,
                             reduction.name = "umap", reduction.key = "UMAP_",
@@ -669,7 +669,7 @@ RunUMAP2.Seurat <- function(object,
 RunUMAP2.default <- function(object, assay = NULL,
                              umap.method = "uwot", reduction.model = NULL, n_threads = NULL,
                              return.model = FALSE, n.neighbors = 30L, n.components = 2L,
-                             metric = "cosine", n.epochs = 200L, spread = 1, min.dist = 0.3,
+                             metric = "cosine", n.epochs = 500L, spread = 1, min.dist = 0.3,
                              set.op.mix.ratio = 1, local.connectivity = 1L, negative.sample.rate = 5L,
                              a = NULL, b = NULL, learning.rate = 1, repulsion.strength = 1,
                              reduction.key = "UMAP_", verbose = TRUE, seed.use = 11L, ...) {
@@ -1538,6 +1538,7 @@ RunTriMap.default <- function(object, assay = NULL,
 #' @param verbose A logical value indicating whether to print verbose output. Default is TRUE.
 #' @param seed.use An integer specifying the random seed to be used. Default is 11.
 #' @param ... Additional arguments to be passed to the \link[uwot]{lvish} function.
+#' @param n_epochs Number of epochs to use during the optimization of the embedded coordinates. Default is 500.
 #'
 #' @examples
 #' pancreas_sub <- Seurat::FindVariableFeatures(pancreas_sub)
@@ -1558,7 +1559,7 @@ RunLargeVis <- function(object, ...) {
 RunLargeVis.Seurat <- function(object, reduction = "pca", dims = NULL, features = NULL,
                                assay = NULL, slot = "data",
                                perplexity = 50, n_neighbors = perplexity * 3, n_components = 2, metric = "euclidean",
-                               n_epochs = -1, learning_rate = 1, scale = "maxabs", init = "lvrandom", init_sdev = NULL,
+                               n_epochs = 500, learning_rate = 1, scale = "maxabs", init = "lvrandom", init_sdev = NULL,
                                repulsion_strength = 7, negative_sample_rate = 5, nn_method = NULL, n_trees = 50,
                                search_k = 2 * n_neighbors * n_trees, n_threads = NULL, n_sgd_threads = 0, grain_size = 1,
                                kernel = "gauss", pca = NULL, pca_center = TRUE, pcg_rand = TRUE, fast_sgd = FALSE,
@@ -1617,7 +1618,7 @@ RunLargeVis.Seurat <- function(object, reduction = "pca", dims = NULL, features 
 #' @export
 RunLargeVis.default <- function(object, assay = NULL,
                                 perplexity = 50, n_neighbors = perplexity * 3, n_components = 2, metric = "euclidean",
-                                n_epochs = -1, learning_rate = 1, scale = "maxabs", init = "lvrandom", init_sdev = NULL,
+                                n_epochs = 500, learning_rate = 1, scale = "maxabs", init = "lvrandom", init_sdev = NULL,
                                 repulsion_strength = 7, negative_sample_rate = 5, nn_method = NULL, n_trees = 50,
                                 search_k = 2 * n_neighbors * n_trees, n_threads = NULL, n_sgd_threads = 0, grain_size = 1,
                                 kernel = "gauss", pca = NULL, pca_center = TRUE, pcg_rand = TRUE, fast_sgd = FALSE,

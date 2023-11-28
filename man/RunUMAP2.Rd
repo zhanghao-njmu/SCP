@@ -24,7 +24,7 @@ RunUMAP2(object, ...)
   n.neighbors = 30L,
   n.components = 2L,
   metric = "cosine",
-  n.epochs = 200L,
+  n.epochs = 500L,
   spread = 1,
   min.dist = 0.3,
   set.op.mix.ratio = 1,
@@ -51,7 +51,7 @@ RunUMAP2(object, ...)
   n.neighbors = 30L,
   n.components = 2L,
   metric = "cosine",
-  n.epochs = 200L,
+  n.epochs = 500L,
   spread = 1,
   min.dist = 0.3,
   set.op.mix.ratio = 1,
@@ -98,7 +98,7 @@ RunUMAP2(object, ...)
 
 \item{metric}{A character string specifying the metric or a function to be used for distance calculations. When using a string, available metrics are: euclidean, manhattan. Other available generalized metrics are: cosine, pearson, pearson2. Note the triangle inequality may not be satisfied by some generalized metrics, hence knn search may not be optimal. When using metric.function as a function, the signature must be function(matrix, origin, target) and should compute a distance between the origin column and the target columns.  Default is "cosine".}
 
-\item{n.epochs}{An integer specifying the number of iterations performed during layout optimization for UMAP. Default is 200.}
+\item{n.epochs}{An integer specifying the number of iterations performed during layout optimization for UMAP. Default is 500.}
 
 \item{spread}{A numeric value specifying the spread parameter for UMAP, used during automatic estimation of a/b parameters. Default is 1.}
 
