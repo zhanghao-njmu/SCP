@@ -476,6 +476,7 @@ MatrixConvert <- function(matrix, aggregate_method = "sum", geneID_from_IDtype =
   return(matrix)
 }
 
+
 #' @export
 FindCorrelatedFeatures <- function(srt, feature, method = "ejaccard", assay = NULL, slot = "data") {
   assay <- assay %||% DefaultAssay(srt)

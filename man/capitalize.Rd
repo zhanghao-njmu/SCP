@@ -2,8 +2,7 @@
 % Please edit documentation in R/utils.R
 \name{capitalize}
 \alias{capitalize}
-\title{Capitalizes the characters
-Making the first letter uppercase}
+\title{Capitalizes the characters}
 \usage{
 capitalize(x, force_tolower = FALSE)
 }
@@ -14,7 +13,6 @@ capitalize(x, force_tolower = FALSE)
 }
 \description{
 Capitalizes the characters
-Making the first letter uppercase
 }
 \examples{
 x <- c("dna methylation", "rRNA processing", "post-Transcriptional gene silencing")

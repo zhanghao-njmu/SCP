@@ -96,7 +96,7 @@ CellDimPlot(
   streamline_minL = 1,
   streamline_res = 1,
   streamline_n = 15,
-  streamline_width = c(0, 0.8),
+  streamline_width = c(0, 0.5),
   streamline_alpha = 1,
   streamline_color = NULL,
   streamline_palette = "RdYlBu",

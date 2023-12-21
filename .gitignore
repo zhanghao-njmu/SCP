@@ -11,3 +11,4 @@ tmaps
 src/*.so
 src/*.o
 test.R
+test.cpp

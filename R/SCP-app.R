@@ -248,7 +248,7 @@ CreateMetaFile <- function(srt, MetaFile, name = NULL, write_tools = FALSE, writ
 #' @importFrom Seurat Reductions Assays DefaultAssay
 #' @export
 PrepareSCExplorer <- function(object,
-                              base_dir = "SCExplorer", DataFile = "Data.hdf5", MetaFile = "Meta.hdf5",
+                              base_dir = "SCExplorer",
                               assays = "RNA", slots = c("counts", "data"),
                               ignore_nlevel = 100, write_tools = FALSE, write_misc = FALSE,
                               compression_level = 6, overwrite = FALSE) {
@@ -257,8 +257,8 @@ PrepareSCExplorer <- function(object,
     message("Create SCExplorer base directory: ", base_dir)
     dir.create(base_dir, recursive = TRUE, showWarnings = FALSE)
   }
-  DataFile_full <- paste0(base_dir, "/", DataFile)
-  MetaFile_full <- paste0(base_dir, "/", MetaFile)
+  DataFile_full <- paste0(base_dir, "/Data.hdf5")
+  MetaFile_full <- paste0(base_dir, "/Meta.hdf5")
 
   if (!is.list(object)) {
     object <- list(object)
@@ -529,7 +529,6 @@ CreateSeuratObject2 <- function(counts, project = "SeuratProject", assay = "RNA"
 #' @param create_script A logical. Whether to create the SCExplorer app script. Default is TRUE.
 #' @param style_script A logical. Whether to style the SCExplorer app script. Default is TRUE.
 #' @param overwrite A logical. Whether to overwrite existing files. Default is FALSE.
-#' @param return_app A logical. Whether to return the SCExplorer app. Default is TRUE.
 #'
 #' @seealso \code{\link{CreateDataFile}} \code{\link{CreateMetaFile}} \code{\link{PrepareSCExplorer}} \code{\link{FetchH5}}
 #'
@@ -579,8 +578,6 @@ CreateSeuratObject2 <- function(counts, project = "SeuratProject", assay = "RNA"
 #' @importFrom utils packageVersion
 #' @export
 RunSCExplorer <- function(base_dir = "SCExplorer",
-                          DataFile = "Data.hdf5",
-                          MetaFile = "Meta.hdf5",
                           title = "SCExplorer",
                           initial_dataset = NULL,
                           initial_reduction = NULL,
@@ -598,13 +595,14 @@ RunSCExplorer <- function(base_dir = "SCExplorer",
                           initial_raster = NULL,
                           session_workers = 2,
                           plotting_workers = 8,
-                          create_script = TRUE,
+                          create_script = FALSE,
                           style_script = require("styler", quietly = TRUE),
-                          overwrite = FALSE,
-                          return_app = TRUE) {
+                          overwrite = FALSE) {
   check_R(c("rhdf5", "HDF5Array", "shiny@1.6.0", "ggplot2", "ragg", "htmlwidgets", "plotly", "bslib", "future", "promises", "BiocParallel"))
-  DataFile_full <- paste0(base_dir, "/", DataFile)
-  MetaFile_full <- paste0(base_dir, "/", MetaFile)
+  base_dir <- normalizePath(base_dir, mustWork = FALSE)
+  DataFile_full <- paste0(base_dir, "/Data.hdf5")
+  MetaFile_full <- paste0(base_dir, "/Meta.hdf5")
+
   if (!file.exists(DataFile_full) || !file.exists(MetaFile_full)) {
     stop("Please create the DataFile and MetaFile using PrepareSCExplorer function first!")
   }
@@ -728,7 +726,7 @@ ui <- fluidPage(
           ),
           fluidRow(
             column(
-              width = 6, align = "center",
+              width = 4, align = "center",
               radioButtons(
                 inputId = "label1",
                 label = "Label",
@@ -738,12 +736,22 @@ ui <- fluidPage(
               )
             ),
             column(
-              width = 6, align = "center",
+              width = 4, align = "center",
               radioButtons(
                 inputId = "raster1",
                 label = "Raster",
                 choices = c("Yes" = TRUE, "No" = FALSE),
                 selected = initial_raster,
+                inline = TRUE
+              )
+            ),
+            column(
+              width = 4, align = "center",
+              radioButtons(
+                inputId = "dimension1",
+                label = "Dimension",
+                choices = c("2D", "3D"),
+                selected = "2D",
                 inline = TRUE
               )
             )
@@ -757,7 +765,7 @@ ui <- fluidPage(
                 value = 1,
                 min = 0.1,
                 max = 10,
-                step = 0.5,
+                step = 0.1,
                 width = "150px"
               )
             ),
@@ -811,27 +819,13 @@ ui <- fluidPage(
         mainPanel(
           width = 9,
           fluidPage(
-            tabsetPanel(
-              tabPanel(
-                title = "2D plot",
-                column(
-                  width = 12, offset = 0, style = "padding:0px;margin:0%",
-                  div(
-                    style = "overflow-x: auto;",
-                    uiOutput("plot1")
-                  )
-                )
-              ),
-              tabPanel(
-                title = "3D plot",
-                column(
-                  width = 12, offset = 0, style = "padding:0px;margin:0%",
-                  div(
-                    style = "overflow-x: auto;",
-                    plotly::plotlyOutput("plot1_3d", height = "100%", width = "100%")
-                  )
-                )
-              )
+            conditionalPanel(
+              condition = "input.dimension1 == \'2D\'",
+              uiOutput("plot1")
+            ),
+            conditionalPanel(
+              condition = "input.dimension1 == \'3D\'",
+              plotly::plotlyOutput("plot1_3d", height = "100%", width = "100%")
             )
           )
         )
@@ -909,7 +903,7 @@ ui <- fluidPage(
           ),
           fluidRow(
             column(
-              width = 4, align = "center",
+              width = 6, align = "center",
               radioButtons(
                 inputId = "coExp2",
                 label = "Co-expression",
@@ -919,7 +913,7 @@ ui <- fluidPage(
               ),
             ),
             column(
-              width = 4, align = "center",
+              width = 6, align = "center",
               radioButtons(
                 inputId = "scale2",
                 label = "Color scale",
@@ -927,14 +921,26 @@ ui <- fluidPage(
                 selected = "feature",
                 inline = TRUE
               ),
-            ),
+            )
+          ),
+          fluidRow(
             column(
-              width = 4, align = "center",
+              width = 6, align = "center",
               radioButtons(
                 inputId = "raster2",
                 label = "Raster",
                 choices = c("Yes" = TRUE, "No" = FALSE),
                 selected = initial_raster,
+                inline = TRUE
+              )
+            ),
+            column(
+              width = 6, align = "center",
+              radioButtons(
+                inputId = "dimension2",
+                label = "Dimension",
+                choices = c("2D", "3D"),
+                selected = "2D",
                 inline = TRUE
               )
             )
@@ -948,7 +954,7 @@ ui <- fluidPage(
                 value = 1,
                 min = 0.1,
                 max = 10,
-                step = 0.5,
+                step = 0.1,
                 width = "150px"
               )
             ),
@@ -1001,26 +1007,14 @@ ui <- fluidPage(
         ),
         mainPanel(
           width = 9,
-          tabsetPanel(
-            tabPanel(
-              title = "2D plot",
-              column(
-                width = 12, offset = 0, style = "padding:0px;margin:0%",
-                div(
-                  style = "overflow-x: auto;",
-                  uiOutput("plot2")
-                )
-              )
+          fluidPage(
+            conditionalPanel(
+              condition = "input.dimension2 == \'2D\'",
+              uiOutput("plot2")
             ),
-            tabPanel(
-              title = "3D plot",
-              column(
-                width = 12, offset = 0, style = "padding:0px;margin:0%",
-                div(
-                  style = "overflow-x: auto;",
-                  plotly::plotlyOutput("plot2_3d", height = "100%", width = "100%")
-                )
-              )
+            conditionalPanel(
+              condition = "input.dimension2 == \'3D\'",
+              plotly::plotlyOutput("plot2_3d", height = "100%", width = "100%")
             )
           )
         )
@@ -1214,20 +1208,7 @@ ui <- fluidPage(
         ),
         mainPanel(
           width = 9,
-          fluidPage(
-            tabsetPanel(
-              tabPanel(
-                title = "Statistical plot",
-                column(
-                  width = 12, offset = 0, style = "padding:0px;margin:0%",
-                  div(
-                    style = "overflow-x: auto;",
-                    uiOutput("plot3")
-                  )
-                )
-              )
-            )
-          )
+          fluidPage(uiOutput("plot3"))
         )
       )
     ),
@@ -1486,20 +1467,7 @@ ui <- fluidPage(
         ),
         mainPanel(
           width = 9,
-          fluidPage(
-            tabsetPanel(
-              tabPanel(
-                title = "Statistical plot",
-                column(
-                  width = 12, offset = 0, style = "padding:0px;margin:0%",
-                  div(
-                    style = "overflow-x: auto;",
-                    uiOutput("plot4")
-                  )
-                )
-              )
-            )
-          )
+          fluidPage(uiOutput("plot4"))
         )
       )
     )
@@ -1633,8 +1601,9 @@ server <- function(input, output, session) {
     } else {
       split1 <- input$split1
     }
-    label1 <- input$label1
-    raster1 <- input$raster1
+    label1 <- as.logical(input$label1)
+    raster1 <- as.logical(input$raster1)
+    dimension1 <- input$dimension1
     palette1 <- input$palette1
     theme1 <- input$theme1
     size1 <- input$size1
@@ -1659,24 +1628,26 @@ server <- function(input, output, session) {
 
         theme1 <- get(theme1, envir = asNamespace(themes[theme1]))
 
-        # print(">>> plot:")
-        # print(system.time(
-        p1_dim <- SCP::CellDimPlot(srt_tmp,
-          group.by = group1, split.by = split1, reduction = reduction1, raster = raster1, pt.size = pt_size1,
-          label = label1, palette = palette1, theme_use = theme1,
-          ncol = ncol1, byrow = byrow1, force = TRUE
-        )
-        # ))
+        plot3d <- max(sapply(names(srt_tmp@reductions), function(r) dim(srt_tmp[[r]])[2])) >= 3 & dimension1 == "3D"
 
-        # print(">>> panel_fix:")
-        # print(system.time(
-        p1_dim <- SCP::panel_fix(SCP::slim_data(p1_dim), height = size1, units = "in", raster = panel_raster, BPPARAM = BPPARAM, verbose = FALSE)
-        # ))
-        attr(p1_dim, "dpi") <- 300
-        plot3d <- max(sapply(names(srt_tmp@reductions), function(r) dim(srt_tmp[[r]])[2])) >= 3
         if (isTRUE(plot3d)) {
+          p1_dim <- NULL
           p1_3d <- SCP::CellDimPlot3D(srt_tmp, group.by = group1, pt.size = pt_size1 * 2, reduction = reduction1, palette = palette1, force = TRUE)
         } else {
+          # print(">>> plot:")
+          # print(system.time(
+          p1_dim <- SCP::CellDimPlot(srt_tmp,
+            group.by = group1, split.by = split1, reduction = reduction1, raster = raster1, pt.size = pt_size1,
+            label = label1, palette = palette1, theme_use = theme1,
+            ncol = ncol1, byrow = byrow1, force = TRUE
+          )
+          # ))
+
+          # print(">>> panel_fix:")
+          # print(system.time(
+          p1_dim <- SCP::panel_fix(SCP::slim_data(p1_dim), height = size1, units = "in", raster = panel_raster, BPPARAM = BPPARAM, verbose = FALSE)
+          # ))
+          attr(p1_dim, "dpi") <- 300
           p1_3d <- NULL
         }
         return(list(p1_dim, p1_3d))
@@ -1686,7 +1657,7 @@ server <- function(input, output, session) {
   }) %>%
     bindCache(
       input$dataset1, input$reduction1, input$group1, input$split1,
-      input$palette1, input$theme1, input$label1, input$raster1,
+      input$palette1, input$theme1, input$label1, input$raster1, input$dimension1,
       input$pt_size1, input$size1, input$ncol1, input$arrange1
     ) %>%
     bindEvent(input$submit1, ignoreNULL = FALSE, ignoreInit = FALSE)
@@ -1697,31 +1668,36 @@ server <- function(input, output, session) {
     r1()$then(function(x) {
       promisedData[["p1_dim"]] <- x[[1]]
       promisedData[["p1_3d"]] <- x[[2]]
-      width <- get_attr(x[[1]], "width")
-      height <- get_attr(x[[1]], "height")
-      dpi <- get_attr(x[[1]], "dpi")
-
       prog$set(value = 8, message = "Render plot...", detail = "[Cell dimensional reduction plot]")
-      # print("renderPlot:")
-      # print(system.time(
-      output$plot1 <- renderUI({
-        renderPlot(
-          {
-            x[[1]]
-          },
-          width = width * 96,
-          height = height * 96,
-          res = 96
-        )
-      })
-      # ))
 
-      # print("renderPlotly:")
-      # print(system.time(
-      output$plot1_3d <- plotly::renderPlotly({
-        x[[2]]
-      })
-      # ))
+      if (!is.null(x[[1]])) {
+        width <- get_attr(x[[1]], "width")
+        height <- get_attr(x[[1]], "height")
+        dpi <- get_attr(x[[1]], "dpi")
+
+        # print("renderPlot:")
+        # print(system.time(
+        output$plot1 <- renderUI({
+          renderPlot(
+            {
+              x[[1]]
+            },
+            width = width * 96,
+            height = height * 96,
+            res = 96
+          )
+        })
+        # ))
+      }
+
+      if (!is.null(x[[2]])) {
+        # print("renderPlotly:")
+        # print(system.time(
+        output$plot1_3d <- plotly::renderPlotly({
+          x[[2]]
+        })
+        # ))
+      }
     }) %>%
       finally(~ {
         prog$set(value = 10, message = "Done.", detail = "[Cell dimensional reduction plot]")
@@ -1734,15 +1710,19 @@ server <- function(input, output, session) {
       paste0("CellDimPlot-", format(Sys.time(), "%Y%m%d%H%M%S"), ".zip")
     },
     content = function(file) {
-      width <- get_attr(promisedData[["p1_dim"]], "width")
-      height <- get_attr(promisedData[["p1_dim"]], "height")
-      dpi <- get_attr(promisedData[["p1_dim"]], "dpi")
+      if (!is.null(promisedData[["p1_dim"]])) {
+        width <- get_attr(promisedData[["p1_dim"]], "width")
+        height <- get_attr(promisedData[["p1_dim"]], "height")
+        dpi <- get_attr(promisedData[["p1_dim"]], "dpi")
 
-      temp1 <- tempfile(pattern = "CellDimPlot-", fileext = ".png")
-      ggplot2::ggsave(filename = temp1, plot = promisedData[["p1_dim"]], width = width, height = height, units = "in", dpi = dpi, limitsize = FALSE)
+        temp1 <- tempfile(pattern = "CellDimPlot-", fileext = ".png")
+        ggplot2::ggsave(filename = temp1, plot = promisedData[["p1_dim"]], width = width, height = height, units = "in", dpi = dpi, limitsize = FALSE)
 
-      temp2 <- tempfile(pattern = "CellDimPlot-", fileext = ".pdf")
-      ggplot2::ggsave(filename = temp2, plot = promisedData[["p1_dim"]], width = width, height = height, units = "in", dpi = dpi, limitsize = FALSE)
+        temp2 <- tempfile(pattern = "CellDimPlot-", fileext = ".pdf")
+        ggplot2::ggsave(filename = temp2, plot = promisedData[["p1_dim"]], width = width, height = height, units = "in", dpi = dpi, limitsize = FALSE)
+      } else {
+        temp1 <- temp2 <- NULL
+      }
 
       if (!is.null(promisedData[["p1_3d"]])) {
         temp3 <- tempfile(pattern = "CellDimPlot3D-", fileext = ".html")
@@ -1773,9 +1753,10 @@ server <- function(input, output, session) {
     slots2 <- input$slots2
     features2 <- input$features2
     feature_area2 <- input$feature_area2
-    coExp2 <- input$coExp2
+    coExp2 <- as.logical(input$coExp2)
     scale2 <- input$scale2
-    raster2 <- input$raster2
+    raster2 <- as.logical(input$raster2)
+    dimension2 <- input$dimension2
     palette2 <- input$palette2
     theme2 <- input$theme2
     size2 <- input$size2
@@ -1812,27 +1793,29 @@ server <- function(input, output, session) {
 
         theme2 <- get(theme2, envir = asNamespace(themes[theme2]))
 
-        # print(">>> plot:")
-        # print(system.time(
-        p2_dim <- SCP::FeatureDimPlot(
-          srt = srt_tmp, features = features2, split.by = split2, reduction = reduction2, slot = "data", raster = raster2, pt.size = pt_size2,
-          calculate_coexp = coExp2, keep_scale = scale2, palette = palette2, theme_use = theme2,
-          ncol = ncol2, byrow = byrow2, force = TRUE
-        )
-        # ))
+        plot3d <- max(sapply(names(srt_tmp@reductions), function(r) dim(srt_tmp[[r]])[2])) >= 3 & dimension2 == "3D"
 
-        # print(">>> panel_fix:")
-        # print(system.time(
-        p2_dim <- SCP::panel_fix(SCP::slim_data(p2_dim), height = size2, units = "in", raster = panel_raster, BPPARAM = BPPARAM, verbose = FALSE)
-        # ))
-        attr(p2_dim, "dpi") <- 300
-        plot3d <- max(sapply(names(srt_tmp@reductions), function(r) dim(srt_tmp[[r]])[2])) >= 3
         if (isTRUE(plot3d)) {
+          p2_dim <- NULL
           p2_3d <- SCP::FeatureDimPlot3D(
             srt = srt_tmp, features = features2, reduction = reduction2, pt.size = pt_size2 * 2,
             calculate_coexp = coExp2, force = TRUE
           )
         } else {
+          # print(">>> plot:")
+          # print(system.time(
+          p2_dim <- SCP::FeatureDimPlot(
+            srt = srt_tmp, features = features2, split.by = split2, reduction = reduction2, slot = "data", raster = raster2, pt.size = pt_size2,
+            calculate_coexp = coExp2, keep_scale = scale2, palette = palette2, theme_use = theme2,
+            ncol = ncol2, byrow = byrow2, force = TRUE
+          )
+          # ))
+
+          # print(">>> panel_fix:")
+          # print(system.time(
+          p2_dim <- SCP::panel_fix(SCP::slim_data(p2_dim), height = size2, units = "in", raster = panel_raster, BPPARAM = BPPARAM, verbose = FALSE)
+          # ))
+          attr(p2_dim, "dpi") <- 300
           p2_3d <- NULL
         }
         return(list(p2_dim, p2_3d))
@@ -1843,26 +1826,72 @@ server <- function(input, output, session) {
     bindCache(
       input$dataset2, input$reduction2, input$split2, input$assays2, input$slots2,
       input$features2, input$feature_area2,
-      input$palette2, input$theme2, input$coExp2, input$scale2, input$raster2,
+      input$palette2, input$theme2, input$coExp2, input$scale2, input$raster2, input$dimension2,
       input$pt_size2, input$size2, input$ncol2, input$arrange2
     ) %>%
     bindEvent(input$submit2, ignoreNULL = FALSE, ignoreInit = FALSE)
+
+  observe({
+    prog <- Progress$new(min = 1, max = 10)
+    prog$set(value = 3, message = "Fetch data...", detail = "[Feature dimensional reduction plot]")
+    r2()$then(function(x) {
+      promisedData[["p2_dim"]] <- x[[1]]
+      promisedData[["p2_3d"]] <- x[[2]]
+      prog$set(value = 8, message = "Render plot...", detail = "[Feature dimensional reduction plot]")
+
+      if (!is.null(x[[1]])) {
+        width <- get_attr(x[[1]], "width")
+        height <- get_attr(x[[1]], "height")
+        dpi <- get_attr(x[[1]], "dpi")
+
+        # print("renderPlot:")
+        # print(system.time(
+        output$plot2 <- renderUI({
+          renderPlot(
+            {
+              x[[1]]
+            },
+            width = width * 96,
+            height = height * 96,
+            res = 96
+          )
+        })
+        # ))
+      }
+
+      if (!is.null(x[[2]])) {
+        # print("renderPlotly:")
+        # print(system.time(
+        output$plot2_3d <- plotly::renderPlotly({
+          x[[2]]
+        })
+        # ))
+      }
+    }) %>%
+      finally(~ {
+        prog$set(value = 10, message = "Done.", detail = "[Feature dimensional reduction plot]")
+        prog$close()
+      })
+  }) %>% bindEvent(input$submit2, ignoreNULL = FALSE, ignoreInit = FALSE)
 
   output$download2 <- downloadHandler(
     filename = function() {
       paste0("FeatureDimPlot-", format(Sys.time(), "%Y%m%d%H%M%S"), ".zip")
     },
     content = function(file) {
-      width <- get_attr(promisedData[["p2_dim"]], "width")
-      height <- get_attr(promisedData[["p2_dim"]], "height")
-      dpi <- get_attr(promisedData[["p2_dim"]], "dpi")
+      if (!is.null(promisedData[["p2_dim"]])) {
+        width <- get_attr(promisedData[["p2_dim"]], "width")
+        height <- get_attr(promisedData[["p2_dim"]], "height")
+        dpi <- get_attr(promisedData[["p2_dim"]], "dpi")
 
-      temp1 <- tempfile(pattern = "FeatureDimPlot-", fileext = ".png")
-      ggplot2::ggsave(filename = temp1, plot = promisedData[["p2_dim"]], width = width, height = height, units = "in", dpi = dpi, limitsize = FALSE)
+        temp1 <- tempfile(pattern = "FeatureDimPlot-", fileext = ".png")
+        ggplot2::ggsave(filename = temp1, plot = promisedData[["p2_dim"]], width = width, height = height, units = "in", dpi = dpi, limitsize = FALSE)
 
-      temp2 <- tempfile(pattern = "FeatureDimPlot-", fileext = ".pdf")
-      ggplot2::ggsave(filename = temp2, plot = promisedData[["p2_dim"]], width = width, height = height, units = "in", dpi = dpi, limitsize = FALSE)
-
+        temp2 <- tempfile(pattern = "FeatureDimPlot-", fileext = ".pdf")
+        ggplot2::ggsave(filename = temp2, plot = promisedData[["p2_dim"]], width = width, height = height, units = "in", dpi = dpi, limitsize = FALSE)
+      } else {
+        temp1 <- temp2 <- NULL
+      }
       if (!is.null(promisedData[["p2_3d"]])) {
         temp3 <- tempfile(pattern = "FeatureDimPlot3D-", fileext = ".html")
         htmlwidgets::saveWidget(
@@ -1878,44 +1907,6 @@ server <- function(input, output, session) {
     },
     contentType = "application/zip"
   )
-
-  observe({
-    prog <- Progress$new(min = 1, max = 10)
-    prog$set(value = 3, message = "Fetch data...", detail = "[Feature dimensional reduction plot]")
-    r2()$then(function(x) {
-      promisedData[["p2_dim"]] <- x[[1]]
-      promisedData[["p2_3d"]] <- x[[2]]
-      width <- get_attr(x[[1]], "width")
-      height <- get_attr(x[[1]], "height")
-      dpi <- get_attr(x[[1]], "dpi")
-
-      prog$set(value = 8, message = "Render plot...", detail = "[Feature dimensional reduction plot]")
-      # print("renderPlot:")
-      # print(system.time(
-      output$plot2 <- renderUI({
-        renderPlot(
-          {
-            x[[1]]
-          },
-          width = width * 96,
-          height = height * 96,
-          res = 96
-        )
-      })
-      # ))
-
-      # print("renderPlotly:")
-      # print(system.time(
-      output$plot2_3d <- plotly::renderPlotly({
-        x[[2]]
-      })
-      # ))
-    }) %>%
-      finally(~ {
-        prog$set(value = 10, message = "Done.", detail = "[Feature dimensional reduction plot]")
-        prog$close()
-      })
-  }) %>% bindEvent(input$submit2, ignoreNULL = FALSE, ignoreInit = FALSE)
 
   # submit3  ----------------------------------------------------------------
   r3 <- reactive({
@@ -1936,8 +1927,8 @@ server <- function(input, output, session) {
     } else {
       split3 <- input$split3
     }
-    label3 <- input$label3
-    flip3 <- input$flip3
+    label3 <- as.logical(input$label3)
+    flip3 <- as.logical(input$flip3)
     palette3 <- input$palette3
     theme3 <- input$theme3
     labelsize3 <- input$labelsize3
@@ -2085,15 +2076,15 @@ server <- function(input, output, session) {
     feature_area4 <- input$feature_area4
     plotby4 <- input$plotby4
     fillby4 <- input$fillby4
-    coExp4 <- input$coExp4
-    stack4 <- input$stack4
-    flip4 <- input$flip4
-    addbox4 <- input$addbox4
-    addpoint4 <- input$addpoint4
-    addtrend4 <- input$addtrend4
+    coExp4 <- as.logical(input$coExp4)
+    stack4 <- as.logical(input$stack4)
+    flip4 <- as.logical(input$flip4)
+    addbox4 <- as.logical(input$addbox4)
+    addpoint4 <- as.logical(input$addpoint4)
+    addtrend4 <- as.logical(input$addtrend4)
     palette4 <- input$palette4
     theme4 <- input$theme4
-    sameylims4 <- input$sameylims4
+    sameylims4 <- as.logical(input$sameylims4)
     size4 <- input$size4
     ncol4 <- input$ncol4
     byrow4 <- input$arrange4
@@ -2237,7 +2228,7 @@ server <- function(input, output, session) {
 
   main_code <- readLines(textConnection(main_code))
   args <- mget(names(formals()))
-  args <- args[!names(args) %in% c("base_dir", "create_script", "style_script", "overwrite", "return_app")]
+  args <- args[!names(args) %in% c("base_dir", "create_script", "style_script", "overwrite")]
   args_code <- NULL
   for (varnm in names(args)) {
     args_code <- c(args_code, paste0(varnm, "=", deparse(args[[varnm]])))
@@ -2269,11 +2260,14 @@ server <- function(input, output, session) {
       BPPARAM = MulticoreParam(workers = plotting_workers)
     }",
     "page_theme <- bs_theme(bootswatch = 'zephyr')",
+    paste0("DataFile <- \"", DataFile_full, "\""),
+    paste0("MetaFile <- \"", MetaFile_full, "\""),
     main_code,
     "shinyApp(ui = ui, server = server)"
   )
   temp <- tempfile("SCExplorer")
   writeLines(app_code, temp)
+  source(temp)
   if (isTRUE(create_script)) {
     app_file <- paste0(base_dir, "/app.R")
     if (!file.exists(app_file) || isTRUE(overwrite)) {
@@ -2290,10 +2284,7 @@ server <- function(input, output, session) {
   }
   unlink(temp)
 
-  if (isTRUE(return_app)) {
-    app <- shiny::shinyAppDir(base_dir)
-    return(app)
-  } else {
-    return(invisible(NULL))
-  }
+  # app <- shiny::shinyAppFile(app_file)
+  app <- shiny::shinyApp(ui = ui, server = server)
+  return(app)
 }

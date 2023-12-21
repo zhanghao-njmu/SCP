@@ -829,19 +829,64 @@ unnest <- function(data, cols, keep_empty = FALSE) {
 #' @importFrom Matrix as.matrix
 #' @export
 as_matrix <- function(x) {
-  if (!inherits(matrix, "dgCMatrix")) {
+  if (!inherits(x, "dgCMatrix")) {
     return(as.matrix(x))
   } else {
     row_pos <- x@i
     col_pos <- findInterval(seq_along(x@x) - 1, x@p[-1])
-    out <- asMatrix(rp = row_pos, cp = col_pos, z = x@x, nrows = x@Dim[1], ncols = x@Dim[2])
+    out <- asMatrixC(rp = row_pos, cp = col_pos, z = x@x, nrows = x@Dim[1], ncols = x@Dim[2])
     attr(out, "dimnames") <- list(x@Dimnames[[1]], x@Dimnames[[2]])
     return(out)
   }
 }
 
+#' Merge Rows of a Matrix by Groupings
+#'
+#' MergeRows is a function that sum the values of rows based on specified groupings.
+#'
+#' @param x A matrix.
+#' @param groupings A vector specifying the groupings for merging rows.
+#' @useDynLib SCP
+#' @examples
+#' library(Matrix)
+#' ncells <- 3000
+#' nfeatures <- 1000
+#' expressed <- 500
+#' n <- ncells * expressed
+#' dimnames <- list(paste0("feature", seq_len(nfeatures)), paste0("cell", seq_len(ncells)))
+#'
+#' sparse <- sparseMatrix(
+#'   i = sample(seq_len(nfeatures), size = n, replace = TRUE),
+#'   j = sample(seq_len(ncells), size = n, replace = TRUE),
+#'   x = sample(1:10, size = n, replace = TRUE),
+#'   dimnames = dimnames
+#' )
+#' dup_index <- sample(seq_len(nfeatures), size = 50)
+#' rownames(sparse)[dup_index] <- paste0("duplicated", 1:10)
+#' table(rownames(sparse)[dup_index])
+#'
+#' dense <- matrix(
+#'   data = sample(1:10, size = nfeatures * ncells, replace = TRUE),
+#'   nrow = nfeatures, ncol = ncells,
+#'   dimnames = dimnames
+#' )
+#' dup_index <- sample(seq_len(nfeatures), size = 50)
+#' rownames(dense)[dup_index] <- paste0("duplicated", 1:10)
+#' table(rownames(dense)[dup_index])
+#'
+#' system.time(MergeRows(dense, rownames(dense)))
+#' system.time(MergeRows(sparse, rownames(sparse)))
+#' system.time(aggregate(dense, by = list(rownames(dense)), FUN = sum))
+#' @export
+MergeRows <- function(x, groupings) {
+  stopifnot(inherits(x, c("dgCMatrix", "matrix")))
+  out <- MergeRowsC(x, groupings)
+  colnames(out) <- colnames(x)
+  rownames(out) <- unique(groupings)
+  return(out)
+}
+
 #' Capitalizes the characters
-#' Making the first letter uppercase
 #'
 #' @examples
 #' x <- c("dna methylation", "rRNA processing", "post-Transcriptional gene silencing")

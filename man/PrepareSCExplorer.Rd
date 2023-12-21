@@ -7,8 +7,6 @@
 PrepareSCExplorer(
   object,
   base_dir = "SCExplorer",
-  DataFile = "Data.hdf5",
-  MetaFile = "Meta.hdf5",
   assays = "RNA",
   slots = c("counts", "data"),
   ignore_nlevel = 100,
@@ -22,10 +20,6 @@ PrepareSCExplorer(
 \item{object}{A Seurat object or a list of Seurat objects.}
 
 \item{base_dir}{The base directory where the SCExplorer hdf5 files will be written. Default is "SCExplorer".}
-
-\item{DataFile}{Path to the output data file. If not provided, the file will be named "Data.hdf5" in the current directory.}
-
-\item{MetaFile}{Path to the output meta file. If not provided, the file will be named "Meta.hdf5" in the current directory.}
 
 \item{assays}{Character vector specifying the assays to include in the data file. Default is "RNA".}
 

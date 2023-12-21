@@ -6,8 +6,6 @@
 \usage{
 RunSCExplorer(
   base_dir = "SCExplorer",
-  DataFile = "Data.hdf5",
-  MetaFile = "Meta.hdf5",
   title = "SCExplorer",
   initial_dataset = NULL,
   initial_reduction = NULL,
@@ -27,16 +25,11 @@ RunSCExplorer(
   plotting_workers = 8,
   create_script = TRUE,
   style_script = require("styler", quietly = TRUE),
-  overwrite = FALSE,
-  return_app = TRUE
+  overwrite = FALSE
 )
 }
 \arguments{
 \item{base_dir}{A string. The base directory of the SCExplorer app. Default is "SCExplorer".}
-
-\item{DataFile}{A string. The name of the HDF5 file that stores data matrices for each dataset. Default is "Data.hdf5".}
-
-\item{MetaFile}{A string. The name of the HDF5 file that stores metadata for each dataset. Default is "Meta.hdf5".}
 
 \item{title}{A string. The title of the SCExplorer app. Default is "SCExplorer".}
 
@@ -78,7 +71,9 @@ RunSCExplorer(
 
 \item{overwrite}{A logical. Whether to overwrite existing files. Default is FALSE.}
 
-\item{return_app}{A logical. Whether to return the SCExplorer app. Default is TRUE.}
+\item{DataFile}{A string. The name of the HDF5 file that stores data matrices for each dataset. Default is "Data.hdf5".}
+
+\item{MetaFile}{A string. The name of the HDF5 file that stores metadata for each dataset. Default is "Meta.hdf5".}
 }
 \description{
 RunSCExplorer

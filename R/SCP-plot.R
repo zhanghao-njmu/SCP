@@ -1359,7 +1359,7 @@ CellDimPlot <- function(srt, group.by, reduction = NULL, dims = c(1, 2), split.b
                         velocity_density = 1, velocity_smooth = 0.5, velocity_scale = 1, velocity_min_mass = 1, velocity_cutoff_perc = 5,
                         velocity_arrow_color = "black", velocity_arrow_angle = 20,
                         streamline_L = 5, streamline_minL = 1, streamline_res = 1, streamline_n = 15,
-                        streamline_width = c(0, 0.8), streamline_alpha = 1, streamline_color = NULL, streamline_palette = "RdYlBu", streamline_palcolor = NULL,
+                        streamline_width = c(0, 0.5), streamline_alpha = 1, streamline_color = NULL, streamline_palette = "RdYlBu", streamline_palcolor = NULL,
                         streamline_bg_color = "white", streamline_bg_stroke = 0.5,
                         hex = FALSE, hex.linewidth = 0.5, hex.count = TRUE, hex.bins = 50, hex.binwidth = NULL,
                         raster = NULL, raster.dpi = c(512, 512),
@@ -3644,6 +3644,8 @@ FeatureStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.b
     for (g in group.by) {
       plist_g <- plist[sapply(strsplit(names(plist), ":"), function(x) x[2]) == g]
       legend <- get_legend(plist_g[[1]])
+      title <- get_title(plist_g[[1]])
+      subtitle <- get_subtitle(plist_g[[1]])
       if (isTRUE(flip)) {
         lab <- textGrob(label = ifelse(is.null(ylab), "Expression", ylab), hjust = 0.5)
         plist_g <- lapply(seq_along(plist_g), FUN = function(i) {
@@ -3711,6 +3713,8 @@ FeatureStatPlot <- function(srt, stat.by, group.by = NULL, split.by = NULL, bg.b
         gtable <- add_grob(gtable, lab, "left", clip = "off")
         gtable <- add_grob(gtable, legend, legend.position)
       }
+      gtable <- add_grob(gtable, subtitle, "top", adjust = 0, clip = "off")
+      gtable <- add_grob(gtable, title, "top", adjust = 0, clip = "off")
       gtable <- gtable_add_padding(gtable, unit(c(1, 1, 1, 1), units = "cm"))
       plot <- wrap_plots(gtable)
       plist_stack[[g]] <- plot
@@ -11117,9 +11121,6 @@ DynamicHeatmap <- function(srt, lineages, features = NULL, use_fitted = FALSE, b
   if (isTRUE(raster_by_magick)) {
     check_R("magick")
   }
-  if (is.null(features)) {
-    stop("No feature provided.")
-  }
   if (is.list(features)) {
     if (!is.null(names(features))) {
       feature_split <- rep(names(features), sapply(features, length))
@@ -14816,20 +14817,30 @@ as_gtable <- function(plot, ...) {
   }
 }
 
-get_legend <- function(plot) {
+get_component <- function(plot, pattern) {
   plot <- as_gtable(plot)
   grob_names <- plot$layout$name
   grobs <- plot$grobs
-  grobIndex <- which(grepl("guide-box", grob_names))
+  grobIndex <- which(grepl(pattern, grob_names))
   grobIndex <- grobIndex[1]
   matched_grobs <- grobs[[grobIndex]]
   return(matched_grobs)
 }
+get_legend <- function(plot) {
+  get_component(plot, "guide-box")
+}
+get_title <- function(plot) {
+  get_component(plot, "^title")
+}
+get_subtitle <- function(plot) {
+  get_component(plot, "^subtitle")
+}
 
 #' @importFrom grid is.grob grobWidth grobHeight
 #' @importFrom gtable is.gtable gtable_add_rows gtable_add_cols gtable_add_grob
-add_grob <- function(gtable, grob, position = c("top", "bottom", "left", "right", "none"), space = NULL, clip = "on") {
+add_grob <- function(gtable, grob, position = c("top", "bottom", "left", "right", "none"), adjust = 0.5, space = NULL, clip = "on") {
   position <- match.arg(position)
+
   if (position == "none" || is.null(grob)) {
     return(gtable)
   }
@@ -14852,19 +14863,32 @@ add_grob <- function(gtable, grob, position = c("top", "bottom", "left", "right"
 
   if (position == "top") {
     gtable <- gtable_add_rows(gtable, space, 0)
-    gtable <- gtable_add_grob(gtable, grob, t = 1, l = mean(gtable$layout[grepl(pattern = "panel", x = gtable$layout$name), "l"]), clip = clip)
+    gtable <- gtable_add_grob(gtable, grob, t = 1, l = adjust_pos(gtable, direction = "horizontal", adjust = adjust), clip = clip)
   }
   if (position == "bottom") {
     gtable <- gtable_add_rows(gtable, space, -1)
-    gtable <- gtable_add_grob(gtable, grob, t = dim(gtable)[1], l = mean(gtable$layout[grepl(pattern = "panel", x = gtable$layout$name), "l"]), clip = clip)
+    gtable <- gtable_add_grob(gtable, grob, t = dim(gtable)[1], l = adjust_pos(gtable, direction = "horizontal", adjust = adjust), clip = clip)
   }
   if (position == "left") {
     gtable <- gtable_add_cols(gtable, space, 0)
-    gtable <- gtable_add_grob(gtable, grob, t = mean(gtable$layout[grep("panel", gtable$layout$name), "t"]), l = 1, clip = clip)
+    gtable <- gtable_add_grob(gtable, grob, t = adjust_pos(gtable, direction = "vertical", adjust = adjust), l = 1, clip = clip)
   }
   if (position == "right") {
     gtable <- gtable_add_cols(gtable, space, -1)
-    gtable <- gtable_add_grob(gtable, grob, t = mean(gtable$layout[grep("panel", gtable$layout$name), "t"]), l = dim(gtable)[2], clip = clip)
+    gtable <- gtable_add_grob(gtable, grob, t = adjust_pos(gtable, direction = "vertical", adjust = adjust), l = dim(gtable)[2], clip = clip)
   }
   return(gtable)
+}
+
+adjust_pos <- function(gtable, direction = c("horizontal", "vertical"), adjust = 0.5) {
+  direction <- match.arg(direction)
+  if (direction == "horizontal") {
+    hmax <- max(gtable$layout[grepl(pattern = "panel", x = gtable$layout$name), "l"])
+    hmin <- min(gtable$layout[grepl(pattern = "panel", x = gtable$layout$name), "l"])
+    return(hmin + adjust * (hmax - hmin))
+  } else {
+    vmax <- max(gtable$layout[grepl(pattern = "panel", x = gtable$layout$name), "t"])
+    vmin <- min(gtable$layout[grepl(pattern = "panel", x = gtable$layout$name), "t"])
+    return(vmin + adjust * (vmax - vmin))
+  }
 }

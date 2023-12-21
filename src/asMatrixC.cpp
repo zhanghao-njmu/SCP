@@ -2,7 +2,7 @@
 using namespace Rcpp;    
 
 // [[Rcpp::export]]    
-NumericMatrix asMatrix(NumericVector rp,
+NumericMatrix asMatrixC(NumericVector rp,
                        NumericVector cp,
                        NumericVector z,
                        int nrows,
