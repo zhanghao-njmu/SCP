@@ -436,7 +436,7 @@ RunKNNPredict <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
       match_prob <- do.call(rbind, lapply(match_freq, function(x) {
         x[level[!level %in% names(x)]] <- 0
         x <- x / sum(x)
-        return(x)
+        return(x[level])
       }))
       match_prob <- as_matrix(match_prob)
       rownames(match_prob) <- names(match_freq)

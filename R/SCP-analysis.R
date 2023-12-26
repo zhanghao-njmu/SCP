@@ -482,7 +482,7 @@ FindCorrelatedFeatures <- function(srt, feature, method = "ejaccard", assay = NU
   assay <- assay %||% DefaultAssay(srt)
   x <- as_matrix(t(FetchData(srt, feature)))
   y <- GetAssayData(srt, assay = assay, slot = slot)
-  out <- proxyC::simil(x = x, y = y, method = "ejaccard", use_nan = TRUE)
+  out <- proxyC::simil(x = x, y = y, method = method, use_nan = TRUE)
   out[is.na(out)] <- 0
   out <- sort(out[1, ], decreasing = T)
   return(out)
@@ -3996,6 +3996,8 @@ RunEnrichment <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_t
   results <- results[!sapply(results, is.null)]
   results <- results[intersect(c(nm, paste0(nm, "_sim")), names(results))]
   enrichment <- do.call(rbind, lapply(results, function(x) x@result))
+  enrichment[["Groups"]] <- factor(enrichment[["Groups"]], levels = levels(geneID_groups))
+  enrichment[["Database"]] <- factor(enrichment[["Database"]], levels = unique(enrichment[["Database"]]))
   rownames(enrichment) <- NULL
 
   time_end <- Sys.time()
@@ -4293,6 +4295,8 @@ RunGSEA <- function(srt = NULL, group_by = NULL, test.use = "wilcox", DE_thresho
   results <- results[!sapply(results, is.null)]
   results <- results[intersect(c(nm, paste0(nm, "_sim")), names(results))]
   enrichment <- do.call(rbind, lapply(results, function(x) x@result))
+  enrichment[["Groups"]] <- factor(enrichment[["Groups"]], levels = levels(geneID_groups))
+  enrichment[["Database"]] <- factor(enrichment[["Database"]], levels = unique(enrichment[["Database"]]))
   rownames(enrichment) <- NULL
 
   time_end <- Sys.time()

@@ -595,7 +595,7 @@ RunSCExplorer <- function(base_dir = "SCExplorer",
                           initial_raster = NULL,
                           session_workers = 2,
                           plotting_workers = 8,
-                          create_script = FALSE,
+                          create_script = TRUE,
                           style_script = require("styler", quietly = TRUE),
                           overwrite = FALSE) {
   check_R(c("rhdf5", "HDF5Array", "shiny@1.6.0", "ggplot2", "ragg", "htmlwidgets", "plotly", "bslib", "future", "promises", "BiocParallel"))
