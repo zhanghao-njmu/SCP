@@ -1,0 +1,295 @@
+---
+title: "Introduction to SCP: Single Cell Pipeline"
+author: "Hao Zhang"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Introduction to SCP: Single Cell Pipeline}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 7,
+  fig.height = 5,
+  warning = FALSE,
+  message = FALSE
+)
+```
+
+## Overview
+
+**SCP** (Single Cell Pipeline) is a comprehensive R package designed to facilitate end-to-end analysis and exploration of single-cell RNA-seq data. This vignette provides a quick introduction to the main features and workflows of SCP.
+
+### Key Features
+
+- **Quality Control**: Comprehensive cell and feature QC with multiple metrics
+- **Data Integration**: 15+ integration methods for batch correction
+- **Dimensionality Reduction**: Standard and advanced methods (PCA, UMAP, tSNE, etc.)
+- **Cell Annotation**: Automated cell type annotation with multiple algorithms
+- **Trajectory Analysis**: Pseudotime and lineage inference
+- **Rich Visualization**: 100+ plotting functions for comprehensive data exploration
+- **Python Integration**: Seamless integration with Python tools (scVelo, PAGA, etc.)
+
+## Installation
+
+```{r installation, eval=FALSE}
+# Install from GitHub
+if (!require("devtools")) install.packages("devtools")
+devtools::install_github("zhanghao-njmu/SCP")
+```
+
+## Quick Start
+
+### Loading the Package
+
+```{r load-package}
+library(SCP)
+library(Seurat)
+```
+
+### Example Data
+
+SCP includes several example datasets for demonstration:
+
+```{r load-data}
+# Load example pancreatic data
+data("pancreas_sub")
+
+# Examine the object
+pancreas_sub
+```
+
+This dataset contains `r ncol(pancreas_sub)` cells and `r nrow(pancreas_sub)` genes from mouse pancreatic endocrinogenesis.
+
+### Basic Workflow
+
+#### 1. Quality Control
+
+The first step in single-cell analysis is quality control:
+
+```{r qc, eval=FALSE}
+# Run cell QC
+pancreas_sub <- RunCellQC(
+  srt = pancreas_sub,
+  db_method = "scDblFinder",  # Doublet detection method
+  return_filtered = FALSE      # Return object with QC metrics
+)
+
+# Visualize QC metrics
+CellStatPlot(
+  srt = pancreas_sub,
+  stat.by = c("nFeature_RNA", "nCount_RNA", "percent_mito"),
+  group.by = "CellQC"
+)
+```
+
+#### 2. Data Normalization and Integration
+
+For datasets with multiple batches:
+
+```{r integration, eval=FALSE}
+# Standard workflow including normalization and integration
+pancreas_sub <- Standard_SCP(
+  srt = pancreas_sub,
+  batch = "tech",                    # Batch variable
+  integration_method = "Harmony",     # Integration method
+  normalization_method = "LogNormalize"
+)
+```
+
+#### 3. Dimensionality Reduction
+
+```{r dim-reduction, eval=FALSE}
+# Run multiple dimensionality reduction methods
+pancreas_sub <- RunDimReduction(
+  srt = pancreas_sub,
+  methods = c("PCA", "UMAP", "tSNE"),
+  dims = 1:30
+)
+```
+
+#### 4. Cell Type Annotation
+
+```{r annotation, eval=FALSE}
+# Automated cell type annotation
+pancreas_sub <- RunSingleR(
+  srt = pancreas_sub,
+  ref = "ref_scMCA",  # Reference dataset
+  species = "Mus_musculus"
+)
+```
+
+### Visualization
+
+SCP provides extensive visualization capabilities:
+
+#### Dimension Plots
+
+```{r dim-plot, eval=FALSE}
+# Cell dimension plot colored by cell type
+CellDimPlot(
+  srt = pancreas_sub,
+  group.by = "celltype",
+  reduction = "UMAP",
+  theme_use = "theme_scp"
+)
+```
+
+#### Feature Plots
+
+```{r feature-plot, eval=FALSE}
+# Expression of specific genes
+FeatureDimPlot(
+  srt = pancreas_sub,
+  features = c("Ins1", "Gcg", "Sst"),
+  reduction = "UMAP",
+  theme_use = "theme_scp"
+)
+```
+
+#### Heatmaps
+
+```{r heatmap, eval=FALSE}
+# Group heatmap showing marker genes
+GroupHeatmap(
+  srt = pancreas_sub,
+  features = c("Ins1", "Gcg", "Sst", "Ppy"),
+  group.by = "celltype",
+  show_row_names = TRUE
+)
+```
+
+### Differential Expression Analysis
+
+```{r de-analysis, eval=FALSE}
+# Find markers between cell types
+markers <- RunDEtest(
+  srt = pancreas_sub,
+  group_by = "celltype",
+  fc.threshold = 1.5,
+  only.pos = TRUE
+)
+
+# Visualize with volcano plot
+VolcanoPlot(
+  srt = pancreas_sub,
+  de_result = markers,
+  group_by = "celltype"
+)
+```
+
+### Enrichment Analysis
+
+```{r enrichment, eval=FALSE}
+# Run enrichment analysis on marker genes
+enrichment <- RunEnrichment(
+  srt = pancreas_sub,
+  db = "GO_BP",
+  species = "Mus_musculus"
+)
+
+# Visualize results
+EnrichmentPlot(
+  enrichment_result = enrichment,
+  plot_type = "bar"
+)
+```
+
+## Advanced Features
+
+### Trajectory Analysis
+
+```{r trajectory, eval=FALSE}
+# Trajectory inference with Monocle3
+pancreas_sub <- RunMonocle3(
+  srt = pancreas_sub,
+  group.by = "celltype"
+)
+
+# Visualize lineage
+LineagePlot(
+  srt = pancreas_sub,
+  reduction = "UMAP"
+)
+```
+
+### Python Integration
+
+```{r python-integration, eval=FALSE}
+# Prepare Python environment
+PrepareEnv(version = "3.8-1")
+
+# Run RNA velocity with scVelo
+pancreas_sub <- RunSCVELO(
+  srt = pancreas_sub,
+  group_by = "celltype"
+)
+
+# Visualize velocity
+VelocityPlot(
+  srt = pancreas_sub,
+  reduction = "UMAP"
+)
+```
+
+### Interactive Exploration
+
+```{r interactive, eval=FALSE}
+# Launch interactive Shiny app
+RunSCExplorer(
+  srt = pancreas_sub,
+  browser = TRUE
+)
+```
+
+## Integration Methods
+
+SCP supports multiple integration methods:
+
+- Harmony
+- Seurat (CCA/RPCA)
+- fastMNN
+- scVI
+- LIGER
+- ComBat
+- BBKNN
+- Scanorama
+- MNN
+- CSS
+- And more...
+
+```{r integration-comparison, eval=FALSE}
+# Compare different integration methods
+pancreas_integrated <- Integration_SCP(
+  srtMerge = pancreas_sub,
+  batch = "tech",
+  integration_method = c("Harmony", "Seurat", "fastMNN")
+)
+```
+
+## Session Info
+
+```{r session-info}
+sessionInfo()
+```
+
+## Further Reading
+
+- [Package website](https://zhanghao-njmu.github.io/SCP/)
+- [GitHub repository](https://github.com/zhanghao-njmu/SCP)
+- Function documentation: `?FunctionName`
+
+For specific analysis workflows, please refer to the function documentation and examples.
+
+## Citation
+
+If you use SCP in your research, please cite:
+
+```
+Zhang, H. (2024). SCP: Single Cell Pipeline. R package version 0.5.6.
+https://github.com/zhanghao-njmu/SCP
+```
