@@ -544,6 +544,6 @@ if (interactive()) {
 
 ### Other visualization examples
 
-[**CellDimPlot**](https://zhanghao-njmu.github.io/SCP/reference/CellDimPlot.html)![Example1](man/figures/Example-1.jpg) [**CellStatPlot**](https://zhanghao-njmu.github.io/SCP/reference/CellStatPlot.html)![Example2](man/figures/Example-2.jpg) [**FeatureStatPlot**](https://zhanghao-njmu.github.io/SCP/reference/FeatureStatPlot.html)![Example3](man/figures/Example-3.jpg) [**GroupHeatmap**](https://zhanghao-njmu.github.io/SCP/reference/GroupHeatmap.html)![Example3](man/figures/Example-4.jpg)
+[**CellDimPlot**](https://zhanghao-njmu.github.io/SCP/reference/CellDimPlot.html)![Example1](man/figures/Example-1.jpg) [**CellStatPlot**](https://zhanghao-njmu.github.io/SCP/reference/CellStatPlot.html)![Example2](man/figures/Example-2.jpg) [**FeatureStatPlot**](https://zhanghao-njmu.github.io/SCP/reference/FeatureStatPlot.html)![Example3](man/figures/Example-3.jpg) [**GroupHeatmap**](https://zhanghao-njmu.github.io/SCP/reference/GroupHeatmap.html)![Example4](man/figures/Example-4.jpg)
 
 You can also find more examples in the documentation of the function: [Integration_SCP](https://zhanghao-njmu.github.io/SCP/reference/Integration_SCP.html), [RunKNNMap](https://zhanghao-njmu.github.io/SCP/reference/RunKNNMap.html), [RunMonocle3](https://zhanghao-njmu.github.io/SCP/reference/RunMonocle3.html), [RunPalantir](https://zhanghao-njmu.github.io/SCP/reference/RunPalantir.html), etc.

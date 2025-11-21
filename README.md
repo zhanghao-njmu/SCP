@@ -673,7 +673,7 @@ if (interactive()) {
 [**CellDimPlot**](https://zhanghao-njmu.github.io/SCP/reference/CellDimPlot.html)![Example1](man/figures/Example-1.jpg)
 [**CellStatPlot**](https://zhanghao-njmu.github.io/SCP/reference/CellStatPlot.html)![Example2](man/figures/Example-2.jpg)
 [**FeatureStatPlot**](https://zhanghao-njmu.github.io/SCP/reference/FeatureStatPlot.html)![Example3](man/figures/Example-3.jpg)
-[**GroupHeatmap**](https://zhanghao-njmu.github.io/SCP/reference/GroupHeatmap.html)![Example3](man/figures/Example-4.jpg)
+[**GroupHeatmap**](https://zhanghao-njmu.github.io/SCP/reference/GroupHeatmap.html)![Example4](man/figures/Example-4.jpg)
 
 You can also find more examples in the documentation of the function:
 [Integration_SCP](https://zhanghao-njmu.github.io/SCP/reference/Integration_SCP.html),
