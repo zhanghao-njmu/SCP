@@ -2,10 +2,10 @@
 
 ## Overview
 
-**Test Files**: 20
-**Total Test Lines**: 2,735
-**Test Cases**: 191
-**Estimated Coverage**: 40-50%
+**Test Files**: 25
+**Total Test Lines**: 4,104
+**Test Cases**: 244
+**Estimated Coverage**: 60-70%
 
 ## Test Files Summary
 
@@ -28,6 +28,7 @@
 
 ### 5. Workflow Functions
 - `test-workflow-functions.R` - Standard workflows (10 tests)
+- `test-workflow-utils.R` - Workflow utilities (9 tests) **NEW**
 
 ### 6. Dimensionality Reduction
 - `test-dimensionality-reduction.R` - Various DR methods (13 tests)
@@ -46,6 +47,10 @@
 - `test-plotting-core.R` - Main plotting functions (18 tests)
 - `test-sankey-alluvial.R` - Sankey/Alluvial plots (13 tests)
 - `test-gene-conversion.R` - Gene utilities (10 tests)
+- `test-stats-enhanced.R` - Statistical plots enhanced (10 tests) **NEW**
+- `test-volcano-projection.R` - Volcano and projection plots (10 tests) **NEW**
+- `test-heatmaps-enhanced.R` - Heatmap functions enhanced (12 tests) **NEW**
+- `test-panel-dimred-enhanced.R` - Panel and DimPlot enhanced (12 tests) **NEW**
 
 ### 11. Trajectory Analysis
 - `test-trajectory-functions.R` - Trajectory inference (13 tests)
