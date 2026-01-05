@@ -470,16 +470,16 @@ RunKNNPredict <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
   } else {
     query_index <- colnames(srt_query)
   }
-  srt_query[[paste0(prefix, "_classification")]] <- match_best[query_index]
+  srt_query@meta.data[[paste0(prefix, "_classification")]] <- match_best[query_index]
   if (!is.null(match_prob)) {
-    srt_query[[paste0(prefix, "_prob")]] <- apply(match_prob, 1, max)[query_index]
+    srt_query@meta.data[[paste0(prefix, "_prob")]] <- apply(match_prob, 1, max)[query_index]
   } else {
     distance <- match_k_distance[, 1]
     # srt_query[[paste0(prefix, "_score")]] <- ((max(distance) - distance) / diff(range(distance)))[query_index]
     if (distance_metric %in% c(simil_method, "pearson", "spearman")) {
-      srt_query[[paste0(prefix, "_simil")]] <- (1 - distance)[query_index]
+      srt_query@meta.data[[paste0(prefix, "_simil")]] <- (1 - distance)[query_index]
     } else {
-      srt_query[[paste0(prefix, "_dist")]] <- distance[query_index]
+      srt_query@meta.data[[paste0(prefix, "_dist")]] <- distance[query_index]
     }
   }
 
